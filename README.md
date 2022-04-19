@@ -11,7 +11,10 @@
 + Structural placement depends on _topology,_ not hard-coded positions
   + Positional constraints are derived from topology + viewstate
 + Soft references
-  + Destructure on a per-message basis and interpolate: `$otA` to append field `A` to name
+  + Destructure on a per-message basis and interpolate: `ot$A` to select an `ot` component by field `A` (implicit content-driven multiplexing)
++ _τ_ closures
+  + `τ[...]`
+  + `τA` to create dynamic equivalence groups
 
 
 ## Representation
