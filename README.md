@@ -12,6 +12,8 @@ Cyclic dataflow processing.
   + `τA` to create dynamic equivalence groups
   + **NOTE:** τ is forward-only
 
+**NOTE:** **data structures are multiplexers** -- or more precisely, container structures use multiplexers to address specific values.
+
 
 ## v2 features
 + 2D/3D design environment with keystroke lensed cursors
