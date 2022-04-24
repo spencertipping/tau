@@ -10,9 +10,14 @@ Cyclic dataflow processing.
 + _τ_ closures
   + `τ[...]`
   + `τA` to create dynamic equivalence groups
-  + **NOTE:** τ is forward-only
+  + **NOTE:** _τ_ is unidirectional
++ Concise field refs
+  + `ni`-style brevity: fields are one or two characters long, always uppercase?
+  + Field names are expression components
 
 **NOTE:** **data structures are multiplexers** -- or more precisely, container structures use multiplexers to address specific values.
+
+**Q:** if struct == mux, then how are we not just designing OOP again but with some type of combinatory method routing? (It's different because we split calls from returns, which is a big deal.)
 
 
 ## v2 features
