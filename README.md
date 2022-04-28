@@ -10,4 +10,6 @@ Multithreaded native processes will have one IO-boundary process and all others 
 
 **Q:** what type of GC is appropriate?
 
-**Q:** what are our bytecode primitives? (vectorized of course)
+**Q:** what is our core execution bytecode?
+
+**NOTE:** both execution and pipeline sections can be parsed with PEGs
