@@ -9,3 +9,5 @@ Main components:
 Multithreaded native processes will have one IO-boundary process and all others will be simple workers using utf9 messaging within shared memory to communicate.
 
 **Q:** what type of GC is appropriate?
+
+**Q:** what are our bytecode primitives? (vectorized of course)
