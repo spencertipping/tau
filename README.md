@@ -13,3 +13,17 @@ Multithreaded native processes will have one IO-boundary process and all others 
 **Q:** what is our core execution bytecode?
 
 **NOTE:** both execution and pipeline sections can be parsed with PEGs
+
+
+## Bytecode
+Is just stream operations, like `ni` but encoded as virtual tasks (C++ classes) with virtual stream objects. Stream objects produce and consume _frames,_ which can be one or more records each. If multiple, batching applies.
+
+
+## Stream negotiation and partial IO
+Streams should have some size preference about the messages they produce and accept. I imagine this should be global and based on the cache.
+
+This matters because we may have bulk-consumers that do vectorized operations; if so, then we risk transposing the execution order if we force strict evaluation. This means we need to have our bulk executors produce and consume _streams,_ not buffers, making them interruptible. It's streaming all the way down.
+
+
+## Resumable streams vs programs
+I think resumable streams _are_ programs, right? We want single-record granularity on the output side, so can we have vectorized operators? (Sure, if they buffer their outputs -- which will be reasonable if output size is a small constant factor of input size.)
