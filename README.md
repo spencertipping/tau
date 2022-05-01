@@ -31,7 +31,3 @@ Streams should have some size preference about the messages they produce and acc
 This matters because we may have bulk-consumers that do vectorized operations; if so, then we risk transposing the execution order if we force strict evaluation. This means we need to have our bulk executors produce and consume _streams,_ not buffers, making them interruptible. It's streaming all the way down.
 
 **NOTE:** auto-vectorization is unnecessary. We can use APL-style array embedding to get implicit per-op broadcast, and we can gather row groups up if we want buffered vectorization.
-
-
-## Resumable streams vs programs
-I think resumable streams _are_ programs, right? We want single-record granularity on the output side, so can we have vectorized operators? (Sure, if they buffer their outputs -- which will be reasonable if output size is a small constant factor of input size.)
