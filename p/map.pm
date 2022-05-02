@@ -70,3 +70,18 @@ sub next
     $y += $dy;
   }
 }
+
+
+sub sub
+{
+  my ($self, $x, $y, $news, $n) = @_;
+  my ($dx, $dy) = @{news->{$news}};
+  my $s = '';
+  for (1..$n)
+  {
+    $s .= chr $self->at($x, $y);
+    $x += $dx;
+    $y += $dy;
+  }
+  $s;
+}

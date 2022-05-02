@@ -77,23 +77,67 @@ sub next
 }
 
 
-sub word
+sub sub
 {
-  my ($self, $x, $y, $news) = @_;
+  my ($self, $x, $y, $news, $n) = @_;
   my ($dx, $dy) = @{news->{$news}};
-  my ($mx, $my) = $self->bounds;
-  my $w = '';
-
-  while (1)
+  my $s = '';
+  for (1..$n)
   {
-    my $c = $self->at($x, $y);
-    return ($x, $y, $w) unless defined $c && $c != 32;
-    $w .= chr $c;
+    $s .= chr $self->at($x, $y);
     $x += $dx;
     $y += $dy;
   }
+  $s;
 }
 package tau::peg2;
+
+
+sub all
+{
+  my @ps = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    defined(@r = $_->($m, $x, $y)) || return undef for @ps;
+    @r;
+  };
+}
+
+
+sub any
+{
+  my @ps = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    defined(@r = $_->($m, $x, $y)) && return @r for @ps;
+    undef;
+  };
+}
+
+
+sub k
+{
+  my ($s, $news) = @_;
+  my $n = length $s;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my ($dx, $dy) = @{tau::map::news->{$news}};
+    $m->sub($x, $y, $n) eq $s
+        ? ($x + $dx * $n, $y + $dy * $n, $s)
+        : undef;
+  };
+}
+
+
+sub re
+{
+
+}
 package tau::compile;
 
 
@@ -104,5 +148,4 @@ sub main
   printf "%d\n",         $map->n;
   printf "%d, %d, %s\n", $map->next(0, 0, 's');
   printf "%d, %d, %s\n", $map->next(0, 2, 'e');
-  printf "%d, %d, %s\n", $map->word(2, 2, 'e');
 }
