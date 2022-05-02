@@ -70,3 +70,21 @@ sub next
     $y += $dy;
   }
 }
+
+
+sub word
+{
+  my ($self, $x, $y, $news) = @_;
+  my ($dx, $dy) = @{news->{$news}};
+  my ($mx, $my) = $self->bounds;
+  my $w = '';
+
+  while (1)
+  {
+    my $c = $self->at($x, $y);
+    return ($x, $y, $w) unless defined $c && $c != 32;
+    $w .= chr $c;
+    $x += $dx;
+    $y += $dy;
+  }
+}

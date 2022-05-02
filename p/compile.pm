@@ -8,4 +8,5 @@ sub main
   printf "%d\n",         $map->n;
   printf "%d, %d, %s\n", $map->next(0, 0, 's');
   printf "%d, %d, %s\n", $map->next(0, 2, 'e');
+  printf "%d, %d, %s\n", $map->word(2, 2, 'e');
 }
