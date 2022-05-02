@@ -22,7 +22,9 @@ sub new
   my $y  = 0;
   my $mx = 0;
 
-  while (defined(my $l = <openhandle $f>))
+  open my $fh, "<", $f or die "open < $f: $!";
+
+  while (defined(my $l = <$fh>))
   {
     chomp $l;
     $l = decode 'UTF-8', $l;
@@ -43,6 +45,19 @@ sub bounds { @{+shift}{qw/mx my/} }
 sub at     { ${+shift}{pack LL => @_} }
 
 
+sub str
+{
+  my $self = shift;
+  my ($mx, $my) = $self->bounds;
+  my @ls;
+  for my $y (0..$my)
+  {
+    push @ls, join"", map chr, grep defined, map $self->at($_, $y), 0..$mx;
+  }
+  join"\n", @ls;
+}
+
+
 sub next
 {
   my ($self, $x, $y, $news) = @_;
@@ -55,7 +70,7 @@ sub next
   while ($x >= 0 && $x <= $mx && $y >= 0 && $y <= $my)
   {
     my $c = $self->at($x, $y);
-    return ($x, $y) if defined $c && $c != 32;
+    return ($x, $y, chr $c) if defined $c && $c != 32;
     $x += $dx;
     $y += $dy;
   }
@@ -68,7 +83,7 @@ sub main
 {
   my ($source) = @_;
   my $map = tau::map->new($source);
-  printf "%d\n",     $map->n;
-  printf "%d, %d\n", $map->next(0, 0, 's');
-  printf "0, 1 = %s\n", chr $map->at(0, 1);
+  printf "%d\n",         $map->n;
+  printf "%d, %d, %s\n", $map->next(0, 0, 's');
+  printf "%d, %d, %s\n", $map->next(0, 2, 'e');
 }

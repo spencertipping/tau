@@ -17,7 +17,9 @@ sub new
   my $y  = 0;
   my $mx = 0;
 
-  while (defined(my $l = <openhandle $f>))
+  open my $fh, "<", $f or die "open < $f: $!";
+
+  while (defined(my $l = <$fh>))
   {
     chomp $l;
     $l = decode 'UTF-8', $l;
@@ -38,6 +40,19 @@ sub bounds { @{+shift}{qw/mx my/} }
 sub at     { ${+shift}{pack LL => @_} }
 
 
+sub str
+{
+  my $self = shift;
+  my ($mx, $my) = $self->bounds;
+  my @ls;
+  for my $y (0..$my)
+  {
+    push @ls, join"", map chr, grep defined, map $self->at($_, $y), 0..$mx;
+  }
+  join"\n", @ls;
+}
+
+
 sub next
 {
   my ($self, $x, $y, $news) = @_;
@@ -50,7 +65,7 @@ sub next
   while ($x >= 0 && $x <= $mx && $y >= 0 && $y <= $my)
   {
     my $c = $self->at($x, $y);
-    return ($x, $y) if defined $c && $c != 32;
+    return ($x, $y, chr $c) if defined $c && $c != 32;
     $x += $dx;
     $y += $dy;
   }
