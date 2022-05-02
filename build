@@ -1,0 +1,16 @@
+#!/bin/bash
+# Build the tau compiler by concatenating pieces.
+
+set -euo pipefail
+cd "$(dirname "$0")"
+
+rm -f tau
+
+{
+  cat p/head
+  cat p/map.pm
+  cat p/peg2.pm
+  cat p/compile.pm
+} > tau
+
+chmod 0555 tau
