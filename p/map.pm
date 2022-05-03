@@ -16,7 +16,7 @@ sub news
   my ($x, $y) = (0, 0);
   for (split //, $s)
   {
-    my ($dx, $dy) = news_vectors->{$_};
+    my ($dx, $dy) = @{news_vectors->{$_}};
     $x += $dx;
     $y += $dy;
   }
@@ -100,10 +100,10 @@ sub next
 
 sub sub
 {
-  my ($self, $x, $y, $news, $n) = @_;
+  my ($self, $x, $y, $news, $n) = (@_, 0);
   my ($dx, $dy) = news $news;
   my $s = '';
-  for (1..$n)
+  while ($self->has($x, $y) and !$n || length $s < $n)
   {
     $s .= chr $self->at($x, $y);
     $x += $dx;

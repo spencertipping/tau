@@ -4,13 +4,20 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+
+pm() {
+  echo "#line 1 \"tau::$1\""
+  cat $1
+}
+
+
 rm -f tau
 
 {
   cat p/head
-  cat p/map.pm
-  cat p/peg2.pm
-  cat p/compile.pm
+  pm p/map.pm
+  pm p/peg2.pm
+  pm p/compile.pm
 } > tau
 
 chmod 0555 tau

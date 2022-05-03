@@ -1,5 +1,7 @@
 package tau::peg2;
 
+use List::Util qw/max/;
+
 
 sub all
 {
@@ -8,7 +10,7 @@ sub all
   {
     my ($m, $x, $y) = @_;
     my @r;
-    defined(@r = $_->($m, $x, $y)) || return undef for @ps;
+    defined(@r = &$_($m, $x, $y)) || return undef for @ps;
     @r;
   };
 }
@@ -21,8 +23,28 @@ sub any
   {
     my ($m, $x, $y) = @_;
     my @r;
-    defined(@r = $_->($m, $x, $y)) && return @r for @ps;
+    defined(@r = &$_($m, $x, $y)) && return @r for @ps;
     undef;
+  };
+}
+
+
+sub multir(\%)
+{
+  my ($ps) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my ($rx, $ry, @rv, %rc, %rv);
+    while (my ($k, $p) = each %$ps)
+    {
+      if (defined(($rx, $ry, @rv) = &$p($m, $x, $y)))
+      {
+        $rv{$k} = [@rv];
+        $rc{$k} = [$rx, $ry];
+      }
+    }
+    (\%rc, \%rv);
   };
 }
 
@@ -34,10 +56,16 @@ sub dspr(\%$)
   sub
   {
     my ($m, $x, $y) = @_;
-    for my $k (sort {length $b <=> length $a} keys %$ps)
+    my $ml = max map length, keys %$ps;
+    my ($p, $rx, $ry, @rv);
+    for my $l (map $ml - $_, 0..$ml-1)
     {
-      # TODO
+      my $k = $m->sub($x, $y, $news, $l);
+      return ($rx, $ry, $k, @rv)
+          if defined($p = $$ps{$k})
+          && defined(($rx, $ry, @rv) = &$p($m, $x + $l*$dx, $y + $l*$dy));
     }
+    undef;
   };
 }
 
@@ -108,6 +136,30 @@ sub bow    # beginning of word
 }
 
 
+sub seek
+{
+  my ($news) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    defined(@r = $m->next($x, $y, $news)) ? @r : undef;
+  };
+}
+
+
+sub is
+{
+  my ($c) = @_;
+  $c = ord $c if $c !~ /^\d+$/;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    $m->at($x, $y) == $c ? ($x, $y) : undef;
+  };
+}
+
+
 sub pmap(&$)
 {
   my ($f, $p) = @_;
@@ -145,5 +197,20 @@ sub pflatmap(&$)
     my $p2;
     return undef unless defined($p2 = &$f($m, $x, $y, @r));
     &$p2($m, $x, $y);
+  };
+}
+
+
+sub re
+{
+  my ($re, $news) = @_;
+  my ($dx, $dy) = news $news;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my $s = $m->sub($x, $y, $news);
+    $s =~ s/^($re)//
+        ? ($x + $dx * length $1, $y + $dy * length $1, @{^CAPTURE})
+        : undef;
   };
 }

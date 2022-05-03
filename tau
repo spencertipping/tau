@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 exit tau::compile::main(@ARGV);
+#line 1 "tau::p/map.pm"
 package tau::map;
 
 use Encode       qw/decode/;
@@ -21,7 +22,7 @@ sub news
   my ($x, $y) = (0, 0);
   for (split //, $s)
   {
-    my ($dx, $dy) = news_vectors->{$_};
+    my ($dx, $dy) = @{news_vectors->{$_}};
     $x += $dx;
     $y += $dy;
   }
@@ -105,10 +106,10 @@ sub next
 
 sub sub
 {
-  my ($self, $x, $y, $news, $n) = @_;
+  my ($self, $x, $y, $news, $n) = (@_, 0);
   my ($dx, $dy) = news $news;
   my $s = '';
-  for (1..$n)
+  while ($self->has($x, $y) and !$n || length $s < $n)
   {
     $s .= chr $self->at($x, $y);
     $x += $dx;
@@ -116,7 +117,10 @@ sub sub
   }
   $s;
 }
+#line 1 "tau::p/peg2.pm"
 package tau::peg2;
+
+use List::Util qw/max/;
 
 
 sub all
@@ -126,7 +130,7 @@ sub all
   {
     my ($m, $x, $y) = @_;
     my @r;
-    defined(@r = $_->($m, $x, $y)) || return undef for @ps;
+    defined(@r = &$_($m, $x, $y)) || return undef for @ps;
     @r;
   };
 }
@@ -139,8 +143,28 @@ sub any
   {
     my ($m, $x, $y) = @_;
     my @r;
-    defined(@r = $_->($m, $x, $y)) && return @r for @ps;
+    defined(@r = &$_($m, $x, $y)) && return @r for @ps;
     undef;
+  };
+}
+
+
+sub multir(\%)
+{
+  my ($ps) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my ($rx, $ry, @rv, %rc, %rv);
+    while (my ($k, $p) = each %$ps)
+    {
+      if (defined(($rx, $ry, @rv) = &$p($m, $x, $y)))
+      {
+        $rv{$k} = [@rv];
+        $rc{$k} = [$rx, $ry];
+      }
+    }
+    (\%rc, \%rv);
   };
 }
 
@@ -152,10 +176,16 @@ sub dspr(\%$)
   sub
   {
     my ($m, $x, $y) = @_;
-    for my $k (sort {length $b <=> length $a} keys %$ps)
+    my $ml = max map length, keys %$ps;
+    my ($p, $rx, $ry, @rv);
+    for my $l (map $ml - $_, 0..$ml-1)
     {
-      # TODO
+      my $k = $m->sub($x, $y, $news, $l);
+      return ($rx, $ry, $k, @rv)
+          if defined($p = $$ps{$k})
+          && defined(($rx, $ry, @rv) = &$p($m, $x + $l*$dx, $y + $l*$dy));
     }
+    undef;
   };
 }
 
@@ -226,6 +256,30 @@ sub bow    # beginning of word
 }
 
 
+sub seek
+{
+  my ($news) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    defined(@r = $m->next($x, $y, $news)) ? @r : undef;
+  };
+}
+
+
+sub is
+{
+  my ($c) = @_;
+  $c = ord $c if $c !~ /^\d+$/;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    $m->at($x, $y) == $c ? ($x, $y) : undef;
+  };
+}
+
+
 sub pmap(&$)
 {
   my ($f, $p) = @_;
@@ -265,6 +319,22 @@ sub pflatmap(&$)
     &$p2($m, $x, $y);
   };
 }
+
+
+sub re
+{
+  my ($re, $news) = @_;
+  my ($dx, $dy) = news $news;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my $s = $m->sub($x, $y, $news);
+    $s =~ s/^($re)//
+        ? ($x + $dx * length $1, $y + $dy * length $1, @{^CAPTURE})
+        : undef;
+  };
+}
+#line 1 "tau::p/compile.pm"
 package tau::compile;
 
 
@@ -272,7 +342,6 @@ sub main
 {
   my ($source) = @_;
   my $map = tau::map->new($source);
-  printf "%d\n",         $map->n;
-  printf "%d, %d, %s\n", $map->next(0, 0, 's');
-  printf "%d, %d, %s\n", $map->next(0, 2, 'e');
+  printf "%d\n", $map->n;
+
 }
