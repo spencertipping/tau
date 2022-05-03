@@ -9,10 +9,24 @@ use Encode       qw/decode/;
 use List::Util   qw/max/;
 use Scalar::Util qw/openhandle/;
 
-use constant news => {n => [ 0, -1],
-                      e => [ 1,  0],
-                      w => [-1,  0],
-                      s => [ 0,  1]};
+use constant news_vectors => {n => [ 0, -1],
+                              e => [ 1,  0],
+                              w => [-1,  0],
+                              s => [ 0,  1]};
+
+
+sub news
+{
+  my ($s)     = @_;
+  my ($x, $y) = (0, 0);
+  for (split //, $s)
+  {
+    my ($dx, $dy) = news_vectors->{$_};
+    $x += $dx;
+    $y += $dy;
+  }
+  ($x, $y);
+}
 
 
 sub new
@@ -36,6 +50,8 @@ sub new
   $m{mx} = $mx;
   $m{my} = $y - 1;
 
+  # Fill voids with spaces so strings will be populated regardless of
+  # whitespace formatting
   for my $x (0..$m{mx}) { $m{pack LL => $x, $_} //= 32 for 0..$m{my} }
 
   bless \%m, $class;
@@ -71,7 +87,7 @@ sub str
 sub next
 {
   my ($self, $x, $y, $news) = @_;
-  my ($dx, $dy) = @{news->{$news}};
+  my ($dx, $dy) = news $news;
   my ($mx, $my) = $self->bounds;
 
   $x += $dx;
@@ -90,7 +106,7 @@ sub next
 sub sub
 {
   my ($self, $x, $y, $news, $n) = @_;
-  my ($dx, $dy) = @{news->{$news}};
+  my ($dx, $dy) = news $news;
   my $s = '';
   for (1..$n)
   {
@@ -129,14 +145,29 @@ sub any
 }
 
 
-sub k
+sub dspr(\%$)
 {
-  my ($s, $news) = @_;
-  my $n = length $s;
+  my ($ps, $news) = @_;
+  my ($dx, $dy) = tau::map::news $news;
   sub
   {
     my ($m, $x, $y) = @_;
-    my ($dx, $dy) = @{tau::map::news->{$news}};
+    for my $k (sort {length $b <=> length $a} keys %$ps)
+    {
+      # TODO
+    }
+  };
+}
+
+
+sub k
+{
+  my ($s, $news) = @_;
+  my ($dx, $dy)  = tau::map::news $news;
+  my $n          = length $s;
+  sub
+  {
+    my ($m, $x, $y) = @_;
     $m->sub($x, $y, $n) eq $s
         ? ($x + $dx * $n, $y + $dy * $n, $s)
         : undef;
@@ -183,14 +214,55 @@ sub rep
 }
 
 
-sub bow
+sub bow    # beginning of word
 {
   my ($news) = @_;
-  my ($dx, $dy) = @{tau::map::news->{$news}};
+  my ($dx, $dy) = tau::map::news $news;
   sub
   {
     my ($m, $x, $y) = @_;
     $m->has($x - $dx, $y - $dy) ? undef : ($x, $y);
+  };
+}
+
+
+sub pmap(&$)
+{
+  my ($f, $p) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    return undef unless defined(($x, $y, @r) = &$p($m, $x, $y));
+    ($x, $y, &$f(@r));
+  };
+}
+
+
+sub pgrep(&$)
+{
+  my ($f, $p) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    return undef unless defined(($x, $y, @r) = &$p($m, $x, $y));
+    &$f(@r) ? ($x, $y, @r) : undef;
+  };
+}
+
+
+sub pflatmap(&$)
+{
+  my ($f, $p) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    return undef unless defined(($x, $y, @r) = &$p($m, $x, $y));
+    my $p2;
+    return undef unless defined($p2 = &$f($m, $x, $y, @r));
+    &$p2($m, $x, $y);
   };
 }
 package tau::compile;

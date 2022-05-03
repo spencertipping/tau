@@ -4,10 +4,24 @@ use Encode       qw/decode/;
 use List::Util   qw/max/;
 use Scalar::Util qw/openhandle/;
 
-use constant news => {n => [ 0, -1],
-                      e => [ 1,  0],
-                      w => [-1,  0],
-                      s => [ 0,  1]};
+use constant news_vectors => {n => [ 0, -1],
+                              e => [ 1,  0],
+                              w => [-1,  0],
+                              s => [ 0,  1]};
+
+
+sub news
+{
+  my ($s)     = @_;
+  my ($x, $y) = (0, 0);
+  for (split //, $s)
+  {
+    my ($dx, $dy) = news_vectors->{$_};
+    $x += $dx;
+    $y += $dy;
+  }
+  ($x, $y);
+}
 
 
 sub new
@@ -31,6 +45,8 @@ sub new
   $m{mx} = $mx;
   $m{my} = $y - 1;
 
+  # Fill voids with spaces so strings will be populated regardless of
+  # whitespace formatting
   for my $x (0..$m{mx}) { $m{pack LL => $x, $_} //= 32 for 0..$m{my} }
 
   bless \%m, $class;
@@ -66,7 +82,7 @@ sub str
 sub next
 {
   my ($self, $x, $y, $news) = @_;
-  my ($dx, $dy) = @{news->{$news}};
+  my ($dx, $dy) = news $news;
   my ($mx, $my) = $self->bounds;
 
   $x += $dx;
@@ -85,7 +101,7 @@ sub next
 sub sub
 {
   my ($self, $x, $y, $news, $n) = @_;
-  my ($dx, $dy) = @{news->{$news}};
+  my ($dx, $dy) = news $news;
   my $s = '';
   for (1..$n)
   {

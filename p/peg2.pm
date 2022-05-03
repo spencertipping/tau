@@ -27,14 +27,29 @@ sub any
 }
 
 
-sub k
+sub dspr(\%$)
 {
-  my ($s, $news) = @_;
-  my $n = length $s;
+  my ($ps, $news) = @_;
+  my ($dx, $dy) = tau::map::news $news;
   sub
   {
     my ($m, $x, $y) = @_;
-    my ($dx, $dy) = @{tau::map::news->{$news}};
+    for my $k (sort {length $b <=> length $a} keys %$ps)
+    {
+      # TODO
+    }
+  };
+}
+
+
+sub k
+{
+  my ($s, $news) = @_;
+  my ($dx, $dy)  = tau::map::news $news;
+  my $n          = length $s;
+  sub
+  {
+    my ($m, $x, $y) = @_;
     $m->sub($x, $y, $n) eq $s
         ? ($x + $dx * $n, $y + $dy * $n, $s)
         : undef;
@@ -81,13 +96,54 @@ sub rep
 }
 
 
-sub bow
+sub bow    # beginning of word
 {
   my ($news) = @_;
-  my ($dx, $dy) = @{tau::map::news->{$news}};
+  my ($dx, $dy) = tau::map::news $news;
   sub
   {
     my ($m, $x, $y) = @_;
     $m->has($x - $dx, $y - $dy) ? undef : ($x, $y);
+  };
+}
+
+
+sub pmap(&$)
+{
+  my ($f, $p) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    return undef unless defined(($x, $y, @r) = &$p($m, $x, $y));
+    ($x, $y, &$f(@r));
+  };
+}
+
+
+sub pgrep(&$)
+{
+  my ($f, $p) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    return undef unless defined(($x, $y, @r) = &$p($m, $x, $y));
+    &$f(@r) ? ($x, $y, @r) : undef;
+  };
+}
+
+
+sub pflatmap(&$)
+{
+  my ($f, $p) = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    return undef unless defined(($x, $y, @r) = &$p($m, $x, $y));
+    my $p2;
+    return undef unless defined($p2 = &$f($m, $x, $y, @r));
+    &$p2($m, $x, $y);
   };
 }
