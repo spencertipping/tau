@@ -103,7 +103,7 @@ sub sub
   my ($self, $x, $y, $news, $n) = (@_, 0);
   my ($dx, $dy) = news $news;
   my $s = '';
-  while ($self->has($x, $y) and !$n || length $s < $n)
+  while (defined $self->at($x, $y) and !$n || length $s < $n)
   {
     $s .= chr $self->at($x, $y);
     $x += $dx;
