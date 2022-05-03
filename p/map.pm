@@ -31,6 +31,8 @@ sub new
   $m{mx} = $mx;
   $m{my} = $y - 1;
 
+  for my $x (0..$m{mx}) { $m{pack LL => $x, $_} //= 32 for 0..$m{my} }
+
   bless \%m, $class;
 }
 
@@ -38,6 +40,14 @@ sub new
 sub n      { scalar(keys %{+shift}) - 2 }
 sub bounds { @{+shift}{qw/mx my/} }
 sub at     { ${+shift}{pack LL => @_} }
+
+
+sub has
+{
+  my ($self, $x, $y) = @_;
+  my $n = $self->at($x, $y);
+  defined $n && $n != 32;
+}
 
 
 sub str

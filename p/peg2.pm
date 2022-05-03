@@ -42,8 +42,52 @@ sub k
 }
 
 
-# TODO: define 2D regex format
-sub re
+sub seq
 {
+  my @ps = @_;
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    my @rvs;
+    for (@ps)
+    {
+      return undef unless defined(@r = &$_($m, $x, $y));
+      $x = shift @r;
+      $y = shift @r;
+      push @rvs, @r;
+    }
+    ($x, $y, @rvs);
+  };
+}
 
+
+sub rep
+{
+  my ($p, $max) = (@_, -1 | 0);
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    my @r;
+    my @rvs;
+    while (defined(@r = &$p($m, $x, $y)))
+    {
+      $x = shift @r;
+      $y = shift @r;
+      push @rvs, @r;
+    }
+    ($x, $y, @rvs);
+  };
+}
+
+
+sub bow
+{
+  my ($news) = @_;
+  my ($dx, $dy) = @{tau::map::news->{$news}};
+  sub
+  {
+    my ($m, $x, $y) = @_;
+    $m->has($x - $dx, $y - $dy) ? undef : ($x, $y);
+  };
 }
