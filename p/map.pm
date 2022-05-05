@@ -10,9 +10,12 @@ use constant news_vectors => {n => [ 0, -1],
                               s => [ 0,  1]};
 
 
+our %news_cache;
 sub news
 {
-  my ($s)     = @_;
+  my ($s) = @_;
+  return @{$news_cache{$s}} if exists $news_cache{$s};
+
   my ($x, $y) = (0, 0);
   for (split //, $s)
   {
@@ -20,7 +23,7 @@ sub news
     $x += $dx;
     $y += $dy;
   }
-  ($x, $y);
+  @{$news_cache{$s} = [$x, $y]};
 }
 
 
