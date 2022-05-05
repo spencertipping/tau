@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 exit tau::compile::main(@ARGV);
+BEGIN {
 #line 1 "tau::p/map.pm"
 package tau::map;
 
@@ -16,9 +17,12 @@ use constant news_vectors => {n => [ 0, -1],
                               s => [ 0,  1]};
 
 
+our %news_cache;
 sub news
 {
-  my ($s)     = @_;
+  my ($s) = @_;
+  return @{$news_cache{$s}} if exists $news_cache{$s};
+
   my ($x, $y) = (0, 0);
   for (split //, $s)
   {
@@ -26,7 +30,7 @@ sub news
     $x += $dx;
     $y += $dy;
   }
-  ($x, $y);
+  @{$news_cache{$s} = [$x, $y]};
 }
 
 
@@ -117,10 +121,18 @@ sub sub
   }
   $s;
 }
+}
+BEGIN {
 #line 1 "tau::p/peg2.pm"
 package tau::peg2;
 
+use Exporter 'import';
 use List::Util qw/max/;
+
+our @EXPORT_OK = qw/all any multir dspr k seq rep bow seek
+                    is pmap pgrep pflatmap re/;
+
+our %EXPORT_TAGS = (all => \@EXPORT_OK);
 
 
 sub all
@@ -324,7 +336,7 @@ sub pflatmap(&$)
 sub re
 {
   my ($re, $news) = @_;
-  my ($dx, $dy) = news $news;
+  my ($dx, $dy) = tau::map::news $news;
   sub
   {
     my ($m, $x, $y) = @_;
@@ -334,6 +346,36 @@ sub re
         : undef;
   };
 }
+}
+BEGIN {
+#line 1 "tau::p/grammar.pm"
+package tau::grammar;
+
+use Exporter 'import';
+BEGIN { tau::peg2->import(':all') }
+
+
+# TODO
+# We need an expression language that does prefix dispatch, just like ni.
+# We also need north/south default placements for aux data.
+# And `:` binding sections.
+
+# TODO: horizontal whitespace delimiters
+
+use constant expr => re qr/.*/, 'e';
+
+
+use constant pstart => sub
+{
+  my ($m, $x, $y) = @_;
+  return pstream->($m, $x, $y) if $m->at($x, $y) == ord '=';
+
+  my ($sx, $sy, $c) = $m->next($x, $y, 's');
+  return undef unless $c eq '=';
+  pstream->($m, $sx, $sy);
+};
+}
+BEGIN {
 #line 1 "tau::p/compile.pm"
 package tau::compile;
 
@@ -342,4 +384,8 @@ sub main
 {
   my ($source) = @_;
   my $map = tau::map->new($source);
+
+  my ($x, $y, @code) = tau::grammar::pstart->($map, 0, 0);
+  print "$x $y @code\n";
+}
 }

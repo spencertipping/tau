@@ -1,6 +1,12 @@
 package tau::peg2;
 
+use Exporter 'import';
 use List::Util qw/max/;
+
+our @EXPORT_OK = qw/all any multir dspr k seq rep bow seek
+                    is pmap pgrep pflatmap re/;
+
+our %EXPORT_TAGS = (all => \@EXPORT_OK);
 
 
 sub all
@@ -204,7 +210,7 @@ sub pflatmap(&$)
 sub re
 {
   my ($re, $news) = @_;
-  my ($dx, $dy) = news $news;
+  my ($dx, $dy) = tau::map::news $news;
   sub
   {
     my ($m, $x, $y) = @_;

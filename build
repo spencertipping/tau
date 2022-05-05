@@ -6,8 +6,10 @@ cd "$(dirname "$0")"
 
 
 pm() {
+  echo "BEGIN {"
   echo "#line 1 \"tau::$1\""
   cat $1
+  echo "}"
 }
 
 
@@ -17,6 +19,7 @@ rm -f tau
   cat p/head
   pm p/map.pm
   pm p/peg2.pm
+  pm p/grammar.pm
   pm p/compile.pm
 } > tau
 
