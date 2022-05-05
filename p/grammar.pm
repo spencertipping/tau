@@ -11,6 +11,9 @@ BEGIN { tau::peg2->import(':all') }
 
 # TODO: horizontal whitespace delimiters
 
+# TODO: template-oriented parsing (2D regex expressions that macroexpand into
+# C++ code)
+
 use constant expr => re qr/.*/, 'e';
 
 
