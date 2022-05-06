@@ -5,6 +5,11 @@ BEGIN { tau::peg2->import(':all') }
 
 
 # TODO
+# Let's define a 2D parser language you can use with q// to define complex
+# grammar expressions without doing all the parser-combinator stuff manually.
+
+
+# TODO
 # We need an expression language that does prefix dispatch, just like ni.
 # We also need north/south default placements for aux data.
 # And `:` binding sections.
