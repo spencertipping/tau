@@ -3,6 +3,9 @@ package tau::grammar;
 use Exporter 'import';
 BEGIN { tau::peg2->import(':all') }
 
+our @EXPORT_OK   = qw/expr pstart/;
+our %EXPORT_TAGS = (all => \@EXPORT);
+
 
 # TODO
 # Let's define a 2D parser language you can use with q// to define complex
