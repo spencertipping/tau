@@ -6,3 +6,5 @@ Frames are sent via async blocking queues that can be queried. That way write op
 I think it's fine to use a delegation table and class instances with a `virtual operator()` to execute the bytecode. The `virtual operator()` allows _instantiated_ bytecodes to statically specialize (i.e. rewrite themselves) before execution, which gives us ways to optimize.
 
 **NOTE:** bytecode can and probably should be editor-interactive and provide autocompletions and interactive documentation. This won't be difficult because the editor is really just a big grid; we can add minimal `vi`-inspired support if we feel like it.
+
+Let's do all pre-execution rewriting in Perl, not C++. That keeps us portable. We might compile to C++ or C, whichever is easier to work with (including getting a toolchain installed).
