@@ -18,3 +18,11 @@ Multithreaded native processes will have one IO-boundary process and all others 
 **Q:** what is our core execution bytecode?
 
 **NOTE:** both execution and pipeline sections can be parsed with PEGs
+
+
+## Updates
+1. CAD = code; in CAD we use dimensional constraints and specific distances, but _we maintain topology_ -- code is strictly topological
+2. CAD = code = serial input -- for code, the traversal order is pre-order on parse trees
+3. The editor/viewer is a 3D C++ program whose input is the key transcript (and the editor is a natural fit for being written in tau)
+4. Within the transcript format, `[enter]` resets context such that the next op will be locality-prefixed (which makes `git diff` work as expected)
+5. For UX, think [cheloniidae](https://spencertipping.com/cheloniidae), but with rendering overlays for discrete elements
