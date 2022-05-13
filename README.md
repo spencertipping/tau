@@ -31,3 +31,6 @@ Multithreaded native processes will have one IO-boundary process and all others 
 More notes:
 
 + C++/native should use SDL2 (which provides shader support)
+  + http://wiki.libsdl.org/Introduction
+  + https://www.jamesfmackenzie.com/2019/12/01/webassembly-graphics-with-sdl/
+  + https://glusoft.com/tutorials/sdl2/use-glsl-shader
