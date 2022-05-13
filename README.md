@@ -27,3 +27,7 @@ Multithreaded native processes will have one IO-boundary process and all others 
 4. Within the transcript format, `[enter]` resets context such that the next op will be locality-prefixed (which makes `git diff` work as expected)
 5. For UX, think [cheloniidae](https://spencertipping.com/cheloniidae), but with rendering overlays for discrete elements
 6. Nodes are C++ classes with green-threaded fabric mediation
+
+More notes:
+
++ C++/native should use SDL2 (which provides shader support)
