@@ -34,3 +34,4 @@ More notes:
   + http://wiki.libsdl.org/Introduction
   + https://www.jamesfmackenzie.com/2019/12/01/webassembly-graphics-with-sdl/
   + https://glusoft.com/tutorials/sdl2/use-glsl-shader
+  + https://dev.to/noah11012/using-sdl2-2d-accelerated-renderering-1kcb
