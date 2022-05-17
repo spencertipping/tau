@@ -63,10 +63,10 @@ struct utf9_frame
 enum field_type          // assume this is bit-packed efficiently
 {
   TAU,
-  SAME,
   BYTES,
   ARRAY,
   MSGPACK,
-  KEY;                   // short < long, memcmp() for same-length
+  FD,                    // file descriptors must be sent specially
+  KEY;                   // memcmp() on common bytes, short < long
 };
 ```
