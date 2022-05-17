@@ -17,6 +17,8 @@ From the outside:
 
 
 ## Field types
+**TODO:** revise this section
+
 1. _τ_ marker
 2. Byte/numeric array, ordered by bytes
 3. `msgpack` data structure, not ordered _but length-prefixed_
@@ -27,13 +29,30 @@ Arrays are dense and encode their dimensions as a variable-length zero-terminate
 
 `msgpack` data is prefixed by `uint32_t length`.
 
+**Q:** should we prefer `msgpack` for every field? Then it's easy, and we can use `ext` values for packed arrays.
+
+
+## _τ_ stream markers
+_τ_ can be either hierarchical or parallel -- but do we want to think about zipped parallel orderings? I'm thinking perhaps not; we'd almost always demultiplex first and _τ_-cycle each separately.
+
+So the natural way for _τ_ to work is that if field _n_ is _τ_, then fields _n+1.._ are also _τ_. That is, _τ_ propagation follows key ordering; this implies a few things:
+
+1. Keys have a consistent ordering at the _frame_ level (not just semantic)
+2. _τ_ encoding follows frame field ordering
+3. Every stream is strictly hierarchical; zip requires a keyed multiplex, not zipped _τ_
+4. `memcmp` follows `writev` layout
+5. Key fields must be `byte[]`, not `msgpack` (via memcmp, via (4), unless we want decoding overhead)
+
+**Q:** are these good requirements?
+
 
 ## Structure
-```c
+```cpp
 struct utf9_frame
 {
   uint8_t  magic[4] = {0xff, 0xff, 'u', '9'};
-  uint32_t length;
-  // ...
+  uint32_t length;  // implied by outside (1) above
+
+  // TODO
 };
 ```
