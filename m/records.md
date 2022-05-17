@@ -29,7 +29,7 @@ Arrays are dense and encode their dimensions as a variable-length zero-terminate
 
 `msgpack` data is prefixed by `uint32_t length`.
 
-**Q:** should we prefer `msgpack` for every field? Then it's easy, and we can use `ext` values for packed arrays.
+**Q:** should we prefer `msgpack` for every field? Then it's easy, and we can use `ext` values for packed arrays. (Downside: `msgpack` values aren't binary-comparable.)
 
 
 ## _τ_ stream markers
@@ -50,9 +50,23 @@ So the natural way for _τ_ to work is that if field _n_ is _τ_, then fields _n
 ```cpp
 struct utf9_frame
 {
-  uint8_t  magic[4] = {0xff, 0xff, 'u', '9'};
-  uint32_t length;  // implied by outside (1) above
+  uint8_t    magic[4] = {0xff, 0xff, 'u', '9'};
+  uint32_t   length;     // implied by outside (1) above
 
-  // TODO
+  uint32_t   n;          // number of fields (if 0, τ for the whole stream)
+  uint32_t   starts[n];  // start byte of each field (rel to &magic[0])
+  field_type fields[n];  // type metadata for each field
+  uint8_t    data[length - starts[n - 1]];
+};
+
+
+enum field_type          // assume this is bit-packed efficiently
+{
+  TAU,
+  SAME,
+  BYTES,
+  ARRAY,
+  MSGPACK,
+  KEY;                   // short < long, memcmp() for same-length
 };
 ```
