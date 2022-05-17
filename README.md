@@ -6,6 +6,15 @@
 + [C++ API](m/cpp.md)
 
 
+## Next steps
+Independent things that can be executed:
+
++ Finalize frame format
++ C++/SDL2 editor prototype
++ Fabric prototype
++ Operator class prototype
+
+
 ## Main components
 1. Multi-threaded native fabric with boundary `epoll` IO (single `epoll` proxy thread, probably)
 2. Multi-worker wasm fabric

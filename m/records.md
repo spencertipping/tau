@@ -41,9 +41,9 @@ enum field_type          // assume this is bit-packed efficiently
   TAU,                   // cyclic tau marker
   ALPHA,                 // acyclic start marker
   OMEGA,                 // acyclic end marker
-  FD,                    // file descriptors must be sent specially
 
   // data
+  FD,                    // file descriptors must be sent specially
   BYTES,                 // bytes of unspecified structure
   ARRAY,                 // dense numeric array
   MSGPACK,               // msgpack-encoded object of unspecified structure
