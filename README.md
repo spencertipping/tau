@@ -1,6 +1,7 @@
 # Tau
 + [Stream semantics](m/stream.md)
 + [Frames and records](m/records.md)
++ [Connection fabric](m/fabric.md)
 
 
 ## Next steps
