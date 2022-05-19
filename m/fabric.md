@@ -27,3 +27,9 @@ Let's explore this option. I'm starting with [this tutorial](https://www.scs.sta
 Superficially, C++ coroutines look pretty clunky because they require lots of wrapping types that we're unlikely to want to work with.
 
 For now I think we'll do better by writing atomic code patches that are adapted into an ad-hoc bytecode and run by an interpreter that manages coroutine-style state.
+
+
+## Foreign source API grammars
+Most languages provide broad naming flexibility for classes, methods, and parameters. We can bind those DoFs to the τ PEG used to invoke these methods.
+
+So fabric is defined in terms of objects that hold onto their state. How do we manage nonblocking IO?
