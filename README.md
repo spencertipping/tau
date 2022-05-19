@@ -8,9 +8,9 @@
 Independent things that can be executed:
 
 + [x] Finalize prototype frame format
-+ [ ] C++/SDL2 editor prototype
 + [ ] Fabric prototype
 + [ ] Operator class prototype
++ [ ] C++/SDL2 editor prototype
 
 
 ## Updates
