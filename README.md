@@ -28,5 +28,6 @@ More notes:
   + https://www.jamesfmackenzie.com/2019/12/01/webassembly-graphics-with-sdl/
   + https://glusoft.com/tutorials/sdl2/use-glsl-shader
   + https://dev.to/noah11012/using-sdl2-2d-accelerated-renderering-1kcb
++ C++ coroutine tutorial https://www.scs.stanford.edu/~dm/blog/c++-coroutines.html
 
 We should have **co-locality edges** and **flexible edges** -- that is, edge types should provide hints about the amount of serialization required to transfer data. Maybe even something like "L1 cache co-located" vs "memory co-located" vs "co-mapped (but perhaps separate thread)" vs "no affinity".
