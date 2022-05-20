@@ -29,8 +29,8 @@ counter(std::coroutine_handle<> *continuation_out)
   }
 }
 
-void
-main1()
+int
+main()
 {
   std::coroutine_handle<> h;
   counter(&h);
@@ -39,4 +39,5 @@ main1()
     h();
   }
   h.destroy();
+  return 0;
 }
