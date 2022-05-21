@@ -13,6 +13,12 @@ Independent things that can be executed:
 + [ ] C++/SDL2 editor prototype
 
 
+## Architecture?
+The "tau node" is a process, which streams a boot series of [frames](m/records.md) to configure its behavior. Then "tau the language" is just a transform from source to these boot frames.
+
+Tau nodes can spin up other nodes and send file descriptors around, creating the full topology.
+
+
 ## Updates
 1. CAD = code; in CAD we use dimensional constraints and specific distances, but _we maintain topology_ -- code is strictly topological
 2. CAD = code = serial input -- for code, the traversal order is pre-order on parse trees
