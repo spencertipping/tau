@@ -3,9 +3,9 @@
 #include <exception>
 #include <iostream>
 
-struct ReturnObject {
+struct ρ {
   struct promise_type {
-    ReturnObject get_return_object() { return {}; }
+    ρ get_return_object() { return {}; }
     std::suspend_never initial_suspend() { return {}; }
     std::suspend_never final_suspend() noexcept { return {}; }
     void unhandled_exception() {}
@@ -19,7 +19,7 @@ struct Awaiter {
   constexpr void await_resume() const noexcept {}
 };
 
-ReturnObject
+ρ
 counter(std::coroutine_handle<> *continuation_out)
 {
   Awaiter a{continuation_out};
