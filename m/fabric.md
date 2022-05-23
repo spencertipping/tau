@@ -11,6 +11,10 @@ I took a quick look at SysV IPC mechanisms, and the general preference seems to 
 
 We should probably have each thread in its own process to minimize complexity. That way they're all just remote components.
 
+**NOTE:** let's simplify the transfer model by excluding shared memory altogether. This means `epoll` will work correctly for messages; we don't need any queueing silliness. So within a node (== thread) we have inlined operators; otherwise we send stuff down FIFOs.
+
+**NOTE:** boundary IO operators should `close` file descriptors after sending them via UNIX socket (and should hard-fail if we're trying to send FDs over other types of connections).
+
 
 ## C++ coroutines
 Let's explore this option. I'm starting with [this tutorial](https://www.scs.stanford.edu/~dm/blog/c++-coroutines.html) to figure out the basic landscape.
