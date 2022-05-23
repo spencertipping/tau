@@ -5,6 +5,8 @@ Frames can have multiple fields. Typically, fields are prefixed to form a multip
 
 _τ_, _α_, and _ω_ are meta-markers that manipulate stream state. _τ_ means "time has cycled", which primarily impacts orderings. In particular, it means "the key ordering for this field and rightward is now reset". _ω_ is an error/EOF marker that means "time has ended and will never resume" -- i.e. the supplier of the stream has disconnected and will not be coming back. _α_ is a "time begins now" message sent by newly-connected stream elements.
 
+User operators can synthesize _τ_, _α_, and _ω_. By convention, a record will end with at most one of these three fields, and they appear only in the final (rightmost) position. This is a consequence of lexical ordering. You can produce records that work differently, but they will have undefined behavior with standard operators.
+
 
 ## Structure
 A _frame_ contains zero or more _records_, each of which contains one or more _fields_, each of which is a potentially compound value. At the toplevel, data is moved either in frames or in records -- almost always in frames, which are atomic record-containers (logically, tables; although within a streaming context and with cyclic _τ_ markers, the meaning is less traditional).
