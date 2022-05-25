@@ -23,8 +23,21 @@ Let's explore this option. I'm starting with [this tutorial](https://www.scs.sta
 
 `g++` 9.4, shipped with Ubuntu 20.04, doesn't have coroutine support yet. 22.04, with `g++` 11.2, has what we need.
 
+[Generally useful thread about Boost C++ libraries](https://www.reddit.com/r/cpp/comments/jn72ol/what_are_you_most_used_boost_libraries/)
+
 
 ### Stackless coroutines
 C++ coroutines are stackless, meaning that stack context isn't saved when you `co_await` or `co_yield` out of them. In particular, this means we can't have library functions that implement `co_await` to automate suspension. That logic needs to be inlined directly into the tasks that are running, which seems like a problem.
 
 We can sidestep all of this by writing our own AMD64 assembly to switch out stacks and flush locals; then we manage machine-code threads and allocate our own stacks.
+
+
+### `Boost.Fiber`
++ [Some HN discussion of C++ fibers](https://news.ycombinator.com/item?id=21229082)
++ [`boost::fiber` tutorial](https://www.romange.com/2018/12/15/introduction-to-fibers-in-c-/)
++ [`boost::fiber` performance measurements](https://www.boost.org/doc/libs/1_67_0/libs/fiber/doc/html/fiber/performance.html)
+
+50-90ns per context-switch is quite good, 5-10x faster than Go or Erlang. Performance becomes even less of an issue if we do a couple more things:
+
+1. Inline 1:1 operations (i.e. no input or output loops)
+2. Use directed linking to bypass the main queue for internal links
