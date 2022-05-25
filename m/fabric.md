@@ -22,3 +22,9 @@ We should probably have each thread in its own process to minimize complexity. T
 Let's explore this option. I'm starting with [this tutorial](https://www.scs.stanford.edu/~dm/blog/c++-coroutines.html) to figure out the basic landscape.
 
 `g++` 9.4, shipped with Ubuntu 20.04, doesn't have coroutine support yet. 22.04, with `g++` 11.2, has what we need.
+
+
+### Stackless coroutines
+C++ coroutines are stackless, meaning that stack context isn't saved when you `co_await` or `co_yield` out of them. In particular, this means we can't have library functions that implement `co_await` to automate suspension. That logic needs to be inlined directly into the tasks that are running, which seems like a problem.
+
+We can sidestep all of this by writing our own AMD64 assembly to switch out stacks and flush locals; then we manage machine-code threads and allocate our own stacks.

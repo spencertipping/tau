@@ -6,3 +6,6 @@ Each stream can specify its "maximum atomic write" capacity, which must be at le
 
 ## Bidirectionality
 Unlike bash's unidirectional `|` operator, τ pipelines typically have both a forward and a backward stream. This allows components to locally side-negotiate their communication protocol without a third party to coordinate.
+
+
+## Flow negotiation
