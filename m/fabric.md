@@ -15,6 +15,8 @@ We should probably have each thread in its own process to minimize complexity. T
 
 **NOTE:** boundary IO operators should `close` file descriptors after sending them via UNIX socket (and should hard-fail if we're trying to send FDs over other types of connections).
 
+**Q:** do we actually use `epoll` for IPC, or do we use soft negotiation? Perhaps both.
+
 
 ## C++ coroutines
 Let's explore this option. I'm starting with [this tutorial](https://www.scs.stanford.edu/~dm/blog/c++-coroutines.html) to figure out the basic landscape.
