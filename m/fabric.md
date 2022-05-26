@@ -63,3 +63,5 @@ Ideally we have a bit more logic in our fiber-selection loop to know which fiber
 Note that in practice we'll write operators as objects that maintain `this_fiber` correctly, so we yield directly to the main fiber rather than using a task selection loop.
 
 **Important use case:** we'll have some "impedance matching" components that do stuff like consume input at full speed, forwarding or discarding all of it, but maintaining an output of sampled elements (random or priority-queued) that is consumed at a different rate. This means we need non-blocking ways to measure IO impedance and throughput: "is this channel ready" type of logic.
+
+We may also want "notify when any of these channels are ready", which means there's no single blocking point. That's easy enough; we just need an indirection between channel-readiness and the subscribed event.
