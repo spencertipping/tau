@@ -8,13 +8,15 @@
 Independent things that can be executed:
 
 + [x] Finalize prototype frame format
-+ [ ] Fabric prototype
++ [ ] Fabric prototype (note that we'll probably rewrite the original)
 + [ ] Operator class prototype
 + [ ] C++/SDL2 editor prototype
 
 
 ## Architecture?
 The "tau node" is a process, which streams a boot series of [frames](m/records.md) to configure its behavior. Then "tau the language" is just a transform from source to these boot frames.
+
+In other words, the node initially streams to the fabric; then the boot program redirects input to a specific stream, which begins proper computation.
 
 Tau nodes can spin up other nodes and send file descriptors around, creating the full topology.
 
