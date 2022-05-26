@@ -41,3 +41,18 @@ We can sidestep all of this by writing our own AMD64 assembly to switch out stac
 
 1. Inline 1:1 operations (i.e. no input or output loops)
 2. Use directed linking to bypass the main queue for internal links
+
+
+## Fabric/stream soft mediation
+Suppose we have preallocated buffers (probably custom `std::queue` implementations) to forward messages between operators. Then we predicate control transfer on a mixture of space and time:
+
+```cpp
+void operator<<(stream<u9> &to, u9 &r) noexcept
+{
+  while (to.size() && (!to.can_store(r) || to.latency_expired()))
+    this_fiber::yield();
+  to.push_back(r);
+}
+```
+
+Ideally we have a bit more logic in our fiber-selection loop to know which fibers can be resumed at which moments. Most are likely to be bottlenecked on a single queue at any given point, although perhaps we can autoscale those sections, possibly about _τ_ boundaries.
