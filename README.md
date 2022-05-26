@@ -13,6 +13,14 @@ Independent things that can be executed:
 + [ ] C++/SDL2 editor prototype
 
 
+## Compilation model
+`tau` is more of a meta-language than a language, in that the first stage is to compile operator definitions (which are parser specs and C++ backing code) into an executable that can then parse its input and construct the dataflow graph. We might have a three-stage process:
+
+1. Perl to compile the C++ image
+2. That image consumes 2D ASCII source and produces another image
+3. That image supports graphical programming and a more complex file structure
+
+
 ## Architecture?
 The "tau node" is a process, which streams a boot series of [frames](m/records.md) to configure its behavior. Then "tau the language" is just a transform from source to these boot frames.
 
