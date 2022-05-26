@@ -52,9 +52,12 @@ Suppose we have preallocated buffers (probably custom `std::queue` implementatio
 void operator<<(stream<u9> &to, u9 &r) noexcept
 {
   while (to.size() && (!to.can_store(r) || to.latency_expired()))
-    this_fiber::yield();
+    // TODO: set this-fiber state
+    main = std::move(main).resume();
   to.push_back(r);
 }
 ```
 
 Ideally we have a bit more logic in our fiber-selection loop to know which fibers can be resumed at which moments. Most are likely to be bottlenecked on a single queue at any given point, although perhaps we can autoscale those sections, possibly about _τ_ boundaries.
+
+Note that in practice we'll write operators as objects that maintain `this_fiber` correctly, so we yield directly to the main fiber rather than using a task selection loop.
