@@ -42,6 +42,8 @@ We can sidestep all of this by writing our own AMD64 assembly to switch out stac
 1. Inline 1:1 operations (i.e. no input or output loops)
 2. Use directed linking to bypass the main queue for internal links
 
+**NOTE:** `boost::fiber` isn't supported in WebAssembly, but Emscripten provides [its own fiber implementation](https://emscripten.org/docs/api_reference/fiber.h.html).
+
 
 ## Fabric/stream soft mediation
 Suppose we have preallocated buffers (probably custom `std::queue` implementations) to forward messages between operators. Then we predicate control transfer on a mixture of space and time:
