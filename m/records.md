@@ -51,3 +51,5 @@ enum field_type          // assume this is bit-packed efficiently
   KEY;                   // lexically-ordered byte array key
 };
 ```
+
+The final field is `length - starts[n - 1]` bytes long.
