@@ -77,3 +77,9 @@ That's stupidly fast, holy hell. Is `g++` optimizing the continuations out of th
 I was originally thinking we'd try to make a multithreaded scheduler, but I don't think it's important. We can have each τ fabric be single-threaded and create more IPC-connected ones to get multicore parallelism. That way there's no difference between "cores on one machine" and "cores on other machines"; they're all separated by an IPC barrier.
 
 **Q:** how do we deal with bottlenecks that could be parallelized? I think we want fabric-affinity to be inferred from topology rather than explicitly specified.
+
+
+## Latency control
+I'm thinking about the case where we want to schedule absolute-time events with high accuracy. Step 1 is for the fabric to be able to abort an operator when it attempts IO, even before its IO constraints would normally yield the fiber.
+
+Step 2, if we want accuracy, is for the fabric to systematically measure the latency distribution of each operator so it doesn't overcommit to a non-preemptible chunk of work that will overlap the scheduled time point. (Relevant when we have CPU-intensive steps.)
