@@ -65,3 +65,9 @@ Note that in practice we'll write operators as objects that maintain `this_fiber
 **Important use case:** we'll have some "impedance matching" components that do stuff like consume input at full speed, forwarding or discarding all of it, but maintaining an output of sampled elements (random or priority-queued) that is consumed at a different rate. This means we need non-blocking ways to measure IO impedance and throughput: "is this channel ready" type of logic.
 
 We may also want "notify when any of these channels are ready", which means there's no single blocking point. That's easy enough; we just need an indirection between channel-readiness and the subscribed event.
+
+
+## `boost::context` continuation performance
+I just wrote [a benchmark](../dev/hackery/continuation-perf.cc) that takes 3.4s to execute 10M full-loop context switches (that is, switch into task, do something, switch back to main). That gives us an average of 340ns per full-loop switch.
+
+This means our continuation switching overhead will be <10% if each task can run for 3.4μs. We should be able to build some auto-sizing logic into the scheduler to add capacity when appropriate.
