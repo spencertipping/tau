@@ -4,6 +4,12 @@
 + [Connection fabric](m/fabric.md)
 
 
+## Setup
+```sh
+$ sudo apt install -y libboost-fiber-dev
+```
+
+
 ## Next steps
 Independent things that can be executed:
 
