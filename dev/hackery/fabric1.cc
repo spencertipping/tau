@@ -42,9 +42,30 @@ main()
   stream<int> s1(4);
   stream<int> s2(4);
 
-  fiber f1([&]() { for (int i = 0; ; ++i) s1 << i; });
-  fiber f2([&]() { for (int t = 0;;) s2 << (t += s1.pop()); });
-  fiber f3([&]() { for (int i = 0; i < 10; ++i) cout << s2.pop() << endl; });
+  fiber f1([&]() {
+    cout << "f1 started" << endl;
+    for (int i = 0; ; ++i)
+    {
+      cout << "f1 emitting " << i << endl;
+      s1 << i;
+    }});
+
+  fiber f2([&]() {
+    cout << "f2 started" << endl;
+    for (int t = 0;;) {
+      cout << "f2 requesting" << endl;
+      int x = s1.pop();
+      cout << "f2 got " << x << endl;
+      s2 << (t += x);
+    }});
+
+  fiber f3([&]() {
+    cout << "f3 started" << endl;
+    for (int i = 0; i < 10; ++i)
+    {
+      cout << "f3 requesting" << endl;
+      cout << "f3: " << s2.pop() << endl;
+    }});
 
   cout << "fibers are started" << endl;
 
