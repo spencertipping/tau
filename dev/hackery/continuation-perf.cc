@@ -11,7 +11,7 @@ int main()
   bool      done = false;
 
   continuation gen(callcc([&](continuation &&cc) {
-    for (long long i = 0; i < 10000000; ++i)
+    for (long long i = 0; i < 1000000000; ++i)
     {
       x = i;
       cc = cc.resume();

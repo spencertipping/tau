@@ -68,6 +68,12 @@ We may also want "notify when any of these channels are ready", which means ther
 
 
 ## `boost::context` continuation performance
-I just wrote [a benchmark](../dev/hackery/continuation-perf.cc) that takes 3.4s to execute 10M full-loop context switches (that is, switch into task, do something, switch back to main). That gives us an average of 340ns per full-loop switch.
+I just wrote [a benchmark](../dev/hackery/continuation-perf.cc) that takes 5.9s to execute 1B full-loop context switches (that is, switch into task, do something, switch back to main). That gives us an average of 5.9ns per full-loop switch.
 
-This means our continuation switching overhead will be <10% if each task can run for 3.4μs. We should be able to build some auto-sizing logic into the scheduler to add capacity when appropriate.
+That's stupidly fast, holy hell. Is `g++` optimizing the continuations out of the picture?
+
+
+## Multithreading
+I was originally thinking we'd try to make a multithreaded scheduler, but I don't think it's important. We can have each τ fabric be single-threaded and create more IPC-connected ones to get multicore parallelism. That way there's no difference between "cores on one machine" and "cores on other machines"; they're all separated by an IPC barrier.
+
+**Q:** how do we deal with bottlenecks that could be parallelized? I think we want fabric-affinity to be inferred from topology rather than explicitly specified.
