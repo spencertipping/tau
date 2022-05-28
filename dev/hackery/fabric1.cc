@@ -22,7 +22,9 @@ struct stream
   inline T    pop()
     {
       while (!tail_ready()) boost::this_fiber::yield();
-      return xs.pop_front();
+      T x = move(xs[0]);
+      xs.pop_front();
+      return x;
     }
 
   inline stream<T> &operator<<(T &x)
@@ -31,24 +33,24 @@ struct stream
       xs.push_back(x);
       return *this;
     }
-
 };
-
-
-
-
-
-void
-generator()
-{
-  for (int i = 0; ; ++i)
-    q1.push_back(i);
-  boost::this_fiber::yield();
-}
 
 
 int
 main()
 {
+  stream<int> s1(4);
+  stream<int> s2(4);
+
+  fiber f1([&]() { for (int i = 0; ; ++i) s1 << i; });
+  fiber f2([&]() { for (int t = 0;;) s2 << (t += s1.pop()); });
+  fiber f3([&]() { for (int i = 0; i < 10; ++i) cout << s2.pop() << endl; });
+
+  cout << "fibers are started" << endl;
+
+  f3.join(); cout << "f3 is joined" << endl;
+  f2.join(); cout << "f2 is joined" << endl;
+  f1.join(); cout << "f1 is joined" << endl;
+
   return 0;
 }
