@@ -19,12 +19,12 @@ struct stream
 
   inline bool head_ready() const { return xs.size() < capacity; }
   inline bool tail_ready() const { return xs.size() > 0; }
-  inline T    pop()
+  inline T&&  pop()
     {
       while (!tail_ready()) boost::this_fiber::yield();
-      T x = move(xs[0]);
+      T&& x = move(xs[0]);
       xs.pop_front();
-      return x;
+      return move(x);
     }
 
   inline stream<T> &operator<<(T &x)
