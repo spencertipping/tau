@@ -15,19 +15,20 @@ Note that _τ_ markers are unlike _α_ and _ω_ in that _τ_ maps to a 64-bit va
 struct record            // a utf9 compact record (meant for memory, not disk)
 {
   uint8_t    magic[4] = {0xff, 'u', '9', 0x00};
-  uint48_t   length;     // implied by outside (1) above
+  uint48_t   length;     // implied by outside (1) above (up to 256TiB)
   uint16_t   n;          // number of fields
-  uint32_t   starts[n];  // start byte of each field (rel to &magic[0])
-  field_type fields[shape > 0 ? 0 : n];  // type metadata for each field
+  uint64_t   fields[n];  // each is start_offset << 16 | field_type
   uint8_t    data[length - starts[0]];
 };
 ```
+
+**TODO:** go through the space/time implications of having flat `starts[]` and `fields[]` arrays
 
 **TODO:** I don't love having explicit field offsets for everything, because they'll take up a lot of space for small records. There should be a way to encode `field_type` and size information in the same place.
 
 **TODO:** `starts[]` must provide enough bits to encode offsets up to the full length; right now we're 16 bits short
 
-`uint48_t` isn't a real type, but the length is encoded with unsigned 48 bits, allowing records up to 256TiB.
+**TODO:** record-schema bytecode so we can decode until some condition is met (i.e. the `starts[]` and `fields[]` arrays should be outputs from this program)
 
 ```cpp
 enum field_type          // assume this is bit-packed efficiently
@@ -46,6 +47,6 @@ enum field_type          // assume this is bit-packed efficiently
 };
 ```
 
-The final field is `length - starts[n - 1]` bytes long.
+The final field is `length - (fields[n-1] >> 16)` bytes long.
 
 Toplevel stream control is encoded with a one-field record whose field has type `TAU`, `ALPHA`, `OMEGA`, or `IOTA`.
