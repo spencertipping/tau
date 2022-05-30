@@ -15,7 +15,7 @@ $ sudo apt install -y libboost-fiber-dev
 ## Next steps
 Independent things that can be executed:
 
-+ [x] Finalize prototype record format
++ [ ] Finalize prototype record format
 + [ ] Fabric prototype (note that we'll probably rewrite the original)
 + [ ] Operator class prototype
 + [ ] C++/SDL2 editor prototype

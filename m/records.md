@@ -15,17 +15,21 @@ Note that _τ_ markers are unlike _α_ and _ω_ in that _τ_ maps to a 64-bit va
 struct record            // a utf9 compact record (meant for memory, not disk)
 {
   uint8_t    magic[4] = {0xff, 'u', '9', 0x00};
-  uint32_t   length;     // implied by outside (1) above
-  int32_t    n;          // number of fields
-    // if -TAU,   τ for the stream -- FIXME (where is the fraction?)
-    // if -ALPHA, α for the stream
-    // if -OMEGA, ω for the stream
-    // if -IOTA,  ι for the stream
+  uint48_t   length;     // implied by outside (1) above
+  uint16_t   n;          // number of fields
   uint32_t   starts[n];  // start byte of each field (rel to &magic[0])
-  field_type fields[n];  // type metadata for each field
+  field_type fields[shape > 0 ? 0 : n];  // type metadata for each field
   uint8_t    data[length - starts[0]];
 };
+```
 
+**TODO:** I don't love having explicit field offsets for everything, because they'll take up a lot of space for small records. There should be a way to encode `field_type` and size information in the same place.
+
+**TODO:** `starts[]` must provide enough bits to encode offsets up to the full length; right now we're 16 bits short
+
+`uint48_t` isn't a real type, but the length is encoded with unsigned 48 bits, allowing records up to 256TiB.
+
+```cpp
 enum field_type          // assume this is bit-packed efficiently
 {
   // stream operators
@@ -35,12 +39,13 @@ enum field_type          // assume this is bit-packed efficiently
   IOTA,                  // flow-start impulse (edge trigger)
 
   // data elements
-  FD,                    // file descriptors must be sent specially
+  FDS,                   // array of file descriptors (special IPC)
   BYTES,                 // bytes of unspecified structure
   ARRAY,                 // dense numeric array
-  MSGPACK,               // msgpack-encoded object of unspecified structure
-  KEY;                   // lexically-ordered byte array key
+  MSGPACK;               // msgpack-encoded object of unspecified structure
 };
 ```
 
 The final field is `length - starts[n - 1]` bytes long.
+
+Toplevel stream control is encoded with a one-field record whose field has type `TAU`, `ALPHA`, `OMEGA`, or `IOTA`.
