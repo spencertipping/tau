@@ -1,10 +1,12 @@
 # Tau
 + [Stream semantics](m/stream.md)
-+ [Frames and records](m/records.md)
++ [Records](m/records.md)
 + [Connection fabric](m/fabric.md)
 
 
 ## Setup
+For all of `dev/hackery`:
+
 ```sh
 $ sudo apt install -y libboost-fiber-dev
 ```
@@ -13,7 +15,7 @@ $ sudo apt install -y libboost-fiber-dev
 ## Next steps
 Independent things that can be executed:
 
-+ [x] Finalize prototype frame format
++ [x] Finalize prototype record format
 + [ ] Fabric prototype (note that we'll probably rewrite the original)
 + [ ] Operator class prototype
 + [ ] C++/SDL2 editor prototype
@@ -28,7 +30,7 @@ Independent things that can be executed:
 
 
 ## Architecture?
-The "tau node" is a process, which streams a boot series of [frames](m/records.md) to configure its behavior. Then "tau the language" is just a transform from source to these boot frames.
+The "tau node" is a process, which streams a boot series of [records](m/records.md) to configure its behavior. Then "tau the language" is just a transform from source to these boot records.
 
 In other words, the node initially streams to the fabric; then the boot program redirects input to a specific stream, which begins proper computation.
 

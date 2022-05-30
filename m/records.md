@@ -1,7 +1,5 @@
-# Frames
-A frame is a single chunk of data for which atomic transit is guaranteed: that is, each pipeline element is able to load the whole frame into memory.
-
-Frames can have multiple fields. Typically, fields are prefixed to form a multiplexing or key space; then the assumption is that each sub-stream has its own state.
+# Records
+Records have fields, each of which has a type that describes its codec.
 
 _τ_, _α_, and _ω_ are meta-markers that manipulate stream state. _τ_ means "time has cycled", which primarily impacts orderings. In particular, it means "the key ordering for this field and rightward is now reset". _ω_ is an error/EOF marker that means "time has ended and will never resume" -- i.e. the supplier of the stream has disconnected and will not be coming back. _α_ is a "time begins now" message sent by newly-connected stream elements.
 
@@ -9,17 +7,6 @@ User operators can synthesize _τ_, _α_, and _ω_. By convention, a record will
 
 
 ## Structure
-A _frame_ contains zero or more _records_, each of which contains one or more _fields_, each of which is a potentially compound value. At the toplevel, data is moved either in frames or in records -- almost always in frames, which are atomic record-containers (logically, tables; although within a streaming context and with cyclic _τ_ markers, the meaning is less traditional).
-
-```cpp
-struct frame             // utf9 compact frame
-{
-  uint8_t  magic[4] = {0xff, 'u', '9', 'f'};
-  uint32_t length;
-  uint8_t  data[length - 8];
-};
-```
-
 A record is a logical row of data, with independently-decodable fields. Within a multiplexed stream, key fields will be leftwards of data fields, and it's often sufficient to look up key fields without decoding the others (e.g. to demultiplex a stream).
 
 Note that _τ_ markers are unlike _α_ and _ω_ in that _τ_ maps to a 64-bit value that represents the approximate fraction of the stream that has been sent so far. Symbolic _τ_ reset is assumed when the value is 0 (i.e. beginning of a new cycle).
@@ -27,12 +14,13 @@ Note that _τ_ markers are unlike _α_ and _ω_ in that _τ_ maps to a 64-bit va
 ```cpp
 struct record            // a utf9 compact record (meant for memory, not disk)
 {
-  uint8_t    magic[4] = {0xff, 'u', '9', 'r'};
+  uint8_t    magic[4] = {0xff, 'u', '9', 0x00};
   uint32_t   length;     // implied by outside (1) above
   int32_t    n;          // number of fields
-    // if -TAU,   τ for the stream
+    // if -TAU,   τ for the stream -- FIXME (where is the fraction?)
     // if -ALPHA, α for the stream
     // if -OMEGA, ω for the stream
+    // if -IOTA,  ι for the stream
   uint32_t   starts[n];  // start byte of each field (rel to &magic[0])
   field_type fields[n];  // type metadata for each field
   uint8_t    data[length - starts[0]];
@@ -44,6 +32,7 @@ enum field_type          // assume this is bit-packed efficiently
   TAU,                   // cyclic tau marker
   ALPHA,                 // acyclic start marker
   OMEGA,                 // acyclic end marker
+  IOTA,                  // flow-start impulse (edge trigger)
 
   // data elements
   FD,                    // file descriptors must be sent specially
