@@ -9,6 +9,7 @@ _τ_, _α_, _ω_, _ι_, and _κ_ are meta-markers that manipulate stream state:
 + _κ_ means "you cannot send more data now; it will block"
 + _τ_ means "time has cycled", which primarily impacts orderings
   + _τ_ can also mean "you are at this point within a cycle", which can be used for optimization
+  + Partial _τ_ is always considered to be an estimate, and it is legal to rewind _τ_ values to revise these estimates
 
 
 ## Structure
