@@ -64,7 +64,9 @@ A few high-level considerations:
 
 (1) and (2) mean that we can't rely on expensive static/topological analysis. (5) means that we don't have the "broadcast readiness" event problem; readiness-flow is strictly deterministic. (6) hints that we should be good at serial chains, which happens trivially if we have direct lookups.
 
-The simplest approach is just to have an `unordered_map<stream_id, operator>` that we consult for each _ι_ event. Operators can maintain bitmasks of operand readiness and activate when sufficient readiness occurs. Everything remains edge-triggered and fast.
+The simplest approach is just to have an `unordered_map<endpoint_id, operator>` that we consult for each _ι_ event. Operators can maintain bitmasks of operand readiness and activate when sufficient readiness occurs. Everything remains edge-triggered and fast.
+
+I think streams are themselves operators that just move data from one endpoint to the other. This way they can define their own capacitance.
 
 
 ## Performance-adjacent issues
