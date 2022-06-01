@@ -12,6 +12,12 @@ _τ_, _α_, _ω_, _ι_, and _κ_ are meta-markers that manipulate stream state:
   + Partial _τ_ is always considered to be an estimate, and it is legal to rewind _τ_ values to revise these estimates
 
 
+## API
+A lot of computation happens within the same fabric, so we should have runtime types that can be serialized _into_ records, but are not themselves records. That way we avoid serialization and allocation overhead for objects within the same environment.
+
+This means we'll have reference-counted pointers to immutable objects, most likely.
+
+
 ## Structure
 A record is a logical row of data, with independently-decodable fields. Within a multiplexed stream, key fields will be leftwards of data fields, and it's often sufficient to look up key fields without decoding the others (e.g. to demultiplex a stream).
 

@@ -43,6 +43,62 @@ The simplest approach is just to have an `unordered_map<endpoint_id, operator>` 
 I think streams are themselves operators that just move data from one endpoint to the other. This way they can define their own capacitance.
 
 
+### Operator chains
+...probably shouldn't exist from the fabric's perspective. Each operator would need to read, decode, process, encode, and send each record -- which is a lot of unnecessary overhead. Any 1:1 operator should act against a proxy object that can quickly stage edits.
+
+We should also define fairly generous cell-operator grammars that allow us to pack a lot of functionality into a single operator.
+
+
+### Enumeration: a quick example
+Suppose we have the `n` operator that generates an integer sequence. So `n` by itself produces integers indefinitely, whereas `n10` produces just `0..9`. We have another operator that prints these integers to `stdout`.
+
+```
+n   stdout   # <- program 1
+n10 stdout   # <- program 2
+```
+
+Internally, `n` could be written like this (note that I'm leaving a lot of abstraction on the table to demonstrate the internals):
+
+```cpp
+class n : public op
+{
+  uint64_t i = 0;
+  uint64_t limit;
+  stream   out;
+
+  virtual bool ready() const { return out.ready(); }
+  virtual void operator()()
+  {
+    while (out.open() && (!limit || i < limit))
+      out << i++;         // assume uint64_t is coercible to record
+    out.omega();          // close the stream
+  }
+};
+
+class stdout : public op  // note: not a real operator
+{
+  stream in;
+  virtual bool ready() const { return in.ready(); }
+  virtual void operator()()
+  {
+    record r;
+    while (in.open())
+    {
+      in >> r;
+      cout << r;
+    }
+    in.omega();
+  }
+};
+```
+
+`stream::operator<<`, `stream::operator>>`, and `stream::omega` are the continuation scheduling points here:
+
++ `stream::operator<<` inserts an item, yielding if the stream is at capacity
++ `stream::operator>>` removes an item, yielding if the stream is empty
++ `stream::omega` on an outbound stream schedules the other side
+
+
 ## Performance-adjacent issues
 ### `boost::context` continuation performance
 I just wrote [a benchmark](../dev/hackery/continuation-perf.cc) that takes 5.9s to execute 1B full-loop context switches (that is, switch into task, do something, switch back to main). That gives us an average of 5.9ns per full-loop switch.
