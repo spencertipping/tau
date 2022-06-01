@@ -77,7 +77,7 @@ struct array
   array_type etype;      // type of each element
   uint8_t    n;          // number of dimensions
   uint64_t   dims[n];
-  T          elems[*/dims];
+  T          elems[prod(dims)];
 };
 
 enum array_type

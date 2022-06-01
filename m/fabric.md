@@ -16,6 +16,14 @@ The IO mediation layer and CPU scheduler for τ. An instance of fabric is called
 **NOTE:** boundary IO operators should `close` file descriptors after sending them via UNIX socket (and should hard-fail if we're trying to send FDs over other types of connections).
 
 
+## Dynamic fabric
+Each node has an _n_-ary "fabric modification operator" that accepts records that modify the connection topology.
+
+**Q:** what's the core data structure here?
+
+**Q:** is there any automatic memory management -- i.e. do abandoned operators automatically get GC'd somehow? (Sure, it's possible they do if individual clients are multiplexed and use _τ_ to punctuate atomic changes.)
+
+
 ## Scheduler logic
 A few high-level considerations:
 
@@ -27,6 +35,8 @@ A few high-level considerations:
 6. We will often have chained operators for which _ι_ propagates linearly
 
 (1) and (2) mean that we can't rely on expensive static/topological analysis. (5) means that we don't have the "broadcast readiness" event problem; readiness-flow is strictly deterministic. (6) hints that we should be good at serial chains, which happens trivially if we have direct lookups.
+
+(6) is also subject to latency constraints. That is, if forward-latency is bounded by something aggressive like 10μs, we'll have a lot of fiber switching. If we have a longer latency, stream capacitance will take up more slack and allow each operator to run for longer.
 
 The simplest approach is just to have an `unordered_map<endpoint_id, operator>` that we consult for each _ι_ event. Operators can maintain bitmasks of operand readiness and activate when sufficient readiness occurs. Everything remains edge-triggered and fast.
 
