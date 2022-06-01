@@ -1,4 +1,7 @@
-ALL: fabric1 fabric1-static fabric2 continuation-perf
+ALL: fabric1 fabric1-static fabric2 continuation-perf msgpack
+
+msgpack: msgpack.cc
+	g++ -O3 -o msgpack msgpack.cc
 
 fabric1: fabric1.cc
 	g++ -O3 -o fabric1 fabric1.cc -lboost_fiber -lboost_context
@@ -16,4 +19,4 @@ continuation-perf: continuation-perf.cc
 
 .PHONY: clean
 clean:
-	rm fabric1 fabric1-static fabric2 continuation-perf
+	rm -f fabric1 fabric1-static fabric2 continuation-perf msgpack

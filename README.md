@@ -8,7 +8,7 @@
 For all of `dev/hackery`:
 
 ```sh
-$ sudo apt install -y libboost-fiber-dev
+$ sudo apt install -y libboost-fiber-dev libmsgpack-dev
 ```
 
 

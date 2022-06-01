@@ -17,6 +17,8 @@ A record is a logical row of data, with independently-decodable fields. Within a
 
 Note that _τ_ markers are unlike _α_ and _ω_ in that _τ_ maps to a 64-bit value that represents the approximate fraction of the stream that has been sent so far. Symbolic _τ_ reset is assumed when the value is 0 (i.e. beginning of a new cycle).
 
+**Q:** what's the purpose of having a large number of fields, when we have `msgpack` structures that are better-suited to most domain-specific values?
+
 ```cpp
 struct record            // a utf9 compact record (meant for memory, not disk)
 {
