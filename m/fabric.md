@@ -62,30 +62,27 @@ Internally, `n` could be written like this (note that I'm leaving a lot of abstr
 ```cpp
 class n : public op
 {
-  uint64_t i = 0;
   uint64_t limit;
   stream   out;
-
-  virtual bool ready() const { return out.ready(); }
   virtual void operator()()
   {
-    while (out.open() && (!limit || i < limit))
-      out << i++;         // assume uint64_t is coercible to record
-    out.omega();          // close the stream
+    for (uint64_t i = 0; out.open() && (!limit || i < limit); ++i)
+      out << i;               // assume uint64_t is coercible to record
+    out.omega();              // close the stream
   }
 };
 
-class stdout : public op  // note: not a real operator
+template <typename T>
+class stdout<T> : public op   // note: not a real operator
 {
   stream in;
-  virtual bool ready() const { return in.ready(); }
   virtual void operator()()
   {
-    record r;
+    T x;
     while (in.open())
     {
-      in >> r;
-      cout << r;
+      in >> x;
+      cout << x;
     }
     in.omega();
   }

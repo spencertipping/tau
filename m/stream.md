@@ -3,6 +3,8 @@ Durable, ordered, flow-negotiated. We can do sequence-acking if we want durabili
 
 Each stream can specify its "maximum atomic write" capacity, which must be at least 512 bytes. This makes it compatible with even the lowest values of `PIPE_BUF` on UNIX systems. Typically, a stream that offers very low atomic-write capacity will be wrapped with a byte-multiplexer, causing each record to be shredded into suitably small blocks before being reassembled by the recipient.
 
+Streams within the same node need not copy or serialize anything; they can use `shared_ptr<record>`.
+
 
 ## Bidirectionality
 Unlike bash's unidirectional `|` operator, τ pipelines typically have both a forward and a backward stream. This allows components to locally side-negotiate their communication protocol without a third party to coordinate.
