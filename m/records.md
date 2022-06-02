@@ -20,7 +20,25 @@ This means we'll have reference-counted pointers to immutable objects, most like
 **NOTE:** the `struct record` stuff below is relevant only when we want to serialize values to byte streams. As long as records are properly immutable, I don't think we have to care until we hit a proper IO boundary.
 
 
-## Structure
+### Prefix consing
+`ni` uses a spreadsheet model in which multiplexing prefixes were untyped; `,sgA` explicitly specifies `A` as the field to collect. Fields are ordered in that `,sgB` uses both `A` and `B` as the key.
+
+Just like in `ni`, τ needs to make it easy to add and remove prefix key fields that can be independently accessed. In other words, adding, removing, and accessing a multiplex key should all be _O(1)_.
+
+...so the in-memory model favors prefix consing, whereas the binary encoding can and should be flat.
+
+```cpp
+struct record_cons
+{
+  std::vector<field>  fs;     // at least one field here
+  record_cons        *tail;   // null if no tail
+};
+```
+
+**Q:** what's the use case for having toplevel positional fields as such? Can we instead commit to `msgpack`?
+
+
+## Binary structure
 A record is a logical row of data, with independently-decodable fields. Within a multiplexed stream, key fields will be leftwards of data fields, and it's often sufficient to look up key fields without decoding the others (e.g. to demultiplex a stream).
 
 Note that _τ_ markers are unlike _α_ and _ω_ in that _τ_ maps to a 64-bit value that represents the approximate fraction of the stream that has been sent so far. Symbolic _τ_ reset is assumed when the value is 0 (i.e. beginning of a new cycle).

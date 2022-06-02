@@ -99,7 +99,7 @@ class stdout : public op      // note: not a real operator
 
 ```cpp
 template <typename T, typename U>
-class map_op : public op
+class direct_push_op : public op
 {
   stream<U> out;
   virtual void operator<<(T &x) const
