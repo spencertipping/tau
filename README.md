@@ -2,6 +2,7 @@
 + [Stream semantics](m/stream.md)
 + [Records](m/records.md)
 + [Connection fabric](m/fabric.md)
++ [General-purpose transforms](m/transform.md)
 
 
 ## Setup

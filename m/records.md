@@ -39,6 +39,8 @@ struct record_cons
 
 
 ## Binary structure
+**TODO:** we shouldn't focus on this; it can just be an IO-boundary transit format, not a driver of core API.
+
 A record is a logical row of data, with independently-decodable fields. Within a multiplexed stream, key fields will be leftwards of data fields, and it's often sufficient to look up key fields without decoding the others (e.g. to demultiplex a stream).
 
 Note that _τ_ markers are unlike _α_ and _ω_ in that _τ_ maps to a 64-bit value that represents the approximate fraction of the stream that has been sent so far. Symbolic _τ_ reset is assumed when the value is 0 (i.e. beginning of a new cycle).
@@ -79,24 +81,24 @@ The final field is `length - (fields[n-1] >> 16)` bytes long.
 Toplevel stream control is encoded with a one-field record; that field is a stream operator like `ALPHA` or `IOTA`.
 
 
-## Field encodings
+### Field encodings
 + `ALPHA`, `OMEGA`, `IOTA`, and `KAPPA` have no value
 + `TAU` corresponds to a single 8-byte field value
 
 
-### `FDS`
+#### `FDS`
 File descriptors are packed into a `uint32_t[]` binary array in native endian format. Since the array consists of fixed-size members, it has no length prefix.
 
 
-### `BYTES`
+#### `BYTES`
 Byte arrays are encoded verbatim with no length prefix.
 
 
-### `MSGPACK`
+#### `MSGPACK`
 [msgpack](https://msgpack.org) payload with no prefix or other wrapping.
 
 
-### `ARRAY`
+#### `ARRAY`
 Numeric arrays specify both the element size/type and the array shape. The array is dense, so the shape is encoded as a list of dimensions.
 
 ```cpp
