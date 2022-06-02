@@ -17,6 +17,8 @@ A lot of computation happens within the same fabric, so we should have runtime t
 
 This means we'll have reference-counted pointers to immutable objects, most likely.
 
+**NOTE:** the `struct record` stuff below is relevant only when we want to serialize values to byte streams. As long as records are properly immutable, I don't think we have to care until we hit a proper IO boundary.
+
 
 ## Structure
 A record is a logical row of data, with independently-decodable fields. Within a multiplexed stream, key fields will be leftwards of data fields, and it's often sufficient to look up key fields without decoding the others (e.g. to demultiplex a stream).

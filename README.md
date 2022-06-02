@@ -17,6 +17,8 @@ Independent things that can be executed:
 
 + [x] Finalize prototype record format
 + [ ] Fabric prototype (note that we'll probably rewrite the original)
+  + [ ] Hand-code an initial stream process
+  + [ ] Experiment with coercions to/from records
 + [ ] Operator class prototype
 + [ ] C++/SDL2 editor prototype
 

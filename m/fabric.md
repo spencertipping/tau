@@ -62,8 +62,8 @@ Internally, `n` could be written like this (note that I'm leaving a lot of abstr
 ```cpp
 class n : public op
 {
-  uint64_t limit;
-  stream   out;
+  uint64_t         limit;
+  stream<uint64_t> out;
   virtual void operator()()
   {
     for (uint64_t i = 0; out.open() && (!limit || i < limit); ++i)
@@ -73,9 +73,9 @@ class n : public op
 };
 
 template <typename T>
-class stdout<T> : public op   // note: not a real operator
+class stdout : public op      // note: not a real operator
 {
-  stream in;
+  stream<T> in;
   virtual void operator()()
   {
     T x;
@@ -95,8 +95,26 @@ class stdout<T> : public op   // note: not a real operator
 + `stream::operator>>` removes an item, yielding if the stream is empty
 + `stream::omega` on an outbound stream schedules the other side
 
+1:1 operators can be written more simply:
+
+```cpp
+template <typename T, typename U>
+class map_op : public op
+{
+  stream<U> out;
+  virtual void operator<<(T &x) const
+  {
+    out << f(x);              // for some f()
+  }
+};
+```
+
 
 ## Performance-adjacent issues
+### Compilation model
+Templated operators require a pass through C++ to produce a custom binary, whereas we can use RTTI-wrapped types if we want a generic binary instead. If we want to avoid the `g++` overhead for short runs, we can start the program with RTTI generics and compile a specialized version, then do a fabric handoff.
+
+
 ### `boost::context` continuation performance
 I just wrote [a benchmark](../dev/hackery/continuation-perf.cc) that takes 5.9s to execute 1B full-loop context switches (that is, switch into task, do something, switch back to main). That gives us an average of 5.9ns per full-loop switch.
 
