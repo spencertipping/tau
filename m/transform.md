@@ -24,15 +24,35 @@ $ ni e[find ~ -xdev -name '*.md'] rp'!/\/ni\//' \
 Some things should be trivial:
 
 + File IO with all multiplex variants (binary data format)
-+ Disk-backed cyclic sorting
+  + Disk-backed cyclic sorting
+  + Note that these IOs are `epoll`ed into the same process
 + Common map/filter operations (in-core transform bytecode)
-+ Language shellout
+  + Language shellout
 + Multiplex/demultiplex for stream splits
-+ Websocket and other common network adapters
+  + Multiplex over CPUs (`ni S`)
+  + Data-driven multiplex
++ Generalized FDs-down-streams
+  + Websocket and other common network adapters
   + TCP servers (a building block on which we can `ws` adapt, possibly with shorthand)
+  + `mmap`ped files/regions? (can create page faults)
+  + Operators like `dup()` so we can share FDs when we want to
++ Distributed compute
+  + Process boundary splits
+  + Machine boundary splits
+  + Same-architecture self-deployment? (launch wrapper)
 
 
-## Generalizing `ni`
+### Dealing with _τ_ markers
+Most operators have sensible behavior for _τ_ and other stream markers:
+
++ _α_, _ω_, _ι_, and _κ_ are single-hop, but multi-hop if multiplexed
++ _τ(n)_ is single-hop, but multi-hop through 1:1 operators
++ _τ(0)_ is multi-hop, but single-hop if the operator collapses _τ_ groups
+
+Because all markers are first-class, operators have a great deal of latitude in how they manipulate them.
+
+
+### Generalizing `ni`
 In general, `ni` excels at one-record manipulation and suffers when dealing with multiple rows at a time (with obvious exceptions like `ru{}`, which are pretty good). For example, `,sgA` is a terrible construct that needs several improvements:
 
 1. The reduction should be customizable, vs having `,sgA` and `,agA`
