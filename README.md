@@ -12,16 +12,18 @@
 For all of `dev/hackery`:
 
 ```sh
-$ sudo apt install -y libboost-fiber-dev libmsgpack-dev
+$ sudo apt install -y libboost-fiber-dev libmsgpack-dev libxcb1-dev
 ```
 
 
 ## Next steps
 Stuff I should do in order to move forwards:
 
-+ Figure out how to get transparent frames (`libxcb` probably)
-+ Vector sketching UI/language, incrementally-developed
-  + Figure out how to render text into this
++ [x] Figure out how to get transparent frames (`libxcb` probably)
+  + [ ] Figure out how to get X11/GL rendering
+  + [ ] Figure out how to get X11/GL window transparency
++ [ ] Vector sketching UI/language, incrementally-developed
+  + [ ] Figure out how to render text into this
 
 Independent things that _can_ be executed:
 
@@ -65,5 +67,7 @@ More notes:
   + https://glusoft.com/tutorials/sdl2/use-glsl-shader
   + https://dev.to/noah11012/using-sdl2-2d-accelerated-renderering-1kcb
 + C++ coroutine tutorial https://www.scs.stanford.edu/~dm/blog/c++-coroutines.html
++ XCB programming
+  + https://www.x.org/releases/X11R7.7/doc/libxcb/tutorial/index.html
 
 We should have **co-locality edges** and **flexible edges** -- that is, edge types should provide hints about the amount of serialization required to transfer data. Maybe even something like "L1 cache co-located" vs "memory co-located" vs "co-mapped (but perhaps separate thread)" vs "no affinity".

@@ -1,4 +1,13 @@
-ALL: fabric1 fabric1-static fabric2 continuation-perf msgpack
+programs := fabric1 fabric1-static fabric2 continuation-perf msgpack xcb xlib-transparent xlib-glx
+
+ALL: $(programs)
+
+.PHONY: clean
+clean:
+	rm -f $(programs)
+
+x%: x%.cc
+	g++ -O3 -o $@ $< -lxcb -lX11 -lGL -lX11-xcb
 
 msgpack: msgpack.cc
 	g++ -O3 -o msgpack msgpack.cc
@@ -16,7 +25,3 @@ fabric1-static: fabric1.cc
 
 continuation-perf: continuation-perf.cc
 	g++ -O3 -o continuation-perf continuation-perf.cc -lboost_context
-
-.PHONY: clean
-clean:
-	rm -f fabric1 fabric1-static fabric2 continuation-perf msgpack
