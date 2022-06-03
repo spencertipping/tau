@@ -5,6 +5,9 @@
 + [General-purpose transforms](m/transform.md)
 
 
+## Proprietary data; keep closed-source
+
+
 ## Setup
 For all of `dev/hackery`:
 
