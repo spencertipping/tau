@@ -33,6 +33,7 @@ Some things should be trivial:
   + Data-driven multiplex
 + Generalized FDs-down-streams
   + Websocket and other common network adapters
+  + UNIX domain sockets
   + TCP servers (a building block on which we can `ws` adapt, possibly with shorthand)
   + `mmap`ped files/regions? (can create page faults)
   + Operators like `dup()` so we can share FDs when we want to

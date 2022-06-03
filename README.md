@@ -17,7 +17,13 @@ $ sudo apt install -y libboost-fiber-dev libmsgpack-dev
 
 
 ## Next steps
-Independent things that can be executed:
+Stuff I should do in order to move forwards:
+
++ Figure out how to get transparent frames (`libxcb` probably)
++ Vector sketching UI/language, incrementally-developed
+  + Figure out how to render text into this
+
+Independent things that _can_ be executed:
 
 + [x] Finalize prototype record format
 + [ ] Fabric prototype (note that we'll probably rewrite the original)
