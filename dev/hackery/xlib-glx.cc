@@ -1,4 +1,9 @@
+#include <chrono>
+#include <cmath>
 #include <iostream>
+#include <thread>
+
+#include <unistd.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xlib-xcb.h> /* for XGetXCBConnection, link with libX11-xcb */
@@ -12,6 +17,10 @@
 // TODO: struct these up
 static uint32_t w = 600;
 static uint32_t h = 600;
+
+
+static bool redraw   = true;
+static bool all_done = false;
 
 
 xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const screen,
@@ -57,8 +66,18 @@ void rect(GLfloat const x,
 }
 
 
-void draw()
+void draw(Display     *const display,
+          GLXDrawable  const drawable)
 {
+  using namespace std::chrono;
+
+  static uint32_t last_w = 0;
+  static uint32_t last_h = 0;
+
+  float ms = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+
+  if (last_w != w || last_h != h) glViewport(0, 0, last_w = w, last_h = h);
+
   glLoadIdentity();
   glOrtho(0, w, h, 0, 0.0f, 100.0f);
   glClearColor(0.06, 0.07, 0.08, 0.8);
@@ -69,11 +88,33 @@ void draw()
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
 
-  for (int r = 0; r < 10; ++r)
-    rect(10 + 10*r, 10, 5, 90, 0.8, 0.8, 0.9, 1.0);
+  for (int r = 0; r < (w - 20) / 10; ++r)
+    rect(10 + 10*r, h / 2.f, 5, 90 * sinf(ms / 1000 + r/4.f),
+         0.8, 0.8, 0.9, 1.0);
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
+
+  glXSwapBuffers(display, drawable);
+  //redraw = false;
+}
+
+
+void draw_loop(Display     *const display,
+               GLXDrawable  const drawable)
+{
+  using namespace std::chrono;
+
+  while (!all_done)
+  {
+    time_point<steady_clock> const start      = steady_clock::now();
+    time_point<steady_clock> const next_frame = start + 20ms;
+
+    if (redraw) draw(display, drawable);
+
+    int const micros = duration_cast<microseconds>(next_frame - steady_clock::now()).count();
+    if (micros > 0) usleep(micros);
+  }
 }
 
 
@@ -89,8 +130,7 @@ int main_loop(Display          *const display,
     switch (e->response_type & ~0x80)
     {
     case XCB_EXPOSE:
-      draw();
-      glXSwapBuffers(display, drawable);
+      redraw = true;
       break;
 
     case XCB_CONFIGURE_NOTIFY: {
@@ -101,9 +141,7 @@ int main_loop(Display          *const display,
       {
         w = ne->width;
         h = ne->height;
-        glViewport(0, 0, w, h);
-        draw();
-        glXSwapBuffers(display, drawable);
+        redraw  = true;
       }
 
       break;
@@ -114,14 +152,16 @@ int main_loop(Display          *const display,
     }
   }
 
+  all_done = true;
+
   return 0;
 }
 
 
-int setup_and_run(Display          *const display,
-                  xcb_connection_t *const connection,
-                  int               const default_screen,
-                  xcb_screen_t     *const screen)
+void setup_and_run(Display          *const display,
+                   xcb_connection_t *const connection,
+                   int               const default_screen,
+                   xcb_screen_t     *const screen)
 {
   int const visual_attribs[] = {
     GLX_X_RENDERABLE, True,
@@ -187,12 +227,14 @@ int setup_and_run(Display          *const display,
 
   GLXWindow const glxwindow = glXCreateWindow(display, fb_config, window, 0);
   glXMakeContextCurrent(display, glxwindow, glxwindow, context);
-  int       const r         = main_loop(display, connection, window, glxwindow);
+
+  std::thread event_thread(main_loop, display, connection, window, glxwindow);
+  draw_loop(display, glxwindow);
+  event_thread.join();
 
   glXDestroyWindow(display, glxwindow);
   xcb_destroy_window(connection, window);
   glXDestroyContext(display, context);
-  return r;
 }
 
 
@@ -207,7 +249,7 @@ int main(int argc, char *argv[])
   for (int n = default_screen; i.rem && n > 0; --n, xcb_screen_next(&i));
 
   xcb_screen_t *const screen = i.data;
-  int const r = setup_and_run(display, connection, default_screen, screen);
+  setup_and_run(display, connection, default_screen, screen);
   XCloseDisplay(display);
-  return r;
+  return 0;
 }
