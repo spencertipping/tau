@@ -9,8 +9,13 @@
 #include <xcb/xproto.h>
 
 
-xcb_visualid_t get_visualid_by_depth(xcb_screen_t *screen,
-                                     uint16_t      depth)
+// TODO: struct these up
+static uint32_t w = 600;
+static uint32_t h = 600;
+
+
+xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const screen,
+                                     uint16_t      const depth)
 {
   xcb_depth_iterator_t depth_iter;
 
@@ -30,16 +35,16 @@ xcb_visualid_t get_visualid_by_depth(xcb_screen_t *screen,
 void draw()
 {
   glLoadIdentity();
-
-  // TODO: query for window width/height (or track it)
-  glOrtho(0, 600, 600, 0, 0.0f, 100.0f);
+  glOrtho(0, w, h, 0, 0.0f, 100.0f);
   glClearColor(0.06, 0.07, 0.08, 0.8);
   glClearDepth(1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  glEnable(GL_MULTISAMPLE);
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
 
+  /*
   // TODO: factor this into a tau-geometry-rendering function
   float triangle_vertex[] = {
     300, 10,  // vertex 1
@@ -47,14 +52,21 @@ void draw()
     20,  550  // vertex 3
   };
   float triangle_color[] = {
-    0.8, 0.8, 0.9, 0.0, // red
-    0.5, 0.5, 0.5, 1.0, // green
-    0.5, 0.5, 0.6, 0.5  // blue
+    0.8, 0.8, 0.9, 0.0,
+    0.5, 0.5, 0.5, 1.0,
+    0.5, 0.5, 0.6, 0.5
   };
 
   glVertexPointer(2, GL_FLOAT, 0, triangle_vertex);
   glColorPointer(4, GL_FLOAT, 0, triangle_color);
   glDrawArrays(GL_TRIANGLES, 0, 3);
+  */
+
+  glBegin(GL_TRIANGLES);
+    glColor4f(0.8, 0.8, 0.9, 0.0); glVertex2f(300, 10);
+    glColor4f(0.5, 0.5, 0.5, 1.0); glVertex2f(580, 550);
+    glColor4f(0.5, 0.5, 0.6, 0.5); glVertex2f(20, 550);
+  glEnd();
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
@@ -66,36 +78,48 @@ int main_loop(Display          *const display,
               xcb_window_t      const window,
               GLXDrawable       const drawable)
 {
-  for (;;)
+  for (xcb_generic_event_t *e;
+       (e = xcb_wait_for_event(connection));
+       free(e))
   {
-    xcb_generic_event_t *const event = xcb_wait_for_event(connection);
-    if (!event)
-    {
-      std::cerr << "i/o error in xcb_wait_for_event" << std::endl;
-      return -1;
-    }
-
-    switch (event->response_type & ~0x80)
+    switch (e->response_type & ~0x80)
     {
     case XCB_EXPOSE:
       draw();
       glXSwapBuffers(display, drawable);
       break;
-    default:
+
+    case XCB_CONFIGURE_NOTIFY: {
+      xcb_configure_notify_event_t *const ne =
+        (xcb_configure_notify_event_t*) e;
+
+      if (ne->width > 0 && ne->height > 0 && (ne->width != w || ne->height != h))
+      {
+        std::cout << "resizing from " << w << ", " << h << " to "
+                  << ne->width << ", " << ne->height << std::endl;
+        w = ne->width;
+        h = ne->height;
+        glViewport(0, 0, w, h);
+        draw();
+        glXSwapBuffers(display, drawable);
+      }
+
       break;
     }
 
-    free(event);
+    default:
+      break;
+    }
   }
 
   return 0;
 }
 
 
-int setup_and_run(Display          *display,
-                  xcb_connection_t *connection,
-                  int               default_screen,
-                  xcb_screen_t     *screen)
+int setup_and_run(Display          *const display,
+                  xcb_connection_t *const connection,
+                  int               const default_screen,
+                  xcb_screen_t     *const screen)
 {
   int const visual_attribs[] = {
     GLX_X_RENDERABLE, True,
@@ -106,9 +130,10 @@ int setup_and_run(Display          *display,
     GLX_DEPTH_SIZE, 24,
     GLX_STENCIL_SIZE, 8,
     GLX_DOUBLEBUFFER, True,
+    GLX_SAMPLE_BUFFERS, 1,   // for MSAA
+    GLX_SAMPLES, 8,          // for MSAA
     None};
 
-  /* Query framebuffer configurations that match visual_attribs */
   GLXFBConfig *fb_configs     = 0;
   int          num_fb_configs = 0;
   fb_configs = glXChooseFBConfig(display,
@@ -116,7 +141,6 @@ int setup_and_run(Display          *display,
                                  visual_attribs,
                                  &num_fb_configs);
 
-  /* Select first framebuffer config and query visualID */
   GLXFBConfig const fb_config = fb_configs[0];
   GLXContext  const context   = glXCreateNewContext(display,
                                                     fb_config,
@@ -133,24 +157,27 @@ int setup_and_run(Display          *display,
                       screen->root,
                       visualID);
 
-  uint32_t valuelist[] = {screen->black_pixel,
-                          screen->black_pixel,
-                          XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_KEY_PRESS,
-                          colormap,
-                          0};
-
-  uint32_t valuemask = XCB_CW_EVENT_MASK   | XCB_CW_COLORMAP |
-                       XCB_CW_BORDER_PIXEL | XCB_CW_BACK_PIXEL;
+  uint32_t const valuelist[] =
+    {screen->black_pixel,
+     screen->black_pixel,
+     XCB_EVENT_MASK_EXPOSURE
+       | XCB_EVENT_MASK_KEY_PRESS
+       | XCB_EVENT_MASK_STRUCTURE_NOTIFY,
+     colormap,
+     0};
 
   xcb_create_window(connection,
                     32,
                     window,
                     screen->root,
-                    0, 0, 600, 600,
+                    0, 0, w, h,
                     0,
                     XCB_WINDOW_CLASS_INPUT_OUTPUT,
                     visualID,
-                    valuemask,
+                    XCB_CW_EVENT_MASK
+                      | XCB_CW_COLORMAP
+                      | XCB_CW_BORDER_PIXEL
+                      | XCB_CW_BACK_PIXEL,
                     valuelist);
 
   // NOTE: window must be mapped before glXMakeContextCurrent
@@ -166,6 +193,7 @@ int setup_and_run(Display          *display,
   return r;
 }
 
+
 int main(int argc, char *argv[])
 {
   Display          *const display        = XOpenDisplay(0);
@@ -173,13 +201,10 @@ int main(int argc, char *argv[])
   xcb_connection_t *const connection     = XGetXCBConnection(display);
   XSetEventQueueOwner(display, XCBOwnsEventQueue);
 
-  xcb_screen_t          *screen = 0;
-  xcb_screen_iterator_t  screen_iter =
-      xcb_setup_roots_iterator(xcb_get_setup(connection));
-  for (int screen_num = default_screen; screen_iter.rem && screen_num > 0;
-       --screen_num, xcb_screen_next(&screen_iter));
-  screen = screen_iter.data;
+  xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(connection));
+  for (int n = default_screen; i.rem && n > 0; --n, xcb_screen_next(&i));
 
+  xcb_screen_t *const screen = i.data;
   int const r = setup_and_run(display, connection, default_screen, screen);
   XCloseDisplay(display);
   return r;
