@@ -32,6 +32,29 @@ xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const screen,
 }
 
 
+// TODO: arc()
+
+
+void rect(GLfloat const x,
+          GLfloat const y,
+          GLfloat const w,
+          GLfloat const h,
+          GLfloat const r,
+          GLfloat const g,
+          GLfloat const b,
+          GLfloat const a)
+{
+  // TODO: convert to endpoints + cross-width so we can do diagonals
+  glBegin(GL_TRIANGLE_FAN);
+  glColor4f(r, g, b, a);
+  glVertex2f(x, y);
+  glVertex2f(x+w, y);
+  glVertex2f(x+w, y+h);
+  glVertex2f(x, y+h);
+  glEnd();
+}
+
+
 void draw()
 {
   glLoadIdentity();
@@ -44,29 +67,8 @@ void draw()
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
 
-  /*
-  // TODO: factor this into a tau-geometry-rendering function
-  float triangle_vertex[] = {
-    300, 10,  // vertex 1
-    580, 550, // vertex 2
-    20,  550  // vertex 3
-  };
-  float triangle_color[] = {
-    0.8, 0.8, 0.9, 0.0,
-    0.5, 0.5, 0.5, 1.0,
-    0.5, 0.5, 0.6, 0.5
-  };
-
-  glVertexPointer(2, GL_FLOAT, 0, triangle_vertex);
-  glColorPointer(4, GL_FLOAT, 0, triangle_color);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
-  */
-
-  glBegin(GL_TRIANGLES);
-    glColor4f(0.8, 0.8, 0.9, 0.0); glVertex2f(300, 10);
-    glColor4f(0.5, 0.5, 0.5, 1.0); glVertex2f(580, 550);
-    glColor4f(0.5, 0.5, 0.6, 0.5); glVertex2f(20, 550);
-  glEnd();
+  for (int r = 0; r < 10; ++r)
+    rect(10 + 10*r, 10, 5, 90, 0.8, 0.8, 0.9, 1.0);
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
@@ -95,8 +97,6 @@ int main_loop(Display          *const display,
 
       if (ne->width > 0 && ne->height > 0 && (ne->width != w || ne->height != h))
       {
-        std::cout << "resizing from " << w << ", " << h << " to "
-                  << ne->width << ", " << ne->height << std::endl;
         w = ne->width;
         h = ne->height;
         glViewport(0, 0, w, h);
