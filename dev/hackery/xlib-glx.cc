@@ -15,6 +15,7 @@
 
 #include <GL/gl.h>
 #include <GL/glx.h>
+#include <xcb/xproto.h>
 
 /*
     Attribs filter the list of FBConfigs returned by glXChooseFBConfig().
@@ -33,9 +34,60 @@ static int visual_attribs[] = {
     // GLX_SAMPLES         , 4,
     None};
 
+xcb_visualid_t get_visualid_by_depth(xcb_screen_t *screen, uint16_t depth) {
+    xcb_depth_iterator_t depth_iter;
+
+    depth_iter = xcb_screen_allowed_depths_iterator(screen);
+    for (; depth_iter.rem; xcb_depth_next(&depth_iter)) {
+        if (depth_iter.data->depth != depth)
+            continue;
+
+        xcb_visualtype_iterator_t visual_iter;
+
+        visual_iter = xcb_depth_visuals_iterator(depth_iter.data);
+        if (!visual_iter.rem)
+            continue;
+        return visual_iter.data->visual_id;
+    }
+    return 0;
+}
+
 void draw() {
+  glLoadIdentity();
+  glOrtho(0, 600, 600, 0, 0.0f, 100.0f);
   glClearColor(0.2, 0.4, 0.9, 0.5);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClearDepth(1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+
+  float triangle_vertex[] = {
+      300, 10,  // vertex 1
+      580, 550, // vertex 2
+      20,  550  // vertex 3
+  };
+  float triangle_color[] = {
+    0, 0, 0, 0.0, // red
+    0, 1, 0, 1.0, // green
+    0, 0, 1, 0.5  // blue
+  };
+  glVertexPointer(2, GL_FLOAT, 0, triangle_vertex);
+  glColorPointer(4, GL_FLOAT, 0, triangle_color);
+  glDrawArrays(GL_TRIANGLES, 0, 3);
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
+
+//  glClearColor(0.2, 0.4, 0.9, 0.5);
+//  glClear(GL_COLOR_BUFFER_BIT);
+
+  glEnable(GL_LINE_SMOOTH);
+  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+  float line_vertex[] = {10, 10, 400, 600};
+  glVertexPointer(2, GL_FLOAT, 0, line_vertex);
+  glDrawArrays(GL_LINES, 0, 2);
 }
 
 int main_loop(Display *display, xcb_connection_t *connection,
@@ -69,47 +121,48 @@ int main_loop(Display *display, xcb_connection_t *connection,
   return 0;
 }
 
-int setup_and_run(Display *display, xcb_connection_t *connection,
-                  int default_screen, xcb_screen_t *screen) {
+int setup_and_run(Display          *display,
+                  xcb_connection_t *connection,
+                  int               default_screen,
+                  xcb_screen_t     *screen) {
   int visualID = 0;
 
   /* Query framebuffer configurations that match visual_attribs */
-  GLXFBConfig *fb_configs = 0;
-  int num_fb_configs = 0;
-  fb_configs = glXChooseFBConfig(display, default_screen, visual_attribs,
+  GLXFBConfig *fb_configs     = 0;
+  int          num_fb_configs = 0;
+  fb_configs = glXChooseFBConfig(display,
+                                 default_screen,
+                                 visual_attribs,
                                  &num_fb_configs);
-  if (!fb_configs || num_fb_configs == 0) {
-    fprintf(stderr, "glXGetFBConfigs failed: got %d\n", num_fb_configs);
-    return -1;
-  }
 
-  printf("Found %d matching FB configs", num_fb_configs);
+  printf("Found %d matching FB configs\n", num_fb_configs);
 
   /* Select first framebuffer config and query visualID */
   GLXFBConfig fb_config = fb_configs[0];
-  glXGetFBConfigAttrib(display, fb_config, GLX_VISUAL_ID, &visualID);
+  //glXGetFBConfigAttrib(display, fb_config, GLX_VISUAL_ID, &visualID);
+  visualID = get_visualid_by_depth(screen, 32);
+  printf("visualID = %d\n", visualID);
+  GLXContext context = glXCreateNewContext(display, fb_config, GLX_RGBA_TYPE, 0, True);
 
-  GLXContext context;
-
-  /* Create OpenGL context */
-  context = glXCreateNewContext(display, fb_config, GLX_RGBA_TYPE, 0, True);
-  if (!context) {
-    fprintf(stderr, "glXCreateNewContext failed\n");
-    return -1;
-  }
-
-  /* Create XID's for colormap and window */
   xcb_colormap_t colormap = xcb_generate_id(connection);
-  xcb_window_t window = xcb_generate_id(connection);
+  xcb_window_t   window   = xcb_generate_id(connection);
+  xcb_create_colormap(connection,
+                      XCB_COLORMAP_ALLOC_NONE,
+                      colormap,
+                      screen->root,
+                      visualID);
 
-  /* Create colormap */
-  xcb_create_colormap(connection, XCB_COLORMAP_ALLOC_NONE, colormap,
-                      screen->root, visualID);
-
-  /* Create window */
   uint32_t eventmask = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_KEY_PRESS;
-  uint32_t valuelist[] = {eventmask, colormap, 0};
-  uint32_t valuemask = XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
+  uint32_t valuelist[] =
+    {screen->black_pixel,
+     screen->black_pixel,
+     eventmask,
+     colormap,
+     0};
+
+  uint32_t valuemask =
+    XCB_CW_EVENT_MASK   | XCB_CW_COLORMAP |
+    XCB_CW_BORDER_PIXEL | XCB_CW_BACK_PIXEL;
 
   xcb_create_window(connection, 32, window, screen->root, 0,
                     0, 600, 600, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT, visualID,
@@ -118,16 +171,14 @@ int setup_and_run(Display *display, xcb_connection_t *connection,
   // NOTE: window must be mapped before glXMakeContextCurrent
   xcb_map_window(connection, window);
 
-  /* Create GLX Window */
-  GLXDrawable drawable = 0;
-
-  GLXWindow glxwindow = glXCreateWindow(display, fb_config, window, 0);
+  GLXDrawable drawable  = 0;
+  GLXWindow   glxwindow = glXCreateWindow(display, fb_config, window, 0);
 
   if (!window) {
     xcb_destroy_window(connection, window);
     glXDestroyContext(display, context);
 
-    fprintf(stderr, "glXDestroyContext failed\n");
+    fprintf(stderr, "glXCreateWindow failed\n");
     return -1;
   }
 
@@ -145,11 +196,8 @@ int setup_and_run(Display *display, xcb_connection_t *connection,
   /* run main loop */
   int retval = main_loop(display, connection, window, drawable);
 
-  /* Cleanup */
   glXDestroyWindow(display, glxwindow);
-
   xcb_destroy_window(connection, window);
-
   glXDestroyContext(display, context);
 
   return retval;
@@ -161,20 +209,10 @@ int main(int argc, char *argv[]) {
 
   /* Open Xlib Display */
   display = XOpenDisplay(0);
-  if (!display) {
-    fprintf(stderr, "Can't open display\n");
-    return -1;
-  }
-
   default_screen = DefaultScreen(display);
 
   /* Get the XCB connection from the display */
   xcb_connection_t *connection = XGetXCBConnection(display);
-  if (!connection) {
-    XCloseDisplay(display);
-    fprintf(stderr, "Can't get xcb connection from display\n");
-    return -1;
-  }
 
   /* Acquire event queue ownership */
   XSetEventQueueOwner(display, XCBOwnsEventQueue);

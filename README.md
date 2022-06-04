@@ -20,8 +20,9 @@ $ sudo apt install -y libboost-fiber-dev libmsgpack-dev libxcb1-dev
 Stuff I should do in order to move forwards:
 
 + [x] Figure out how to get transparent frames (`libxcb` probably)
-  + [ ] Figure out how to get X11/GL rendering
-  + [ ] Figure out how to get X11/GL window transparency
+  + [x] Figure out how to get X11/GL rendering
+  + [x] Figure out how to get X11/GL window transparency
+  + [x] Render some geometry
 + [ ] Vector sketching UI/language, incrementally-developed
   + [ ] Figure out how to render text into this
 
