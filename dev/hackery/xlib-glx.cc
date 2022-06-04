@@ -34,6 +34,8 @@ xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const screen,
 
 // TODO: arc()
 
+// TODO: text rendering with proper splines i guess
+
 
 void rect(GLfloat const x,
           GLfloat const y,

@@ -26,7 +26,9 @@ Stuff I should do in order to move forwards:
 + [ ] Vector sketching UI/language, incrementally-developed
   + [ ] Figure out how to render text into this
 
-Independent things that _can_ be executed:
+**NOTE:** https://wdobbie.com/post/gpu-text-rendering-with-vector-textures/ lays it all out; https://github.com/azsn/gllabel/blob/master/lib/gllabel.cpp is an example driver for it
+
+Independent things that can be executed, but require some higher-level planning:
 
 + [x] Finalize prototype record format
 + [ ] Fabric prototype (note that we'll probably rewrite the original)
