@@ -93,7 +93,7 @@ void draw(Display     *const display,
   for (int r = 0; r < (w - 20) / 50; ++r)
     line(10 + 50*r, h / 2.,
          10 + 51*r, h / 2. + h/4. * sin(ms / 1000.0 + r / 4.),
-         20,
+         20 + 15 * cos(ms / 800.0 + r / 6.),
          0.8, 0.8, 0.9, 1.0);
 
   glDisableClientState(GL_VERTEX_ARRAY);
