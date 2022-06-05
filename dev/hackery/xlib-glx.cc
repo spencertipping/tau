@@ -14,6 +14,10 @@
 #include <xcb/xproto.h>
 
 
+// TODO: make a library out of this file so we can include custom render/interaction
+// logic and skip most of the boilerplate
+
+
 // TODO: struct these up
 static uint32_t w = 600;
 static uint32_t h = 600;
@@ -41,29 +45,25 @@ xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const screen,
 }
 
 
-// TODO: arc()
-
-
 void line(double const x1, double const y1,
           double const x2, double const y2,
           double const w,
           double const r, double const g,
           double const b, double const a)
 {
-  // TODO: convert to endpoints + cross-width so we can do diagonals
   glBegin(GL_TRIANGLE_FAN);
   glColor4f(r, g, b, a);
 
-  double u   = y2 - y1;
-  double v   = x1 - x2;
-  double rho = w * 0.5 / sqrt(u*u + v*v);
+  double       u   = y2 - y1;
+  double       v   = x1 - x2;
+  double const rho = w * 0.5 / sqrt(u*u + v*v);
   u *= rho;
   v *= rho;
 
   glVertex2d(x1-u, y1-v);
-  glVertex2f(x1+u, y1+v);
-  glVertex2f(x2+u, y2+v);
-  glVertex2f(x2-u, y2-v);
+  glVertex2d(x1+u, y1+v);
+  glVertex2d(x2+u, y2+v);
+  glVertex2d(x2-u, y2-v);
   glEnd();
 }
 
@@ -90,6 +90,7 @@ void draw(Display     *const display,
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
 
+  // TODO: vector of things to draw
   for (int r = 0; r < (w - 20) / 50; ++r)
     line(10 + 50*r, h / 2.,
          10 + 51*r, h / 2. + h/4. * sin(ms / 1000.0 + r / 4.),
