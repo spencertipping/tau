@@ -23,8 +23,10 @@ Stuff I should do in order to move forwards:
   + [x] Figure out how to get X11/GL rendering
   + [x] Figure out how to get X11/GL window transparency
   + [x] Render some geometry
+  + [x] Multithreaded/async rendering
 + [ ] Vector sketching UI/language, incrementally-developed
   + [ ] Figure out how to render text into this
+    + **Q:** do we need proper text, or can we DIY some glyphs? Probably the latter
 
 **NOTE:** https://wdobbie.com/post/gpu-text-rendering-with-vector-textures/ lays it all out; https://github.com/azsn/gllabel/blob/master/lib/gllabel.cpp is an example driver for it
 
