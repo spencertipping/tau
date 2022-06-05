@@ -43,25 +43,27 @@ xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const screen,
 
 // TODO: arc()
 
-// TODO: text rendering with proper splines i guess
 
-
-void rect(GLfloat const x,
-          GLfloat const y,
-          GLfloat const w,
-          GLfloat const h,
-          GLfloat const r,
-          GLfloat const g,
-          GLfloat const b,
-          GLfloat const a)
+void line(double const x1, double const y1,
+          double const x2, double const y2,
+          double const w,
+          double const r, double const g,
+          double const b, double const a)
 {
   // TODO: convert to endpoints + cross-width so we can do diagonals
   glBegin(GL_TRIANGLE_FAN);
   glColor4f(r, g, b, a);
-  glVertex2f(x, y);
-  glVertex2f(x+w, y);
-  glVertex2f(x+w, y+h);
-  glVertex2f(x, y+h);
+
+  double u   = y2 - y1;
+  double v   = x1 - x2;
+  double rho = w * 0.5 / sqrt(u*u + v*v);
+  u *= rho;
+  v *= rho;
+
+  glVertex2d(x1-u, y1-v);
+  glVertex2f(x1+u, y1+v);
+  glVertex2f(x2+u, y2+v);
+  glVertex2f(x2-u, y2-v);
   glEnd();
 }
 
@@ -88,8 +90,10 @@ void draw(Display     *const display,
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
 
-  for (int r = 0; r < (w - 20) / 10; ++r)
-    rect(10 + 10*r, h / 2.f, 5, 90 * sinf(ms / 1000 + r/4.f),
+  for (int r = 0; r < (w - 20) / 50; ++r)
+    line(10 + 50*r, h / 2.,
+         10 + 51*r, h / 2. + h/4. * sin(ms / 1000.0 + r / 4.),
+         20,
          0.8, 0.8, 0.9, 1.0);
 
   glDisableClientState(GL_VERTEX_ARRAY);
