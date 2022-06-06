@@ -37,18 +37,9 @@ Stuff I should do in order to move forwards:
   + [ ] Define UI state and GL projection component network
   + [ ] Define visual topology rendering
 + [ ] Define instantiation grammar
-  + [ ] Create initial fabric
-
-
-### Higher-level steps
-Independent things that can be executed, but require some higher-level planning:
-
-+ [x] Finalize prototype record format
-+ [ ] Fabric prototype (note that we'll probably rewrite the original)
-  + [ ] Hand-code an initial stream process
-  + [ ] Experiment with coercions to/from records
-+ [ ] Operator class prototype
-+ [ ] C++/SDL2 editor prototype
++ [ ] Create initial fabric (with realtime scheduling)
+  + [ ] Drive rendering with fabric events
+  + [ ] Async inbound XCB events
 
 
 ## Compilation model
