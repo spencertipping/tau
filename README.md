@@ -30,6 +30,17 @@ Stuff I should do in order to move forwards:
 
 **NOTE:** https://wdobbie.com/post/gpu-text-rendering-with-vector-textures/ lays it all out; https://github.com/azsn/gllabel/blob/master/lib/gllabel.cpp is an example driver for it
 
+
+### Self-hosting path
++ [ ] Factor the UI shell into a τ component
+  + [ ] Needs to work with the multithreaded frontend
+  + [ ] Define UI state and GL projection component network
+  + [ ] Define visual topology rendering
++ [ ] Define instantiation grammar
+  + [ ] Create initial fabric
+
+
+### Higher-level steps
 Independent things that can be executed, but require some higher-level planning:
 
 + [x] Finalize prototype record format

@@ -26,6 +26,7 @@ static uint32_t w = 600;
 static uint32_t h = 600;
 
 
+static bool active   = true;
 static bool redraw   = true;
 static bool all_done = false;
 
@@ -51,7 +52,8 @@ xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const screen,
 
 void line(double const x1, double const y1,
           double const x2, double const y2,
-          double const w,  rgba   const rgba)
+          double const w,
+          rgba   const rgba)
 {
   glBegin(GL_TRIANGLE_FAN);
   glColor4f((rgba >> 24       ) / 255.,
@@ -87,13 +89,11 @@ void draw(Display     *const display,
 
   glLoadIdentity();
   glOrtho(0, w, h, 0, 0.0f, 100.0f);
-  glClearColor(0.06, 0.07, 0.08, 0.8);
+  glClearColor(0.01, 0.02, 0.03, active ? 0.8 : 0.4);
   glClearDepth(1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glEnable(GL_MULTISAMPLE);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_COLOR_ARRAY);
 
   // TODO: vector of things to draw
   for (int r = 0; r < (w - 20) / 50; ++r)
@@ -101,9 +101,6 @@ void draw(Display     *const display,
          10 + 51*r, h / 2. + h/4. * sin(ms / 1000.0 + r / 4.),
          2 + cos(ms / 800.0 + r/3.),
          0xe0e0f0ff);
-
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_COLOR_ARRAY);
 
   glXSwapBuffers(display, drawable);
   //redraw = false;
@@ -143,6 +140,16 @@ int main_loop(Display          *const display,
       redraw = true;
       break;
 
+    case XCB_FOCUS_IN:
+      active = true;
+      redraw = true;
+      break;
+
+    case XCB_FOCUS_OUT:
+      active = false;
+      redraw = true;
+      break;
+
       /*
     case XCB_BUTTON_PRESS: {
       let pe = reinterpret_cast<xcb_button_press_event_t*>(e);
@@ -156,7 +163,7 @@ int main_loop(Display          *const display,
       {
         w = ne->width;
         h = ne->height;
-        redraw  = true;
+        redraw = true;
       }
       break;
     }
@@ -223,6 +230,7 @@ void setup_and_run(Display          *const display,
        | XCB_EVENT_MASK_BUTTON_MOTION
        | XCB_EVENT_MASK_BUTTON_PRESS
        | XCB_EVENT_MASK_BUTTON_RELEASE
+       | XCB_EVENT_MASK_FOCUS_CHANGE
        | XCB_EVENT_MASK_STRUCTURE_NOTIFY,
      colormap,
      0};
