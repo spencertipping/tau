@@ -31,6 +31,13 @@ Stuff I should do in order to move forwards:
 **NOTE:** https://wdobbie.com/post/gpu-text-rendering-with-vector-textures/ lays it all out; https://github.com/azsn/gllabel/blob/master/lib/gllabel.cpp is an example driver for it
 
 
+### Defining the language
++ What do I want to _see_ when I write τ?
++ How do I want to _think_ when I write τ?
+
+The editor is a great starter project; it's a good exercise of what we want to do and it gives us immediate feedback.
+
+
 ### Self-hosting path
 + [ ] Factor the UI shell into a τ component
   + [ ] Needs to work with the multithreaded frontend
