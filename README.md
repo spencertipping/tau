@@ -31,11 +31,18 @@ Stuff I should do in order to move forwards:
 **NOTE:** https://wdobbie.com/post/gpu-text-rendering-with-vector-textures/ lays it all out; https://github.com/azsn/gllabel/blob/master/lib/gllabel.cpp is an example driver for it
 
 
-### Defining the language
-+ What do I want to _see_ when I write τ?
-+ How do I want to _think_ when I write τ?
+### X11/GL architecture
+Each window is a single component within a central τ fabric. Each window owns a thread that produces XCB events on a queue; these forward to a τ channel unidirectionally. So an X11/GL component works like this from τ's perspective:
 
-The editor is a great starter project; it's a good exercise of what we want to do and it gives us immediate feedback.
+```
+rendering commands -> |
+XCB events <--------- | X11/GL window
+                      |
+```
+
+**Q:** how do we track window size for GL updates? We could rely solely on XCB events as updates, but suppose we resize the window ourselves. `glViewport()` should be edge-triggered, so I guess we aggregate all possible resize events into a channel that re-issues `glViewport()`.
+
+...but how to synchronize that with the actual render loop? Seems like the render loop is then a derivative event that happens, but is rate-limited -- meaning so is `glViewport()`. So maybe we have a queue that batches up events per render quantum and processes them all at once: a time-batching queue (presumably with local _τ_ markers to delinate end-of-this-cycle).
 
 
 ### Self-hosting path
