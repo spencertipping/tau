@@ -14,6 +14,9 @@
 #include <xcb/xproto.h>
 
 
+#define let auto const
+
+
 // TODO: make a library out of this file so we can include custom render/interaction
 // logic and skip most of the boilerplate
 
@@ -27,17 +30,18 @@ static bool redraw   = true;
 static bool all_done = false;
 
 
+typedef uint32_t rgba;
+
+
 xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const screen,
                                      uint16_t      const depth)
 {
-  xcb_depth_iterator_t depth_iter;
-
-  depth_iter = xcb_screen_allowed_depths_iterator(screen);
-  for (; depth_iter.rem; xcb_depth_next(&depth_iter)) {
+  for (auto depth_iter = xcb_screen_allowed_depths_iterator(screen);
+       depth_iter.rem;
+       xcb_depth_next(&depth_iter)) {
     if (depth_iter.data->depth != depth) continue;
 
-    xcb_visualtype_iterator_t const visual_iter =
-      xcb_depth_visuals_iterator(depth_iter.data);
+    let visual_iter = xcb_depth_visuals_iterator(depth_iter.data);
     if (!visual_iter.rem) continue;
     return visual_iter.data->visual_id;
   }
@@ -47,12 +51,13 @@ xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const screen,
 
 void line(double const x1, double const y1,
           double const x2, double const y2,
-          double const w,
-          double const r, double const g,
-          double const b, double const a)
+          double const w,  rgba   const rgba)
 {
   glBegin(GL_TRIANGLE_FAN);
-  glColor4f(r, g, b, a);
+  glColor4f((rgba >> 24       ) / 255.,
+            (rgba >> 16 & 0xff) / 255.,
+            (rgba >> 8  & 0xff) / 255.,
+            (rgba       & 0xff) / 255.);
 
   double       u   = y2 - y1;
   double       v   = x1 - x2;
@@ -76,7 +81,7 @@ void draw(Display     *const display,
   static uint32_t last_w = 0;
   static uint32_t last_h = 0;
 
-  float ms = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+  let ms = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
 
   if (last_w != w || last_h != h) glViewport(0, 0, last_w = w, last_h = h);
 
@@ -94,8 +99,8 @@ void draw(Display     *const display,
   for (int r = 0; r < (w - 20) / 50; ++r)
     line(10 + 50*r, h / 2.,
          10 + 51*r, h / 2. + h/4. * sin(ms / 1000.0 + r / 4.),
-         20 + 15 * cos(ms / 800.0 + r / 6.),
-         0.8, 0.8, 0.9, 1.0);
+         2 + cos(ms / 800.0 + r/3.),
+         0xe0e0f0ff);
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
@@ -112,12 +117,12 @@ void draw_loop(Display     *const display,
 
   while (!all_done)
   {
-    time_point<steady_clock> const start      = steady_clock::now();
-    time_point<steady_clock> const next_frame = start + 20ms;
+    let start = steady_clock::now();
+    let next_frame = start + 42ms;
 
     if (redraw) draw(display, drawable);
 
-    int const micros = duration_cast<microseconds>(next_frame - steady_clock::now()).count();
+    let micros = duration_cast<microseconds>(next_frame - steady_clock::now()).count();
     if (micros > 0) usleep(micros);
   }
 }
@@ -138,21 +143,26 @@ int main_loop(Display          *const display,
       redraw = true;
       break;
 
-    case XCB_CONFIGURE_NOTIFY: {
-      xcb_configure_notify_event_t *const ne =
-        (xcb_configure_notify_event_t*) e;
+      /*
+    case XCB_BUTTON_PRESS: {
+      let pe = reinterpret_cast<xcb_button_press_event_t*>(e);
+      break;
+    }
+      */
 
+    case XCB_CONFIGURE_NOTIFY: {
+      let ne = reinterpret_cast<xcb_configure_notify_event_t*>(e);
       if (ne->width > 0 && ne->height > 0 && (ne->width != w || ne->height != h))
       {
         w = ne->width;
         h = ne->height;
         redraw  = true;
       }
-
       break;
     }
 
     default:
+      std::cout << "unhandled event of type " << (int) e->response_type << std::endl;
       break;
     }
   }
@@ -188,16 +198,16 @@ void setup_and_run(Display          *const display,
                                  visual_attribs,
                                  &num_fb_configs);
 
-  GLXFBConfig const fb_config = fb_configs[0];
-  GLXContext  const context   = glXCreateNewContext(display,
-                                                    fb_config,
-                                                    GLX_RGBA_TYPE,
-                                                    0,
-                                                    True);
+  let fb_config = fb_configs[0];
+  let context   = glXCreateNewContext(display,
+                                      fb_config,
+                                      GLX_RGBA_TYPE,
+                                      0,
+                                      True);
 
-  xcb_colormap_t const colormap = xcb_generate_id(connection);
-  xcb_window_t   const window   = xcb_generate_id(connection);
-  int            const visualID = get_visualid_by_depth(screen, 32);
+  let colormap = xcb_generate_id(connection);
+  let window   = xcb_generate_id(connection);
+  let visualID = get_visualid_by_depth(screen, 32);
   xcb_create_colormap(connection,
                       XCB_COLORMAP_ALLOC_NONE,
                       colormap,
@@ -209,6 +219,10 @@ void setup_and_run(Display          *const display,
      screen->black_pixel,
      XCB_EVENT_MASK_EXPOSURE
        | XCB_EVENT_MASK_KEY_PRESS
+       | XCB_EVENT_MASK_POINTER_MOTION
+       | XCB_EVENT_MASK_BUTTON_MOTION
+       | XCB_EVENT_MASK_BUTTON_PRESS
+       | XCB_EVENT_MASK_BUTTON_RELEASE
        | XCB_EVENT_MASK_STRUCTURE_NOTIFY,
      colormap,
      0};
@@ -230,7 +244,7 @@ void setup_and_run(Display          *const display,
   // NOTE: window must be mapped before glXMakeContextCurrent
   xcb_map_window(connection, window);
 
-  GLXWindow const glxwindow = glXCreateWindow(display, fb_config, window, 0);
+  let glxwindow = glXCreateWindow(display, fb_config, window, 0);
   glXMakeContextCurrent(display, glxwindow, glxwindow, context);
 
   std::thread event_thread(main_loop, display, connection, window, glxwindow);
@@ -245,15 +259,15 @@ void setup_and_run(Display          *const display,
 
 int main(int argc, char *argv[])
 {
-  Display          *const display        = XOpenDisplay(0);
-  int               const default_screen = DefaultScreen(display);
-  xcb_connection_t *const connection     = XGetXCBConnection(display);
+  let display        = XOpenDisplay(0);
+  let default_screen = DefaultScreen(display);
+  let connection     = XGetXCBConnection(display);
   XSetEventQueueOwner(display, XCBOwnsEventQueue);
 
-  xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(connection));
+  auto i = xcb_setup_roots_iterator(xcb_get_setup(connection));
   for (int n = default_screen; i.rem && n > 0; --n, xcb_screen_next(&i));
 
-  xcb_screen_t *const screen = i.data;
+  let screen = i.data;
   setup_and_run(display, connection, default_screen, screen);
   XCloseDisplay(display);
   return 0;
