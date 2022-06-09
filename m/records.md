@@ -54,6 +54,8 @@ Key characteristics of records:
 
 `utf9` is designed to be used in-place, that is without "unpacking" into an in-memory datastructure. This means a few things:
 
-1. `utf9` structures are immutable
+1. `utf9` structures are shape-immutable
 2. Containers prepend byte-lengths, indexes, and complexity measures
 3. Functionally speaking, `utf9` behaves like a micro-heap that is GC'd prior to serialization
+
+**TODO:** explore the micro-heap idea. It makes a lot of sense, and we can make calculated tradeoffs between "GC first then send" vs "send without GC" to trade space and time
