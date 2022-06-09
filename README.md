@@ -44,6 +44,8 @@ XCB/GL events <------------- | X11/GL window
 
 In practice, we're likely to have a viewstate register that incorporates model + camera. Then we'll clock-sync that to a stream of render commands, which establishes a framerate. If the register hasn't changed and no intervening event requires us to re-render, then we leave the window alone.
 
+**Q:** what kind of data are we sending around? Discussion in [m/records.md](m/records.md).
+
 
 ### Rendering primitives
 1. Shaders to compile
