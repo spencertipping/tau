@@ -12,7 +12,7 @@
 For all of `dev/hackery`:
 
 ```sh
-$ sudo apt install -y libboost-fiber-dev libmsgpack-dev libxcb1-dev
+$ sudo apt install -y libboost-fiber-dev libmsgpack-dev libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev
 ```
 
 
@@ -35,14 +35,21 @@ Stuff I should do in order to move forwards:
 Each window is a single component within a central τ fabric. Each window owns a thread that produces XCB events on a queue; these forward to a τ channel unidirectionally. So an X11/GL component works like this from τ's perspective:
 
 ```
-rendering commands -> |
-XCB events <--------- | X11/GL window
-                      |
+rendering/XCB commands ----> |
+XCB/GL events <------------- | X11/GL window
+                             |
 ```
 
-**Q:** how do we track window size for GL updates? We could rely solely on XCB events as updates, but suppose we resize the window ourselves. `glViewport()` should be edge-triggered, so I guess we aggregate all possible resize events into a channel that re-issues `glViewport()`.
+**NOTE:** window size change is an XCB event, and it can be a command too. Frames might emit a synthetic XCB event when we request a size change, confirming that the new size is now active.
 
-...but how to synchronize that with the actual render loop? Seems like the render loop is then a derivative event that happens, but is rate-limited -- meaning so is `glViewport()`. So maybe we have a queue that batches up events per render quantum and processes them all at once: a time-batching queue (presumably with local _τ_ markers to delinate end-of-this-cycle).
+In practice, we're likely to have a viewstate register that incorporates model + camera. Then we'll clock-sync that to a stream of render commands, which establishes a framerate. If the register hasn't changed and no intervening event requires us to re-render, then we leave the window alone.
+
+
+### Rendering primitives
+1. Shaders to compile
+2. Triangles to render
+
+Shaders can produce GL "shader error" outputs for debugging purposes. See [shader compilation](https://www.khronos.org/opengl/wiki/Shader_Compilation) for the C++ code canonically used to do this.
 
 
 ### Self-hosting path
@@ -54,14 +61,6 @@ XCB events <--------- | X11/GL window
 + [ ] Create initial fabric (with realtime scheduling)
   + [ ] Drive rendering with fabric events
   + [ ] Async inbound XCB events
-
-
-## Compilation model
-`tau` is more of a meta-language than a language, in that the first stage is to compile operator definitions (which are parser specs and C++ backing code) into an executable that can then parse its input and construct the dataflow graph. We might have a three-stage process:
-
-1. Perl to compile the C++ image
-2. That image consumes 2D ASCII source and produces another image
-3. That image supports graphical programming and a more complex file structure
 
 
 ## Architecture?
@@ -82,12 +81,6 @@ Tau nodes can spin up other nodes and send file descriptors around, creating the
 
 More notes:
 
-+ C++/native should use SDL2 (which provides shader support)
-  + http://wiki.libsdl.org/Introduction
-  + https://www.jamesfmackenzie.com/2019/12/01/webassembly-graphics-with-sdl/
-  + https://glusoft.com/tutorials/sdl2/use-glsl-shader
-  + https://dev.to/noah11012/using-sdl2-2d-accelerated-renderering-1kcb
-+ C++ coroutine tutorial https://www.scs.stanford.edu/~dm/blog/c++-coroutines.html
 + XCB programming
   + https://www.x.org/releases/X11R7.7/doc/libxcb/tutorial/index.html
 

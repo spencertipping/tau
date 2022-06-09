@@ -7,7 +7,7 @@ clean:
 	rm -f $(programs)
 
 x%: x%.cc
-	g++ -O3 -o $@ $< -lxcb -lX11 -lGL -lX11-xcb
+	g++ -O3 -o $@ $< -lxcb -lX11 -lGL -lX11-xcb -lpthread
 
 msgpack: msgpack.cc
 	g++ -O3 -o msgpack msgpack.cc
