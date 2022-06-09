@@ -1,4 +1,4 @@
-# Records
+# UTF9 records
 Key characteristics of records:
 
 1. Efficient to serialize/deserialize, both in space and time
@@ -7,8 +7,6 @@ Key characteristics of records:
 4. Easy to encode fields of commonly-used datatypes
 5. Fast C++ API for tau record fields
 6. Side-channel symbols: _α_, _ω_, _ι_, _κ_, and _τ(x)_
-
-**TODO:** define records with respect to `msgpack`; I believe we can fully embed our format (note that `msgpack` does have the embedding property required for (3))
 
 
 ## Meta-symbols
@@ -24,11 +22,38 @@ Key characteristics of records:
 ## Core data types
 + Fixed-size
   + `fd`: file descriptor (handled specially across local IPC boundaries)
-  + `int8`, `int16`, `int32`, `int64` (operators are signed/unsigned, ints are just bits)
+  + `int8`, `int16`, `int32`, `int64` (operators are signed/unsigned, ints are just bits -- we have all sizes for array purposes)
   + `float32`, `float64`
-  + `symbol` (for stuff like `nil`, `true`, and `false`)
-  + `[]` (n-dimensional homogeneous array of fixed-type things)
-  + `()` (one-dimensional heterogeneous tuple of fixed-size things)
+  + SSE/AVX?
+  + `symbol` (for stuff like `nil`, `true`, `false`, and custom)
+  + `[]` packed array of fixed-size things
+  + `()` tuple of fixed-size things
 + Variable-size
   + `utf8` text
+  + `bytes` opaque blob
+  + `[]` (n-dimensional homogeneous array)
+  + `()` (one-dimensional heterogeneous tuple)
   + `{}` associative map
+  + `{}` set
+
+**TODO:** do we want associative structures, or do we want indexed tuples? Indexes are probably much more versatile.
+
+**NOTE:** fds can be moved with https://www.man7.org/linux/man-pages/man2/pidfd_getfd.2.html, so we don't strictly need a domain socket.
+
+
+## Transit spec
+`utf9` is a `msgpack`-inspired format that differs in a few ways:
+
++ `utf9` prepends a header
++ 64-bit lengths are allowed
++ Nontrivial containers (arrays and maps) include their internal complexity and encoded length in bytes
++ Packed arrays are first-class (not just `bin` and `ext`)
++ `utf9` adds the `set` datatype
++ `utf9` adds the `symbol` datatype
++ `utf9` adds _α_, _ω_, ... meta-symbols
+
+`utf9` is designed to be used in-place, that is without "unpacking" into an in-memory datastructure. This means a few things:
+
+1. `utf9` structures are immutable
+2. Containers prepend byte-lengths, indexes, and complexity measures
+3. Functionally speaking, `utf9` behaves like a micro-heap that is GC'd prior to serialization
