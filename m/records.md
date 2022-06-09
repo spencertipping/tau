@@ -59,3 +59,5 @@ Key characteristics of records:
 3. Functionally speaking, `utf9` behaves like a micro-heap that is GC'd prior to serialization
 
 **TODO:** explore the micro-heap idea. It makes a lot of sense, and we can make calculated tradeoffs between "GC first then send" vs "send without GC" to trade space and time
+
+**NOTE:** immutable modification patches are very much like OT modifications; there may be a way to generalize the "apply edits to a thing" logic as a form of GC
