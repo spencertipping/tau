@@ -53,4 +53,14 @@ $ ni e[find ~/r/cycles -xdev -name '*.md'] rp'!/transformers/' wcl
 182
 ```
 
-Awesome, still more than enough.
+Awesome, still more than enough. Let's make the word count, both locally and for all words. Having both will help us place our project within a larger frame of reference.
+
+```sh
+$ ni e[find ~/r/cycles -xdev -name '*.md'] rp'!/transformers/' \
+     \<plc FWZ1gcxzz\>concept-map-wc
+
+se0.128$ ni /data/the-pile/mystic.the-eye.eu/public/AI/pile/train \
+            r/zst$/fx64[%f : i%f \<D:text plc FWZ1Ux\>] \
+            \<\#g,sgA zz:/data/the-pile/wc \
+            riB/usr/share/dict/words zz\>/data/the-pile/wc-wamerican
+```
