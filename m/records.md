@@ -61,3 +61,5 @@ Key characteristics of records:
 **TODO:** explore the micro-heap idea. It makes a lot of sense, and we can make calculated tradeoffs between "GC first then send" vs "send without GC" to trade space and time
 
 **NOTE:** immutable modification patches are very much like OT modifications; there may be a way to generalize the "apply edits to a thing" logic as a form of GC
+
+**NOTE:** a lot of this can be done if we have values as reductions of patch-edits (probably symbolic reductions, not eager left-folds); then we unify streaming and editing, which seems right
