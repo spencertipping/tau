@@ -28,6 +28,8 @@ $ ni e[find ~ -xdev -name '*.md'] rp'!/\/ni\//' \
      \<p'ru{/^\S/} if /^\$ ni /' zz\>ni-commands
 ```
 
+**TODO:** analysis to be continued
+
 
 ## Core bytecode ideas
 + τ is fundamentally `ni` but with much more powerful topology and state
