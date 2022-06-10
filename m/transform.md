@@ -20,7 +20,7 @@ UI-wise, we can reach backwards to pick up connections by entering a selection-m
 **Q:** can we use the same selection machinery with more persistent anchors to create edges during dynamic fabric updates? That is, does the fabric accept UI keystrokes to do the same thing?
 
 
-## Designing the bytecode
+## Collecting some `ni` commands for analysis
 τ is meant for long-running applications, not just one-off data science commands; but I think we should be able to run `ni`-style workflows easily. To that end, let's collect `ni` commands from other places and see how we'd encode them in τ.
 
 ```sh
@@ -29,7 +29,7 @@ $ ni e[find ~ -xdev -name '*.md'] rp'!/\/ni\//' \
 ```
 
 
-### First principles
+## Core bytecode ideas
 + τ is fundamentally `ni` but with much more powerful topology and state
 + It should be possible to back into existing languages
   + When we do, it should be easy to include custom library code
@@ -38,7 +38,7 @@ $ ni e[find ~ -xdev -name '*.md'] rp'!/\/ni\//' \
   + Unlike in `ni`, τ records can hold binary contents and have complex structure
 + Operators can react to and manipulate stream annotations like _τ_, _α_, ...
 
-Some things should be trivial:
+Things that should be trivial:
 
 + File IO with all multiplex variants (binary data format)
   + Disk-backed cyclic sorting
@@ -65,25 +65,3 @@ Some things should be trivial:
 Note that vertical reduction is just a combination of two simple things: (1) defining a reduction topology, and (2) emit+reset state registers when _τ_ is encountered.
 
 If we look at bytecode as happening within a micro-fabric, then the final "write output to next thing" operator is an explicit instruction for maps and filters. We don't have such an operator for vertical reductions; instead, it emits on _τ_. This is interesting because it means we can use bytecode macros for common stuff like vertical reductions.
-
-
-### Dealing with _τ_ markers
-Most operators have sensible behavior for _τ_ and other stream markers:
-
-+ _α_, _ω_, _ι_, and _κ_ are single-hop, but multi-hop if multiplexed
-+ _τ(n)_ is single-hop, but multi-hop through 1:1 operators
-+ _τ(0)_ is multi-hop, but single-hop if the operator collapses _τ_ groups
-
-Because all markers are first-class, operators have a great deal of latitude in how they manipulate them.
-
-
-### Generalizing `ni`
-In general, `ni` excels at one-record manipulation and suffers when dealing with multiple rows at a time (with obvious exceptions like `ru{}`, which are pretty good). For example, `,sgA` is a terrible construct that needs several improvements:
-
-1. The reduction should be customizable, vs having `,sgA` and `,agA`
-2. We should be able to reduce multiple columns at once, perhaps in different ways
-3. We should be able to reduce the same column different ways (e.g. mean/min/max)
-
-We really want some type of spreadsheet context to apply to groups of rows; in τ we'd create a τ group around the first column and then either do a full snapshot buffer (to run arbitrary computations) or a forward-only column reduction (to run folds).
-
-_τ_ symbol annotations help a lot because we can do bounded locally-streaming computations.
