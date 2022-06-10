@@ -35,6 +35,7 @@ $ ni e[find ~ -xdev -name '*.md'] rp'!/\/ni\//' \
   + When we do, it should be easy to include custom library code
   + ...implying that operators can consult others' state/conf
 + Like in `ni`, τ records are the fundamental atomic unit of data
+  + Unlike in `ni`, τ records can hold binary contents and have complex structure
 + Operators can react to and manipulate stream annotations like _τ_, _α_, ...
 
 Some things should be trivial:
@@ -43,7 +44,10 @@ Some things should be trivial:
   + Disk-backed cyclic sorting
   + Note that these IOs are `epoll`ed into the same process
 + Common map/filter operations (in-core transform bytecode)
-  + Language shellout
+  + Language shellout with transparent serialization
++ Vertical map
+  + Reduce-on-column within _τ_ group (streaming, not in-memory)
+  + Store state across input records
 + Multiplex/demultiplex for stream splits
   + Multiplex over CPUs (`ni S`)
   + Data-driven multiplex
@@ -57,6 +61,8 @@ Some things should be trivial:
   + Process boundary splits
   + Machine boundary splits
   + Same-architecture self-deployment? (launch wrapper)
+
+**NOTE:** vertical reduction is just a combination of two simple things: (1) defining a reduction topology, and (2) emit+reset state registers when _τ_ is encountered.
 
 
 ### Dealing with _τ_ markers
