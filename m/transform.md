@@ -4,6 +4,22 @@
 This is a natural fit for a stack language, so we'd use RPN and tight PEG-driven addressing. Or maybe just APL-style notation to avoid stack silliness. I think I prefer APL.
 
 
+## Backreferences
+Let's paint a visual picture for a moment. We have a left-to-right concatenative pipeline just like `ni`, but each operator can have multiple inputs and multiple outputs.
+
+```
+op1 op2 op3                   <- linear pipeline
+
+    _____
+   /     \
+op1--op2--op3                 <- MIMO pipeline
+```
+
+UI-wise, we can reach backwards to pick up connections by entering a selection-mode, then the UI will allocate letters/numbers to the most recent _n_ connections. So drawing the line from `op1` to `op3` would be two keystrokes in many cases. (We can also use a more global search.)
+
+**Q:** can we use the same selection machinery with more persistent anchors to create edges during dynamic fabric updates? That is, does the fabric accept UI keystrokes to do the same thing?
+
+
 ## Designing the bytecode
 τ is meant for long-running applications, not just one-off data science commands; but I think we should be able to run `ni`-style workflows easily. To that end, let's collect `ni` commands from other places and see how we'd encode them in τ.
 
