@@ -62,7 +62,9 @@ Some things should be trivial:
   + Machine boundary splits
   + Same-architecture self-deployment? (launch wrapper)
 
-**NOTE:** vertical reduction is just a combination of two simple things: (1) defining a reduction topology, and (2) emit+reset state registers when _τ_ is encountered.
+Note that vertical reduction is just a combination of two simple things: (1) defining a reduction topology, and (2) emit+reset state registers when _τ_ is encountered.
+
+If we look at bytecode as happening within a micro-fabric, then the final "write output to next thing" operator is an explicit instruction for maps and filters. We don't have such an operator for vertical reductions; instead, it emits on _τ_. This is interesting because it means we can use bytecode macros for common stuff like vertical reductions.
 
 
 ### Dealing with _τ_ markers
