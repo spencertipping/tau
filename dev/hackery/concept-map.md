@@ -12,7 +12,9 @@ I think we can ignore code for now. I want to see what we get with markdown.
 ## Initial coordinates
 For visual clarity, let's say we have anchor points from which traversal occurs along angle-quantized trajectories. Some trajectories may be multistep, and they form a Huffman-style code; common words like "and" and "the" will have short paths, less-common words will have longer paths.
 
-We'll use some rules for path construction, for example the path can change direction at most three times. That will create longer paths quickly, which we want.
+**NOTE:** this isn't quite right; words move you _towards_ something, not _away from_ something -- unless we're looking at it in `word2vec` terms.
+
+We'll use some rules for path construction, for example the path can change direction at most twice. That will create longer paths quickly, which we want. We also can't have any path doubling back on itself, as this creates shortcuts. Maybe we just want displacements, not paths as such.
 
 Three first steps:
 
@@ -22,4 +24,33 @@ Three first steps:
 
 
 ## Markdown sources and word frequencies
-**TODO**
+```sh
+$ ni e[find ~ -xdev -name '*.md'] \
+     rp'!/node_modules|site-packages|\.cache/' \
+     FDp'r F_(0..$_) for 0..FM' F^:/rp'-d "$_/.git"' \
+     gcO_
+281  /home/spencertipping/r/cycles
+124  /home/spencertipping/r/caterwaullabs/gitarc
+101  /home/spencertipping/r/public/caterwaul
+83   /home/spencertipping/.bash
+71   /home/spencertipping/r/public/ni
+71   /home/spencertipping/.bash/ni
+56   /home/spencertipping/r/caterwaullabs/oafley-dadbot
+45   /home/spencertipping/r/profiles/cooking/.config/google-chrome
+42   /home/spencertipping/r/caterwaullabs/splunge
+29   /home/spencertipping/r/foobarindustrial/robotics
+25   /home/spencertipping/r/clients/predictionmachine/punoqun
+21   /home/spencertipping/.emacs.d
+19   /home/spencertipping/r/public/www
+19   /home/spencertipping/r/internal/resources
+18   /home/spencertipping/r/profiles/asqi/.config/google-chrome
+```
+
+`cycles` it is. Yet another reason this repo can't be made public. Filtering out the `transformers` submodule:
+
+```sh
+$ ni e[find ~/r/cycles -xdev -name '*.md'] rp'!/transformers/' wcl
+182
+```
+
+Awesome, still more than enough.
