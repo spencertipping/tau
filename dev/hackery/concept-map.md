@@ -60,7 +60,40 @@ $ ni e[find ~/r/cycles -xdev -name '*.md'] rp'!/transformers/' \
      \<plc FWZ1gcxzz\>concept-map-wc
 
 se0.128$ ni /data/the-pile/mystic.the-eye.eu/public/AI/pile/train \
-            r/zst$/fx64[%f : i%f \<D:text plc FWZ1Ux\>] \
-            \<\#g,sgA zz:/data/the-pile/wc \
+            r/zst$/fx64[%f : i%f \<D:text p'lc() =~ /\w+/g' \>] \
+            \<\#Uxzz:/data/the-pile/wc \
             riB/usr/share/dict/words zz\>/data/the-pile/wc-wamerican
 ```
+
+
+## Grid coding
+Let's compute grid coordinates for each word, using the narrowest ones for the most frequent words. This is easy if we can enumerate grid coordinates starting in the middle and progressing outwards by increasing distance. I'll use Manhattan distance for simplicity.
+
+```sh
+$ ni np'r(a, a - $_, $_), r(a, -a + $_, $_),
+        $_ ? (r(a, a - $_, -$_), r(a, -a + $_, -$_)) : () for 0..a' u \
+        r100 p'r b, c, a/10' G:W'plot "-" with circles'
+```
+
+We can assign coordinates linearly from that list and begin visualizing documents:
+
+```sh
+$ ni --js
+> e[find /home/spencertipping/r/cycles -xdev -name '*.md'] \
+  rp'!/transformers/' fx8[%f : i%f W\< plc p'r a, $_ for map /\w+/g, FR 1' \
+  JB[concept-map-wc OBfrAw[ \
+     np'r(a - $_, $_), r(-a + $_, $_),
+        $_ ? (r(a - $_, -$_), r(-a + $_, -$_)) : () for 0..a' u]] \
+  rBCp'r c, a, 0; r 0, a, d' ,sAC] ,zB \
+  p'my $r = 4;
+    $r++ while a >> $r & 1 || b >> $r & 1 || c >> $r & 1;
+    $. & 1 ? r quant(a, 1 << $r), b, c
+           : r a, b, quant(c, 1 << $r)'
+
+> e[find /home/spencertipping/r/cycles -xdev -name '*.md'] \
+  rp'!/transformers/' fx8[%f : i%f W\< plc p'r a, $_ for map /\w+/g, FR 1' \
+  JB[concept-map-wc OBfrAw[np'r a, 0; r -$_, 0; r 0, a, r 0, -$_']] \
+  rBCp'r c, a, 0; r 0, a, d' ,sAC] ,zB
+```
+
+**NOTE:** the above `fx8[]` shenanigans (and attendant performance problems) are a great argument for _τ_ markers; `,sAC` has no grouped equivalent.
