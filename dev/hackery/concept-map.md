@@ -60,9 +60,9 @@ $ ni e[find ~/r/cycles -xdev -name '*.md'] rp'!/transformers/' \
      \<plc FWZ1gcxzz\>concept-map-wc
 
 se0.128$ ni /data/the-pile/mystic.the-eye.eu/public/AI/pile/train \
-            r/zst$/fx64[%f : i%f \<D:text p'lc() =~ /\w+/g' \>] \
-            \<\#Uxzz:/data/the-pile/wc \
-            riB/usr/share/dict/words zz\>/data/the-pile/wc-wamerican
+            r/zst$/r1\<rE6S16[D:text p'lc() =~ /\w+/g'] \
+            Uxzz:/data/the-pile/wc1 \
+            riA/usr/share/dict/words zz\>/data/the-pile/wc1-wamerican
 ```
 
 
@@ -79,6 +79,7 @@ We can assign coordinates linearly from that list and begin visualizing document
 
 ```sh
 $ ni --js
+
 > e[find /home/spencertipping/r/cycles -xdev -name '*.md'] \
   rp'!/transformers/' fx8[%f : i%f W\< plc p'r a, $_ for map /\w+/g, FR 1' \
   JB[concept-map-wc OBfrAw[ \

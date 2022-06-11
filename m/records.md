@@ -36,7 +36,7 @@ Key characteristics of records:
   + `{}` associative map
   + `{}` set
 
-**TODO:** do we want associative structures, or do we want indexed tuples? Indexes are probably much more versatile.
+**TODO:** refactor the container types above to rely on tuples with various types of indexes to enable map/set behavior (small containers don't need an index)
 
 **NOTE:** fds can be moved with https://www.man7.org/linux/man-pages/man2/pidfd_getfd.2.html, so we don't strictly need a domain socket.
 
