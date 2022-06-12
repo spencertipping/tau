@@ -36,7 +36,7 @@ Key characteristics of records:
   + `{}` associative map
   + `{}` set
 
-**TODO:** refactor the container types above to rely on tuples with various types of indexes to enable map/set behavior (small containers don't need an index)
+**NOTE:** maps/sets are just tuples or arrays that have an index attached, e.g. for hashed lookup. The index is a preloaded scan of the ravel, meaning that these types are ordered either strictly, or by element hashes.
 
 **NOTE:** fds can be moved with https://www.man7.org/linux/man-pages/man2/pidfd_getfd.2.html, so we don't strictly need a domain socket.
 
@@ -52,14 +52,12 @@ Key characteristics of records:
 + `utf9` adds the `symbol` datatype
 + `utf9` adds _α_, _ω_, ... meta-symbols
 
-`utf9` is designed to be used in-place, that is without "unpacking" into an in-memory datastructure. This means a few things:
+`utf9` is designed to be usable in-place, that is without "unpacking" into an in-memory datastructure. This means a few things:
 
-1. `utf9` structures are shape-immutable
+1. Containers within `utf9` records are lazily loaded, and refer to the original record rather than decoding into a temporary data structure
 2. Containers prepend byte-lengths, indexes, and complexity measures
 3. Functionally speaking, `utf9` behaves like a micro-heap that is GC'd prior to serialization
 
-**TODO:** explore the micro-heap idea. It makes a lot of sense, and we can make calculated tradeoffs between "GC first then send" vs "send without GC" to trade space and time
+Lazy loading means that a `utf9` record view must store a diff in order to provide mutability. This diff can have a ravel, which means we can stream values into a `utf9` diff reduction to construct a final object (emitted on _τ_). This model unifies diff-streaming and atomic record edits, providing a nice scaffold for later features like OT -- nothing stops us from defining an OT diff reducer that reorders edits on user-submitted time and emits the reconciled state.
 
-**NOTE:** immutable modification patches are very much like OT modifications; there may be a way to generalize the "apply edits to a thing" logic as a form of GC
-
-**NOTE:** a lot of this can be done if we have values as reductions of patch-edits (probably symbolic reductions, not eager left-folds); then we unify streaming and editing, which seems right
+In other words, [row transformation](transform.md) amounts to generating modification ops into a suitable reduction context. That makes row transforms differentiable by time.
