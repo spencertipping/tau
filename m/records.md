@@ -71,6 +71,8 @@ Naturally, these indexes can be generated in streaming form, and they rely on _�
 2. Containers prepend byte-lengths, indexes, and complexity measures
 3. Functionally speaking, `utf9` behaves like a micro-heap that is GC'd prior to serialization
 
+Note that if we use a bytecode format like `msgpack`, our value-type can just be a pointer to the beginning byte offset. If we want diffs, we can use two pointers (one to the diff, one to the original). That's very compact; I like it.
+
 Lazy loading means that a `utf9` record view must store a diff in order to provide mutability. This diff can have a ravel, which means we can stream values into a `utf9` diff reduction to construct a final object (emitted on _τ_). This model unifies diff-streaming and atomic record edits, providing a nice scaffold for later features like OT -- nothing stops us from defining an OT diff reducer that reorders edits on user-submitted time and emits the reconciled state.
 
 In other words, [row transformation](transform.md) amounts to generating modification ops into a suitable reduction context. That makes row transforms differentiable by time. It also means we can reuse all of the row-transformation operations as streaming things, with _τ_ markers to emit the current state.
