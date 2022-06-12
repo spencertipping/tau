@@ -51,6 +51,8 @@ I think we can get away with two types of indexes:
 
 (1) enables binary-search, (2) enables very accurate interpolation search, likely _< O(log log n)_.
 
+Naturally, these indexes can be generated in streaming form, and they rely on _τ(i)_ estimates to size themselves.
+
 
 ## Transit spec
 `utf9` is a `msgpack`-inspired format that differs in a few ways:
