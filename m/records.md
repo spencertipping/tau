@@ -41,6 +41,17 @@ Key characteristics of records:
 **NOTE:** fds can be moved with https://www.man7.org/linux/man-pages/man2/pidfd_getfd.2.html, so we don't strictly need a domain socket.
 
 
+### Ravel-scan indexes
+Because indexes scan against the container ravel, they don't have to be used strictly for a single purpose like associative or hashed lookup. We can build skip lists, tree-like data structures, and pretty much anything else you might want to look up in a nonlinear way -- all using the same index.
+
+I think we can get away with two types of indexes:
+
+1. Arbitrarily-ordered quantile positions
+2. Uniformly-distributed radix points
+
+(1) enables binary-search, (2) enables very accurate interpolation search, likely _< O(log log n)_.
+
+
 ## Transit spec
 `utf9` is a `msgpack`-inspired format that differs in a few ways:
 
