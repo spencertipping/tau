@@ -78,3 +78,63 @@ Lazy loading means that a `utf9` record view must store a diff in order to provi
 In other words, [row transformation](transform.md) amounts to generating modification ops into a suitable reduction context. That makes row transforms differentiable by time. It also means we can reuse all of the row-transformation operations as streaming things, with _τ_ markers to emit the current state.
 
 **NOTE:** this brings delta operators like `(+ 5)` and map-insert-and-merge front and center. We should have a broad dictionary of these things to use within row context.
+
+**NOTE:** `utf9` records may be aliased in memory, in which case they shouldn't be modified; then all updates will be applied as diff patches.
+
+
+### Bytecode design
+Bytecode-encoded objects need not point to the origin; that is, there are no parent links (just like `msgpack`). Each object must be decodable with no base-pointer context, meaning we don't keep a base pointer and there is no value aliasing.
+
+Modifications are also bytecodes of a sort, but indirectly encoded using symbols.
+
+Like `msgpack`, we optimize for brevity by providing `fix*` variants for small structures.
+
+
+### Atomic types
+| Byte | Following bytes | Description                  |
+|------|-----------------|------------------------------|
+|      | 1               | `int8`                       |
+|      | 2               | `int16`                      |
+|      | 4               | `int32`                      |
+|      | 8               | `int64`                      |
+|      | 4               | `float32`                    |
+|      | 8               | `float64`                    |
+|      | 8               | `symbol`                     |
+|      | 4               | `fd`                         |
+|      | 1 + len         | `utf8`, 8-bit _byte_ length  |
+|      | 2 + len         | `utf8`, 16-bit _byte_ length |
+|      | 4 + len         | `utf8`, 32-bit _byte_ length |
+|      | 8 + len         | `utf8`, 64-bit _byte_ length |
+|      | 1 + len         | `bytes`, 8-bit length        |
+|      | 2 + len         | `bytes`, 16-bit length       |
+|      | 4 + len         | `bytes`, 32-bit length       |
+|      | 8 + len         | `bytes`, 64-bit length       |
+|      | 0               | `fixint`                     |
+|      | 0               | `fixfloat`                   |
+|      | len             | `fixstr`                     |
+|      | len             | `fixbytes`                   |
+
+Note that both `utf8` and `bytes` encode the _byte_ length of the payload, not the logical number of elements as you might expect. This makes it possible to skip over the value without running a UTF-8 decode loop.
+
+
+### Simple containers
+| Byte | Following bytes | Description                                                            |
+|------|-----------------|------------------------------------------------------------------------|
+|      | `l n xs...`     | `tuple` of byte-length `int8 l`,  length `int8 n`,  contents `(xs...)` |
+|      | `l n xs...`     | `tuple` of byte-length `int16 l`, length `int16 n`, contents `(xs...)` |
+|      | `l n xs...`     | `tuple` of byte-length `int32 l`, length `int32 n`, contents `(xs...)` |
+|      | `l n xs...`     | `tuple` of byte-length `int64 l`, length `int64 n`, contents `(xs...)` |
+|      | `t n xs...`     | `array` of type `t`,  length `int8 n`,  packed contents `xs...`        |
+|      | `t n xs...`     | `array` of type `t`,  length `int16 n`, packed contents `xs...`        |
+|      | `t n xs...`     | `array` of type `t`,  length `int32 n`, packed contents `xs...`        |
+|      | `t n xs...`     | `array` of type `t`,  length `int64 n`, packed contents `xs...`        |
+|      | `l xs...`       | `fixtuple` of `n` elements, byte-length `int8 l`, contents `(xs...)`   |
+|      | `l xs...`       | `fixtuple` of `n` elements, byte-length `int16 l`, contents `(xs...)`  |
+
+Arrays distribute a type prefix across a series of elements; for example, `array int8 5` would then be followed by five bytes, each of which would be interpreted as though it had been specified with `int8`. The type prefix `t` need not be a single byte; you can have `array utf8 5 5` for an array of five-byte UTF-8 strings. You can also have arrays within arrays.
+
+
+### Container indexes
+Container indexes modify simple containers by prepending an index that provides fast lookups. The container's values are also sorted by the indexed field.
+
+**TODO**
