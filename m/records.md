@@ -133,8 +133,18 @@ Note that both `utf8` and `bytes` encode the _byte_ length of the payload, not t
 
 Arrays distribute a type prefix across a series of elements; for example, `array int8 5` would then be followed by five bytes, each of which would be interpreted as though it had been specified with `int8`. The type prefix `t` need not be a single byte; you can have `array utf8 5 5` for an array of five-byte UTF-8 strings. You can also have arrays within arrays.
 
+Array types always include the length and never include the value.
+
 
 ### Container indexes
 Container indexes modify simple containers by prepending an index that provides fast lookups. The container's values are also sorted by the indexed field.
 
 **TODO**
+
+
+## Disk spec
+Similar to the transit spec, but intended for long-term persistence and easy lookup. In particular, we want a few features to work well from an IO perspective:
+
+1. File splitting: seek to somewhere in the middle and find record boundaries
+2. Optional robustness checking, both per-record and per-file
+3. Fast record skipping for the sequential-access case
