@@ -140,15 +140,49 @@ Array types always include the byte length and never include the value. That is,
 + `array int8 4`
 + `fixtuple4 48`
 + `utf8 10`
-+ `array array fixbytes 10 10 10` -- that is, a 10x10 array of 10-long `bytes` objects
++ `array array fixbytes(10) 10 10` -- that is, a 10x10 array of 10-long `bytes` objects
 
 
 ### Container indexes
-Container indexes modify simple containers by prepending an index that provides fast lookups. The container's values are also sorted by the indexed field for content-indexed lookups. Large heterogeneous tuples can be indexed by element subscripts, which is treated the same way.
+Container indexes modify simple containers by prepending an index that provides fast lookups. The container's values are usually sorted by the indexed field for content-indexed lookups. Large heterogeneous tuples can be indexed by element subscripts. All indexes map some aspect of the data to the byte offset of the container element that contains it.
 
-Indexes map keys to byte offsets within the container, making it possible to find elements without scanning over a potentially large number of ones that come before the target.
+Indexes can be complete (`cidx`) or incomplete (`iidx`). Complete indexes provide a mapping for every element, incomplete indexes don't. Incomplete indexes enable fast interpolation search, complete indexes allow elements to be found even when they aren't in sorted order. Unordered elements must be addressed with a complete index; otherwise an index miss would result in a full linear scan.
 
-**TODO**
+Indexes are tuples of `(ks, ka, ia)`. `ks` is a keyspec, which specifies which value is being indexed. `ka` and `ia` are the array of keys and the array of seek-indexes, respectively.
+
+| Byte | Following bytes | Description                       |
+|------|-----------------|-----------------------------------|
+|      | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
+|      | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
+|      | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
+|      | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
+|      | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
+|      | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
+
+The data structure being indexed occurs immediately after the index. Logically, it's treated as a part of the index itself (which yields "a map" or "a set") but the two are decoded independently.
+
+**NOTE:** multiple indexes can be stacked. For example, we can have an associative map of `(k v)` tuples that is indexed both by `i` numerical indexes and `k` ordering.
+
+
+#### Keyspec
+The keyspec is a symbol that describes the aspect of the data that's being indexed. It is currently one of:
+
++ For whole elements, e.g. sets
+  + `i`: the element position
+  + `h16`: the element hash (16-bit)
+  + `h32`: the element hash (32-bit)
+  + `h64`: the element hash (64-bit)
++ For `(k v₁ v₂ ...)` associative tuples
+  + `k`: the initial element value
+  + `kh16`: the `hash16` of the initial element value
+  + `kh32`: the `hash32` of the initial element value
+  + `kh64`: the `hash64` of the initial element value
+
+
+#### Seek arrays
+`ka` is an array of fixed-size keys and `ia` is an array of fixed-size seek offsets (relative to the container base). `ka` is always ordered, but _`ia` need not be forward-ordered for complete indexes._ This allows container tuples to act like databases, providing multiple parallel indexes for the same data.
+
+`ka` can have any type as long as an ordering exists. `ia` is always `int16`, `int32`, or `int64`.
 
 
 ## Disk spec
