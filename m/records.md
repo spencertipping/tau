@@ -119,18 +119,18 @@ Note that both `utf8` and `bytes` encode the _byte_ length of the payload, not t
 
 
 ### Simple containers
-| Byte | Following bytes | Description                                                            |
-|------|-----------------|------------------------------------------------------------------------|
-|      | `l n xs...`     | `tuple` of byte-length `int8 l`,  length `int8 n`,  contents `(xs...)` |
-|      | `l n xs...`     | `tuple` of byte-length `int16 l`, length `int16 n`, contents `(xs...)` |
-|      | `l n xs...`     | `tuple` of byte-length `int32 l`, length `int32 n`, contents `(xs...)` |
-|      | `l n xs...`     | `tuple` of byte-length `int64 l`, length `int64 n`, contents `(xs...)` |
-|      | `t n xs...`     | `array` of type `t`,  length `int8 n`,  packed contents `xs...`        |
-|      | `t n xs...`     | `array` of type `t`,  length `int16 n`, packed contents `xs...`        |
-|      | `t n xs...`     | `array` of type `t`,  length `int32 n`, packed contents `xs...`        |
-|      | `t n xs...`     | `array` of type `t`,  length `int64 n`, packed contents `xs...`        |
-|      | `l xs...`       | `fixtuple` of `n` elements, byte-length `int8 l`, contents `(xs...)`   |
-|      | `l xs...`       | `fixtuple` of `n` elements, byte-length `int16 l`, contents `(xs...)`  |
+| Byte | Following bytes | Description                                        |
+|------|-----------------|----------------------------------------------------|
+|      | `l n xs...`     | `tuple` of byte-length `int8 l`,  length `int8 n`  |
+|      | `l n xs...`     | `tuple` of byte-length `int16 l`, length `int16 n` |
+|      | `l n xs...`     | `tuple` of byte-length `int32 l`, length `int32 n` |
+|      | `l n xs...`     | `tuple` of byte-length `int64 l`, length `int64 n` |
+|      | `t n xs...`     | `array` of type `t`,  length `int8 n`              |
+|      | `t n xs...`     | `array` of type `t`,  length `int16 n`             |
+|      | `t n xs...`     | `array` of type `t`,  length `int32 n`             |
+|      | `t n xs...`     | `array` of type `t`,  length `int64 n`             |
+|      | `l xs...`       | `fixtuple` of `n` elements, byte-length `int8 l`   |
+|      | `l xs...`       | `fixtuple` of `n` elements, byte-length `int16 l`  |
 
 Arrays distribute a type prefix across a series of elements; for example, `array int8 5` would then be followed by five bytes, each of which would be interpreted as though it had been specified with `int8`. The type prefix `t` need not be a single byte; you can have `array utf8 5 5` for an array of five-byte UTF-8 strings. You can also have arrays within arrays.
 
@@ -169,14 +169,18 @@ The keyspec is a symbol that describes the aspect of the data that's being index
 
 + For whole elements, e.g. sets
   + `i`: the element position
-  + `h16`: the element hash (16-bit)
-  + `h32`: the element hash (32-bit)
-  + `h64`: the element hash (64-bit)
+  + `h`: `hash(element)`, possibly truncated to just the top _n_ bits
 + For `(k v₁ v₂ ...)` associative tuples
   + `k`: the initial element value
-  + `kh16`: the `hash16` of the initial element value
-  + `kh32`: the `hash32` of the initial element value
-  + `kh64`: the `hash64` of the initial element value
+  + `kh`: `hash(element[0])`, possibly truncated to the just the top _n_ bits
+
+**TODO:** add further index capability, e.g. `x[i]` for custom `i`
+
+Data structures with exactly one index will typically have an idiomatic data type preference:
+
++ `i`: array
++ `h`: set`
++ `k` and `kh`: map
 
 
 #### Seek arrays
