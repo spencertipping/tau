@@ -176,11 +176,11 @@ The keyspec is a symbol that describes the aspect of the data that's being index
 
 **TODO:** add further index capability, e.g. `x[i]` for custom `i`
 
-Data structures with exactly one index will typically have an idiomatic data type preference:
+The index type influences the idiomatic data structure preference:
 
 + `i`: array
 + `h`: set`
-+ `k` and `kh`: map
++ `k` and `kh`: associative map/multimap
 
 
 #### Seek arrays
