@@ -179,7 +179,7 @@ The keyspec is a symbol that describes the aspect of the data that's being index
 The index type influences the idiomatic data structure preference:
 
 + `i`: array
-+ `h`: set`
++ `h`: set
 + `k` and `kh`: associative map/multimap
 
 
