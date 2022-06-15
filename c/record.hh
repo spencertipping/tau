@@ -13,13 +13,14 @@
 namespace tau {
 namespace utf9 {
 
+  struct val;
   struct bytecode
   {
     std::vector<uint8_t> const *const xs;
     uint64_t                    const i;
 
-    uint8_t operator[](int offset) const { return xs->at(i + offset); }
-    uint8_t operator* ()           const { return xs->at(i); }
+    // FIXME: check bounds once here when we construct a val
+    val operator*() const { /* TODO */ }
 
     bytecode operator+(int offset)   const { return {xs, i + offset}; }
     int      operator-(bytecode rhs) const { return i - rhs.i; }
@@ -46,26 +47,30 @@ namespace utf9 {
 
   std::ostream &operator<<(std::ostream &s, bytecode const &b)
   {
-
+    s << "TODO: <<bytecode" << std::endl;
     return s;
   }
 
 
-  struct size_next { uint64_t size; bytecode zero; bytecode next; };
+  // FIXME: bytecode should be a delta?
+  // FIXME: template this
+  struct size_next { uint64_t size; bytecode next; };
 
   typedef bytecode(*next_fn)(bytecode);
   typedef size_next(*size_fn)(bytecode);
 
 
+  // FIXME: use std::iterator for this
+
 #define sf(size, next) [](bytecode const x) -> size_next { return {static_cast<uint64_t>(size), (next)}; }
 
   namespace
   {
-    size_fn const fixbytes_sf  = sf(*x - 0x20, x + 1);
-    size_fn const fixstr_sf    = sf(*x - 0x30, x + 1);
-    size_fn const fixtuple8_sf = sf(*(x + 1),  x + 2);
+    size_fn const fixbytes_sf  = sf(x.u8(0) - 0x20, x + 1);
+    size_fn const fixstr_sf    = sf(x.u8(0) - 0x30, x + 1);
+    size_fn const fixtuple8_sf = sf(x.u8(1), x + 2);
     size_fn const bogus_sf     = [](bytecode x) -> size_next
-      { std::cerr << "sf[" << *x << "]@" << x << std::endl;
+      { std::cerr << "sf[" << x.u8(0) << "]@" << x << std::endl;
         _exit(1);
         return {0, x}; };
 
@@ -202,7 +207,7 @@ namespace utf9 {
 
   namespace
   {
-    inline size_next atsize(bytecode const b) { return sfs[*b](b); }
+    inline size_next atsize(bytecode const b) { return sfs[b.u8(0)](b); }
   }
 
 
@@ -210,12 +215,12 @@ namespace utf9 {
 
   namespace
   {
-    next_fn const fixbytes_nf  = nf(x + 1 + (*x - 0x20));
-    next_fn const fixstr_nf    = nf(x + 1 + (*x - 0x30));
-    next_fn const fixtuple8_nf = nf(x + 1 + *(x + 1));
+    next_fn const fixbytes_nf  = nf(x + 1 + (x.u8(0) - 0x20));
+    next_fn const fixstr_nf    = nf(x + 1 + (x.u8(0) - 0x30));
+    next_fn const fixtuple8_nf = nf(x + 1 + x.u8(1));
     next_fn const fixint_nf    = nf(x + 1);
     next_fn const bogus_nf     = [](bytecode x)
-      { std::cerr << "nf[" << *x << "]@" << x << std::endl;
+      { std::cerr << "nf[" << x.u8(0) << "]@" << x << std::endl;
         _exit(1);
         return x; };
   }
@@ -458,16 +463,36 @@ namespace utf9 {
     INT, INT, INT, INT,
   };
 
+  enum type_index : uint64_t
+  {
+    BYTECODE = 0,
+    INTEGER  = 1,
+    DOUBLE   = 2,
+    FLOAT    = 3,
+  };
+
 
   struct val
   {
-    bytecode t;
-    bytecode p;
+    union
+    {
+      uint8_t const * const tp;
+      uint64_t              ti;
+    };
 
-    val_type type() const { return t ? static_cast<val_type>(bts[*t]) : static_cast<val_type>(bts[*p]); }
-    uint64_t size() const { return t ? 0                              : nfs[*p](p) - p; }
-    uint64_t len()  const { }
+    union
+    {
+      uint8_t const * const p;
+      uint64_t              i;
+      double                d;
+      float                 f;
+    };
 
+    val_type type() const { return ti ? static_cast<val_type>(bts[*tp]) : static_cast<val_type>(bts[*p]); }
+    uint64_t size() const { return ti ? 0                               : nfs[*p](p) - p; }
+    uint64_t len()  const { }  // TODO: fn table
+
+    // TODO: fn tables for these
     operator int()    const { return 0; /* TODO */ }
     operator double() const { return 0; /* TODO */ }
 
@@ -539,8 +564,6 @@ namespace utf9 {
       }
 
   };
-
-  inline val cursor::operator*() const { return val{nullptr, p}; }
 
 }
 }

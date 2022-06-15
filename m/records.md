@@ -114,6 +114,8 @@ Note that both `utf8` and `bytes` encode the _byte_ length of the payload, not t
 
 
 ### Simple containers
+**TODO:** have arrays include their byte-length; otherwise parsing/seeking is expensive, and we have buffer-overflow issues when reading the array type
+
 | Byte        | Following bytes | Description                                     |
 |-------------|-----------------|-------------------------------------------------|
 | `0x40`      | `l n xs...`     | `tuple` of length `int8 l`,  `int8 n` elements  |
