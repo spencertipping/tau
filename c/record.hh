@@ -19,9 +19,6 @@ namespace utf9 {
     std::vector<uint8_t> const *const xs;
     uint64_t                    const i;
 
-    // FIXME: check bounds once here when we construct a val
-    val operator*() const { /* TODO */ }
-
     bytecode operator+(int offset)   const { return {xs, i + offset}; }
     int      operator-(bytecode rhs) const { return i - rhs.i; }
 
@@ -225,6 +222,7 @@ namespace utf9 {
         return x; };
   }
 
+  // FIXME: these should return sizeof, not next
   next_fn const nfs[256] =
   {
     // 0x00 - 0x0f
@@ -495,74 +493,6 @@ namespace utf9 {
     // TODO: fn tables for these
     operator int()    const { return 0; /* TODO */ }
     operator double() const { return 0; /* TODO */ }
-
-    // FIXME: we should have generalized "data is N items of X type and starts here"
-    // to provide this, not manual switch()
-    operator std::vector<val>() const
-      {
-        switch (type())
-        {
-        case TUPLE:
-        {
-          uint64_t n = 0;
-          bytecode c;
-        }
-
-        case ARRAY:
-        {
-          auto     sn = atsize(p + 1);
-          uint64_t n  = 0;
-          switch (*p)
-          {
-          case 0x44: n =       *sn.next;  sn.next++;    break;
-          case 0x45: n = ru16be(sn.next); sn.next += 2; break;
-          case 0x46: n = ru32be(sn.next); sn.next += 4; break;
-          case 0x47: n = ru64be(sn.next); sn.next += 8; break;
-          }
-
-          std::vector<val> r;
-          r.reserve(n);
-          for (int i = 0; i < n; ++i)
-          {
-            r.push_back(val{p, sn.next});
-            sn.next = nfs[*sn.next](sn.next);
-          }
-          return std::move(r);
-        }
-
-        case IDX:
-        {
-          std::cerr << "unimplemented: IDX -> vector" << std::endl;
-          _exit(1);
-        }
-
-        default:
-        {
-          std::cerr << "sv<" << *p << ">@" << p << std::endl;
-          _exit(1);
-        }
-        }
-      }
-
-    cursor operator[](val v) const
-      {
-        switch (type())
-        {
-        default:
-          return cursor{0};
-        }
-      }
-
-    cursor operator[](uint64_t i) const
-      {
-        switch (type())
-        {
-        default:
-          return cursor{0};
-        }
-
-      }
-
   };
 
 }
