@@ -92,17 +92,21 @@ namespace tau
 
 #define sf(size, next) [](bytecode const x) -> size_next { return {static_cast<uint64_t>(size), (next)}; }
 
-    static size_fn const fixbytes_sf   = sf(*x - 0x20, x + 1);
-    static size_fn const fixstr_sf     = sf(*x - 0x30, x + 1);
-    static size_fn const fixtuple8_sf  = sf(     *(x + 1), x + 2);
-    static size_fn const fixtuple16_sf = sf(ru16be(x + 1), x + 3);
-    static size_fn const bogus_sf    = [](bytecode x) -> size_next
-      { std::cerr << "sf[" << *x << "]@" << x << std::endl;
-        _exit(1);
-        return {0, x}; };
+    namespace
+    {
+      size_fn const fixbytes_sf   = sf(*x - 0x20, x + 1);
+      size_fn const fixstr_sf     = sf(*x - 0x30, x + 1);
+      size_fn const fixtuple8_sf  = sf(     *(x + 1), x + 2);
+      size_fn const fixtuple16_sf = sf(ru16be(x + 1), x + 3);
+      size_fn const bogus_sf    = [](bytecode x) -> size_next
+        { std::cerr << "sf[" << *x << "]@" << x << std::endl;
+          _exit(1);
+          return {0, x}; };
 
-    size_next atsize(bytecode);
-    static size_fn const sfs[256] =
+      inline size_next atsize(bytecode const);
+    }
+
+    size_fn const sfs[256] =
     {
       // 0x00-0x0f
       sf(1, x + 1),
@@ -230,24 +234,30 @@ namespace tau
 
 #undef sf
 
-
-    size_next atsize(bytecode const x) { return sfs[*x](x); }
+    namespace
+    {
+      inline size_next atsize(bytecode const b) { return sfs[*b](b); }
+    }
 
 
 #define nf(body) [](bytecode const x) { return (body); }
 
-    static next_fn const fixbytes_nf   = nf(x + 1 + (*x - 0x20));
-    static next_fn const fixstr_nf     = nf(x + 1 + (*x - 0x30));
-    static next_fn const fixtuple8_nf  = nf(x + 1 + *(x + 1));
-    static next_fn const fixtuple16_nf = nf(x + 2 + ru16be(x + 1));
-    static next_fn const fixint_nf     = nf(x + 1);
-    static next_fn const bogus_nf      = [](bytecode x)
-      { std::cerr << "nf[" << *x << "]@" << x << std::endl;
-        _exit(1);
-        return x; };
+    namespace
+    {
+      next_fn const fixbytes_nf   = nf(x + 1 + (*x - 0x20));
+      next_fn const fixstr_nf     = nf(x + 1 + (*x - 0x30));
+      next_fn const fixtuple8_nf  = nf(x + 1 + *(x + 1));
+      next_fn const fixtuple16_nf = nf(x + 2 + ru16be(x + 1));
+      next_fn const fixint_nf     = nf(x + 1);
+      next_fn const bogus_nf      = [](bytecode x)
+        { std::cerr << "nf[" << *x << "]@" << x << std::endl;
+          _exit(1);
+          return x; };
 
-    bytecode next(bytecode);
-    static next_fn const nfs[256] =
+      inline bytecode next(bytecode);
+    }
+
+    next_fn const nfs[256] =
     {
       // 0x00 - 0x0f
       nf(x + 2),
@@ -373,6 +383,11 @@ namespace tau
       fixint_nf, fixint_nf, fixint_nf, fixint_nf,
       fixint_nf, fixint_nf, fixint_nf, fixint_nf,
     };
+
+    namespace
+    {
+      inline bytecode next(bytecode const x) { return nfs[*x](x); }
+    }
 
 #undef nf
 
