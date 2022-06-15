@@ -8,12 +8,6 @@ Key characteristics of records:
 5. Fast C++ API for tau record fields
 6. Side-channel symbols: _α_, _ω_, _ι_, _κ_, and _τ(x)_
 
-Next steps:
-
-+ **TODO:** assign bytecodes
-+ **TODO:** allocate `fix*` compact instructions
-+ **TODO:** write the disk frame spec
-
 
 ## Meta-symbols
 + _α_ is a "time begins now" message sent by newly-connected stream elements
@@ -47,23 +41,9 @@ Next steps:
 **NOTE:** fds can be moved with https://www.man7.org/linux/man-pages/man2/pidfd_getfd.2.html, so we don't strictly need a domain socket.
 
 
-### Ravel-scan indexes
-Because indexes scan against the container ravel, they don't have to be used strictly for a single purpose like associative or hashed lookup. We can build skip lists, tree-like data structures, and pretty much anything else you might want to look up in a nonlinear way -- all using the same index.
-
-I think we can get away with two types of indexes:
-
-1. Arbitrarily-ordered quantile positions
-2. Uniformly-distributed radix points
-
-(1) enables binary-search, (2) enables very accurate interpolation search, likely _< O(log log n)_.
-
-Naturally, these indexes can be generated in streaming form, and they rely on _τ(i)_ estimates to size themselves.
-
-
 ## Transit spec
 `utf9` is a `msgpack`-inspired format that differs in a few ways:
 
-+ `utf9` prepends a header
 + 64-bit lengths are allowed
 + Nontrivial containers (arrays and maps) include their internal complexity and encoded length in bytes
 + Packed arrays are first-class (not just `bin` and `ext`)
@@ -98,7 +78,7 @@ Like `msgpack`, we optimize for brevity by providing `fix*` variants for small s
 
 ### Unused (reserved) bytes
 + `0x0c-0x0f`
-+ `0x77-0x7f`
++ `0x70-0x7f`
 
 
 ### Atomic types
@@ -134,8 +114,9 @@ Like `msgpack`, we optimize for brevity by providing `fix*` variants for small s
 | `0x1f`      | 8 + len         | `bytes`, 64-bit length       |
 | `0x2N`      | `N`             | `fixbytes`                   |
 | `0x3N`      | `N`             | `fixstr`                     |
-| `0x48-0x4f` | `N`             | `fixnop`                     |
 | `0x80-0xff` | 0               | `fixint`                     |
+
+**NOTE:** byte ordering is always big-endian.
 
 Note that both `utf8` and `bytes` encode the _byte_ length of the payload, not the logical number of elements as you might expect. This makes it possible to skip over the value without running a UTF-8 decode loop.
 
@@ -174,13 +155,13 @@ Indexes are tuples of `(ks, ka, ia)`. `ks` is a keyspec, which specifies which v
 
 | Byte   | Following bytes | Description                       |
 |--------|-----------------|-----------------------------------|
-| `0x70` | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
-| `0x71` | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
-| `0x72` | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
-| `0x73` | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
-| `0x74` | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
-| `0x75` | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
-| `0x76` | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
+| `0x48` | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
+| `0x49` | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
+| `0x4a` | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
+| `0x4b` | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
+| `0x4c` | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
+| `0x4d` | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
+| `0x4e` | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
 
 The data structure being indexed occurs immediately after the index. Logically, it's treated as a part of the index itself (which yields "a map" or "a set") but the two are decoded independently.
 
@@ -225,4 +206,45 @@ Similar to the transit spec, but intended for long-term persistence and easy loo
 4. Preallocated space
 5. File-level indexes
 
-**TODO:** full spec
+
+### Persistent header
+Disk-persisted `utf9` frames begin with a header that establishes some context, including the frame boundary.
+
+```cpp
+#define VERSION 0x01
+
+struct utf9_disk_header
+{
+  uint8_t const magic[8] = {0xff, 0xff, 'u', 't', 'f', '9', 0x00, VERSION};
+  int128        secret;
+    // int128   boundary = sha256(secret) >> 128  <- readers calculate this
+};
+```
+
+
+### `utf9` frames
+Frames are 16-byte aligned and begin with the boundary value, the frame key, and the signed frame key.
+
+```cpp
+struct utf9_frame_header
+{
+  int128 const  boundary   = utf9_disk_header.boundary;
+  int128        frame_sha  = sha256(frame) >> 128;
+  int128        signed_sha = sha256(frame_sha ^ utf9_disk_header.secret) >> 128;
+  uint8_t const magic[8]   = {0xff, 0xff, 'u', 't', 'f', '9', 'f', 0x00};
+  uint64_t      length;  // NOTE: always big-endian
+};
+
+struct utf9_frame
+{
+  utf9_frame_header header;
+  uint8_t           frame  [header.length];
+  uint8_t const     padding[header.length + 15 & ~15] = {0};
+};
+```
+
+`sizeof(utf9_frame_header) == 64`. Because frames carry the header overhead, each frame can contain multiple records emitted back to back. The frame is there to provide integrity checking for its contents and to provide a seek point within the file, making it possible to jump to an arbitrary location and find a nearby frame boundary.
+
+`boundary` decreases the amount of overhead required to scan for a frame boundary, while `record_key` and `signed_key` provide robust confirmation.
+
+**TODO:** add the chain SHA
