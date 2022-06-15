@@ -41,7 +41,7 @@ Key characteristics of records:
 **NOTE:** fds can be moved with https://www.man7.org/linux/man-pages/man2/pidfd_getfd.2.html, so we don't strictly need a domain socket.
 
 
-## Transit spec
+## Bytecode
 `utf9` is a `msgpack`-inspired format that differs in a few ways:
 
 + 64-bit lengths are allowed
@@ -68,7 +68,7 @@ In other words, [row transformation](transform.md) amounts to generating modific
 **NOTE:** `utf9` records may be aliased in memory, in which case they shouldn't be modified; then all updates will be applied as diff patches.
 
 
-### Bytecode design
+### Design
 Bytecode-encoded objects need not point to the origin; that is, there are no parent links (just like `msgpack`). Each object must be decodable with no base-pointer context, meaning we don't keep a base pointer and there is no value aliasing.
 
 Modifications are also bytecodes of a sort, but indirectly encoded using symbols.
@@ -96,7 +96,7 @@ Like `msgpack`, we optimize for brevity by providing `fix*` variants for small s
 | `0x08`      | 4               | `float32`                    |
 | `0x09`      | 8               | `float64`                    |
 | `0x0a`      | 8               | `symbol`                     |
-| `0x0b`      | 4               | `fd`                         |
+| `0x0b`      | 8               | `pidfd`, `uint32` pid and fd |
 | `0x10`      | 0               | `alpha`                      |
 | `0x11`      | 0               | `omega`                      |
 | `0x12`      | 0               | `iota`                       |
@@ -200,6 +200,23 @@ The index type influences the idiomatic data structure preference:
 `ka` can have any type as long as an ordering exists. `ia` is always `int16`, `int32`, or `int64`.
 
 
+## Transit spec
+A lightweight framing protocol that wraps one or more records over non-persistent connections, e.g. pipes or networks. There is no integrity verification or alignment.
+
+```cpp
+struct utf9_transit_frame
+{
+  uint8_t const magic[4] = {0xff, 'u', '9', 0x00};
+  uint64_t      length;
+  uint8_t       frame[length];
+};
+```
+
+Records are framed for transit so we can preload the length and create a buffer to read them; otherwise we may read beyond end-of-buffer when determining array sizes.
+
+**TODO:** is it worth having array sizes be directly encoded to avoid the array-of-arrays problem?
+
+
 ## Disk spec
 Similar to the transit spec, but intended for long-term persistence and easy lookup. In particular, we want a few features to work well from an IO perspective:
 
@@ -229,7 +246,7 @@ struct utf9_disk_header
 Frames are 16-byte aligned and begin with the boundary value, the frame key, and the signed frame key.
 
 ```cpp
-struct utf9_frame_header
+struct utf9_disk_frame_header
 {
   int128 const  boundary   = utf9_disk_header.boundary;
   int128        frame_sha  = sha256(frame) >> 128;
@@ -238,11 +255,11 @@ struct utf9_frame_header
   uint64_t      length;  // NOTE: always big-endian
 };
 
-struct utf9_frame
+struct utf9_disk_frame
 {
-  utf9_frame_header header;
-  uint8_t           frame  [header.length];
-  uint8_t const     padding[header.length + 15 & ~15] = {0};
+  utf9_disk_frame_header header;
+  uint8_t                frame  [header.length];
+  uint8_t const          padding[header.length + 15 & ~15] = {0};
 };
 ```
 

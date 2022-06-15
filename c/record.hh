@@ -35,7 +35,7 @@ namespace tau
       UTF9_FLOAT32  = 0x08,
       UTF9_FLOAT64  = 0x09,
       UTF9_SYMBOL   = 0x0a,
-      UTF9_FD       = 0x0b,
+      UTF9_PIDFD    = 0x0b,
       UTF9_ALPHA    = 0x10,
       UTF9_OMEGA    = 0x11,
       UTF9_IOTA     = 0x12,
@@ -121,7 +121,7 @@ namespace tau
       sf(4, x + 1),
       sf(8, x + 1),
       sf(8, x + 1),
-      sf(4, x + 1),
+      sf(8, x + 1),
       bogus_sf,
       bogus_sf,
       bogus_sf,
@@ -272,7 +272,7 @@ namespace tau
       nf(x + 5),  // float32
       nf(x + 9),
       nf(x + 9),
-      nf(x + 5),  // fd
+      nf(x + 9),  // pidfd
       bogus_nf,
       bogus_nf,
       bogus_nf,
