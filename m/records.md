@@ -8,6 +8,12 @@ Key characteristics of records:
 5. Fast C++ API for tau record fields
 6. Side-channel symbols: _α_, _ω_, _ι_, _κ_, and _τ(x)_
 
+Next steps:
+
++ **TODO:** assign bytecodes
++ **TODO:** allocate `fix*` compact instructions
++ **TODO:** write the disk frame spec
+
 
 ## Meta-symbols
 + _α_ is a "time begins now" message sent by newly-connected stream elements
@@ -155,6 +161,7 @@ Indexes are tuples of `(ks, ka, ia)`. `ks` is a keyspec, which specifies which v
 |      | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
 |      | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
 |      | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
+|      | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
 |      | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
 |      | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
 |      | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
@@ -197,3 +204,5 @@ Similar to the transit spec, but intended for long-term persistence and easy loo
 3. Fast record skipping for the sequential-access case
 4. Preallocated space
 5. File-level indexes
+
+**TODO:** full spec
