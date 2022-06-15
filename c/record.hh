@@ -5,405 +5,544 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
+#include <vector>
 
-#include <byteswap.h>
 #include <unistd.h>
 
 
-namespace tau
-{
-  namespace utf9
+namespace tau {
+namespace utf9 {
+
+  struct bytecode
   {
-    typedef uint8_t *bytecode;
+    std::vector<uint8_t> const *const xs;
+    uint64_t                    const i;
 
-    struct size_next { uint64_t size; bytecode next; };
+    uint8_t operator[](int offset) const { return xs->at(i + offset); }
+    uint8_t operator* ()           const { return xs->at(i); }
 
-    typedef bytecode(*next_fn)(bytecode);
-    typedef size_next(*size_fn)(bytecode);
+    bytecode operator+(int offset)   const { return {xs, i + offset}; }
+    int      operator-(bytecode rhs) const { return i - rhs.i; }
 
+    // NOTE: functions below execute a single bounds-check
+    uint8_t  u8 (int offset) const { return xs->at(i + offset); }
+    uint16_t u16(int offset) const { return (uint16_t) ((*xs)[i + offset]) << 8
+                                          | (uint16_t) xs->at(i + offset + 1); }
 
-    enum bytecodes
-    {
-      UTF9_UINT8    = 0x00,
-      UTF9_UINT16   = 0x01,
-      UTF9_UINT32   = 0x02,
-      UTF9_UINT64   = 0x03,
-      UTF9_INT8     = 0x04,
-      UTF9_INT16    = 0x05,
-      UTF9_INT32    = 0x06,
-      UTF9_INT64    = 0x07,
-      UTF9_FLOAT32  = 0x08,
-      UTF9_FLOAT64  = 0x09,
-      UTF9_SYMBOL   = 0x0a,
-      UTF9_PIDFD    = 0x0b,
-      UTF9_ALPHA    = 0x10,
-      UTF9_OMEGA    = 0x11,
-      UTF9_IOTA     = 0x12,
-      UTF9_KAPPA    = 0x13,
-      UTF9_TAU      = 0x14,
-      UTF9_UTF8_8   = 0x18,
-      UTF9_UTF8_16  = 0x19,
-      UTF9_UTF8_32  = 0x1a,
-      UTF9_UTF8_64  = 0x1b,
-      UTF9_BYTES_8  = 0x1c,
-      UTF9_BYTES_16 = 0x1d,
-      UTF9_BYTES_32 = 0x1e,
-      UTF9_BYTES_64 = 0x1f,
-      UTF9_TUPLE_8  = 0x40,
-      UTF9_TUPLE_16 = 0x41,
-      UTF9_TUPLE_32 = 0x42,
-      UTF9_TUPLE_64 = 0x43,
-      UTF9_ARRAY_8  = 0x44,
-      UTF9_ARRAY_16 = 0x45,
-      UTF9_ARRAY_32 = 0x46,
-      UTF9_ARRAY_64 = 0x47,
-      UTF9_CIDX_16  = 0x49,
-      UTF9_CIDX_32  = 0x4a,
-      UTF9_CIDX_64  = 0x4b,
-      UTF9_PIDX_8   = 0x4c,
-      UTF9_PIDX_16  = 0x4d,
-      UTF9_PIDX_32  = 0x4e,
-      UTF9_PIDX_64  = 0x4f,
-    };
+    uint32_t u32(int offset) const { return (uint32_t) ((*xs)[i + offset    ]) << 24
+                                          | (uint32_t) ((*xs)[i + offset + 1]) << 16
+                                          | (uint32_t) ((*xs)[i + offset + 2]) << 8
+                                          | (uint32_t) xs->at(i + offset + 3); }
+
+    uint64_t u64(int offset) const { return (uint64_t) ((*xs)[i + offset   ]) << 56
+                                          | (uint64_t) ((*xs)[i + offset + 1]) << 48
+                                          | (uint64_t) ((*xs)[i + offset + 2]) << 40
+                                          | (uint64_t) ((*xs)[i + offset + 3]) << 32
+                                          | (uint64_t) ((*xs)[i + offset + 4]) << 24
+                                          | (uint64_t) ((*xs)[i + offset + 5]) << 16
+                                          | (uint64_t) ((*xs)[i + offset + 6]) << 8
+                                          | (uint64_t) xs->at(i + offset + 7); }
+  };
+
+  std::ostream &operator<<(std::ostream &s, bytecode const &b)
+  {
+
+    return s;
+  }
 
 
-    struct byte_bitfield
-    {
-      uint16_t bits[8] = {0};
+  struct size_next { uint64_t size; bytecode zero; bytecode next; };
 
-      byte_bitfield &operator|=(uint8_t const x)
-        { bits[x >> 4] |= 1 << (x & 15);
-          return *this; }
-
-      bool operator&(uint8_t const x) { return bits[x >> 4] & 1 << (x & 15); }
-    };
-
-
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    static uint16_t ru16be(bytecode b) { return __bswap_16(*reinterpret_cast<uint16_t*>(b)); }
-    static uint32_t ru32be(bytecode b) { return __bswap_32(*reinterpret_cast<uint32_t*>(b)); }
-    static uint64_t ru64be(bytecode b) { return __bswap_64(*reinterpret_cast<uint64_t*>(b)); }
-#elif __BYTE_ORDER__ == ___ORDER_BIG_ENDIAN__
-    static uint16_t ru16be(bytecode b) { return *reinterpret_cast<uint16_t*>(b); }
-    static uint32_t ru32be(bytecode b) { return *reinterpret_cast<uint32_t*>(b); }
-    static uint64_t ru64be(bytecode b) { return *reinterpret_cast<uint64_t*>(b); }
-#endif
+  typedef bytecode(*next_fn)(bytecode);
+  typedef size_next(*size_fn)(bytecode);
 
 
 #define sf(size, next) [](bytecode const x) -> size_next { return {static_cast<uint64_t>(size), (next)}; }
 
-    namespace
-    {
-      size_fn const fixbytes_sf   = sf(*x - 0x20, x + 1);
-      size_fn const fixstr_sf     = sf(*x - 0x30, x + 1);
-      size_fn const fixtuple8_sf  = sf(     *(x + 1), x + 2);
-      size_fn const fixtuple16_sf = sf(ru16be(x + 1), x + 3);
-      size_fn const bogus_sf      = [](bytecode x) -> size_next
-        { std::cerr << "sf[" << *x << "]@" << x << std::endl;
-          _exit(1);
-          return {0, x}; };
+  namespace
+  {
+    size_fn const fixbytes_sf  = sf(*x - 0x20, x + 1);
+    size_fn const fixstr_sf    = sf(*x - 0x30, x + 1);
+    size_fn const fixtuple8_sf = sf(*(x + 1),  x + 2);
+    size_fn const bogus_sf     = [](bytecode x) -> size_next
+      { std::cerr << "sf[" << *x << "]@" << x << std::endl;
+        _exit(1);
+        return {0, x}; };
 
-      inline size_next atsize(bytecode const);
-    }
+    inline size_next atsize(bytecode const);
+  }
 
-    size_fn const sfs[256] =
-    {
-      // 0x00-0x0f
-      sf(1, x + 1),
-      sf(2, x + 1),
-      sf(4, x + 1),
-      sf(8, x + 1),
-      sf(1, x + 1),
-      sf(2, x + 1),
-      sf(4, x + 1),
-      sf(8, x + 1),
+  size_fn const sfs[256] =
+  {
+    // 0x00-0x0f
+    sf(1, x + 1),
+    sf(2, x + 1),
+    sf(4, x + 1),
+    sf(8, x + 1),
+    sf(1, x + 1),
+    sf(2, x + 1),
+    sf(4, x + 1),
+    sf(8, x + 1),
 
-      sf(4, x + 1),
-      sf(8, x + 1),
-      sf(8, x + 1),
-      sf(8, x + 1),
-      bogus_sf,
-      bogus_sf,
-      bogus_sf,
-      bogus_sf,
+    sf(4, x + 1),
+    sf(8, x + 1),
+    sf(8, x + 1),
+    sf(8, x + 1),
+    bogus_sf,
+    bogus_sf,
+    bogus_sf,
+    bogus_sf,
 
-      // 0x10-0x1f
-      bogus_sf,
-      bogus_sf,
-      bogus_sf,
-      bogus_sf,
-      bogus_sf,
-      bogus_sf,
-      bogus_sf,
-      bogus_sf,
+    // 0x10-0x1f
+    bogus_sf,
+    bogus_sf,
+    bogus_sf,
+    bogus_sf,
+    bogus_sf,
+    bogus_sf,
+    bogus_sf,
+    bogus_sf,
 
-      sf(     *(x + 1), x + 2),
-      sf(ru16be(x + 1), x + 3),
-      sf(ru32be(x + 1), x + 5),
-      sf(ru64be(x + 1), x + 9),
-      sf(     *(x + 1), x + 2),
-      sf(ru16be(x + 1), x + 3),
-      sf(ru32be(x + 1), x + 5),
-      sf(ru64be(x + 1), x + 9),
+    sf(x.u8(1),  x + 2),
+    sf(x.u16(1), x + 3),
+    sf(x.u32(1), x + 5),
+    sf(x.u64(1), x + 9),
+    sf(x.u8(1),  x + 2),
+    sf(x.u16(1), x + 3),
+    sf(x.u32(1), x + 5),
+    sf(x.u64(1), x + 9),
 
-      // 0x20-0x2f
-      fixbytes_sf, fixbytes_sf, fixbytes_sf, fixbytes_sf,
-      fixbytes_sf, fixbytes_sf, fixbytes_sf, fixbytes_sf,
-      fixbytes_sf, fixbytes_sf, fixbytes_sf, fixbytes_sf,
-      fixbytes_sf, fixbytes_sf, fixbytes_sf, fixbytes_sf,
+    // 0x20-0x2f
+    fixbytes_sf, fixbytes_sf, fixbytes_sf, fixbytes_sf,
+    fixbytes_sf, fixbytes_sf, fixbytes_sf, fixbytes_sf,
+    fixbytes_sf, fixbytes_sf, fixbytes_sf, fixbytes_sf,
+    fixbytes_sf, fixbytes_sf, fixbytes_sf, fixbytes_sf,
 
-      // 0x30-0x3f
-      fixstr_sf, fixstr_sf, fixstr_sf, fixstr_sf,
-      fixstr_sf, fixstr_sf, fixstr_sf, fixstr_sf,
-      fixstr_sf, fixstr_sf, fixstr_sf, fixstr_sf,
-      fixstr_sf, fixstr_sf, fixstr_sf, fixstr_sf,
+    // 0x30-0x3f
+    fixstr_sf, fixstr_sf, fixstr_sf, fixstr_sf,
+    fixstr_sf, fixstr_sf, fixstr_sf, fixstr_sf,
+    fixstr_sf, fixstr_sf, fixstr_sf, fixstr_sf,
+    fixstr_sf, fixstr_sf, fixstr_sf, fixstr_sf,
 
-      // 0x40-0x4f
-      sf(     *(x + 1), x + 3),
-      sf(ru16be(x + 1), x + 5),
-      sf(ru32be(x + 1), x + 9),
-      sf(ru64be(x + 1), x + 17),
-      [](bytecode x) -> size_next { auto sn = atsize(x + 1); return {      *sn.next  * sn.size, sn.next + 1}; },
-      [](bytecode x) -> size_next { auto sn = atsize(x + 1); return {ru16be(sn.next) * sn.size, sn.next + 2}; },
-      [](bytecode x) -> size_next { auto sn = atsize(x + 1); return {ru32be(sn.next) * sn.size, sn.next + 4}; },
-      [](bytecode x) -> size_next { auto sn = atsize(x + 1); return {ru64be(sn.next) * sn.size, sn.next + 8}; },
+    // 0x40-0x4f
+    sf(x.u8(1),  x + 3),
+    sf(x.u16(1), x + 5),
+    sf(x.u32(1), x + 9),
+    sf(x.u64(1), x + 17),
+    [](bytecode x) -> size_next { auto sn = atsize(x + 1); return { sn.next.u8(0)  * sn.size, sn.next + 1}; },
+    [](bytecode x) -> size_next { auto sn = atsize(x + 1); return { sn.next.u16(0) * sn.size, sn.next + 2}; },
+    [](bytecode x) -> size_next { auto sn = atsize(x + 1); return { sn.next.u32(0) * sn.size, sn.next + 4}; },
+    [](bytecode x) -> size_next { auto sn = atsize(x + 1); return { sn.next.u64(0) * sn.size, sn.next + 8}; },
 
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,  // indexes aren't valid array elements
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    fixtuple8_sf, fixtuple8_sf, fixtuple8_sf, fixtuple8_sf,
+    fixtuple8_sf, fixtuple8_sf, fixtuple8_sf, fixtuple8_sf,
 
-      // 0x50-0x5f
-      fixtuple8_sf, fixtuple8_sf, fixtuple8_sf, fixtuple8_sf,
-      fixtuple8_sf, fixtuple8_sf, fixtuple8_sf, fixtuple8_sf,
-      fixtuple8_sf, fixtuple8_sf, fixtuple8_sf, fixtuple8_sf,
-      fixtuple8_sf, fixtuple8_sf, fixtuple8_sf, fixtuple8_sf,
+    // 0x50-0x5f
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      // 0x60-0x6f
-      fixtuple16_sf, fixtuple16_sf, fixtuple16_sf, fixtuple16_sf,
-      fixtuple16_sf, fixtuple16_sf, fixtuple16_sf, fixtuple16_sf,
-      fixtuple16_sf, fixtuple16_sf, fixtuple16_sf, fixtuple16_sf,
-      fixtuple16_sf, fixtuple16_sf, fixtuple16_sf, fixtuple16_sf,
+    // 0x60-0x6f
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      // 0x70-0x7f
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    // 0x70-0x7f
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      // 0x80-0xbf
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    // 0x80-0xbf
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      // 0xc0-0xff
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    // 0xc0-0xff
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
 
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-      bogus_sf, bogus_sf, bogus_sf, bogus_sf,
-    };
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+    bogus_sf, bogus_sf, bogus_sf, bogus_sf,
+  };
 
 #undef sf
 
-    namespace
-    {
-      inline size_next atsize(bytecode const b) { return sfs[*b](b); }
-    }
+  namespace
+  {
+    inline size_next atsize(bytecode const b) { return sfs[*b](b); }
+  }
 
 
 #define nf(body) [](bytecode const x) { return (body); }
 
-    namespace
-    {
-      next_fn const fixbytes_nf   = nf(x + 1 + (*x - 0x20));
-      next_fn const fixstr_nf     = nf(x + 1 + (*x - 0x30));
-      next_fn const fixtuple8_nf  = nf(x + 1 + *(x + 1));
-      next_fn const fixtuple16_nf = nf(x + 2 + ru16be(x + 1));
-      next_fn const fixint_nf     = nf(x + 1);
-      next_fn const bogus_nf      = [](bytecode x)
-        { std::cerr << "nf[" << *x << "]@" << x << std::endl;
-          _exit(1);
-          return x; };
+  namespace
+  {
+    next_fn const fixbytes_nf  = nf(x + 1 + (*x - 0x20));
+    next_fn const fixstr_nf    = nf(x + 1 + (*x - 0x30));
+    next_fn const fixtuple8_nf = nf(x + 1 + *(x + 1));
+    next_fn const fixint_nf    = nf(x + 1);
+    next_fn const bogus_nf     = [](bytecode x)
+      { std::cerr << "nf[" << *x << "]@" << x << std::endl;
+        _exit(1);
+        return x; };
+  }
 
-      inline bytecode next(bytecode);
-    }
+  next_fn const nfs[256] =
+  {
+    // 0x00 - 0x0f
+    nf(x + 2),
+    nf(x + 3),
+    nf(x + 5),
+    nf(x + 9),
+    nf(x + 2),
+    nf(x + 3),
+    nf(x + 5),
+    nf(x + 9),
 
-    next_fn const nfs[256] =
-    {
-      // 0x00 - 0x0f
-      nf(x + 2),
-      nf(x + 3),
-      nf(x + 5),
-      nf(x + 9),
-      nf(x + 2),
-      nf(x + 3),
-      nf(x + 5),
-      nf(x + 9),
+    nf(x + 5),  // float32
+    nf(x + 9),
+    nf(x + 9),
+    nf(x + 9),  // pidfd
+    bogus_nf,
+    bogus_nf,
+    bogus_nf,
+    bogus_nf,
 
-      nf(x + 5),  // float32
-      nf(x + 9),
-      nf(x + 9),
-      nf(x + 9),  // pidfd
-      bogus_nf,
-      bogus_nf,
-      bogus_nf,
-      bogus_nf,
+    // 0x10 - 0x1f
+    nf(x + 1),
+    nf(x + 1),
+    nf(x + 1),
+    nf(x + 1),
+    nf(x + 1),
+    nf(x + 3),
+    nf(x + 5),
+    nf(x + 9),
 
-      // 0x10 - 0x1f
-      nf(x + 1),
-      nf(x + 1),
-      nf(x + 1),
-      nf(x + 1),
-      nf(x + 1),
-      nf(x + 3),
-      nf(x + 5),
-      nf(x + 9),
+    nf(x + 2 + x.u8(1)),       // 0x18: utf8 uint8
+    nf(x + 3 + x.u16(1)),
+    nf(x + 5 + x.u32(1)),
+    nf(x + 9 + x.u64(1)),
+    nf(x + 2 + x.u8(1)),
+    nf(x + 3 + x.u16(1)),
+    nf(x + 5 + x.u32(1)),
+    nf(x + 9 + x.u64(1)),
 
-      nf(x + 2 + *(x + 1)),       // 0x18: utf8 uint8
-      nf(x + 3 + ru16be(x + 1)),
-      nf(x + 5 + ru32be(x + 1)),
-      nf(x + 9 + ru64be(x + 1)),
-      nf(x + 2 + *(x + 1)),
-      nf(x + 3 + ru16be(x + 1)),
-      nf(x + 5 + ru32be(x + 1)),
-      nf(x + 9 + ru64be(x + 1)),
+    // 0x2N
+    fixbytes_nf, fixbytes_nf, fixbytes_nf, fixbytes_nf,
+    fixbytes_nf, fixbytes_nf, fixbytes_nf, fixbytes_nf,
+    fixbytes_nf, fixbytes_nf, fixbytes_nf, fixbytes_nf,
+    fixbytes_nf, fixbytes_nf, fixbytes_nf, fixbytes_nf,
 
-      // 0x2N
-      fixbytes_nf, fixbytes_nf, fixbytes_nf, fixbytes_nf,
-      fixbytes_nf, fixbytes_nf, fixbytes_nf, fixbytes_nf,
-      fixbytes_nf, fixbytes_nf, fixbytes_nf, fixbytes_nf,
-      fixbytes_nf, fixbytes_nf, fixbytes_nf, fixbytes_nf,
+    // 0x3N
+    fixstr_nf, fixstr_nf, fixstr_nf, fixstr_nf,
+    fixstr_nf, fixstr_nf, fixstr_nf, fixstr_nf,
+    fixstr_nf, fixstr_nf, fixstr_nf, fixstr_nf,
+    fixstr_nf, fixstr_nf, fixstr_nf, fixstr_nf,
 
-      // 0x3N
-      fixstr_nf, fixstr_nf, fixstr_nf, fixstr_nf,
-      fixstr_nf, fixstr_nf, fixstr_nf, fixstr_nf,
-      fixstr_nf, fixstr_nf, fixstr_nf, fixstr_nf,
-      fixstr_nf, fixstr_nf, fixstr_nf, fixstr_nf,
+    // 0x40-0x4f
+    nf(x + 3  + x.u8(1)),
+    nf(x + 5  + x.u16(1)),
+    nf(x + 9  + x.u32(1)),
+    nf(x + 17 + x.u64(1)),
+    [](bytecode x) { auto sn = atsize(x + 1); return sn.next + 1 + sn.next.u8(0)  * sn.size; },
+    [](bytecode x) { auto sn = atsize(x + 1); return sn.next + 2 + sn.next.u16(0) * sn.size; },
+    [](bytecode x) { auto sn = atsize(x + 1); return sn.next + 4 + sn.next.u32(0) * sn.size; },
+    [](bytecode x) { auto sn = atsize(x + 1); return sn.next + 8 + sn.next.u64(0) * sn.size; },
 
-      // 0x40-0x4f
-      nf(x + 3  + *(x + 1)),
-      nf(x + 5  + ru16be(x + 1)),
-      nf(x + 9  + ru32be(x + 1)),
-      nf(x + 17 + ru64be(x + 1)),
-      [](bytecode x) { auto sn = atsize(x + 1); return sn.next + 1 +       *sn.next  * sn.size; },
-      [](bytecode x) { auto sn = atsize(x + 1); return sn.next + 2 + ru16be(sn.next) * sn.size; },
-      [](bytecode x) { auto sn = atsize(x + 1); return sn.next + 4 + ru32be(sn.next) * sn.size; },
-      [](bytecode x) { auto sn = atsize(x + 1); return sn.next + 8 + ru64be(sn.next) * sn.size; },
+    fixtuple8_nf, fixtuple8_nf, fixtuple8_nf, fixtuple8_nf,
+    fixtuple8_nf, fixtuple8_nf, fixtuple8_nf, fixtuple8_nf,
 
-      // FIXME: indexes
-      bogus_nf, bogus_nf, bogus_nf, bogus_nf,
-      bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    // 0x50-0x5f
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
 
-      // 0x50-0x5f
-      fixtuple8_nf, fixtuple8_nf, fixtuple8_nf, fixtuple8_nf,
-      fixtuple8_nf, fixtuple8_nf, fixtuple8_nf, fixtuple8_nf,
-      fixtuple8_nf, fixtuple8_nf, fixtuple8_nf, fixtuple8_nf,
-      fixtuple8_nf, fixtuple8_nf, fixtuple8_nf, fixtuple8_nf,
+    // 0x60-0x6f
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
 
-      // 0x60-0x6f
-      fixtuple16_nf, fixtuple16_nf, fixtuple16_nf, fixtuple16_nf,
-      fixtuple16_nf, fixtuple16_nf, fixtuple16_nf, fixtuple16_nf,
-      fixtuple16_nf, fixtuple16_nf, fixtuple16_nf, fixtuple16_nf,
-      fixtuple16_nf, fixtuple16_nf, fixtuple16_nf, fixtuple16_nf,
+    // 0x70-0x7f
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    bogus_nf, bogus_nf, bogus_nf, bogus_nf,
 
-      // 0x70-0x7f
-      bogus_nf, bogus_nf, bogus_nf, bogus_nf,
-      bogus_nf, bogus_nf, bogus_nf, bogus_nf,
-      bogus_nf, bogus_nf, bogus_nf, bogus_nf,
-      bogus_nf, bogus_nf, bogus_nf, bogus_nf,
+    // 0x80-0xbf
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
 
-      // 0x80-0xbf
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
 
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
 
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
 
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    // 0xc0-0xff
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
 
-      // 0xc0-0xff
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
 
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
 
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-      fixint_nf, fixint_nf, fixint_nf, fixint_nf,
-    };
-
-    namespace
-    {
-      inline bytecode next(bytecode const x) { return nfs[*x](x); }
-    }
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+    fixint_nf, fixint_nf, fixint_nf, fixint_nf,
+  };
 
 #undef nf
 
+  enum val_type
+  {
+    NONE,
+    INT,
+    FLOAT32,
+    FLOAT64,
+    SYMBOL,
+    PIDFD,
+    GREEK,
 
-    struct cursor
-    {
-      bytecode p;
-    };
+    UTF8,
+    BYTES,
+    TUPLE,
+    ARRAY,
+    IDX
+  };
+
+  uint8_t const bts[256] =
+  {
+    // 0x00-0x0f
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    FLOAT32, FLOAT64, SYMBOL, PIDFD,
+    NONE, NONE, NONE, NONE,
+
+    // 0x10-0x1f
+    GREEK, GREEK, GREEK, GREEK,
+    GREEK, GREEK, GREEK, GREEK,
+    UTF8, UTF8, UTF8, UTF8,
+    BYTES, BYTES, BYTES, BYTES,
+
+    // 0x20-0x2f
+    UTF8, UTF8, UTF8, UTF8,
+    UTF8, UTF8, UTF8, UTF8,
+    UTF8, UTF8, UTF8, UTF8,
+    UTF8, UTF8, UTF8, UTF8,
+
+    // 0x30-0x3f
+    BYTES, BYTES, BYTES, BYTES,
+    BYTES, BYTES, BYTES, BYTES,
+    BYTES, BYTES, BYTES, BYTES,
+    BYTES, BYTES, BYTES, BYTES,
+
+    // 0x40-0x4f
+    TUPLE, TUPLE, TUPLE, TUPLE,
+    ARRAY, ARRAY, ARRAY, ARRAY,
+    TUPLE, TUPLE, TUPLE, TUPLE,
+    TUPLE, TUPLE, TUPLE, TUPLE,
+
+    // 0x50-0x5f
+    NONE, NONE, NONE, NONE,
+    NONE, NONE, NONE, NONE,
+    NONE, NONE, NONE, NONE,
+    NONE, NONE, NONE, NONE,
+
+    // 0x60-0x6f
+    NONE, NONE, NONE, NONE,
+    NONE, NONE, NONE, NONE,
+    NONE, NONE, NONE, NONE,
+    NONE, NONE, NONE, NONE,
+
+    // 0x70-0x7f
+    NONE, NONE, NONE, NONE,
+    NONE, NONE, NONE, NONE,
+    NONE, NONE, NONE, NONE,
+    NONE, NONE, NONE, NONE,
+
+    // 0x80-0xbf
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+
+    // 0xc0-0xff
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+    INT, INT, INT, INT,
+  };
 
 
-    struct val
-    {
-      bytecode p;
-    };
+  struct val
+  {
+    bytecode t;
+    bytecode p;
 
-  }
+    val_type type() const { return t ? static_cast<val_type>(bts[*t]) : static_cast<val_type>(bts[*p]); }
+    uint64_t size() const { return t ? 0                              : nfs[*p](p) - p; }
+    uint64_t len()  const { }
+
+    operator int()    const { return 0; /* TODO */ }
+    operator double() const { return 0; /* TODO */ }
+
+    // FIXME: we should have generalized "data is N items of X type and starts here"
+    // to provide this, not manual switch()
+    operator std::vector<val>() const
+      {
+        switch (type())
+        {
+        case TUPLE:
+        {
+          uint64_t n = 0;
+          bytecode c;
+        }
+
+        case ARRAY:
+        {
+          auto     sn = atsize(p + 1);
+          uint64_t n  = 0;
+          switch (*p)
+          {
+          case 0x44: n =       *sn.next;  sn.next++;    break;
+          case 0x45: n = ru16be(sn.next); sn.next += 2; break;
+          case 0x46: n = ru32be(sn.next); sn.next += 4; break;
+          case 0x47: n = ru64be(sn.next); sn.next += 8; break;
+          }
+
+          std::vector<val> r;
+          r.reserve(n);
+          for (int i = 0; i < n; ++i)
+          {
+            r.push_back(val{p, sn.next});
+            sn.next = nfs[*sn.next](sn.next);
+          }
+          return std::move(r);
+        }
+
+        case IDX:
+        {
+          std::cerr << "unimplemented: IDX -> vector" << std::endl;
+          _exit(1);
+        }
+
+        default:
+        {
+          std::cerr << "sv<" << *p << ">@" << p << std::endl;
+          _exit(1);
+        }
+        }
+      }
+
+    cursor operator[](val v) const
+      {
+        switch (type())
+        {
+        default:
+          return cursor{0};
+        }
+      }
+
+    cursor operator[](uint64_t i) const
+      {
+        switch (type())
+        {
+        default:
+          return cursor{0};
+        }
+
+      }
+
+  };
+
+  inline val cursor::operator*() const { return val{nullptr, p}; }
+
+}
 }
 
 #endif

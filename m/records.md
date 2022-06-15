@@ -24,7 +24,6 @@ Key characteristics of records:
   + `fd`: file descriptor (handled specially across local IPC boundaries)
   + `int8`, `int16`, `int32`, `int64`, unsigned variants
   + `float32`, `float64`
-  + SSE/AVX?
   + `symbol` (for stuff like `nil`, `true`, `false`, and custom)
   + `[]` packed array of fixed-size things
   + `()` tuple of fixed-size things
@@ -42,15 +41,6 @@ Key characteristics of records:
 
 
 ## Bytecode
-`utf9` is a `msgpack`-inspired format that differs in a few ways:
-
-+ 64-bit lengths are allowed
-+ Nontrivial containers (arrays and maps) include their internal complexity and encoded length in bytes
-+ Packed arrays are first-class (not just `bin` and `ext`)
-+ `utf9` adds the `set` datatype
-+ `utf9` adds the `symbol` datatype
-+ `utf9` adds _α_, _ω_, ... meta-symbols
-
 `utf9` is designed to be usable in-place, that is without "unpacking" into an in-memory datastructure. This means a few things:
 
 1. Containers within `utf9` records are lazily loaded, and refer to the original record rather than decoding into a temporary data structure
@@ -78,8 +68,9 @@ Like `msgpack`, we optimize for brevity by providing `fix*` variants for small s
 
 ### Unused (reserved) bytes
 + `0x0c-0x0f`
++ `0x50-0x5f`
++ `0x60-0x6f`
 + `0x70-0x7f`
-+ `0x48`
 
 
 ### Atomic types
@@ -113,8 +104,8 @@ Like `msgpack`, we optimize for brevity by providing `fix*` variants for small s
 | `0x1d`      | 2 + len         | `bytes`, 16-bit length       |
 | `0x1e`      | 4 + len         | `bytes`, 32-bit length       |
 | `0x1f`      | 8 + len         | `bytes`, 64-bit length       |
-| `0x2N`      | `N`             | `fixbytes`                   |
-| `0x3N`      | `N`             | `fixstr`                     |
+| `0x2N`      | `N`             | `fixutf8`                    |
+| `0x3N`      | `N`             | `fixbytes`                   |
 | `0x80-0xff` | 0               | `fixint`                     |
 
 **NOTE:** byte ordering is always big-endian.
@@ -123,18 +114,17 @@ Note that both `utf8` and `bytes` encode the _byte_ length of the payload, not t
 
 
 ### Simple containers
-| Byte   | Following bytes | Description                                       |
-|--------|-----------------|---------------------------------------------------|
-| `0x40` | `l n xs...`     | `tuple` of length `int8 l`,  `int8 n` elements    |
-| `0x41` | `l n xs...`     | `tuple` of length `int16 l`, `int16 n` elements   |
-| `0x42` | `l n xs...`     | `tuple` of length `int32 l`, `int32 n` elements   |
-| `0x43` | `l n xs...`     | `tuple` of length `int64 l`, `int64 n` elements   |
-| `0x44` | `t n xs...`     | `array` of type `t`, `int8 n` elements            |
-| `0x45` | `t n xs...`     | `array` of type `t`, `int16 n` elements           |
-| `0x46` | `t n xs...`     | `array` of type `t`, `int32 n` elements           |
-| `0x47` | `t n xs...`     | `array` of type `t`, `int64 n` elements           |
-| `0x5N` | `l xs...`       | `fixtuple` of `n` elements, byte-length `int8 l`  |
-| `0x6N` | `l xs...`       | `fixtuple` of `n` elements, byte-length `int16 l` |
+| Byte        | Following bytes | Description                                     |
+|-------------|-----------------|-------------------------------------------------|
+| `0x40`      | `l n xs...`     | `tuple` of length `int8 l`,  `int8 n` elements  |
+| `0x41`      | `l n xs...`     | `tuple` of length `int16 l`, `int16 n` elements |
+| `0x42`      | `l n xs...`     | `tuple` of length `int32 l`, `int32 n` elements |
+| `0x43`      | `l n xs...`     | `tuple` of length `int64 l`, `int64 n` elements |
+| `0x44`      | `t n xs...`     | `array` of type `t`, `int8 n` elements          |
+| `0x45`      | `t n xs...`     | `array` of type `t`, `int16 n` elements         |
+| `0x46`      | `t n xs...`     | `array` of type `t`, `int32 n` elements         |
+| `0x47`      | `t n xs...`     | `array` of type `t`, `int64 n` elements         |
+| `0x48-0x4f` | `l xs...`       | `fixtuple`, byte-length `int8 l`                |
 
 Arrays distribute a type prefix across a series of elements; for example, `array int8 5` would then be followed by five bytes, each of which would be interpreted as though it had been specified with `int8`. The type prefix `t` need not be a single byte; you can have `array utf8 5 5` for an array of five-byte UTF-8 strings. You can also have arrays within arrays.
 
@@ -156,15 +146,15 @@ Indexes can be complete (`cidx`) or incomplete (`iidx`). Complete indexes provid
 
 Indexes are tuples of `(ks, ka, ia)`. `ks` is a keyspec, which specifies which value is being indexed. `ka` and `ia` are the array of keys and the array of seek-indexes, respectively.
 
-| Byte   | Following bytes | Description                       |
-|--------|-----------------|-----------------------------------|
-| `0x49` | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
-| `0x4a` | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
-| `0x4b` | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
-| `0x4c` | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
-| `0x4d` | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
-| `0x4e` | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
-| `0x4f` | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
+| Byte | Following bytes | Description                       |
+|------|-----------------|-----------------------------------|
+|      | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
+|      | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
+|      | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
+|      | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
+|      | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
+|      | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
+|      | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
 
 The data structure being indexed occurs immediately after the index. Logically, it's treated as a part of the index itself (which yields "a map" or "a set") but the two are decoded independently.
 
@@ -214,7 +204,7 @@ struct utf9_transit_frame
 
 Records are framed for transit so we can preload the length and create a buffer to read them; otherwise we may read beyond end-of-buffer when determining array sizes.
 
-**TODO:** is it worth having array sizes be directly encoded to avoid the array-of-arrays problem?
+**TODO:** is it worth having array sizes be directly encoded to avoid the array-of-arrays problem? Probably not; we won't spend much effort decoding those, and we have dedicated indexes to avoid excessive jumping.
 
 
 ## Disk spec
