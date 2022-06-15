@@ -79,6 +79,7 @@ Like `msgpack`, we optimize for brevity by providing `fix*` variants for small s
 ### Unused (reserved) bytes
 + `0x0c-0x0f`
 + `0x70-0x7f`
++ `0x48`
 
 
 ### Atomic types
@@ -155,13 +156,13 @@ Indexes are tuples of `(ks, ka, ia)`. `ks` is a keyspec, which specifies which v
 
 | Byte   | Following bytes | Description                       |
 |--------|-----------------|-----------------------------------|
-| `0x48` | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
-| `0x49` | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
-| `0x4a` | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
-| `0x4b` | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
-| `0x4c` | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
-| `0x4d` | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
-| `0x4e` | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
+| `0x49` | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
+| `0x4a` | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
+| `0x4b` | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
+| `0x4c` | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
+| `0x4d` | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
+| `0x4e` | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
+| `0x4f` | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
 
 The data structure being indexed occurs immediately after the index. Logically, it's treated as a part of the index itself (which yields "a map" or "a set") but the two are decoded independently.
 
