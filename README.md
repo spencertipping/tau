@@ -30,6 +30,8 @@ Stuff I should do in order to move forwards:
 
 **NOTE:** https://wdobbie.com/post/gpu-text-rendering-with-vector-textures/ lays it all out; https://github.com/azsn/gllabel/blob/master/lib/gllabel.cpp is an example driver for it
 
+**NOTE:** XCB/xinput: https://gist.github.com/LemonBoy/dfe1d7ea428794c65b3d and https://stackoverflow.com/questions/39641675/how-to-register-events-using-libxcb-xinput
+
 
 ### X11/GL architecture
 Each window is a single component within a central τ fabric. Each window owns a thread that produces XCB events on a queue; these forward to a τ channel unidirectionally. So an X11/GL component works like this from τ's perspective:

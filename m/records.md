@@ -28,7 +28,7 @@ Next steps:
 ## Core data types
 + Fixed-size
   + `fd`: file descriptor (handled specially across local IPC boundaries)
-  + `int8`, `int16`, `int32`, `int64` (operators are signed/unsigned, ints are just bits -- we have all sizes for array purposes)
+  + `int8`, `int16`, `int32`, `int64`, unsigned variants
   + `float32`, `float64`
   + SSE/AVX?
   + `symbol` (for stuff like `nil`, `true`, `false`, and custom)
@@ -96,47 +96,63 @@ Modifications are also bytecodes of a sort, but indirectly encoded using symbols
 Like `msgpack`, we optimize for brevity by providing `fix*` variants for small structures.
 
 
+### Unused (reserved) bytes
++ `0x0c-0x0f`
++ `0x77-0x7f`
+
+
 ### Atomic types
-| Byte | Following bytes | Description                  |
-|------|-----------------|------------------------------|
-|      | 1               | `int8`                       |
-|      | 2               | `int16`                      |
-|      | 4               | `int32`                      |
-|      | 8               | `int64`                      |
-|      | 4               | `float32`                    |
-|      | 8               | `float64`                    |
-|      | 8               | `symbol`                     |
-|      | 4               | `fd`                         |
-|      | 1 + len         | `utf8`, 8-bit _byte_ length  |
-|      | 2 + len         | `utf8`, 16-bit _byte_ length |
-|      | 4 + len         | `utf8`, 32-bit _byte_ length |
-|      | 8 + len         | `utf8`, 64-bit _byte_ length |
-|      | 1 + len         | `bytes`, 8-bit length        |
-|      | 2 + len         | `bytes`, 16-bit length       |
-|      | 4 + len         | `bytes`, 32-bit length       |
-|      | 8 + len         | `bytes`, 64-bit length       |
-|      | 0               | `fixint`                     |
-|      | 0               | `fixfloat`                   |
-|      | len             | `fixstr`                     |
-|      | len             | `fixbytes`                   |
-|      | len             | `fixnop`                     |
+| Byte        | Following bytes | Description                  |
+|-------------|-----------------|------------------------------|
+| `0x00`      | 1               | `uint8`                      |
+| `0x01`      | 2               | `uint16`                     |
+| `0x02`      | 4               | `uint32`                     |
+| `0x03`      | 8               | `uint64`                     |
+| `0x04`      | 1               | `int8`                       |
+| `0x05`      | 2               | `int16`                      |
+| `0x06`      | 4               | `int32`                      |
+| `0x07`      | 8               | `int64`                      |
+| `0x08`      | 4               | `float32`                    |
+| `0x09`      | 8               | `float64`                    |
+| `0x0a`      | 8               | `symbol`                     |
+| `0x0b`      | 4               | `fd`                         |
+| `0x10`      | 0               | `alpha`                      |
+| `0x11`      | 0               | `omega`                      |
+| `0x12`      | 0               | `iota`                       |
+| `0x13`      | 0               | `kappa`                      |
+| `0x14`      | 0               | `tau0`                       |
+| `0x15`      | 2               | `tau`, `uint16 x`            |
+| `0x16`      | 4               | `tau`, `uint32 x`            |
+| `0x17`      | 8               | `tau`, `uint64 x`            |
+| `0x18`      | 1 + len         | `utf8`, 8-bit _byte_ length  |
+| `0x19`      | 2 + len         | `utf8`, 16-bit _byte_ length |
+| `0x1a`      | 4 + len         | `utf8`, 32-bit _byte_ length |
+| `0x1b`      | 8 + len         | `utf8`, 64-bit _byte_ length |
+| `0x1c`      | 1 + len         | `bytes`, 8-bit length        |
+| `0x1d`      | 2 + len         | `bytes`, 16-bit length       |
+| `0x1e`      | 4 + len         | `bytes`, 32-bit length       |
+| `0x1f`      | 8 + len         | `bytes`, 64-bit length       |
+| `0x2N`      | `N`             | `fixbytes`                   |
+| `0x3N`      | `N`             | `fixstr`                     |
+| `0x48-0x4f` | `N`             | `fixnop`                     |
+| `0x80-0xff` | 0               | `fixint`                     |
 
 Note that both `utf8` and `bytes` encode the _byte_ length of the payload, not the logical number of elements as you might expect. This makes it possible to skip over the value without running a UTF-8 decode loop.
 
 
 ### Simple containers
-| Byte | Following bytes | Description                                        |
-|------|-----------------|----------------------------------------------------|
-|      | `l n xs...`     | `tuple` of byte-length `int8 l`,  length `int8 n`  |
-|      | `l n xs...`     | `tuple` of byte-length `int16 l`, length `int16 n` |
-|      | `l n xs...`     | `tuple` of byte-length `int32 l`, length `int32 n` |
-|      | `l n xs...`     | `tuple` of byte-length `int64 l`, length `int64 n` |
-|      | `t n xs...`     | `array` of type `t`,  length `int8 n`              |
-|      | `t n xs...`     | `array` of type `t`,  length `int16 n`             |
-|      | `t n xs...`     | `array` of type `t`,  length `int32 n`             |
-|      | `t n xs...`     | `array` of type `t`,  length `int64 n`             |
-|      | `l xs...`       | `fixtuple` of `n` elements, byte-length `int8 l`   |
-|      | `l xs...`       | `fixtuple` of `n` elements, byte-length `int16 l`  |
+| Byte   | Following bytes | Description                                       |
+|--------|-----------------|---------------------------------------------------|
+| `0x40` | `l n xs...`     | `tuple` of length `int8 l`,  `int8 n` elements    |
+| `0x41` | `l n xs...`     | `tuple` of length `int16 l`, `int16 n` elements   |
+| `0x42` | `l n xs...`     | `tuple` of length `int32 l`, `int32 n` elements   |
+| `0x43` | `l n xs...`     | `tuple` of length `int64 l`, `int64 n` elements   |
+| `0x44` | `t n xs...`     | `array` of type `t`, `int8 n` elements            |
+| `0x45` | `t n xs...`     | `array` of type `t`, `int16 n` elements           |
+| `0x46` | `t n xs...`     | `array` of type `t`, `int32 n` elements           |
+| `0x47` | `t n xs...`     | `array` of type `t`, `int64 n` elements           |
+| `0x5N` | `l xs...`       | `fixtuple` of `n` elements, byte-length `int8 l`  |
+| `0x6N` | `l xs...`       | `fixtuple` of `n` elements, byte-length `int16 l` |
 
 Arrays distribute a type prefix across a series of elements; for example, `array int8 5` would then be followed by five bytes, each of which would be interpreted as though it had been specified with `int8`. The type prefix `t` need not be a single byte; you can have `array utf8 5 5` for an array of five-byte UTF-8 strings. You can also have arrays within arrays.
 
@@ -156,19 +172,21 @@ Indexes can be complete (`cidx`) or incomplete (`iidx`). Complete indexes provid
 
 Indexes are tuples of `(ks, ka, ia)`. `ks` is a keyspec, which specifies which value is being indexed. `ka` and `ia` are the array of keys and the array of seek-indexes, respectively.
 
-| Byte | Following bytes | Description                       |
-|------|-----------------|-----------------------------------|
-|      | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
-|      | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
-|      | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
-|      | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
-|      | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
-|      | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
-|      | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
+| Byte   | Following bytes | Description                       |
+|--------|-----------------|-----------------------------------|
+| `0x70` | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
+| `0x71` | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
+| `0x72` | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
+| `0x73` | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
+| `0x74` | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
+| `0x75` | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
+| `0x76` | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
 
 The data structure being indexed occurs immediately after the index. Logically, it's treated as a part of the index itself (which yields "a map" or "a set") but the two are decoded independently.
 
 **NOTE:** multiple indexes can be stacked. For example, we can have an associative map of `(k v)` tuples that is indexed both by `i` numerical indexes and `k` ordering.
+
+**TODO:** eliminate duplicate lengths for `ka` and `ia` by having indexes be a custom array type
 
 
 #### Keyspec
@@ -182,6 +200,8 @@ The keyspec is a symbol that describes the aspect of the data that's being index
   + `kh`: `hash(element[0])`, possibly truncated to the just the top _n_ bits
 
 **TODO:** add further index capability, e.g. `x[i]` for custom `i`
+
+**TODO:** make these `fixint`s, not symbols
 
 The index type influences the idiomatic data structure preference:
 
