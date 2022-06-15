@@ -98,7 +98,7 @@ namespace tau
       size_fn const fixstr_sf     = sf(*x - 0x30, x + 1);
       size_fn const fixtuple8_sf  = sf(     *(x + 1), x + 2);
       size_fn const fixtuple16_sf = sf(ru16be(x + 1), x + 3);
-      size_fn const bogus_sf    = [](bytecode x) -> size_next
+      size_fn const bogus_sf      = [](bytecode x) -> size_next
         { std::cerr << "sf[" << *x << "]@" << x << std::endl;
           _exit(1);
           return {0, x}; };
