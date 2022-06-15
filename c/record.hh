@@ -377,11 +377,15 @@ namespace tau
 #undef nf
 
 
-    struct utf9_val
+    struct cursor
     {
-      utf9_bytecode p;
+      bytecode p;
+    };
 
 
+    struct val
+    {
+      bytecode p;
     };
 
   }

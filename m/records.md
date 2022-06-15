@@ -148,6 +148,8 @@ Array types always include the byte length and never include the value. That is,
 
 
 ### Container indexes
+**TODO:** rework this format to eliminate some duplication and increase cache locality
+
 Container indexes modify simple containers by prepending an index that provides fast lookups. The container's values are usually sorted by the indexed field for content-indexed lookups. Large heterogeneous tuples can be indexed by element subscripts. All indexes map some aspect of the data to the byte offset of the container element that contains it.
 
 Indexes can be complete (`cidx`) or incomplete (`iidx`). Complete indexes provide a mapping for every element, incomplete indexes don't. Incomplete indexes enable fast interpolation search, complete indexes allow elements to be found even when they aren't in sorted order. Unordered elements must be addressed with a complete index; otherwise an index miss would result in a full linear scan.
