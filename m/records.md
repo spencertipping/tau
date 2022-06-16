@@ -114,29 +114,37 @@ Note that both `utf8` and `bytes` encode the _byte_ length of the payload, not t
 
 
 ### Simple containers
-**TODO:** have arrays include their byte-length; otherwise parsing/seeking is expensive, and we have buffer-overflow issues when reading the array type
+| Byte        | Following bytes | Description                                   |
+|-------------|-----------------|-----------------------------------------------|
+| `0x40`      | `l n xs...`     | `tuple` of length `int8 l`,  `int8` elements  |
+| `0x41`      | `l n xs...`     | `tuple` of length `int16 l`, `int16` elements |
+| `0x42`      | `l n xs...`     | `tuple` of length `int32 l`, `int32` elements |
+| `0x43`      | `l n xs...`     | `tuple` of length `int64 l`, `int64` elements |
+| `0x44`      | `l n t xs...`   | `array<t>` of length `int8 l`,  `int8 n`      |
+| `0x45`      | `l n t xs...`   | `array<t>` of length `int16 l`, `int16 n`     |
+| `0x46`      | `l n t xs...`   | `array<t>` of length `int32 l`, `int32 n`     |
+| `0x47`      | `l n t xs...`   | `array<t>` of length `int64 l`, `int64 n`     |
+| `0x48-0x4f` | `l xs...`       | `fixtuple`, byte-length `int8 l`              |
 
-| Byte        | Following bytes | Description                                     |
-|-------------|-----------------|-------------------------------------------------|
-| `0x40`      | `l n xs...`     | `tuple` of length `int8 l`,  `int8 n` elements  |
-| `0x41`      | `l n xs...`     | `tuple` of length `int16 l`, `int16 n` elements |
-| `0x42`      | `l n xs...`     | `tuple` of length `int32 l`, `int32 n` elements |
-| `0x43`      | `l n xs...`     | `tuple` of length `int64 l`, `int64 n` elements |
-| `0x44`      | `t n xs...`     | `array` of type `t`, `int8 n` elements          |
-| `0x45`      | `t n xs...`     | `array` of type `t`, `int16 n` elements         |
-| `0x46`      | `t n xs...`     | `array` of type `t`, `int32 n` elements         |
-| `0x47`      | `t n xs...`     | `array` of type `t`, `int64 n` elements         |
-| `0x48-0x4f` | `l xs...`       | `fixtuple`, byte-length `int8 l`                |
+**NOTE:** array `l = len(t) + len(xs)`, not just `len(xs)` as it is for tuples.
 
+
+#### Element typecodes
 Arrays distribute a type prefix across a series of elements; for example, `array int8 5` would then be followed by five bytes, each of which would be interpreted as though it had been specified with `int8`. The type prefix `t` need not be a single byte; you can have `array utf8 5 5` for an array of five-byte UTF-8 strings. You can also have arrays within arrays.
 
-Array types always include the byte length and never include the value. That is, they end at the length-specification. Examples of array element types:
+Array typecodes are identical to regular bytecodes, but with two major changes:
+
+1. Single-byte bytecodes aren't supported
+2. The value isn't encoded (the array effectively distributes it)
+
+Examples of array element types:
 
 + `tuple 48`
-+ `array int8 4`
++ `array 5 4 int8` -- note `5 = len(int8 bytecode) + 4`
 + `fixtuple4 48`
 + `utf8 10`
-+ `array array fixbytes(10) 10 10` -- that is, a 10x10 array of 10-long `bytes` objects
+
+When `array` is used as an array element, its `l` should be the length of each packed thing; that is, `array l n t` would set `l = n * len(x) = len(xs)`. `t` is no longer added to the length because it's packed out.
 
 
 ### Container indexes
