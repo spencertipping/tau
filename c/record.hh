@@ -13,6 +13,8 @@
 namespace tau::utf9
 {
 
+// TODO: bounds-check in two cases. First, buf -> val; second, val -> child
+
 
 // TODO: this should be a buffer class, and we should bounds-check once per value
 // being created _from here_, not internally to other values
@@ -213,6 +215,7 @@ namespace
 }
 
 
+// TODO: rename to something that conveys "sizeof", not "next"
 #define nf(body) [](bytecode const x) -> uint64_t { return (body); }
 
 namespace
@@ -227,7 +230,6 @@ namespace
       return 0; };
 }
 
-// FIXME: these should return sizeof, not next
 next_fn const nfs[256] =
 {
   // 0x00 - 0x0f
