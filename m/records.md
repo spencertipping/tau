@@ -157,6 +157,8 @@ The data structure being indexed occurs immediately after the index. Logically, 
 
 **TODO:** eliminate duplicate lengths for `ka` and `ia` by having indexes be a custom array type
 
+**TODO:** allow empty marker indexes to indicate that arrays are already sorted in some way
+
 
 #### Keyspec
 The keyspec is a symbol that describes the aspect of the data that's being indexed. It is currently one of:
@@ -234,16 +236,16 @@ struct utf9_disk_header
 
 
 ### `utf9` frames
-Frames are 16-byte aligned and begin with the boundary value, the frame key, and the signed frame key.
+Frames are 16-byte aligned and begin with magic+length, the boundary value, the frame key, and the signed frame key.
 
 ```cpp
 struct utf9_disk_frame_header
 {
+  uint8_t const magic[8]   = {0xff, 0xff, 'u', 't', 'f', '9', 'f', 0x00};
+  uint64_t      length;  // NOTE: always big-endian
   int128 const  boundary   = utf9_disk_header.boundary;
   int128        frame_sha  = sha256(frame) >> 128;
   int128        signed_sha = sha256(frame_sha ^ utf9_disk_header.secret) >> 128;
-  uint8_t const magic[8]   = {0xff, 0xff, 'u', 't', 'f', '9', 'f', 0x00};
-  uint64_t      length;  // NOTE: always big-endian
 };
 
 struct utf9_disk_frame
@@ -258,4 +260,4 @@ struct utf9_disk_frame
 
 `boundary` decreases the amount of overhead required to scan for a frame boundary, while `record_key` and `signed_key` provide robust confirmation.
 
-**TODO:** add the chain SHA
+**TODO:** add the chain SHA, if we want this

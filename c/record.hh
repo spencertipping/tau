@@ -504,4 +504,4 @@ struct val
 
 }
 
-#endif
+#endif  // ifndef utf9_record_h
