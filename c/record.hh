@@ -25,8 +25,9 @@ struct bytecode
   int      operator-(bytecode rhs) const { return i - rhs.i; }
 
   // NOTE: functions below execute a single bounds-check
+  // TODO: split the length assertion so the bitwise stuff compiles to pointer aliases
   uint8_t  u8 (int offset) const { return xs->at(i + offset); }
-  uint16_t u16(int offset) const { return (uint16_t) ((*xs)[i + offset]) << 8
+  uint16_t u16(int offset) const { return (uint16_t) ((*xs)[i + offset    ]) << 8
                                         | (uint16_t) xs->at(i + offset + 1); }
 
   uint32_t u32(int offset) const { return (uint32_t) ((*xs)[i + offset    ]) << 24
@@ -34,7 +35,7 @@ struct bytecode
                                         | (uint32_t) ((*xs)[i + offset + 2]) << 8
                                         | (uint32_t) xs->at(i + offset + 3); }
 
-  uint64_t u64(int offset) const { return (uint64_t) ((*xs)[i + offset   ]) << 56
+  uint64_t u64(int offset) const { return (uint64_t) ((*xs)[i + offset    ]) << 56
                                         | (uint64_t) ((*xs)[i + offset + 1]) << 48
                                         | (uint64_t) ((*xs)[i + offset + 2]) << 40
                                         | (uint64_t) ((*xs)[i + offset + 3]) << 32
