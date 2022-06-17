@@ -5,6 +5,13 @@
 + [General-purpose transforms](m/transform.md)
 
 
+## TODO for today
+1. Rewrite [m/records.md](m/records.md) and optionally [c/record.hh](c/record.hh)
+2. Firm up binary spec for container indexes
+3. Computation and indirection bytecodes
+4. Document switching-static-allocator GC design (coupled to fiber switching)
+
+
 ## Proprietary data; keep closed-source
 
 
