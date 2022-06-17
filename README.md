@@ -8,8 +8,12 @@
 ## TODO for today
 1. Rewrite [m/records.md](m/records.md) and optionally [c/record.hh](c/record.hh)
 2. Firm up binary spec for container indexes
-3. Computation and indirection bytecodes
-4. Document switching-static-allocator GC design (coupled to fiber switching)
+3. Write bytecode verifier
+4. Computation and indirection bytecodes
+5. Document switching static allocator design (coupled to fiber switching)
+6. GC?
+7. Specify the hashing and collision strategy for symbols
+8. Define transformation operation-space and bytecode
 
 
 ## Proprietary data; keep closed-source
@@ -58,7 +62,8 @@ In practice, we're likely to have a viewstate register that incorporates model +
 
 ### Rendering primitives
 1. Shaders to compile
-2. Triangles to render
+2. Buffers/uniforms/matrices to set
+3. Triangles to render
 
 Shaders can produce GL "shader error" outputs for debugging purposes. See [shader compilation](https://www.khronos.org/opengl/wiki/Shader_Compilation) for the C++ code canonically used to do this.
 
