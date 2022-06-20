@@ -133,64 +133,11 @@ When `array` is used as an array element, its `l` should be the length of each p
 
 
 ### Container indexes
-**TODO:** rework this format to eliminate some duplication and increase cache locality
+Indexes provide precise seek offsets for some or all elements in a collection, indexed by some function (often `x` for sets or `x[0]` for maps). The index covers every element if the collection is not already sorted along the index axis.
 
-Container indexes modify simple containers by prepending an index that provides fast lookups. The container's values are usually sorted by the indexed field for content-indexed lookups. Large heterogeneous tuples can be indexed by element subscripts. All indexes map some aspect of the data to the byte offset of the container element that contains it.
-
-Indexes can be complete (`cidx`) or incomplete (`iidx`). Complete indexes provide a mapping for every element, incomplete indexes don't. Incomplete indexes enable fast interpolation search, complete indexes allow elements to be found even when they aren't in sorted order. Unordered elements must be addressed with a complete index; otherwise an index miss would result in a full linear scan.
-
-Indexes are tuples of `(ks, ka, ia)`. `ks` is a keyspec, which specifies which value is being indexed. `ka` and `ia` are the array of keys and the array of seek-indexes, respectively.
-
-| Byte | Following bytes | Description                       |
-|------|-----------------|-----------------------------------|
-|      | `l ks ka ia`    | `cidx` with byte-length `int16 l` |
-|      | `l ks ka ia`    | `cidx` with byte-length `int32 l` |
-|      | `l ks ka ia`    | `cidx` with byte-length `int64 l` |
-|      | `l ks ka ia`    | `iidx` with byte-length `int8 l`  |
-|      | `l ks ka ia`    | `iidx` with byte-length `int16 l` |
-|      | `l ks ka ia`    | `iidx` with byte-length `int32 l` |
-|      | `l ks ka ia`    | `iidx` with byte-length `int64 l` |
-
-The data structure being indexed occurs immediately after the index. Logically, it's treated as a part of the index itself (which yields "a map" or "a set") but the two are decoded independently.
-
-**NOTE:** multiple indexes can be stacked. For example, we can have an associative map of `(k v)` tuples that is indexed both by `i` numerical indexes and `k` ordering.
-
-**TODO:** eliminate duplicate lengths for `ka` and `ia` by having indexes be a custom array type
-
-**TODO:** allow empty marker indexes to indicate that arrays are already sorted in some way
-
-
-#### Keyspec
-The keyspec is a symbol that describes the aspect of the data that's being indexed. It is currently one of:
-
-+ For whole elements, e.g. sets
-  + `i`: the element position
-  + `h`: `hash(element)`, possibly truncated to just the top _n_ bits
-+ For `(k v₁ v₂ ...)` associative tuples
-  + `k`: the initial element value
-  + `kh`: `hash(element[0])`, possibly truncated to the just the top _n_ bits
-
-**TODO:** add further index capability, e.g. `x[i]` for custom `i`
-
-**TODO:** make these `fixint`s, not symbols
-
-The index type influences the idiomatic data structure preference:
-
-+ `i`: array
-+ `h`: set
-+ `k` and `kh`: associative map/multimap
-
-
-#### Intrinsic hashing and ordering
 All `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
 
-Ordering is defined by projecting each type into a domain and comparing within that domain.
-
-
-#### Seek arrays
-`ka` is an array of fixed-size keys and `ia` is an array of fixed-size seek offsets (relative to the container base). `ka` is always ordered, but _`ia` need not be forward-ordered for complete indexes._ This allows container tuples to act like databases, providing multiple parallel indexes for the same data.
-
-`ka` can have any type as long as an ordering exists. `ia` is always `int16`, `int32`, or `int64`.
+**TODO:** can we reuse index structures for disk frames?
 
 
 ## Transit spec
@@ -204,10 +151,6 @@ struct utf9_transit_frame
   uint8_t       frame[length];
 };
 ```
-
-Records are framed for transit so we can preload the length and create a buffer to read them; otherwise we may read beyond end-of-buffer when determining array sizes.
-
-**TODO:** is it worth having array sizes be directly encoded to avoid the array-of-arrays problem? Probably not; we won't spend much effort decoding those, and we have dedicated indexes to avoid excessive jumping.
 
 
 ## Disk spec
@@ -245,7 +188,9 @@ struct utf9_disk_frame_header
   uint64_t      length;  // NOTE: always big-endian
   int128 const  boundary   = utf9_disk_header.boundary;
   int128        frame_sha  = sha256(frame) >> 128;
-  int128        signed_sha = sha256(frame_sha ^ utf9_disk_header.secret) >> 128;
+  int128        signed_sha = sha256(frame_sha ++ utf9_disk_header.secret) >> 128;
+  int128        chain_sha  = sha256(frame_sha ++ prev_frame.chain_sha) >> 128;
+    // NOTE: prev_frame.chain_sha is utf9_disk_header.secret for the first frame
 };
 
 struct utf9_disk_frame
@@ -259,5 +204,3 @@ struct utf9_disk_frame
 `sizeof(utf9_frame_header) == 64`. Because frames carry the header overhead, each frame can contain multiple records emitted back to back. The frame is there to provide integrity checking for its contents and to provide a seek point within the file, making it possible to jump to an arbitrary location and find a nearby frame boundary.
 
 `boundary` decreases the amount of overhead required to scan for a frame boundary, while `record_key` and `signed_key` provide robust confirmation.
-
-**TODO:** add the chain SHA, if we want this
