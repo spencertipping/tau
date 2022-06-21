@@ -195,7 +195,7 @@ Value orderings impact the index in an important way: _a random index must inclu
 | `0x7c` | `l64 n64 kt ps...` | hashval value-random index  |
 | `0x7d` | `l64 n64 kt ps...` | hashval value-ordered index |
 | `0x7e` | `l64 n64 kt ps...` | ordval value-random index   |
-| `0x7f` | `l64 n64 kt ps...** | ordval value-ordered index  |
+| `0x7f` | `l64 n64 kt ps...` | ordval value-ordered index  |
 
 **NOTE:** `l16`, `l32`, and `l64` encode `len(kt) + len(ps...)` -- that is, the key type is included. This avoids typecode parsing overhead when we want to skip over the index.
 

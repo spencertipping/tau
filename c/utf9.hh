@@ -5,13 +5,12 @@
 #include <bit>
 #include <cstdint>
 #include <iostream>
-#include <list>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 #include <byteswap.h>
-#include <unistd.h>
 
 
 namespace tau::utf9
@@ -20,11 +19,33 @@ namespace tau::utf9
 #define let auto const
 
 
+bool     ibuf_magic_init   = false;
+uint64_t ibuf_ref_magic[2] = {0};
+
+
 // Input buffer of bytes to be parsed as bytecode
 struct ibuf
 {
-  uint8_t const * xs;
-  uint64_t        l;
+  uint64_t       magic[2];
+  uint8_t const *xs;
+  uint64_t       l;
+
+
+  ibuf(uint8_t const *xs_, uint64_t l_) : xs(xs_), l(l_)
+    { if (!ibuf_magic_init)
+      { std::random_device                      rd;
+        std::mt19937_64                         gen(rd());
+        std::uniform_int_distribution<uint64_t> d;
+        ibuf_ref_magic[0] = d(gen);
+        ibuf_ref_magic[1] = d(gen);
+        ibuf_magic_init   = true; }
+      magic[0] = ibuf_ref_magic[0];
+      magic[1] = ibuf_ref_magic[1]; }
+
+
+  bool is_ibuf() const
+    { return magic[0] == ibuf_ref_magic[0] && magic[1] == ibuf_ref_magic[1]; }
+
 
   bool has  (uint64_t i) const { return i < l; }
   void check(uint64_t i) const { if (!has(i)) throw std::length_error("OOBE"); }
@@ -205,8 +226,6 @@ let p9  = pf(b + (i + 9));
 let p10 = pf(b + (i + 10));
 let p17 = pf(b + (i + 17));
 
-let plen = pf(b + b.len(i));
-
 let i16_pf = pf(b + (i + 5  + b.tlen(i + 5)));
 let i32_pf = pf(b + (i + 9  + b.tlen(i + 9)));
 let i64_pf = pf(b + (i + 17 + b.tlen(i + 17)));
@@ -332,14 +351,17 @@ struct val
   val(double vd_)                  : tag(FLOAT64), vd(vd_) {}
   val(float vf_)                   : tag(FLOAT32), vf(vf_) {}
 
-  val_type t() const { return tag & 7 ? static_cast<val_type>(tag & 7) : bts[b->c8(i)]; }
+
+  bool has_ibuf() const { return tag >= 256 && b->is_ibuf(); }
+  val_type t()    const { return has_ibuf() ? bts[b->c8(i)] : static_cast<val_type>(tag); }
 
 
   val list() const
     { uint64_t j = i; while (bts[b->c8(j)] == INDEX) j += b->len(j); return j; }
 
   uint8_t const *begin() const { return sfns[b->c8(i)](*b, i); }
-  uint8_t const *end()   const { return plen(*b, i); }
+  uint8_t const *end()   const { return *b + b->len(i); }
+
 };
 
 
