@@ -353,7 +353,7 @@ struct val
 
 
   bool     has_ibuf() const { return tag >= 256 && b->is_ibuf(); }
-  val_type t()        const { return has_ibuf() ? bts[b->c8(i)] : static_cast<val_type>(tag); }
+  val_type type()     const { return has_ibuf() ? bts[b->c8(i)] : static_cast<val_type>(tag); }
 
 
   val list() const
@@ -361,7 +361,18 @@ struct val
 
   uint8_t const *begin() const { return sfns[b->c8(i)](*b, i); }
   uint8_t const *end()   const { return *b + b->len(i); }
+  val            next()  const { return val(*b, i + b->len(i)); }
+
+
+  uint64_t hash()                const;
+  int      compare(val const &v) const;
+  val   operator[](val const &v) const;
+  val   operator[](uint64_t i)   const;
 };
+
+
+// TODO: what kind of dispatch structure do we want for the val
+// operation space?
 
 
 typedef uint64_t(*lfn)(ibuf const &, uint64_t);
