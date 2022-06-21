@@ -1,5 +1,5 @@
-# UTF9 records
-Key characteristics of records:
+# UTF9
+Key characteristics of `utf9`:
 
 + Efficient to serialize/deserialize, both in space and time
 + Able to hold large (>1TiB) amounts of data
@@ -40,7 +40,7 @@ In other words, [row transformation](transform.md) amounts to generating modific
 
 **NOTE:** this brings delta operators like `(+ 5)` and map-insert-and-merge front and center. We should have a broad dictionary of these things to use within row context.
 
-**NOTE:** `utf9` records may be aliased in memory, in which case they shouldn't be modified; then all updates will be applied as diff patches.
+**NOTE:** `utf9` values may be aliased in memory, in which case they shouldn't be modified; then all updates will be applied as diff patches.
 
 
 ### Design
@@ -53,9 +53,8 @@ Like `msgpack`, we optimize for brevity by providing `fix*` variants for small s
 
 ### Unused (reserved) bytes
 + `0x0c-0x0f`
-+ `0x50-0x5f`
-+ `0x60-0x6f`
-+ `0x70-0x7f`
++ `0x62-0x63`
++ `0x72-0x73`
 
 
 ### Atomic types
@@ -141,9 +140,11 @@ Indexes provide precise seek offsets for some or all elements in a collection, i
 
 All `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
 
+**NOTE:** container indexes are intended for memory-resident structures, and are not optimized for disk-resident or framed data.
+
 
 #### Index configurations
-+ **key:** `set` vs `mapkey` vs `mapval`
++ **key:** `pos` vs `set` vs `mapkey` vs `mapval`
 + **key order:** `hash-order` vs `compare-order`
 + **value order:** `ordered` vs `random`
 
@@ -152,8 +153,58 @@ Because multiple indexes can be prepended to the same container, it's possible t
 Value orderings impact the index in an important way: _a random index must include every element in the collection._ Value-ordered indexes need not include every element, since it's possible to interpolation-search and scan forwards.
 
 
+#### Index bytecodes
+| Byte   | Following bytes    | Description                 |
+|--------|--------------------|-----------------------------|
+| `0x50` | `l16 bits vs...`   | position index              |
+| `0x52` | 0                  | set type-hint               |
+| `0x53` | 0                  | map type-hint               |
+| `0x54` | `l16 n16 kt vs...` | hashset value-random index  |
+| `0x55` | `l16 n16 kt vs...` | hashset value-ordered index |
+| `0x56` | `l16 n16 kt vs...` | ordset value-random index   |
+| `0x57` | `l16 n16 kt vs...` | ordset value-ordered index  |
+| `0x58` | `l16 n16 kt vs...` | hashkey value-random index  |
+| `0x59` | `l16 n16 kt vs...` | hashkey value-ordered index |
+| `0x5a` | `l16 n16 kt vs...` | ordkey value-random index   |
+| `0x5b` | `l16 n16 kt vs...` | ordkey value-ordered index  |
+| `0x5c` | `l16 n16 kt vs...` | hashval value-random index  |
+| `0x5d` | `l16 n16 kt vs...` | hashval value-ordered index |
+| `0x5e` | `l16 n16 kt vs...` | ordval value-random index   |
+| `0x5f` | `l16 n16 kt vs...` | ordval value-ordered index  |
+| `0x60` | `l32 bits vs...`   | position index              |
+| `0x64` | `l32 n32 kt vs...` | hashset value-random index  |
+| `0x65` | `l32 n32 kt vs...` | hashset value-ordered index |
+| `0x66` | `l32 n32 kt vs...` | ordset value-random index   |
+| `0x67` | `l32 n32 kt vs...` | ordset value-ordered index  |
+| `0x68` | `l32 n32 kt vs...` | hashkey value-random index  |
+| `0x69` | `l32 n32 kt vs...` | hashkey value-ordered index |
+| `0x6a` | `l32 n32 kt vs...` | ordkey value-random index   |
+| `0x6b` | `l32 n32 kt vs...` | ordkey value-ordered index  |
+| `0x6c` | `l32 n32 kt vs...` | hashval value-random index  |
+| `0x6d` | `l32 n32 kt vs...` | hashval value-ordered index |
+| `0x6e` | `l32 n32 kt vs...` | ordval value-random index   |
+| `0x6f` | `l32 n32 kt vs...` | ordval value-ordered index  |
+| `0x70` | `l64 bits vs...`   | position index              |
+| `0x74` | `l64 n64 kt vs...` | hashset value-random index  |
+| `0x75` | `l64 n64 kt vs...` | hashset value-ordered index |
+| `0x76` | `l64 n64 kt vs...` | ordset value-random index   |
+| `0x77` | `l64 n64 kt vs...` | ordset value-ordered index  |
+| `0x78` | `l64 n64 kt vs...` | hashkey value-random index  |
+| `0x79` | `l64 n64 kt vs...` | hashkey value-ordered index |
+| `0x7a` | `l64 n64 kt vs...` | ordkey value-random index   |
+| `0x7b` | `l64 n64 kt vs...` | ordkey value-ordered index  |
+| `0x7c` | `l64 n64 kt vs...` | hashval value-random index  |
+| `0x7d` | `l64 n64 kt vs...` | hashval value-ordered index |
+| `0x7e` | `l64 n64 kt vs...` | ordval value-random index   |
+| `0x7f` | `l64 n64 kt vs...` | ordval value-ordered index  |
+
+Each element offset is encoded in the same number of bits as the index length, so for `0x5N` indexes the element offset is `uint16`; for `0x7N` it would be `uint64`.
+
+Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They can be downsampled by a number of bits, encoded as an `int8`; for example, if `bits = 2`, then the byte-offset table encodes the positions of `[0]`, `[4]`, `[8]`, `[12]`, etc. This trades space for time.
+
+
 ## Transit spec
-A lightweight framing protocol that wraps one or more records over non-persistent connections, e.g. pipes or networks. There is no integrity verification or alignment.
+A lightweight framing protocol that wraps one or more values over non-persistent connections, e.g. pipes or networks. There is no integrity verification or alignment.
 
 ```cpp
 struct utf9_transit_frame
@@ -168,9 +219,9 @@ struct utf9_transit_frame
 ## Disk spec
 Similar to the transit spec, but intended for long-term persistence and easy lookup. In particular, we want a few features to work well from an IO perspective:
 
-1. File splitting: seek to somewhere in the middle and find record boundaries
-2. Optional robustness checking, both per-record and per-file
-3. Fast record skipping for the sequential-access case
+1. File splitting: seek to somewhere in the middle and find value boundaries
+2. Optional robustness checking, both per-value and per-file
+3. Fast value skipping for the sequential-access case
 4. Preallocated space
 5. File-level indexes
 
@@ -213,6 +264,6 @@ struct utf9_disk_frame
 };
 ```
 
-`sizeof(utf9_frame_header) == 64`. Because frames carry the header overhead, each frame can contain multiple records emitted back to back. The frame is there to provide integrity checking for its contents and to provide a seek point within the file, making it possible to jump to an arbitrary location and find a nearby frame boundary.
+`sizeof(utf9_frame_header) == 80`. Because frames carry the header overhead, each frame can contain multiple values emitted back to back. The frame is there to provide integrity checking for its contents and to provide a seek point within the file, making it possible to jump to an arbitrary location and find a nearby frame boundary.
 
-`boundary` decreases the amount of overhead required to scan for a frame boundary, while `record_key` and `signed_key` provide robust confirmation.
+`boundary` decreases the amount of overhead required to scan for a frame boundary, while `frame_sha` and `signed_sha` provide robust confirmation.
