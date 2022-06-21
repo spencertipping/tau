@@ -261,10 +261,10 @@ lfn const tlfns[256] =  // 640B dcache footprint (worst-case)
   l1, l1, l1, l1,
 
   // 0x40-0x4f
-  lf(3  + tuple_tl(b, i + 3,  b.c8(i + 2))),
-  lf(5  + tuple_tl(b, i + 5,  b.c8(i + 3))),
-  lf(9  + tuple_tl(b, i + 9,  b.c8(i + 5))),
-  lf(17 + tuple_tl(b, i + 17, b.c8(i + 9))),
+  lf(3  + tuple_tl(b, i + 3,  b.c8 (i + 2))),
+  lf(5  + tuple_tl(b, i + 5,  b.c16(i + 3))),
+  lf(9  + tuple_tl(b, i + 9,  b.c32(i + 5))),
+  lf(17 + tuple_tl(b, i + 17, b.c64(i + 9))),
 
   lf(3  + b.tlen(i + 3)),
   lf(5  + b.tlen(i + 5)),
