@@ -352,8 +352,8 @@ struct val
   val(float vf_)                   : tag(FLOAT32), vf(vf_) {}
 
 
-  bool has_ibuf() const { return tag >= 256 && b->is_ibuf(); }
-  val_type t()    const { return has_ibuf() ? bts[b->c8(i)] : static_cast<val_type>(tag); }
+  bool     has_ibuf() const { return tag >= 256 && b->is_ibuf(); }
+  val_type t()        const { return has_ibuf() ? bts[b->c8(i)] : static_cast<val_type>(tag); }
 
 
   val list() const
@@ -361,7 +361,6 @@ struct val
 
   uint8_t const *begin() const { return sfns[b->c8(i)](*b, i); }
   uint8_t const *end()   const { return *b + b->len(i); }
-
 };
 
 
