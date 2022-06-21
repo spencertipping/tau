@@ -76,12 +76,6 @@ namespace
 #define lf(body) [](ibuf const &b, uint64_t i) -> uint64_t { return static_cast<uint64_t>(body); }
 
 
-// NOTE: lambda footprint varies by compilation options:
-//   default = 3134 bytes
-//   -O3     = 3824 bytes
-//   -Os     = 1231 bytes
-
-
 let l1  = lf(1);
 let l2  = lf(2);
 let l3  = lf(3);
@@ -122,6 +116,17 @@ let idx64_lf = lf(1 + 8 + b.c64(i + 1));
 let bogus_lf =
   [](ibuf const &b, uint64_t i) -> uint64_t
   { throw std::invalid_argument("bogus"); };
+
+
+// Typecode length functions
+uint64_t tuple_tl(ibuf const &b, uint64_t i, uint64_t n)
+{
+  uint64_t l = 0;
+  while (n--) l += b.tlen(i + l);
+  return l;
+}
+
+let fixtuple_tlf = lf(2 + tuple_tl(b, i + 2, b.u8(i) - 0x48));
 
 
 // Typecode value length functions
@@ -256,16 +261,18 @@ lfn const tlfns[256] =  // 640B dcache footprint (worst-case)
   l1, l1, l1, l1,
 
   // 0x40-0x4f
-  // FIXME: revise tuple typecodes
-  l3, l5, l9, l17,
+  lf(3  + tuple_tl(b, i + 3,  b.c8(i + 2))),
+  lf(5  + tuple_tl(b, i + 5,  b.c8(i + 3))),
+  lf(9  + tuple_tl(b, i + 9,  b.c8(i + 5))),
+  lf(17 + tuple_tl(b, i + 17, b.c8(i + 9))),
 
   lf(3  + b.tlen(i + 3)),
   lf(5  + b.tlen(i + 5)),
   lf(9  + b.tlen(i + 9)),
   lf(17 + b.tlen(i + 17)),
 
-  l2, l2, l2, l2,
-  l2, l2, l2, l2,
+  fixtuple_tlf, fixtuple_tlf, fixtuple_tlf, fixtuple_tlf,
+  fixtuple_tlf, fixtuple_tlf, fixtuple_tlf, fixtuple_tlf,
 
   // 0x50-0x5f
   bogus_lf, bogus_lf, bogus_lf, bogus_lf,

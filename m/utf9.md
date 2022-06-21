@@ -125,14 +125,12 @@ Array typecodes are identical to regular bytecodes, but with two major changes:
 
 Examples of array element types:
 
-+ `tuple 48 4` -- a 48-byte tuple with five elements
++ `tuple 32 4 int64 int64 float64 float64` -- a 32-byte tuple with four elements
 + `array 5 4 int8` -- note `5 = len(int8 bytecode) + 4`
-+ `fixtuple4 48`
++ `fixtuple4 48 int64 int64 int32 utf8 28`
 + `utf8 10`
 
 When `array` is used as an array element, its `l` should be the length of each packed thing; that is, `array l n t` would set `l = n * len(x) = len(xs)`. `t` is no longer added to the length because it's packed out.
-
-**FIXME:** tuple typecodes should fully specify their member types, e.g. `fixtuple2 8 int4 int4`.
 
 
 #### Array element and performance
