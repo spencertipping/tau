@@ -79,9 +79,7 @@ Any datatype with a non-constant length has the length prepended to it so we can
 | `0x12`      | 0               | `iota`                       |
 | `0x13`      | 0               | `kappa`                      |
 | `0x14`      | 0               | `tau0`                       |
-| `0x15`      | 2               | `tau`, `uint16 x`            |
-| `0x16`      | 4               | `tau`, `uint32 x`            |
-| `0x17`      | 8               | `tau`, `uint64 x`            |
+| `0x15`      | 8               | `tau`, `uint64 x`            |
 | `0x18`      | 1 + len         | `utf8`, 8-bit _byte_ length  |
 | `0x19`      | 2 + len         | `utf8`, 16-bit _byte_ length |
 | `0x1a`      | 4 + len         | `utf8`, 32-bit _byte_ length |

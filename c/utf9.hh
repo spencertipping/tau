@@ -34,36 +34,263 @@ struct ibuf
   uint64_t tvlen(uint64_t i) const;
 
 
+  uint8_t const *operator+(uint64_t i) const { return xs + i; }
+
+
   uint8_t  u8 (uint64_t i) const { return xs[i]; }
   uint16_t u16(uint64_t i) const
-    {
-      if constexpr (std::endian::native == std::endian::little)
+    { if constexpr (std::endian::native == std::endian::little)
                      return __bswap_16(*(uint16_t*)(xs + i));
       else if constexpr (std::endian::native == std::endian::big)
-                          return *(uint16_t*)(xs + i);
-    }
+                          return *(uint16_t*)(xs + i); }
 
   uint32_t u32(uint64_t i) const
-    {
-      if constexpr (std::endian::native == std::endian::little)
+    { if constexpr (std::endian::native == std::endian::little)
                      return __bswap_32(*(uint32_t*)(xs + i));
       else if constexpr (std::endian::native == std::endian::big)
-                          return *(uint32_t*)(xs + i);
-    }
+                          return *(uint32_t*)(xs + i); }
 
   uint64_t u64(uint64_t i) const
-    {
-      if constexpr (std::endian::native == std::endian::little)
+    { if constexpr (std::endian::native == std::endian::little)
                      return __bswap_64(*(uint64_t*)(xs + i));
       else if constexpr (std::endian::native == std::endian::big)
-                          return *(uint64_t*)(xs + i);
-    }
+                          return *(uint64_t*)(xs + i); }
 
 
   uint8_t  c8 (uint64_t i) const { check(i);     return u8(i);  }
   uint16_t c16(uint64_t i) const { check(i + 1); return u16(i); }
   uint32_t c32(uint64_t i) const { check(i + 3); return u32(i); }
   uint64_t c64(uint64_t i) const { check(i + 7); return u64(i); }
+};
+
+
+enum val_type
+{
+  REF     = 0,
+  INT     = 1,
+  FLOAT32 = 2,
+  FLOAT64 = 3,
+  SYMBOL  = 4,
+  PIDFD   = 5,
+  TAU     = 6,
+
+  ALPHA   = 8,
+  OMEGA   = 9,
+  IOTA    = 10,
+  KAPPA   = 11,
+
+  UTF8    = 12,
+  BYTES   = 13,
+  TUPLE   = 14,
+  ARRAY   = 15,
+  INDEX   = 16,
+
+  BOGUS   = 255,
+};
+
+
+namespace
+{
+
+val_type const bts[256] =
+{
+  // 0x00-0x0f
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  FLOAT32, FLOAT64, SYMBOL, PIDFD,
+  BOGUS, BOGUS, BOGUS, BOGUS,
+
+  // 0x10-0x1f
+  ALPHA, OMEGA, IOTA, KAPPA,
+  TAU, TAU, BOGUS, BOGUS,
+  UTF8, UTF8, UTF8, UTF8,
+  BYTES, BYTES, BYTES, BYTES,
+
+  // 0x20-0x2f
+  UTF8, UTF8, UTF8, UTF8,
+  UTF8, UTF8, UTF8, UTF8,
+  UTF8, UTF8, UTF8, UTF8,
+  UTF8, UTF8, UTF8, UTF8,
+
+  // 0x30-0x3f
+  BYTES, BYTES, BYTES, BYTES,
+  BYTES, BYTES, BYTES, BYTES,
+  BYTES, BYTES, BYTES, BYTES,
+  BYTES, BYTES, BYTES, BYTES,
+
+  // 0x40-0x4f
+  TUPLE, TUPLE, TUPLE, TUPLE,
+  ARRAY, ARRAY, ARRAY, ARRAY,
+  TUPLE, TUPLE, TUPLE, TUPLE,
+  TUPLE, TUPLE, TUPLE, TUPLE,
+
+  // 0x50-0x5f
+  INDEX, INDEX, INDEX, INDEX,
+  INDEX, INDEX, INDEX, INDEX,
+  INDEX, INDEX, INDEX, INDEX,
+  INDEX, INDEX, INDEX, INDEX,
+
+  // 0x60-0x6f
+  BOGUS, BOGUS, BOGUS, BOGUS,
+  INDEX, INDEX, INDEX, INDEX,
+  INDEX, INDEX, INDEX, INDEX,
+  INDEX, INDEX, INDEX, INDEX,
+
+  // 0x70-0x7f
+  BOGUS, BOGUS, BOGUS, BOGUS,
+  INDEX, INDEX, INDEX, INDEX,
+  INDEX, INDEX, INDEX, INDEX,
+  INDEX, INDEX, INDEX, INDEX,
+
+  // 0x80-0xbf
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+
+  // 0xc0-0xff
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+  INT, INT, INT, INT,
+};
+
+
+#define pf(body) [](ibuf const &b, uint64_t i) -> uint8_t const* { return (body); }
+
+typedef uint8_t const*(*pfn)(ibuf const &, uint64_t);
+
+
+let bogus_pf =
+  [](ibuf const &b, uint64_t i) -> uint8_t const*
+    { throw std::invalid_argument("bogus"); };
+
+let p1 = pf(b + (i + 1));
+let p2 = pf(b + (i + 2));
+let p3 = pf(b + (i + 3));
+let p5 = pf(b + (i + 5));
+let p9 = pf(b + (i + 9));
+
+let plen = pf(b + b.len(i));
+
+
+pfn const sfns[256] =
+{
+  // 0x00-0x0f
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+
+  // 0x10-0x1f
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  p2, p3, p5, p9,
+  p2, p3, p5, p9,
+
+  // 0x20-0x2f
+  p1, p1, p1, p1,
+  p1, p1, p1, p1,
+  p1, p1, p1, p1,
+  p1, p1, p1, p1,
+
+  // 0x30-0x3f
+  p1, p1, p1, p1,
+  p1, p1, p1, p1,
+  p1, p1, p1, p1,
+  p1, p1, p1, p1,
+
+  // 0x40-0x4f
+};
+
+pfn const efns[256] =
+{
+  // 0x00-0x0f
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+
+  // 0x10-0x1f
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
+  plen, plen, plen, plen,
+  plen, plen, plen, plen,
+
+  // 0x20-0x2f
+  plen, plen, plen, plen,
+  plen, plen, plen, plen,
+  plen, plen, plen, plen,
+  plen, plen, plen, plen,
+
+  // 0x30-0x3f
+  plen, plen, plen, plen,
+  plen, plen, plen, plen,
+  plen, plen, plen, plen,
+  plen, plen, plen, plen,
+
+  // 0x40-0x4f
+};
+
+
+#undef pf
+
+}
+
+
+struct val
+{
+  union
+  { ibuf const * b;
+    uint64_t     tag; };
+
+  union
+  { uint64_t i;
+    uint64_t vi;
+    double   vd;
+    float    vf; };
+
+
+  val(ibuf const *b_, uint64_t i_) : b(b_),        i(i_)   {}
+  val(uint64_t vi_)                : tag(INT),     vi(vi_) {}
+  val(double vd_)                  : tag(FLOAT64), vd(vd_) {}
+  val(float vf_)                   : tag(FLOAT32), vf(vf_) {}
+
+  val_type t() const { return tag & 7 ? static_cast<val_type>(tag & 7) : bts[b->c8(i)]; }
+
+
+  val list() const
+    { uint64_t j = i; while (bts[b->c8(j)] == INDEX) j += b->len(j); return j; }
 };
 
 
@@ -146,7 +373,7 @@ lfn const lfns[256] =   // 2kiB dcache footprint (common case)
 
   // 0x10 - 0x1f
   l1, l1, l1, l1,
-  l1, l3, l5, l9,
+  l1, l9, bogus_lf, bogus_lf,
 
   str8_lf, str16_lf, str32_lf, str64_lf,
   str8_lf, str16_lf, str32_lf, str64_lf,
