@@ -94,10 +94,10 @@ let str16_lf  = lf(3 + b.c16(i + 1));
 let str32_lf  = lf(5 + b.c32(i + 1));
 let str64_lf  = lf(9 + b.c64(i + 1));
 
-let list8_lf  = lf(3  + b.c8(i + 1));
-let list16_lf = lf(5  + b.c8(i + 1));
-let list32_lf = lf(9  + b.c8(i + 1));
-let list64_lf = lf(17 + b.c8(i + 1));
+let list8_lf  = lf(3  + b.c8 (i + 1));
+let list16_lf = lf(5  + b.c16(i + 1));
+let list32_lf = lf(9  + b.c32(i + 1));
+let list64_lf = lf(17 + b.c64(i + 1));
 
 let u8_tvlf  = lf(b.c8 (i + 1));
 let u16_tvlf = lf(b.c16(i + 1));
@@ -119,19 +119,19 @@ let bogus_lf =
 
 
 // Typecode length functions
-uint64_t tuple_tl(ibuf const &b, uint64_t i, uint64_t n)
+inline uint64_t tuple_tl(ibuf const &b, uint64_t i, uint64_t n)
 {
   uint64_t l = 0;
   while (n--) l += b.tlen(i + l);
   return l;
 }
 
-let fixtuple_tlf = lf(2 + tuple_tl(b, i + 2, b.u8(i) - 0x48));
+let fixtuple_tlf = lf(2 + tuple_tl(b, i + 2, b.c8(i) - 0x48));
 
 
 // Typecode value length functions
-let fixutf8_tvlf   = lf(b.u8(i) - 0x20);
-let fixbytes_tvlf  = lf(b.u8(i) - 0x30);
+let fixutf8_tvlf   = lf(b.c8(i) - 0x20);
+let fixbytes_tvlf  = lf(b.c8(i) - 0x30);
 let fixtuple8_tvlf = u8_tvlf;
 
 
