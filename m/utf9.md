@@ -132,6 +132,8 @@ Examples of array element types:
 
 When `array` is used as an array element, its `l` should be the length of each packed thing; that is, `array l n t` would set `l = n * len(x) = len(xs)`. `t` is no longer added to the length because it's packed out.
 
+**FIXME:** tuple typecodes should fully specify their member types, e.g. `fixtuple2 8 int4 int4`.
+
 
 #### Array element and performance
 **NOTE:** array elements are meant to be addressed in aggregate, not individually; as a result, individual addressing will _copy_ elements out of the array. If you want individual addressing for large elements, you should use a tuple instead.

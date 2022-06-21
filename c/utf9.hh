@@ -256,6 +256,7 @@ lfn const tlfns[256] =  // 640B dcache footprint (worst-case)
   l1, l1, l1, l1,
 
   // 0x40-0x4f
+  // FIXME: revise tuple typecodes
   l3, l5, l9, l17,
 
   lf(3  + b.tlen(i + 3)),
