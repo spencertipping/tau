@@ -132,12 +132,24 @@ Examples of array element types:
 When `array` is used as an array element, its `l` should be the length of each packed thing; that is, `array l n t` would set `l = n * len(x) = len(xs)`. `t` is no longer added to the length because it's packed out.
 
 
+#### Array element and performance
+**NOTE:** array elements are meant to be addressed in aggregate, not individually; as a result, individual addressing will _copy_ elements out of the array. If you want individual addressing for large elements, you should use a tuple instead.
+
+
 ### Container indexes
 Indexes provide precise seek offsets for some or all elements in a collection, indexed by some function (often `x` for sets or `x[0]` for maps). The index covers every element if the collection is not already sorted along the index axis.
 
 All `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
 
-**TODO:** can we reuse index structures for disk frames?
+
+#### Index configurations
++ **key:** `set` vs `mapkey` vs `mapval`
++ **key order:** `hash-order` vs `compare-order`
++ **value order:** `ordered` vs `random`
+
+Because multiple indexes can be prepended to the same container, it's possible to have a map+set+inverse map, all in one.
+
+Value orderings impact the index in an important way: _a random index must include every element in the collection._ Value-ordered indexes need not include every element, since it's possible to interpolation-search and scan forwards.
 
 
 ## Transit spec
