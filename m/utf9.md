@@ -126,7 +126,7 @@ Array typecodes are identical to regular bytecodes, but with two major changes:
 Examples of array element types:
 
 + `tuple 32 4 int64 int64 float64 float64` -- a 32-byte tuple with four elements
-+ `array 5 4 int8` -- note `5 = len(int8 bytecode) + 4`
++ `array 8 4 int16`
 + `fixtuple4 48 int64 int64 int32 utf8 28`
 + `utf8 10`
 
