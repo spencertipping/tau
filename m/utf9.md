@@ -53,8 +53,8 @@ Like `msgpack`, we optimize for brevity by providing `fix*` variants for small s
 
 ### Unused (reserved) bytes
 + `0x0c-0x0f`
-+ `0x62-0x63`
-+ `0x72-0x73`
++ `0x60-0x63`
++ `0x70-0x73`
 
 
 ### Atomic types
@@ -157,46 +157,45 @@ Value orderings impact the index in an important way: _a random index must inclu
 | Byte   | Following bytes    | Description                 |
 |--------|--------------------|-----------------------------|
 | `0x50` | `l16 bits vs...`   | position index              |
-| `0x52` | 0                  | set type-hint               |
+| `0x51` | `l32 bits vs...`   | position index              |
+| `0x52` | `l64 bits vs...`   | position index              |
 | `0x53` | 0                  | map type-hint               |
-| `0x54` | `l16 n16 kt vs...` | hashset value-random index  |
-| `0x55` | `l16 n16 kt vs...` | hashset value-ordered index |
-| `0x56` | `l16 n16 kt vs...` | ordset value-random index   |
-| `0x57` | `l16 n16 kt vs...` | ordset value-ordered index  |
-| `0x58` | `l16 n16 kt vs...` | hashkey value-random index  |
-| `0x59` | `l16 n16 kt vs...` | hashkey value-ordered index |
-| `0x5a` | `l16 n16 kt vs...` | ordkey value-random index   |
-| `0x5b` | `l16 n16 kt vs...` | ordkey value-ordered index  |
-| `0x5c` | `l16 n16 kt vs...` | hashval value-random index  |
-| `0x5d` | `l16 n16 kt vs...` | hashval value-ordered index |
-| `0x5e` | `l16 n16 kt vs...` | ordval value-random index   |
-| `0x5f` | `l16 n16 kt vs...` | ordval value-ordered index  |
-| `0x60` | `l32 bits vs...`   | position index              |
-| `0x64` | `l32 n32 kt vs...` | hashset value-random index  |
-| `0x65` | `l32 n32 kt vs...` | hashset value-ordered index |
-| `0x66` | `l32 n32 kt vs...` | ordset value-random index   |
-| `0x67` | `l32 n32 kt vs...` | ordset value-ordered index  |
-| `0x68` | `l32 n32 kt vs...` | hashkey value-random index  |
-| `0x69` | `l32 n32 kt vs...` | hashkey value-ordered index |
-| `0x6a` | `l32 n32 kt vs...` | ordkey value-random index   |
-| `0x6b` | `l32 n32 kt vs...` | ordkey value-ordered index  |
-| `0x6c` | `l32 n32 kt vs...` | hashval value-random index  |
-| `0x6d` | `l32 n32 kt vs...` | hashval value-ordered index |
-| `0x6e` | `l32 n32 kt vs...` | ordval value-random index   |
-| `0x6f` | `l32 n32 kt vs...` | ordval value-ordered index  |
-| `0x70` | `l64 bits vs...`   | position index              |
-| `0x74` | `l64 n64 kt vs...` | hashset value-random index  |
-| `0x75` | `l64 n64 kt vs...` | hashset value-ordered index |
-| `0x76` | `l64 n64 kt vs...` | ordset value-random index   |
-| `0x77` | `l64 n64 kt vs...` | ordset value-ordered index  |
-| `0x78` | `l64 n64 kt vs...` | hashkey value-random index  |
-| `0x79` | `l64 n64 kt vs...` | hashkey value-ordered index |
-| `0x7a` | `l64 n64 kt vs...` | ordkey value-random index   |
-| `0x7b` | `l64 n64 kt vs...` | ordkey value-ordered index  |
-| `0x7c` | `l64 n64 kt vs...` | hashval value-random index  |
-| `0x7d` | `l64 n64 kt vs...` | hashval value-ordered index |
-| `0x7e` | `l64 n64 kt vs...` | ordval value-random index   |
-| `0x7f` | `l64 n64 kt vs...` | ordval value-ordered index  |
+| `0x54` | `l16 n16 kt ps...` | hashset value-random index  |
+| `0x55` | `l16 n16 kt ps...` | hashset value-ordered index |
+| `0x56` | `l16 n16 kt ps...` | ordset value-random index   |
+| `0x57` | `l16 n16 kt ps...` | ordset value-ordered index  |
+| `0x58` | `l16 n16 kt ps...` | hashkey value-random index  |
+| `0x59` | `l16 n16 kt ps...` | hashkey value-ordered index |
+| `0x5a` | `l16 n16 kt ps...` | ordkey value-random index   |
+| `0x5b` | `l16 n16 kt ps...` | ordkey value-ordered index  |
+| `0x5c` | `l16 n16 kt ps...` | hashval value-random index  |
+| `0x5d` | `l16 n16 kt ps...` | hashval value-ordered index |
+| `0x5e` | `l16 n16 kt ps...` | ordval value-random index   |
+| `0x5f` | `l16 n16 kt ps...` | ordval value-ordered index  |
+| `0x64` | `l32 n32 kt ps...` | hashset value-random index  |
+| `0x65` | `l32 n32 kt ps...` | hashset value-ordered index |
+| `0x66` | `l32 n32 kt ps...` | ordset value-random index   |
+| `0x67` | `l32 n32 kt ps...` | ordset value-ordered index  |
+| `0x68` | `l32 n32 kt ps...` | hashkey value-random index  |
+| `0x69` | `l32 n32 kt ps...` | hashkey value-ordered index |
+| `0x6a` | `l32 n32 kt ps...` | ordkey value-random index   |
+| `0x6b` | `l32 n32 kt ps...` | ordkey value-ordered index  |
+| `0x6c` | `l32 n32 kt ps...` | hashval value-random index  |
+| `0x6d` | `l32 n32 kt ps...` | hashval value-ordered index |
+| `0x6e` | `l32 n32 kt ps...` | ordval value-random index   |
+| `0x6f` | `l32 n32 kt ps...` | ordval value-ordered index  |
+| `0x74` | `l64 n64 kt ps...` | hashset value-random index  |
+| `0x75` | `l64 n64 kt ps...` | hashset value-ordered index |
+| `0x76` | `l64 n64 kt ps...` | ordset value-random index   |
+| `0x77` | `l64 n64 kt ps...` | ordset value-ordered index  |
+| `0x78` | `l64 n64 kt ps...` | hashkey value-random index  |
+| `0x79` | `l64 n64 kt ps...` | hashkey value-ordered index |
+| `0x7a` | `l64 n64 kt ps...` | ordkey value-random index   |
+| `0x7b` | `l64 n64 kt ps...` | ordkey value-ordered index  |
+| `0x7c` | `l64 n64 kt ps...` | hashval value-random index  |
+| `0x7d` | `l64 n64 kt ps...` | hashval value-ordered index |
+| `0x7e` | `l64 n64 kt ps...` | ordval value-random index   |
+| `0x7f` | `l64 n64 kt ps...` | ordval value-ordered index  |
 
 Each element offset is encoded in the same number of bits as the index length, so for `0x5N` indexes the element offset is `uint16`; for `0x7N` it would be `uint64`.
 
