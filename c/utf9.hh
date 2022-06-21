@@ -17,6 +17,8 @@
 namespace tau::utf9
 {
 
+#define let auto const
+
 
 // Input buffer of bytes to be parsed as bytecode
 struct ibuf
@@ -24,19 +26,20 @@ struct ibuf
   uint8_t const * xs;
   uint64_t        l;
 
-  bool has  (int64_t i) const { return i >= 0 && i < l; }
-  void check(int64_t i) const { if (!has(i)) throw std::length_error("OOBE"); }
+  bool has  (uint64_t i) const { return i < l; }
+  void check(uint64_t i) const { if (!has(i)) throw std::length_error("OOBE"); }
 
   uint64_t len  (uint64_t i) const;
   uint64_t tlen (uint64_t i) const;
   uint64_t tvlen(uint64_t i) const;
+
 
   uint8_t  u8 (uint64_t i) const { return xs[i]; }
   uint16_t u16(uint64_t i) const
     {
       if constexpr (std::endian::native == std::endian::little)
                      return __bswap_16(*(uint16_t*)(xs + i));
-      else if constexpr (std::endian::native == std::endian::little)
+      else if constexpr (std::endian::native == std::endian::big)
                           return *(uint16_t*)(xs + i);
     }
 
@@ -44,7 +47,7 @@ struct ibuf
     {
       if constexpr (std::endian::native == std::endian::little)
                      return __bswap_32(*(uint32_t*)(xs + i));
-      else if constexpr (std::endian::native == std::endian::little)
+      else if constexpr (std::endian::native == std::endian::big)
                           return *(uint32_t*)(xs + i);
     }
 
@@ -52,9 +55,15 @@ struct ibuf
     {
       if constexpr (std::endian::native == std::endian::little)
                      return __bswap_64(*(uint64_t*)(xs + i));
-      else if constexpr (std::endian::native == std::endian::little)
+      else if constexpr (std::endian::native == std::endian::big)
                           return *(uint64_t*)(xs + i);
     }
+
+
+  uint8_t  c8 (uint64_t i) const { check(i);     return u8(i);  }
+  uint16_t c16(uint64_t i) const { check(i + 1); return u16(i); }
+  uint32_t c32(uint64_t i) const { check(i + 3); return u32(i); }
+  uint64_t c64(uint64_t i) const { check(i + 7); return u64(i); }
 };
 
 
@@ -66,43 +75,63 @@ namespace
 
 #define lf(body) [](ibuf const &b, uint64_t i) -> uint64_t { return static_cast<uint64_t>(body); }
 
-// Small constant lengths factored here to minimize
-// instruction cache misses
-lfn const l1  = lf(1);
-lfn const l2  = lf(2);
-lfn const l3  = lf(3);
-lfn const l4  = lf(4);
-lfn const l5  = lf(5);
-lfn const l6  = lf(6);
-lfn const l7  = lf(7);
-lfn const l8  = lf(8);
-lfn const l9  = lf(9);
-lfn const l17 = lf(17);
+
+// NOTE: lambda footprint varies by compilation options:
+//   default = 3134 bytes
+//   -O3     = 3824 bytes
+//   -Os     = 1231 bytes
+
+
+let l1  = lf(1);
+let l2  = lf(2);
+let l3  = lf(3);
+let l4  = lf(4);
+let l5  = lf(5);
+let l6  = lf(6);
+let l7  = lf(7);
+let l8  = lf(8);
+let l9  = lf(9);
+let l17 = lf(17);
 
 
 // Value-length functions
-lfn const fixutf8_lf   = lf(1 + (b.u8(i) - 0x20));
-lfn const fixbytes_lf  = lf(1 + (b.u8(i) - 0x30));
-lfn const fixtuple8_lf = lf(1 + b.u8(i + 1));
-lfn const fixint_lf    = l1;
+let str8_lf   = lf(2 + b.c8 (i + 1));
+let str16_lf  = lf(3 + b.c16(i + 1));
+let str32_lf  = lf(5 + b.c32(i + 1));
+let str64_lf  = lf(9 + b.c64(i + 1));
 
-lfn const idx16_lf = lf(1 + 2 + b.u16(i + 1));
-lfn const idx32_lf = lf(1 + 4 + b.u32(i + 1));
-lfn const idx64_lf = lf(1 + 8 + b.u64(i + 1));
+let list8_lf  = lf(3  + b.c8(i + 1));
+let list16_lf = lf(5  + b.c8(i + 1));
+let list32_lf = lf(9  + b.c8(i + 1));
+let list64_lf = lf(17 + b.c8(i + 1));
 
-lfn const bogus_lf =
+let u8_tvlf  = lf(b.c8 (i + 1));
+let u16_tvlf = lf(b.c16(i + 1));
+let u32_tvlf = lf(b.c32(i + 1));
+let u64_tvlf = lf(b.c64(i + 1));
+
+let fixutf8_lf   = lf(1 + (b.c8(i) - 0x20));
+let fixbytes_lf  = lf(1 + (b.c8(i) - 0x30));
+let fixtuple8_lf = lf(1 + b.c8(i + 1));
+let fixint_lf    = l1;
+
+let idx16_lf = lf(1 + 2 + b.c16(i + 1));
+let idx32_lf = lf(1 + 4 + b.c32(i + 1));
+let idx64_lf = lf(1 + 8 + b.c64(i + 1));
+
+let bogus_lf =
   [](ibuf const &b, uint64_t i) -> uint64_t
   { throw std::invalid_argument("bogus"); };
 
 
 // Typecode value length functions
-lfn const fixutf8_tvlf   = lf(b.u8(i) - 0x20);
-lfn const fixbytes_tvlf  = lf(b.u8(i) - 0x30);
-lfn const fixtuple8_tvlf = lf(b.u8(i + 1));
+let fixutf8_tvlf   = lf(b.u8(i) - 0x20);
+let fixbytes_tvlf  = lf(b.u8(i) - 0x30);
+let fixtuple8_tvlf = u8_tvlf;
 
 
-// Value-length decoders
-lfn const lfns[256] =
+// Bytecode decode tables
+lfn const lfns[256] =   // 2kiB dcache footprint (common case)
 {
   // 0x00 - 0x0f
   l2, l3, l5, l9,
@@ -114,14 +143,8 @@ lfn const lfns[256] =
   l1, l1, l1, l1,
   l1, l3, l5, l9,
 
-  lf(2 + b.u8 (i + 1)),
-  lf(3 + b.u16(i + 1)),
-  lf(5 + b.u32(i + 1)),
-  lf(9 + b.u64(i + 1)),
-  lf(2 + b.u8 (i + 1)),
-  lf(3 + b.u16(i + 1)),
-  lf(5 + b.u32(i + 1)),
-  lf(9 + b.u64(i + 1)),
+  str8_lf, str16_lf, str32_lf, str64_lf,
+  str8_lf, str16_lf, str32_lf, str64_lf,
 
   // 0x2N
   fixutf8_lf, fixutf8_lf, fixutf8_lf, fixutf8_lf,
@@ -136,21 +159,15 @@ lfn const lfns[256] =
   fixbytes_lf, fixbytes_lf, fixbytes_lf, fixbytes_lf,
 
   // 0x40-0x4f
-  lf(3  + b.u8 (i + 1)),
-  lf(5  + b.u16(i + 1)),
-  lf(9  + b.u32(i + 1)),
-  lf(17 + b.u64(i + 1)),
-  lf(3  + b.u8 (i + 1)),
-  lf(5  + b.u16(i + 1)),
-  lf(9  + b.u32(i + 1)),
-  lf(17 + b.u64(i + 1)),
+  list8_lf, list16_lf, list32_lf, list64_lf,
+  list8_lf, list16_lf, list32_lf, list64_lf,
   fixtuple8_lf, fixtuple8_lf, fixtuple8_lf, fixtuple8_lf,
   fixtuple8_lf, fixtuple8_lf, fixtuple8_lf, fixtuple8_lf,
 
   // 0x50-0x5f
-  lf(1 + 2 + 1 + b.u16(i + 1)),
-  lf(1 + 4 + 1 + b.u32(i + 1)),
-  lf(1 + 8 + 1 + b.u64(i + 1)),
+  lf(1 + 2 + 1 + b.c16(i + 1)),
+  lf(1 + 4 + 1 + b.c32(i + 1)),
+  lf(1 + 8 + 1 + b.c64(i + 1)),
   l1,
 
   idx16_lf, idx16_lf, idx16_lf, idx16_lf,
@@ -212,7 +229,7 @@ lfn const lfns[256] =
   fixint_lf, fixint_lf, fixint_lf, fixint_lf,
 };
 
-lfn const tlfns[256] =
+lfn const tlfns[256] =  // 640B dcache footprint (worst-case)
 {
   // 0x00-0x0f
   l1, l1, l1, l1,
@@ -310,7 +327,7 @@ lfn const tlfns[256] =
   bogus_lf, bogus_lf, bogus_lf, bogus_lf,
 };
 
-lfn const tvlfns[256] =
+lfn const tvlfns[256] = // 640B dcache footprint (worst-case)
 {
   // 0x00-0x0f
   l1, l2, l4, l8,
@@ -321,14 +338,8 @@ lfn const tvlfns[256] =
   // 0x10-0x1f
   bogus_lf, bogus_lf, bogus_lf, bogus_lf,
   bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  lf(b.u8 (i + 1)),
-  lf(b.u16(i + 1)),
-  lf(b.u32(i + 1)),
-  lf(b.u64(i + 1)),
-  lf(b.u8 (i + 1)),
-  lf(b.u16(i + 1)),
-  lf(b.u32(i + 1)),
-  lf(b.u64(i + 1)),
+  u8_tvlf, u16_tvlf, u32_tvlf, u64_tvlf,
+  u8_tvlf, u16_tvlf, u32_tvlf, u64_tvlf,
 
   // 0x20-0x2f
   fixutf8_tvlf, fixutf8_tvlf, fixutf8_tvlf, fixutf8_tvlf,
@@ -343,15 +354,8 @@ lfn const tvlfns[256] =
   fixbytes_tvlf, fixbytes_tvlf, fixbytes_tvlf, fixbytes_tvlf,
 
   // 0x40-0x4f
-  lf(b.u8 (i + 1)),
-  lf(b.u16(i + 1)),
-  lf(b.u32(i + 1)),
-  lf(b.u64(i + 1)),
-  lf(b.u8 (i + 1)),
-  lf(b.u16(i + 1)),
-  lf(b.u32(i + 1)),
-  lf(b.u64(i + 1)),
-
+  u8_tvlf, u16_tvlf, u32_tvlf, u64_tvlf,
+  u8_tvlf, u16_tvlf, u32_tvlf, u64_tvlf,
   fixtuple8_tvlf, fixtuple8_tvlf, fixtuple8_tvlf, fixtuple8_tvlf,
   fixtuple8_tvlf, fixtuple8_tvlf, fixtuple8_tvlf, fixtuple8_tvlf,
 
@@ -422,11 +426,14 @@ lfn const tvlfns[256] =
 }
 
 
-inline uint64_t ibuf::len  (uint64_t i) const { return lfns[xs[i]](*this, i); }
-inline uint64_t ibuf::tlen (uint64_t i) const { return tlfns[xs[i]](*this, i); }
-inline uint64_t ibuf::tvlen(uint64_t i) const { return tvlfns[xs[i]](*this, i); }
+inline uint64_t ibuf::len  (uint64_t i) const { check(i); return lfns  [xs[i]](*this, i); }
+inline uint64_t ibuf::tlen (uint64_t i) const { check(i); return tlfns [xs[i]](*this, i); }
+inline uint64_t ibuf::tvlen(uint64_t i) const { check(i); return tvlfns[xs[i]](*this, i); }
 
+
+#undef let
 
 }
+
 
 #endif  // ifndef utf9_h
