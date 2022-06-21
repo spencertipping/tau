@@ -50,6 +50,8 @@ Modifications are also bytecodes of a sort, but indirectly encoded using symbols
 
 Like `msgpack`, we optimize for brevity by providing `fix*` variants for small structures.
 
+Any datatype with a non-constant length has the length prepended to it so we can quickly skip over the value. The length tends to exclude any fixed-length parts of the bytecode to avoid integer overflow (which requires us to use a larger int size).
+
 
 ### Unused (reserved) bytes
 + `0x0c-0x0f`
@@ -123,7 +125,7 @@ Array typecodes are identical to regular bytecodes, but with two major changes:
 
 Examples of array element types:
 
-+ `tuple 48`
++ `tuple 48 4` -- a 48-byte tuple with five elements
 + `array 5 4 int8` -- note `5 = len(int8 bytecode) + 4`
 + `fixtuple4 48`
 + `utf8 10`
@@ -195,11 +197,15 @@ Value orderings impact the index in an important way: _a random index must inclu
 | `0x7c` | `l64 n64 kt ps...` | hashval value-random index  |
 | `0x7d` | `l64 n64 kt ps...` | hashval value-ordered index |
 | `0x7e` | `l64 n64 kt ps...` | ordval value-random index   |
-| `0x7f` | `l64 n64 kt ps...` | ordval value-ordered index  |
+| `0x7f` | `l64 n64 kt ps...** | ordval value-ordered index  |
+
+**NOTE:** `l16`, `l32`, and `l64` encode `len(kt) + len(ps...)` -- that is, the key type is included. This avoids typecode parsing overhead when we want to skip over the index.
 
 Each element offset is encoded in the same number of bits as the index length, so for `0x5N` indexes the element offset is `uint16`; for `0x7N` it would be `uint64`.
 
 Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They can be downsampled by a number of bits, encoded as an `int8`; for example, if `bits = 2`, then the byte-offset table encodes the positions of `[0]`, `[4]`, `[8]`, `[12]`, etc. This trades space for time.
+
+`ord*` indexes need not be present in the original collection; the purpose is to provide interpolation points against the query space.
 
 
 ## Transit spec
