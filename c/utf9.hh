@@ -510,7 +510,8 @@ struct val
 
 
   uint64_t hash() const
-    { switch (type())
+    { let t = type();
+      switch (t)
       {
       case UINT:
       case INT:
@@ -518,18 +519,23 @@ struct val
       case FLOAT32:
       case SYMBOL:
       case PIDFD:
-      case TAU:
-        return murmur3a(static_cast<uint64_t>(*this));
+      case TAU:   return murmur3a(static_cast<uint64_t>(*this));
+
+      case ALPHA:
+      case OMEGA:
+      case IOTA:
+      case KAPPA: return murmur3a(t);
 
       case ARRAY:
       case UTF8:
-      case BYTES:
-        return std::hash<T>{}(begin(), end());
+      case BYTES: return std::hash<T>{}(begin(), end());
 
       case TUPLE:
       { uint64_t h = 0;
         for (val v : *this) h = hash(h, v.hash());
         return h; }
+
+      case INDEX: return list().hash();
 
       default: throw std::invalid_argument("hash");
       } }
