@@ -455,6 +455,8 @@ struct val
       case 0x51: return b->u32(i + 1) >> 2;
       case 0x52: return b->u64(i + 1) >> 3;
       case 0x53: return 0;
+
+      default: throw std::invalid_argument("len");
       } }
 
 
@@ -507,7 +509,30 @@ struct val
         b->u8(i) == 0x14 ? tau{0} : tau{b->u64(i + 1)} : vt; }
 
 
-  uint64_t hash() const;
+  uint64_t hash() const
+    { switch (type())
+      {
+      case UINT:
+      case INT:
+      case FLOAT64:
+      case FLOAT32:
+      case SYMBOL:
+      case PIDFD:
+      case TAU:
+        return murmur3a(static_cast<uint64_t>(*this));
+
+      case ARRAY:
+      case UTF8:
+      case BYTES:
+        return std::hash<T>{}(begin(), end());
+
+      case TUPLE:
+      { uint64_t h = 0;
+        for (val v : *this) h = hash(h, v.hash());
+        return h; }
+
+      default: throw std::invalid_argument("hash");
+      } }
 
 
   int compare(val const &v) const
