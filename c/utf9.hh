@@ -404,6 +404,7 @@ struct val
   val            first() const { return val(*b, begin() - b->xs); }
   val            next()  const { return val(*b, i + b->len(i)); }
 
+  // FIXME: convert to LUTs
   uint64_t len() const
     { if (!has_ibuf()) throw std::invalid_argument("len");
       let x = b->u8(i);
