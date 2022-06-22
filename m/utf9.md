@@ -197,6 +197,8 @@ Value orderings impact the index in an important way: _a random index must inclu
 | `0x7e` | `l64 n64 kt ps...` | ordval value-random index   |
 | `0x7f` | `l64 n64 kt ps...` | ordval value-ordered index  |
 
+**NOTE:** the size of the index target subscripts is the same as the size of the length -- that is, `l16` uses 16-bit unsigned ints to index into the data structure.
+
 **NOTE:** `l16`, `l32`, and `l64` encode `len(kt) + len(ps...)` -- that is, the key type is included. This avoids typecode parsing overhead when we want to skip over the index.
 
 Each element offset is encoded in the same number of bits as the index length, so for `0x5N` indexes the element offset is `uint16`; for `0x7N` it would be `uint64`.

@@ -366,6 +366,29 @@ struct sym
   uint64_t h;
 
   sym(std::string const &s) : h(std::hash<std::string>{}(s)) {}
+  sym(uint64_t h_)          : h(h_)                          {}
+};
+
+
+struct hash
+{
+  uint64_t h;
+};
+
+
+struct pidfd
+{
+  uint32_t pid;
+  uint32_t fd;
+
+  bool operator<(pidfd const &v) const { return pid < v.pid || pid == v.pid && fd < v.fd; }
+  bool operator>(pidfd const &v) const { return pid > v.pid || pid == v.pid && fd > v.fd; }
+};
+
+
+struct tau
+{
+  uint64_t t;
 };
 
 
@@ -379,9 +402,11 @@ struct val
   { uint64_t i;
     uint64_t vu;
     int64_t  vi;
-    sym      sy;
     double   vd;
-    float    vf; };
+    float    vf;
+    pidfd    vp;
+    sym      vs;
+    tau      vt; };
 
 
   val(ibuf const &b_, uint64_t i_) : b(&b_),       i(i_)   {}
@@ -389,7 +414,9 @@ struct val
   val(int64_t vi_)                 : tag(INT),     vi(vi_) {}
   val(double vd_)                  : tag(FLOAT64), vd(vd_) {}
   val(float vf_)                   : tag(FLOAT32), vf(vf_) {}
-  val(sym sy_)                     : tag(SYMBOL),  sy(sy_) {}
+  val(sym vs_)                     : tag(SYMBOL),  vs(vs_) {}
+  val(tau vt_)                     : tag(TAU),     vt(vt_) {}
+  val(pidfd vp_)                   : tag(PIDFD),   vp(vp_) {}
 
 
   bool     has_ibuf() const { return tag >= 256 && b->is_ibuf(); }
@@ -404,24 +431,30 @@ struct val
   val            first() const { return val(*b, begin() - b->xs); }
   val            next()  const { return val(*b, i + b->len(i)); }
 
-  // FIXME: convert to LUTs
+
   uint64_t len() const
     { if (!has_ibuf()) throw std::invalid_argument("len");
       let x = b->u8(i);
       if (x >= 0x48 && x <= 0x4f) return x - 0x48;
+      if (x >= 0x54 && x <= 0x5f) return b->u16(i + 1) >> 1;
+      if (x >= 0x64 && x <= 0x6f) return b->u32(i + 1) >> 2;
+      if (x >= 0x74 && x <= 0x7f) return b->u64(i + 1) >> 3;
       switch (x)
       {
-      case 0x18: case 0x1c: return b->u8(i + 1);
+      case 0x18: case 0x1c: return b->u8 (i + 1);
       case 0x19: case 0x1d: return b->u16(i + 1);
       case 0x1a: case 0x1e: return b->u32(i + 1);
       case 0x1b: case 0x1f: return b->u64(i + 1);
 
-      case 0x40: case 0x44: return b->u8(i + 2);
+      case 0x40: case 0x44: return b->u8 (i + 2);
       case 0x41: case 0x45: return b->u16(i + 2);
       case 0x42: case 0x46: return b->u32(i + 2);
       case 0x43: case 0x47: return b->u64(i + 2);
 
-      // TODO: define for indexes
+      case 0x50: return b->u16(i + 1) >> 1;
+      case 0x51: return b->u32(i + 1) >> 2;
+      case 0x52: return b->u64(i + 1) >> 3;
+      case 0x53: return 0;
       } }
 
 
@@ -435,6 +468,7 @@ struct val
       case 0x01: return b->u16(i + 1);
       case 0x02: return b->u32(i + 1);
       case 0x03: return b->u64(i + 1);
+      default: throw std::invalid_argument("uint64");
       } }
 
   operator int64_t() const
@@ -448,6 +482,7 @@ struct val
       case 0x05: return b->i16(i + 1);
       case 0x06: return b->i32(i + 1);
       case 0x07: return b->i64(i + 1);
+      default: throw std::invalid_argument("int64");
       } }
 
   operator float() const
@@ -458,26 +493,43 @@ struct val
     { if (type() != FLOAT64) throw std::invalid_argument("float64");
       return has_ibuf() ? b->f64(i + 1) : vd; }
 
+  operator sym() const
+    { if (type() != SYMBOL) throw std::invalid_argument("sym");
+      return has_ibuf() ? sym{b->u64(i + 1)} : vs; }
+
+  operator pidfd() const
+    { if (type() != PIDFD) throw std::invalid_argument("pidfd");
+      return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
+
+  operator tau() const
+    { if (type() != TAU) throw std::invalid_argument("(tau)");
+      return has_ibuf() ?
+        b->u8(i) == 0x14 ? tau{0} : tau{b->u64(i + 1)} : vt; }
+
 
   uint64_t hash() const;
 
 
   int compare(val const &v) const
-    { let t1 = type();
+    { let t1 =   type();
       let t2 = v.type();
       if (t1 != t2) return (int) t1 - (int) t2;
       switch (t1)
       {
 
 #define cmpblock(t)                                     \
-        { let x1 = (t) *this;                           \
-          let x2 = (t) v;                               \
+        { let x1 = static_cast<t>(*this);               \
+          let x2 = static_cast<t>(v);                   \
           return x1 > x2 ? 1 : x1 < x2 ? -1 : 0; }
 
       case UINT:    cmpblock(uint64_t)
       case INT:     cmpblock(int64_t)
       case FLOAT32: cmpblock(float)
       case FLOAT64: cmpblock(double)
+      case PIDFD:   cmpblock(pidfd)
+
+      case SYMBOL:
+      case TAU:     cmpblock(uint64_t)
 
 #undef cmpblock
 
@@ -505,12 +557,7 @@ struct val
       case INDEX: return list().compare(v.list());
 
       default: throw std::invalid_argument("cmp");
-      }
-    }
-
-
-  val operator[](val const &v) const;
-  val operator[](uint64_t i)   const;
+      } }
 };
 
 
