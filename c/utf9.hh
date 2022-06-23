@@ -882,10 +882,14 @@ struct val
 
 
   val list() const
-    { uint64_t j = i; while (bts[b->cu8(j)] == INDEX) j += b->len(j); return j; }
+    { require_ibuf();
+      uint64_t j = i;
+      while (bts[b->cu8(j)] == INDEX) j += b->len(j);
+      return j; }
 
-  uint8_t const *mbegin() const { return sfns[b->cu8(i)](*b, i); }
-  uint8_t const *mend()   const { return *b + b->len(i); }
+  uint8_t const *mbegin() const { require_ibuf(); return sfns[b->cu8(i)](*b, i); }
+  uint8_t const *mend()   const { require_ibuf(); return *b + b->len(i); }
+  uint64_t       msize()  const { require_ibuf(); return b->len(i); }
 
 
   struct it
@@ -898,8 +902,8 @@ struct val
     bool operator==(it const &rhs) const { return b == rhs.b && i == rhs.i; }
   };
 
-  it begin() const { return it{b, static_cast<uint64_t>(mbegin() - b->xs)}; }
-  it end()   const { return it{b, i + b->len(i)}; }
+  it begin() const { require_ibuf(); return it{b, static_cast<uint64_t>(mbegin() - b->xs)}; }
+  it end()   const { require_ibuf(); return it{b, i + b->len(i)}; }
 
 
   uint64_t len() const
@@ -1083,6 +1087,13 @@ struct val
 
       default: throw NOT_COMPARABLE_ERROR;
       } }
+
+  bool operator<(val const &v)  const { return this->compare(v) < 0; }
+  bool operator>(val const &v)  const { return this->compare(v) > 0; }
+  bool operator<=(val const &v) const { return this->compare(v) <= 0; }
+  bool operator>=(val const &v) const { return this->compare(v) >= 0; }
+  bool operator==(val const &v) const { return this->compare(v) == 0; }
+  bool operator!=(val const &v) const { return this->compare(v) != 0; }
 };
 
 
@@ -1181,6 +1192,18 @@ std::ostream &operator<<(std::ostream &s, val const &t)
 
 
 #undef let
+
+}
+
+
+namespace std
+{
+
+template<>
+struct hash<tau::utf9::val>
+{
+  uint64_t operator()(tau::utf9::val const &v) { return v.h(); }
+};
 
 }
 
