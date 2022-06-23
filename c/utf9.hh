@@ -1088,8 +1088,8 @@ struct val
       default: throw NOT_COMPARABLE_ERROR;
       } }
 
-  bool operator<(val const &v)  const { return this->compare(v) < 0; }
-  bool operator>(val const &v)  const { return this->compare(v) > 0; }
+  bool operator< (val const &v) const { return this->compare(v) < 0; }
+  bool operator> (val const &v) const { return this->compare(v) > 0; }
   bool operator<=(val const &v) const { return this->compare(v) <= 0; }
   bool operator>=(val const &v) const { return this->compare(v) >= 0; }
   bool operator==(val const &v) const { return this->compare(v) == 0; }
