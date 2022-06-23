@@ -891,6 +891,7 @@ struct val
 
   uint8_t const *mbegin() const { require_ibuf(); return sfns[b->cu8(i)](*b, i); }
   uint8_t const *mend()   const { require_ibuf(); return *b + b->len(i); }
+  uint64_t       mlen()   const { require_ibuf(); return mend() - mbegin(); }
   uint64_t       msize()  const { require_ibuf(); return b->len(i); }
 
 
@@ -998,6 +999,10 @@ struct val
     { require_type(TAU);
       return has_ibuf() ?
         b->u8(i) == 0x14 ? tau{0} : tau{b->u64(i + 1)} : vt; }
+
+  operator std::string() const
+    { if (type() != UTF8 && type() != BYTES) throw INVALID_TYPE_ERROR;
+      return std::string(reinterpret_cast<char const*>(mbegin()), mlen()); }
 
 
   hash h() const
