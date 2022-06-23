@@ -92,6 +92,8 @@ Any datatype with a non-constant length has the length prepended to it so we can
 | `0x3N`      | `N`             | `fixbytes`                   |
 | `0x80-0xff` | 0               | `fixint`                     |
 
+**TODO:** nullary `tau` (`0x14`), `rho` and `theta` for things-until-`tau` and approximate angle respectively
+
 **NOTE:** byte ordering is always big-endian.
 
 Note that both `utf8` and `bytes` encode the _byte_ length of the payload, not the logical number of elements as you might expect. This makes it possible to skip over the value without running a UTF-8 decode loop.
