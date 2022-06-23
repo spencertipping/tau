@@ -1,0 +1,6 @@
+[submodule "c/cityhash"]
+	path = c/cityhash
+	url = https://github.com/google/cityhash
+[submodule "c/xxHash"]
+	path = c/xxHash
+	url = https://github.com/Cyan4973/xxHash/
