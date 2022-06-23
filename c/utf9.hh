@@ -595,9 +595,7 @@ val_type const bts[256] =
 typedef uint8_t const*(*pfn)(ibuf const &, uint64_t);
 
 
-let bogus_pf =
-  [](ibuf const &b, uint64_t i) -> uint8_t const*
-    { throw std::invalid_argument("bogus"); };
+let bogus_pf = [](ibuf const &b, uint64_t i) -> uint8_t const* { throw BOGUS_PF_ERROR; };
 
 let p1  = pf(b + (i + 1));
 let p2  = pf(b + (i + 2));
