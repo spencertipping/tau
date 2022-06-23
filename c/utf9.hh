@@ -755,6 +755,8 @@ struct tau
 {
   uint64_t t;
 
+  // TODO: specify tighter semantics about what τ indicators mean
+  // (should probably be "expected distance to end of cycle")
   operator uint64_t() const { return t; }
   operator double()   const { return static_cast<double>(t) / static_cast<double>(std::numeric_limits<uint64_t>::max()); }
 };
@@ -1065,9 +1067,7 @@ struct val
       case BYTES:
       case ARRAY:
       {
-        let tc = atype().compare(v.atype());
-        if (tc) return tc;
-
+        if (let tc = atype().compare(v.atype())) return tc;
         let n1 =   mend() -   mbegin();
         let n2 = v.mend() - v.mbegin();
         let c  = std::__memcmp(mbegin(), v.mbegin(), std::min(n1, n2));
@@ -1079,8 +1079,7 @@ struct val
         for (it i1 = begin(), i2 = v.begin(), e1 = end(), e2 = v.end();
              m1 = i1 != e1, m2 = i2 != e2, m1 && m2;
              ++i1, ++i2)
-        { let c = (*i1).compare(*i2);
-          if (c) return c; }
+          if (let c = (*i1).compare(*i2)) return c;
         return m1 ? 1 : m2 ? -1 : 0; }
 
       case INDEX: return list().compare(v.list());
