@@ -205,6 +205,8 @@ Each element offset is encoded in the same number of bits as the index length, s
 
 Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They can be downsampled by a number of bits, encoded as an `int8`; for example, if `bits = 2`, then the byte-offset table encodes the positions of `[0]`, `[4]`, `[8]`, `[12]`, etc. This trades space for time.
 
+**NOTE:** the index's target values refer to the target base plus the exact element offset; there is no header stuff that you need to think about when fetching the element. This minimizes the likelihood of cache misses when using indexes to fetch things.
+
 `ord*` indexes need not be present in the original collection; the purpose is to provide interpolation points against the query space.
 
 
