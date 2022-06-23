@@ -34,8 +34,13 @@ enum error
   NOT_COMPARABLE_ERROR,
   NOT_HASHABLE_ERROR,
 
+  SIGNED_COERCION_ERROR,
+
   BOGUS_PF_ERROR,
   BOGUS_LF_ERROR,
+
+  INVALID_BYTECODE_ERROR,
+  INVALID_TYPECODE_ERROR,
 
   INTERNAL_ERROR,
 };
@@ -499,8 +504,8 @@ namespace
 val_type const bts[256] =
 {
   // 0x00-0x0f
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
+  UINT, UINT, UINT, UINT,
+  INT,  INT,  INT,  INT,
   FLOAT32, FLOAT64, SYMBOL, PIDFD,
   BOGUS, BOGUS, BOGUS, BOGUS,
 
@@ -720,6 +725,8 @@ struct sym
 
   sym(std::string const &s) : h(std::hash<std::string>{}(s)) {}
   sym(uint64_t h_)          : h(h_)                          {}
+
+  operator uint64_t() const { return h; }
 };
 
 
@@ -727,6 +734,8 @@ struct hash
 {
   uint64_t h;
   hash(uint64_t h_) : h(h_) {}
+
+  operator uint64_t() const { return h; }
 };
 
 
@@ -734,6 +743,8 @@ struct pidfd
 {
   uint32_t pid;
   uint32_t fd;
+
+  operator uint64_t() const { return (uint64_t) pid << 32 | fd; }
 
   bool operator<(pidfd const &v) const { return pid < v.pid || pid == v.pid && fd < v.fd; }
   bool operator>(pidfd const &v) const { return pid > v.pid || pid == v.pid && fd > v.fd; }
@@ -743,6 +754,9 @@ struct pidfd
 struct tau
 {
   uint64_t t;
+
+  operator uint64_t() const { return t; }
+  operator double()   const { return static_cast<double>(t) / static_cast<double>(std::numeric_limits<uint64_t>::max()); }
 };
 
 
@@ -761,18 +775,71 @@ struct tval
 {
   ibuf const * const b;
   uint64_t     const i;
+  uint64_t     const e;
 
-  tval(ibuf const &b_, uint64_t i_) : b(&b_), i(i_) {}
+  tval(ibuf const &b_, uint64_t i_) : b(&b_), i(i_), e(b->tlen(i)) {}
 
 
-  val_type type() const { return bts[b->cu8(i)]; }
-  uint64_t size() const { return b->tlen(i); }
+  struct it
+  {
+    ibuf const * const b;
+    uint64_t           i;
+
+    tval operator* ()            const { return tval(*b, i); }
+    it & operator++()                  { i += b->tlen(i); return *this; }
+    bool operator==(it const &x) const { return b == x.b && i == x.i; }
+  };
+
+
+  it begin() const
+    { if (type() != TUPLE) throw INVALID_TYPE_ERROR;
+      if (typecode() >= 0x48 && typecode() <= 0x4f) return it{b, i + 2};
+      switch (typecode())
+      {
+      case 0x40: return it{b, i + 3};
+      case 0x41: return it{b, i + 5};
+      case 0x42: return it{b, i + 9};
+      case 0x43: return it{b, i + 17};
+      default: throw INTERNAL_ERROR;
+      } }
+
+  it end() const { return it{b, e}; }
+
+
+  uint8_t  typecode() const { return b->u8(i); }
+  val_type type()     const { return bts[typecode()]; }
+  uint64_t vsize()    const { return b->tvlen(i); }
+  uint64_t tsize()    const { return b->tlen(i); }
+
+
+  uint64_t alen() const
+    { if (type() != ARRAY) throw INVALID_TYPE_ERROR;
+      switch (typecode())
+      {
+      case 0x44: return b->u8(i + 2);
+      case 0x45: return b->u16(i + 3);
+      case 0x46: return b->u16(i + 5);
+      case 0x47: return b->u16(i + 9);
+      default: throw INTERNAL_ERROR;
+      } }
+
+  tval atype() const
+    { if (type() != ARRAY) throw INVALID_TYPE_ERROR;
+      switch (typecode())
+      {
+      case 0x44: return tval(*b, i + 3);
+      case 0x45: return tval(*b, i + 5);
+      case 0x46: return tval(*b, i + 9);
+      case 0x47: return tval(*b, i + 17);
+      default: throw INTERNAL_ERROR;
+      } }
+
 
   // NOTE: this implementation requires that all typecodes are canonicalized
   // before being emitted to bytecode (otherwise comparisons will be unstable)
   int compare(tval const &t) const
-    { let n1 =   size();
-      let n2 = t.size();
+    { let n1 =   tsize();
+      let n2 = t.tsize();
       return n1 > n2 ? 1 : n1 < n2 ? -1 : std::__memcmp(*b + i, *t.b + t.i, n1); }
 
 
@@ -826,10 +893,8 @@ struct val
     ibuf const * const b;
     uint64_t           i;
 
-    val  operator*() const { return val(*b, i); }
-    it & operator++()      { i += b->len(i); return *this; }
-
-    //bool operator!=(it const &rhs) const { return !(*this == rhs); }
+    val  operator* ()              const { return val(*b, i); }
+    it & operator++()                    { i += b->len(i); return *this; }
     bool operator==(it const &rhs) const { return b == rhs.b && i == rhs.i; }
   };
 
@@ -879,8 +944,9 @@ struct val
 
 
   operator uint64_t() const
-    { require_type(UINT);
-      if (!has_ibuf())    return vu;
+    { if (type() == INT) throw SIGNED_COERCION_ERROR;
+      require_type(UINT);
+      if (!has_ibuf()) return vu;
       let x = b->u8(i);
       switch (x)
       {
@@ -892,8 +958,9 @@ struct val
       } }
 
   operator int64_t() const
-    { require_type(INT);
-      if (!has_ibuf())   return vi;
+    { if (type() == UINT) throw SIGNED_COERCION_ERROR;
+      require_type(INT);
+      if (!has_ibuf()) return vi;
       let x = b->u8(i);
       if (x >= 0x80) return x - 0x80;
       switch (x)
@@ -927,19 +994,24 @@ struct val
         b->u8(i) == 0x14 ? tau{0} : tau{b->u64(i + 1)} : vt; }
 
 
-  hash hash() const
+  hash h() const
     { let t = type();
       switch (t)
       {
-      case UINT:
-      case INT:
-      case FLOAT64:
-      case FLOAT32:
-      case SYMBOL:
-      case PIDFD:
-      case TAU:
-      { let x = ce(static_cast<uint64_t>(*this));
-        return XXH64(&x, sizeof(x), t); }
+
+#define ht(ct)                                                          \
+        { let x = ce(static_cast<uint64_t>(static_cast<ct>(*this)));    \
+          return XXH64(&x, sizeof(x), t); }
+
+      case UINT:    ht(uint64_t)
+      case INT:     ht(int64_t)
+      case FLOAT64: ht(double)
+      case FLOAT32: ht(float)
+      case SYMBOL:  ht(sym)
+      case PIDFD:   ht(pidfd)
+      case TAU:     ht(tau)
+
+#undef ht
 
       case ALPHA:
       case OMEGA:
@@ -953,10 +1025,10 @@ struct val
       case TUPLE:
       { uint64_t hs[len()];
         uint64_t i = 0;
-        for (val v : *this) hs[i++] = ce(v.hash().h);
+        for (val v : *this) hs[i++] = ce(v.h().h);
         return XXH64(hs, sizeof(hs), t); }
 
-      case INDEX: return list().hash();
+      case INDEX: return list().h();
 
       default: throw NOT_HASHABLE_ERROR;
       } }
@@ -1012,6 +1084,96 @@ struct val
       default: throw NOT_COMPARABLE_ERROR;
       } }
 };
+
+
+namespace
+{
+
+std::ostream &operator<<(std::ostream &s, val_type t)
+{
+  switch (t)
+  {
+  case UINT:    return s << "uint";
+  case INT:     return s << "int";
+  case FLOAT32: return s << "f32";
+  case FLOAT64: return s << "f64";
+  case SYMBOL:  return s << "sym";
+  case PIDFD:   return s << "pidfd";
+
+  case TAU:   return s << "τ";
+  case ALPHA: return s << "α";
+  case OMEGA: return s << "ω";
+  case IOTA:  return s << "ι";
+  case KAPPA: return s << "κ";
+
+  case UTF8:  return s << "utf8";
+  case BYTES: return s << "bytes";
+  case TUPLE: return s << "tuple";
+  case ARRAY: return s << "array";
+  case INDEX: return s << "index";
+
+  case BOGUS: return s << "bogus";
+
+  default: return s << "??? " << static_cast<int>(t);
+  }
+}
+
+std::ostream &operator<<(std::ostream &s, error e)
+{
+  switch (e)
+  {
+  case BOUNDS_ERROR:           return s << "bounds error";
+  case BYTE_ORDER_ERROR:       return s << "byte order";
+  case IBUF_REQUIRED_ERROR:    return s << "ibuf required error";
+  case INVALID_TYPE_ERROR:     return s << "invalid type error";
+  case NOT_COMPARABLE_ERROR:   return s << "not comparable error";
+  case NOT_HASHABLE_ERROR:     return s << "not hashable error";
+  case BOGUS_PF_ERROR:         return s << "bogus pf error";
+  case BOGUS_LF_ERROR:         return s << "bogus lf error";
+  case INVALID_BYTECODE_ERROR: return s << "invalid bytecode error";
+  case INVALID_TYPECODE_ERROR: return s << "invalid typecode error";
+  case INTERNAL_ERROR:         return s << "internal error";
+  default:                     return s << "??? " << static_cast<int>(e);
+  }
+}
+
+std::ostream &operator<<(std::ostream &s, tval const &t)
+{
+  switch (t.type())
+  {
+  case UINT:    return s << "u" << t.vsize() * 8;
+  case INT:     return s << "i" << t.vsize() * 8;
+  case FLOAT32:
+  case FLOAT64: return s << "f" << t.vsize() * 8;
+  case SYMBOL:  return s << "s";
+  case PIDFD:   return s << "p";
+  case TAU:     return s << "τ";
+
+  case UTF8:    return s << "u[" << t.vsize() << "]";
+  case BYTES:   return s << "b[" << t.vsize() << "]";
+  case TUPLE:
+  {
+    bool first = true;
+    s << "(";
+    for (tval v : t)
+    { if (first) first = false;
+      else       s << ", ";
+      s << v; }
+    return s << ")";
+  }
+
+  case ARRAY: return s << t.atype() << "[" << t.alen() << "]";
+
+  default: throw INVALID_TYPECODE_ERROR;
+  }
+}
+
+std::ostream &operator<<(std::ostream &s, val const &t)
+{
+  return s << "TODO: << val";
+}
+
+}
 
 
 // TODO: what kind of dispatch structure do we want for the val
