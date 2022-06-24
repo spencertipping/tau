@@ -1036,7 +1036,7 @@ struct val
       case TUPLE:
       { uint64_t hs[len()];
         uint64_t i = 0;
-        for (val v : *this) hs[i++] = ce(v.h().h);
+        for (let &v : *this) hs[i++] = ce(v.h().h);
         return XXH64(hs, sizeof(hs), t); }
 
       case INDEX: return list().h();
@@ -1170,7 +1170,7 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
   {
     bool first = true;
     s << "(";
-    for (tval v : t)
+    for (let &v : t)
     { if (first) first = false;
       else       s << ", ";
       s << v; }
@@ -1200,16 +1200,8 @@ std::ostream &operator<<(std::ostream &s, val const &t)
 }
 
 
-namespace std
-{
-
-template<>
-struct hash<tau::utf9::val>
-{
-  uint64_t operator()(tau::utf9::val const &v) { return v.h(); }
-};
-
-}
+template<> struct std::hash<tau::utf9::val>
+{ uint64_t operator()(tau::utf9::val const &v) { return v.h(); } };
 
 
 #endif  // ifndef utf9_h
