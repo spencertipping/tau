@@ -875,14 +875,15 @@ struct tval
   uint64_t tsize()    const { return b->tlen(i); }
 
 
-  uint64_t alen() const
-    { if (type() != ARRAY) throw INVALID_TYPE_ERROR;
+  uint64_t len() const
+    { if (type() != ARRAY && type() != TUPLE) throw INVALID_TYPE_ERROR;
+      if (typecode() >= 0x48 && typecode() <= 0x4f) return typecode() - 0x48;
       switch (typecode())
       {
-      case 0x44: return b->u8(i + 2);
-      case 0x45: return b->u16(i + 3);
-      case 0x46: return b->u16(i + 5);
-      case 0x47: return b->u16(i + 9);
+      case 0x40: case 0x44: return b->u8(i + 2);
+      case 0x41: case 0x45: return b->u16(i + 3);
+      case 0x42: case 0x46: return b->u32(i + 5);
+      case 0x43: case 0x47: return b->u64(i + 9);
       default: throw INTERNAL_ERROR;
       } }
 
@@ -910,6 +911,9 @@ struct tval
 };
 
 
+typedef std::basic_string_view<uint8_t> bytes;
+
+
 struct val
 {
   union
@@ -917,13 +921,15 @@ struct val
     uint64_t     tag; } const;
 
   union
-  { uint64_t i;
-    uint64_t vu;
-    int64_t  vi;
-    double   vd;
-    float    vf;
-    pidfd    vp;
-    sym      vs; } const;
+  { uint64_t                i;
+    uint64_t                vu;
+    int64_t                 vi;
+    double                  vd;
+    float                   vf;
+    pidfd                   vp;
+    sym                     vs;
+    bytes const            *vb;
+    std::vector<val> const *vt; } const;
 
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_) { b->check(b->len(i)); }
@@ -936,10 +942,85 @@ struct val
   val(pidfd vp_)                   : tag(PIDFD   << 1 | 1), vp(vp_) {}
   val(val_type t_)                 : tag(t_      << 1 | 1), i(0)    {}
 
-  val(tval t_, void const *m)
+  val(tval t_, ibuf const &b, uint64_t i)
     {
-      // TODO: view data using a typed interpretation
+      switch (t_.typecode())
+      {
+      case 0x00: tag = UINT << 1 | 1; vu = b.u8 (i); break;
+      case 0x01: tag = UINT << 1 | 1; vu = b.u16(i); break;
+      case 0x02: tag = UINT << 1 | 1; vu = b.u32(i); break;
+      case 0x03: tag = UINT << 1 | 1; vu = b.u64(i); break;
+
+      case 0x04: tag = INT  << 1 | 1; vi = b.i8 (i); break;
+      case 0x05: tag = INT  << 1 | 1; vi = b.i16(i); break;
+      case 0x06: tag = INT  << 1 | 1; vi = b.i32(i); break;
+      case 0x07: tag = INT  << 1 | 1; vi = b.i64(i); break;
+
+      case 0x08: tag = FLOAT32 << 1 | 1; vf = b.f32(i); break;
+      case 0x09: tag = FLOAT64 << 1 | 1; vd = b.f64(i); break;
+
+      case 0x0a: tag = SYMBOL  << 1 | 1; vs = sym{b.u64(i)}; break;
+      case 0x0b: tag = PIDFD   << 1 | 1; vp = pidfd{b.u32(i), b.u32(i + 4)}; break;
+
+      case 0x20: case 0x21: case 0x22: case 0x23:
+      case 0x24: case 0x25: case 0x26: case 0x27:
+      case 0x28: case 0x29: case 0x2a: case 0x2b:
+      case 0x2c: case 0x2d: case 0x2e: case 0x2f:
+      case 0x18:
+      case 0x19:
+      case 0x1a:
+      case 0x1b: tag = UTF8 << 1 | 1; vb = new bytes(b + i, t_.vsize()); break;
+
+      case 0x30: case 0x31: case 0x32: case 0x33:
+      case 0x34: case 0x35: case 0x36: case 0x37:
+      case 0x38: case 0x39: case 0x3a: case 0x3b:
+      case 0x3c: case 0x3d: case 0x3e: case 0x3f:
+      case 0x1c:
+      case 0x1d:
+      case 0x1e:
+      case 0x1f: tag = BYTES << 1 | 1; vb = new bytes(b + i, t_.vsize()); break;
+
+      case 0x48: case 0x49: case 0x4a: case 0x4b:
+      case 0x4c: case 0x4d: case 0x4e: case 0x4f:
+      case 0x40:
+      case 0x41:
+      case 0x42:
+      case 0x43:
+      {
+        tag = TUPLE << 1 | 1;
+        let vs = new std::vector<val>;
+        for (tval const &t : t_)
+        {
+          vs->push_back(val(t, b, i));
+          i += t.vsize();
+        }
+        vt = vs;
+      }
+
+      case 0x44:
+      case 0x45:
+      case 0x46:
+      case 0x47:
+      {
+        tag = ARRAY << 1 | 1;
+        let vs = new std::vector<val>;
+        for (uint64_t j = 0; j < t_.len(); j++)
+        {
+          vs->push_back(val(t_.atype(), b, i));
+          i += t_.atype().vsize();
+        }
+        vt = vs;
+      }
+
+      default: throw INVALID_TYPE_ERROR;
+      }
     }
+
+
+  ~val()
+    { if (has_ibuf()) return;
+      if (1ull << (tag >> 1) & (1ull << UTF8  | 1ull << BYTES)) delete vb;
+      if (1ull << (tag >> 1) & (1ull << TUPLE | 1ull << ARRAY)) delete vt; }
 
 
   bool     has_ibuf()                    const { return !(tag & 1); }
