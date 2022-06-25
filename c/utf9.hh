@@ -25,11 +25,16 @@ namespace tau::utf9
 #define LE (std::endian::native == std::endian::little)
 #define BE (std::endian::native == std::endian::big)
 
+static_assert(LE || BE, "unsupported endianness");
 
-enum error
+static_assert(sizeof(double) == sizeof(uint64_t));
+static_assert(sizeof(float)  == sizeof(uint32_t));
+static_assert(sizeof(void*)  == sizeof(uint64_t));
+
+
+enum error : uint8_t
 {
   BOUNDS_ERROR,
-  BYTE_ORDER_ERROR,
   IBUF_REQUIRED_ERROR,
   INVALID_TYPE_ERROR,
   NOT_COMPARABLE_ERROR,
@@ -50,18 +55,32 @@ enum error
 namespace  // Consistent-endianness (i.e. big-endian in memory)
 {
 
-inline uint64_t ce(uint64_t x) { return LE ? __bswap_64(x) : BE ? x : throw BYTE_ORDER_ERROR; }
-inline uint32_t ce(uint32_t x) { return LE ? __bswap_32(x) : BE ? x : throw BYTE_ORDER_ERROR; }
-inline uint16_t ce(uint16_t x) { return LE ? __bswap_16(x) : BE ? x : throw BYTE_ORDER_ERROR; }
+inline uint64_t ce(uint64_t x) { return LE ? __bswap_64(x) : x; }
+inline uint32_t ce(uint32_t x) { return LE ? __bswap_32(x) : x; }
+inline uint16_t ce(uint16_t x) { return LE ? __bswap_16(x) : x; }
 
-inline int64_t  ce(int64_t x)  { return LE ? __bswap_64(x) : BE ? x : throw BYTE_ORDER_ERROR; }
-inline int32_t  ce(int32_t x)  { return LE ? __bswap_32(x) : BE ? x : throw BYTE_ORDER_ERROR; }
-inline int16_t  ce(int16_t x)  { return LE ? __bswap_16(x) : BE ? x : throw BYTE_ORDER_ERROR; }
+inline int64_t  ce(int64_t x)  { return LE ? __bswap_64(x) : x; }
+inline int32_t  ce(int32_t x)  { return LE ? __bswap_32(x) : x; }
+inline int16_t  ce(int16_t x)  { return LE ? __bswap_16(x) : x; }
+
+inline double ce(double const x)
+{
+  if (BE) return x;
+  let y = bswap_64(*reinterpret_cast<uint64_t const*>(&x));
+  return *reinterpret_cast<double const*>(&y);
+}
+
+inline float ce(float const x)
+{
+  if (BE) return x;
+  let y = bswap_32(*reinterpret_cast<uint32_t const*>(&x));
+  return *reinterpret_cast<float const*>(&y);
+}
 
 }
 
 
-namespace  // Dispatch table compaction
+namespace  // Dispatch table compression
 {
 
 void pack_table(uint64_t const *t, uint64_t const base, int16_t *p, int n)
@@ -119,8 +138,8 @@ struct ibuf
   uint32_t cu32(uint64_t i) const { check(i + 3); return u32(i); }
   uint64_t cu64(uint64_t i) const { check(i + 7); return u64(i); }
 
-  float  f32(uint64_t i) const { let x = u32(i); return *(float *)(&x); }
-  double f64(uint64_t i) const { let x = u64(i); return *(double*)(&x); }
+  float  f32(uint64_t i) const { let x = u32(i); return ce(*reinterpret_cast<float const*>(&x)); }
+  double f64(uint64_t i) const { let x = u64(i); return ce(*reinterpret_cast<double const*>(&x)); }
 };
 
 
@@ -144,29 +163,29 @@ let l17 = lf(17);
 
 
 // Value-length functions
-let str8_lf   = lf(2 + b.cu8 (i + 1));
-let str16_lf  = lf(3 + b.cu16(i + 1));
-let str32_lf  = lf(5 + b.cu32(i + 1));
-let str64_lf  = lf(9 + b.cu64(i + 1));
+let str8_lf   = lf(2 + b.u8 (i + 1));
+let str16_lf  = lf(3 + b.u16(i + 1));
+let str32_lf  = lf(5 + b.u32(i + 1));
+let str64_lf  = lf(9 + b.u64(i + 1));
 
-let list8_lf  = lf(3  + b.cu8 (i + 1));
-let list16_lf = lf(5  + b.cu16(i + 1));
-let list32_lf = lf(9  + b.cu32(i + 1));
-let list64_lf = lf(17 + b.cu64(i + 1));
+let list8_lf  = lf(3  + b.u8 (i + 1));
+let list16_lf = lf(5  + b.u16(i + 1));
+let list32_lf = lf(9  + b.u32(i + 1));
+let list64_lf = lf(17 + b.u64(i + 1));
 
-let u8_tvlf  = lf(b.cu8 (i + 1));
-let u16_tvlf = lf(b.cu16(i + 1));
-let u32_tvlf = lf(b.cu32(i + 1));
-let u64_tvlf = lf(b.cu64(i + 1));
+let u8_tvlf  = lf(b.u8 (i + 1));
+let u16_tvlf = lf(b.u16(i + 1));
+let u32_tvlf = lf(b.u32(i + 1));
+let u64_tvlf = lf(b.u64(i + 1));
 
-let fixutf8_lf   = lf(1 + (b.cu8(i) - 0x20));
-let fixbytes_lf  = lf(1 + (b.cu8(i) - 0x30));
-let fixtuple8_lf = lf(1 + b.cu8(i + 1));
+let fixutf8_lf   = lf(1 + (b.u8(i) - 0x20));
+let fixbytes_lf  = lf(1 + (b.u8(i) - 0x30));
+let fixtuple8_lf = lf(1 + b.u8(i + 1));
 let fixint_lf    = l1;
 
-let idx16_lf = lf(1 + 2 + b.cu16(i + 1));
-let idx32_lf = lf(1 + 4 + b.cu32(i + 1));
-let idx64_lf = lf(1 + 8 + b.cu64(i + 1));
+let idx16_lf = lf(1 + 2 + b.u16(i + 1));
+let idx32_lf = lf(1 + 4 + b.u32(i + 1));
+let idx64_lf = lf(1 + 8 + b.u64(i + 1));
 
 let bogus_lf = [](ibuf const &b, uint64_t i) -> uint64_t { throw BOGUS_LF_ERROR; };
 
@@ -179,17 +198,17 @@ inline uint64_t tuple_tl(ibuf const &b, uint64_t i, uint64_t n)
   return l;
 }
 
-let fixtuple_tlf = lf(2 + tuple_tl(b, i + 2, b.cu8(i) - 0x48));
+let fixtuple_tlf = lf(2 + tuple_tl(b, i + 2, b.u8(i) - 0x48));
 
 
 // Typecode value length functions
-let fixutf8_tvlf   = lf(b.cu8(i) - 0x20);
-let fixbytes_tvlf  = lf(b.cu8(i) - 0x30);
+let fixutf8_tvlf   = lf(b.u8(i) - 0x20);
+let fixbytes_tvlf  = lf(b.u8(i) - 0x30);
 let fixtuple8_tvlf = u8_tvlf;
 
 
 // Bytecode decode tables
-lfn const lfns[256] =   // 2kiB dcache footprint (common case)
+lfn const lfns[256] =
 {
   // 0x00 - 0x0f
   l2, l3, l5, l9,
@@ -226,9 +245,9 @@ lfn const lfns[256] =   // 2kiB dcache footprint (common case)
   fixtuple8_lf, fixtuple8_lf, fixtuple8_lf, fixtuple8_lf,
 
   // 0x50-0x5f
-  lf(1 + 2 + 1 + b.cu16(i + 1)),
-  lf(1 + 4 + 1 + b.cu32(i + 1)),
-  lf(1 + 8 + 1 + b.cu64(i + 1)),
+  lf(1 + 2 + 1 + b.u16(i + 1)),
+  lf(1 + 4 + 1 + b.u32(i + 1)),
+  lf(1 + 8 + 1 + b.u64(i + 1)),
   l1,
 
   idx16_lf, idx16_lf, idx16_lf, idx16_lf,
@@ -290,7 +309,7 @@ lfn const lfns[256] =   // 2kiB dcache footprint (common case)
   fixint_lf, fixint_lf, fixint_lf, fixint_lf,
 };
 
-lfn const tlfns[256] =  // 640B dcache footprint (worst-case)
+lfn const tlfns[256] =
 {
   // 0x00-0x0f
   l1, l1, l1, l1,
@@ -317,10 +336,10 @@ lfn const tlfns[256] =  // 640B dcache footprint (worst-case)
   l1, l1, l1, l1,
 
   // 0x40-0x4f
-  lf(3  + tuple_tl(b, i + 3,  b.cu8 (i + 2))),
-  lf(5  + tuple_tl(b, i + 5,  b.cu16(i + 3))),
-  lf(9  + tuple_tl(b, i + 9,  b.cu32(i + 5))),
-  lf(17 + tuple_tl(b, i + 17, b.cu64(i + 9))),
+  lf(3  + tuple_tl(b, i + 3,  b.u8 (i + 2))),
+  lf(5  + tuple_tl(b, i + 5,  b.u16(i + 3))),
+  lf(9  + tuple_tl(b, i + 9,  b.u32(i + 5))),
+  lf(17 + tuple_tl(b, i + 17, b.u64(i + 9))),
 
   lf(3  + b.tlen(i + 3)),
   lf(5  + b.tlen(i + 5)),
@@ -391,7 +410,7 @@ lfn const tlfns[256] =  // 640B dcache footprint (worst-case)
   bogus_lf, bogus_lf, bogus_lf, bogus_lf,
 };
 
-lfn const tvlfns[256] = // 640B dcache footprint (worst-case)
+lfn const tvlfns[256] =
 {
   // 0x00-0x0f
   l1, l2, l4, l8,
@@ -505,9 +524,9 @@ void init_lfn_tables()
 
 }
 
-inline uint64_t ibuf::len  (uint64_t i) const { check(i); return reinterpret_cast<lfn>(lfn_base + lfnos  [xs[i]])(*this, i); }
-inline uint64_t ibuf::tlen (uint64_t i) const { check(i); return reinterpret_cast<lfn>(lfn_base + tlfnos [xs[i]])(*this, i); }
-inline uint64_t ibuf::tvlen(uint64_t i) const { check(i); return reinterpret_cast<lfn>(lfn_base + tvlfnos[xs[i]])(*this, i); }
+inline uint64_t ibuf::len  (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + lfnos  [xs[i]])(*this, i); }
+inline uint64_t ibuf::tlen (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tlfnos [xs[i]])(*this, i); }
+inline uint64_t ibuf::tvlen(uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tvlfnos[xs[i]])(*this, i); }
 
 
 enum val_type : uint8_t
@@ -520,6 +539,7 @@ enum val_type : uint8_t
   PIDFD    = 0x0b,
   BOOL     = 0x0c,
   NULLTYPE = 0x0d,
+
   ALPHA    = 0x10,
   OMEGA    = 0x11,
   IOTA     = 0x12,
@@ -530,12 +550,15 @@ enum val_type : uint8_t
 
   UTF8     = 0x18,
   BYTES    = 0x1c,
-  TUPLE    = 0x40,
-  ARRAY    = 0x44,
-  INDEX    = 0x50,
 
-  BOGUS    = 0xff,
+  TUPLE    = 0x20,
+  ARRAY    = 0x24,
+  INDEX    = 0x30,
+
+  BOGUS    = 0x3f,
 };
+
+typedef uint64_t val_type_mask;
 
 
 namespace  // Type dispatch tables
@@ -884,9 +907,6 @@ struct tval
 
 
   uint64_t h() const { return XXH64(b + i, e - i, 1); }
-
-
-  // TODO: typed views of opaque data
 };
 
 
@@ -906,7 +926,8 @@ struct val
     sym      vs; } const;
 
 
-  val(ibuf const &b_, uint64_t i_) : b(&b_),                i(i_)   {}
+  val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_) { b->check(b->len(i)); }
+
   val(uint64_t vu_)                : tag(UINT    << 1 | 1), vu(vu_) {}
   val(int64_t vi_)                 : tag(INT     << 1 | 1), vi(vi_) {}
   val(double vd_)                  : tag(FLOAT64 << 1 | 1), vd(vd_) {}
@@ -915,11 +936,16 @@ struct val
   val(pidfd vp_)                   : tag(PIDFD   << 1 | 1), vp(vp_) {}
   val(val_type t_)                 : tag(t_      << 1 | 1), i(0)    {}
 
+  val(tval t_, void const *m)
+    {
+      // TODO: view data using a typed interpretation
+    }
 
-  bool     has_ibuf()                const { return !(tag & 1); }
-  val_type type()                    const { return has_ibuf() ? bts[b->cu8(i)] : static_cast<val_type>(tag >> 1); }
-  void     require_ibuf()            const { if (!has_ibuf()) throw IBUF_REQUIRED_ERROR; }
-  void     require_type(val_type t_) const { if (type() != t_) throw INVALID_TYPE_ERROR; }
+
+  bool     has_ibuf()                    const { return !(tag & 1); }
+  val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : static_cast<val_type>(tag >> 1); }
+  void     require_ibuf()                const { if (!has_ibuf()) throw IBUF_REQUIRED_ERROR; }
+  void     require_type(val_type_mask m) const { if (!(type() & m)) throw INVALID_TYPE_ERROR; }
 
 
   val list() const
@@ -928,7 +954,7 @@ struct val
       while (bts[b->cu8(j)] == INDEX) j += b->len(j);
       return j; }
 
-  uint8_t const *mbegin() const { require_ibuf(); return reinterpret_cast<pfn>(sfn_base + sfnos[b->cu8(i)])(*b, i); }
+  uint8_t const *mbegin() const { require_ibuf(); return reinterpret_cast<pfn>(sfn_base + sfnos[b->u8(i)])(*b, i); }
   uint8_t const *mend()   const { require_ibuf(); return *b + b->len(i); }
   uint64_t       mlen()   const { require_ibuf(); return mend() - mbegin(); }
   uint64_t       msize()  const { require_ibuf(); return b->len(i); }
@@ -978,7 +1004,7 @@ struct val
 
   tval atype() const
     { require_ibuf();
-      require_type(ARRAY);
+      require_type(1ull << ARRAY);
       switch (b->u8(i))
       {
       case 0x44: return tval(*b, i + 3);
@@ -990,8 +1016,8 @@ struct val
 
 
   operator uint64_t() const
-    { if (type() == INT)                                      throw SIGNED_COERCION_ERROR;
-      if (type() != UINT && type() != RHO && type() != THETA) throw INVALID_TYPE_ERROR;
+    { if (type() == INT) throw SIGNED_COERCION_ERROR;
+      require_type(1ull << UINT | 1ull << RHO | 1ull << THETA);
       if (!has_ibuf()) return vu;
       let x = b->u8(i);
       switch (x)
@@ -1005,7 +1031,7 @@ struct val
 
   operator int64_t() const
     { if (type() == UINT) throw SIGNED_COERCION_ERROR;
-      require_type(INT);
+      require_type(1ull << INT);
       if (!has_ibuf()) return vi;
       let x = b->u8(i);
       if (x >= 0x80) return x - 0x80;
@@ -1019,23 +1045,27 @@ struct val
       } }
 
   operator float() const
-    { require_type(FLOAT32);
+    { require_type(1ull << FLOAT32);
       return has_ibuf() ? b->f32(i + 1) : vf; }
 
   operator double() const
-    { require_type(FLOAT64);
+    { require_type(1ull << FLOAT64);
       return has_ibuf() ? b->f64(i + 1) : vd; }
 
   operator sym() const
-    { require_type(SYMBOL);
+    { require_type(1ull << SYMBOL);
       return has_ibuf() ? sym{b->u64(i + 1)} : vs; }
 
   operator pidfd() const
-    { require_type(PIDFD);
+    { require_type(1ull << PIDFD);
       return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
 
+  operator bool() const
+    { require_type(1ull << BOOL);
+      return has_ibuf() ? b->u8(i) == 0x0d : !!vu; }
+
   operator std::string() const
-    { if (type() != UTF8 && type() != BYTES) throw INVALID_TYPE_ERROR;
+    { require_type(1ull << UTF8 | 1ull << BYTES);
       return std::string(reinterpret_cast<char const*>(mbegin()), mlen()); }
 
 
@@ -1056,9 +1086,11 @@ struct val
       case FLOAT32: ht(float)
       case SYMBOL:  ht(sym)
       case PIDFD:   ht(pidfd)
+      case BOOL:    ht(bool)
 
 #undef ht
 
+      case NULLTYPE:
       case TAU:
       case ALPHA:
       case OMEGA:
@@ -1077,7 +1109,7 @@ struct val
 
       case INDEX: return list().h();
 
-      default: throw NOT_HASHABLE_ERROR;
+      case BOGUS: throw NOT_HASHABLE_ERROR;
       } }
 
 
@@ -1093,26 +1125,33 @@ struct val
           let x2 = static_cast<t>(v);                   \
           return x1 > x2 ? 1 : x1 < x2 ? -1 : 0; }
 
+      case RHO:
+      case THETA:
       case UINT:    cmpblock(uint64_t)
       case INT:     cmpblock(int64_t)
       case FLOAT32: cmpblock(float)
       case FLOAT64: cmpblock(double)
+      case SYMBOL:  cmpblock(sym)
       case PIDFD:   cmpblock(pidfd)
-
-      case SYMBOL:
-      case TAU:     cmpblock(uint64_t)
+      case BOOL:    cmpblock(bool)
 
 #undef cmpblock
+
+      case NULLTYPE:
+      case ALPHA:
+      case OMEGA:
+      case KAPPA:
+      case IOTA:
+      case TAU:     return 0;
 
       case UTF8:
       case BYTES:
       case ARRAY:
-      {
-        if (let tc = atype().compare(v.atype())) return tc;
+      { if (let tc = atype().compare(v.atype())) return tc;
         let n1 =   mend() -   mbegin();
         let n2 = v.mend() - v.mbegin();
-        let c  = std::__memcmp(mbegin(), v.mbegin(), std::min(n1, n2));
-        return c ? c : n1 > n2 ? 1 : n1 < n2 ? -1 : 0; }
+        if (let c = std::__memcmp(mbegin(), v.mbegin(), std::min(n1, n2))) return c;
+        return n1 > n2 ? 1 : n1 < n2 ? -1 : 0; }
 
       case TUPLE:
       { bool m1 = false,
@@ -1125,7 +1164,7 @@ struct val
 
       case INDEX: return list().compare(v.list());
 
-      default: throw NOT_COMPARABLE_ERROR;
+      case BOGUS: throw NOT_COMPARABLE_ERROR;
       } }
 
   bool operator< (val const &v) const { return this->compare(v) < 0; }
@@ -1178,7 +1217,6 @@ std::ostream &operator<<(std::ostream &s, error e)
   switch (e)
   {
   case BOUNDS_ERROR:           return s << "bounds error";
-  case BYTE_ORDER_ERROR:       return s << "byte order";
   case IBUF_REQUIRED_ERROR:    return s << "ibuf required error";
   case INVALID_TYPE_ERROR:     return s << "invalid type error";
   case NOT_COMPARABLE_ERROR:   return s << "not comparable error";
