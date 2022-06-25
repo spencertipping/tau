@@ -54,7 +54,8 @@ Any datatype with a non-constant length has the length prepended to it so we can
 
 
 ### Unused (reserved) bytes
-+ `0x0c-0x0f`
++ `0x0f`
++ `0x17`
 + `0x60-0x63`
 + `0x70-0x73`
 
@@ -74,12 +75,16 @@ Any datatype with a non-constant length has the length prepended to it so we can
 | `0x09`      | 8               | `float64`                    |
 | `0x0a`      | 8               | `symbol`                     |
 | `0x0b`      | 8               | `pidfd`, `uint32` pid and fd |
+| `0x0c`      | 0               | `false`                      |
+| `0x0d`      | 0               | `true`                       |
+| `0x0e`      | 0               | `null`                       |
 | `0x10`      | 0               | `alpha`                      |
 | `0x11`      | 0               | `omega`                      |
 | `0x12`      | 0               | `iota`                       |
 | `0x13`      | 0               | `kappa`                      |
-| `0x14`      | 0               | `tau0`                       |
-| `0x15`      | 8               | `tau`, `uint64 x`            |
+| `0x14`      | 0               | `tau`                        |
+| `0x15`      | 8               | `rho`, `uint64 x`            |
+| `0x16`      | 8               | `theta`, `uint64 x`          |
 | `0x18`      | 1 + len         | `utf8`, 8-bit _byte_ length  |
 | `0x19`      | 2 + len         | `utf8`, 16-bit _byte_ length |
 | `0x1a`      | 4 + len         | `utf8`, 32-bit _byte_ length |
@@ -91,8 +96,6 @@ Any datatype with a non-constant length has the length prepended to it so we can
 | `0x2N`      | `N`             | `fixutf8`                    |
 | `0x3N`      | `N`             | `fixbytes`                   |
 | `0x80-0xff` | 0               | `fixint`                     |
-
-**TODO:** nullary `tau` (`0x14`), `rho` and `theta` for things-until-`tau` and approximate angle respectively
 
 **NOTE:** byte ordering is always big-endian.
 

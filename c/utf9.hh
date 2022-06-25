@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <bit>
 #include <cstdint>
+#include <exception>
 #include <iostream>
 #include <random>
 #include <stdexcept>
@@ -46,10 +47,9 @@ enum error
 };
 
 
-namespace
+namespace  // Consistent-endianness (i.e. big-endian in memory)
 {
 
-// Consistent-endianness (i.e. big-endian in memory)
 inline uint64_t ce(uint64_t x) { return LE ? __bswap_64(x) : BE ? x : throw BYTE_ORDER_ERROR; }
 inline uint32_t ce(uint32_t x) { return LE ? __bswap_32(x) : BE ? x : throw BYTE_ORDER_ERROR; }
 inline uint16_t ce(uint16_t x) { return LE ? __bswap_16(x) : BE ? x : throw BYTE_ORDER_ERROR; }
@@ -57,6 +57,24 @@ inline uint16_t ce(uint16_t x) { return LE ? __bswap_16(x) : BE ? x : throw BYTE
 inline int64_t  ce(int64_t x)  { return LE ? __bswap_64(x) : BE ? x : throw BYTE_ORDER_ERROR; }
 inline int32_t  ce(int32_t x)  { return LE ? __bswap_32(x) : BE ? x : throw BYTE_ORDER_ERROR; }
 inline int16_t  ce(int16_t x)  { return LE ? __bswap_16(x) : BE ? x : throw BYTE_ORDER_ERROR; }
+
+}
+
+
+namespace  // Dispatch table compaction
+{
+
+void pack_table(uint64_t const *t, uint64_t const base, int16_t *p, int n)
+{
+  let a = std::min_element(t, t + n);
+  let b = std::max_element(t, t + n);
+
+  for (int i = 0; i < n; ++i)
+  {
+    p[i] = static_cast<int16_t>(t[i] - base);
+    if (p[i] + base != t[i]) throw std::length_error("pack_table overflow");
+  }
+}
 
 }
 
@@ -106,7 +124,7 @@ struct ibuf
 };
 
 
-namespace
+namespace  // Length traversal dispatch
 {
 
 typedef uint64_t(*lfn)(ibuf const &, uint64_t);
@@ -177,11 +195,14 @@ lfn const lfns[256] =   // 2kiB dcache footprint (common case)
   l2, l3, l5, l9,
   l2, l3, l5, l9,
   l5, l9, l9, l9,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  l1, l1, l1, bogus_lf,
 
   // 0x10 - 0x1f
   l1, l1, l1, l1,
-  l1, l9, bogus_lf, bogus_lf,
+  l1,  // tau
+  l9,  // rho
+  l9,  // theta
+  bogus_lf,
 
   str8_lf, str16_lf, str32_lf, str64_lf,
   str8_lf, str16_lf, str32_lf, str64_lf,
@@ -464,41 +485,60 @@ lfn const tvlfns[256] = // 640B dcache footprint (worst-case)
 };
 
 
+int16_t lfnos[256];
+int16_t tlfnos[256];
+int16_t tvlfnos[256];
+
+
+uint64_t const lfn_base = reinterpret_cast<uint64_t>(&l1);
+
+
+void init_lfn_tables()
+{
+  pack_table(reinterpret_cast<uint64_t const*>(lfns),   lfn_base, lfnos,   256);
+  pack_table(reinterpret_cast<uint64_t const*>(tlfns),  lfn_base, tlfnos,  256);
+  pack_table(reinterpret_cast<uint64_t const*>(tvlfns), lfn_base, tvlfnos, 256);
+}
+
+
 #undef lf
 
 }
 
-inline uint64_t ibuf::len  (uint64_t i) const { check(i); return lfns  [xs[i]](*this, i); }
-inline uint64_t ibuf::tlen (uint64_t i) const { check(i); return tlfns [xs[i]](*this, i); }
-inline uint64_t ibuf::tvlen(uint64_t i) const { check(i); return tvlfns[xs[i]](*this, i); }
+inline uint64_t ibuf::len  (uint64_t i) const { check(i); return reinterpret_cast<lfn>(lfn_base + lfnos  [xs[i]])(*this, i); }
+inline uint64_t ibuf::tlen (uint64_t i) const { check(i); return reinterpret_cast<lfn>(lfn_base + tlfnos [xs[i]])(*this, i); }
+inline uint64_t ibuf::tvlen(uint64_t i) const { check(i); return reinterpret_cast<lfn>(lfn_base + tvlfnos[xs[i]])(*this, i); }
 
 
 enum val_type : uint8_t
 {
-  UINT    = 0,
-  INT     = 1,
-  FLOAT32 = 2,
-  FLOAT64 = 3,
-  SYMBOL  = 4,
-  PIDFD   = 5,
-  TAU     = 6,
+  UINT     = 0x00,
+  INT      = 0x04,
+  FLOAT32  = 0x08,
+  FLOAT64  = 0x09,
+  SYMBOL   = 0x0a,
+  PIDFD    = 0x0b,
+  BOOL     = 0x0c,
+  NULLTYPE = 0x0d,
+  ALPHA    = 0x10,
+  OMEGA    = 0x11,
+  IOTA     = 0x12,
+  KAPPA    = 0x13,
+  TAU      = 0x14,
+  RHO      = 0x15,
+  THETA    = 0x16,
 
-  ALPHA   = 7,
-  OMEGA   = 8,
-  IOTA    = 9,
-  KAPPA   = 10,
+  UTF8     = 0x18,
+  BYTES    = 0x1c,
+  TUPLE    = 0x40,
+  ARRAY    = 0x44,
+  INDEX    = 0x50,
 
-  UTF8    = 11,
-  BYTES   = 12,
-  TUPLE   = 13,
-  ARRAY   = 14,
-  INDEX   = 15,
-
-  BOGUS   = 255,
+  BOGUS    = 0xff,
 };
 
 
-namespace
+namespace  // Type dispatch tables
 {
 
 val_type const bts[256] =
@@ -507,11 +547,11 @@ val_type const bts[256] =
   UINT, UINT, UINT, UINT,
   INT,  INT,  INT,  INT,
   FLOAT32, FLOAT64, SYMBOL, PIDFD,
-  BOGUS, BOGUS, BOGUS, BOGUS,
+  BOOL, BOOL, NULLTYPE, BOGUS,
 
   // 0x10-0x1f
   ALPHA, OMEGA, IOTA, KAPPA,
-  TAU, TAU, BOGUS, BOGUS,
+  TAU, RHO, THETA, BOGUS,
   UTF8, UTF8, UTF8, UTF8,
   BYTES, BYTES, BYTES, BYTES,
 
@@ -713,6 +753,16 @@ pfn const sfns[256] =
   bogus_pf, bogus_pf, bogus_pf, bogus_pf,
 };
 
+int16_t sfnos[256];
+
+uint64_t const sfn_base = reinterpret_cast<uint64_t>(&p1);
+
+
+void init_sfn_tables()
+{
+  pack_table(reinterpret_cast<uint64_t const *>(sfns), sfn_base, sfnos, 256);
+}
+
 
 #undef pf
 
@@ -751,24 +801,12 @@ struct pidfd
 };
 
 
-struct tau
-{
-  uint64_t t;
-
-  // TODO: specify tighter semantics about what τ indicators mean
-  // (should probably be "expected distance to end of cycle")
-  operator uint64_t() const { return t; }
-  operator double()   const { return static_cast<double>(t) / static_cast<double>(std::numeric_limits<uint64_t>::max()); }
-};
-
-
-namespace
+namespace  // Primitive type << operators
 {
 
 std::ostream &operator<<(std::ostream &s, sym   const &y) { return s << 's' << reinterpret_cast<void*>(y.h); }
 std::ostream &operator<<(std::ostream &s, hash  const &h) { return s << 'h' << reinterpret_cast<void*>(h.h); }
 std::ostream &operator<<(std::ostream &s, pidfd const &p) { return s << "[p=" << p.pid << ",fd=" << p.fd << "]"; }
-std::ostream &operator<<(std::ostream &s, tau   const &t) { return s << "τ" << static_cast<double>(t.t) / static_cast<double>(std::numeric_limits<uint64_t>::max()); }
 
 }
 
@@ -845,6 +883,9 @@ struct tval
       return n1 > n2 ? 1 : n1 < n2 ? -1 : std::__memcmp(*b + i, *t.b + t.i, n1); }
 
 
+  uint64_t h() const { return XXH64(b + i, e - i, 1); }
+
+
   // TODO: typed views of opaque data
 };
 
@@ -862,8 +903,7 @@ struct val
     double   vd;
     float    vf;
     pidfd    vp;
-    sym      vs;
-    tau      vt; } const;
+    sym      vs; } const;
 
 
   val(ibuf const &b_, uint64_t i_) : b(&b_),                i(i_)   {}
@@ -872,7 +912,6 @@ struct val
   val(double vd_)                  : tag(FLOAT64 << 1 | 1), vd(vd_) {}
   val(float vf_)                   : tag(FLOAT32 << 1 | 1), vf(vf_) {}
   val(sym vs_)                     : tag(SYMBOL  << 1 | 1), vs(vs_) {}
-  val(tau vt_)                     : tag(TAU     << 1 | 1), vt(vt_) {}
   val(pidfd vp_)                   : tag(PIDFD   << 1 | 1), vp(vp_) {}
   val(val_type t_)                 : tag(t_      << 1 | 1), i(0)    {}
 
@@ -889,7 +928,7 @@ struct val
       while (bts[b->cu8(j)] == INDEX) j += b->len(j);
       return j; }
 
-  uint8_t const *mbegin() const { require_ibuf(); return sfns[b->cu8(i)](*b, i); }
+  uint8_t const *mbegin() const { require_ibuf(); return reinterpret_cast<pfn>(sfn_base + sfnos[b->cu8(i)])(*b, i); }
   uint8_t const *mend()   const { require_ibuf(); return *b + b->len(i); }
   uint64_t       mlen()   const { require_ibuf(); return mend() - mbegin(); }
   uint64_t       msize()  const { require_ibuf(); return b->len(i); }
@@ -951,8 +990,8 @@ struct val
 
 
   operator uint64_t() const
-    { if (type() == INT) throw SIGNED_COERCION_ERROR;
-      require_type(UINT);
+    { if (type() == INT)                                      throw SIGNED_COERCION_ERROR;
+      if (type() != UINT && type() != RHO && type() != THETA) throw INVALID_TYPE_ERROR;
       if (!has_ibuf()) return vu;
       let x = b->u8(i);
       switch (x)
@@ -995,11 +1034,6 @@ struct val
     { require_type(PIDFD);
       return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
 
-  operator tau() const
-    { require_type(TAU);
-      return has_ibuf() ?
-        b->u8(i) == 0x14 ? tau{0} : tau{b->u64(i + 1)} : vt; }
-
   operator std::string() const
     { if (type() != UTF8 && type() != BYTES) throw INVALID_TYPE_ERROR;
       return std::string(reinterpret_cast<char const*>(mbegin()), mlen()); }
@@ -1014,16 +1048,18 @@ struct val
         { let x = ce(static_cast<uint64_t>(static_cast<ct>(*this)));    \
           return XXH64(&x, sizeof(x), t); }
 
+      case RHO:
+      case THETA:
       case UINT:    ht(uint64_t)
       case INT:     ht(int64_t)
       case FLOAT64: ht(double)
       case FLOAT32: ht(float)
       case SYMBOL:  ht(sym)
       case PIDFD:   ht(pidfd)
-      case TAU:     ht(tau)
 
 #undef ht
 
+      case TAU:
       case ALPHA:
       case OMEGA:
       case IOTA:
@@ -1101,25 +1137,29 @@ struct val
 };
 
 
-namespace
+namespace  // val/tval << operators
 {
 
 std::ostream &operator<<(std::ostream &s, val_type t)
 {
   switch (t)
   {
-  case UINT:    return s << "uint";
-  case INT:     return s << "int";
-  case FLOAT32: return s << "f32";
-  case FLOAT64: return s << "f64";
-  case SYMBOL:  return s << "sym";
-  case PIDFD:   return s << "pidfd";
+  case UINT:     return s << "uint";
+  case INT:      return s << "int";
+  case FLOAT32:  return s << "f32";
+  case FLOAT64:  return s << "f64";
+  case SYMBOL:   return s << "sym";
+  case PIDFD:    return s << "pidfd";
+  case BOOL:     return s << "bool";
+  case NULLTYPE: return s << "null";
 
-  case TAU:   return s << "τ";
   case ALPHA: return s << "α";
   case OMEGA: return s << "ω";
   case IOTA:  return s << "ι";
   case KAPPA: return s << "κ";
+  case TAU:   return s << "τ";
+  case RHO:   return s << "ρ";
+  case THETA: return s << "θ";
 
   case UTF8:  return s << "utf8";
   case BYTES: return s << "bytes";
@@ -1162,20 +1202,17 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
   case FLOAT64: return s << "f" << t.vsize() * 8;
   case SYMBOL:  return s << "s";
   case PIDFD:   return s << "p";
-  case TAU:     return s << "τ";
 
   case UTF8:    return s << "u[" << t.vsize() << "]";
   case BYTES:   return s << "b[" << t.vsize() << "]";
   case TUPLE:
-  {
-    bool first = true;
+  { bool first = true;
     s << "(";
     for (let &v : t)
     { if (first) first = false;
       else       s << ", ";
       s << v; }
-    return s << ")";
-  }
+    return s << ")"; }
 
   case ARRAY: return s << t.atype() << "[" << t.alen() << "]";
 
@@ -1195,6 +1232,13 @@ std::ostream &operator<<(std::ostream &s, val const &t)
 // operation space?
 
 
+void utf9_init()
+{
+  init_lfn_tables();
+  init_sfn_tables();
+}
+
+
 #undef let
 
 }
@@ -1202,6 +1246,9 @@ std::ostream &operator<<(std::ostream &s, val const &t)
 
 template<> struct std::hash<tau::utf9::val>
 { uint64_t operator()(tau::utf9::val const &v) { return v.h(); } };
+
+template<> struct std::hash<tau::utf9::tval>
+{ uint64_t operator()(tau::utf9::tval const &t) { return t.h(); } };
 
 
 #endif  // ifndef utf9_h
