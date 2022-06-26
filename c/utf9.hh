@@ -6,10 +6,15 @@
 #include <bit>
 #include <cstdint>
 #include <exception>
+#include <functional>
 #include <iostream>
+#include <map>
 #include <random>
+#include <set>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <byteswap.h>
@@ -30,10 +35,12 @@ static_assert(LE || BE, "unsupported endianness");
 static_assert(sizeof(double) == sizeof(uint64_t));
 static_assert(sizeof(float)  == sizeof(uint32_t));
 static_assert(sizeof(void*)  == sizeof(uint64_t));
+static_assert(sizeof(char)   == sizeof(uint8_t));
 
 
 enum error : uint8_t
 {
+  ALIGNMENT_ERROR,
   BOUNDS_ERROR,
   IBUF_REQUIRED_ERROR,
   INVALID_TYPE_ERROR,
@@ -83,16 +90,16 @@ inline float ce(float const x)
 namespace  // Dispatch table compression
 {
 
-void pack_table(uint64_t const *t, uint64_t const base, int16_t *p, int n)
-{
-  let a = std::min_element(t, t + n);
-  let b = std::max_element(t, t + n);
+typedef int16_t tpacked;
 
+void pack_table(uint64_t const *       t,
+                uint64_t const         base,
+                tpacked        * const p,
+                int              const n)
+{
   for (int i = 0; i < n; ++i)
-  {
-    p[i] = static_cast<int16_t>(t[i] - base);
-    if (p[i] + base != t[i]) throw std::length_error("pack_table overflow");
-  }
+  { p[i] = static_cast<tpacked>(t[i] - base);
+    if (p[i] + base != t[i]) throw std::length_error("pack_table overflow"); }
 }
 
 }
@@ -504,9 +511,9 @@ lfn const tvlfns[256] =
 };
 
 
-int16_t lfnos[256];
-int16_t tlfnos[256];
-int16_t tvlfnos[256];
+tpacked lfnos[256];
+tpacked tlfnos[256];
+tpacked tvlfnos[256];
 
 
 uint64_t const lfn_base = reinterpret_cast<uint64_t>(&l1);
@@ -554,6 +561,11 @@ enum val_type : uint8_t
   TUPLE    = 0x20,
   ARRAY    = 0x24,
   INDEX    = 0x30,
+
+  IHASHSET = 0x31,  // immediate collection types
+  IORDSET  = 0x32,
+  IHASHMAP = 0x33,
+  IORDMAP  = 0x34,
 
   BOGUS    = 0x3f,
 };
@@ -776,7 +788,7 @@ pfn const sfns[256] =
   bogus_pf, bogus_pf, bogus_pf, bogus_pf,
 };
 
-int16_t sfnos[256];
+tpacked sfnos[256];
 
 uint64_t const sfn_base = reinterpret_cast<uint64_t>(&p1);
 
@@ -921,30 +933,36 @@ struct val
     uint64_t     tag; } const;
 
   union
-  { uint64_t                i;
-    uint64_t                vu;
-    int64_t                 vi;
-    double                  vd;
-    float                   vf;
-    pidfd                   vp;
-    sym                     vs;
-    bytes const            *vb;
-    std::vector<val> const *vt; } const;
+  { uint64_t                      i;
+    uint64_t                      vu;
+    int64_t                       vi;
+    double                        vd;
+    float                         vf;
+    pidfd                         vp;
+    sym                           vy;
+    bytes const                  *vb;
+    std::vector<val>             *vt;
+    std::map<val, val>           *vom;
+    std::set<val>                *vos;
+    std::unordered_map<val, val> *vhm;
+    std::unordered_set<val>      *vhs; } const;
 
 
-  val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_) { b->check(b->len(i)); }
+  val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
+    { if (reinterpret_cast<uint64_t>(b) & 7) throw ALIGNMENT_ERROR;
+      b->check(b->len(i)); }
 
   val(uint64_t vu_)                : tag(UINT    << 1 | 1), vu(vu_) {}
   val(int64_t vi_)                 : tag(INT     << 1 | 1), vi(vi_) {}
   val(double vd_)                  : tag(FLOAT64 << 1 | 1), vd(vd_) {}
   val(float vf_)                   : tag(FLOAT32 << 1 | 1), vf(vf_) {}
-  val(sym vs_)                     : tag(SYMBOL  << 1 | 1), vs(vs_) {}
+  val(sym vy_)                     : tag(SYMBOL  << 1 | 1), vy(vy_) {}
   val(pidfd vp_)                   : tag(PIDFD   << 1 | 1), vp(vp_) {}
-  val(val_type t_)                 : tag(t_      << 1 | 1), i(0)    {}
+
+  // TODO: immediate constructors from std::string, std::vector, etc
 
   val(tval t_, ibuf const &b, uint64_t i)
-    {
-      switch (t_.typecode())
+    { switch (t_.typecode())
       {
       case 0x00: tag = UINT << 1 | 1; vu = b.u8 (i); break;
       case 0x01: tag = UINT << 1 | 1; vu = b.u16(i); break;
@@ -959,7 +977,7 @@ struct val
       case 0x08: tag = FLOAT32 << 1 | 1; vf = b.f32(i); break;
       case 0x09: tag = FLOAT64 << 1 | 1; vd = b.f64(i); break;
 
-      case 0x0a: tag = SYMBOL  << 1 | 1; vs = sym{b.u64(i)}; break;
+      case 0x0a: tag = SYMBOL  << 1 | 1; vy = sym{b.u64(i)}; break;
       case 0x0b: tag = PIDFD   << 1 | 1; vp = pidfd{b.u32(i), b.u32(i + 4)}; break;
 
       case 0x20: case 0x21: case 0x22: case 0x23:
@@ -986,29 +1004,26 @@ struct val
       case 0x41:
       case 0x42:
       case 0x43:
-      { tag = TUPLE << 1 | 1;
-        let vs = new std::vector<val>;
+        tag = TUPLE << 1 | 1;
+        vt = new std::vector<val>;
         for (tval const &t : t_)
-        { vs->push_back(val(t, b, i));
+        { vt->push_back(val(t, b, i));
           i += t.vsize(); }
-        vt = vs;
-        break; }
+        break;
 
       case 0x44:
       case 0x45:
       case 0x46:
       case 0x47:
-      { tag = ARRAY << 1 | 1;
-        let vs = new std::vector<val>;
+        tag = ARRAY << 1 | 1;
+        vt = new std::vector<val>;
         for (uint64_t j = 0; j < t_.len(); j++)
-        { vs->push_back(val(t_.atype(), b, i));
+        { vt->push_back(val(t_.atype(), b, i));
           i += t_.atype().vsize(); }
-        vt = vs;
-        break; }
+        break;
 
       default: throw INVALID_TYPE_ERROR;
-      }
-    }
+      } }
 
 
   ~val()
@@ -1016,10 +1031,16 @@ struct val
       {
       case UTF8  << 1 | 1: case BYTES << 1 | 1: delete vb; break;
       case TUPLE << 1 | 1: case ARRAY << 1 | 1: delete vt; break;
+
+      case IHASHSET << 1 | 1: delete vhs; break;
+      case IORDSET  << 1 | 1: delete vos; break;
+      case IHASHMAP << 1 | 1: delete vhm; break;
+      case IORDMAP  << 1 | 1: delete vom; break;
       } }
 
 
   bool     has_ibuf()                    const { return !(tag & 1); }
+  bool     is_immediate()                const { return !has_ibuf(); }
   val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : static_cast<val_type>(tag >> 1); }
   void     require_ibuf()                const { if (!has_ibuf()) throw IBUF_REQUIRED_ERROR; }
   void     require_type(val_type_mask m) const { if (!(type() & m)) throw INVALID_TYPE_ERROR; }
@@ -1053,30 +1074,40 @@ struct val
 
 
   uint64_t len() const
-    { require_ibuf();
-      let x = b->u8(i);
-      if (x >= 0x48 && x <= 0x4f) return x - 0x48;
-      if (x >= 0x54 && x <= 0x5f) return b->u16(i + 1) >> 1;
-      if (x >= 0x64 && x <= 0x6f) return b->u32(i + 1) >> 2;
-      if (x >= 0x74 && x <= 0x7f) return b->u64(i + 1) >> 3;
-      switch (x)
+    { switch (tag)
       {
-      case 0x18: case 0x1c: return b->u8 (i + 1);
-      case 0x19: case 0x1d: return b->u16(i + 1);
-      case 0x1a: case 0x1e: return b->u32(i + 1);
-      case 0x1b: case 0x1f: return b->u64(i + 1);
+      case UTF8  << 1 | 1:
+      case BYTES << 1 | 1: return vb->size();
 
-      case 0x40: case 0x44: return b->u8 (i + 2);
-      case 0x41: case 0x45: return b->u16(i + 2);
-      case 0x42: case 0x46: return b->u32(i + 2);
-      case 0x43: case 0x47: return b->u64(i + 2);
+      case ARRAY << 1 | 1:
+      case TUPLE << 1 | 1: return vt->size();
 
-      case 0x50: return b->u16(i + 1) >> 1;
-      case 0x51: return b->u32(i + 1) >> 2;
-      case 0x52: return b->u64(i + 1) >> 3;
-      case 0x53: return 0;
+      default:
+      {
+        let x = b->u8(i);
+        if (x >= 0x48 && x <= 0x4f) return x - 0x48;
+        if (x >= 0x54 && x <= 0x5f) return b->u16(i + 1) >> 1;
+        if (x >= 0x64 && x <= 0x6f) return b->u32(i + 1) >> 2;
+        if (x >= 0x74 && x <= 0x7f) return b->u64(i + 1) >> 3;
+        switch (x)
+        {
+        case 0x18: case 0x1c: return b->u8 (i + 1);
+        case 0x19: case 0x1d: return b->u16(i + 1);
+        case 0x1a: case 0x1e: return b->u32(i + 1);
+        case 0x1b: case 0x1f: return b->u64(i + 1);
 
-      default: throw INVALID_TYPE_ERROR;
+        case 0x40: case 0x44: return b->u8 (i + 2);
+        case 0x41: case 0x45: return b->u16(i + 2);
+        case 0x42: case 0x46: return b->u32(i + 2);
+        case 0x43: case 0x47: return b->u64(i + 2);
+
+        case 0x50: return b->u16(i + 1) >> 1;
+        case 0x51: return b->u32(i + 1) >> 2;
+        case 0x52: return b->u64(i + 1) >> 3;
+        case 0x53: return 0;
+
+        default: throw INVALID_TYPE_ERROR;
+        } }
       } }
 
 
@@ -1132,7 +1163,7 @@ struct val
 
   operator sym() const
     { require_type(1ull << SYMBOL);
-      return has_ibuf() ? sym{b->u64(i + 1)} : vs; }
+      return has_ibuf() ? sym{b->u64(i + 1)} : vy; }
 
   operator pidfd() const
     { require_type(1ull << PIDFD);
@@ -1144,7 +1175,9 @@ struct val
 
   operator std::string() const
     { require_type(1ull << UTF8 | 1ull << BYTES);
-      return std::string(reinterpret_cast<char const*>(mbegin()), mlen()); }
+      return has_ibuf()
+        ? std::string(reinterpret_cast<char const*>(mbegin()), mlen())
+        : std::string(reinterpret_cast<char const*>(vb->begin(), vb->end())); }
 
 
   hash h() const
@@ -1188,6 +1221,8 @@ struct val
       case INDEX: return list().h();
 
       case BOGUS: throw NOT_HASHABLE_ERROR;
+
+      default: throw INVALID_TYPE_ERROR;
       } }
 
 
@@ -1243,6 +1278,8 @@ struct val
       case INDEX: return list().compare(v.list());
 
       case BOGUS: throw NOT_COMPARABLE_ERROR;
+
+      default: throw INVALID_TYPE_ERROR;
       } }
 
   bool operator< (val const &v) const { return this->compare(v) < 0; }
@@ -1312,15 +1349,15 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
 {
   switch (t.type())
   {
-  case UINT:    return s << "u" << t.vsize() * 8;
-  case INT:     return s << "i" << t.vsize() * 8;
+  case UINT:     return s << "u" << t.vsize() * 8;
+  case INT:      return s << "i" << t.vsize() * 8;
   case FLOAT32:
-  case FLOAT64: return s << "f" << t.vsize() * 8;
-  case SYMBOL:  return s << "s";
-  case PIDFD:   return s << "p";
+  case FLOAT64:  return s << "f" << t.vsize() * 8;
+  case SYMBOL:   return s << "s";
+  case PIDFD:    return s << "p";
 
-  case UTF8:    return s << "u[" << t.vsize() << "]";
-  case BYTES:   return s << "b[" << t.vsize() << "]";
+  case UTF8:     return s << "u[" << t.vsize() << "]";
+  case BYTES:    return s << "b[" << t.vsize() << "]";
   case TUPLE:
   { bool first = true;
     s << "(";
@@ -1360,6 +1397,7 @@ void utf9_init()
 }
 
 
+// FIXME: can we do this?
 template<> struct std::hash<tau::utf9::val>
 { uint64_t operator()(tau::utf9::val const &v) { return v.h(); } };
 
