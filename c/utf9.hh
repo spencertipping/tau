@@ -926,59 +926,74 @@ struct tval
 typedef std::basic_string_view<uint8_t> bytes;
 
 
+template<typename T>
+struct hash_proxy
+{
+  T v;
+  uint64_t h() const { return v.h(); }
+  operator T() const { return v; }
+};
+
+
+constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << 2 | (own ? 2 : 0) | 1; }
+constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> 2); }
+
+
 struct val
 {
+  // ibuf const * will be 8-byte aligned, so tags with the low bit set are
+  // type designators; see tagify() and tag_type() above.
   union
   { ibuf const * b;
     uint64_t     tag; } const;
 
   union
-  { uint64_t                      i;
-    uint64_t                      vu;
-    int64_t                       vi;
-    double                        vd;
-    float                         vf;
-    pidfd                         vp;
-    sym                           vy;
-    bytes const                  *vb;
-    std::vector<val>             *vt;
-    std::map<val, val>           *vom;
-    std::set<val>                *vos;
-    std::unordered_map<val, val> *vhm;
-    std::unordered_set<val>      *vhs; } const;
+  { uint64_t                                  i;
+    uint64_t                                  vu;
+    int64_t                                   vi;
+    double                                    vd;
+    float                                     vf;
+    pidfd                                     vp;
+    sym                                       vy;
+    bytes const                              *vb;
+    std::vector<val>                         *vt;
+    std::map<val, val>                       *vom;
+    std::set<val>                            *vos;
+    std::unordered_map<hash_proxy<val>, val> *vhm;
+    std::unordered_set<hash_proxy<val>>      *vhs; } const;
 
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
     { if (reinterpret_cast<uint64_t>(b) & 7) throw ALIGNMENT_ERROR;
       b->check(b->len(i)); }
 
-  val(uint64_t vu_)                : tag(UINT    << 1 | 1), vu(vu_) {}
-  val(int64_t vi_)                 : tag(INT     << 1 | 1), vi(vi_) {}
-  val(double vd_)                  : tag(FLOAT64 << 1 | 1), vd(vd_) {}
-  val(float vf_)                   : tag(FLOAT32 << 1 | 1), vf(vf_) {}
-  val(sym vy_)                     : tag(SYMBOL  << 1 | 1), vy(vy_) {}
-  val(pidfd vp_)                   : tag(PIDFD   << 1 | 1), vp(vp_) {}
+  val(uint64_t vu_)                : tag(tagify(UINT)),    vu(vu_) {}
+  val(int64_t vi_)                 : tag(tagify(INT)),     vi(vi_) {}
+  val(double vd_)                  : tag(tagify(FLOAT64)), vd(vd_) {}
+  val(float vf_)                   : tag(tagify(FLOAT32)), vf(vf_) {}
+  val(sym vy_)                     : tag(tagify(SYMBOL)),  vy(vy_) {}
+  val(pidfd vp_)                   : tag(tagify(PIDFD)),   vp(vp_) {}
 
   // TODO: immediate constructors from std::string, std::vector, etc
 
   val(tval t_, ibuf const &b, uint64_t i)
     { switch (t_.typecode())
       {
-      case 0x00: tag = UINT << 1 | 1; vu = b.u8 (i); break;
-      case 0x01: tag = UINT << 1 | 1; vu = b.u16(i); break;
-      case 0x02: tag = UINT << 1 | 1; vu = b.u32(i); break;
-      case 0x03: tag = UINT << 1 | 1; vu = b.u64(i); break;
+      case 0x00: tag = tagify(UINT); vu = b.u8 (i); break;
+      case 0x01: tag = tagify(UINT); vu = b.u16(i); break;
+      case 0x02: tag = tagify(UINT); vu = b.u32(i); break;
+      case 0x03: tag = tagify(UINT); vu = b.u64(i); break;
 
-      case 0x04: tag = INT  << 1 | 1; vi = b.i8 (i); break;
-      case 0x05: tag = INT  << 1 | 1; vi = b.i16(i); break;
-      case 0x06: tag = INT  << 1 | 1; vi = b.i32(i); break;
-      case 0x07: tag = INT  << 1 | 1; vi = b.i64(i); break;
+      case 0x04: tag = tagify(INT); vi = b.i8 (i); break;
+      case 0x05: tag = tagify(INT); vi = b.i16(i); break;
+      case 0x06: tag = tagify(INT); vi = b.i32(i); break;
+      case 0x07: tag = tagify(INT); vi = b.i64(i); break;
 
-      case 0x08: tag = FLOAT32 << 1 | 1; vf = b.f32(i); break;
-      case 0x09: tag = FLOAT64 << 1 | 1; vd = b.f64(i); break;
+      case 0x08: tag = tagify(FLOAT32); vf = b.f32(i); break;
+      case 0x09: tag = tagify(FLOAT64); vd = b.f64(i); break;
 
-      case 0x0a: tag = SYMBOL  << 1 | 1; vy = sym{b.u64(i)}; break;
-      case 0x0b: tag = PIDFD   << 1 | 1; vp = pidfd{b.u32(i), b.u32(i + 4)}; break;
+      case 0x0a: tag = tagify(SYMBOL); vy = sym{b.u64(i)}; break;
+      case 0x0b: tag = tagify(PIDFD);  vp = pidfd{b.u32(i), b.u32(i + 4)}; break;
 
       case 0x20: case 0x21: case 0x22: case 0x23:
       case 0x24: case 0x25: case 0x26: case 0x27:
@@ -987,7 +1002,7 @@ struct val
       case 0x18:
       case 0x19:
       case 0x1a:
-      case 0x1b: tag = UTF8 << 1 | 1; vb = new bytes(b + i, t_.vsize()); break;
+      case 0x1b: tag = tagify(UTF8, true); vb = new bytes(b + i, t_.vsize()); break;
 
       case 0x30: case 0x31: case 0x32: case 0x33:
       case 0x34: case 0x35: case 0x36: case 0x37:
@@ -996,7 +1011,7 @@ struct val
       case 0x1c:
       case 0x1d:
       case 0x1e:
-      case 0x1f: tag = BYTES << 1 | 1; vb = new bytes(b + i, t_.vsize()); break;
+      case 0x1f: tag = tagify(BYTES, true); vb = new bytes(b + i, t_.vsize()); break;
 
       case 0x48: case 0x49: case 0x4a: case 0x4b:
       case 0x4c: case 0x4d: case 0x4e: case 0x4f:
@@ -1004,9 +1019,9 @@ struct val
       case 0x41:
       case 0x42:
       case 0x43:
-        tag = TUPLE << 1 | 1;
+        tag = tagify(TUPLE, true);
         vt = new std::vector<val>;
-        for (tval const &t : t_)
+        for (let &t : t_)
         { vt->push_back(val(t, b, i));
           i += t.vsize(); }
         break;
@@ -1015,7 +1030,7 @@ struct val
       case 0x45:
       case 0x46:
       case 0x47:
-        tag = ARRAY << 1 | 1;
+        tag = tagify(ARRAY, true);
         vt = new std::vector<val>;
         for (uint64_t j = 0; j < t_.len(); j++)
         { vt->push_back(val(t_.atype(), b, i));
@@ -1029,19 +1044,19 @@ struct val
   ~val()
     { switch (tag)
       {
-      case UTF8  << 1 | 1: case BYTES << 1 | 1: delete vb; break;
-      case TUPLE << 1 | 1: case ARRAY << 1 | 1: delete vt; break;
+      case tagify(UTF8,  true): case tagify(BYTES, true): delete vb; break;
+      case tagify(TUPLE, true): case tagify(ARRAY, true): delete vt; break;
 
-      case IHASHSET << 1 | 1: delete vhs; break;
-      case IORDSET  << 1 | 1: delete vos; break;
-      case IHASHMAP << 1 | 1: delete vhm; break;
-      case IORDMAP  << 1 | 1: delete vom; break;
+      case tagify(IHASHSET, true): delete vhs; break;
+      case tagify(IORDSET,  true): delete vos; break;
+      case tagify(IHASHMAP, true): delete vhm; break;
+      case tagify(IORDMAP,  true): delete vom; break;
       } }
 
 
   bool     has_ibuf()                    const { return !(tag & 1); }
   bool     is_immediate()                const { return !has_ibuf(); }
-  val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : static_cast<val_type>(tag >> 1); }
+  val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : tag_type(tag); }
   void     require_ibuf()                const { if (!has_ibuf()) throw IBUF_REQUIRED_ERROR; }
   void     require_type(val_type_mask m) const { if (!(type() & m)) throw INVALID_TYPE_ERROR; }
 
@@ -1076,11 +1091,11 @@ struct val
   uint64_t len() const
     { switch (tag)
       {
-      case UTF8  << 1 | 1:
-      case BYTES << 1 | 1: return vb->size();
+      case tagify(UTF8,  true):
+      case tagify(BYTES, true): return vb->size();
 
-      case ARRAY << 1 | 1:
-      case TUPLE << 1 | 1: return vt->size();
+      case tagify(ARRAY, true):
+      case tagify(TUPLE, true): return vt->size();
 
       default:
       {
@@ -1277,6 +1292,17 @@ struct val
 
       case INDEX: return list().compare(v.list());
 
+        // TODO: these need to be ordered in the same way the ibuf-backed
+        // vals would be, so there is no change based on whether the value
+        // is staged.
+        //
+        // TODO: does this violate immutable-val semantics? Should we not
+        // have immediates?
+      case IHASHSET:
+      case IORDSET:
+      case IHASHMAP:
+      case IORDMAP:  throw NOT_COMPARABLE_ERROR;
+
       case BOGUS: throw NOT_COMPARABLE_ERROR;
 
       default: throw INVALID_TYPE_ERROR;
@@ -1397,7 +1423,6 @@ void utf9_init()
 }
 
 
-// FIXME: can we do this?
 template<> struct std::hash<tau::utf9::val>
 { uint64_t operator()(tau::utf9::val const &v) { return v.h(); } };
 
