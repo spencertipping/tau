@@ -943,6 +943,7 @@ struct val
 {
   // ibuf const * will be 8-byte aligned, so tags with the low bit set are
   // type designators; see tagify() and tag_type() above.
+  // TODO: use top 50-something bits of tag to cache hash prefix
   union
   { ibuf const * b;
     uint64_t     tag; } const;
