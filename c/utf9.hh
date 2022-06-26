@@ -1195,6 +1195,7 @@ struct val
         : std::string(reinterpret_cast<char const*>(vb->begin(), vb->end())); }
 
 
+  // TODO: align this with documented spec
   hash h() const
     { let t = type();
       switch (t)
@@ -1241,6 +1242,7 @@ struct val
       } }
 
 
+  // TODO: align this with documented spec
   int compare(val const &v) const
     { let t1 =   type();
       let t2 = v.type();

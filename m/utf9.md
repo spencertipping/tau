@@ -215,6 +215,14 @@ Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They
 `ord*` indexes need not be present in the original collection; the purpose is to provide interpolation points against the query space.
 
 
+## Ordering
+Most values have an instrinsic total ordering. **TODO:** describe ordering strategy
+
+
+## Hashing
+Most values are hashable. **TODO:** define hash strategy
+
+
 ## Transit spec
 A lightweight framing protocol that wraps one or more values over non-persistent connections, e.g. pipes or networks. There is no integrity verification or alignment.
 
