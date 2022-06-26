@@ -986,31 +986,25 @@ struct val
       case 0x41:
       case 0x42:
       case 0x43:
-      {
-        tag = TUPLE << 1 | 1;
+      { tag = TUPLE << 1 | 1;
         let vs = new std::vector<val>;
         for (tval const &t : t_)
-        {
-          vs->push_back(val(t, b, i));
-          i += t.vsize();
-        }
+        { vs->push_back(val(t, b, i));
+          i += t.vsize(); }
         vt = vs;
-      }
+        break; }
 
       case 0x44:
       case 0x45:
       case 0x46:
       case 0x47:
-      {
-        tag = ARRAY << 1 | 1;
+      { tag = ARRAY << 1 | 1;
         let vs = new std::vector<val>;
         for (uint64_t j = 0; j < t_.len(); j++)
-        {
-          vs->push_back(val(t_.atype(), b, i));
-          i += t_.atype().vsize();
-        }
+        { vs->push_back(val(t_.atype(), b, i));
+          i += t_.atype().vsize(); }
         vt = vs;
-      }
+        break; }
 
       default: throw INVALID_TYPE_ERROR;
       }
@@ -1018,9 +1012,11 @@ struct val
 
 
   ~val()
-    { if (has_ibuf()) return;
-      if (1ull << (tag >> 1) & (1ull << UTF8  | 1ull << BYTES)) delete vb;
-      if (1ull << (tag >> 1) & (1ull << TUPLE | 1ull << ARRAY)) delete vt; }
+    { switch (tag)
+      {
+      case UTF8  << 1 | 1: case BYTES << 1 | 1: delete vb; break;
+      case TUPLE << 1 | 1: case ARRAY << 1 | 1: delete vt; break;
+      } }
 
 
   bool     has_ibuf()                    const { return !(tag & 1); }
@@ -1041,6 +1037,7 @@ struct val
   uint64_t       msize()  const { require_ibuf(); return b->len(i); }
 
 
+  // TODO: this needs to be polymorphic to handle immediate vals
   struct it
   {
     ibuf const * const b;
@@ -1333,7 +1330,7 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
       s << v; }
     return s << ")"; }
 
-  case ARRAY: return s << t.atype() << "[" << t.alen() << "]";
+  case ARRAY: return s << t.atype() << "[" << t.len() << "]";
 
   default: throw INVALID_TYPECODE_ERROR;
   }
