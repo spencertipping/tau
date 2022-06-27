@@ -1039,7 +1039,7 @@ struct val
   bool     is_immediate()                const { return !has_ibuf(); }
   val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : tag_type(tag); }
   void     require_ibuf()                const { if (!has_ibuf()) throw IBUF_REQUIRED_ERROR; }
-  void     require_type(val_type_mask m) const { if (!(type() & m)) throw INVALID_TYPE_ERROR; }
+  void     require_type(val_type_mask m) const { if (!(1ull << type() & m)) throw INVALID_TYPE_ERROR; }
 
 
   val list() const
