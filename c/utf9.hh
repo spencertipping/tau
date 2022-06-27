@@ -87,6 +87,13 @@ inline float ce(float const x)
 }
 
 
+constexpr inline uint64_t xxh(void const * x, size_t l, uint64_t s)
+{ return XXH64(x, l, s); }
+
+constexpr inline uint64_t xxc(uint64_t a, uint64_t b)
+{ a = ce(a); return XXH64(&a, sizeof(a), b); }
+
+
 namespace  // Dispatch table compression
 {
 
@@ -948,6 +955,8 @@ struct val
   { ibuf const * b;
     uint64_t     tag; } const;
 
+  // TODO: probably get rid of immediate maps + sets; we should rely on utf9
+  // indexing rather than introduce mutable immediates
   union
   { uint64_t                                  i;
     uint64_t                                  vu;

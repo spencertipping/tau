@@ -216,11 +216,77 @@ Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They
 
 
 ## Ordering
-Most values have an instrinsic total ordering. **TODO:** describe ordering strategy
+Most values have an instrinsic total ordering. This is used in any context where values will be sorted, which includes locally for in-memory maps/sets and more broadly for streaming files of values.
+
+The ordering function `O(x, y)` first sorts values by type, then falls back to a type-dependent value comparison. It's defined like this:
+
+```
+O(x, y) =
+  O(next(x), y) if x is index
+  O(x, next(y)) if y is index
+  O(type(x), type(y)) || O<type(x)>(x, y)
+
+O<uint>   (x, y) = x <=> y
+O<int>    (x, y) = x <=> y
+O<float32>(x, y) = x <=> y
+O<float64>(x, y) = x <=> y
+O<symbol> (x, y) = hash(x) <=> hash(y)
+O<pidfd>  (x, y) = x.pid <=> y.pid || x.fd <=> y.fd
+O<bool>   (x, y) = (false < true)
+
+O<null>(x, y) = 0
+O<α>   (x, y) = 0
+O<ω>   (x, y) = 0
+O<κ>   (x, y) = 0
+O<ι>   (x, y) = 0
+O<τ>   (x, y) = 0
+O<ρ>   (x, y) = x.ρ <=> y.ρ
+O<θ>   (x, y) = x.θ <=> y.θ
+
+O<utf8> (x, y) = memcmp(x[0..min], y[0..min]) || x.length <=> y.length
+O<bytes>(x, y) = memcmp(x[0..min], y[0..min]) || x.length <=> y.length
+O<array>(x, y) = O(x.atype, y.atype) || memcmp(x[0..min], y[0..min]) || x.length <=> y.length
+O<tuple>(x, y) = x[0] <=> y[0] || O<tuple>(x[1..], y[1..]) || x.length <=> y.length
+```
+
+Types follow bytecodes and are listed here in ascending order:
+
+```
+UINT
+INT
+FLOAT32
+FLOAT64
+SYMBOL
+PIDFD
+BOOL
+NULLTYPE
+ALPHA
+OMEGA
+IOTA
+KAPPA
+TAU
+RHO
+THETA
+UTF8
+BYTES
+TUPLE
+ARRAY
+```
 
 
 ## Hashing
-Most values are hashable. **TODO:** define hash strategy
+Most values are hashable, which like ordering is used for keying within collections and streams. Like ordering, hashing is stable across platforms, architectures, and degrees of semantic freedom within `utf9`.
+
+`utf9` hashing is defined in terms of [xxhash](https://cyan4973.github.io/xxHash/), from which we have two functions:
+
+```cpp
+uint64_t xxh(void*, size_t, uint64_t seed) = XXH64;
+uint64_t xxc(uint64_t a, uint64_t b) { uint8_t bea[8] = big_endian(a); return XXH64(&bea, sizeof(bea), b); }
+```
+
+The hash function `H(x)` is defined like this:
+
+**TODO**
 
 
 ## Transit spec
