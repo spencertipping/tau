@@ -925,6 +925,8 @@ struct tval
 typedef std::basic_string_view<uint8_t> bytes;
 
 
+// Tagging bit schema:
+// type:8 | owned:1 | immediate:1
 constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << 2 | (own ? 2 : 0) | 1; }
 constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> 2); }
 
@@ -1054,7 +1056,7 @@ struct val
   uint64_t       msize()  const { require_ibuf(); return b->len(i); }
 
 
-  // TODO: this needs to be polymorphic to handle immediate vals
+  // TODO: this needs to be polymorphic to handle immediate vals and arrays
   struct it
   {
     ibuf const * const b;
