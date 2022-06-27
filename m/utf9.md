@@ -216,16 +216,13 @@ Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They
 
 
 ## Ordering
-Most values have an instrinsic total ordering. This is used in any context where values will be sorted, which includes locally for in-memory maps/sets and more broadly for streaming files of values.
+Some values have a total ordering defined for them. This is used in any context where values will be sorted, which includes locally for in-memory maps/sets and more broadly for streaming files of values.
 
-The ordering function `O(x, y)` first sorts values by type, then falls back to a type-dependent value comparison. It's defined like this:
+**NOTE:** indexed collections cannot be compared, even for equality (τ draws no distinction between ordering and equality-checking). This means order-sensitive keys need to be simple.
+
+The ordering function `O(x, y)` is defined for each type of value separately. Values of different types cannot be compared to one another.
 
 ```
-O(x, y) =
-  O(next(x), y) if x is index
-  O(x, next(y)) if y is index
-  O(type(x), type(y)) || O<type(x)>(x, y)
-
 O<uint>   (x, y) = x <=> y
 O<int>    (x, y) = x <=> y
 O<float32>(x, y) = x <=> y
@@ -249,33 +246,9 @@ O<array>(x, y) = O(x.atype, y.atype) || memcmp(x[0..min], y[0..min]) || x.length
 O<tuple>(x, y) = x[0] <=> y[0] || O<tuple>(x[1..], y[1..]) || x.length <=> y.length
 ```
 
-Types follow bytecodes and are listed here in ascending order:
-
-```
-UINT
-INT
-FLOAT32
-FLOAT64
-SYMBOL
-PIDFD
-BOOL
-NULLTYPE
-ALPHA
-OMEGA
-IOTA
-KAPPA
-TAU
-RHO
-THETA
-UTF8
-BYTES
-TUPLE
-ARRAY
-```
-
 
 ## Hashing
-Most values are hashable, which like ordering is used for keying within collections and streams. Like ordering, hashing is stable across platforms, architectures, and degrees of semantic freedom within `utf9`.
+Some values can be hashed. Like ordering, hashing is stable across platforms, architectures, and degrees of semantic freedom within `utf9`.
 
 `utf9` hashing is defined in terms of [xxhash](https://cyan4973.github.io/xxHash/), from which we have two functions:
 
@@ -286,7 +259,32 @@ uint64_t xxc(uint64_t a, uint64_t b) { uint8_t bea[8] = big_endian(a); return XX
 
 The hash function `H(x)` is defined like this:
 
-**TODO**
+```
+H<uint>   (x) = xxc(x, 0x00)
+H<int>    (x) = xxc(x, 0x04)
+H<float32>(x) = xxh(big_endian(x), 4, 0x08)
+H<float64>(x) = xxh(big_endian(x), 8, 0x09)
+H<symbol> (x) = xxh(x.text, x.length, 0x0a)
+H<pidfd>  (x) = xxc(xxc(x.pid, x.fd), 0x0b)
+H<bool>   (x) = xxc(NULL, 0, x ? 0x0d : 0x0c)
+H<null>   (x) = xxh(NULL, 0, 0x0e)
+
+H<alpha>  (x) = xxh(NULL, 0, 0x10)
+H<omega>  (x) = xxh(NULL, 0, 0x11)
+H<iota>   (x) = xxh(NULL, 0, 0x12)
+H<kappa>  (x) = xxh(NULL, 0, 0x13)
+H<tau>    (x) = xxh(NULL, 0, 0x14)
+H<rho>    (x) = xxc(x, 0x15)
+H<theta>  (x) = xxc(x, 0x16)
+
+H<utf8>   (x) = xxh(x.data, x.length, 0x18)
+H<bytes>  (x) = xxh(x.data, x.length, 0x1c)
+
+H<tuple>  (xs) = let hs = big_endian(H(x)) | x ∈ xs
+                 xxh(hs, sizeof(hs), 0x20)
+
+H<array>  (xs) = xxh(&xs.data, sizeof(xs.data), 0x24)
+```
 
 
 ## Transit spec

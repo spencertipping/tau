@@ -8,13 +8,9 @@
 #include <exception>
 #include <functional>
 #include <iostream>
-#include <map>
 #include <random>
-#include <set>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 #include <byteswap.h>
@@ -44,6 +40,8 @@ enum error : uint8_t
   BOUNDS_ERROR,
   IBUF_REQUIRED_ERROR,
   INVALID_TYPE_ERROR,
+  COMPARE_ACROSS_TYPE_ERROR,
+  COMPARE_ACROSS_ARRAY_TYPE_ERROR,
   NOT_COMPARABLE_ERROR,
   NOT_HASHABLE_ERROR,
 
@@ -87,10 +85,10 @@ inline float ce(float const x)
 }
 
 
-constexpr inline uint64_t xxh(void const * x, size_t l, uint64_t s)
+inline uint64_t xxh(void const * x, size_t l, uint64_t s)
 { return XXH64(x, l, s); }
 
-constexpr inline uint64_t xxc(uint64_t a, uint64_t b)
+inline uint64_t xxc(uint64_t a, uint64_t b)
 { a = ce(a); return XXH64(&a, sizeof(a), b); }
 
 
@@ -552,7 +550,7 @@ enum val_type : uint8_t
   SYMBOL   = 0x0a,
   PIDFD    = 0x0b,
   BOOL     = 0x0c,
-  NULLTYPE = 0x0d,
+  NULLTYPE = 0x0e,
 
   ALPHA    = 0x10,
   OMEGA    = 0x11,
@@ -568,11 +566,6 @@ enum val_type : uint8_t
   TUPLE    = 0x20,
   ARRAY    = 0x24,
   INDEX    = 0x30,
-
-  IHASHSET = 0x31,  // immediate collection types
-  IORDSET  = 0x32,
-  IHASHMAP = 0x33,
-  IORDMAP  = 0x34,
 
   BOGUS    = 0x3f,
 };
@@ -814,10 +807,8 @@ void init_sfn_tables()
 struct sym
 {
   uint64_t h;
-
   sym(std::string const &s) : h(std::hash<std::string>{}(s)) {}
   sym(uint64_t h_)          : h(h_)                          {}
-
   operator uint64_t() const { return h; }
 };
 
@@ -826,7 +817,6 @@ struct hash
 {
   uint64_t h;
   hash(uint64_t h_) : h(h_) {}
-
   operator uint64_t() const { return h; }
 };
 
@@ -835,6 +825,8 @@ struct pidfd
 {
   uint32_t pid;
   uint32_t fd;
+
+  pidfd(uint32_t pid_, uint32_t fd_) : pid(pid_), fd(fd_) {}
 
   operator uint64_t() const { return (uint64_t) pid << 32 | fd; }
 
@@ -926,20 +918,11 @@ struct tval
       return n1 > n2 ? 1 : n1 < n2 ? -1 : std::__memcmp(*b + i, *t.b + t.i, n1); }
 
 
-  uint64_t h() const { return XXH64(b + i, e - i, 1); }
+  uint64_t h() const { return xxh(b + i, e - i, 1); }
 };
 
 
 typedef std::basic_string_view<uint8_t> bytes;
-
-
-template<typename T>
-struct hash_proxy
-{
-  T v;
-  uint64_t h() const { return v.h(); }
-  operator T() const { return v; }
-};
 
 
 constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << 2 | (own ? 2 : 0) | 1; }
@@ -950,39 +933,32 @@ struct val
 {
   // ibuf const * will be 8-byte aligned, so tags with the low bit set are
   // type designators; see tagify() and tag_type() above.
-  // TODO: use top 50-something bits of tag to cache hash prefix
   union
   { ibuf const * b;
     uint64_t     tag; } const;
 
-  // TODO: probably get rid of immediate maps + sets; we should rely on utf9
-  // indexing rather than introduce mutable immediates
   union
-  { uint64_t                                  i;
-    uint64_t                                  vu;
-    int64_t                                   vi;
-    double                                    vd;
-    float                                     vf;
-    pidfd                                     vp;
-    sym                                       vy;
-    bytes const                              *vb;
-    std::vector<val>                         *vt;
-    std::map<val, val>                       *vom;
-    std::set<val>                            *vos;
-    std::unordered_map<hash_proxy<val>, val> *vhm;
-    std::unordered_set<hash_proxy<val>>      *vhs; } const;
+  { uint64_t          i;
+    uint64_t          vu;
+    int64_t           vi;
+    double            vd;
+    float             vf;
+    pidfd             vp;
+    sym               vy;
+    bytes const      *vb;
+    std::vector<val> *vt; } const;
 
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
     { if (reinterpret_cast<uint64_t>(b) & 7) throw ALIGNMENT_ERROR;
       b->check(b->len(i)); }
 
-  val(uint64_t vu_)                : tag(tagify(UINT)),    vu(vu_) {}
-  val(int64_t vi_)                 : tag(tagify(INT)),     vi(vi_) {}
-  val(double vd_)                  : tag(tagify(FLOAT64)), vd(vd_) {}
-  val(float vf_)                   : tag(tagify(FLOAT32)), vf(vf_) {}
-  val(sym vy_)                     : tag(tagify(SYMBOL)),  vy(vy_) {}
-  val(pidfd vp_)                   : tag(tagify(PIDFD)),   vp(vp_) {}
+  val(uint64_t vu_) : tag(tagify(UINT)),    vu(vu_) {}
+  val(int64_t vi_)  : tag(tagify(INT)),     vi(vi_) {}
+  val(double vd_)   : tag(tagify(FLOAT64)), vd(vd_) {}
+  val(float vf_)    : tag(tagify(FLOAT32)), vf(vf_) {}
+  val(sym vy_)      : tag(tagify(SYMBOL)),  vy(vy_) {}
+  val(pidfd vp_)    : tag(tagify(PIDFD)),   vp(vp_) {}
 
   // TODO: immediate constructors from std::string, std::vector, etc
 
@@ -1056,11 +1032,6 @@ struct val
       {
       case tagify(UTF8,  true): case tagify(BYTES, true): delete vb; break;
       case tagify(TUPLE, true): case tagify(ARRAY, true): delete vt; break;
-
-      case tagify(IHASHSET, true): delete vhs; break;
-      case tagify(IORDSET,  true): delete vos; break;
-      case tagify(IHASHMAP, true): delete vhm; break;
-      case tagify(IORDMAP,  true): delete vom; break;
       } }
 
 
@@ -1136,6 +1107,9 @@ struct val
       } }
 
 
+  uint64_t astride()        const { return atype().vsize(); }
+  uint64_t asub(uint64_t i) const { return mbegin() + astride() * i - b->xs; }
+
   tval atype() const
     { require_ibuf();
       require_type(1ull << ARRAY);
@@ -1205,7 +1179,6 @@ struct val
         : std::string(reinterpret_cast<char const*>(vb->begin(), vb->end())); }
 
 
-  // TODO: align this with documented spec
   hash h() const
     { let t = type();
       switch (t)
@@ -1213,50 +1186,52 @@ struct val
 
 #define ht(ct)                                                          \
         { let x = ce(static_cast<uint64_t>(static_cast<ct>(*this)));    \
-          return XXH64(&x, sizeof(x), t); }
+          return xxh(&x, sizeof(x), t); }
 
       case RHO:
       case THETA:
       case UINT:    ht(uint64_t)
       case INT:     ht(int64_t)
-      case FLOAT64: ht(double)
-      case FLOAT32: ht(float)
       case SYMBOL:  ht(sym)
       case PIDFD:   ht(pidfd)
-      case BOOL:    ht(bool)
 
 #undef ht
+
+      case FLOAT64:
+      { let x = ce(static_cast<double>(*this));
+        return xxh(&x, sizeof(x), t); }
+
+      case FLOAT32:
+      { let x = ce(static_cast<float>(*this));
+        return xxh(&x, sizeof(x), t); }
+
+      case BOOL: return xxh(NULL, 0, static_cast<bool>(*this) ? 0x0d : 0x0c);
 
       case NULLTYPE:
       case TAU:
       case ALPHA:
       case OMEGA:
       case IOTA:
-      case KAPPA: return XXH64(NULL, 0, t);
+      case KAPPA: return xxh(NULL, 0, t);
 
       case ARRAY:
       case UTF8:
-      case BYTES: return XXH64(mbegin(), mend() - mbegin(), t);
+      case BYTES: return xxh(mbegin(), mend() - mbegin(), t);
 
       case TUPLE:
       { uint64_t hs[len()];
         uint64_t i = 0;
         for (let &v : *this) hs[i++] = ce(v.h().h);
-        return XXH64(hs, sizeof(hs), t); }
+        return xxh(hs, sizeof(hs), t); }
 
-      case INDEX: return list().h();
-
-      case BOGUS: throw NOT_HASHABLE_ERROR;
-
-      default: throw INVALID_TYPE_ERROR;
+      default: throw NOT_HASHABLE_ERROR;
       } }
 
 
-  // TODO: align this with documented spec
   int compare(val const &v) const
     { let t1 =   type();
       let t2 = v.type();
-      if (t1 != t2) return (int) t1 - (int) t2;
+      if (t1 != t2) throw COMPARE_ACROSS_TYPE_ERROR;
       switch (t1)
       {
 
@@ -1287,7 +1262,7 @@ struct val
       case UTF8:
       case BYTES:
       case ARRAY:
-      { if (let tc = atype().compare(v.atype())) return tc;
+      { if (let tc = atype().compare(v.atype())) throw COMPARE_ACROSS_ARRAY_TYPE_ERROR;
         let n1 =   mend() -   mbegin();
         let n2 = v.mend() - v.mbegin();
         if (let c = std::__memcmp(mbegin(), v.mbegin(), std::min(n1, n2))) return c;
@@ -1302,22 +1277,7 @@ struct val
           if (let c = (*i1).compare(*i2)) return c;
         return m1 ? 1 : m2 ? -1 : 0; }
 
-      case INDEX: return list().compare(v.list());
-
-        // TODO: these need to be ordered in the same way the ibuf-backed
-        // vals would be, so there is no change based on whether the value
-        // is staged.
-        //
-        // TODO: does this violate immutable-val semantics? Should we not
-        // have immediates?
-      case IHASHSET:
-      case IORDSET:
-      case IHASHMAP:
-      case IORDMAP:  throw NOT_COMPARABLE_ERROR;
-
-      case BOGUS: throw NOT_COMPARABLE_ERROR;
-
-      default: throw INVALID_TYPE_ERROR;
+      default: throw NOT_COMPARABLE_ERROR;
       } }
 
   bool operator< (val const &v) const { return this->compare(v) < 0; }
@@ -1369,17 +1329,21 @@ std::ostream &operator<<(std::ostream &s, error e)
 {
   switch (e)
   {
-  case BOUNDS_ERROR:           return s << "bounds error";
-  case IBUF_REQUIRED_ERROR:    return s << "ibuf required error";
-  case INVALID_TYPE_ERROR:     return s << "invalid type error";
-  case NOT_COMPARABLE_ERROR:   return s << "not comparable error";
-  case NOT_HASHABLE_ERROR:     return s << "not hashable error";
-  case BOGUS_PF_ERROR:         return s << "bogus pf error";
-  case BOGUS_LF_ERROR:         return s << "bogus lf error";
-  case INVALID_BYTECODE_ERROR: return s << "invalid bytecode error";
-  case INVALID_TYPECODE_ERROR: return s << "invalid typecode error";
-  case INTERNAL_ERROR:         return s << "internal error";
-  default:                     return s << "??? " << static_cast<int>(e);
+  case ALIGNMENT_ERROR:                 return s << "alignment error";
+  case BOUNDS_ERROR:                    return s << "bounds error";
+  case IBUF_REQUIRED_ERROR:             return s << "ibuf required error";
+  case INVALID_TYPE_ERROR:              return s << "invalid type error";
+  case COMPARE_ACROSS_TYPE_ERROR:       return s << "compare across type error";
+  case COMPARE_ACROSS_ARRAY_TYPE_ERROR: return s << "compare across array type error";
+  case NOT_COMPARABLE_ERROR:            return s << "not comparable error";
+  case NOT_HASHABLE_ERROR:              return s << "not hashable error";
+  case SIGNED_COERCION_ERROR:           return s << "signed coercion error";
+  case BOGUS_PF_ERROR:                  return s << "bogus pf error";
+  case BOGUS_LF_ERROR:                  return s << "bogus lf error";
+  case INVALID_BYTECODE_ERROR:          return s << "invalid bytecode error";
+  case INVALID_TYPECODE_ERROR:          return s << "invalid typecode error";
+  case INTERNAL_ERROR:                  return s << "internal error";
+  default:                              return s << "??? " << static_cast<int>(e);
   }
 }
 
@@ -1420,7 +1384,8 @@ std::ostream &operator<<(std::ostream &s, val const &t)
 
 
 // TODO: what kind of dispatch structure do we want for the val
-// operation space?
+// operation space? Probably an external table of short names, each
+// a (val, val) -> val function.
 
 
 void utf9_init()
