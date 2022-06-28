@@ -966,8 +966,8 @@ struct val
 
   val(std::vector<val> *vt_) : tag(tagify(TUPLE, true)), vt(vt_) {}
 
-  val(std::string &s)
-    : tag(tagify(UTF8, true)),
+  val(std::string &s, val_type t_ = UTF8)
+    : tag(tagify(t_, true)),
       vb(reinterpret_cast<std::basic_string_view<uint8_t>*>(
            new std::string_view(s.begin(), s.end())))
     {}
@@ -1040,11 +1040,12 @@ struct val
 
 
   ~val()
-    { switch (tag)
-      {
-      case tagify(UTF8,  true): case tagify(BYTES, true): delete vb; break;
-      case tagify(TUPLE, true): case tagify(ARRAY, true): delete vt; break;
-      } }
+    { if (tag & 2)  // value is a pointer we must free
+        switch (tag)
+        {
+        case tagify(UTF8,  true): case tagify(BYTES, true): delete vb; break;
+        case tagify(TUPLE, true): case tagify(ARRAY, true): delete vt; break;
+        } }
 
 
   bool     has_ibuf()                    const { return !(tag & 1); }
