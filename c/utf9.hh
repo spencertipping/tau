@@ -1000,7 +1000,7 @@ struct val
       case 0x18:
       case 0x19:
       case 0x1a:
-      case 0x1b: tag = tagify(UTF8, true); vb = new bytes(b + i, t_.vsize()); break;
+      case 0x1b: tag = tagify(UTF8, true); vb = new std::basic_string_view<uint8_t>(b + i, t_.vsize()); break;
 
       case 0x30: case 0x31: case 0x32: case 0x33:
       case 0x34: case 0x35: case 0x36: case 0x37:
@@ -1009,7 +1009,7 @@ struct val
       case 0x1c:
       case 0x1d:
       case 0x1e:
-      case 0x1f: tag = tagify(BYTES, true); vb = new bytes(b + i, t_.vsize()); break;
+      case 0x1f: tag = tagify(BYTES, true); vb = new std::basic_string_view<uint8_t>(b + i, t_.vsize()); break;
 
       case 0x48: case 0x49: case 0x4a: case 0x4b:
       case 0x4c: case 0x4d: case 0x4e: case 0x4f:
