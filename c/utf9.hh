@@ -11,6 +11,7 @@
 #include <random>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include <byteswap.h>
@@ -922,15 +923,16 @@ struct tval
 };
 
 
-typedef std::basic_string_view<uint8_t> bytes;
-
-
 // Tagging bit schema:
 // type:8 | owned:1 | immediate:1
 constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << 2 | (own ? 2 : 0) | 1; }
 constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> 2); }
 
 
+// utf9 value
+// Instances of this fit into two machine words on 64-bit machines.
+// As a result, we can pass them around by-value with no appreciable
+// overhead (although we unfortunately have a destructor to consider).
 struct val
 {
   // ibuf const * will be 8-byte aligned, so tags with the low bit set are
@@ -940,15 +942,15 @@ struct val
     uint64_t     tag; } const;
 
   union
-  { uint64_t          i;
-    uint64_t          vu;
-    int64_t           vi;
-    double            vd;
-    float             vf;
-    pidfd             vp;
-    sym               vy;
-    bytes const      *vb;
-    std::vector<val> *vt; } const;
+  { uint64_t                               i;
+    uint64_t                               vu;
+    int64_t                                vi;
+    double                                 vd;
+    float                                  vf;
+    pidfd                                  vp;
+    sym                                    vy;
+    std::basic_string_view<uint8_t> const *vb;
+    std::vector<val>                      *vt; } const;
 
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
@@ -961,6 +963,14 @@ struct val
   val(float vf_)    : tag(tagify(FLOAT32)), vf(vf_) {}
   val(sym vy_)      : tag(tagify(SYMBOL)),  vy(vy_) {}
   val(pidfd vp_)    : tag(tagify(PIDFD)),   vp(vp_) {}
+
+  val(std::vector<val> *vt_) : tag(tagify(TUPLE, true)), vt(vt_) {}
+
+  val(std::string &s)
+    : tag(tagify(UTF8, true)),
+      vb(reinterpret_cast<std::basic_string_view<uint8_t>*>(
+           new std::string_view(s.begin(), s.end())))
+    {}
 
   // TODO: immediate constructors from std::string, std::vector, etc
 
