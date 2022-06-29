@@ -113,6 +113,39 @@ void pack_table(uint64_t const *       t,
 }
 
 
+enum val_type : uint8_t
+{
+  UINT     = 0x00,
+  INT      = 0x04,
+  FLOAT32  = 0x08,
+  FLOAT64  = 0x09,
+  SYMBOL   = 0x0a,
+  PIDFD    = 0x0b,
+  BOOL     = 0x0c,
+  NULLTYPE = 0x0e,
+
+  ALPHA    = 0x10,
+  OMEGA    = 0x11,
+  IOTA     = 0x12,
+  KAPPA    = 0x13,
+  TAU      = 0x14,
+  RHO      = 0x15,
+  THETA    = 0x16,
+
+  UTF8     = 0x18,
+  BYTES    = 0x1c,
+
+  TUPLE    = 0x20,
+  ARRAY    = 0x24,
+  INDEX    = 0x30,
+
+  BOGUS    = 0x3f,
+};
+
+typedef uint64_t val_type_mask;
+
+
+// A fully-buffered input reader with helpers to parse bytecodes.
 struct ibuf
 {
   uint8_t const * const xs;
@@ -158,16 +191,24 @@ struct ibuf
 };
 
 
-// TODO: have this write to an ostream, not a vector
-template<typename A = std::allocator<uint8_t>>
-struct obuf : public std::vector<uint8_t, A>
+// A streaming writer with helpers to emit pieces of bytecodes as values are
+// being serialized to an underlying output stream.
+//
+// TODO: why is this called obuf?
+struct obuf
 {
-  obuf &u8 (uint8_t  x) { this->push_back(x); return *this; }
+  std::basic_ostream<uint8_t> &o;
+
+  ~obuf() { o.flush(); }
+
+  obuf &u8 (uint8_t  x) { o.put(x); return *this; }
   obuf &u16(uint16_t x) { u8 (x >> 8);  return u8 (x & 0xff); }
   obuf &u32(uint32_t x) { u16(x >> 16); return u16(x & 0xffff); }
   obuf &u64(uint64_t x) { u32(x >> 32); return u32(x & 0xffffffff); }
-  obuf &f32(float    x) { x = ce(x); return u32(*reinterpret_cast<uint32_t*>(&x)); }
-  obuf &f64(double   x) { x = ce(x); return u64(*reinterpret_cast<uint64_t*>(&x)); }
+  obuf &f32(float    x) { return u32(*reinterpret_cast<uint32_t*>(&x)); }
+  obuf &f64(double   x) { return u64(*reinterpret_cast<uint64_t*>(&x)); }
+
+  obuf &write(uint8_t const *start, size_t n) { o.write(start, n); return *this; }
 
   obuf &operator<<(uint8_t  x) { return u8(x);  }
   obuf &operator<<(uint16_t x) { return u16(x); }
@@ -177,15 +218,10 @@ struct obuf : public std::vector<uint8_t, A>
   obuf &operator<<(double   x) { return f64(x); }
 
   template <typename T>
-  obuf &operator<<(std::basic_string<T> x) { insert(this->end(), x.begin(), x.end()); return *this; }
+  obuf &operator<<(std::basic_string<T> x) { write(reinterpret_cast<uint8_t*>(x.data()), x.size()); return *this; }
 
   template <typename T>
-  obuf &operator<<(std::basic_string_view<T> x) { insert(this->end(), x.begin(), x.end()); return *this; }
-
-  ibuf linked_reader()   const { return ibuf(this->data(), this->size()); }
-  ibuf unlinked_reader() const { let xs = new uint8_t[this->size()];
-                                 memcpy(xs, this->data(), this->size());
-                                 return ibuf(xs, this->size()); }
+  obuf &operator<<(std::basic_string_view<T> x) { write(reinterpret_cast<uint8_t*>(x.data()), x.size()); return *this; }
 };
 
 
@@ -573,38 +609,6 @@ void init_lfn_tables()
 inline uint64_t ibuf::len  (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + lfnos  [xs[i]])(*this, i); }
 inline uint64_t ibuf::tlen (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tlfnos [xs[i]])(*this, i); }
 inline uint64_t ibuf::tvlen(uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tvlfnos[xs[i]])(*this, i); }
-
-
-enum val_type : uint8_t
-{
-  UINT     = 0x00,
-  INT      = 0x04,
-  FLOAT32  = 0x08,
-  FLOAT64  = 0x09,
-  SYMBOL   = 0x0a,
-  PIDFD    = 0x0b,
-  BOOL     = 0x0c,
-  NULLTYPE = 0x0e,
-
-  ALPHA    = 0x10,
-  OMEGA    = 0x11,
-  IOTA     = 0x12,
-  KAPPA    = 0x13,
-  TAU      = 0x14,
-  RHO      = 0x15,
-  THETA    = 0x16,
-
-  UTF8     = 0x18,
-  BYTES    = 0x1c,
-
-  TUPLE    = 0x20,
-  ARRAY    = 0x24,
-  INDEX    = 0x30,
-
-  BOGUS    = 0x3f,
-};
-
-typedef uint64_t val_type_mask;
 
 
 namespace  // Type dispatch tables
