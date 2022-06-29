@@ -158,8 +158,7 @@ struct ibuf
 };
 
 
-// TODO: virtualize the backend; we should be able to output to a stream
-// that cuts through to IO
+// TODO: have this write to an ostream, not a vector
 template<typename A = std::allocator<uint8_t>>
 struct obuf : public std::vector<uint8_t, A>
 {
