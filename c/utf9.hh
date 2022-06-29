@@ -5,9 +5,11 @@
 #include <algorithm>
 #include <bit>
 #include <cstdint>
+#include <cstring>
 #include <exception>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <random>
 #include <stdexcept>
 #include <string>
@@ -153,6 +155,38 @@ struct ibuf
 
   float  f32(uint64_t i) const { let x = u32(i); return ce(*reinterpret_cast<float const*>(&x)); }
   double f64(uint64_t i) const { let x = u64(i); return ce(*reinterpret_cast<double const*>(&x)); }
+};
+
+
+// TODO: virtualize the backend; we should be able to output to a stream
+// that cuts through to IO
+template<typename A = std::allocator<uint8_t>>
+struct obuf : public std::vector<uint8_t, A>
+{
+  obuf &u8 (uint8_t  x) { this->push_back(x); return *this; }
+  obuf &u16(uint16_t x) { u8 (x >> 8);  return u8 (x & 0xff); }
+  obuf &u32(uint32_t x) { u16(x >> 16); return u16(x & 0xffff); }
+  obuf &u64(uint64_t x) { u32(x >> 32); return u32(x & 0xffffffff); }
+  obuf &f32(float    x) { x = ce(x); return u32(*reinterpret_cast<uint32_t*>(&x)); }
+  obuf &f64(double   x) { x = ce(x); return u64(*reinterpret_cast<uint64_t*>(&x)); }
+
+  obuf &operator<<(uint8_t  x) { return u8(x);  }
+  obuf &operator<<(uint16_t x) { return u16(x); }
+  obuf &operator<<(uint32_t x) { return u32(x); }
+  obuf &operator<<(uint64_t x) { return u64(x); }
+  obuf &operator<<(float    x) { return f32(x); }
+  obuf &operator<<(double   x) { return f64(x); }
+
+  template <typename T>
+  obuf &operator<<(std::basic_string<T> x) { insert(this->end(), x.begin(), x.end()); return *this; }
+
+  template <typename T>
+  obuf &operator<<(std::basic_string_view<T> x) { insert(this->end(), x.begin(), x.end()); return *this; }
+
+  ibuf linked_reader()   const { return ibuf(this->data(), this->size()); }
+  ibuf unlinked_reader() const { let xs = new uint8_t[this->size()];
+                                 memcpy(xs, this->data(), this->size());
+                                 return ibuf(xs, this->size()); }
 };
 
 
