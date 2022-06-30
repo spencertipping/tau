@@ -139,6 +139,7 @@ enum val_type : uint8_t
   ARRAY    = 0x24,
   INDEX    = 0x30,
 
+  NOEXIST  = 0x3e,  // fictitious: not a real value
   BOGUS    = 0x3f,
 };
 
@@ -856,6 +857,7 @@ struct hash
   uint64_t h;
   hash(uint64_t h_) : h(h_) {}
   operator uint64_t() const { return h; }
+  int compare(hash const x) const { return h > x.h ? 1 : x < x.h ? -1 : 0; }
 };
 
 
@@ -883,6 +885,7 @@ std::ostream &operator<<(std::ostream &s, pidfd const &p) { return s << "[p=" <<
 }
 
 
+// A typecode beginning at a specific bytecode location
 struct tval
 {
   ibuf const * const b;
@@ -960,18 +963,27 @@ struct tval
 };
 
 
-// Tagging bit schema:
-// type:8 | owned:1 | immediate:1
-constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << 2 | (own ? 2 : 0) | 1; }
-constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> 2); }
-
-
-// utf9 value
-// Instances of this fit into two machine words on 64-bit machines.
-// As a result, we can pass them around by-value with no appreciable
-// overhead (although we unfortunately have a destructor to consider).
+// utf9 value, either bytecode-bound or immediate
+// Instances of this fit into two machine words on 64-bit machines. As a result,
+// we can pass them around by-value with no appreciable overhead (although we
+// unfortunately have a destructor to consider).
 struct val
 {
+  // Tagging bit schema:
+  // type:8 | owned:1 | immediate:1
+  static constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << 2 | (own ? 2 : 0) | 1; }
+  static constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> 2); }
+
+
+  static int  hash_order (val const &v1, val const &v2) { return v1.h().compare(v2.h()); }
+  static bool hash_before(val const &v1, val const &v2) { return v1.h() < v2.h(); }
+
+  static int key_order     (val const &v1, val const &v2) { return v1[0].compare(v2[0]); }
+  static int key_hash_order(val const &v1, val const &v2) { return v1[0].h().compare(v2[0].h()); }
+  static int val_order     (val const &v1, val const &v2) { return v1[1].compare(v2[1]); }
+  static int val_hash_order(val const &v1, val const &v2) { return v1[1].h().compare(v2[1].h()); }
+
+
   // ibuf const * will be 8-byte aligned, so tags with the low bit set are
   // type designators; see tagify() and tag_type() above.
   union
@@ -1000,16 +1012,18 @@ struct val
   val(float vf_)    : tag(tagify(FLOAT32)), vf(vf_) {}
   val(sym vy_)      : tag(tagify(SYMBOL)),  vy(vy_) {}
   val(pidfd vp_)    : tag(tagify(PIDFD)),   vp(vp_) {}
+  val(bool b_)      : tag(tagify(BOOL)),    vu(b_)  {}
 
   val(std::vector<val> *vt_) : tag(tagify(TUPLE, true)), vt(vt_) {}
+
+  template<class ...Args>
+  val(Args... xs_) { val(new std::vector<val>({xs_...})); }
 
   val(std::string &s, val_type t_ = UTF8)
     : tag(tagify(t_, true)),
       vb(reinterpret_cast<std::basic_string_view<uint8_t>*>(
            new std::string_view(s.begin(), s.end())))
     {}
-
-  // TODO: immediate constructors from std::string, std::vector, etc
 
   val(tval t_, ibuf const &b, uint64_t i)
     { switch (t_.typecode())
@@ -1055,7 +1069,7 @@ struct val
       case 0x42:
       case 0x43:
         tag = tagify(TUPLE, true);
-        vt = new std::vector<val>;
+        vt  = new std::vector<val>;
         for (let &t : t_)
         { vt->push_back(val(t, b, i));
           i += t.vsize(); }
@@ -1066,7 +1080,7 @@ struct val
       case 0x46:
       case 0x47:
         tag = tagify(ARRAY, true);
-        vt = new std::vector<val>;
+        vt  = new std::vector<val>;
         for (uint64_t j = 0; j < t_.len(); j++)
         { vt->push_back(val(t_.atype(), b, i));
           i += t_.atype().vsize(); }
@@ -1075,14 +1089,21 @@ struct val
       default: throw INVALID_TYPE_ERROR;
       } }
 
+  val() : tag(tagify(NOEXIST)), i(0) {}
+
 
   ~val()
-    { if (tag & 2)  // value is a pointer we must free
+    { if (tag & 2)  // value is owned, so we need to free it
+        // NOTE: if() above for performance; the switch below is [probably]
+        // slower and uncommon
         switch (tag)
         {
         case tagify(UTF8,  true): case tagify(BYTES, true): delete vb; break;
         case tagify(TUPLE, true): case tagify(ARRAY, true): delete vt; break;
         } }
+
+
+  bool exists() const { return type() != NOEXIST; }
 
 
   bool     has_ibuf()                    const { return !(tag & 1); }
@@ -1092,11 +1113,13 @@ struct val
   void     require_type(val_type_mask m) const { if (!(1ull << type() & m)) throw INVALID_TYPE_ERROR; }
 
 
+  // Skip past all prefix indexes to get to the structure being indexed
   val list() const
     { require_ibuf();
       uint64_t j = i;
       while (bts[b->cu8(j)] == INDEX) j += b->len(j);
       return j; }
+
 
   uint8_t const *mbegin() const { require_ibuf(); return reinterpret_cast<pfn>(sfn_base + sfnos[b->u8(i)])(*b, i); }
   uint8_t const *mend()   const { require_ibuf(); return *b + b->len(i); }
@@ -1173,6 +1196,12 @@ struct val
       } }
 
 
+  operator float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->f32(i + 1)                       : vf; }
+  operator double() const { require_type(1ull << FLOAT64); return has_ibuf() ? b->f64(i + 1)                       : vd; }
+  operator sym()    const { require_type(1ull << SYMBOL);  return has_ibuf() ? sym{b->u64(i + 1)}                  : vy; }
+  operator pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
+  operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->u8(i) == 0x0d                    : !!vu; }
+
   operator uint64_t() const
     { if (type() == INT) throw SIGNED_COERCION_ERROR;
       require_type(1ull << UINT | 1ull << RHO | 1ull << THETA);
@@ -1201,26 +1230,6 @@ struct val
       case 0x07: return b->i64(i + 1);
       default: throw INTERNAL_ERROR;
       } }
-
-  operator float() const
-    { require_type(1ull << FLOAT32);
-      return has_ibuf() ? b->f32(i + 1) : vf; }
-
-  operator double() const
-    { require_type(1ull << FLOAT64);
-      return has_ibuf() ? b->f64(i + 1) : vd; }
-
-  operator sym() const
-    { require_type(1ull << SYMBOL);
-      return has_ibuf() ? sym{b->u64(i + 1)} : vy; }
-
-  operator pidfd() const
-    { require_type(1ull << PIDFD);
-      return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
-
-  operator bool() const
-    { require_type(1ull << BOOL);
-      return has_ibuf() ? b->u8(i) == 0x0d : !!vu; }
 
   operator std::string() const
     { require_type(1ull << UTF8 | 1ull << BYTES);
@@ -1336,6 +1345,57 @@ struct val
   bool operator>=(val const &v) const { return this->compare(v) >= 0; }
   bool operator==(val const &v) const { return this->compare(v) == 0; }
   bool operator!=(val const &v) const { return this->compare(v) != 0; }
+
+
+  val operator[](uint64_t i) const
+    { return type() == ARRAY ? ap(i)
+           : type() == TUPLE ? tp(i)
+           : throw INVALID_TYPE_ERROR; }
+
+
+  val ap(uint64_t i) const  // Array positional lookup
+    { return val(atype(), asub(i)); }
+
+
+  val tp(uint64_t i, uint64_t const h = 0) const  // Tuple positional lookup
+    { require_type(1ull << TUPLE);
+      if (!has_ibuf()) return (*vt)[i];
+      let      e = mend() - b->xs;
+      uint64_t o = mbegin() - b->xs + h;
+      while (i--) if ((o += b->len(o)) >= e) throw BOUNDS_ERROR;
+      return val(*b, o); }
+
+  bool tomc(val const &k, uint64_t const h = 0) const  // Tuple ordered member check
+    { require_type(1ull << TUPLE);
+      if (!has_ibuf()) return val(!!std::binary_search(vt->begin(), vt->end(), k));
+      for (uint64_t o = mbegin() - b->xs + h;
+           o < mend() - b->xs;
+           o += b->len(o))
+        if (k == val(&b, o)) return true;
+      return false; }
+
+  bool thmc(val const &k, uint64_t const h = 0) const  // Tuple hash-ordered member check
+    { require_type(1ull << TUPLE);
+      if (!has_ibuf()) return val(!!std::binary_search(vt->begin(), vt->end(), k, hash_before));
+      let kh = k.h();
+      for (uint64_t o = mbegin() - b->xs + h;
+           o < mend() - b->xs;
+           o += b->len(o))
+        if (kh == val(&b, o).h()) return true;
+      return false; }
+
+  // TODO: fetch-from-tuple functions
+  val &tok(val const &k, uint64_t const h = 0) const
+    {}
+
+  val &thk(val const &k, uint64_t const h = 0) const
+    {}
+
+  val &tov(val const &k, uint64_t const h = 0) const
+    {}
+
+  val &thv(val const &k, uint64_t const h = 0) const
+    {}
 };
 
 

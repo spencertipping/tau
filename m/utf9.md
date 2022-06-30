@@ -129,9 +129,9 @@ Array typecodes are identical to regular bytecodes, but with two major changes:
 Examples of array element types:
 
 + `tuple 32 4 int64 int64 float64 float64` -- a 32-byte tuple with four elements
-+ `array 8 4 int16`
-+ `fixtuple4 48 int64 int64 int32 utf8 28`
-+ `utf8 10`
++ `array 8 4 int16` -- an `int16[4]`, which occupies 8 bytes
++ `fixtuple4 48 int64 int64 int32 utf8 28` -- a 4-tuple of `(int64, int64, int32, utf8[28])`, occupying 48 bytes
++ `utf8 10` -- a 10-byte UTF8 string
 
 When `array` is used as an array element, its `l` should be the length of each packed thing; that is, `array l n t` would set `l = n * len(x) = len(xs)`. `t` is no longer added to the length because it's packed out.
 
