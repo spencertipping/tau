@@ -1130,7 +1130,10 @@ struct val
       case 0x45:
       case 0x46:
       case 0x47:
-        tag = tagify(ARRAY, true);
+        // NOTE: this isn't an array because keeping it that way would require
+        // extra type information that we don't have space to store. Instead,
+        // arrays degrade to tuples when copied out.
+        tag = tagify(TUPLE, true);
         vt  = new std::vector<val>;
         for (uint64_t j = 0; j < t_.len(); j++)
         { vt->push_back(val(t_.atype(), b, i));
