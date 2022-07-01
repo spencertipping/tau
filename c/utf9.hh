@@ -46,6 +46,10 @@ enum error : uint8_t
   IBUF_REQUIRED_ERROR,
   IMMEDIATE_ARRAY_ERROR,
   INVALID_TYPE_ERROR,
+  PACK_OVERFLOW_ERROR,
+  PACK_LENGTH_ERROR,
+  PACK_TUPLE_LENGTH_ERROR,
+  PACK_ARRAY_LENGTH_ERROR,
   COMPARE_ACROSS_TYPE_ERROR,
   COMPARE_ACROSS_ARRAY_TYPE_ERROR,
   NOT_COMPARABLE_ERROR,
@@ -198,7 +202,7 @@ struct ibuf
 // A bytecode encoder with no specified storage backend
 struct oenc
 {
-  virtual ~oenc() = 0;
+  virtual ~oenc() {};
 
   virtual void     ensure_capacity(uint64_t l_) = 0;
   virtual void     push(uint8_t x) = 0;
@@ -206,6 +210,7 @@ struct oenc
   virtual void     move(uint64_t from, uint64_t to, uint64_t n) = 0;
   virtual void     seek(uint64_t to) = 0;
   virtual uint64_t size() const = 0;
+  virtual void     fill(uint8_t c, uint64_t n) = 0;
 
   oenc &u8 (uint8_t  x) { push(x); return *this; }
   oenc &u16(uint16_t x) { u8 (x >> 8);  return u8 (x & 0xff); }
@@ -252,6 +257,7 @@ struct obuf : public oenc
 
   void push(uint8_t x)                      { ensure_capacity(i + 1); b[i++] = x; }
   void write(uint8_t const *xs, uint64_t n) { ensure_capacity(i + n); memcpy(b + i, xs, n); i += n; }
+  void fill(uint8_t c, uint64_t n)          { ensure_capacity(i + n); memset(b + i, c, n); i += n; }
 
   void seek(uint64_t to) { i = to; }
   void move(uint64_t from, uint64_t to, uint64_t n)
@@ -259,12 +265,12 @@ struct obuf : public oenc
       std::memmove(b + to, b + from, n); }
 
   void ensure_capacity(uint64_t l_)
-    { if (b == nullptr) { b = new uint8_t[1024]; l = 1024; i = 0; }
+    { if (b == nullptr) { b = new uint8_t[1024]; l = 1024; }
       else if (l_ > l)
       { uint64_t nl = l; while (nl < l_) nl <<= 1;
         uint8_t *b_ = new uint8_t[nl];
         memcpy(b_, b, i);
-        delete b;
+        delete[] b;
         b = b_;
         l = nl; } }
 };
@@ -305,8 +311,8 @@ let u16_tvlf = lf(b.u16(i + 1));
 let u32_tvlf = lf(b.u32(i + 1));
 let u64_tvlf = lf(b.u64(i + 1));
 
-let fixutf8_lf   = lf(2 + (b.u8(i) - 0x20));
-let fixbytes_lf  = lf(2 + (b.u8(i) - 0x30));
+let fixutf8_lf   = lf(1 + (b.u8(i) - 0x20));
+let fixbytes_lf  = lf(1 + (b.u8(i) - 0x30));
 let fixtuple8_lf = lf(2 + b.u8(i + 1));
 let fixint_lf    = l1;
 
@@ -919,16 +925,6 @@ struct pidfd
 };
 
 
-namespace  // Primitive type << operators
-{
-
-std::ostream &operator<<(std::ostream &s, sym   const &y) { return s << 's' << reinterpret_cast<void*>(y.h); }
-std::ostream &operator<<(std::ostream &s, hash  const &h) { return s << 'h' << reinterpret_cast<void*>(h.h); }
-std::ostream &operator<<(std::ostream &s, pidfd const &p) { return s << "[p=" << p.pid << ",fd=" << p.fd << "]"; }
-
-}
-
-
 struct tval;
 struct val;
 
@@ -967,6 +963,16 @@ struct tval
       } }
 
   it end() const { return it{b, e}; }
+
+  tval operator[](uint64_t i) const { it i_ = begin(); while (i--) ++i_; return *i_; }
+  uint64_t offset_of(uint64_t i) const
+    { if (type() != TUPLE) throw INVALID_TYPE_ERROR;
+      if (!i) return 0;
+      --i;
+      uint64_t s = 0;
+      it i_ = begin();
+      while (i--) s += (*i_).vsize(), ++i_;
+      return s; }
 
 
   uint8_t  typecode() const { return b->u8(i); }
@@ -1010,8 +1016,11 @@ struct tval
   uint64_t h() const { return xxh(b + i, e - i, 1); }
 
   // Encode a value without any type prefixes
-  obuf &encode(obuf&, val const&);
+  oenc &pack(oenc&, val const&) const;
 };
+
+
+// TODO: typecode generator functions
 
 
 // utf9 value, either bytecode-bound or immediate
@@ -1057,7 +1066,7 @@ struct val
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
     { if (reinterpret_cast<uint64_t>(b) & 7) throw ALIGNMENT_ERROR;
-      b->check(b->len(i)); }
+      b->check(b->len(i) - 1); }
 
   val(uint64_t vu_) : tag(tagify(UINT)),    vu(vu_) {}
   val(int64_t vi_)  : tag(tagify(INT)),     vi(vi_) {}
@@ -1163,6 +1172,7 @@ struct val
   val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : tag_type(tag); }
   void     require_ibuf()                const { if (!has_ibuf()) throw IBUF_REQUIRED_ERROR; }
   void     require_type(val_type_mask m) const { if (!(1ull << type() & m)) throw INVALID_TYPE_ERROR; }
+  uint64_t bsize()                       const { require_ibuf(); return b->len(i); }
 
 
   // Skip past all prefix indexes to get to the structure being indexed
@@ -1173,10 +1183,17 @@ struct val
       return j; }
 
 
-  uint8_t const *mbegin() const { require_ibuf(); return reinterpret_cast<pfn>(sfn_base + sfnos[b->u8(i)])(*b, i); }
-  uint8_t const *mend()   const { require_ibuf(); return *b + b->len(i); }
-  uint64_t       mlen()   const { require_ibuf(); return mend() - mbegin(); }
-  uint64_t       msize()  const { require_ibuf(); return b->len(i); }
+  uint64_t mlen() const { return mend() - mbegin(); }
+
+  uint8_t const *mbegin() const
+    { if (has_ibuf()) return reinterpret_cast<pfn>(sfn_base + sfnos[b->u8(i)])(*b, i);
+      require_type(1ull << UTF8 | 1ull << BYTES);
+      return vb->data(); }
+
+  uint8_t const *mend() const
+    { if (has_ibuf()) return *b + b->len(i);
+      require_type(1ull << UTF8 | 1ull << BYTES);
+      return vb->data() + vb->size(); }
 
 
   struct it
@@ -1205,6 +1222,8 @@ struct val
   it end() const {
     require_type(1ull << TUPLE | 1ull << ARRAY);
     return has_ibuf() ? it(b, i + b->len(i)) : it(vt->end()); }
+
+  it at_byte(uint64_t j) const { require_ibuf(); require_type(1ull << TUPLE); return it(b, i + j); }
 
 
   uint64_t len() const
@@ -1463,7 +1482,8 @@ struct val
     }
 
   val &thk(val const &k, uint64_t const h = 0) const
-    {}
+    { require_type(1ull << TUPLE);
+    }
 
   val &tov(val const &k, uint64_t const h = 0) const
     {}
@@ -1486,6 +1506,59 @@ inline val θ(uint64_t x) { return val{val::tagify(Θ), x}; }
 inline val θ(double   x) { return val{val::tagify(Θ), static_cast<uint64_t>(x * static_cast<double>(std::numeric_limits<uint64_t>::max()))}; }
 
 
+inline oenc &tval::pack(oenc &o, val const &v) const
+{
+  switch (type())
+  {
+  case UINT:
+  case INT:
+    switch (typecode())
+    {
+      // TODO: check for overflow
+    case 0x00: return o.u8 (static_cast<uint64_t>(v));
+    case 0x01: return o.u16(static_cast<uint64_t>(v));
+    case 0x02: return o.u32(static_cast<uint64_t>(v));
+    case 0x03: return o.u64(static_cast<uint64_t>(v));
+    case 0x04: return o.u8 (static_cast<int64_t>(v));
+    case 0x05: return o.u16(static_cast<int64_t>(v));
+    case 0x06: return o.u32(static_cast<int64_t>(v));
+    case 0x07: return o.u64(static_cast<int64_t>(v));
+    default: throw INTERNAL_ERROR;
+    }
+    break;
+
+  case FLOAT32: return o.f32(static_cast<float>(v));
+  case FLOAT64: return o.f64(static_cast<float>(v));
+  case SYMBOL:  return o.u64(static_cast<uint64_t>(v));
+  case PIDFD:   return o.u32(static_cast<pidfd>(v).pid).u32(static_cast<pidfd>(v).fd);
+
+  case UTF8:
+  case BYTES:
+  { let l = v.mlen();
+    if (l > vsize()) throw PACK_LENGTH_ERROR;
+    o.xs(v.mbegin(), l).fill(0, vsize() - l);
+    return o; }
+
+  case TUPLE:
+  { tval::it ti(begin()),   te(end());
+    val::it  vi(v.begin()), ve(v.end());
+    while (ti != te && vi != ve) (*ti).pack(o, *vi), ++ti, ++vi;
+    if ((ti != te) != (vi != ve)) throw PACK_TUPLE_LENGTH_ERROR;
+    return o; }
+
+  case ARRAY:
+  { let      at = atype();
+    uint64_t n  = len();
+    val::it  vi(v.begin()), ve(v.end());
+    while (n && vi != ve) at.pack(o, *vi), ++vi, n--;
+    if (n || vi != ve) throw PACK_ARRAY_LENGTH_ERROR;
+    return o; }
+
+  default: throw INVALID_TYPE_ERROR;
+  }
+}
+
+
 namespace  // bytecode encoding
 {
 
@@ -1501,6 +1574,8 @@ struct tenc : public oenc
   tenc(oenc &b_, uint64_t n_) : b(b_), si(b.size()), l(0), n(n_), lh(0)
     { write_header(); }
 
+  ~tenc() { write_header(); }
+
   int header_size()
     { let m = l | n;
       return !(m >> 8) && n < 8 ? 2
@@ -1508,26 +1583,29 @@ struct tenc : public oenc
            : m >> 16            ? 9
            : m >> 8             ? 5 : 3; }
 
-  void write_header()
+  void ensure_hlen()
     { let h = header_size();
-      if (h != lh)
-      { b.move(si + lh, si + h, l - si + lh);
-        b.seek(si);
-        switch (h)
-        {
-        case 2:  b.u8(0x48 + n).u8(l);     break;
-        case 3:  b.u8(0x40).u8(l).u8(n);   break;
-        case 5:  b.u8(0x41).u16(l).u16(n); break;
-        case 9:  b.u8(0x42).u32(l).u32(n); break;
-        case 17: b.u8(0x43).u64(l).u64(n); break;
-        }
-        b.seek(si + (lh = h) + l); } }
+      if (h != lh) b.move(si + lh, si + h, l - si + lh);
+      b.seek(si + (lh = h) + l); }
+
+  void write_header()
+    { b.seek(si);
+      switch (lh)
+      {
+      case 2:  b.u8(0x48 + n).u8(l);     break;
+      case 3:  b.u8(0x40).u8(l).u8(n);   break;
+      case 5:  b.u8(0x41).u16(l).u16(n); break;
+      case 9:  b.u8(0x42).u32(l).u32(n); break;
+      case 17: b.u8(0x43).u64(l).u64(n); break;
+      }
+      b.seek(si + lh + l); }
 
 
   uint64_t size() const { return l + lh; }
 
-  void push(uint8_t x)                      { ensure_capacity(++l); b.u8(x); }
-  void write(uint8_t const *xs, uint64_t n) { ensure_capacity(l += n); b.write(xs, n); }
+  void fill(uint8_t c, uint64_t n)          { ensure_capacity(l += n); b.fill(c, n);   ensure_hlen(); }
+  void push(uint8_t x)                      { ensure_capacity(++l);    b.u8(x);        ensure_hlen(); }
+  void write(uint8_t const *xs, uint64_t n) { ensure_capacity(l += n); b.write(xs, n); ensure_hlen(); }
 
   void seek(uint64_t to) { b.seek(to + si + lh); }
   void move(uint64_t from, uint64_t to, uint64_t n)
@@ -1553,8 +1631,8 @@ oenc &operator<<(oenc &o, val const &v)
   { int64_t x = v;
     if (x >= 0 && x < 128) return o.u8(0x80 + x);
     return x != x << 32 >> 32 ? o.u8(0x07).u64(x)
-         : x != x << 16 >> 16 ? o.u8(0x06).u32(x)
-         : x != x << 8  >> 8  ? o.u8(0x05).u16(x)
+         : x != x << 48 >> 48 ? o.u8(0x06).u32(x)
+         : x != x << 56 >> 56 ? o.u8(0x05).u16(x)
          :                      o.u8(0x04).u8(x); }
 
   case FLOAT32:  return o.u8(0x08).f32(v);
@@ -1604,6 +1682,10 @@ oenc &operator<<(oenc &o, val const &v)
 namespace  // val/tval << operators
 {
 
+std::ostream &operator<<(std::ostream &s, sym   const &y) { return s << 's' << reinterpret_cast<void*>(y.h); }
+std::ostream &operator<<(std::ostream &s, hash  const &h) { return s << 'h' << reinterpret_cast<void*>(h.h); }
+std::ostream &operator<<(std::ostream &s, pidfd const &p) { return s << "[p=" << p.pid << ",fd=" << p.fd << "]"; }
+
 std::ostream &operator<<(std::ostream &s, val_type t)
 {
   switch (t)
@@ -1648,6 +1730,9 @@ std::ostream &operator<<(std::ostream &s, error e)
   case INVALID_TYPE_ERROR:              return s << "invalid type error";
   case COMPARE_ACROSS_TYPE_ERROR:       return s << "compare across type error";
   case COMPARE_ACROSS_ARRAY_TYPE_ERROR: return s << "compare across array type error";
+  case PACK_LENGTH_ERROR:               return s << "pack length error";
+  case PACK_TUPLE_LENGTH_ERROR:         return s << "pack tuple length error";
+  case PACK_ARRAY_LENGTH_ERROR:         return s << "pack array length error";
   case NOT_COMPARABLE_ERROR:            return s << "not comparable error";
   case NOT_HASHABLE_ERROR:              return s << "not hashable error";
   case SIGNED_COERCION_ERROR:           return s << "signed coercion error";
@@ -1742,11 +1827,6 @@ std::ostream &operator<<(std::ostream &s, obuf const &o)
 }
 
 }
-
-
-// TODO: what kind of dispatch structure do we want for the val
-// operation space? Probably an external table of short names, each
-// a (val, val) -> val function.
 
 
 inline void utf9_init()
