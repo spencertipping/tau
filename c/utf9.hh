@@ -36,64 +36,36 @@ static_assert(sizeof(float)  == sizeof(uint32_t));
 static_assert(sizeof(void*)  == sizeof(uint64_t));
 static_assert(sizeof(char)   == sizeof(uint8_t));
 
+
 struct ibuf;
 struct obuf;
 struct tval;
 struct val;
 
 
-// TODO: define error hierarchies
-//   decoding_error
-//   operation_error
-//   encoding_error
+struct utf9_error       : public std::exception { std::string const &m;    utf9_error(std::string const &m_) : m(m_) {} };
+struct internal_error   : public utf9_error {                              internal_error(std::string const &m_) : utf9_error(m_) {} };
+struct decoding_error   : public utf9_error { ibuf const &b; uint64_t i;   decoding_error(std::string const &m_, ibuf const &b_, uint64_t i_) : utf9_error(m_), b(b_), i(i_) {} };
+struct toperation_error : public utf9_error { tval const &t;               toperation_error(std::string const &m_, tval const &t_) : utf9_error(m_), t(t_) {} };
+struct voperation_error : public utf9_error { val  const &v;               voperation_error(std::string const &m_, val  const &v_) : utf9_error(m_), v(v_) {} };
+struct binop_error      : public utf9_error { val const &a; val const &b;  binop_error(std::string const &m_, val const &a_, val const &b_) : utf9_error(m_), a(a_), b(b_) {} };
+struct encoding_error   : public utf9_error { tval const &t; val const &v; encoding_error(std::string const &m_, tval const &t_, val const &v_) : utf9_error(m_), t(t_), v(v_) {} };
 
 
-struct utf9_error      : public std::exception { std::string const &m; };
-struct internal_error  : public utf9_error {};
-struct decoding_error  : public utf9_error { ibuf const &b; uint64_t i; };
-struct operation_error : public utf9_error { val const &v; };
-struct encoding_error  : public utf9_error { val const &v; };
-
-struct alignment_error : public internal_error { void const * p; alignment_error(std::string const &m_, void const *p_) : m(m_), p(p_) {} };
-
-struct bogus_lf_error  : public decoding_error {};
-struct bogus_pf_error  : public decoding_error {};
-
-struct ibuf_required_error : public operation_error {};
-
-struct bounds_error      : public decoding_error {};
-struct length_error      : public decoding_error {};
-struct unsupported_error : public utf9_error {};
-struct overflow_error    : public utf9_error {};
-struct comparison_error  : public utf9_error { val const &rhs; };
-
-
-// TODO: use structured exceptions so we can add debug information
-enum error : uint8_t
+namespace  // error to ostream
 {
-  BOUNDS_ERROR,
-  IBUF_REQUIRED_ERROR,
-  IMMEDIATE_ARRAY_ERROR,
-  INVALID_TYPE_ERROR,
-  PACK_OVERFLOW_ERROR,
-  PACK_LENGTH_ERROR,
-  PACK_TUPLE_LENGTH_ERROR,
-  PACK_ARRAY_LENGTH_ERROR,
-  COMPARE_ACROSS_TYPE_ERROR,
-  COMPARE_ACROSS_ARRAY_TYPE_ERROR,
-  NOT_COMPARABLE_ERROR,
-  NOT_HASHABLE_ERROR,
 
-  SIGNED_COERCION_ERROR,
+std::ostream &operator<<(std::ostream&, tval const&);
+std::ostream &operator<<(std::ostream&, val  const&);
 
-  BOGUS_PF_ERROR,
-  BOGUS_LF_ERROR,
+std::ostream &operator<<(std::ostream &s, utf9_error       const &e) { return s << e.m; }
+std::ostream &operator<<(std::ostream &s, decoding_error   const &e) { return s << e.m << " @ " << e.i; }
+std::ostream &operator<<(std::ostream &s, toperation_error const &e) { return s << e.m << " @ " << e.t; }
+std::ostream &operator<<(std::ostream &s, voperation_error const &e) { return s << e.m << " @ " << e.v; }
+std::ostream &operator<<(std::ostream &s, binop_error      const &e) { return s << e.m << " @ " << e.a << ", " << e.b; }
+std::ostream &operator<<(std::ostream &s, encoding_error   const &e) { return s << e.m << " @ " << e.t << " : " << e.v; }
 
-  INVALID_BYTECODE_ERROR,
-  INVALID_TYPECODE_ERROR,
-
-  INTERNAL_ERROR,
-};
+}
 
 
 namespace  // Consistent-endianness (i.e. big-endian in memory)
@@ -135,13 +107,13 @@ inline bool oi8 (int64_t x) { return x << 56 >> 56 != x; }
 inline bool oi16(int64_t x) { return x << 48 >> 48 != x; }
 inline bool oi32(int64_t x) { return x << 32 >> 32 != x; }
 
-inline uint8_t  cou8 (uint64_t x) { return ou8(x)  ? throw PACK_OVERFLOW_ERROR : x; }
-inline uint16_t cou16(uint64_t x) { return ou16(x) ? throw PACK_OVERFLOW_ERROR : x; }
-inline uint32_t cou32(uint64_t x) { return ou32(x) ? throw PACK_OVERFLOW_ERROR : x; }
+inline uint8_t  cou8 (uint64_t x) { return ou8(x)  ? throw internal_error("u8o") : x; }
+inline uint16_t cou16(uint64_t x) { return ou16(x) ? throw internal_error("u16o") : x; }
+inline uint32_t cou32(uint64_t x) { return ou32(x) ? throw internal_error("u32o") : x; }
 
-inline int8_t   coi8 (int64_t x) { return oi8(x)  ? throw PACK_OVERFLOW_ERROR : x; }
-inline int16_t  coi16(int64_t x) { return oi16(x) ? throw PACK_OVERFLOW_ERROR : x; }
-inline int32_t  coi32(int64_t x) { return oi32(x) ? throw PACK_OVERFLOW_ERROR : x; }
+inline int8_t   coi8 (int64_t x) { return oi8(x)  ? throw internal_error("i8o") : x; }
+inline int16_t  coi16(int64_t x) { return oi16(x) ? throw internal_error("i16o") : x; }
+inline int32_t  coi32(int64_t x) { return oi32(x) ? throw internal_error("i32o") : x; }
 
 }
 
@@ -215,7 +187,7 @@ struct ibuf
 
 
   bool has  (uint64_t i) const { return i < l; }
-  void check(uint64_t i) const { if (!has(i)) throw BOUNDS_ERROR; }
+  void check(uint64_t i) const { if (!has(i)) throw decoding_error("ibuf bounds", *this, i); }
 
   uint64_t len  (uint64_t i) const;
   uint64_t tlen (uint64_t i) const;
@@ -371,7 +343,7 @@ let idx16_lf = lf(1 + 2 + b.u16(i + 1));
 let idx32_lf = lf(1 + 4 + b.u32(i + 1));
 let idx64_lf = lf(1 + 8 + b.u64(i + 1));
 
-let bogus_lf = [](ibuf const &b, uint64_t i) -> uint64_t { throw BOGUS_LF_ERROR; };
+let bogus_lf = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus lf", b, i); };
 
 
 // Typecode length functions
@@ -815,7 +787,7 @@ val_type const bts[256] =
 typedef uint8_t const*(*pfn)(ibuf const &, uint64_t);
 
 
-let bogus_pf = [](ibuf const &b, uint64_t i) -> uint8_t const* { throw BOGUS_PF_ERROR; };
+let bogus_pf = [](ibuf const &b, uint64_t i) -> uint8_t const* { throw decoding_error("bogus pf", b, i); };
 
 let p1  = pf(b + (i + 1));
 let p2  = pf(b + (i + 2));
@@ -998,7 +970,7 @@ struct tval
 
 
   it begin() const
-    { if (type() != TUPLE) throw INVALID_TYPE_ERROR;
+    { if (type() != TUPLE) throw toperation_error("begin()", *this);
       if (typecode() >= 0x48 && typecode() <= 0x4f) return it{b, i + 2};
       switch (typecode())
       {
@@ -1006,14 +978,14 @@ struct tval
       case 0x41: return it{b, i + 5};
       case 0x42: return it{b, i + 9};
       case 0x43: return it{b, i + 17};
-      default: throw INTERNAL_ERROR;
+      default: throw internal_error("tval begin()");
       } }
 
   it end() const { return it{b, e}; }
 
   tval operator[](uint64_t i) const { it i_ = begin(); while (i--) ++i_; return *i_; }
   uint64_t offset_of(uint64_t i) const
-    { if (type() != TUPLE) throw INVALID_TYPE_ERROR;
+    { if (type() != TUPLE) throw toperation_error("offset_of()", *this);
       if (!i) return 0;
       --i;
       uint64_t s = 0;
@@ -1029,7 +1001,7 @@ struct tval
 
 
   uint64_t len() const
-    { if (type() != ARRAY && type() != TUPLE) throw INVALID_TYPE_ERROR;
+    { if (type() != ARRAY && type() != TUPLE) throw toperation_error("len()", *this);
       if (typecode() >= 0x48 && typecode() <= 0x4f) return typecode() - 0x48;
       switch (typecode())
       {
@@ -1037,18 +1009,18 @@ struct tval
       case 0x41: case 0x45: return b->u16(i + 3);
       case 0x42: case 0x46: return b->u32(i + 5);
       case 0x43: case 0x47: return b->u64(i + 9);
-      default: throw INTERNAL_ERROR;
+      default: throw internal_error("tval len()");
       } }
 
   tval atype() const
-    { if (type() != ARRAY) throw INVALID_TYPE_ERROR;
+    { if (type() != ARRAY) throw toperation_error("atype()", *this);
       switch (typecode())
       {
       case 0x44: return tval(*b, i + 3);
       case 0x45: return tval(*b, i + 5);
       case 0x46: return tval(*b, i + 9);
       case 0x47: return tval(*b, i + 17);
-      default: throw INTERNAL_ERROR;
+      default: throw internal_error("tval atype()");
       } }
 
 
@@ -1112,7 +1084,7 @@ struct val
   val(uint64_t tag_, uint64_t v_) : tag(tag_), vu(v_) {}
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
-    { if (reinterpret_cast<uint64_t>(b) & 7) throw alignment_error("", (void const*)b);
+    { if (reinterpret_cast<uint64_t>(b) & 7) throw internal_error("unaligned");
       b->check(b->len(i) - 1); }
 
   val(uint64_t vu_) : tag(tagify(UINT)),    vu(vu_) {}
@@ -1200,7 +1172,7 @@ struct val
           i += t_.atype().vsize(); }
         break;
 
-      default: throw INVALID_TYPE_ERROR;
+      default: throw internal_error("vtypecode");
       } }
 
 
@@ -1219,8 +1191,8 @@ struct val
   bool     has_ibuf()                    const { return !(tag & 1); }
   bool     is_immediate()                const { return !has_ibuf(); }
   val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : tag_type(tag); }
-  void     require_ibuf()                const { if (!has_ibuf()) throw IBUF_REQUIRED_ERROR; }
-  void     require_type(val_type_mask m) const { if (!(1ull << type() & m)) throw INVALID_TYPE_ERROR; }
+  void     require_ibuf()                const { if (!has_ibuf()) throw voperation_error("ibuf required", *this); }
+  void     require_type(val_type_mask m) const { if (!(1ull << type() & m)) throw voperation_error("invalid type", *this); }
   uint64_t bsize()                       const { require_ibuf(); return b->len(i); }
 
 
@@ -1308,7 +1280,7 @@ struct val
         case 0x52: return b->u64(i + 1) >> 3;
         case 0x53: return 0;
 
-        default: throw INVALID_TYPE_ERROR;
+        default: throw voperation_error("len()", *this);
         } }
       } }
 
@@ -1325,7 +1297,7 @@ struct val
       case 0x45: return tval(*b, i + 5);
       case 0x46: return tval(*b, i + 9);
       case 0x47: return tval(*b, i + 17);
-      default: throw INTERNAL_ERROR;
+      default: throw internal_error("val atype()");
       } }
 
 
@@ -1342,7 +1314,7 @@ struct val
         / static_cast<double>(std::numeric_limits<uint64_t>::max()); }
 
   operator uint64_t() const
-    { if (type() == INT) throw SIGNED_COERCION_ERROR;
+    { if (type() == INT) throw voperation_error("i->u", *this);
       require_type(1ull << UINT | 1ull << Ρ | 1ull << Θ);
       if (!has_ibuf()) return vu;
       let x = b->u8(i);
@@ -1352,11 +1324,11 @@ struct val
       case 0x01: return b->u16(i + 1);
       case 0x02: return b->u32(i + 1);
       case 0x03: return b->u64(i + 1);
-      default: throw INTERNAL_ERROR;
+      default: throw internal_error("val u64");
       } }
 
   operator int64_t() const
-    { if (type() == UINT) throw SIGNED_COERCION_ERROR;
+    { if (type() == UINT) throw voperation_error("u->i", *this);
       require_type(1ull << INT);
       if (!has_ibuf()) return vi;
       let x = b->u8(i);
@@ -1367,7 +1339,7 @@ struct val
       case 0x05: return b->i16(i + 1);
       case 0x06: return b->i32(i + 1);
       case 0x07: return b->i64(i + 1);
-      default: throw INTERNAL_ERROR;
+      default: throw internal_error("val i64");
       } }
 
   operator std::string_view() const
@@ -1422,14 +1394,14 @@ struct val
         for (let &v : *this) hs[i++] = ce(v.h().h);
         return xxh(hs, sizeof(hs), t); }
 
-      default: throw NOT_HASHABLE_ERROR;
+      default: throw voperation_error("h", *this);
       } }
 
 
   int compare(val const &v) const
     { let t1 =   type();
       let t2 = v.type();
-      if (t1 != t2) throw COMPARE_ACROSS_TYPE_ERROR;
+      if (t1 != t2) throw binop_error("ct", *this, v);
       switch (t1)
       {
 
@@ -1460,7 +1432,7 @@ struct val
       case UTF8:
       case BYTES:
       case ARRAY:
-      { if (let tc = atype().compare(v.atype())) throw COMPARE_ACROSS_ARRAY_TYPE_ERROR;
+      { if (let tc = atype().compare(v.atype())) throw binop_error("cta", *this, v);
         let n1 =   mend() -   mbegin();
         let n2 = v.mend() - v.mbegin();
         if (let c = std::__memcmp(mbegin(), v.mbegin(), std::min(n1, n2))) return c;
@@ -1475,7 +1447,7 @@ struct val
           if (let c = (*i1).compare(*i2)) return c;
         return m1 ? 1 : m2 ? -1 : 0; }
 
-      default: throw NOT_COMPARABLE_ERROR;
+      default: throw binop_error("nc", *this, v);
       } }
 
   bool operator< (val const &v) const { return this->compare(v) < 0; }
@@ -1489,7 +1461,7 @@ struct val
 
   val &operator<<(val const &v)
     { require_type(1ull << TUPLE);
-      if (has_ibuf()) throw std::exception("cannot modify ibuf-backed tuple");
+      if (has_ibuf()) throw voperation_error("val<< +ibuf", *this);
 
     }
 
@@ -1497,7 +1469,7 @@ struct val
   val operator[](uint64_t i) const
     { return type() == ARRAY ? ap(i)
            : type() == TUPLE ? tp(i)
-           : throw INVALID_TYPE_ERROR; }
+           : throw voperation_error("[u64]", *this); }
 
 
   val ap(uint64_t i) const  // Array positional lookup
@@ -1509,7 +1481,7 @@ struct val
       if (!has_ibuf()) return (*vt)[i];
       let      e = mend()   - b->xs;
       uint64_t o = mbegin() - b->xs + h;
-      while (i--) if ((o += b->len(o)) >= e) throw BOUNDS_ERROR;
+      while (i--) if ((o += b->len(o)) >= e) throw decoding_error("tp", *b, o);
       return val(*b, o); }
 
   bool tomc(val const &k, uint64_t const h = 0) const  // Tuple ordered member check
@@ -1578,7 +1550,7 @@ inline oenc &tval::pack(oenc &o, val const &v) const
     case 0x05: return o.u16(coi16(v));
     case 0x06: return o.u32(coi32(v));
     case 0x07: return o.u64(static_cast<int64_t>(v));
-    default: throw INTERNAL_ERROR;
+    default: throw internal_error("ipack");
     }
     break;
 
@@ -1590,7 +1562,7 @@ inline oenc &tval::pack(oenc &o, val const &v) const
   case UTF8:
   case BYTES:
   { let l = v.mlen();
-    if (l > vsize()) throw PACK_LENGTH_ERROR;
+    if (l > vsize()) throw encoding_error("l>tvs", *this, v);
     o.xs(v.mbegin(), l).fill(0, vsize() - l);
     return o; }
 
@@ -1598,7 +1570,7 @@ inline oenc &tval::pack(oenc &o, val const &v) const
   { tval::it ti(begin()),   te(end());
     val::it  vi(v.begin()), ve(v.end());
     while (ti != te && vi != ve) (*ti).pack(o, *vi), ++ti, ++vi;
-    if ((ti != te) != (vi != ve)) throw PACK_TUPLE_LENGTH_ERROR;
+    if ((ti != te) != (vi != ve)) throw encoding_error("t vn>tn", *this, v);
     return o; }
 
   case ARRAY:
@@ -1606,10 +1578,10 @@ inline oenc &tval::pack(oenc &o, val const &v) const
     uint64_t n  = len();
     val::it  vi(v.begin()), ve(v.end());
     while (n && vi != ve) at.pack(o, *vi), ++vi, n--;
-    if (n || vi != ve) throw PACK_ARRAY_LENGTH_ERROR;
+    if (n || vi != ve) throw encoding_error("a vn>tn", *this, v);
     return o; }
 
-  default: throw INVALID_TYPE_ERROR;
+  default: throw encoding_error("ns", *this, v);
   }
 }
 
@@ -1722,12 +1694,12 @@ oenc &operator<<(oenc &o, val const &v)
       .xs(v.vb->data(), l); }
 
   case TUPLE: { tenc t(o, v.vt->size()); for (let &x : *v.vt) t << x; return o; }
-  case ARRAY: throw IMMEDIATE_ARRAY_ERROR;
-  case INDEX: throw IBUF_REQUIRED_ERROR;
+  case ARRAY: throw internal_error("enc<<iarray");
+  case INDEX: throw internal_error("enc<<idx no ibuf");
 
   case NONE:
   case BOGUS:
-  default: throw INVALID_TYPE_ERROR;
+  default: throw voperation_error("enc<<v ns type", v);
   }
 }
 
@@ -1774,33 +1746,6 @@ std::ostream &operator<<(std::ostream &s, val_type t)
   }
 }
 
-std::ostream &operator<<(std::ostream &s, error e)
-{
-  switch (e)
-  {
-  case ALIGNMENT_ERROR:                 return s << "alignment error";
-  case BOUNDS_ERROR:                    return s << "bounds error";
-  case IBUF_REQUIRED_ERROR:             return s << "ibuf required error";
-  case IMMEDIATE_ARRAY_ERROR:           return s << "immediate array error";
-  case INVALID_TYPE_ERROR:              return s << "invalid type error";
-  case COMPARE_ACROSS_TYPE_ERROR:       return s << "compare across type error";
-  case COMPARE_ACROSS_ARRAY_TYPE_ERROR: return s << "compare across array type error";
-  case PACK_LENGTH_ERROR:               return s << "pack length error";
-  case PACK_OVERFLOW_ERROR:             return s << "pack overflow error";
-  case PACK_TUPLE_LENGTH_ERROR:         return s << "pack tuple length error";
-  case PACK_ARRAY_LENGTH_ERROR:         return s << "pack array length error";
-  case NOT_COMPARABLE_ERROR:            return s << "not comparable error";
-  case NOT_HASHABLE_ERROR:              return s << "not hashable error";
-  case SIGNED_COERCION_ERROR:           return s << "signed coercion error";
-  case BOGUS_PF_ERROR:                  return s << "bogus pf error";
-  case BOGUS_LF_ERROR:                  return s << "bogus lf error";
-  case INVALID_BYTECODE_ERROR:          return s << "invalid bytecode error";
-  case INVALID_TYPECODE_ERROR:          return s << "invalid typecode error";
-  case INTERNAL_ERROR:                  return s << "internal error";
-  default:                              return s << "??? " << static_cast<int>(e);
-  }
-}
-
 std::ostream &operator<<(std::ostream &s, tval const &t)
 {
   switch (t.type())
@@ -1825,7 +1770,7 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
 
   case ARRAY: return s << t.atype() << "[" << t.len() << "]";
 
-  default: throw INVALID_TYPECODE_ERROR;
+  default: throw internal_error("ns typecode");
   }
 }
 
