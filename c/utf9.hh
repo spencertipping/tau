@@ -9,6 +9,7 @@
 #include <exception>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <random>
 #include <sstream>
@@ -1175,19 +1176,32 @@ struct val
   uint64_t       msize()  const { require_ibuf(); return b->len(i); }
 
 
-  // TODO: this needs to be polymorphic to handle immediate vals and arrays
   struct it
   {
-    ibuf const * const b;
-    uint64_t           i;
+    union
+    { ibuf                     const * const b;
+      std::vector<val>::const_iterator       vi; };
 
-    val  operator* ()              const { return val(*b, i); }
-    it & operator++()                    { i += b->len(i); return *this; }
+    uint64_t i;
+
+    it(ibuf const *b_, uint64_t i_)          : b(b_),   i(i_) {}
+    it(std::vector<val>::const_iterator vi_) : vi(vi_), i(-1) {}
+
+    bool is_v() const { return i == -1; }
+
+    val  operator*()               const { return is_v() ? *vi : val(*b, i); }
+    it  &operator++()                    { if (is_v()) ++vi; else i += b->len(i); return *this; }
     bool operator==(it const &rhs) const { return b == rhs.b && i == rhs.i; }
   };
 
-  it begin() const { require_ibuf(); return it{b, static_cast<uint64_t>(mbegin() - b->xs)}; }
-  it end()   const { require_ibuf(); return it{b, i + b->len(i)}; }
+  it begin() const {
+    require_type(1ull << TUPLE | 1ull << ARRAY);
+    return has_ibuf() ? it(b, static_cast<uint64_t>(mbegin() - b->xs))
+                      : it(vt->begin()); }
+
+  it end() const {
+    require_type(1ull << TUPLE | 1ull << ARRAY);
+    return has_ibuf() ? it(b, i + b->len(i)) : it(vt->end()); }
 
 
   uint64_t len() const
@@ -1245,10 +1259,16 @@ struct val
 
 
   operator float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->f32(i + 1)                       : vf; }
-  operator double() const { require_type(1ull << FLOAT64); return has_ibuf() ? b->f64(i + 1)                       : vd; }
   operator sym()    const { require_type(1ull << SYMBOL);  return has_ibuf() ? sym{b->u64(i + 1)}                  : vy; }
   operator pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
   operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->u8(i) == 0x0d                    : !!vu; }
+
+  operator double() const
+    { require_type(1ull << FLOAT64 | 1ull << Θ);
+      return type() == FLOAT64
+        ? has_ibuf() ? b->f64(i + 1) : vd
+        : static_cast<double>(static_cast<uint64_t>(*this))
+        / static_cast<double>(std::numeric_limits<uint64_t>::max()); }
 
   operator uint64_t() const
     { if (type() == INT) throw SIGNED_COERCION_ERROR;
@@ -1458,8 +1478,9 @@ val const ι{val::tagify(Ι), 0};
 val const κ{val::tagify(Κ), 0};
 val const τ{val::tagify(Τ), 0};
 
-val ρ(uint64_t x) { return val{val::tagify(Ρ), x}; }
-val θ(uint64_t x) { return val{val::tagify(Θ), x}; }
+inline val ρ(uint64_t x) { return val{val::tagify(Ρ), x}; }
+inline val θ(uint64_t x) { return val{val::tagify(Θ), x}; }
+inline val θ(double   x) { return val{val::tagify(Θ), static_cast<uint64_t>(x * static_cast<double>(std::numeric_limits<uint64_t>::max()))}; }
 
 
 namespace  // bytecode encoding
@@ -1681,7 +1702,7 @@ std::ostream &operator<<(std::ostream &s, val const &v)
   case Κ: return s << "κ";
   case Τ: return s << "τ";
   case Ρ: return s << "ρ(" << static_cast<uint64_t>(v) << ")";
-  case Θ: return s << "θ(" << static_cast<uint64_t>(v) << ")";
+  case Θ: return s << "θ(" << static_cast<double>(v) << ")";
 
   case UTF8:  return s << "u8[" << static_cast<std::string_view>(v) << "]";
   case BYTES: return s << "b["  << static_cast<std::string_view>(v) << "]";

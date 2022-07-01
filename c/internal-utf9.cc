@@ -36,7 +36,6 @@ void try_loading_stuff()
     val  z(b,   12);
     val  a(b,   12 + b.len(12));
 
-    cout << "xlen = " << b.len(0) << endl;
     cout << x << " :: " << x.type() << endl;
     cout << x.h() << endl;
 
