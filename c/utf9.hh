@@ -1462,8 +1462,8 @@ struct val
   val &operator<<(val const &v)
     { require_type(1ul << TUPLE);
       if (has_ibuf()) throw voperation_error("val<< +ibuf", *this);
-
-    }
+      vt->push_back(v);
+      return *this; }
 
 
   val operator[](uint64_t i) const
@@ -1532,6 +1532,8 @@ val const τ(val::tagify(Τ), 0);
 inline val ρ(uint64_t x) { return val(val::tagify(Ρ), x); }
 inline val θ(uint64_t x) { return val(val::tagify(Θ), x); }
 inline val θ(double   x) { return val(val::tagify(Θ), static_cast<uint64_t>(x * static_cast<double>(std::numeric_limits<uint64_t>::max()))); }
+
+inline val tuple() { return val(new std::vector<val>); }
 
 
 inline oenc &tval::pack(oenc &o, val const &v) const

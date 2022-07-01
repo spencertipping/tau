@@ -73,9 +73,9 @@ void try_loading_stuff()
     for (int64_t upper = 1; upper <= 1048576 * 16; upper *= 16)
     {
       obuf o4;
-      auto vs = new std::vector<val>;
-      for (int64_t i = 0; i < upper; ++i) vs->push_back(i);
-      val v4 = val(vs);
+      val v4 = tau::utf9::tuple();
+      for (int64_t i = 0; i < upper; ++i) v4 << val(i);
+
       {
         auto start = chrono::steady_clock::now();
         o4 << v4;
