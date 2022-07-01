@@ -36,11 +36,41 @@ static_assert(sizeof(float)  == sizeof(uint32_t));
 static_assert(sizeof(void*)  == sizeof(uint64_t));
 static_assert(sizeof(char)   == sizeof(uint8_t));
 
+struct ibuf;
+struct obuf;
+struct tval;
+struct val;
+
+
+// TODO: define error hierarchies
+//   decoding_error
+//   operation_error
+//   encoding_error
+
+
+struct utf9_error      : public std::exception { std::string const &m; };
+struct internal_error  : public utf9_error {};
+struct decoding_error  : public utf9_error { ibuf const &b; uint64_t i; };
+struct operation_error : public utf9_error { val const &v; };
+struct encoding_error  : public utf9_error { val const &v; };
+
+struct alignment_error : public internal_error { void const * p; alignment_error(std::string const &m_, void const *p_) : m(m_), p(p_) {} };
+
+struct bogus_lf_error  : public decoding_error {};
+struct bogus_pf_error  : public decoding_error {};
+
+struct ibuf_required_error : public operation_error {};
+
+struct bounds_error      : public decoding_error {};
+struct length_error      : public decoding_error {};
+struct unsupported_error : public utf9_error {};
+struct overflow_error    : public utf9_error {};
+struct comparison_error  : public utf9_error { val const &rhs; };
+
 
 // TODO: use structured exceptions so we can add debug information
 enum error : uint8_t
 {
-  ALIGNMENT_ERROR,
   BOUNDS_ERROR,
   IBUF_REQUIRED_ERROR,
   IMMEDIATE_ARRAY_ERROR,
@@ -946,10 +976,6 @@ struct pidfd
 };
 
 
-struct tval;
-struct val;
-
-
 // A typecode beginning at a specific bytecode location
 struct tval
 {
@@ -1086,7 +1112,7 @@ struct val
   val(uint64_t tag_, uint64_t v_) : tag(tag_), vu(v_) {}
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
-    { if (reinterpret_cast<uint64_t>(b) & 7) throw ALIGNMENT_ERROR;
+    { if (reinterpret_cast<uint64_t>(b) & 7) throw alignment_error("", (void const*)b);
       b->check(b->len(i) - 1); }
 
   val(uint64_t vu_) : tag(tagify(UINT)),    vu(vu_) {}
@@ -1180,8 +1206,8 @@ struct val
 
   ~val()
     { if (tag & 2)  // value is owned, so we need to free it
-        // NOTE: if() above for performance; the switch below is [probably]
-        // slower and uncommon
+        // NOTE: if() above for performance; the switch below is slower and is
+        // the uncommon case
         switch (tag)
         {
         case tagify(UTF8,  true): case tagify(BYTES, true): delete vb; break;
@@ -1459,6 +1485,13 @@ struct val
 
   bool operator==(val const &v) const { return type() == v.type() && this->compare(v) == 0; }
   bool operator!=(val const &v) const { return type() != v.type() || this->compare(v) != 0; }
+
+
+  val &operator<<(val const &v)
+    { require_type(1ull << TUPLE);
+      if (has_ibuf()) throw std::exception("cannot modify ibuf-backed tuple");
+
+    }
 
 
   val operator[](uint64_t i) const
