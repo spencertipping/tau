@@ -11,8 +11,6 @@
 #include <iostream>
 #include <limits>
 #include <memory>
-#include <random>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -39,6 +37,7 @@ static_assert(sizeof(void*)  == sizeof(uint64_t));
 static_assert(sizeof(char)   == sizeof(uint8_t));
 
 
+// TODO: use structured exceptions so we can add debug information
 enum error : uint8_t
 {
   ALIGNMENT_ERROR,
@@ -1190,9 +1189,7 @@ struct val
         } }
 
 
-  bool exists() const { return type() != NONE; }
-
-
+  bool     exists()                      const { return type() != NONE; }
   bool     has_ibuf()                    const { return !(tag & 1); }
   bool     is_immediate()                const { return !has_ibuf(); }
   val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : tag_type(tag); }
@@ -1831,7 +1828,7 @@ std::ostream &operator<<(std::ostream &s, val const &v)
     return s << ")"; }
 
   case ARRAY:
-  { s << "array<" << v.atype() << ">[";
+  { s << "array<" << v.atype() << ">[" << v.len() << "][";
     bool first = true;
     for (uint64_t i = 0; i < v.len(); ++i)
     { if (first) first = false;
