@@ -31,6 +31,7 @@ namespace tau::utf9
 
 static_assert(LE || BE, "unsupported endianness");
 
+static_assert(sizeof(long)   == sizeof(uint64_t));
 static_assert(sizeof(double) == sizeof(uint64_t));
 static_assert(sizeof(float)  == sizeof(uint32_t));
 static_assert(sizeof(void*)  == sizeof(uint64_t));
@@ -1192,7 +1193,7 @@ struct val
   bool     is_immediate()                const { return !has_ibuf(); }
   val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : tag_type(tag); }
   void     require_ibuf()                const { if (!has_ibuf()) throw voperation_error("ibuf required", *this); }
-  void     require_type(val_type_mask m) const { if (!(1ull << type() & m)) throw voperation_error("invalid type", *this); }
+  void     require_type(val_type_mask m) const { if (!(1ul << type() & m)) throw voperation_error("invalid type", *this); }
   uint64_t bsize()                       const { require_ibuf(); return b->len(i); }
 
 
@@ -1208,12 +1209,12 @@ struct val
 
   uint8_t const *mbegin() const
     { if (has_ibuf()) return reinterpret_cast<pfn>(sfn_base + sfnos[b->u8(i)])(*b, i);
-      require_type(1ull << UTF8 | 1ull << BYTES);
+      require_type(1ul << UTF8 | 1ul << BYTES);
       return vb->data(); }
 
   uint8_t const *mend() const
     { if (has_ibuf()) return *b + b->len(i);
-      require_type(1ull << UTF8 | 1ull << BYTES);
+      require_type(1ul << UTF8 | 1ul << BYTES);
       return vb->data() + vb->size(); }
 
 
@@ -1236,15 +1237,15 @@ struct val
   };
 
   it begin() const {
-    require_type(1ull << TUPLE | 1ull << ARRAY);
+    require_type(1ul << TUPLE | 1ul << ARRAY);
     return has_ibuf() ? it(b, static_cast<uint64_t>(mbegin() - b->xs))
                       : it(vt->begin()); }
 
   it end() const {
-    require_type(1ull << TUPLE | 1ull << ARRAY);
+    require_type(1ul << TUPLE | 1ul << ARRAY);
     return has_ibuf() ? it(b, i + b->len(i)) : it(vt->end()); }
 
-  it at_byte(uint64_t j) const { require_ibuf(); require_type(1ull << TUPLE); return it(b, i + j); }
+  it at_byte(uint64_t j) const { require_ibuf(); require_type(1ul << TUPLE); return it(b, i + j); }
 
 
   uint64_t len() const
@@ -1290,7 +1291,7 @@ struct val
 
   tval atype() const
     { require_ibuf();
-      require_type(1ull << ARRAY);
+      require_type(1ul << ARRAY);
       switch (b->u8(i))
       {
       case 0x44: return tval(*b, i + 3);
@@ -1301,13 +1302,13 @@ struct val
       } }
 
 
-  operator float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->f32(i + 1)                       : vf; }
-  operator sym()    const { require_type(1ull << SYMBOL);  return has_ibuf() ? sym{b->u64(i + 1)}                  : vy; }
-  operator pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
-  operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->u8(i) == 0x0d                    : !!vu; }
+  operator float()  const { require_type(1ul << FLOAT32); return has_ibuf() ? b->f32(i + 1)                       : vf; }
+  operator sym()    const { require_type(1ul << SYMBOL);  return has_ibuf() ? sym{b->u64(i + 1)}                  : vy; }
+  operator pidfd()  const { require_type(1ul << PIDFD);   return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
+  operator bool()   const { require_type(1ul << BOOL);    return has_ibuf() ? b->u8(i) == 0x0d                    : !!vu; }
 
   operator double() const
-    { require_type(1ull << FLOAT64 | 1ull << Θ);
+    { require_type(1ul << FLOAT64 | 1ul << Θ);
       return type() == FLOAT64
         ? has_ibuf() ? b->f64(i + 1) : vd
         : static_cast<double>(static_cast<uint64_t>(*this))
@@ -1315,7 +1316,7 @@ struct val
 
   operator uint64_t() const
     { if (type() == INT) throw voperation_error("i->u", *this);
-      require_type(1ull << UINT | 1ull << Ρ | 1ull << Θ);
+      require_type(1ul << UINT | 1ul << Ρ | 1ul << Θ);
       if (!has_ibuf()) return vu;
       let x = b->u8(i);
       switch (x)
@@ -1329,7 +1330,7 @@ struct val
 
   operator int64_t() const
     { if (type() == UINT) throw voperation_error("u->i", *this);
-      require_type(1ull << INT);
+      require_type(1ul << INT);
       if (!has_ibuf()) return vi;
       let x = b->u8(i);
       if (x >= 0x80) return x - 0x80;
@@ -1343,7 +1344,7 @@ struct val
       } }
 
   operator std::string_view() const
-    { require_type(1ull << UTF8 | 1ull << BYTES);
+    { require_type(1ul << UTF8 | 1ul << BYTES);
       return has_ibuf()
         ? std::string_view(reinterpret_cast<char const*>(mbegin()), mlen())
         : *reinterpret_cast<std::string_view const*>(vb); }
@@ -1439,8 +1440,7 @@ struct val
         return n1 > n2 ? 1 : n1 < n2 ? -1 : 0; }
 
       case TUPLE:
-      { bool m1 = false,
-             m2 = false;
+      { bool m1 = false, m2 = false;
         for (it i1 = begin(), i2 = v.begin(), e1 = end(), e2 = v.end();
              m1 = i1 != e1, m2 = i2 != e2, m1 && m2;
              ++i1, ++i2)
@@ -1460,7 +1460,7 @@ struct val
 
 
   val &operator<<(val const &v)
-    { require_type(1ull << TUPLE);
+    { require_type(1ul << TUPLE);
       if (has_ibuf()) throw voperation_error("val<< +ibuf", *this);
 
     }
@@ -1477,7 +1477,7 @@ struct val
 
 
   val tp(uint64_t i, uint64_t const h = 0) const  // Tuple positional lookup
-    { require_type(1ull << TUPLE);
+    { require_type(1ul << TUPLE);
       if (!has_ibuf()) return (*vt)[i];
       let      e = mend()   - b->xs;
       uint64_t o = mbegin() - b->xs + h;
@@ -1485,7 +1485,7 @@ struct val
       return val(*b, o); }
 
   bool tomc(val const &k, uint64_t const h = 0) const  // Tuple ordered member check
-    { require_type(1ull << TUPLE);
+    { require_type(1ul << TUPLE);
       if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k));
       for (uint64_t o = mbegin() - b->xs + h;
            o < mend() - b->xs;
@@ -1495,7 +1495,7 @@ struct val
 
   // TODO: interpolation search for !has_ibuf() case
   bool thmc(val const &k, uint64_t const h = 0) const  // Tuple hash-ordered member check
-    { require_type(1ull << TUPLE);
+    { require_type(1ul << TUPLE);
       if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k, hash_before));
       let kh = k.h();
       for (uint64_t o = mbegin() - b->xs + h;
@@ -1505,12 +1505,12 @@ struct val
       return false; }
 
   val &tok(val const &k, uint64_t const h = 0) const
-    { require_type(1ull << TUPLE);
+    { require_type(1ul << TUPLE);
       // TODO
     }
 
   val &thk(val const &k, uint64_t const h = 0) const
-    { require_type(1ull << TUPLE);
+    { require_type(1ul << TUPLE);
     }
 
   val &tov(val const &k, uint64_t const h = 0) const

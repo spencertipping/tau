@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <chrono>
 #include <iostream>
+#include <string_view>
 
 #include "unistd.h"
 
@@ -10,15 +12,16 @@ using namespace std;
 using namespace tau::utf9;
 
 
-struct debug { obuf &b; };
-ostream &operator<<(ostream &s, debug const &d)
+template <class T> struct debug { T &b; };
+
+template <class T> ostream &operator<<(ostream &s, debug<T> const &d)
 {
   for (int i = 0; i < d.b.size();)
   {
     uint8_t c = d.b.data()[i];
     s.put("0123456789abcdef"[c >> 4]);
     s.put("0123456789abcdef"[c & 15]);
-    s.put(++i & 31 ? ' ' : '\n');
+    s.put(++i & 15 ? ' ' : '\n');
   }
   return s;
 }
@@ -57,11 +60,11 @@ void try_loading_stuff()
 
     obuf o1; o1 << z[0];
     ibuf i1(o1.data(), o1.size());
-    cout << z[0] << " -> " << debug{o1} << "-> " << val(i1, 0) << endl;
+    cout << z[0] << " -> " << debug<obuf>{o1} << "-> " << val(i1, 0) << endl;
 
     obuf o2; o2 << z[1];
     ibuf i2(o2.data(), o2.size());
-    cout << z[1] << " -> " << debug{o2} << "-> " << val(i2, 0) << endl;
+    cout << z[1] << " -> " << debug<obuf>{o2} << "-> " << val(i2, 0) << endl;
 
     obuf o3; z.atype().pack(o3, z[0]); z.atype().pack(o3, z[1]);
     ibuf i3(o3.data(), o3.size());
@@ -85,6 +88,10 @@ void try_loading_stuff()
 
       ibuf i4(o4.data(), o4.size());
 
+      auto sv = string_view(reinterpret_cast<char const*>(o4.data()),
+                            min(o4.size(), 256ul));
+      cout << debug<string_view>{sv} << endl;
+
       {
         auto start = chrono::steady_clock::now();
         auto c     = val(i4, 0).compare(v4);
@@ -95,11 +102,10 @@ void try_loading_stuff()
 
       {
         auto start = chrono::steady_clock::now();
-        uint64_t t = 0;
-        for (auto const &x : val(i4, 0)) t += static_cast<int64_t>(x);
+        uint64_t t = 0; for (auto const &x : val(i4, 0)) t += static_cast<int64_t>(x);
         auto end   = chrono::steady_clock::now();
         chrono::duration<double> d = end - start;
-        cout << upper << ": " << t << " vs " << (upper * (upper - 1)) / 2 << ": " << d.count() << "s" << endl;
+        cout << upper << ": " << t << " == " << (upper * (upper - 1)) / 2 << ": " << d.count() << "s" << endl;
       }
     }
   }
