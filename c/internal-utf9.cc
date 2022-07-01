@@ -17,21 +17,36 @@ void try_loading_stuff()
 {
   try
   {
-    uint8_t buf[] = {0x01, 0x03, 0x00, 0x01, 0x02, 0x01};
+    uint8_t buf[] = {
+      0x49, 0x03, 0x01, 0x03, 0x00, 0x80,
+      0x40, 0x03, 0x01, 0x01, 0x02, 0x01,
+
+      0x44, 0x10, 0x04, 0x4a, 0x04, 0x01, 0x01,
+        0x00, 0x01, 0x01, 0x00,
+        0x00, 0x02, 0x02, 0x00,
+        0x00, 0x03, 0x04, 0x00,
+        0x00, 0x04, 0x08, 0x00,
+
+      0x0a,
+    };
+
     ibuf b(buf, sizeof(buf));
     val  x(b,   0);
-    val  y(b,   3);
+    val  y(b,   6);
+    val  z(b,   12);
+    val  a(b,   12 + b.len(12));
 
     cout << "xlen = " << b.len(0) << endl;
-    cout << x.type() << endl;
-    cout << static_cast<uint64_t>(x) << endl;
+    cout << x << " :: " << x.type() << endl;
     cout << x.h() << endl;
-    cout << x << endl;
 
-    cout << y.type() << endl;
-    cout << static_cast<uint64_t>(y) << endl;
+    cout << y << " :: " << y.type() << endl;
     cout << y.h() << endl;
-    cout << y << endl;
+
+    cout << z << endl;
+    cout << z.h() << endl;
+
+    cout << a << " :: " << a.type() << endl;
 
     cout << x.compare(y) << endl;
   }

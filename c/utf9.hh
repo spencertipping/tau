@@ -304,9 +304,9 @@ let u16_tvlf = lf(b.u16(i + 1));
 let u32_tvlf = lf(b.u32(i + 1));
 let u64_tvlf = lf(b.u64(i + 1));
 
-let fixutf8_lf   = lf(1 + (b.u8(i) - 0x20));
-let fixbytes_lf  = lf(1 + (b.u8(i) - 0x30));
-let fixtuple8_lf = lf(1 + b.u8(i + 1));
+let fixutf8_lf   = lf(2 + (b.u8(i) - 0x20));
+let fixbytes_lf  = lf(2 + (b.u8(i) - 0x30));
+let fixtuple8_lf = lf(2 + b.u8(i + 1));
 let fixint_lf    = l1;
 
 let idx16_lf = lf(1 + 2 + b.u16(i + 1));
@@ -939,7 +939,7 @@ struct tval
   uint64_t     const i;
   uint64_t     const e;
 
-  tval(ibuf const &b_, uint64_t i_) : b(&b_), i(i_), e(b->tlen(i)) {}
+  tval(ibuf const &b_, uint64_t i_) : b(&b_), i(i_), e(i + b->tlen(i)) {}
 
 
   struct it
@@ -1279,11 +1279,11 @@ struct val
       default: throw INTERNAL_ERROR;
       } }
 
-  operator std::string() const
+  operator std::string_view() const
     { require_type(1ull << UTF8 | 1ull << BYTES);
       return has_ibuf()
-        ? std::string(reinterpret_cast<char const*>(mbegin()), mlen())
-        : std::string(reinterpret_cast<char const*>(vb->begin(), vb->end())); }
+        ? std::string_view(reinterpret_cast<char const*>(mbegin()), mlen())
+        : *reinterpret_cast<std::string_view const*>(vb); }
 
 
   hash h() const
@@ -1664,9 +1664,52 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
   }
 }
 
-std::ostream &operator<<(std::ostream &s, val const &t)
+std::ostream &operator<<(std::ostream &s, val const &v)
 {
-  return s << "TODO: << val" << std::endl;
+  switch (v.type())
+  {
+  case UINT:    return s << static_cast<uint64_t>(v);
+  case INT:     return s << static_cast<int64_t>(v);
+  case FLOAT32: return s << static_cast<float>(v);
+  case FLOAT64: return s << static_cast<double>(v);
+  case SYMBOL:  return s << static_cast<sym>(v);
+  case PIDFD:   return s << static_cast<pidfd>(v);
+
+  case Α: return s << "α";
+  case Ω: return s << "ω";
+  case Ι: return s << "ι";
+  case Κ: return s << "κ";
+  case Τ: return s << "τ";
+  case Ρ: return s << "ρ(" << static_cast<uint64_t>(v) << ")";
+  case Θ: return s << "θ(" << static_cast<uint64_t>(v) << ")";
+
+  case UTF8:  return s << "u8[" << static_cast<std::string_view>(v) << "]";
+  case BYTES: return s << "b["  << static_cast<std::string_view>(v) << "]";
+
+  case TUPLE:
+  { s << "(";
+    bool first = true;
+    for (let &x : v)
+    { if (first) first = false;
+      else       s << ", ";
+      s << x; }
+    return s << ")"; }
+
+  case ARRAY:
+  { s << "array<" << v.atype() << ">[";
+    bool first = true;
+    for (uint64_t i = 0; i < v.len(); ++i)
+    { if (first) first = false;
+      else       s << ", ";
+      s << val(v.atype(), *v.b, v.asub(i)); }
+    return s << "]"; }
+
+  case INDEX: return s << "index[]";
+
+  case NONE:  return s << "none";
+  case BOGUS: return s << "bogus";
+  default:    return s << "???";
+  }
 }
 
 std::ostream &operator<<(std::ostream &s, obuf const &o)
