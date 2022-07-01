@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 
 #include "unistd.h"
@@ -65,6 +66,33 @@ void try_loading_stuff()
     obuf o3; z.atype().pack(o3, z[0]); z.atype().pack(o3, z[1]);
     ibuf i3(o3.data(), o3.size());
     cout << val(z.atype(), i3, 0) << ", " << val(z.atype(), i3, 8) << endl;
+
+    for (int upper = 1; upper <= 1048576 * 16; upper *= 16)
+    {
+      obuf o4;
+      auto vs = new std::vector<val>;
+      for (int64_t i = 0; i < upper; ++i) vs->push_back(i);
+      val v4 = val(vs);
+      {
+        auto start = chrono::steady_clock::now();
+        o4 << v4;
+        auto end   = chrono::steady_clock::now();
+        chrono::duration<double> d = end - start;
+        cout << upper << " write output: " << d.count() << "s" << endl;
+      }
+
+      cout << "buffer size: " << o4.size() << endl;
+
+      ibuf i4(o4.data(), o4.size());
+
+      {
+        auto start = chrono::steady_clock::now();
+        auto c     = val(i4, 0).compare(v4);
+        auto end   = chrono::steady_clock::now();
+        chrono::duration<double> d = end - start;
+        cout << upper << ": " << c << ": " << d.count() << "s" << endl;
+      }
+    }
   }
   catch (error e)
   {

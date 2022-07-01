@@ -95,6 +95,28 @@ inline float ce(float const x)
 }
 
 
+namespace  // overflow checks
+{
+
+inline bool ou8 (uint64_t x) { return !(x >> 8); }
+inline bool ou16(uint64_t x) { return !(x >> 16); }
+inline bool ou32(uint64_t x) { return !(x >> 32); }
+
+inline bool oi8 (int64_t x) { return x << 56 >> 56 != x; }
+inline bool oi16(int64_t x) { return x << 48 >> 48 != x; }
+inline bool oi32(int64_t x) { return x << 32 >> 32 != x; }
+
+inline uint8_t  cou8 (uint64_t x) { return ou8(x)  ? throw PACK_OVERFLOW_ERROR : x; }
+inline uint16_t cou16(uint64_t x) { return ou16(x) ? throw PACK_OVERFLOW_ERROR : x; }
+inline uint32_t cou32(uint64_t x) { return ou32(x) ? throw PACK_OVERFLOW_ERROR : x; }
+
+inline int8_t   coi8 (int64_t x) { return oi8(x)  ? throw PACK_OVERFLOW_ERROR : x; }
+inline int16_t  coi16(int64_t x) { return oi16(x) ? throw PACK_OVERFLOW_ERROR : x; }
+inline int32_t  coi32(int64_t x) { return oi32(x) ? throw PACK_OVERFLOW_ERROR : x; }
+
+}
+
+
 inline uint64_t xxh(void const * x, size_t l, uint64_t s)
 { return XXH64(x, l, s); }
 
@@ -105,7 +127,7 @@ inline uint64_t xxc(uint64_t a, uint64_t b)
 namespace  // Dispatch table compression
 {
 
-typedef int16_t tpacked;
+typedef int32_t tpacked;
 
 void pack_table(uint64_t const *       t,
                 uint64_t const         base,
@@ -1078,6 +1100,10 @@ struct val
 
   val(std::vector<val> *vt_) : tag(tagify(TUPLE, true)), vt(vt_) {}
 
+  val(std::initializer_list<val> vs)
+    : tag(tagify(TUPLE, true)),
+      vt(new std::vector<val>(vs.begin(), vs.end())) {}
+
   val(std::string const &s, val_type t_ = UTF8)
     : tag(tagify(t_, true)),
       vb(reinterpret_cast<std::basic_string_view<uint8_t>*>(
@@ -1493,17 +1519,17 @@ struct val
 };
 
 
-val const none{val::tagify(NONE), 0};
+val const none(val::tagify(NONE), 0);
 
-val const α{val::tagify(Α), 0};
-val const ω{val::tagify(Ω), 0};
-val const ι{val::tagify(Ι), 0};
-val const κ{val::tagify(Κ), 0};
-val const τ{val::tagify(Τ), 0};
+val const α(val::tagify(Α), 0);
+val const ω(val::tagify(Ω), 0);
+val const ι(val::tagify(Ι), 0);
+val const κ(val::tagify(Κ), 0);
+val const τ(val::tagify(Τ), 0);
 
-inline val ρ(uint64_t x) { return val{val::tagify(Ρ), x}; }
-inline val θ(uint64_t x) { return val{val::tagify(Θ), x}; }
-inline val θ(double   x) { return val{val::tagify(Θ), static_cast<uint64_t>(x * static_cast<double>(std::numeric_limits<uint64_t>::max()))}; }
+inline val ρ(uint64_t x) { return val(val::tagify(Ρ), x); }
+inline val θ(uint64_t x) { return val(val::tagify(Θ), x); }
+inline val θ(double   x) { return val(val::tagify(Θ), static_cast<uint64_t>(x * static_cast<double>(std::numeric_limits<uint64_t>::max()))); }
 
 
 inline oenc &tval::pack(oenc &o, val const &v) const
@@ -1514,21 +1540,20 @@ inline oenc &tval::pack(oenc &o, val const &v) const
   case INT:
     switch (typecode())
     {
-      // TODO: check for overflow
-    case 0x00: return o.u8 (static_cast<uint64_t>(v));
-    case 0x01: return o.u16(static_cast<uint64_t>(v));
-    case 0x02: return o.u32(static_cast<uint64_t>(v));
-    case 0x03: return o.u64(static_cast<uint64_t>(v));
-    case 0x04: return o.u8 (static_cast<int64_t>(v));
-    case 0x05: return o.u16(static_cast<int64_t>(v));
-    case 0x06: return o.u32(static_cast<int64_t>(v));
+    case 0x00: return o.u8 (cou8(v));
+    case 0x01: return o.u16(cou16(v));
+    case 0x02: return o.u32(cou32(v));
+    case 0x03: return o.u64(v);
+    case 0x04: return o.u8 (coi8(v));
+    case 0x05: return o.u16(coi16(v));
+    case 0x06: return o.u32(coi32(v));
     case 0x07: return o.u64(static_cast<int64_t>(v));
     default: throw INTERNAL_ERROR;
     }
     break;
 
   case FLOAT32: return o.f32(static_cast<float>(v));
-  case FLOAT64: return o.f64(static_cast<float>(v));
+  case FLOAT64: return o.f64(static_cast<double>(v));
   case SYMBOL:  return o.u64(static_cast<uint64_t>(v));
   case PIDFD:   return o.u32(static_cast<pidfd>(v).pid).u32(static_cast<pidfd>(v).fd);
 
@@ -1731,6 +1756,7 @@ std::ostream &operator<<(std::ostream &s, error e)
   case COMPARE_ACROSS_TYPE_ERROR:       return s << "compare across type error";
   case COMPARE_ACROSS_ARRAY_TYPE_ERROR: return s << "compare across array type error";
   case PACK_LENGTH_ERROR:               return s << "pack length error";
+  case PACK_OVERFLOW_ERROR:             return s << "pack overflow error";
   case PACK_TUPLE_LENGTH_ERROR:         return s << "pack tuple length error";
   case PACK_ARRAY_LENGTH_ERROR:         return s << "pack array length error";
   case NOT_COMPARABLE_ERROR:            return s << "not comparable error";
