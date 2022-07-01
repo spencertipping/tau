@@ -42,7 +42,7 @@ enum error : uint8_t
 {
   ALIGNMENT_ERROR,
   BOUNDS_ERROR,
-  BDEC_REQUIRED_ERROR,
+  IBUF_REQUIRED_ERROR,
   INVALID_TYPE_ERROR,
   COMPARE_ACROSS_TYPE_ERROR,
   COMPARE_ACROSS_ARRAY_TYPE_ERROR,
@@ -147,14 +147,14 @@ enum val_type : uint8_t
 typedef uint64_t val_type_mask;
 
 
-// A bytecode decoder with source data.
-struct bdec
+// A bytecode decoder with fully-buffered and bounded source data.
+struct ibuf
 {
   uint8_t const * const xs;
   uint64_t        const l;
 
 
-  bdec(uint8_t const *xs_, uint64_t l_) : xs(xs_), l(l_) {}
+  ibuf(uint8_t const *xs_, uint64_t l_) : xs(xs_), l(l_) {}
 
 
   bool has  (uint64_t i) const { return i < l; }
@@ -193,46 +193,65 @@ struct bdec
 };
 
 
-// A streaming bytecode encoder. Designed to be used with
-// std::basic_ostream<uint8_t> and similar.
-template<class StreamT>
-struct basic_benc
+// A fully buffered bytecode encoder
+struct obuf
 {
-  StreamT &o;
+  uint8_t * b = nullptr;  // buffer data (will be moved)
+  uint64_t  l = 0;        // allocated size
+  uint64_t  i = 0;        // position of next byte to be written
 
-  ~basic_benc() { o.flush(); }
+  virtual ~obuf() { delete[] b;}
 
-  basic_benc &u8 (uint8_t  x) { o.put(x); return *this; }
-  basic_benc &u16(uint16_t x) { u8 (x >> 8);  return u8 (x & 0xff); }
-  basic_benc &u32(uint32_t x) { u16(x >> 16); return u16(x & 0xffff); }
-  basic_benc &u64(uint64_t x) { u32(x >> 32); return u32(x & 0xffffffff); }
-  basic_benc &f32(float    x) { return u32(*reinterpret_cast<uint32_t*>(&x)); }
-  basic_benc &f64(double   x) { return u64(*reinterpret_cast<uint64_t*>(&x)); }
 
-  basic_benc &write(uint8_t const *start, size_t n) { o.write(start, n); return *this; }
+  uint8_t *data()     const { return b; }
+  uint64_t size()     const { return i; }
+  uint64_t capacity() const { return l; }
 
-  basic_benc &operator<<(uint8_t  x) { return u8(x);  }
-  basic_benc &operator<<(uint16_t x) { return u16(x); }
-  basic_benc &operator<<(uint32_t x) { return u32(x); }
-  basic_benc &operator<<(uint64_t x) { return u64(x); }
-  basic_benc &operator<<(float    x) { return f32(x); }
-  basic_benc &operator<<(double   x) { return f64(x); }
+  void ensure_capacity(uint64_t l_)
+    { if (b == nullptr) { b = new uint8_t[1024]; l = 1024; i = 0; }
+      else if (l_ > l)
+      { uint64_t nl = l; while (nl < l_) nl <<= 1;
+        uint8_t *b_ = new uint8_t[nl];
+        memcpy(b_, b, i);
+        delete b;
+        b = b_;
+        l = nl; } }
+
+
+  obuf &push(uint8_t x)                      { ensure_capacity(i + 1); b[i++] = x; return *this; }
+  obuf &write(uint8_t const *xs, uint64_t n) { ensure_capacity(i + n); memcpy(b + i, xs, n); return *this; }
+
+  obuf &u8 (uint8_t  x) { return push(x); }
+  obuf &u16(uint16_t x) { u8 (x >> 8);  return u8 (x & 0xff); }
+  obuf &u32(uint32_t x) { u16(x >> 16); return u16(x & 0xffff); }
+  obuf &u64(uint64_t x) { u32(x >> 32); return u32(x & 0xffffffff); }
+  obuf &f32(float    x) { return u32(*reinterpret_cast<uint32_t*>(&x)); }
+  obuf &f64(double   x) { return u64(*reinterpret_cast<uint64_t*>(&x)); }
+
+  obuf &operator<<(uint8_t  x) { return u8(x);  }
+  obuf &operator<<(uint16_t x) { return u16(x); }
+  obuf &operator<<(uint32_t x) { return u32(x); }
+  obuf &operator<<(uint64_t x) { return u64(x); }
+  obuf &operator<<(float    x) { return f32(x); }
+  obuf &operator<<(double   x) { return f64(x); }
 
   template <class T>
-  basic_benc &operator<<(std::basic_string<T> x) { write(reinterpret_cast<uint8_t*>(x.data()), x.size()); return *this; }
+  obuf &operator<<(std::basic_string<T> x)
+    { static_assert(sizeof(x.data()[0]) == 1);
+      write(reinterpret_cast<uint8_t*>(x.data()), x.size()); return *this; }
 
   template <class T>
-  basic_benc &operator<<(std::basic_string_view<T> x) { write(reinterpret_cast<uint8_t*>(x.data()), x.size()); return *this; }
+  obuf &operator<<(std::basic_string_view<T> x)
+    { static_assert(sizeof(x.data()[0]) == 1);
+      write(reinterpret_cast<uint8_t*>(x.data()), x.size()); return *this; }
 };
-
-typedef basic_benc<std::basic_ostringstream<uint8_t>> benc;
 
 
 namespace  // Length traversal dispatch
 {
 
-typedef uint64_t(*lfn)(bdec const &, uint64_t);
-#define lf(body) [](bdec const &b, uint64_t i) -> uint64_t { return static_cast<uint64_t>(body); }
+typedef uint64_t(*lfn)(ibuf const &, uint64_t);
+#define lf(body) [](ibuf const &b, uint64_t i) -> uint64_t { return static_cast<uint64_t>(body); }
 
 
 let l1  = lf(1);
@@ -272,11 +291,11 @@ let idx16_lf = lf(1 + 2 + b.u16(i + 1));
 let idx32_lf = lf(1 + 4 + b.u32(i + 1));
 let idx64_lf = lf(1 + 8 + b.u64(i + 1));
 
-let bogus_lf = [](bdec const &b, uint64_t i) -> uint64_t { throw BOGUS_LF_ERROR; };
+let bogus_lf = [](ibuf const &b, uint64_t i) -> uint64_t { throw BOGUS_LF_ERROR; };
 
 
 // Typecode length functions
-inline uint64_t tuple_tl(bdec const &b, uint64_t i, uint64_t n)
+inline uint64_t tuple_tl(ibuf const &b, uint64_t i, uint64_t n)
 {
   uint64_t l = 0;
   while (n--) l += b.tlen(i + l);
@@ -609,9 +628,9 @@ void init_lfn_tables()
 
 }
 
-inline uint64_t bdec::len  (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + lfnos  [xs[i]])(*this, i); }
-inline uint64_t bdec::tlen (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tlfnos [xs[i]])(*this, i); }
-inline uint64_t bdec::tvlen(uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tvlfnos[xs[i]])(*this, i); }
+inline uint64_t ibuf::len  (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + lfnos  [xs[i]])(*this, i); }
+inline uint64_t ibuf::tlen (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tlfnos [xs[i]])(*this, i); }
+inline uint64_t ibuf::tvlen(uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tvlfnos[xs[i]])(*this, i); }
 
 
 namespace  // Type dispatch tables
@@ -711,12 +730,12 @@ val_type const bts[256] =
 };
 
 
-#define pf(body) [](bdec const &b, uint64_t i) -> uint8_t const* { return (body); }
+#define pf(body) [](ibuf const &b, uint64_t i) -> uint8_t const* { return (body); }
 
-typedef uint8_t const*(*pfn)(bdec const &, uint64_t);
+typedef uint8_t const*(*pfn)(ibuf const &, uint64_t);
 
 
-let bogus_pf = [](bdec const &b, uint64_t i) -> uint8_t const* { throw BOGUS_PF_ERROR; };
+let bogus_pf = [](ibuf const &b, uint64_t i) -> uint8_t const* { throw BOGUS_PF_ERROR; };
 
 let p1  = pf(b + (i + 1));
 let p2  = pf(b + (i + 2));
@@ -894,16 +913,16 @@ struct val;
 // A typecode beginning at a specific bytecode location
 struct tval
 {
-  bdec const * const b;
+  ibuf const * const b;
   uint64_t     const i;
   uint64_t     const e;
 
-  tval(bdec const &b_, uint64_t i_) : b(&b_), i(i_), e(b->tlen(i)) {}
+  tval(ibuf const &b_, uint64_t i_) : b(&b_), i(i_), e(b->tlen(i)) {}
 
 
   struct it
   {
-    bdec const * const b;
+    ibuf const * const b;
     uint64_t           i;
 
     tval operator* ()            const { return tval(*b, i); }
@@ -968,7 +987,7 @@ struct tval
   uint64_t h() const { return xxh(b + i, e - i, 1); }
 
   // Encode a value without any type prefixes
-  benc &encode(benc&, val const&);
+  obuf &encode(obuf&, val const&);
 };
 
 
@@ -993,10 +1012,10 @@ struct val
   static int val_hash_order(val const &v1, val const &v2) { return v1[1].h().compare(v2[1].h()); }
 
 
-  // bdec const * will be 8-byte aligned, so tags with the low bit set are
+  // ibuf const * will be 8-byte aligned, so tags with the low bit set are
   // type designators; see tagify() and tag_type() above.
   union
-  { bdec const * b;
+  { ibuf const * b;
     uint64_t     tag; } const;
 
   union
@@ -1011,7 +1030,7 @@ struct val
     std::vector<val>                      *vt; } const;
 
 
-  val(bdec const &b_, uint64_t i_) : b(&b_), i(i_)
+  val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
     { if (reinterpret_cast<uint64_t>(b) & 7) throw ALIGNMENT_ERROR;
       b->check(b->len(i)); }
 
@@ -1034,7 +1053,7 @@ struct val
            new std::string_view(s.begin(), s.end())))
     {}
 
-  val(tval const &t_, bdec const &b, uint64_t i)
+  val(tval const &t_, ibuf const &b, uint64_t i)
     { switch (t_.typecode())
       {
       case 0x00: tag = tagify(UINT); vu = b.u8 (i); break;
@@ -1115,31 +1134,31 @@ struct val
   bool exists() const { return type() != NOEXIST; }
 
 
-  bool     has_bdec()                    const { return !(tag & 1); }
-  bool     is_immediate()                const { return !has_bdec(); }
-  val_type type()                        const { return has_bdec() ? bts[b->u8(i)] : tag_type(tag); }
-  void     require_bdec()                const { if (!has_bdec()) throw BDEC_REQUIRED_ERROR; }
+  bool     has_ibuf()                    const { return !(tag & 1); }
+  bool     is_immediate()                const { return !has_ibuf(); }
+  val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : tag_type(tag); }
+  void     require_ibuf()                const { if (!has_ibuf()) throw IBUF_REQUIRED_ERROR; }
   void     require_type(val_type_mask m) const { if (!(1ull << type() & m)) throw INVALID_TYPE_ERROR; }
 
 
   // Skip past all prefix indexes to get to the structure being indexed
   val list() const
-    { require_bdec();
+    { require_ibuf();
       uint64_t j = i;
       while (bts[b->cu8(j)] == INDEX) j += b->len(j);
       return j; }
 
 
-  uint8_t const *mbegin() const { require_bdec(); return reinterpret_cast<pfn>(sfn_base + sfnos[b->u8(i)])(*b, i); }
-  uint8_t const *mend()   const { require_bdec(); return *b + b->len(i); }
-  uint64_t       mlen()   const { require_bdec(); return mend() - mbegin(); }
-  uint64_t       msize()  const { require_bdec(); return b->len(i); }
+  uint8_t const *mbegin() const { require_ibuf(); return reinterpret_cast<pfn>(sfn_base + sfnos[b->u8(i)])(*b, i); }
+  uint8_t const *mend()   const { require_ibuf(); return *b + b->len(i); }
+  uint64_t       mlen()   const { require_ibuf(); return mend() - mbegin(); }
+  uint64_t       msize()  const { require_ibuf(); return b->len(i); }
 
 
   // TODO: this needs to be polymorphic to handle immediate vals and arrays
   struct it
   {
-    bdec const * const b;
+    ibuf const * const b;
     uint64_t           i;
 
     val  operator* ()              const { return val(*b, i); }
@@ -1147,8 +1166,8 @@ struct val
     bool operator==(it const &rhs) const { return b == rhs.b && i == rhs.i; }
   };
 
-  it begin() const { require_bdec(); return it{b, static_cast<uint64_t>(mbegin() - b->xs)}; }
-  it end()   const { require_bdec(); return it{b, i + b->len(i)}; }
+  it begin() const { require_ibuf(); return it{b, static_cast<uint64_t>(mbegin() - b->xs)}; }
+  it end()   const { require_ibuf(); return it{b, i + b->len(i)}; }
 
 
   uint64_t len() const
@@ -1193,7 +1212,7 @@ struct val
   uint64_t asub(uint64_t i) const { return mbegin() + astride() * i - b->xs; }
 
   tval atype() const
-    { require_bdec();
+    { require_ibuf();
       require_type(1ull << ARRAY);
       switch (b->u8(i))
       {
@@ -1205,16 +1224,16 @@ struct val
       } }
 
 
-  operator float()  const { require_type(1ull << FLOAT32); return has_bdec() ? b->f32(i + 1)                       : vf; }
-  operator double() const { require_type(1ull << FLOAT64); return has_bdec() ? b->f64(i + 1)                       : vd; }
-  operator sym()    const { require_type(1ull << SYMBOL);  return has_bdec() ? sym{b->u64(i + 1)}                  : vy; }
-  operator pidfd()  const { require_type(1ull << PIDFD);   return has_bdec() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
-  operator bool()   const { require_type(1ull << BOOL);    return has_bdec() ? b->u8(i) == 0x0d                    : !!vu; }
+  operator float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->f32(i + 1)                       : vf; }
+  operator double() const { require_type(1ull << FLOAT64); return has_ibuf() ? b->f64(i + 1)                       : vd; }
+  operator sym()    const { require_type(1ull << SYMBOL);  return has_ibuf() ? sym{b->u64(i + 1)}                  : vy; }
+  operator pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
+  operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->u8(i) == 0x0d                    : !!vu; }
 
   operator uint64_t() const
     { if (type() == INT) throw SIGNED_COERCION_ERROR;
       require_type(1ull << UINT | 1ull << Ρ | 1ull << Θ);
-      if (!has_bdec()) return vu;
+      if (!has_ibuf()) return vu;
       let x = b->u8(i);
       switch (x)
       {
@@ -1228,7 +1247,7 @@ struct val
   operator int64_t() const
     { if (type() == UINT) throw SIGNED_COERCION_ERROR;
       require_type(1ull << INT);
-      if (!has_bdec()) return vi;
+      if (!has_ibuf()) return vi;
       let x = b->u8(i);
       if (x >= 0x80) return x - 0x80;
       switch (x)
@@ -1242,7 +1261,7 @@ struct val
 
   operator std::string() const
     { require_type(1ull << UTF8 | 1ull << BYTES);
-      return has_bdec()
+      return has_ibuf()
         ? std::string(reinterpret_cast<char const*>(mbegin()), mlen())
         : std::string(reinterpret_cast<char const*>(vb->begin(), vb->end())); }
 
@@ -1369,7 +1388,7 @@ struct val
 
   val tp(uint64_t i, uint64_t const h = 0) const  // Tuple positional lookup
     { require_type(1ull << TUPLE);
-      if (!has_bdec()) return (*vt)[i];
+      if (!has_ibuf()) return (*vt)[i];
       let      e = mend()   - b->xs;
       uint64_t o = mbegin() - b->xs + h;
       while (i--) if ((o += b->len(o)) >= e) throw BOUNDS_ERROR;
@@ -1377,17 +1396,17 @@ struct val
 
   bool tomc(val const &k, uint64_t const h = 0) const  // Tuple ordered member check
     { require_type(1ull << TUPLE);
-      if (!has_bdec()) return val(std::binary_search(vt->begin(), vt->end(), k));
+      if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k));
       for (uint64_t o = mbegin() - b->xs + h;
            o < mend() - b->xs;
            o += b->len(o))
         if (k == val(&b, o)) return true;
       return false; }
 
-  // TODO: interpolation search for !has_bdec() case
+  // TODO: interpolation search for !has_ibuf() case
   bool thmc(val const &k, uint64_t const h = 0) const  // Tuple hash-ordered member check
     { require_type(1ull << TUPLE);
-      if (!has_bdec()) return val(std::binary_search(vt->begin(), vt->end(), k, hash_before));
+      if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k, hash_before));
       let kh = k.h();
       for (uint64_t o = mbegin() - b->xs + h;
            o < mend() - b->xs;
@@ -1424,9 +1443,9 @@ val θ(uint64_t x) { return val{val::tagify(Θ), x}; }
 namespace  // bytecode encoding
 {
 
-benc &operator<<(benc &o, val const &v)
+obuf &operator<<(obuf &o, val const &v)
 {
-  if (v.has_bdec()) return o.write(*v.b + v.i, v.len());
+  if (v.has_ibuf()) return o.write(*v.b + v.i, v.len());
 
   switch (v.type())
   {
@@ -1477,6 +1496,8 @@ benc &operator<<(benc &o, val const &v)
   case TUPLE:
   {
     // TODO: how do we calculate body length efficiently?
+    // TODO: write an incremental-expander class, which, if in-place, means
+    // that our obuf needs to be (1) virtual, and (2) fully buffered
   }
 
   case ARRAY:
@@ -1484,7 +1505,7 @@ benc &operator<<(benc &o, val const &v)
 
   }
 
-  case INDEX: throw BDEC_REQUIRED_ERROR;
+  case INDEX: throw IBUF_REQUIRED_ERROR;
 
   case NOEXIST:
   case BOGUS:
@@ -1538,7 +1559,7 @@ std::ostream &operator<<(std::ostream &s, error e)
   {
   case ALIGNMENT_ERROR:                 return s << "alignment error";
   case BOUNDS_ERROR:                    return s << "bounds error";
-  case BDEC_REQUIRED_ERROR:             return s << "bdec required error";
+  case IBUF_REQUIRED_ERROR:             return s << "ibuf required error";
   case INVALID_TYPE_ERROR:              return s << "invalid type error";
   case COMPARE_ACROSS_TYPE_ERROR:       return s << "compare across type error";
   case COMPARE_ACROSS_ARRAY_TYPE_ERROR: return s << "compare across array type error";
