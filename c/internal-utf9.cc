@@ -67,7 +67,7 @@ void try_loading_stuff()
     ibuf i3(o3.data(), o3.size());
     cout << val(z.atype(), i3, 0) << ", " << val(z.atype(), i3, 8) << endl;
 
-    for (int upper = 1; upper <= 1048576 * 16; upper *= 16)
+    for (int64_t upper = 1; upper <= 1048576 * 16; upper *= 16)
     {
       obuf o4;
       auto vs = new std::vector<val>;
@@ -91,6 +91,15 @@ void try_loading_stuff()
         auto end   = chrono::steady_clock::now();
         chrono::duration<double> d = end - start;
         cout << upper << ": " << c << ": " << d.count() << "s" << endl;
+      }
+
+      {
+        auto start = chrono::steady_clock::now();
+        uint64_t t = 0;
+        for (auto const &x : val(i4, 0)) t += static_cast<int64_t>(x);
+        auto end   = chrono::steady_clock::now();
+        chrono::duration<double> d = end - start;
+        cout << upper << ": " << t << " vs " << (upper * (upper - 1)) / 2 << ": " << d.count() << "s" << endl;
       }
     }
   }
