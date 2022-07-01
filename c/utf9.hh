@@ -141,7 +141,7 @@ enum val_type : uint8_t
   ARRAY    = 0x24,
   INDEX    = 0x30,
 
-  NOEXIST  = 0x3e,  // fictitious: not a real value
+  NONE     = 0x3e,  // fictitious: not a real value
   BOGUS    = 0x3f,
 };
 
@@ -1139,8 +1139,6 @@ struct val
       default: throw INVALID_TYPE_ERROR;
       } }
 
-  val() : tag(tagify(NOEXIST)), i(0) {}
-
 
   ~val()
     { if (tag & 2)  // value is owned, so we need to free it
@@ -1153,7 +1151,7 @@ struct val
         } }
 
 
-  bool exists() const { return type() != NOEXIST; }
+  bool exists() const { return type() != NONE; }
 
 
   bool     has_ibuf()                    const { return !(tag & 1); }
@@ -1317,11 +1315,11 @@ struct val
       case BOOL: return xxh(NULL, 0, static_cast<bool>(*this) ? 0x0d : 0x0c);
 
       case NULLTYPE:
-      case Τ:
       case Α:
       case Ω:
       case Ι:
-      case Κ: return xxh(NULL, 0, t);
+      case Κ:
+      case Τ: return xxh(NULL, 0, t);
 
       case ARRAY:
       case UTF8:
@@ -1366,7 +1364,7 @@ struct val
       case Ω:
       case Κ:
       case Ι:
-      case Τ:     return 0;
+      case Τ: return 0;
 
       case UTF8:
       case BYTES:
@@ -1452,6 +1450,8 @@ struct val
 };
 
 
+val const none{val::tagify(NONE), 0};
+
 val const α{val::tagify(Α), 0};
 val const ω{val::tagify(Ω), 0};
 val const ι{val::tagify(Ι), 0};
@@ -1474,7 +1474,8 @@ struct tenc : public oenc
   uint64_t  n;    // number of tuple elements
   int       lh;   // current header size in bytes
 
-  tenc(oenc &b_, uint64_t n_) : b(b_), si(b.size()), l(0), n(n_), lh(0) { write_header(); }
+  tenc(oenc &b_, uint64_t n_) : b(b_), si(b.size()), l(0), n(n_), lh(0)
+    { write_header(); }
 
   int header_size()
     { let m = l | n;
@@ -1527,9 +1528,9 @@ oenc &operator<<(oenc &o, val const &v)
   case INT:
   { int64_t x = v;
     if (x >= 0 && x < 128) return o.u8(0x80 + x);
-    return x != x >> 32 << 32 ? o.u8(0x07).u64(x)
-         : x != x >> 16 << 16 ? o.u8(0x06).u32(x)
-         : x != x >> 8  << 8  ? o.u8(0x05).u16(x)
+    return x != x << 32 >> 32 ? o.u8(0x07).u64(x)
+         : x != x << 16 >> 16 ? o.u8(0x06).u32(x)
+         : x != x << 8  >> 8  ? o.u8(0x05).u16(x)
          :                      o.u8(0x04).u8(x); }
 
   case FLOAT32:  return o.u8(0x08).f32(v);
@@ -1567,7 +1568,7 @@ oenc &operator<<(oenc &o, val const &v)
   case ARRAY: throw IMMEDIATE_ARRAY_ERROR;
   case INDEX: throw IBUF_REQUIRED_ERROR;
 
-  case NOEXIST:
+  case NONE:
   case BOGUS:
   default: throw INVALID_TYPE_ERROR;
   }
@@ -1592,23 +1593,23 @@ std::ostream &operator<<(std::ostream &s, val_type t)
   case BOOL:     return s << "bool";
   case NULLTYPE: return s << "null";
 
-  case Α: return s << "α";
-  case Ω: return s << "ω";
-  case Ι:  return s << "ι";
-  case Κ: return s << "κ";
-  case Τ:   return s << "τ";
-  case Ρ:   return s << "ρ";
-  case Θ: return s << "θ";
+  case Α:        return s << "α";
+  case Ω:        return s << "ω";
+  case Ι:        return s << "ι";
+  case Κ:        return s << "κ";
+  case Τ:        return s << "τ";
+  case Ρ:        return s << "ρ";
+  case Θ:        return s << "θ";
 
-  case UTF8:  return s << "utf8";
-  case BYTES: return s << "bytes";
-  case TUPLE: return s << "tuple";
-  case ARRAY: return s << "array";
-  case INDEX: return s << "index";
+  case UTF8:     return s << "utf8";
+  case BYTES:    return s << "bytes";
+  case TUPLE:    return s << "tuple";
+  case ARRAY:    return s << "array";
+  case INDEX:    return s << "index";
 
-  case BOGUS: return s << "bogus";
-
-  default: return s << "??? " << static_cast<int>(t);
+  case BOGUS:    return s << "bogus";
+  case NONE:     return s << "none";
+  default:       return s << "??? " << static_cast<int>(t);
   }
 }
 
@@ -1639,15 +1640,15 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
 {
   switch (t.type())
   {
-  case UINT:     return s << "u" << t.vsize() * 8;
-  case INT:      return s << "i" << t.vsize() * 8;
+  case UINT:    return s << "u" << t.vsize() * 8;
+  case INT:     return s << "i" << t.vsize() * 8;
   case FLOAT32:
-  case FLOAT64:  return s << "f" << t.vsize() * 8;
-  case SYMBOL:   return s << "s";
-  case PIDFD:    return s << "p";
+  case FLOAT64: return s << "f" << t.vsize() * 8;
+  case SYMBOL:  return s << "s";
+  case PIDFD:   return s << "p";
 
-  case UTF8:     return s << "u[" << t.vsize() << "]";
-  case BYTES:    return s << "b[" << t.vsize() << "]";
+  case UTF8:    return s << "u[" << t.vsize() << "]";
+  case BYTES:   return s << "b[" << t.vsize() << "]";
   case TUPLE:
   { bool first = true;
     s << "(";
@@ -1665,7 +1666,12 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
 
 std::ostream &operator<<(std::ostream &s, val const &t)
 {
-  return s << "TODO: << val";
+  return s << "TODO: << val" << std::endl;
+}
+
+std::ostream &operator<<(std::ostream &s, obuf const &o)
+{
+  return s.write(reinterpret_cast<char*>(o.b), o.i);
 }
 
 }
@@ -1676,7 +1682,7 @@ std::ostream &operator<<(std::ostream &s, val const &t)
 // a (val, val) -> val function.
 
 
-void utf9_init()
+inline void utf9_init()
 {
   init_lfn_tables();
   init_sfn_tables();
