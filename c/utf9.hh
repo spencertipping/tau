@@ -1742,7 +1742,7 @@ std::ostream &operator<<(std::ostream &s, val_type t)
 
   case BOGUS:    return s << "bogus";
   case NONE:     return s << "none";
-  default:       return s << "??? " << static_cast<int>(t);
+  default:       return s << "??? " << static_cast<uint8_t>(t);
   }
 }
 

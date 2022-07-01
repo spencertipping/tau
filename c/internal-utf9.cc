@@ -92,6 +92,8 @@ void try_loading_stuff()
                             min(o4.size(), 256ul));
       cout << debug<string_view>{sv} << endl;
 
+      cout << val(i4, 0).bsize() << " == " << i4.l << endl;
+
       {
         auto start = chrono::steady_clock::now();
         auto c     = val(i4, 0).compare(v4);
