@@ -18,7 +18,7 @@ void try_loading_stuff()
   try
   {
     uint8_t buf[] = {
-      0x49, 0x03, 0x01, 0x03, 0x00, 0x80,
+      0x49, 0x03, 0x01, 0x01, 0x00, 0x80,
       0x40, 0x03, 0x01, 0x01, 0x02, 0x01,
 
       0x44, 0x14, 0x04,
@@ -38,18 +38,12 @@ void try_loading_stuff()
     val  z(b,   12);
     val  a(b,   12 + b.len(12));
 
-    cout << x << " :: " << x.type() << endl;
-    cout << x.h() << endl;
+    cout << x << " :: " << x.type() << " = " << x.h() << endl;
+    cout << y << " :: " << y.type() << " = " << y.h() << endl;
+    cout << z << " :: " << z.type() << " = " << z.h() << endl;
+    cout << a << " :: " << a.type() << " = " << a.h() << endl;
 
-    cout << y << " :: " << y.type() << endl;
-    cout << y.h() << endl;
-
-    cout << z << endl;
-    cout << z.h() << endl;
-
-    cout << a << " :: " << a.type() << endl;
-
-    cout << x.compare(y) << endl;
+    cout << x << " <=> " << y << " = " << x.compare(y) << endl;
   }
   catch (error e)
   {
