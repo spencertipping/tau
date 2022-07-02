@@ -73,7 +73,7 @@ void try_loading_stuff()
     for (int64_t upper = 1; upper <= 1048576 * 16; upper *= 16)
     {
       obuf o4;
-      val v4 = tau::utf9::tuple();
+      val v4 = tau::utf9::tuple(upper);
       for (int64_t i = 0; i < upper; ++i) v4 << val(i);
 
       {

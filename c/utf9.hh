@@ -1358,23 +1358,16 @@ struct val
 #define ht(ct)                                                          \
         { let x = ce(static_cast<uint64_t>(static_cast<ct>(*this)));    \
           return xxh(&x, sizeof(x), t); }
-
       case Ρ:
       case Θ:
       case UINT:    ht(uint64_t)
       case INT:     ht(int64_t)
       case SYMBOL:  ht(sym)
       case PIDFD:   ht(pidfd)
-
 #undef ht
 
-      case FLOAT64:
-      { let x = ce(static_cast<double>(*this));
-        return xxh(&x, sizeof(x), t); }
-
-      case FLOAT32:
-      { let x = ce(static_cast<float>(*this));
-        return xxh(&x, sizeof(x), t); }
+      case FLOAT64: { let x = ce(static_cast<double>(*this)); return xxh(&x, sizeof(x), t); }
+      case FLOAT32: { let x = ce(static_cast<float> (*this)); return xxh(&x, sizeof(x), t); }
 
       case BOOL: return xxh(NULL, 0, static_cast<bool>(*this) ? 0x0d : 0x0c);
 
@@ -1483,6 +1476,7 @@ struct val
       while (i--) if ((o += b->len(o)) >= e) throw decoding_error("tp", *b, o);
       return val(*b, o); }
 
+  // TODO: these should be "fetch by contents", not "member check"
   bool tomc(val const &k, uint64_t const h = 0) const  // Tuple ordered member check
     { require_type(1ul << TUPLE);
       if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k));
@@ -1532,7 +1526,7 @@ inline val ρ(uint64_t x) { return val(val::tagify(Ρ), x); }
 inline val θ(uint64_t x) { return val(val::tagify(Θ), x); }
 inline val θ(double   x) { return val(val::tagify(Θ), static_cast<uint64_t>(x * static_cast<double>(std::numeric_limits<uint64_t>::max()))); }
 
-inline val tuple() { return val(new std::vector<val>); }
+inline val tuple(uint64_t n = 0) { let vt = new std::vector<val>; if (n) vt->reserve(n); return val(vt); }
 
 
 inline oenc &tval::pack(oenc &o, val const &v) const
