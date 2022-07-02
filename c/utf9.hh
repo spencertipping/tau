@@ -1214,7 +1214,7 @@ struct val
       return vb->data(); }
 
   uint8_t const *mend() const
-    { if (has_ibuf()) return *b + b->len(i);
+    { if (has_ibuf()) return *b + i + b->len(i);
       require_type(1ul << UTF8 | 1ul << BYTES);
       return vb->data() + vb->size(); }
 
@@ -1288,11 +1288,10 @@ struct val
 
 
   uint64_t astride()        const { return atype().vsize(); }
-  uint64_t asub(uint64_t i) const { return mbegin() + astride() * i - b->xs; }
+  uint64_t asub(uint64_t i) const { return ibegin() + astride() * i; }
 
   tval atype() const
-    { require_ibuf();
-      require_type(1ul << ARRAY);
+    { require_ibuf(); require_type(1ul << ARRAY);
       switch (b->u8(i))
       {
       case 0x44: return tval(*b, i + 3);
@@ -1553,14 +1552,25 @@ uint64_t interpsearch(std::vector<val> const &vs,
     let hm = kf(vs[m]).h();
     switch (hm.compare(hk))
     {
-    case  1: u = m + 1; hu = hm; break;
-    case -1: l = m;     hl = hm; break;
+    case  1: u = m; hu = hm; break;
+    case -1: l = m; hl = hm; break;
     case  0: return m;
     }
   }
 
-  // FIXME: need to binsearch _hashes_, not _elements_
-  return binsearch<KF>(vs, k, l, u);
+  while (u > l + 1)
+  {
+    let m  = u + l >> 1;
+    let hm = kf(vs[m]).h();
+    switch (hm.compare(hk))
+    {
+    case  1: u = m; hu = hm; break;
+    case -1: l = m; hl = hm; break;
+    case  0: return m;
+    }
+  }
+
+  return l | (kf(vs[l]).compare(k) ? 1ul << 63 : 0);
 }
 
 
