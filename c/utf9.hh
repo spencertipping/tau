@@ -1218,6 +1218,9 @@ struct val
       require_type(1ul << UTF8 | 1ul << BYTES);
       return vb->data() + vb->size(); }
 
+  uint64_t ibegin() const { require_ibuf(); return mbegin() - b->xs; }
+  uint64_t iend()   const { require_ibuf(); return mend()   - b->xs; }
+
 
   struct it
   {
@@ -1239,12 +1242,11 @@ struct val
 
   it begin() const {
     require_type(1ul << TUPLE | 1ul << ARRAY);
-    return has_ibuf() ? it(b, static_cast<uint64_t>(mbegin() - b->xs))
-                      : it(vt->begin()); }
+    return has_ibuf() ? it(b, ibegin()) : it(vt->begin()); }
 
   it end() const {
     require_type(1ul << TUPLE | 1ul << ARRAY);
-    return has_ibuf() ? it(b, i + b->len(i)) : it(vt->end()); }
+    return has_ibuf() ? it(b, iend()) : it(vt->end()); }
 
 
   uint64_t len() const
@@ -1469,56 +1471,26 @@ struct val
 
   // All functions below use hinting: hi or hk to indicate the thing that was
   // hinted, and h to indicate the byte offset (beyond mbegin()) to start
-  // looking. In every case, hi < i and hk < k (or for hashed, H[hk] < H[k]);
-  // decoding is forward-only, so hints can't overshoot.
+  // looking (for arrays, hi to indicate the element offset). In every case,
+  // hi < i and hk < k (or for hashed, H[hk] < H[k]); decoding is forward-only,
+  // so hints can't overshoot.
   val tp(uint64_t i, uint64_t hi = 0, uint64_t h = 0) const;
 
-  val toe(val const &k, val const &hk, uint64_t h = 0) const;
-  val the(val const &k, val const &hk, uint64_t h = 0) const;
-  val tok(val const &k, val const &hk, uint64_t h = 0) const;
-  val thk(val const &k, val const &hk, uint64_t h = 0) const;
-  val tov(val const &k, val const &hk, uint64_t h = 0) const;
-  val thv(val const &k, val const &hk, uint64_t h = 0) const;
 
-  val aoe(val const &k, val const &hk, uint64_t hi = 0) const;
-  val ahe(val const &k, val const &hk, uint64_t hi = 0) const;
-  val aok(val const &k, val const &hk, uint64_t hi = 0) const;
-  val ahk(val const &k, val const &hk, uint64_t hi = 0) const;
-  val aov(val const &k, val const &hk, uint64_t hi = 0) const;
-  val ahv(val const &k, val const &hk, uint64_t hi = 0) const;
+  struct kf_te { val const &operator()(val const &e)  { return e; } };
+  struct kf_tk { val const  operator()(val const &kv) { return kv[0]; } };
+  struct kf_tv { val const  operator()(val const &kv) { return kv[1]; } };
+
+  template <class KF> val to(val const &k, val const &hk, uint64_t h = 0) const;
+  template <class KF> val th(val const &k, val const &hk, uint64_t h = 0) const;
+  template <class KF> val ao(val const &k, val const &hk, uint64_t hi = 0) const;
+  template <class KF> val ah(val const &k, val const &hk, uint64_t hi = 0) const;
+
+  template <class KF> val make_to() const;
+  template <class KF> val make_th() const;
+  template <class KF> val make_ao() const;
+  template <class KF> val make_ah() const;
 };
-
-
-val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
-{ if (!has_ibuf()) return (*vt)[i];
-  if (hi > i)      throw internal_error("hi>i");
-  let      e = mend()   - b->xs;
-  uint64_t o = mbegin() - b->xs + h;
-  if (o >= e) throw decoding_error("tp0", *b, o);
-  while (i-- > hi) if ((o += b->len(o)) >= e) throw decoding_error("tp", *b, o);
-  return val(*b, o); }
-
-// TODO: factor structure out into generic searcher template
-// (it should be easy because we always take a hint and apply some trivial
-//  transformation to both the target and the current value)
-val val::toe(val const &k, val const &hk, uint64_t const h) const
-{ if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k));
-  for (uint64_t o = mbegin() - b->xs + h;
-       o < mend() - b->xs;
-       o += b->len(o))
-    if (k == val(*b, o)) return true;
-  return false; }
-
-// TODO: interpolation search for !has_ibuf() case
-val val::the(val const &k, val const &hk, uint64_t const h) const
-{ require_type(1ul << TUPLE);
-  if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k, hash_before));
-  let kh = k.h();
-  for (uint64_t o = mbegin() - b->xs + h;
-       o < mend() - b->xs;
-       o += b->len(o))
-    if (kh == val(*b, o).h()) return true;
-  return false; }
 
 
 val const none(val::tagify(NONE), 0);
@@ -1534,6 +1506,152 @@ inline val θ(uint64_t x) { return val(val::tagify(Θ), x); }
 inline val θ(double   x) { return val(val::tagify(Θ), static_cast<uint64_t>(x * static_cast<double>(std::numeric_limits<uint64_t>::max()))); }
 
 inline val tuple(uint64_t n = 0) { let vt = new std::vector<val>; if (n) vt->reserve(n); return val(vt); }
+
+
+namespace  // container search helper functions
+{
+
+template <class KF>
+uint64_t binsearch(std::vector<val> const &vs,
+                   val              const &k,
+                   uint64_t                l = 0,
+                   uint64_t                u = -1)
+{
+  KF kf;
+  u = std::min(u, vs.size());
+  while (u > l + 1)
+  {
+    let m = u + l >> 1;
+    switch (kf(vs[m]).compare(k))
+    {
+    case  1: u = m; break;
+    case -1: l = m; break;
+    case  0: return m;
+    }
+  }
+  return l | (kf(vs[l]).compare(k) ? 1ul << 63 : 0);
+}
+
+
+template <class KF>
+uint64_t interpsearch(std::vector<val> const &vs,
+                      val              const &k,
+                      uint64_t                l = 0,
+                      uint64_t                u = -1)
+{
+  KF kf;
+  u = std::min(vs.size(), u);
+  uint64_t hu = kf(vs[u - 1]).h();
+  uint64_t hl = kf(vs[0]).h();
+  let hk = k.h().h;
+
+  // NOTE: interp-search for long distances where we're likely to choose
+  // better splits; then delegate to binsearch to divide the final interval.
+  while (u > l + 16)
+  {
+    let m  = std::min(u - 1, std::max(l + 1, l + (u - l) * (hk - hl) / (hu - hl)));
+    let hm = kf(vs[m]).h();
+    switch (hm.compare(hk))
+    {
+    case  1: u = m; hu = hm; break;
+    case -1: l = m; hl = hm; break;
+    case  0: return m;
+    }
+  }
+
+  return binsearch<KF>(vs, k, l, u);
+}
+
+
+template <class KF>
+val s_to(val      const &b,
+         val      const &k,
+         val      const &hk,
+         uint64_t const h)
+{
+  if (hk > k) throw internal_error("s_to hk>k");
+  KF kf;
+  if (!b.has_ibuf()) { let i = binsearch<KF>(*b.vt, k); return i & 1ul << 63 ? none : (*b.vt)[i]; }
+  for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
+  { let v = val(*b.b, o);
+    switch (k.compare(kf(v)))
+    {
+    case -1: break;
+    case  0: return v;
+    case  1: return none;
+    } }
+  return none;
+}
+
+
+template <class KF>
+val s_th(val      const &b,
+         val      const &k,
+         val      const &hk,
+         uint64_t const h)
+{
+  if (hk > k) throw internal_error("s_th hk>k");
+  KF kf;
+  if (!b.has_ibuf()) { let i = interpsearch<KF>(*b.vt, k); return i & 1ul << 63 ? none : (*b.vt)[i]; }
+  let kh = k.h().h;
+  for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
+  { let v  = val(*b.b, o);
+    let vh = v.h().h;
+    if (kh > vh)  return none;
+    if (kh == vh) return v; }
+  return none;
+}
+
+}
+
+
+inline val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
+{
+  if (!has_ibuf()) return (*vt)[i];
+  if (hi > i)      throw internal_error("hi>i");
+  let      e = iend();
+  uint64_t o = ibegin() + h;
+  if (o >= e) throw decoding_error("tp0", *b, o);
+  while (i-- > hi) if ((o += b->len(o)) >= e) throw decoding_error("tp", *b, o);
+  return val(*b, o);
+}
+
+template <class KF> inline val val::to(val const &k, val const &hk, uint64_t const h) const { return s_to<KF>(*this, k, hk, h); }
+template <class KF> inline val val::th(val const &k, val const &hk, uint64_t const h) const { return s_th<KF>(*this, k, hk, h); }
+
+template <class KF> val val::make_to() const
+{
+  KF kf;
+  let v = new std::vector<val>;
+  v->reserve(len());
+  for (let &x : *this) v->push_back(x);
+  std::sort(v->begin(), v->end(),
+            [=](val const &a, val const &b) { return kf(a).compare(kf(b)); });
+  return val(v);
+}
+
+template <class KF> val val::make_th() const
+{
+  struct hi { hash h; uint64_t i; };
+  static_assert(sizeof(hi) == sizeof(val));
+
+  KF kf;
+  let v = new std::vector<hi>;
+  v->reserve(len());
+  if (has_ibuf()) for (let &x : *this) v->push_back(hi{kf(x).h(), x.i});
+  else
+  { uint64_t i = 0;
+    for (let &x : *this) v->push_back(hi{kf(x).h(), i++}); }
+
+  std::sort(v->begin(), v->end(),
+            [](hi const &a, hi const &b) { return a.h().compare(b.h()); });
+
+  let vs = reinterpret_cast<std::vector<val>*>(v);
+  if (has_ibuf()) for (uint64_t i = 0; i < vs->size(); ++i) (*vs)[i] = val(*b, (*v)[i].i);
+  else            for (uint64_t i = 0; i < vs->size(); ++i) (*vs)[i] = (*vt)[(*v)[i].i];
+
+  return val(vt);
+}
 
 
 inline oenc &tval::pack(oenc &o, val const &v) const
