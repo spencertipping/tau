@@ -138,9 +138,11 @@ void try_orderings()
            << v.to<val::kf_te>(val(i), none) << endl;
 
     auto vh = v.make_th<val::kf_te>();
+    for (auto const &v : *vh) cout << "h = " << v.h() << endl;
     for (int64_t i = -10; i < 110; ++i)
       cout << "hashed finding " << i << ": "
-           << vh.th<val::kf_te>(val(i), none) << endl;
+           << vh->th<val::kf_te>(val(i), none) << endl;
+    delete vh;
   }
   catch (utf9_error const &e)
   {
@@ -153,7 +155,7 @@ void try_orderings()
 int main()
 {
   utf9_init();
-  try_orderings();
   try_loading_stuff();
+  try_orderings();
   return 0;
 }

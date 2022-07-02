@@ -1486,10 +1486,10 @@ struct val
   template <class KF> val ao(val const &k, val const &hk, uint64_t hi = 0) const;
   template <class KF> val ah(val const &k, val const &hk, uint64_t hi = 0) const;
 
-  template <class KF> val make_to() const;
-  template <class KF> val make_th() const;
-  template <class KF> val make_ao() const;
-  template <class KF> val make_ah() const;
+  template <class KF> val *make_to() const;
+  template <class KF> val *make_th() const;
+  template <class KF> val *make_ao() const;
+  template <class KF> val *make_ah() const;
 };
 
 
@@ -1553,12 +1553,13 @@ uint64_t interpsearch(std::vector<val> const &vs,
     let hm = kf(vs[m]).h();
     switch (hm.compare(hk))
     {
-    case  1: u = m; hu = hm; break;
-    case -1: l = m; hl = hm; break;
+    case  1: u = m + 1; hu = hm; break;
+    case -1: l = m;     hl = hm; break;
     case  0: return m;
     }
   }
 
+  // FIXME: need to binsearch _hashes_, not _elements_
   return binsearch<KF>(vs, k, l, u);
 }
 
@@ -1619,44 +1620,38 @@ inline val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
 template <class KF> inline val val::to(val const &k, val const &hk, uint64_t const h) const { return s_to<KF>(*this, k, hk, h); }
 template <class KF> inline val val::th(val const &k, val const &hk, uint64_t const h) const { return s_th<KF>(*this, k, hk, h); }
 
-template <class KF> val val::make_to() const
+template <class KF> val *val::make_to() const
 {
   KF kf;
   let v = new std::vector<val>;
   v->reserve(len());
   for (let &x : *this) v->push_back(x);
   std::sort(v->begin(), v->end(),
-            [=](val const &a, val const &b) { return kf(a).compare(kf(b)); });
-  return val(v);
+            [=](val const &a, val const &b) { return kf(a) < kf(b); });
+  return new val(v);
 }
 
-template <class KF> val val::make_th() const
+template <class KF> val *val::make_th() const
 {
-  struct hi { hash h; uint64_t i; };
+  struct hi { uint64_t h; uint64_t i; };
   static_assert(sizeof(hi) == sizeof(val));
 
   KF kf;
-  let v = new std::vector<hi>;
-  v->reserve(len());
-  if (has_ibuf()) for (let &x : *this) v->push_back(hi{kf(x).h(), x.i});
+  let vh = new std::vector<hi>;
+  vh->reserve(len());
+  if (has_ibuf()) for (let &x : *this) vh->push_back(hi{kf(x).h(), x.i});
   else
-  { uint64_t i = 0;
-    for (let &x : *this) v->push_back(hi{kf(x).h(), i++}); }
+  { uint64_t j = 0;
+    for (let &x : *this) vh->push_back(hi{kf(x).h(), j++}); }
 
-  std::cout << v->size() << std::endl;
+  std::sort(vh->begin(), vh->end(),
+            [](hi const &a, hi const &b) { return a.h < b.h; });
 
-  // FIXME: this segfaults, apparently due to ->end() being far past the end
-  // of the vector
-  std::sort(v->begin(), v->end(),
-            [](hi const &a, hi const &b) {
-              std::cout << (void*)(&a.h) << " <=> " << (void*)(&b.h) << std::endl;
-              return a.h.compare(b.h); });
+  let vs = reinterpret_cast<std::vector<val>*>(vh);
+  if (has_ibuf()) for (uint64_t i = 0; i < vs->size(); ++i) (*vs)[i] = val(*b, (*vh)[i].i);
+  else            for (uint64_t i = 0; i < vs->size(); ++i) (*vs)[i] = (*vt)[(*vh)[i].i];
 
-  let vs = reinterpret_cast<std::vector<val>*>(v);
-  if (has_ibuf()) for (uint64_t i = 0; i < vs->size(); ++i) (*vs)[i] = val(*b, (*v)[i].i);
-  else            for (uint64_t i = 0; i < vs->size(); ++i) (*vs)[i] = (*vt)[(*v)[i].i];
-
-  return val(vt);
+  return new val(vs);
 }
 
 
