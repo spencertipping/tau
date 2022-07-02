@@ -127,9 +127,33 @@ void try_loading_stuff()
 }
 
 
+void try_orderings()
+{
+  try
+  {
+    auto v = tau::utf9::tuple();
+    for (int64_t i = 0; i < 100; ++i) v << val(i);
+    for (int64_t i = -10; i < 110; ++i)
+      cout << "finding " << i << ": "
+           << v.to<val::kf_te>(val(i), none) << endl;
+
+    auto vh = v.make_th<val::kf_te>();
+    for (int64_t i = -10; i < 110; ++i)
+      cout << "hashed finding " << i << ": "
+           << vh.th<val::kf_te>(val(i), none) << endl;
+  }
+  catch (utf9_error const &e)
+  {
+    cout << "ERROR " << e << endl;
+    _exit(1);
+  }
+}
+
+
 int main()
 {
   utf9_init();
+  try_orderings();
   try_loading_stuff();
   return 0;
 }

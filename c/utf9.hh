@@ -931,7 +931,7 @@ struct hash
   uint64_t h;
   hash(uint64_t h_) : h(h_) {}
   operator uint64_t() const { return h; }
-  int compare(hash const x) const { return h > x.h ? 1 : x < x.h ? -1 : 0; }
+  int compare(hash const x) const { return h > x.h ? 1 : h < x.h ? -1 : 0; }
 };
 
 
@@ -1569,7 +1569,7 @@ val s_to(val      const &b,
          val      const &hk,
          uint64_t const h)
 {
-  if (hk > k) throw internal_error("s_to hk>k");
+  if (hk.exists() && hk > k) throw internal_error("s_to hk>k");
   KF kf;
   if (!b.has_ibuf()) { let i = binsearch<KF>(*b.vt, k); return i & 1ul << 63 ? none : (*b.vt)[i]; }
   for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
@@ -1590,7 +1590,7 @@ val s_th(val      const &b,
          val      const &hk,
          uint64_t const h)
 {
-  if (hk > k) throw internal_error("s_th hk>k");
+  if (hk.exists() && hk > k) throw internal_error("s_th hk>k");
   KF kf;
   if (!b.has_ibuf()) { let i = interpsearch<KF>(*b.vt, k); return i & 1ul << 63 ? none : (*b.vt)[i]; }
   let kh = k.h().h;
@@ -1643,8 +1643,14 @@ template <class KF> val val::make_th() const
   { uint64_t i = 0;
     for (let &x : *this) v->push_back(hi{kf(x).h(), i++}); }
 
+  std::cout << v->size() << std::endl;
+
+  // FIXME: this segfaults, apparently due to ->end() being far past the end
+  // of the vector
   std::sort(v->begin(), v->end(),
-            [](hi const &a, hi const &b) { return a.h().compare(b.h()); });
+            [](hi const &a, hi const &b) {
+              std::cout << (void*)(&a.h) << " <=> " << (void*)(&b.h) << std::endl;
+              return a.h.compare(b.h); });
 
   let vs = reinterpret_cast<std::vector<val>*>(v);
   if (has_ibuf()) for (uint64_t i = 0; i < vs->size(); ++i) (*vs)[i] = val(*b, (*v)[i].i);
@@ -1654,7 +1660,7 @@ template <class KF> val val::make_th() const
 }
 
 
-inline oenc &tval::pack(oenc &o, val const &v) const
+oenc &tval::pack(oenc &o, val const &v) const
 {
   switch (type())
   {
