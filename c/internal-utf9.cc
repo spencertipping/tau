@@ -118,7 +118,7 @@ void try_loading_stuff()
         uint64_t t = 0; for (auto const &x : v4) t += static_cast<int64_t>(x);
         auto end   = chrono::steady_clock::now();
         chrono::duration<double> d = end - start;
-        cout << "isum: " << d.count() << "s" << endl;
+        cout << "isum: " << t << ": " << d.count() << "s" << endl;
       }
 
       {
