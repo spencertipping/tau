@@ -109,6 +109,14 @@ void try_loading_stuff()
         chrono::duration<double> d = end - start;
         cout << upper << ": " << t << " == " << (upper * (upper - 1)) / 2 << ": " << d.count() << "s" << endl;
       }
+
+      {
+        auto start = chrono::steady_clock::now();
+        auto h     = val(i4, 0).h();
+        auto end   = chrono::steady_clock::now();
+        chrono::duration<double> d = end - start;
+        cout << upper << ": " << h << ": " << d.count() << "s" << endl;
+      }
     }
   }
   catch (utf9_error const &e)

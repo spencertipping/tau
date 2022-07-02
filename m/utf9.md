@@ -280,8 +280,8 @@ H<theta>  (x) = xxc(x, 0x16)
 H<utf8>   (x) = xxh(x.data, x.length, 0x18)
 H<bytes>  (x) = xxh(x.data, x.length, 0x1c)
 
-H<tuple>  (xs) = let hs = big_endian(H(x)) | x ∈ xs
-                 xxh(hs, sizeof(hs), 0x20)
+H<tuple>  ((x, ...)) = xxc(H(x), H<tuple>((...)))
+H<tuple>  (())       = xxh(NULL, 0, 0x20)
 
 H<array>  (xs) = xxh(&xs.data, sizeof(xs.data), 0x24)
 ```

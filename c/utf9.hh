@@ -1272,9 +1272,9 @@ struct val
         case 0x1b: case 0x1f: return b->u64(i + 1);
 
         case 0x40: case 0x44: return b->u8 (i + 2);
-        case 0x41: case 0x45: return b->u16(i + 2);
-        case 0x42: case 0x46: return b->u32(i + 2);
-        case 0x43: case 0x47: return b->u64(i + 2);
+        case 0x41: case 0x45: return b->u16(i + 3);
+        case 0x42: case 0x46: return b->u32(i + 5);
+        case 0x43: case 0x47: return b->u64(i + 9);
 
         case 0x50: return b->u16(i + 1) >> 1;
         case 0x51: return b->u32(i + 1) >> 2;
@@ -1390,10 +1390,9 @@ struct val
       case BYTES: return xxh(mbegin(), mend() - mbegin(), t);
 
       case TUPLE:
-      { uint64_t hs[len()];
-        uint64_t i = 0;
-        for (let &v : *this) hs[i++] = ce(v.h().h);
-        return xxh(hs, sizeof(hs), t); }
+      { uint64_t h = xxh(NULL, 0, t);
+        for (let &v : *this) h = xxc(v.h().h, h);
+        return h; }
 
       default: throw voperation_error("h", *this);
       } }
