@@ -43,6 +43,8 @@ struct obuf;
 struct tval;
 struct val;
 
+#define U9 (tau::utf9::val)
+
 
 struct utf9_error       : public std::exception { std::string const &m;    utf9_error(std::string const &m_) : m(m_) {} };
 struct internal_error   : public utf9_error {                              internal_error(std::string const &m_) : utf9_error(m_) {} };
@@ -1051,21 +1053,6 @@ struct tval
 // unfortunately have a destructor to consider).
 struct val
 {
-  // Tagging bit schema:
-  // type:8 | owned:1 | immediate:1
-  static constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << 2 | (own ? 2 : 0) | 1; }
-  static constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> 2); }
-
-
-  static int  hash_order (val const &v1, val const &v2) { return v1.h().compare(v2.h()); }
-  static bool hash_before(val const &v1, val const &v2) { return v1.h() < v2.h(); }
-
-  static int key_order     (val const &v1, val const &v2) { return v1[0].compare(v2[0]); }
-  static int key_hash_order(val const &v1, val const &v2) { return v1[0].h().compare(v2[0].h()); }
-  static int val_order     (val const &v1, val const &v2) { return v1[1].compare(v2[1]); }
-  static int val_hash_order(val const &v1, val const &v2) { return v1[1].h().compare(v2[1].h()); }
-
-
   // ibuf const * will be 8-byte aligned, so tags with the low bit set are
   // type designators; see tagify() and tag_type() above.
   union
@@ -1082,6 +1069,12 @@ struct val
     sym                                    vy;
     std::basic_string_view<uint8_t> const *vb;
     std::vector<val>                      *vt; } const;
+
+
+  // Tagging bit schema:
+  // type:8 | owned:1 | immediate:1
+  static constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << 2 | (own ? 2 : 0) | 1; }
+  static constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> 2); }
 
 
   // Immediate data structure ownership follows const-ness
@@ -1600,13 +1593,15 @@ val s_to(val      const &b,
   KF kf;
   if (!b.has_ibuf()) { let i = binsearch<KF>(*b.vt, k); return i & 1ul << 63 ? none : (*b.vt)[i]; }
   for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
-  { let v = val(*b.b, o);
+  {
+    let v = val(*b.b, o);
     switch (k.compare(kf(v)))
     {
     case -1: break;
     case  0: return v;
     case  1: return none;
-    } }
+    }
+  }
   return none;
 }
 
@@ -1622,10 +1617,12 @@ val s_th(val      const &b,
   if (!b.has_ibuf()) { let i = interpsearch<KF>(*b.vt, k); return i & 1ul << 63 ? none : (*b.vt)[i]; }
   let kh = k.h().h;
   for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
-  { let v  = val(*b.b, o);
+  {
+    let v  = val(*b.b, o);
     let vh = kf(v).h().h;
     if (kh > vh)  return none;
-    if (kh == vh) return v; }
+    if (kh == vh) return v;
+  }
   return none;
 }
 
@@ -1982,6 +1979,9 @@ inline void utf9_init()
   init_sfn_tables();
 }
 
+
+#undef BE
+#undef LE
 
 #undef let
 
