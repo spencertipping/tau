@@ -1222,8 +1222,8 @@ struct val
   struct it
   {
     union
-    { ibuf                     const * const b;
-      std::vector<val>::const_iterator       vi; };
+    { ibuf               const * const b;
+      std::vector<val>::const_iterator vi; };
 
     uint64_t i;
 
@@ -1245,8 +1245,6 @@ struct val
   it end() const {
     require_type(1ul << TUPLE | 1ul << ARRAY);
     return has_ibuf() ? it(b, i + b->len(i)) : it(vt->end()); }
-
-  it at_byte(uint64_t j) const { require_ibuf(); require_type(1ul << TUPLE); return it(b, i + j); }
 
 
   uint64_t len() const
