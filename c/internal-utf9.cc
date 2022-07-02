@@ -103,6 +103,25 @@ void try_loading_stuff()
       }
 
       {
+        std::vector<int64_t> xs;
+        xs.reserve(upper);
+        for (int64_t i = 0; i < upper; ++i) xs.push_back(i);
+        auto start = chrono::steady_clock::now();
+        uint64_t t = 0; for (auto const &x : xs) t += x;
+        auto end   = chrono::steady_clock::now();
+        chrono::duration<double> d = end - start;
+        cout << "native sum: " << t << ": " << d.count() << "s" << endl;
+      }
+
+      {
+        auto start = chrono::steady_clock::now();
+        uint64_t t = 0; for (auto const &x : v4) t += static_cast<int64_t>(x);
+        auto end   = chrono::steady_clock::now();
+        chrono::duration<double> d = end - start;
+        cout << "isum: " << d.count() << "s" << endl;
+      }
+
+      {
         auto start = chrono::steady_clock::now();
         uint64_t t = 0; for (auto const &x : val(i4, 0)) t += static_cast<int64_t>(x);
         auto end   = chrono::steady_clock::now();
