@@ -5,7 +5,7 @@
 
 #include "unistd.h"
 
-#include "utf9.hh"
+#include "../c/utf9.hh"
 
 
 using namespace std;
