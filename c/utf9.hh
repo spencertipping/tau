@@ -1086,7 +1086,8 @@ struct val
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
     { if (reinterpret_cast<uint64_t>(b) & 7) throw internal_error("unaligned");
-      b->check(b->len(i) - 1); }
+      b->check(i);
+      b->check(i + b->len(i) - 1); }
 
   val(uint64_t vu_) : tag(tagify(UINT)),    vu(vu_) {}
   val(int64_t vi_)  : tag(tagify(INT)),     vi(vi_) {}
@@ -1461,57 +1462,65 @@ struct val
   val operator[](uint64_t i) const
     { return type() == ARRAY ? ap(i)
            : type() == TUPLE ? tp(i)
-           : throw voperation_error("[u64]", *this); }
+           : throw voperation_error("v[u64]", *this); }
 
 
-  val ap(uint64_t i) const  // Array positional lookup
-    { return val(atype(), *b, asub(i)); }
+  // NOTE: immediate vals are never arrays (since there isn't space to store
+  // the array type + tag + vector). So this will be called only with an ibuf.
+  val ap(uint64_t i) const { require_ibuf(); return val(atype(), *b, asub(i)); }
 
+  // All functions below use hinting: hi or hk to indicate the thing that was
+  // hinted, and h to indicate the byte offset (beyond mbegin()) to start
+  // looking. In every case, hi < i and hk < k (or for hashed, H[hk] < H[k]);
+  // decoding is forward-only, so hints can't overshoot.
+  val tp(uint64_t i, uint64_t hi = 0, uint64_t h = 0) const;
 
-  val tp(uint64_t i, uint64_t const h = 0) const  // Tuple positional lookup
-    { require_type(1ul << TUPLE);
-      if (!has_ibuf()) return (*vt)[i];
-      let      e = mend()   - b->xs;
-      uint64_t o = mbegin() - b->xs + h;
-      while (i--) if ((o += b->len(o)) >= e) throw decoding_error("tp", *b, o);
-      return val(*b, o); }
+  val toe(val const &k, val const &hk, uint64_t h = 0) const;
+  val the(val const &k, val const &hk, uint64_t h = 0) const;
+  val tok(val const &k, val const &hk, uint64_t h = 0) const;
+  val thk(val const &k, val const &hk, uint64_t h = 0) const;
+  val tov(val const &k, val const &hk, uint64_t h = 0) const;
+  val thv(val const &k, val const &hk, uint64_t h = 0) const;
 
-  // TODO: these should be "fetch by contents", not "member check"
-  bool tomc(val const &k, uint64_t const h = 0) const  // Tuple ordered member check
-    { require_type(1ul << TUPLE);
-      if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k));
-      for (uint64_t o = mbegin() - b->xs + h;
-           o < mend() - b->xs;
-           o += b->len(o))
-        if (k == val(*b, o)) return true;
-      return false; }
-
-  // TODO: interpolation search for !has_ibuf() case
-  bool thmc(val const &k, uint64_t const h = 0) const  // Tuple hash-ordered member check
-    { require_type(1ul << TUPLE);
-      if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k, hash_before));
-      let kh = k.h();
-      for (uint64_t o = mbegin() - b->xs + h;
-           o < mend() - b->xs;
-           o += b->len(o))
-        if (kh == val(*b, o).h()) return true;
-      return false; }
-
-  val &tok(val const &k, uint64_t const h = 0) const
-    { require_type(1ul << TUPLE);
-      // TODO
-    }
-
-  val &thk(val const &k, uint64_t const h = 0) const
-    { require_type(1ul << TUPLE);
-    }
-
-  val &tov(val const &k, uint64_t const h = 0) const
-    {}
-
-  val &thv(val const &k, uint64_t const h = 0) const
-    {}
+  val aoe(val const &k, val const &hk, uint64_t hi = 0) const;
+  val ahe(val const &k, val const &hk, uint64_t hi = 0) const;
+  val aok(val const &k, val const &hk, uint64_t hi = 0) const;
+  val ahk(val const &k, val const &hk, uint64_t hi = 0) const;
+  val aov(val const &k, val const &hk, uint64_t hi = 0) const;
+  val ahv(val const &k, val const &hk, uint64_t hi = 0) const;
 };
+
+
+val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
+{ if (!has_ibuf()) return (*vt)[i];
+  if (hi > i)      throw internal_error("hi>i");
+  let      e = mend()   - b->xs;
+  uint64_t o = mbegin() - b->xs + h;
+  if (o >= e) throw decoding_error("tp0", *b, o);
+  while (i-- > hi) if ((o += b->len(o)) >= e) throw decoding_error("tp", *b, o);
+  return val(*b, o); }
+
+// TODO: factor structure out into generic searcher template
+// (it should be easy because we always take a hint and apply some trivial
+//  transformation to both the target and the current value)
+val val::toe(val const &k, val const &hk, uint64_t const h) const
+{ if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k));
+  for (uint64_t o = mbegin() - b->xs + h;
+       o < mend() - b->xs;
+       o += b->len(o))
+    if (k == val(*b, o)) return true;
+  return false; }
+
+// TODO: interpolation search for !has_ibuf() case
+val val::the(val const &k, val const &hk, uint64_t const h) const
+{ require_type(1ul << TUPLE);
+  if (!has_ibuf()) return val(std::binary_search(vt->begin(), vt->end(), k, hash_before));
+  let kh = k.h();
+  for (uint64_t o = mbegin() - b->xs + h;
+       o < mend() - b->xs;
+       o += b->len(o))
+    if (kh == val(*b, o).h()) return true;
+  return false; }
 
 
 val const none(val::tagify(NONE), 0);
