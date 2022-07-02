@@ -16,7 +16,7 @@ template <class T> struct debug { T &b; };
 
 template <class T> ostream &operator<<(ostream &s, debug<T> const &d)
 {
-  for (int i = 0; i < d.b.size();)
+  for (unsigned i = 0; i < d.b.size();)
   {
     uint8_t c = d.b.data()[i];
     s.put("0123456789abcdef"[c >> 4]);
@@ -140,8 +140,7 @@ void try_orderings()
     auto vh = v.make_th<val::kf_te>();
     for (int64_t i = -10; i < 110; ++i)
       cout << "hashed finding " << i << ": "
-           << vh->th<val::kf_te>(val(i), none) << endl;
-    delete vh;
+           << vh.th<val::kf_te>(val(i), none) << endl;
   }
   catch (utf9_error const &e)
   {

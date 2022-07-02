@@ -83,15 +83,17 @@ inline int16_t  ce(int16_t x)  { return LE ? __bswap_16(x) : x; }
 inline double ce(double const x)
 {
   if (BE) return x;
-  let y = bswap_64(*reinterpret_cast<uint64_t const*>(&x));
-  return *reinterpret_cast<double const*>(&y);
+  union { double xd; uint64_t xi; }; xd = x;
+  xi = bswap_64(xi);
+  return xd;
 }
 
 inline float ce(float const x)
 {
   if (BE) return x;
-  let y = bswap_32(*reinterpret_cast<uint32_t const*>(&x));
-  return *reinterpret_cast<float const*>(&y);
+  union { float xf; uint32_t xi; }; xf = x;
+  xi = bswap_32(xi);
+  return xf;
 }
 
 }
@@ -123,7 +125,7 @@ inline uint64_t xxh(void const * x, size_t l, uint64_t s)
 { return XXH64(x, l, s); }
 
 inline uint64_t xxc(uint64_t a, uint64_t b)
-{ a = ce(a); return XXH64(&a, sizeof(a), b); }
+{ a = ce(a); return XXH64(&a, sizeof a, b); }
 
 
 namespace  // Dispatch table compression
@@ -218,8 +220,8 @@ struct ibuf
   uint32_t cu32(uint64_t i) const { check(i + 3); return u32(i); }
   uint64_t cu64(uint64_t i) const { check(i + 7); return u64(i); }
 
-  float  f32(uint64_t i) const { let x = u32(i); return ce(*reinterpret_cast<float const*>(&x)); }
-  double f64(uint64_t i) const { let x = u64(i); return ce(*reinterpret_cast<double const*>(&x)); }
+  float  f32(uint64_t i) const { return ce(*reinterpret_cast<float const*>(xs + i)); }
+  double f64(uint64_t i) const { return ce(*reinterpret_cast<double const*>(xs + i)); }
 };
 
 
@@ -240,8 +242,8 @@ struct oenc
   oenc &u16(uint16_t x) { u8 (x >> 8);  return u8 (x & 0xff); }
   oenc &u32(uint32_t x) { u16(x >> 16); return u16(x & 0xffff); }
   oenc &u64(uint64_t x) { u32(x >> 32); return u32(x & 0xffffffff); }
-  oenc &f32(float    x) { return u32(*reinterpret_cast<uint32_t*>(&x)); }
-  oenc &f64(double   x) { return u64(*reinterpret_cast<uint64_t*>(&x)); }
+  oenc &f32(float    x) { union { float xf;  uint32_t xi; }; xf = x; return u32(xi); }
+  oenc &f64(double   x) { union { double xd; uint64_t xi; }; xd = x; return u64(xi); }
 
   oenc &xs(uint8_t const *xs, uint64_t n) { write(xs, n); return *this; }
 
@@ -254,13 +256,13 @@ struct oenc
 
   template <class T>
   oenc &operator<<(std::basic_string<T> x)
-    { static_assert(sizeof(x.data()[0]) == 1);
+    { static_assert(sizeof x.data()[0] == 1);
       write(reinterpret_cast<uint8_t*>(x.data()), x.size());
       return *this; }
 
   template <class T>
   oenc &operator<<(std::basic_string_view<T> x)
-    { static_assert(sizeof(x.data()[0]) == 1);
+    { static_assert(sizeof x.data()[0] == 1);
       write(reinterpret_cast<uint8_t*>(x.data()), x.size());
       return *this; }
 };
@@ -1082,6 +1084,11 @@ struct val
     std::vector<val>                      *vt; } const;
 
 
+  // Immediate data structure ownership follows const-ness
+  constexpr val(val const &v) : tag(v.tag & ~2), i(v.i) {}
+            val(val &&v)      : tag(v.tag),      i(v.i) { v.tag &= ~2ul; }
+
+
   val(uint64_t tag_, uint64_t v_) : tag(tag_), vu(v_) {}
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
@@ -1189,6 +1196,10 @@ struct val
         } }
 
 
+  val &operator=(val &&x)      { tag = x.tag;      i = x.i; x.tag &= ~2; return *this; }
+  val &operator=(val const &x) { tag = x.tag & ~2; i = x.i;              return *this; }
+
+
   bool     exists()                      const { return type() != NONE; }
   bool     has_ibuf()                    const { return !(tag & 1); }
   bool     is_immediate()                const { return !has_ibuf(); }
@@ -1230,10 +1241,10 @@ struct val
 
     uint64_t i;
 
-    it(ibuf const *b_, uint64_t i_)          : b(b_),   i(i_) {}
-    it(std::vector<val>::const_iterator vi_) : vi(vi_), i(-1) {}
+    it(ibuf const *b_, uint64_t i_)          : b(b_),   i(i_)   {}
+    it(std::vector<val>::const_iterator vi_) : vi(vi_), i(-1ul) {}
 
-    bool is_v() const { return i == -1; }
+    bool is_v() const { return i == -1ul; }
 
     val  operator*()               const { return is_v() ? *vi : val(*b, i); }
     it  &operator++()                    { if (is_v()) ++vi; else i += b->len(i); return *this; }
@@ -1357,7 +1368,7 @@ struct val
 
 #define ht(ct)                                                          \
         { let x = ce(static_cast<uint64_t>(static_cast<ct>(*this)));    \
-          return xxh(&x, sizeof(x), t); }
+          return xxh(&x, sizeof x, t); }
       case Ρ:
       case Θ:
       case UINT:    ht(uint64_t)
@@ -1366,8 +1377,8 @@ struct val
       case PIDFD:   ht(pidfd)
 #undef ht
 
-      case FLOAT64: { let x = ce(static_cast<double>(*this)); return xxh(&x, sizeof(x), t); }
-      case FLOAT32: { let x = ce(static_cast<float> (*this)); return xxh(&x, sizeof(x), t); }
+      case FLOAT64: { let x = ce(static_cast<double>(*this)); return xxh(&x, sizeof x, t); }
+      case FLOAT32: { let x = ce(static_cast<float> (*this)); return xxh(&x, sizeof x, t); }
 
       case BOOL: return xxh(NULL, 0, static_cast<bool>(*this) ? 0x0d : 0x0c);
 
@@ -1480,15 +1491,20 @@ struct val
   struct kf_tk { val const  operator()(val const &kv) { return kv[0]; } };
   struct kf_tv { val const  operator()(val const &kv) { return kv[1]; } };
 
-  template <class KF> val to(val const &k, val const &hk, uint64_t h = 0) const;
-  template <class KF> val th(val const &k, val const &hk, uint64_t h = 0) const;
+  struct kf_ae { val const operator()(val const &a, uint64_t i) { return a[i]; } };
+  struct kf_ak { val const operator()(val const &a, uint64_t i) { return a[i]; } };
+
+  template <class KF> val io(val const &k) const;
+  template <class KF> val ih(val const &k) const;
+  template <class KF> val to(val const &k, val const &hk, uint64_t h  = 0) const;
+  template <class KF> val th(val const &k, val const &hk, uint64_t h  = 0) const;
   template <class KF> val ao(val const &k, val const &hk, uint64_t hi = 0) const;
   template <class KF> val ah(val const &k, val const &hk, uint64_t hi = 0) const;
 
-  template <class KF> val *make_to() const;
-  template <class KF> val *make_th() const;
-  template <class KF> val *make_ao() const;
-  template <class KF> val *make_ah() const;
+  template <class KF> val make_to() const;
+  template <class KF> val make_th() const;
+  template <class KF> val make_ao() const;
+  template <class KF> val make_ah() const;
 };
 
 
@@ -1514,7 +1530,7 @@ template <class KF>
 uint64_t binsearch(std::vector<val> const &vs,
                    val              const &k,
                    uint64_t                l = 0,
-                   uint64_t                u = -1)
+                   uint64_t                u = -1ul)
 {
   KF kf;
   u = std::min(u, vs.size());
@@ -1536,7 +1552,7 @@ template <class KF>
 uint64_t interpsearch(std::vector<val> const &vs,
                       val              const &k,
                       uint64_t                l = 0,
-                      uint64_t                u = -1)
+                      uint64_t                u = -1ul)
 {
   KF kf;
   u = std::min(vs.size(), u);
@@ -1607,7 +1623,7 @@ val s_th(val      const &b,
   let kh = k.h().h;
   for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
   { let v  = val(*b.b, o);
-    let vh = v.h().h;
+    let vh = kf(v).h().h;
     if (kh > vh)  return none;
     if (kh == vh) return v; }
   return none;
@@ -1630,7 +1646,7 @@ inline val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
 template <class KF> inline val val::to(val const &k, val const &hk, uint64_t const h) const { return s_to<KF>(*this, k, hk, h); }
 template <class KF> inline val val::th(val const &k, val const &hk, uint64_t const h) const { return s_th<KF>(*this, k, hk, h); }
 
-template <class KF> val *val::make_to() const
+template <class KF> val val::make_to() const
 {
   KF kf;
   let v = new std::vector<val>;
@@ -1638,10 +1654,10 @@ template <class KF> val *val::make_to() const
   for (let &x : *this) v->push_back(x);
   std::sort(v->begin(), v->end(),
             [=](val const &a, val const &b) { return kf(a) < kf(b); });
-  return new val(v);
+  return val(v);
 }
 
-template <class KF> val *val::make_th() const
+template <class KF> val val::make_th() const
 {
   struct hi { uint64_t h; uint64_t i; };
   static_assert(sizeof(hi) == sizeof(val));
@@ -1661,7 +1677,7 @@ template <class KF> val *val::make_th() const
   if (has_ibuf()) for (uint64_t i = 0; i < vs->size(); ++i) (*vs)[i] = val(*b, (*vh)[i].i);
   else            for (uint64_t i = 0; i < vs->size(); ++i) (*vs)[i] = (*vt)[(*vh)[i].i];
 
-  return new val(vs);
+  return val(vs);
 }
 
 
@@ -1692,9 +1708,8 @@ oenc &tval::pack(oenc &o, val const &v) const
 
   case UTF8:
   case BYTES:
-  { let l = v.mlen();
-    if (l > vsize()) throw encoding_error("l>tvs", *this, v);
-    o.xs(v.mbegin(), l).fill(0, vsize() - l);
+  { let l = v.mlen(), s = vsize();
+    o.xs(v.mbegin(), std::min(l, s)).fill(0, l > s ? 0 : s - l);
     return o; }
 
   case TUPLE:
