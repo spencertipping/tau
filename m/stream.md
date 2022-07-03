@@ -1,9 +1,14 @@
-# Stream semantics
+# Streams
+
+
 Durable, ordered, flow-negotiated. We can do sequence-acking if we want durability over distributed systems, but we'll need commit barriers and replay buffers. Those are extra, as is bidirectionality. At their core, streams are just atomic conveyors of [records](records.md).
 
 Each stream can specify its "maximum atomic write" capacity, which must be at least 512 bytes. This makes it compatible with even the lowest values of `PIPE_BUF` on UNIX systems. Typically, a stream that offers very low atomic-write capacity will be wrapped with a byte-multiplexer, causing each record to be shredded into suitably small blocks before being reassembled by the recipient.
 
 Streams within the same node need not copy or serialize anything; they can use `shared_ptr<record>`.
+
+
+**TODO:** rewrite this page
 
 
 ## Bidirectionality

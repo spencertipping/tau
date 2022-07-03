@@ -929,7 +929,6 @@ struct sym
   operator uint64_t() const { return h; }
 };
 
-
 struct hash
 {
   uint64_t h;
@@ -937,7 +936,6 @@ struct hash
   operator uint64_t() const { return h; }
   int compare(hash const x) const { return h > x.h ? 1 : h < x.h ? -1 : 0; }
 };
-
 
 struct pidfd
 {
@@ -954,6 +952,7 @@ struct pidfd
 
 
 // A typecode beginning at a specific bytecode location
+// TODO: add immediate mode and define the hash function appropriately
 struct tval
 {
   ibuf const * const b;
@@ -1406,7 +1405,6 @@ struct val
         { let x1 = static_cast<t>(*this);               \
           let x2 = static_cast<t>(v);                   \
           return x1 > x2 ? 1 : x1 < x2 ? -1 : 0; }
-
       case Ρ:
       case Θ:
       case UINT:    cmpblock(uint64_t)
@@ -1416,7 +1414,6 @@ struct val
       case SYMBOL:  cmpblock(sym)
       case PIDFD:   cmpblock(pidfd)
       case BOOL:    cmpblock(bool)
-
 #undef cmpblock
 
       case NULLTYPE:
@@ -1466,6 +1463,9 @@ struct val
     { return type() == ARRAY ? ap(i)
            : type() == TUPLE ? tp(i)
            : throw voperation_error("v[u64]", *this); }
+
+  val operator[](val const &v) const
+    { throw voperation_error("v[v] TODO", *this); }
 
 
   // NOTE: immediate vals are never arrays (since there isn't space to store
