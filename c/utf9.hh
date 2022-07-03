@@ -1484,11 +1484,14 @@ struct val
   struct kf_tk { val const  operator()(val const &kv) { return kv[0]; } };
   struct kf_tv { val const  operator()(val const &kv) { return kv[1]; } };
 
+  // TODO: fix the interface for these; have the struct precompute array type
+  // characteristics and element offset/size
   struct kf_ae { val const operator()(val const &a, uint64_t i) { return a[i]; } };
   struct kf_ak { val const operator()(val const &a, uint64_t i) { return a[i]; } };
 
   template <class KF> val io(val const &k) const;
   template <class KF> val ih(val const &k) const;
+
   template <class KF> val to(val const &k, val const &hk, uint64_t h  = 0) const;
   template <class KF> val th(val const &k, val const &hk, uint64_t h  = 0) const;
   template <class KF> val ao(val const &k, val const &hk, uint64_t hi = 0) const;
@@ -1626,6 +1629,10 @@ val s_th(val      const &b,
   return none;
 }
 
+
+// TODO: s_ao and s_ah
+
+
 }
 
 
@@ -1676,6 +1683,9 @@ template <class KF> val val::make_th() const
 
   return val(vs);
 }
+
+
+// TODO: make_ao and make_ah
 
 
 oenc &tval::pack(oenc &o, val const &v) const
