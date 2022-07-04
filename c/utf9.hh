@@ -74,13 +74,13 @@ std::ostream &operator<<(std::ostream &s, encoding_error   const &e) { return s 
 namespace  // Consistent-endianness (i.e. big-endian in memory)
 {
 
-inline uint64_t ce(uint64_t x) { return LE ? __bswap_64(x) : x; }
-inline uint32_t ce(uint32_t x) { return LE ? __bswap_32(x) : x; }
-inline uint16_t ce(uint16_t x) { return LE ? __bswap_16(x) : x; }
+inline uint64_t ce(uint64_t x) { return LE ? bswap_64(x) : x; }
+inline uint32_t ce(uint32_t x) { return LE ? bswap_32(x) : x; }
+inline uint16_t ce(uint16_t x) { return LE ? bswap_16(x) : x; }
 
-inline int64_t  ce(int64_t x)  { return LE ? __bswap_64(x) : x; }
-inline int32_t  ce(int32_t x)  { return LE ? __bswap_32(x) : x; }
-inline int16_t  ce(int16_t x)  { return LE ? __bswap_16(x) : x; }
+inline int64_t  ce(int64_t x)  { return LE ? bswap_64(x) : x; }
+inline int32_t  ce(int32_t x)  { return LE ? bswap_32(x) : x; }
+inline int16_t  ce(int16_t x)  { return LE ? bswap_16(x) : x; }
 
 inline double ce(double const x)
 {
