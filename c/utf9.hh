@@ -41,6 +41,7 @@ static_assert(sizeof(char)   == sizeof(uint8_t));
 struct ibuf;
 struct obuf;
 struct tval;
+
 struct val;
 
 #define U9 (tau::utf9::val)
@@ -51,7 +52,7 @@ struct internal_error   : public utf9_error {                              inter
 struct decoding_error   : public utf9_error { ibuf const &b; uint64_t i;   decoding_error(std::string const &m_, ibuf const &b_, uint64_t i_) : utf9_error(m_), b(b_), i(i_) {} };
 struct toperation_error : public utf9_error { tval const &t;               toperation_error(std::string const &m_, tval const &t_) : utf9_error(m_), t(t_) {} };
 struct voperation_error : public utf9_error { val  const &v;               voperation_error(std::string const &m_, val  const &v_) : utf9_error(m_), v(v_) {} };
-struct binop_error      : public utf9_error { val const &a; val const &b;  binop_error(std::string const &m_, val const &a_, val const &b_) : utf9_error(m_), a(a_), b(b_) {} };
+struct binop_error      : public utf9_error { val  const &a; val const &b; binop_error(std::string const &m_, val const &a_, val const &b_) : utf9_error(m_), a(a_), b(b_) {} };
 struct encoding_error   : public utf9_error { tval const &t; val const &v; encoding_error(std::string const &m_, tval const &t_, val const &v_) : utf9_error(m_), t(t_), v(v_) {} };
 
 
@@ -123,11 +124,8 @@ inline int32_t  coi32(int64_t x) { return oi32(x) ? throw internal_error("i32o")
 }
 
 
-inline uint64_t xxh(void const * x, size_t l, uint64_t s)
-{ return XXH64(x, l, s); }
-
-inline uint64_t xxc(uint64_t a, uint64_t b)
-{ a = ce(a); return XXH64(&a, sizeof a, b); }
+inline uint64_t xxh(void const * x, size_t l, uint64_t s) { return XXH64(x, l, s); }
+inline uint64_t xxc(uint64_t a, uint64_t b)               { a = ce(a); return XXH64(&a, sizeof a, b); }
 
 
 namespace  // Dispatch table compression
@@ -285,7 +283,7 @@ struct obuf : public oenc
 
   void push(uint8_t x)                      { ensure_capacity(i + 1); b[i++] = x; }
   void write(uint8_t const *xs, uint64_t n) { ensure_capacity(i + n); memcpy(b + i, xs, n); i += n; }
-  void fill(uint8_t c, uint64_t n)          { ensure_capacity(i + n); memset(b + i, c, n); i += n; }
+  void fill(uint8_t c, uint64_t n)          { ensure_capacity(i + n); memset(b + i,  c, n); i += n; }
 
   void seek(uint64_t to) { i = to; }
   void move(uint64_t from, uint64_t to, uint64_t n)
@@ -968,7 +966,7 @@ struct tval
     uint64_t           i;
 
     tval operator* ()            const { return tval(*b, i); }
-    it & operator++()                  { i += b->tlen(i); return *this; }
+    it  &operator++()                  { i += b->tlen(i); return *this; }
     bool operator==(it const &x) const { return b == x.b && i == x.i; }
   };
 
@@ -1154,6 +1152,7 @@ struct val
       case 0x43:
         tag = tagify(TUPLE, true);
         vt  = new std::vector<val>;
+        vt->reserve(t_.len());
         for (let &t : t_)
         { vt->push_back(val(t, b, i));
           i += t.vsize(); }
@@ -1168,6 +1167,7 @@ struct val
         // arrays degrade to tuples when copied out.
         tag = tagify(TUPLE, true);
         vt  = new std::vector<val>;
+        vt->reserve(t_.len());
         for (uint64_t j = 0; j < t_.len(); j++)
         { vt->push_back(val(t_.atype(), b, i));
           i += t_.atype().vsize(); }
@@ -1688,7 +1688,7 @@ template <class KF> val val::make_th() const
 // TODO: make_ao and make_ah
 
 
-oenc &tval::pack(oenc &o, val const &v) const
+inline oenc &tval::pack(oenc &o, val const &v) const
 {
   switch (type())
   {

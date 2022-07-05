@@ -1,4 +1,8 @@
 # Fabric
+Fabric mediates all traffic flow within a single address space by implementing a combined multiplexer/demultiplexer alongside some registers that maintain task scheduling state.
+
+
+# TODO: rewrite stuff below
 The IO mediation layer and CPU scheduler for τ. An instance of fabric is called a `node` and represents the basic data boundary within τ. Operators can either be _inlined_ into the same node, or they can multiplex their outputs across IPC into other nodes.
 
 
