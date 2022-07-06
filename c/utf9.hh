@@ -1,5 +1,5 @@
-#ifndef utf9_h
-#define utf9_h
+#ifndef tau_utf9_h
+#define tau_utf9_h
 
 
 #include <algorithm>
@@ -2005,4 +2005,4 @@ template<> struct std::hash<tau::utf9::tval>
 { uint64_t operator()(tau::utf9::tval const &t) { return t.h(); } };
 
 
-#endif  // ifndef utf9_h
+#endif  // ifndef tau_utf9_h
