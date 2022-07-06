@@ -1,5 +1,11 @@
 # Fabric
-Fabric mediates all traffic flow within a single address space by implementing a combined multiplexer/demultiplexer alongside some registers that maintain task scheduling state.
+Fabric mediates all traffic flow within a single address space by implementing a combined multiplexer/demultiplexer alongside some registers that maintain task scheduling state. Specifically:
+
+```
+route = mux fBA. demux
+```
+
+State registers apply to the endpoints.
 
 
 # TODO: rewrite stuff below
