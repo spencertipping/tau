@@ -6,7 +6,7 @@ Key characteristics of `utf9`:
 + Efficient to left-cons and left-match fields, e.g. for multiplexing
 + Easy to encode fields of commonly-used datatypes
 + Fast C++ API for tau record fields
-+ Side-channel symbols: _α_, _ω_, _ι_, _κ_, and _τ(x)_
++ Side-channel symbols: _α_, _ω_, _ι_, _κ_, _τ_, _θ_, and _ρ_
 
 There are several big parts of the `utf9` bytecode:
 
@@ -23,8 +23,11 @@ There are several big parts of the `utf9` bytecode:
 + _ω_ is an error/EOF marker that means "time has ended and will never resume"
 + _ι_ means "you can start sending data now"
 + _κ_ means "you cannot send more data now; it will block"
++ _τ_ means "end of cycle", and is intended as a logical marker
 
-_τ_ is different in that it has two forms. _τ₀_ means "you are now starting a new time-cycle" -- which resets any ordering active on a stream, like a mini-EOF. _τ(x)_ means "you are at roughly this point in the time-cycle" and is used to provide estimates of the total stream size. _τ(x)_ need not be monotonic; it's just an estimate.
+The others, _θ_ and _ρ_, provide ways to estimate the position of the next _τ_ or _ω_. _θ_ represents the distance as an angle, in terms of the amount of data already seen; a _θ(x)_ marker means "you are currently at fraction _x_ of the full datastream in this cycle."
+
+_ρ_ expresses distance in absolute terms: _ρ(x)_ means "there are _x_ remaining entries/bytes/whatever until the end of this cycle."
 
 
 ## Bytecode
