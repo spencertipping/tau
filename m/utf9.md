@@ -286,6 +286,8 @@ H<tuple>  (())       = xxh(NULL, 0, 0x20)
 H<array>  (xs) = xxh(&xs.data, sizeof(xs.data), 0x24)
 ```
 
+Note that array primitives are always stored big-endian, so `H<array>` is portable.
+
 
 ## Transit spec
 A lightweight framing protocol that wraps one or more values over non-persistent connections, e.g. pipes or networks. There is no integrity verification or alignment.

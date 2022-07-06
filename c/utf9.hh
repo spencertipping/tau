@@ -18,7 +18,8 @@
 
 #include <byteswap.h>
 
-#include "xxHash/xxh3.h"
+#include "xxhash.h"
+#include "picosha2.h"
 
 
 namespace tau::utf9

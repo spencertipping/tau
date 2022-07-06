@@ -4,3 +4,6 @@
 [submodule "c/xxHash"]
 	path = c/xxHash
 	url = https://github.com/Cyan4973/xxHash/
+[submodule "c/PicoSHA2"]
+	path = c/PicoSHA2
+	url = https://github.com/okdshin/PicoSHA2
