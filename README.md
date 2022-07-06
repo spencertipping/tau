@@ -1,8 +1,5 @@
 # Tau
 + [utf9 values](m/utf9.md)
-+ [τ operations](m/ops.md)
-+ [Connection fabric](m/fabric.md)
-+ [Stream semantics](m/stream.md)
 
 
 
@@ -71,14 +68,6 @@ Shaders can produce GL "shader error" outputs for debugging purposes. See [shade
 + [ ] Create initial fabric (with realtime scheduling)
   + [ ] Drive rendering with fabric events
   + [ ] Async inbound XCB events
-
-
-## Architecture?
-The "tau node" is a process, which streams a boot series of [records](m/records.md) to configure its behavior. Then "tau the language" is just a transform from source to these boot records.
-
-In other words, the node initially streams to the fabric; then the boot program redirects input to a specific stream, which begins proper computation.
-
-Tau nodes can spin up other nodes and send file descriptors around, creating the full topology.
 
 
 ## Updates
