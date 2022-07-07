@@ -18,6 +18,8 @@ I need to define what I've been calling operators and fabric. At runtime, we hav
 
 **TODO:** what is the metaphor we use when constructing a pipeline?
 
+How about "axis", about which all rotations are consistent? So time is represented as rotation about the axis, and if you have different axes elsewhere, you need couplings to convert. I kinda like it, and the visual metaphor is robust.
+
 
 ### X11 UI
 Stuff I should do in order to move forwards:
