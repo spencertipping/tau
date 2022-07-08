@@ -17,6 +17,8 @@ There are several big parts of the `utf9` bytecode:
 5. Disk containers, used to guarantee atomicity + integrity
 6. Greek symbols, which are side-band data
 
+**FIXME:** indexes need to include the collection data, and we probably can't have multiple indexes; otherwise tuple-element iteration becomes ambiguous: for `index tuple`, is `index` an independent element, or is it logically joined to `tuple`? (It should be joined.)
+
 
 ## Greek symbols
 + _α_ is a "time begins now" message sent by newly-connected stream elements
