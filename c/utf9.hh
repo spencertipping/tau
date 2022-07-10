@@ -8,6 +8,7 @@
 #include <cstring>
 #include <exception>
 #include <functional>
+#include <initializer_list>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -346,10 +347,11 @@ struct obuf : public oenc
 
 
   ibuf convert_to_ibuf()
-    { ibuf r{b, i, true};
+    { let b_ = b;
+      let i_ = i;
       b = nullptr;
       l = i = 0;
-      return r; }
+      return ibuf{b_, i_, true}; }
 
 
   uint8_t *data()     const { return b; }
@@ -1121,7 +1123,7 @@ struct tval
 typedef ibuf tbuf;
 
 
-tbuf const tu8{0x00};
+tbuf const tu8 {0x00};
 tbuf const tu16{0x01};
 tbuf const tu32{0x02};
 tbuf const tu64{0x03};
@@ -1153,7 +1155,7 @@ tbuf tbytes(uint64_t l)
        :           obuf(2).u8(0x1c).u8(l).convert_to_ibuf();
 }
 
-tbuf ttuple(std::initializer_list<tbuf> const &xs)
+tbuf ttuple(std::initializer_list<tbuf const> const &xs)
 {
   let      n = xs.size();
   uint64_t s = 0;
@@ -1634,6 +1636,14 @@ struct val
     uint64_t    s;
     uint64_t    o;
     kf_ak(val const &a) : b(*a.b), t(a.atype()[0]), s(a.astride()), o(a.ibegin()) {}
+    val const operator()(uint64_t i) const { return val(t, b, o + s*i); } };
+
+  struct kf_av
+  { ibuf const &b;
+    tval const  t;
+    uint64_t    s;
+    uint64_t    o;
+    kf_av(val const &a) : b(*a.b), t(a.atype()[1]), s(a.astride()), o(a.ibegin() + a.atype().offset_of(1)) {}
     val const operator()(uint64_t i) const { return val(t, b, o + s*i); } };
 
   template <class KF> val io(val const &k) const;

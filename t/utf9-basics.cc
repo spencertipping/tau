@@ -16,7 +16,7 @@ template <class T> struct debug { T &b; };
 
 template <class T> ostream &operator<<(ostream &s, debug<T> const &d)
 {
-  s << "len=" << d.b.size() << ": ";
+  s << "len=" << d.b.size() << ":" << endl;
   for (unsigned i = 0; i < d.b.size();)
   {
     uint8_t c = d.b.data()[i];
@@ -177,7 +177,14 @@ void try_printing_types()
     cout << tval(tu8) << endl;
     cout << tval(ttuple({tu8, tu16})) << endl;
     cout << tval(ttuple({tu8, tu16, tu32, tu64, ti8, ti16, ti32, ti64})) << endl;
+    cout << tval(ttuple({tu8, ttuple({tu16, tu32, tu64}), ti8, ti16, ti32, ti64})) << endl;
     cout << tval(ttuple({tarray(100ul, ttuple({tu64, tu32})), tu64})) << endl;
+  }
+  catch (decoding_error const &e)
+  {
+    cout << "ERROR " << e << endl;
+    cout << debug<ibuf const>{e.b} << endl;
+    _exit(1);
   }
   catch (utf9_error const &e)
   {
