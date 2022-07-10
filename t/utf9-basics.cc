@@ -16,6 +16,7 @@ template <class T> struct debug { T &b; };
 
 template <class T> ostream &operator<<(ostream &s, debug<T> const &d)
 {
+  s << "len=" << d.b.size() << ": ";
   for (unsigned i = 0; i < d.b.size();)
   {
     uint8_t c = d.b.data()[i];
@@ -169,10 +170,28 @@ void try_orderings()
 }
 
 
+void try_printing_types()
+{
+  try
+  {
+    cout << tval(tu8) << endl;
+    cout << tval(ttuple({tu8, tu16})) << endl;
+    cout << tval(ttuple({tu8, tu16, tu32, tu64, ti8, ti16, ti32, ti64})) << endl;
+    cout << tval(ttuple({tarray(100ul, ttuple({tu64, tu32})), tu64})) << endl;
+  }
+  catch (utf9_error const &e)
+  {
+    cout << "ERROR " << e << endl;
+    _exit(1);
+  }
+}
+
+
 int main()
 {
   utf9_init();
   try_orderings();
   try_loading_stuff();
+  try_printing_types();
   return 0;
 }

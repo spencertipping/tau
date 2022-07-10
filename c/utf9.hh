@@ -51,29 +51,67 @@ struct val;
 #define U9 (tau::utf9::val)
 
 
-struct utf9_error       : public std::exception { std::string const &m;    utf9_error(std::string const &m_) : m(m_) {} };
-struct internal_error   : public utf9_error {                              internal_error(std::string const &m_) : utf9_error(m_) {} };
-struct decoding_error   : public utf9_error { ibuf const &b; uint64_t i;   decoding_error(std::string const &m_, ibuf const &b_, uint64_t i_) : utf9_error(m_), b(b_), i(i_) {} };
-struct toperation_error : public utf9_error { tval const &t;               toperation_error(std::string const &m_, tval const &t_) : utf9_error(m_), t(t_) {} };
-struct voperation_error : public utf9_error { val  const &v;               voperation_error(std::string const &m_, val  const &v_) : utf9_error(m_), v(v_) {} };
-struct binop_error      : public utf9_error { val  const &a; val const &b; binop_error(std::string const &m_, val const &a_, val const &b_) : utf9_error(m_), a(a_), b(b_) {} };
-struct encoding_error   : public utf9_error { tval const &t; val const &v; encoding_error(std::string const &m_, tval const &t_, val const &v_) : utf9_error(m_), t(t_), v(v_) {} };
-
-
-namespace  // error to ostream
+struct utf9_error : public std::exception
 {
+  std::string const m;
+  utf9_error(std::string const &m_) : m(m_) {}
+  virtual std::ostream &operator>>(std::ostream&) const = 0;
 
-std::ostream &operator<<(std::ostream&, tval const&);
-std::ostream &operator<<(std::ostream&, val  const&);
+  static std::string hexify(uint8_t b)
+    { char r[2] = {"0123456789abcdef"[b >> 4], "0123456789abcdef"[b & 15]};
+      return std::string(r, 2); }
+};
 
-std::ostream &operator<<(std::ostream &s, utf9_error       const &e) { return s << e.m; }
-std::ostream &operator<<(std::ostream &s, decoding_error   const &e) { return s << e.m << " @ " << e.i; }
-std::ostream &operator<<(std::ostream &s, toperation_error const &e) { return s << e.m << " @ " << e.t; }
-std::ostream &operator<<(std::ostream &s, voperation_error const &e) { return s << e.m << " @ " << e.v; }
-std::ostream &operator<<(std::ostream &s, binop_error      const &e) { return s << e.m << " @ " << e.a << ", " << e.b; }
-std::ostream &operator<<(std::ostream &s, encoding_error   const &e) { return s << e.m << " @ " << e.t << " : " << e.v; }
+struct internal_error : virtual public utf9_error
+{
+  internal_error(std::string const &m_) : utf9_error(m_) {}
+  std::ostream &operator>>(std::ostream &s) const
+    { return s << "internal_error " << m; }
+};
 
-}
+struct decoding_error : virtual public utf9_error
+{
+  ibuf const &b;
+  uint64_t i;
+  decoding_error(std::string const &m_, ibuf const &b_, uint64_t i_)
+    : utf9_error(m_), b(b_), i(i_) {}
+  std::ostream &operator>>(std::ostream&) const;
+};
+
+struct toperation_error : virtual public utf9_error
+{
+  tval const &t;
+  toperation_error(std::string const &m_, tval const &t_) : utf9_error(m_), t(t_) {}
+  std::ostream &operator>>(std::ostream&) const;
+};
+
+struct voperation_error : virtual public utf9_error
+{
+  val const &v;
+  voperation_error(std::string const &m_, val  const &v_) : utf9_error(m_), v(v_) {}
+  std::ostream &operator>>(std::ostream&) const;
+};
+
+struct binop_error : virtual public utf9_error
+{
+  val const &a;
+  val const &b;
+  binop_error(std::string const &m_, val const &a_, val const &b_)
+    : utf9_error(m_), a(a_), b(b_) {}
+  std::ostream &operator>>(std::ostream&) const;
+};
+
+struct encoding_error : virtual public utf9_error
+{
+  tval const &t;
+  val  const &v;
+  encoding_error(std::string const &m_, tval const &t_, val const &v_)
+    : utf9_error(m_), t(t_), v(v_) {}
+  std::ostream &operator>>(std::ostream&) const;
+};
+
+
+inline std::ostream &operator<<(std::ostream &s, utf9_error const &e) { return e >> s; }
 
 
 namespace  // Consistent-endianness (i.e. big-endian in memory)
@@ -109,9 +147,9 @@ inline float ce(float const x)
 namespace  // overflow checks
 {
 
-inline bool ou8 (uint64_t x) { return !(x >> 8); }
-inline bool ou16(uint64_t x) { return !(x >> 16); }
-inline bool ou32(uint64_t x) { return !(x >> 32); }
+inline bool ou8 (uint64_t x) { return !!(x >> 8); }
+inline bool ou16(uint64_t x) { return !!(x >> 16); }
+inline bool ou32(uint64_t x) { return !!(x >> 32); }
 
 inline bool oi8 (int64_t x) { return x << 56 >> 56 != x; }
 inline bool oi16(int64_t x) { return x << 48 >> 48 != x; }
@@ -186,12 +224,19 @@ typedef uint64_t val_type_mask;
 // A bytecode decoder with fully-buffered and bounded source data.
 struct ibuf
 {
-  uint8_t const * const xs;
-  uint64_t        const l;
-  bool            const owned;
+  uint8_t const * xs;
+  uint64_t        l;
+  bool            owned;
 
   ibuf(uint8_t const *xs_, uint64_t l_, bool owned_ = false)
     : xs(xs_), l(l_), owned(owned_) {}
+
+  ibuf(std::initializer_list<int> xs_)
+    : xs(new uint8_t[xs_.size()]), l(xs_.size()), owned(true)
+    { uint64_t i = 0; for (let x : xs_) const_cast<uint8_t*>(xs)[i++] = cou8(x); }
+
+  ibuf(ibuf const &b) : xs(new uint8_t[b.l]), l(b.l), owned(true)
+    { std::memcpy(const_cast<uint8_t*>(xs), b.xs, l); }
 
   ~ibuf() { if (owned) delete[] xs; }
 
@@ -202,6 +247,16 @@ struct ibuf
   uint64_t len  (uint64_t i) const;
   uint64_t tlen (uint64_t i) const;
   uint64_t tvlen(uint64_t i) const;
+
+  uint64_t ctlen(uint64_t i) const
+    { check(i);
+      let n = tlen(i);
+      check(i + n - 1);
+      return n; }
+
+
+  uint8_t const *data() const { return xs; }
+  size_t         size() const { return l; }
 
 
   uint8_t const *operator+(uint64_t i) const { return xs + i; }
@@ -244,6 +299,7 @@ struct oenc
   virtual void     seek(uint64_t to) = 0;
   virtual uint64_t size() const = 0;
   virtual void     fill(uint8_t c, uint64_t n) = 0;
+  virtual ibuf     convert_to_ibuf() = 0;
 
   oenc &u8 (uint8_t  x) { push(x); return *this; }
   oenc &u16(uint16_t x) { u8 (x >> 8);  return u8 (x & 0xff); }
@@ -283,11 +339,14 @@ struct obuf : public oenc
   uint64_t  l = 0;        // allocated size
   uint64_t  i = 0;        // position of next byte to be written
 
+  obuf() {}
+  obuf(uint64_t c) : b(new uint8_t[c]), l(c), i(0) {}
+
   virtual ~obuf() { if (b) delete[] b;}
 
 
   ibuf convert_to_ibuf()
-    { let r = ibuf(b, i, true);
+    { ibuf r{b, i, true};
       b = nullptr;
       l = i = 0;
       return r; }
@@ -362,7 +421,9 @@ let idx16_lf = lf(1 + 2 + b.u16(i + 1));
 let idx32_lf = lf(1 + 4 + b.u32(i + 1));
 let idx64_lf = lf(1 + 8 + b.u64(i + 1));
 
-let bogus_lf = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus lf", b, i); };
+let bogus_lf   = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus lf",   b, i); };
+let bogus_tlf  = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus tlf",  b, i); };
+let bogus_tvlf = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus tvlf", b, i); };
 
 
 // Typecode length functions
@@ -490,11 +551,11 @@ lfn const tlfns[256] =
   l1, l1, l1, l1,
   l1, l1, l1, l1,
   l1, l1, l1, l1,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
   // 0x10-0x1f
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
   l2, l3, l5, l9,
   l2, l3, l5, l9,
 
@@ -525,64 +586,64 @@ lfn const tlfns[256] =
   fixtuple_tlf, fixtuple_tlf, fixtuple_tlf, fixtuple_tlf,
 
   // 0x50-0x5f
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
   // 0x60-0x6f
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
   // 0x70-0x7f
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
   // 0x80-0xbf
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
   // 0xc0-0xff
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
+  bogus_tlf, bogus_tlf, bogus_tlf, bogus_tlf,
 };
 
 lfn const tvlfns[256] =
@@ -591,11 +652,11 @@ lfn const tvlfns[256] =
   l1, l2, l4, l8,
   l1, l2, l4, l8,
   l4, l8, l8, l8,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
   // 0x10-0x1f
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
   u8_tvlf, u16_tvlf, u32_tvlf, u64_tvlf,
   u8_tvlf, u16_tvlf, u32_tvlf, u64_tvlf,
 
@@ -618,64 +679,64 @@ lfn const tvlfns[256] =
   fixtuple8_tvlf, fixtuple8_tvlf, fixtuple8_tvlf, fixtuple8_tvlf,
 
   // 0x50-0x5f
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
   // 0x60-0x6f
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
   // 0x70-0x7f
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
   // 0x80-0xbf
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
   // 0xc0-0xff
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
+  bogus_tvlf, bogus_tvlf, bogus_tvlf, bogus_tvlf,
 };
 
 
@@ -972,7 +1033,8 @@ struct tval
   uint64_t     const i;
   uint64_t     const e;
 
-  tval(ibuf const &b_, uint64_t i_) : b(&b_), i(i_), e(i + b->tlen(i)) {}
+  tval(ibuf const &b_, uint64_t i_) : b(&b_), i(i_), e(i + b->ctlen(i)) {}
+  tval(ibuf const &b_)              : b(&b_), i(0),  e(    b->ctlen(0)) {}
 
 
   struct it
@@ -1056,7 +1118,66 @@ struct tval
 };
 
 
-// TODO: typecode generator functions
+typedef ibuf tbuf;
+
+
+tbuf const tu8{0x00};
+tbuf const tu16{0x01};
+tbuf const tu32{0x02};
+tbuf const tu64{0x03};
+tbuf const ti8 {0x04};
+tbuf const ti16{0x05};
+tbuf const ti32{0x06};
+tbuf const ti64{0x07};
+tbuf const tf32{0x08};
+tbuf const tf64{0x09};
+
+tbuf const tsym  {0x0a};
+tbuf const tpidfd{0x0b};
+
+tbuf tutf8(uint64_t l)
+{
+  return l < 16  ? tbuf{0x20 + cou8(l)}
+       : ou32(l) ? obuf(9).u8(0x1b).u64(l).convert_to_ibuf()
+       : ou16(l) ? obuf(5).u8(0x1a).u32(l).convert_to_ibuf()
+       : ou8(l)  ? obuf(3).u8(0x19).u16(l).convert_to_ibuf()
+       :           obuf(2).u8(0x18).u8(l).convert_to_ibuf();
+}
+
+tbuf tbytes(uint64_t l)
+{
+  return l < 16  ? tbuf{0x30 + cou8(l)}
+       : ou32(l) ? obuf(9).u8(0x1f).u64(l).convert_to_ibuf()
+       : ou16(l) ? obuf(5).u8(0x1e).u32(l).convert_to_ibuf()
+       : ou8(l)  ? obuf(3).u8(0x1d).u16(l).convert_to_ibuf()
+       :           obuf(2).u8(0x1c).u8(l).convert_to_ibuf();
+}
+
+tbuf ttuple(std::initializer_list<tbuf> const &xs)
+{
+  let      n = xs.size();
+  uint64_t s = 0;
+  for (let &x : xs) s += tval(x).vsize();
+
+  obuf r(16);
+  if      (ou32(s) || ou32(n)) r.u8(0x43).u64(s).u64(n);
+  else if (ou16(s) || ou16(n)) r.u8(0x42).u32(s).u32(n);
+  else if (ou8(s)  || ou8(n))  r.u8(0x41).u16(s).u16(n);
+  else if (n < 8)              r.u8(0x48 + n).u8(s);
+  else                         r.u8(0x40).u8(s).u8(n);
+
+  for (let &x : xs) r << x;
+  return r.convert_to_ibuf();
+}
+
+tbuf tarray(uint64_t n, tbuf const &t)
+{
+  let s = tval(t).vsize() * n;
+  return ou32(s) ? (obuf(16).u8(0x47).u64(s).u64(n) << t).convert_to_ibuf()
+       : ou16(s) ? (obuf(16).u8(0x46).u32(s).u32(n) << t).convert_to_ibuf()
+       : ou8(s)  ? (obuf(16).u8(0x45).u16(s).u16(n) << t).convert_to_ibuf()
+       :           (obuf(16).u8(0x44).u8(s) .u8(n)  << t).convert_to_ibuf();
+}
 
 
 // utf9 value, either bytecode-bound or immediate
@@ -1782,6 +1903,8 @@ struct tenc : public oenc
 
   ~tenc() { write_header(); }
 
+  ibuf convert_to_ibuf() { throw internal_error("tenc cti"); }
+
   int header_size()
     { let m = l | n;
       return !(m >> 8) && n < 8 ? 2
@@ -2006,6 +2129,36 @@ std::ostream &operator<<(std::ostream &s, obuf const &o)
   return s.write(reinterpret_cast<char*>(o.b), o.i);
 }
 
+}
+
+
+std::ostream &decoding_error::operator>>(std::ostream &s) const
+{
+  s << "decoding_error " << m << std::endl;
+  s << "  position = " << i << ", len = " << b.size() << std::endl;
+  s << "  bytes = ";
+  for (int j = 0; j < 8; ++j) s << hexify(b.xs[i + j]) << " ";
+  return s << std::endl;
+}
+
+std::ostream &toperation_error::operator>>(std::ostream &s) const
+{
+  return s << "toperation_error" << m << " " << t;
+}
+
+std::ostream &voperation_error::operator>>(std::ostream &s) const
+{
+  return s << "voperation_error" << m << " " << v;
+}
+
+std::ostream &binop_error::operator>>(std::ostream &s) const
+{
+  return s << "binop_error" << m << "(" << a << ", " << b << ")";
+}
+
+std::ostream &encoding_error::operator>>(std::ostream &s) const
+{
+  return s << "encoding_error" << m << " " << t << " " << v;
 }
 
 
