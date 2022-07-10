@@ -1,7 +1,5 @@
 # Tau
 + [utf9](m/utf9.md)
-+ [axis](m/axis.md)
-+ [loop](m/loop.md)
 
 
 ## Setup
