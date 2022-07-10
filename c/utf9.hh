@@ -18,6 +18,7 @@
 
 #include <byteswap.h>
 
+#define XXH_INLINE_ALL 1
 #include "xxhash.h"
 #include "picosha2.h"
 
@@ -37,6 +38,8 @@ static_assert(sizeof(double) == sizeof(uint64_t));
 static_assert(sizeof(float)  == sizeof(uint32_t));
 static_assert(sizeof(void*)  == sizeof(uint64_t));
 static_assert(sizeof(char)   == sizeof(uint8_t));
+
+static_assert(sizeof(XXH64_hash_t) == sizeof(uint64_t));
 
 
 struct ibuf;
@@ -185,9 +188,12 @@ struct ibuf
 {
   uint8_t const * const xs;
   uint64_t        const l;
+  bool            const owned;
 
+  ibuf(uint8_t const *xs_, uint64_t l_, bool owned_ = false)
+    : xs(xs_), l(l_), owned(owned_) {}
 
-  ibuf(uint8_t const *xs_, uint64_t l_) : xs(xs_), l(l_) {}
+  ~ibuf() { if (owned) delete[] xs; }
 
 
   bool has  (uint64_t i) const { return i < l; }
@@ -248,12 +254,13 @@ struct oenc
 
   oenc &xs(uint8_t const *xs, uint64_t n) { write(xs, n); return *this; }
 
-  oenc &operator<<(uint8_t  x) { return u8(x);  }
-  oenc &operator<<(uint16_t x) { return u16(x); }
-  oenc &operator<<(uint32_t x) { return u32(x); }
-  oenc &operator<<(uint64_t x) { return u64(x); }
-  oenc &operator<<(float    x) { return f32(x); }
-  oenc &operator<<(double   x) { return f64(x); }
+  oenc &operator<<(uint8_t  x)    { return u8(x);  }
+  oenc &operator<<(uint16_t x)    { return u16(x); }
+  oenc &operator<<(uint32_t x)    { return u32(x); }
+  oenc &operator<<(uint64_t x)    { return u64(x); }
+  oenc &operator<<(float    x)    { return f32(x); }
+  oenc &operator<<(double   x)    { return f64(x); }
+  oenc &operator<<(ibuf const &b) { return xs(b.xs, b.l); }
 
   template <class T>
   oenc &operator<<(std::basic_string<T> x)
@@ -277,6 +284,14 @@ struct obuf : public oenc
   uint64_t  i = 0;        // position of next byte to be written
 
   virtual ~obuf() { if (b) delete[] b;}
+
+
+  ibuf convert_to_ibuf()
+    { let r = ibuf(b, i, true);
+      b = nullptr;
+      l = i = 0;
+      return r; }
+
 
   uint8_t *data()     const { return b; }
   uint64_t size()     const { return i; }
@@ -951,7 +966,6 @@ struct pidfd
 
 
 // A typecode beginning at a specific bytecode location
-// TODO: add immediate mode and define the hash function appropriately
 struct tval
 {
   ibuf const * const b;
@@ -1485,10 +1499,21 @@ struct val
   struct kf_tk { val const  operator()(val const &kv) { return kv[0]; } };
   struct kf_tv { val const  operator()(val const &kv) { return kv[1]; } };
 
-  // TODO: fix the interface for these; have the struct precompute array type
-  // characteristics and element offset/size
-  struct kf_ae { val const operator()(val const &a, uint64_t i) { return a[i]; } };
-  struct kf_ak { val const operator()(val const &a, uint64_t i) { return a[i]; } };
+  struct kf_ae
+  { ibuf const &b;
+    tval const  t;
+    uint64_t    s;
+    uint64_t    o;
+    kf_ae(val const &a) : b(*a.b), t(a.atype()), s(a.astride()), o(a.ibegin()) {}
+    val const operator()(uint64_t i) const { return val(t, b, o + s*i); } };
+
+  struct kf_ak
+  { ibuf const &b;
+    tval const  t;
+    uint64_t    s;
+    uint64_t    o;
+    kf_ak(val const &a) : b(*a.b), t(a.atype()[0]), s(a.astride()), o(a.ibegin()) {}
+    val const operator()(uint64_t i) const { return val(t, b, o + s*i); } };
 
   template <class KF> val io(val const &k) const;
   template <class KF> val ih(val const &k) const;
@@ -1989,6 +2014,10 @@ inline void utf9_init()
   init_lfn_tables();
   init_sfn_tables();
 }
+
+
+static_assert(sizeof(tval) == 24);
+static_assert(sizeof(val)  == 16);
 
 
 #undef BE
