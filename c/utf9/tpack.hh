@@ -8,6 +8,10 @@
 #include "../begin.hh"
 
 
+namespace tau::utf9
+{
+
+
 typedef int32_t tpacked;
 
 void pack_table(uint64_t const *       t,
@@ -18,6 +22,9 @@ void pack_table(uint64_t const *       t,
   for (int i = 0; i < n; ++i)
   { p[i] = static_cast<tpacked>(t[i] - base);
     if (p[i] + base != t[i]) throw std::length_error("pack_table overflow"); }
+}
+
+
 }
 
 
