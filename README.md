@@ -13,11 +13,7 @@ $ sudo apt install -y \
 
 
 ## Next steps
-I need to define what I've been calling operators and fabric. At runtime, we have "reference frames" which are consistently-ordered timelines with utf9 sharing (which probably means some type of primitive GC). But we'll compile downwards to that, so we need another metaphor for how pipelines are meant to work.
-
-**TODO:** what is the metaphor we use when constructing a pipeline?
-
-How about "axis", about which all rotations are consistent? So time is represented as rotation about the axis, and if you have different axes elsewhere, you need couplings to convert. I kinda like it, and the visual metaphor is robust.
+I think there will be two layers: first, we have the actual runtime mechanics; and second, we have the functions that compile into it. The abstractions can probably be pretty close to reality, but we'll probably want to focus on loop-connectivity and constraints, vs pins to specific runtimes.
 
 
 ### X11 UI
