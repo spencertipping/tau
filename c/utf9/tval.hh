@@ -1,4 +1,5 @@
-#pragma once
+#ifndef tau_utf9_tval_h
+#define tau_utf9_tval_h
 
 
 #include <cstdint>
@@ -9,11 +10,11 @@
 #include "obuf.hh"
 #include "typecode.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
-
-#define let auto const
 
 
 // A typecode beginning at a specific bytecode location
@@ -170,6 +171,9 @@ tbuf tarray(uint64_t n, tbuf const &t)
 }
 
 
-#undef let
-
 }
+
+
+#include "../end.hh"
+
+#endif

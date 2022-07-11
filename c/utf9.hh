@@ -1,4 +1,5 @@
-#pragma once
+#ifndef tau_utf9_h
+#define tau_utf9_h
 
 
 #include "utf9/errors.hh"
@@ -19,6 +20,8 @@
 #include "utf9/enc.hh"
 #include "utf9/ostream.hh"
 
+#include "begin.hh"
+
 
 namespace tau::utf9
 {
@@ -31,5 +34,9 @@ inline void utf9_init()
 
 }
 
-
 #define U9 (tau::utf9::val)
+
+
+#include "end.hh"
+
+#endif

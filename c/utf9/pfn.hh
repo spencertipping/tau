@@ -1,4 +1,5 @@
-#pragma once
+#ifndef tau_utf9_pfn_h
+#define tau_utf9_pfn_h
 
 
 #include <cstdint>
@@ -6,11 +7,11 @@
 #include "ibuf.hh"
 #include "tpack.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
-
-#define let auto const
 
 
 #define pf(body) [](ibuf const &b, uint64_t i) -> uint8_t const* { return (body); }
@@ -145,6 +146,9 @@ void init_sfn_tables()
 #undef pf
 
 
-#undef let
-
 }
+
+
+#include "../end.hh"
+
+#endif

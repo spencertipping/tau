@@ -1,8 +1,11 @@
-#pragma once
+#ifndef tau_utf9_errors_h
+#define tau_utf9_errors_h
 
 
 #include <iostream>
 #include <stdexcept>
+
+#include "../begin.hh"
 
 
 namespace tau::utf9
@@ -80,3 +83,8 @@ inline std::ostream &operator<<(std::ostream &s, utf9_error const &e) { return e
 
 
 }
+
+
+#include "../end.hh"
+
+#endif

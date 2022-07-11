@@ -1,4 +1,5 @@
-#pragma once
+#ifndef tau_utf9_ibuf_h
+#define tau_utf9_ibuf_h
 
 
 #include <cstdint>
@@ -7,11 +8,11 @@
 #include "errors.hh"
 #include "numerics.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
-
-#define let auto const
 
 
 // A bytecode decoder with fully-buffered and bounded source data.
@@ -80,6 +81,9 @@ struct ibuf
 };
 
 
-#undef let
-
 }
+
+
+#include "../end.hh"
+
+#endif

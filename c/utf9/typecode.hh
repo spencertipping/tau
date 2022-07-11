@@ -1,11 +1,15 @@
-#pragma once
+#ifndef tau_utf9_typecode_h
+#define tau_utf9_typecode_h
 
 
 #include <cstdint>
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
+
 
 enum val_type : uint8_t
 {
@@ -138,4 +142,10 @@ val_type const bts[256] =
 
 }
 
+
 }
+
+
+#include "../end.hh"
+
+#endif

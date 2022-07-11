@@ -1,4 +1,5 @@
-#pragma once
+#ifndef tau_utf9_valsearch_h
+#define tau_utf9_valsearch_h
 
 
 #include <cstdint>
@@ -7,11 +8,11 @@
 #include "errors.hh"
 #include "val.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
-
-#define let auto const
 
 
 namespace  // container search helper functions
@@ -183,6 +184,9 @@ template <class KF> val val::make_th() const
 // TODO: make_ao and make_ah
 
 
-#undef let
-
 }
+
+
+#include "../end.hh"
+
+#endif

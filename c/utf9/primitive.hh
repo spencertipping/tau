@@ -1,8 +1,11 @@
-#pragma once
+#ifndef tau_utf9_primitive_h
+#define tau_utf9_primitive_h
 
 
 #include <cstdint>
 #include <string>
+
+#include "../begin.hh"
 
 
 namespace tau::utf9
@@ -38,3 +41,8 @@ struct pidfd
 };
 
 }
+
+
+#include "../end.hh"
+
+#endif

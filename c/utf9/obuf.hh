@@ -1,15 +1,16 @@
-#pragma once
+#ifndef tau_utf9_obuf_h
+#define tau_utf9_obuf_h
 
 
 #include <cstdint>
 
 #include "ibuf.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
-
-#define let auto const
 
 
 // A bytecode encoder with no specified storage backend
@@ -103,6 +104,9 @@ struct obuf : public oenc
 };
 
 
-#undef let
-
 }
+
+
+#include "../end.hh"
+
+#endif

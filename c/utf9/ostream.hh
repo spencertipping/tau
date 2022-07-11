@@ -1,18 +1,20 @@
-#pragma once
+#ifndef tau_utf9_ostream_h
+#define tau_utf9_ostream_h
 
 
 #include <iostream>
 
+#include "errors.hh"
 #include "primitive.hh"
 #include "tval.hh"
 #include "typecode.hh"
 #include "val.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
-
-#define let auto const
 
 
 namespace  // val/tval << operators
@@ -169,6 +171,9 @@ std::ostream &encoding_error::operator>>(std::ostream &s) const
 }
 
 
-#undef let
-
 }
+
+
+#include "../end.hh"
+
+#endif

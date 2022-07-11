@@ -1,4 +1,5 @@
-#pragma once
+#ifndef tau_utf9_val_h
+#define tau_utf9_val_h
 
 
 #include <cstdint>
@@ -12,11 +13,11 @@
 #include "tval.hh"
 #include "typecode.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
-
-#define let auto const
 
 
 // utf9 value, either bytecode-bound or immediate
@@ -567,8 +568,6 @@ static_assert(sizeof(tval) == 24);
 static_assert(sizeof(val)  == 16);
 
 
-#undef let
-
 }
 
 
@@ -577,3 +576,8 @@ template<> struct std::hash<tau::utf9::val>
 
 template<> struct std::hash<tau::utf9::tval>
 { uint64_t operator()(tau::utf9::tval const &t) { return t.h(); } };
+
+
+#include "../end.hh"
+
+#endif

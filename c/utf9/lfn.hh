@@ -1,14 +1,15 @@
-#pragma once
+#ifndef tau_utf9_lfn_h
+#define tau_utf9_lfn_h
 
 
 #include "ibuf.hh"
 #include "tpack.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
-
-#define let auto const
 
 
 namespace  // Length traversal dispatch
@@ -400,6 +401,9 @@ inline uint64_t ibuf::tlen (uint64_t i) const { return reinterpret_cast<lfn>(lfn
 inline uint64_t ibuf::tvlen(uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tvlfnos[xs[i]])(*this, i); }
 
 
-#undef let
-
 }
+
+
+#include "../end.hh"
+
+#endif

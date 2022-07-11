@@ -1,4 +1,5 @@
-#pragma once
+#ifndef tau_utf9_enc_h
+#define tau_utf9_enc_h
 
 
 #include <cstdint>
@@ -6,11 +7,11 @@
 #include "obuf.hh"
 #include "val.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
-
-#define let auto const
 
 
 namespace  // bytecode encoding
@@ -135,6 +136,9 @@ oenc &operator<<(oenc &o, val const &v)
 }
 
 
-#undef let
-
 }
+
+
+#include "../end.hh"
+
+#endif

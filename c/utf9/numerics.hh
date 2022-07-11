@@ -1,4 +1,5 @@
-#pragma once
+#ifndef tau_utf9_numerics_h
+#define tau_utf9_numerics_h
 
 
 #include <bit>
@@ -8,12 +9,14 @@
 
 #include "errors.hh"
 
+#include "../begin.hh"
+
 
 namespace tau::utf9
 {
 
-#define LE (std::endian::native == std::endian::little)
-#define BE (std::endian::native == std::endian::big)
+let LE = std::endian::native == std::endian::little;
+let BE = std::endian::native == std::endian::big;
 
 
 static_assert(LE || BE, "unsupported endianness");
@@ -67,7 +70,9 @@ inline int16_t  coi16(int64_t x) { return oi16(x) ? throw internal_error("i16o")
 inline int32_t  coi32(int64_t x) { return oi32(x) ? throw internal_error("i32o") : x; }
 
 
-#undef LE
-#undef BE
-
 }
+
+
+#include "../end.hh"
+
+#endif
