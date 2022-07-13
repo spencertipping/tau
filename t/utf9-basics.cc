@@ -91,7 +91,7 @@ void try_loading_stuff()
 
       auto sv = string_view(reinterpret_cast<char const*>(o4.data()),
                             min(o4.size(), 256ul));
-      cout << debug<string_view>{sv} << endl;
+      //cout << debug<string_view>{sv} << endl;
 
       cout << val(i4, 0).bsize() << " == " << i4.l << endl;
 
@@ -154,13 +154,13 @@ void try_orderings()
     auto v = tau::utf9::tuple();
     for (int64_t i = 0; i < 100; ++i) v << val(i);
     for (int64_t i = -10; i < 110; ++i)
-      cout << "finding " << i << ": "
-           << v.to<val::kf_te>(val(i), none) << endl;
+      if (v.to<val::kf_te>(val(i), none).exists() != (i >= 0 && i < 100))
+        cout << "ord find mismatch for " << i << endl;
 
     auto vh = v.make_th<val::kf_te>();
     for (int64_t i = -10; i < 110; ++i)
-      cout << "hashed finding " << i << ": "
-           << vh.th<val::kf_te>(val(i), none) << endl;
+      if (vh.th<val::kf_te>(val(i), none).exists() != (i >= 0 && i < 100))
+        cout << "hash find mismatch for " << i << endl;
   }
   catch (utf9_error const &e)
   {
