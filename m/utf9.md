@@ -19,6 +19,11 @@ There are several big parts of the `utf9` bytecode:
 
 **FIXME:** indexes need to include the collection data, and we probably can't have multiple indexes; otherwise tuple-element iteration becomes ambiguous: for `index tuple`, is `index` an independent element, or is it logically joined to `tuple`? (It should be joined.)
 
+Indexed containers should have a couple of modifications:
+
+1. We prepend the indexes in a group, so we have an "indexed container" object that specifies number-of-indexes and what-not
+2. Some indexed containers, especially if values are large, should be split, so we have a column of keys and a column of values rather than `(k, v)` pairs
+
 
 ## Greek symbols
 + _α_ is a "time begins now" message sent by newly-connected stream elements
