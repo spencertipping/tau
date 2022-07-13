@@ -3,3 +3,5 @@ The language used to serially construct and describe τ graph elements (and plug
 
 + Named bundles are going to be a big deal here
 + Local context addressed as individual bundles? Not sure
+
+**Q:** should we run static contents through the graph first, as a form of validation?
