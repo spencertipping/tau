@@ -35,8 +35,6 @@ inline void utf9_init()
 
 }
 
-#define U9 (tau::utf9::val)
-
 
 #include "end.hh"
 

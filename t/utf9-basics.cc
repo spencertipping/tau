@@ -75,7 +75,7 @@ void try_loading_stuff()
     {
       obuf o4;
       val v4 = tau::utf9::tuple(upper);
-      for (int64_t i = 0; i < upper; ++i) v4 <<U9 i;
+      for (int64_t i = 0; i < upper; ++i) v4 << val(i);
 
       {
         auto start = chrono::steady_clock::now();
