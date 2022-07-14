@@ -99,7 +99,7 @@ struct tval
   int compare(tval const &t) const
     { let n1 =   tsize();
       let n2 = t.tsize();
-      return n1 > n2 ? 1 : n1 < n2 ? -1 : std::__memcmp(*b + i, *t.b + t.i, n1); }
+      return n1 > n2 ? 1 : n1 < n2 ? -1 : std::memcmp(*b + i, *t.b + t.i, n1); }
 
 
   uint64_t h() const { return xxh(b + i, e - i, 1); }

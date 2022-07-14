@@ -90,7 +90,7 @@ void try_loading_stuff()
       ibuf i4(o4.data(), o4.size());
 
       auto sv = string_view(reinterpret_cast<char const*>(o4.data()),
-                            min(o4.size(), 256ul));
+                            min(static_cast<unsigned long long>(o4.size()), 256ull));
       //cout << debug<string_view>{sv} << endl;
 
       cout << val(i4, 0).bsize() << " == " << i4.l << endl;
@@ -196,9 +196,8 @@ void try_printing_types()
 
 int main()
 {
-  utf9_init();
-  try_orderings();
-  try_loading_stuff();
-  try_printing_types();
+  cout << "try_orderings"      << endl; try_orderings();
+  cout << "try_printing_types" << endl; try_printing_types();
+  cout << "try_loading_stuff"  << endl; try_loading_stuff();
   return 0;
 }

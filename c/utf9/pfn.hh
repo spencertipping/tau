@@ -5,7 +5,6 @@
 #include <cstdint>
 
 #include "ibuf.hh"
-#include "tpack.hh"
 
 #include "../begin.hh"
 
@@ -132,19 +131,8 @@ pfn const sfns[256] =
   bogus_pf, bogus_pf, bogus_pf, bogus_pf,
 };
 
-tpacked sfnos[256];
-
-uint64_t const sfn_base = reinterpret_cast<uint64_t>(&p1);
-
-
-void init_sfn_tables()
-{
-  pack_table(reinterpret_cast<uint64_t const *>(sfns), sfn_base, sfnos, 256);
-}
-
 
 #undef pf
-
 
 }
 

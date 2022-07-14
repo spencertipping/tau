@@ -18,11 +18,15 @@ namespace tau::utf9
 namespace  // container search helper functions
 {
 
+
+size_t const not_found_bit = 1ull << sizeof(size_t) * 8 - 1;
+
+
 template <class KF>
 uint64_t binsearch(std::vector<val> const &vs,
                    val              const &k,
-                   uint64_t                l = 0,
-                   uint64_t                u = -1ul)
+                   size_t                  l = 0,
+                   size_t                  u = -1ul)
 {
   KF kf;
   u = std::min(u, vs.size());
@@ -36,15 +40,15 @@ uint64_t binsearch(std::vector<val> const &vs,
     case  0: return m;
     }
   }
-  return l | (kf(vs[l]).compare(k) ? 1ul << 63 : 0);
+  return l | (kf(vs[l]).compare(k) ? not_found_bit : 0);
 }
 
 
 template <class KF>
 uint64_t interpsearch(std::vector<val> const &vs,
                       val              const &k,
-                      uint64_t                l = 0,
-                      uint64_t                u = -1ul)
+                      size_t                  l = 0,
+                      size_t                  u = -1ul)
 {
   KF kf;
   u = std::min(vs.size(), u);
@@ -56,7 +60,7 @@ uint64_t interpsearch(std::vector<val> const &vs,
   // better splits; then delegate to binsearch to divide the final interval.
   while (u > l + 16)
   {
-    let m  = std::min(u - 1, std::max(l + 1, l + (u - l) * (hk - hl) / (hu - hl)));
+    let m  = std::min(u - 1, std::max(l + 1, static_cast<size_t>(l + (u - l) * (hk - hl) / (hu - hl))));
     let hm = kf(vs[m]).h();
     switch (hm.compare(hk))
     {
@@ -78,7 +82,7 @@ uint64_t interpsearch(std::vector<val> const &vs,
     }
   }
 
-  return l | (kf(vs[l]).compare(k) ? 1ul << 63 : 0);
+  return l | (kf(vs[l]).compare(k) ? not_found_bit : 0);
 }
 
 
@@ -90,7 +94,7 @@ val s_to(val      const &b,
 {
   if (hk.exists() && hk > k) throw internal_error("s_to hk>k");
   KF kf;
-  if (!b.has_ibuf()) { let i = binsearch<KF>(*b.vt, k); return i & 1ul << 63 ? none : (*b.vt)[i]; }
+  if (!b.has_ibuf()) { let i = binsearch<KF>(*b.vt, k); return i & not_found_bit ? none : (*b.vt)[i]; }
   for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
   {
     let v = val(*b.b, o);
@@ -113,7 +117,7 @@ val s_th(val      const &b,
 {
   if (hk.exists() && hk > k) throw internal_error("s_th hk>k");
   KF kf;
-  if (!b.has_ibuf()) { let i = interpsearch<KF>(*b.vt, k); return i & 1ul << 63 ? none : (*b.vt)[i]; }
+  if (!b.has_ibuf()) { let i = interpsearch<KF>(*b.vt, k); return i & not_found_bit ? none : (*b.vt)[i]; }
   let kh = k.h().h;
   for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
   {

@@ -3,7 +3,6 @@
 
 
 #include "ibuf.hh"
-#include "tpack.hh"
 
 #include "../begin.hh"
 
@@ -375,30 +374,14 @@ lfn const tvlfns[256] =
 };
 
 
-tpacked lfnos[256];
-tpacked tlfnos[256];
-tpacked tvlfnos[256];
-
-
-uint64_t const lfn_base = reinterpret_cast<uint64_t>(&l1);
-
-
-void init_lfn_tables()
-{
-  pack_table(reinterpret_cast<uint64_t const*>(lfns),   lfn_base, lfnos,   256);
-  pack_table(reinterpret_cast<uint64_t const*>(tlfns),  lfn_base, tlfnos,  256);
-  pack_table(reinterpret_cast<uint64_t const*>(tvlfns), lfn_base, tvlfnos, 256);
-}
-
-
 #undef lf
 
 }
 
 
-inline uint64_t ibuf::len  (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + lfnos  [xs[i]])(*this, i); }
-inline uint64_t ibuf::tlen (uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tlfnos [xs[i]])(*this, i); }
-inline uint64_t ibuf::tvlen(uint64_t i) const { return reinterpret_cast<lfn>(lfn_base + tvlfnos[xs[i]])(*this, i); }
+inline uint64_t ibuf::len  (uint64_t i) const { return lfns  [xs[i]](*this, i); }
+inline uint64_t ibuf::tlen (uint64_t i) const { return tlfns [xs[i]](*this, i); }
+inline uint64_t ibuf::tvlen(uint64_t i) const { return tvlfns[xs[i]](*this, i); }
 
 
 }
