@@ -21,6 +21,8 @@ $ dev/emsdk em++ -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -W
 
 **NOTE:** emscripten via `node` is ~50x slower than native at decoding UTF9. Shouldn't be a huge deal since most of the heavy lifting is done server-side, but emscripten is far from efficient.
 
+**NOTE:** `wasm64` is enabled with `-sMEMORY64=1`, but it requires no exceptions and fails with asyncify. It also seems to load an experimental set of emscripten libraries -- I doubt we can make it work.
+
 
 ## Next steps
 I think there will be two layers: first, we have the actual runtime mechanics; and second, we have the functions that compile into it. The abstractions can probably be pretty close to reality, but we'll probably want to focus on loop-connectivity and constraints, vs pins to specific runtimes.
