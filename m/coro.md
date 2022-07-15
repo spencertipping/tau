@@ -6,15 +6,15 @@ Something like this:
 ```cpp
 struct coro
 {
-  template<class fn>
-  coro(string name, fn);
+  template<class fn> coro(string name, fn);
 
   coro &operator()();
   void finish();
 
   static coro &main();
   static coro &current();
-  static void  fin();
+  static void  yield();
+  static void  fin();  // FIXME (see below)
 };
 
 void coro_init();
