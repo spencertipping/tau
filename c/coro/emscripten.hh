@@ -14,8 +14,8 @@ namespace tau::coro
 
 
 struct coro;
-static coro *main_coro;
-static coro *this_coro;
+static coro *main_coro = nullptr;
+static coro *this_coro = nullptr;
 
 
 struct coro
@@ -37,9 +37,7 @@ struct coro
     { this_coro = this;
       emscripten_fiber_init_from_current_context(&k, async_stack, stack_size); }
 
-  ~coro()
-    { if (async_stack) std::free(async_stack);
-      if (c_stack)     std::free(c_stack); }
+  ~coro() { finish(); }
 
 
   coro &operator()()

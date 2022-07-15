@@ -17,8 +17,8 @@ namespace tau::coro
 
 
 struct coro;
-static coro *main_coro;
-static coro *this_coro;
+static coro *main_coro = nullptr;
+static coro *this_coro = nullptr;
 
 
 struct coro
@@ -40,6 +40,8 @@ struct coro
           return std::move(*main_coro->k);
         }); }
 
+  ~coro() { finish(); }
+
 
   coro &operator()()
     { assert(!done());
@@ -49,9 +51,7 @@ struct coro
 
 
   bool done() const { return k != nullptr; }
-  void finish()
-    { if (k) delete k;
-      k = nullptr; }
+  void finish()     { if (k) delete k; k = nullptr; }
 
 
   static coro &main()    { return *main_coro; }
