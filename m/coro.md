@@ -4,24 +4,20 @@ A lightweight API around `boost::context` and `emscripten_fiber_t`. The goal is 
 Something like this:
 
 ```cpp
-struct coro
+template<class T>
+struct coro<T>
 {
   template<class fn> coro(string name, fn);
 
-  coro &operator()();
-  void finish();
+  bool  done()   const noexcept;
+  T    &result() const;
 
-  static coro &main();
-  static coro &current();
-  static void  yield();
-  static void  fin();  // FIXME (see below)
+  coro &operator()();   // transfer control to this coro
+  static void yield();  // yield out to main coro
 };
 
+// must call this before using tau::coro
 void coro_init();
 ```
 
-
-## Results and errors
-We should probably have a way to capture exceptions and/or return values. Maybe we use `coro<T>` to forward returns and errors, which I guess would both be encapsulated by `T`.
-
-This also provides more natural `return` support within `coro` lambdas.
+Coros shouldn't throw errors from their functions; if we need to capture that, `T` should contain duality. (In practice, we'll probably have `T = int` or something, then just return a number. Most coros are stream processors.)
