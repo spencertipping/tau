@@ -24,35 +24,44 @@ static coro *this_coro;
 struct coro
 {
   // TODO: support custom stack sizing
-  boost::context::continuation k;
-  bool                         done;
+  boost::context::continuation *k;
 
-  static coro main_coro_instance;
-
-  coro(void(*f)(), std::size_t stack_size = 1048576)
-    : k(boost::context::callcc(
-          [&](boost::context::continuation &&cc) {
-            main_coro->k = cc.resume();
-            (*f)();
-            return std::move(main_coro->k);
-          })),
-      done(false)
+  coro(std::size_t stack_size = 1048576)
+    : k(new boost::context::continuation)
     {}
 
+  coro(void(*f)(), std::size_t stack_size = 1048576)
+    : k(new boost::context::continuation)
+    { *k = boost::context::callcc(
+        [&](boost::context::continuation &&cc) {
+          // TODO: should we support coros creating other coros?
+          *main_coro->k = cc.resume();
+          (*f)();
+          return std::move(*main_coro->k);
+        }); }
+
+
   coro &operator()()
-    { assert(!done);
+    { assert(!done());
       this_coro = this;
-      k = k.resume();
+      *k = k->resume();
       return *this; }
+
+
+  bool done() const { return k != nullptr; }
+  void finish()
+    { if (k) delete k;
+      k = nullptr; }
+
 
   static coro &main()    { return *main_coro; }
   static coro &current() { return *this_coro; }
-  static void fin()      { this_coro->done = true; (*main_coro)(); }
+  static void fin()      { this_coro->finish(); (*main_coro)(); }
 };
 
 
 inline void coro_init(std::size_t stack_size = 1048576)
-{ main_coro = &coro::main_coro_instance; }
+{ main_coro = new coro(stack_size); }
 
 
 }
