@@ -6,6 +6,7 @@
 #include "unistd.h"
 
 #include "../c/utf9.hh"
+#include "../c/begin.hh"
 
 
 using namespace std;
@@ -201,3 +202,6 @@ int main()
   cout << "try_loading_stuff"  << endl; try_loading_stuff();
   return 0;
 }
+
+
+#include "../c/end.hh"
