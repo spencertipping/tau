@@ -21,3 +21,5 @@ void coro_init();
 ```
 
 Coros shouldn't throw errors from their functions; if we need to capture that, `T` should contain duality. (In practice, we'll probably have `T = int` or something, then just return a number. Most coros are stream processors.)
+
+**NOTE:** `coro<T>` may present a challenge if we want to have `this_coro`. Maybe we should limit it to an externally-defined main context or have `coro` objects not return values.
