@@ -1,7 +1,6 @@
 # Tau
 + [utf9](m/utf9.md)
 + [coro](m/coro.md)
-+ [cons](m/cons.md)
 
 
 ## Setup

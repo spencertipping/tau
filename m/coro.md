@@ -9,8 +9,7 @@ struct coro<T>
 {
   template<class fn> coro(string name, fn);
 
-  bool  done()   const noexcept;
-  T    &result() const;
+  bool done() const noexcept;
 
   coro &operator()();   // transfer control to this coro
   static void yield();  // yield out to main coro
