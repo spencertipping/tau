@@ -3,6 +3,7 @@
 
 
 #include <iostream>
+#include <limits>
 
 #include "errors.hh"
 #include "primitive.hh"
@@ -36,14 +37,7 @@ std::ostream &operator<<(std::ostream &s, val_type t)
   case PIDFD:    return s << "pidfd";
   case BOOL:     return s << "bool";
   case NULLTYPE: return s << "null";
-
-  case Α:        return s << "α";
-  case Ω:        return s << "ω";
-  case Ι:        return s << "ι";
-  case Κ:        return s << "κ";
-  case Τ:        return s << "τ";
-  case Ρ:        return s << "ρ";
-  case Θ:        return s << "θ";
+  case GREEK:    return s << "greek";
 
   case UTF8:     return s << "utf8";
   case BYTES:    return s << "bytes";
@@ -96,13 +90,21 @@ std::ostream &operator<<(std::ostream &s, val const &v)
   case SYMBOL:  return s << static_cast<sym>(v);
   case PIDFD:   return s << static_cast<pidfd>(v);
 
-  case Α: return s << "α";
-  case Ω: return s << "ω";
-  case Ι: return s << "ι";
-  case Κ: return s << "κ";
-  case Τ: return s << "τ";
-  case Ρ: return s << "ρ(" << static_cast<uint64_t>(v) << ")";
-  case Θ: return s << "θ(" << static_cast<double>(v) << ")";
+  case GREEK:
+  {
+    let g = static_cast<greek>(v);
+    switch(g.l)
+    {
+    case greek::Α: return s << "α";
+    case greek::Ι: return s << "ι";
+    case greek::Κ: return s << "κ";
+    case greek::Ρ: return s << "ρ(" << g.v << ")";
+    case greek::Θ: return s << "θ(" << static_cast<double>(g.v) / static_cast<double>(std::numeric_limits<uint32_t>::max()) << ")";
+    case greek::Τ: return s << "τ";
+    case greek::Ω: return s << "ω";
+    default: throw internal_error("greek<<");
+    }
+  }
 
   case UTF8:  return s << "u8[" << static_cast<std::string_view>(v) << "]";
   case BYTES: return s << "b["  << static_cast<std::string_view>(v) << "]";

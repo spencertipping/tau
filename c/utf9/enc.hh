@@ -99,14 +99,6 @@ oenc &operator<<(oenc &o, val const &v)
   case BOOL:     return o.u8(static_cast<bool>(v) ? 0x0d : 0x0c);
   case NULLTYPE: return o.u8(0x0e);
 
-  case Α: return o.u8(0x10);
-  case Ω: return o.u8(0x11);
-  case Ι: return o.u8(0x12);
-  case Κ: return o.u8(0x13);
-  case Τ: return o.u8(0x14);
-  case Ρ: return o.u8(0x15).u64(v);
-  case Θ: return o.u8(0x16).u64(v);
-
   case UTF8:
   { let l = v.len();
     return (l < 16  ? o.u8(0x20 + l) :

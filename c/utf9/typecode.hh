@@ -22,13 +22,7 @@ enum val_type : uint8_t
   BOOL     = 0x0c,
   NULLTYPE = 0x0e,
 
-  Α        = 0x10,
-  Ω        = 0x11,
-  Ι        = 0x12,
-  Κ        = 0x13,
-  Τ        = 0x14,
-  Ρ        = 0x15,
-  Θ        = 0x16,
+  GREEK    = 0x10,
 
   UTF8     = 0x18,
   BYTES    = 0x1c,
@@ -56,8 +50,8 @@ val_type const bts[256] =
   BOOL, BOOL, NULLTYPE, BOGUS,
 
   // 0x10-0x1f
-  Α, Ω, Ι, Κ,
-  Τ, Ρ, Θ, BOGUS,
+  GREEK, GREEK, GREEK, GREEK,
+  GREEK, GREEK, GREEK, BOGUS,
   UTF8, UTF8, UTF8, UTF8,
   BYTES, BYTES, BYTES, BYTES,
 

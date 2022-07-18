@@ -81,12 +81,12 @@ Any datatype with a non-constant length has the length prepended to it so we can
 | `0x0d`      | 0               | `true`                       |
 | `0x0e`      | 0               | `null`                       |
 | `0x10`      | 0               | `alpha`                      |
-| `0x11`      | 0               | `omega`                      |
-| `0x12`      | 0               | `iota`                       |
-| `0x13`      | 0               | `kappa`                      |
-| `0x14`      | 0               | `tau`                        |
-| `0x15`      | 8               | `rho`, `uint64 x`            |
-| `0x16`      | 8               | `theta`, `uint64 x`          |
+| `0x11`      | 0               | `iota`                       |
+| `0x12`      | 0               | `kappa`                      |
+| `0x13`      | 4               | `rho`, `uint32 x`            |
+| `0x14`      | 4               | `theta`, `uint32 x`          |
+| `0x15`      | 0               | `tau`                        |
+| `0x16`      | 0               | `omega`                      |
 | `0x18`      | 1 + len         | `utf8`, 8-bit _byte_ length  |
 | `0x19`      | 2 + len         | `utf8`, 16-bit _byte_ length |
 | `0x1a`      | 4 + len         | `utf8`, 32-bit _byte_ length |
@@ -233,14 +233,8 @@ O<symbol> (x, y) = hash(x) <=> hash(y)
 O<pidfd>  (x, y) = x.pid <=> y.pid || x.fd <=> y.fd
 O<bool>   (x, y) = (false < true)
 
-O<null>(x, y) = 0
-O<α>   (x, y) = 0
-O<ω>   (x, y) = 0
-O<κ>   (x, y) = 0
-O<ι>   (x, y) = 0
-O<τ>   (x, y) = 0
-O<ρ>   (x, y) = x.ρ <=> y.ρ
-O<θ>   (x, y) = x.θ <=> y.θ
+O<null> (x, y) = 0
+O<greek>(x, y) = α < ι < κ < θ < ρ < τ < ω
 
 O<utf8> (x, y) = memcmp(x[0..min], y[0..min]) || x.length <=> y.length
 O<bytes>(x, y) = memcmp(x[0..min], y[0..min]) || x.length <=> y.length
@@ -271,13 +265,7 @@ H<pidfd>  (x) = xxc(xxc(x.pid, x.fd), 0x0b)
 H<bool>   (x) = xxc(NULL, 0, x ? 0x0d : 0x0c)
 H<null>   (x) = xxh(NULL, 0, 0x0e)
 
-H<alpha>  (x) = xxh(NULL, 0, 0x10)
-H<omega>  (x) = xxh(NULL, 0, 0x11)
-H<iota>   (x) = xxh(NULL, 0, 0x12)
-H<kappa>  (x) = xxh(NULL, 0, 0x13)
-H<tau>    (x) = xxh(NULL, 0, 0x14)
-H<rho>    (x) = xxc(x, 0x15)
-H<theta>  (x) = xxc(x, 0x16)
+H<greek>  (x) = xxc(x, bytecode)
 
 H<utf8>   (x) = xxh(x.data, x.length, 0x18)
 H<bytes>  (x) = xxh(x.data, x.length, 0x1c)

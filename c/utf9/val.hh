@@ -40,6 +40,7 @@ struct val
     float                                  vf;
     pidfd                                  vp;
     sym                                    vy;
+    greek                                  vg;
     std::basic_string_view<uint8_t> const *vb;
     std::vector<val>                      *vt; } const;
 
@@ -68,6 +69,7 @@ struct val
   val(float vf_)    : tag(tagify(FLOAT32)), vf(vf_) {}
   val(sym vy_)      : tag(tagify(SYMBOL)),  vy(vy_) {}
   val(pidfd vp_)    : tag(tagify(PIDFD)),   vp(vp_) {}
+  val(greek vg_)    : tag(tagify(GREEK)),   vg(vg_) {}
   val(bool b_)      : tag(tagify(BOOL)),    vu(b_)  {}
 
   val(std::vector<val> *vt_) : tag(tagify(TUPLE, true)), vt(vt_) {}
@@ -284,10 +286,11 @@ struct val
   operator float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->f32(i + 1)                       : vf; }
   operator sym()    const { require_type(1ull << SYMBOL);  return has_ibuf() ? sym{b->u64(i + 1)}                  : vy; }
   operator pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
+  operator greek()  const { require_type(1ull << GREEK);   return has_ibuf() ? greek{*b, i}                        : vg;  }
   operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->u8(i) == 0x0d                    : !!vu; }
 
   operator double() const
-    { require_type(1ull << FLOAT64 | 1ull << Θ);
+    { require_type(1ull << FLOAT64);
       return type() == FLOAT64
         ? has_ibuf() ? b->f64(i + 1) : vd
         : static_cast<double>(static_cast<uint64_t>(*this))
@@ -295,7 +298,7 @@ struct val
 
   operator uint64_t() const
     { if (type() == INT) throw voperation_error("i->u", *this);
-      require_type(1ull << UINT | 1ull << Ρ | 1ull << Θ);
+      require_type(1ull << UINT);
       if (!has_ibuf()) return vu;
       let x = b->u8(i);
       switch (x)
@@ -337,8 +340,6 @@ struct val
 #define ht(ct)                                                          \
         { let x = ce(static_cast<uint64_t>(static_cast<ct>(*this)));    \
           return xxh(&x, sizeof x, t); }
-      case Ρ:
-      case Θ:
       case UINT:    ht(uint64_t)
       case INT:     ht(int64_t)
       case SYMBOL:  ht(sym)
@@ -350,12 +351,8 @@ struct val
 
       case BOOL: return xxh(NULL, 0, static_cast<bool>(*this) ? 0x0d : 0x0c);
 
-      case NULLTYPE:
-      case Α:
-      case Ω:
-      case Ι:
-      case Κ:
-      case Τ: return xxh(NULL, 0, t);
+      case NULLTYPE: return xxh(NULL, 0, t);
+      case GREEK: { let g = static_cast<greek>(*this); return xxc(g.l, g.v); }
 
       case ARRAY:
       case UTF8:
@@ -381,8 +378,6 @@ struct val
         { let x1 = static_cast<t>(*this);               \
           let x2 = static_cast<t>(v);                   \
           return x1 > x2 ? 1 : x1 < x2 ? -1 : 0; }
-      case Ρ:
-      case Θ:
       case UINT:    cmpblock(uint64_t)
       case INT:     cmpblock(int64_t)
       case FLOAT32: cmpblock(float)
@@ -392,12 +387,8 @@ struct val
       case BOOL:    cmpblock(bool)
 #undef cmpblock
 
-      case NULLTYPE:
-      case Α:
-      case Ω:
-      case Κ:
-      case Ι:
-      case Τ: return 0;
+      case NULLTYPE: return 0;
+      case GREEK:    return static_cast<greek>(*this).compare(static_cast<greek>(v));
 
       case UTF8:
       case BYTES:
@@ -501,15 +492,15 @@ struct val
 
 val const none(val::tagify(NONE), 0);
 
-val const α(val::tagify(Α), 0);
-val const ω(val::tagify(Ω), 0);
-val const ι(val::tagify(Ι), 0);
-val const κ(val::tagify(Κ), 0);
-val const τ(val::tagify(Τ), 0);
+val const α(val(greek{greek::Α}));
+val const ω(val(greek{greek::Ω}));
+val const ι(val(greek{greek::Ι}));
+val const κ(val(greek{greek::Κ}));
+val const τ(val(greek{greek::Τ}));
 
-inline val ρ(uint64_t x) { return val(val::tagify(Ρ), x); }
-inline val θ(uint64_t x) { return val(val::tagify(Θ), x); }
-inline val θ(double   x) { return val(val::tagify(Θ), static_cast<uint64_t>(x * static_cast<double>(std::numeric_limits<uint64_t>::max()))); }
+inline val ρ(uint32_t x) { return val(greek{greek::Ρ, x}); }
+inline val θ(uint32_t x) { return val(greek{greek::Θ, x}); }
+inline val θ(double   x) { return val(greek{greek::Θ, static_cast<uint32_t>(x * static_cast<double>(std::numeric_limits<uint32_t>::max()))}); }
 
 inline val tuple(uint64_t n = 0) { let vt = new std::vector<val>; if (n) vt->reserve(n); return val(vt); }
 

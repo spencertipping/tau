@@ -87,10 +87,13 @@ lfn const lfns[256] =
   l1, l1, l1, bogus_lf,
 
   // 0x10 - 0x1f
-  l1, l1, l1, l1,
-  l1,  // tau
-  l9,  // rho
-  l9,  // theta
+  l1,  // α
+  l1,  // ι
+  l1,  // κ
+  l5,  // ρ
+  l5,  // θ
+  l1,  // τ
+  l1,  // ω
   bogus_lf,
 
   str8_lf, str16_lf, str32_lf, str64_lf,
