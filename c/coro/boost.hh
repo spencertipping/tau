@@ -53,7 +53,7 @@ coro<T> &coro<T>::operator()()
 {
   assert(!done());
   auto cc = k->resume();
-  if (k) *k = std::move(cc);
+  if (k) *k = std::move(cc);  // NOTE: k can be nulled within k->resume()
   return *this;
 }
 
