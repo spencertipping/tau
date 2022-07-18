@@ -53,8 +53,11 @@ struct coro
 
 
 static void yield();
-static void coro_init_();
 
+
+// NOTE: init mechanics used only by coro ctor; not useful to importers
+// of coro.hh, as they are automatically managed.
+static void coro_init_();
 static void coro_init()
 {
   static bool called = false;
