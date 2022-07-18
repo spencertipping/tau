@@ -197,6 +197,9 @@ void try_printing_types()
 
 int main()
 {
+  cout << "native endianness: "
+       << (std::endian::native == std::endian::big ? "big" : "little") << endl;
+
   cout << "try_orderings"      << endl; try_orderings();
   cout << "try_printing_types" << endl; try_printing_types();
   cout << "try_loading_stuff"  << endl; try_loading_stuff();
