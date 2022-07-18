@@ -52,8 +52,16 @@ struct coro
 };
 
 
-void yield();
-void coro_init();
+static void yield();
+static void coro_init_();
+
+static void coro_init()
+{
+  static bool called = false;
+  if (called) return;
+  coro_init_();
+  called = true;
+}
 
 
 }

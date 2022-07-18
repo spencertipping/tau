@@ -37,6 +37,7 @@ coro<T>::coro(std::string name_, std::function<T()> f_)
     f(f_),
     ret(nullptr)
 {
+  coro_init();
   k.async_stack = std::malloc(stack_size);
   k.c_stack     = std::malloc(stack_size);
   emscripten_fiber_init(&k.k, &coro_invoke<T>, this,
@@ -75,7 +76,7 @@ coro<T> &coro<T>::operator<<(T &&ret_)
 }
 
 
-void yield()
+static void yield()
 {
   let last = this_coro_state;
   this_coro_state = &main_coro_state;
@@ -90,7 +91,7 @@ void yield()
 }
 
 
-void coro_init()
+static void coro_init_()
 {
   main_coro_state.async_stack = std::malloc(stack_size);
   main_coro_state.c_stack     = nullptr;

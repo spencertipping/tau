@@ -144,7 +144,6 @@ void bench()
 
 int main()
 {
-  coro_init();
   try_streams();
   bench();
 

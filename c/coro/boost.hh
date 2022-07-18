@@ -17,7 +17,9 @@ coro<T>::coro(std::string name_, std::function<T()> f)
   : name(name_),
     ret(nullptr),
     k(new boost::context::continuation)
-{ *k = boost::context::callcc(
+{
+  coro_init();
+  *k = boost::context::callcc(
     [&, f](boost::context::continuation &&cc) {
       *main_coro_state = cc.resume();
       *this << f();
@@ -56,13 +58,13 @@ coro<T> &coro<T>::operator()()
 }
 
 
-void yield()
+static void yield()
 {
   *main_coro_state = main_coro_state->resume();
 }
 
 
-void coro_init()
+static void coro_init_()
 {
   main_coro_state = new boost::context::continuation;
 }
