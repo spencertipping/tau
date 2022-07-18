@@ -3,8 +3,9 @@
 
 
 #define XXH_INLINE_ALL 1
-#include "../xxhash.h"
-#include "../picosha2.h"
+# include "../deps/xxhash.h"
+# include "../deps/picosha2.h"
+#undef XXH_INLINE_ALL
 
 #include "numerics.hh"
 

@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+
+
+t() {
+  echo "$@"
+  time "$@"
+}
+
+
+t_gcc_opts=( -std=c++20 -O3 )
+t_em_opts=(  -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses )
+
+
+cmd=$1
+shift
+
+case $cmd in
+  t*) cd "$(dirname "$0")"
+      t g++ "${t_gcc_opts[@]}" t/utf9-basics.cc -o t/utf9-basics
+      t g++ "${t_gcc_opts[@]}" t/coro-basics.cc -o t/coro-basics -lboost_context
+
+      t dev/emsdk em++ "${t_em_opts[@]}" t/utf9-basics.cc -o t/utf9-basics.js
+      t dev/emsdk em++ "${t_em_opts[@]}" t/coro-basics.cc -o t/coro-basics.js
+      ;;
+
+  *)  echo "usage: $0 test"
+      ;;
+esac
