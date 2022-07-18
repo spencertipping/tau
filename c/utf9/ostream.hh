@@ -107,7 +107,7 @@ std::ostream &operator<<(std::ostream &s, val const &v)
   }
 
   case UTF8:  return s << "u8[" << static_cast<std::string_view>(v) << "]";
-  case BYTES: return s << "b["  << static_cast<std::string_view>(v) << "]";
+  case BYTES: return s << "b["  << static_cast<std::string_view>(v) << "]";  // FIXME: should be hex
 
   case TUPLE:
   { s << "(";
