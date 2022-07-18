@@ -1,13 +1,9 @@
 #ifndef tau_coro_native_h
 #define tau_coro_native_h
 
-
 #include <cassert>
-#include <cstddef>
 
-#include <boost/context/continuation.hpp>
-#include <boost/context/continuation_fcontext.hpp>
-
+#include "class.hh"
 
 #include "../begin.hh"
 
@@ -16,58 +12,60 @@ namespace tau::coro
 {
 
 
-struct coro;
-static coro *main_coro = nullptr;
-static coro *this_coro = nullptr;
+template<class T>
+coro<T>::coro(std::string name_, std::function<T()> f)
+  : name(name_),
+    ret(nullptr),
+    k(new boost::context::continuation)
+{ *k = boost::context::callcc(
+    [&, f](boost::context::continuation &&cc) {
+      *main_coro_state = cc.resume();
+      *this << f();
+      return std::move(*main_coro_state);
+    });
+}
 
 
-struct coro
+template<class T>
+coro<T>::~coro()
 {
-  // TODO: support custom stack sizing
-  std::string                   name;
-  boost::context::continuation *k;
-  bool                          done;
-
-  coro(std::size_t stack_size = 1048576)
-    : name("main"),
-      k(new boost::context::continuation),
-      done(false)
-    {}
-
-  template<class fn>
-  coro(std::string name_, fn f, std::size_t stack_size = 1048576)
-    : name(name_),
-      k(new boost::context::continuation),
-      done(false)
-    { *k = boost::context::callcc(
-        [&, f](boost::context::continuation &&cc) {
-          // TODO: should we support coros creating other coros?
-          *main_coro->k = cc.resume();
-          f();
-          return std::move(*main_coro->k);
-        }); }
-
-  ~coro() { delete k; }
+  if (k)   delete k;
+  if (ret) delete ret;
+}
 
 
-  coro &operator()()
-    { assert(!done);
-      this_coro = this;
-      *k = k->resume();
-      return *this; }
+template<class T>
+coro<T> &coro<T>::operator<<(T &&ret_)
+{
+  assert(!done());
+  ret  = new T;
+  *ret = ret_;
+
+  if (k) { delete k; k = nullptr; }
+  return *this;
+}
 
 
-  void finish() { done = true; }
+template<class T>
+coro<T> &coro<T>::operator()()
+{
+  assert(!done());
+  auto cc = k->resume();
+  if (k) *k = std::move(cc);
+  return *this;
+}
 
 
-  static coro &main()    { return *main_coro; }
-  static coro &current() { return *this_coro; }
-  static void  fin()     { this_coro->finish(); (*main_coro)(); }
-};
+void yield()
+{
+  *main_coro_state = main_coro_state->resume();
+}
 
 
-inline void coro_init(std::size_t stack_size = 1048576)
-{ main_coro = new coro(stack_size); }
+void coro_init()
+{
+  main_coro_state = new boost::context::continuation;
+}
 
 
 }

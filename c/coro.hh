@@ -2,6 +2,9 @@
 #define tau_coro_h
 
 
+#include "coro/class.hh"
+
+
 #ifdef __EMSCRIPTEN__
 #  include "coro/emscripten.hh"
 #else

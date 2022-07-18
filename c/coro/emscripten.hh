@@ -1,14 +1,13 @@
 #ifndef tau_coro_emscripten_h
 #define tau_coro_emscripten_h
 
+
 #include <cassert>
 #include <cstddef>
 #include <functional>
-#include <iostream>
 #include <memory>
-#include <string>
 
-#include <emscripten/fiber.h>
+#include "class.hh"
 
 
 #include "../begin.hh"
@@ -18,67 +17,88 @@ namespace tau::coro
 {
 
 
-struct coro;
-static coro *main_coro = nullptr;
-static coro *this_coro = nullptr;
+static coro_k *this_coro_state;
+static bool    free_stacks;
 
 
-void coro_invoke(void *f) { (*reinterpret_cast<std::function<void()>*>(f))(); }
-
-
-struct coro
+template<class T>
+void coro_invoke(void *c_)
 {
-  std::string            name;
-  emscripten_fiber_t     k;
-  std::function<void()>  f;
-  void                  *async_stack;
-  void                  *c_stack;
-  bool                   done;
+  auto &c(*reinterpret_cast<coro<T>*>(c_));
+  c << c.f();
+  free_stacks = true;
+  yield();
+}
 
 
-  template<class fn>
-  coro(std::string name_, fn f_, std::size_t stack_size = 1048576)
-    : name       (name_),
-      f          (f_),
-      async_stack(std::malloc(stack_size)),
-      c_stack    (std::malloc(stack_size)),
-      done       (false)
-    { emscripten_fiber_init(&k, &coro_invoke, &f,
-                            c_stack, stack_size, async_stack, stack_size); }
-
-  coro(std::size_t stack_size = 1048576)
-    : name       ("main"),
-      async_stack(std::malloc(stack_size)),
-      c_stack    (nullptr),
-      done       (false)
-    { this_coro = this;
-      emscripten_fiber_init_from_current_context(&k, async_stack, stack_size); }
-
-  ~coro()
-    { if (async_stack) std::free(async_stack);
-      if (c_stack)     std::free(c_stack);
-      async_stack = c_stack = nullptr; }
+template<class T>
+coro<T>::coro(std::string name_, std::function<T()> f_)
+  : name(name_),
+    f(f_),
+    ret(nullptr)
+{
+  k.async_stack = std::malloc(stack_size);
+  k.c_stack     = std::malloc(stack_size);
+  emscripten_fiber_init(&k.k, &coro_invoke<T>, this,
+                        k.c_stack, stack_size,
+                        k.async_stack, stack_size);
+}
 
 
-  coro &operator()()
-    { assert(!done);
-      let last_coro = this_coro;
-      this_coro     = this;
-      emscripten_fiber_swap(&last_coro->k, &k);
-      return *this; }
+template<class T>
+coro<T>::~coro()
+{
+  if (k.async_stack) std::free(k.async_stack);
+  if (k.c_stack)     std::free(k.c_stack);
+  if (ret)           delete ret;
+}
 
 
-  void finish() { done = true; }
+template<class T>
+coro<T> &coro<T>::operator()()
+{
+  assert(!done());
+  free_stacks     = false;
+  let last        = this_coro_state;
+  this_coro_state = &k;
+  if (&last->k != &k.k) emscripten_fiber_swap(&last->k, &k.k);
+  return *this;
+}
 
 
-  static coro &main()    { return *main_coro; }
-  static coro &current() { return *this_coro; }
-  static void  fin()     { this_coro->finish(); (*main_coro)(); }
-};
+template<class T>
+coro<T> &coro<T>::operator<<(T &&ret_)
+{
+  ret  = new T;
+  *ret = ret_;
+  return *this;
+}
 
 
-inline void coro_init(std::size_t stack_size = 1048576)
-{ main_coro = new coro(stack_size); }
+void yield()
+{
+  let last = this_coro_state;
+  this_coro_state = &main_coro_state;
+  emscripten_fiber_swap(&last->k, &this_coro_state->k);
+
+  if (free_stacks)
+  {
+    let s = this_coro_state;
+    if (s->async_stack) { std::free(s->async_stack); s->async_stack = nullptr; }
+    if (s->c_stack)     { std::free(s->c_stack);     s->c_stack     = nullptr; }
+  }
+}
+
+
+void coro_init()
+{
+  main_coro_state.async_stack = std::malloc(stack_size);
+  main_coro_state.c_stack     = nullptr;
+  emscripten_fiber_init_from_current_context(&main_coro_state.k,
+                                             main_coro_state.async_stack,
+                                             stack_size);
+  this_coro_state = &main_coro_state;
+}
 
 
 }
