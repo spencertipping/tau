@@ -2,22 +2,8 @@
 #define tau_axis_h
 
 
-#include "utf9.hh"
-#include "coro.hh"
-
-#include "begin.hh"
-
-
-namespace tau::axis
-{
-
-
-
-
-}
-
-
-#include "end.hh"
+#include "axis/channel.hh"
+#include "axis/orbit.hh"
 
 
 #endif
