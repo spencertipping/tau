@@ -27,7 +27,8 @@ namespace tau::coro
     void               *c_stack;
   };
 #else
-  typedef boost::context::continuation *coro_k;
+  namespace bc = boost::context;
+  typedef bc::continuation *coro_k;
 #endif
 
 
@@ -45,7 +46,7 @@ struct coro
   coro(std::string, std::function<T()>);
   ~coro();
 
-  bool  done()   const noexcept { return ret != nullptr; }
+  bool  done()   const noexcept { return  ret != nullptr; }
   T    &result() const noexcept { return *ret; };
   coro &operator()();
   coro &operator<<(T&&);
