@@ -4,11 +4,13 @@ An axis is a domain within which all angular values can be meaningfully compared
 UNIX axes are bounded by `epoll`, WASM by the browser's event loop. Because the trigger mechanisms differ, they are managed externally, although the axis can help by tying specific event sources to their corresponding coros.
 
 
-## Orbit
-An axis is the system as a whole; its individual components are called _orbits_ and they represent logical tasks that move data. An orbit can define multiple coros, each of which will "block" (yield) on IO operations.
+## Port
+A port is an entry or exit point for UTF9 values. Ports are yield-blocking in the sense that they must be in a ready-state for operations against them not to yield out to the main axis scheduler.
+
+Ports are viewed in two different ways. The axis machinery views ports as endpoints to conduits, which forward data from one port to another with internal queueing. This is the "kernel view" of a port.
+
+Rings see ports as lightweight accessor objects that yield to axis machinery when operations should block.
 
 
-## Channel
-Channels carry values between orbits, yielding automatically when saturated. Functionally, a channel is a bounded queue that will accept up to _n_ objects and allow them to be durably retrieved in the order sent. The queue will block, causing a coro to yield, if read while empty or written to while full.
-
-Coros have some context-switching overhead. Channels that are too small will result in excessive yielding, which hurts performance. To mitigate, a channel's capacity can be increased at runtime; the axis does this automatically.
+## Ring
+Rings are logical tasks that involve one or more coros and one or more ports. A ring can create and destroy coros as it runs, sort of like a UNIX process can create and destroy threads.

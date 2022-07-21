@@ -2,8 +2,8 @@
 #define tau_axis_h
 
 
-#include "axis/channel.hh"
-#include "axis/orbit.hh"
+#include "axis/port.hh"
+#include "axis/ring.hh"
 
 
 #endif
