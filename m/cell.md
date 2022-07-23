@@ -6,3 +6,9 @@ Each cell has a [species](species.md) that determines what it does and which por
 
 ## Inner API
 You create a cell by writing its internals, which means you inherit from `cell` and provide some method implementations.
+
+Cells provide several methods that interface with the leaf; these include:
+
++ Task management
++ Port management
++ Scheduling
