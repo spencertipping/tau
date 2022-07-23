@@ -32,10 +32,13 @@ void coro_invoke(void *c_)
 
 
 template<class T, class M>
-coro<T, M>::coro(std::string name_, std::function<T()> f_)
-  : name(name_),
-    f(f_),
-    ret(nullptr)
+coro<T, M>::coro(std::string         name_,
+                 M                  &monitor_,
+                 std::function<T()>  f_)
+  : name   (name_),
+    monitor(monitor_),
+    f      (f_),
+    ret    (nullptr)
 {
   coro_init();
   monitor.init(*this);

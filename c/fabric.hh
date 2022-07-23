@@ -2,7 +2,7 @@
 #define tau_fabric_h
 
 
-
+#include "fabric/cell.hh"
 
 
 #endif

@@ -54,9 +54,9 @@ struct coro
   std::function<T()> f;
   coro_k             k;
   T                 *ret;
-  M                  monitor;
+  M                 &monitor;
 
-  coro(std::string, std::function<T()>);
+  coro(std::string, M &, std::function<T()>);
   ~coro();
 
   bool  done()   const noexcept { return  ret != nullptr; }

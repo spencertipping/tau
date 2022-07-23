@@ -43,11 +43,12 @@ struct stream
 void try_streams()
 {
   cout << "trying streams" << endl;
+  null_monitor m;
 
   stream<int> s1(4);
   stream<int> s2(4);
 
-  coro<int> f1("f1", [&]() {
+  coro<int> f1("f1", m, [&]() {
     cout << "f1 started" << endl;
     cout << &s1 << ", " << &s2 << endl;
     for (int i = 0;; ++i)
@@ -58,7 +59,7 @@ void try_streams()
     return 0;
   });
 
-  coro<int> f2("f2", [&]() {
+  coro<int> f2("f2", m, [&]() {
     cout << "f2 started" << endl;
     cout << &s1 << ", " << &s2 << endl;
     for (int t = 0;;)
@@ -72,7 +73,7 @@ void try_streams()
     return 0;
   });
 
-  coro<int> f3("f3", [&]() {
+  coro<int> f3("f3", m, [&]() {
     cout << "f3 started" << endl;
     for (int i = 0; i < 10; ++i) cout << s2.pop() << endl;
     s2.omega = true;
@@ -95,13 +96,14 @@ void try_streams()
 
 void bench()
 {
+  null_monitor m;
   cout << "bench" << endl;
 
   stream<int> s1(4);
   stream<int> s2(256);
 
 
-  coro<int> f1("f1", [&]() {
+  coro<int> f1("f1", m, [&]() {
     for (int i = 0; i < 1000000; ++i) s1 << i;
     return 1000000;
   });
@@ -121,7 +123,7 @@ void bench()
   }
 
 
-  coro<int> f2("f2", [&]() {
+  coro<int> f2("f2", m, [&]() {
     for (int i = 0; i < 1000000; ++i) s2 << i;
     return 1000000;
   });

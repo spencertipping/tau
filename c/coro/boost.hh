@@ -18,10 +18,13 @@ static bool is_main;
 
 
 template<class T, class M>
-coro<T, M>::coro(std::string name_, std::function<T()> f)
-  : name(name_),
-    ret(nullptr),
-    k(new bc::continuation)
+coro<T, M>::coro(std::string         name_,
+                 M                  &monitor_,
+                 std::function<T()>  f)
+  : name   (name_),
+    monitor(monitor_),
+    ret    (nullptr),
+    k      (new bc::continuation)
 {
   coro_init();
   monitor.init(*this);
