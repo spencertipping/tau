@@ -1,7 +1,7 @@
 # Leaf
-A leaf is a collection of [cells](cell.md) that can exchange data within the same address space. It interfaces to the [trunk](trunk.md) using a serial, almost always multiplexed, IO port called the _stem_.
+A leaf is a collection of [cells](cell.md) that can exchange data within the same address space. It interfaces to the [trunk](trunk.md) using a serial, almost always multiplexed, boundary cell called the _stem_.
 
-Computationally, each leaf manages schedules for all of its cells' [coros](coro.md). In that sense the leaf is like a process from the kernel's perspective.
+Computationally, each leaf manages schedules for all of its cells' [coros](coro.md). In that sense the leaf is like a kernel managing multiple coro-processes.
 
 A leaf has a [species](species.md) that determines which cells are supported and which cell is used as the stem interface.
 

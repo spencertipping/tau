@@ -17,53 +17,59 @@ namespace bc = boost::context;
 static bool is_main;
 
 
-template<class T>
-coro<T>::coro(std::string name_, std::function<T()> f)
+template<class T, class M>
+coro<T, M>::coro(std::string name_, std::function<T()> f)
   : name(name_),
     ret(nullptr),
     k(new bc::continuation)
 {
   coro_init();
+  monitor.init(*this);
   *k = bc::callcc(
     [&, f](bc::continuation &&cc) {
       is_main = true;
       *main_coro_state = cc.resume();
-      is_main = false;
       *this << f();
-      is_main = true;
       return std::move(*main_coro_state);
     });
 }
 
 
-template<class T>
-coro<T>::~coro()
+template<class T, class M>
+coro<T, M>::~coro()
 {
+  monitor.finalize(*this);
   if (k)   delete k;
   if (ret) delete ret;
 }
 
 
-template<class T>
-coro<T> &coro<T>::operator<<(T &&ret_)
+template<class T, class M>
+coro<T, M> &coro<T, M>::operator<<(T &&ret_)
 {
   assert(!done());
   assert(!is_main);
   ret  = new T;
   *ret = ret_;
+  monitor.ret(*this, *ret);
 
   if (k) { delete k; k = nullptr; }
   return *this;
 }
 
 
-template<class T>
-coro<T> &coro<T>::operator()()
+template<class T, class M>
+coro<T, M> &coro<T, M>::operator()()
 {
   assert(!done());
   assert(is_main);
+
+  is_main = false;
+  monitor.enter(*this);
   auto cc = k->resume();
   if (k) *k = std::move(cc);  // NOTE: k can be nulled within k->resume()
+  monitor.exit(*this);
+  is_main = true;
   return *this;
 }
 
