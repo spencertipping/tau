@@ -1,6 +1,15 @@
 # Tau
-+ [utf9](m/utf9.md)
-+ [coro](m/coro.md)
++ Fundamentals
+  + [utf9](m/utf9.md)
+  + [coro](m/coro.md)
+  + [species](m/species.md)
++ Connection fabric
+  + [trunk](m/trunk.md)
+  + [leaf](m/leaf.md)
+  + [cell](m/cell.md)
+  + [port](m/port.md)
+  + [chan](m/chan.md)
+  + [pipe](m/pipe.md)
 
 
 ## Setup
@@ -15,11 +24,7 @@ $ sudo apt install -y \
 
 ### Building test files
 ```sh
-$ g++ -std=c++20 -O3 t/utf9-basics.cc
-$ g++ -std=c++20 -O3 t/coro-basics.cc -lboost_context
-
-$ dev/emsdk em++ -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses t/utf9-basics.cc
-$ dev/emsdk em++ -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses t/coro-basics.cc
+$ ./build t
 ```
 
 **NOTE:** emscripten via `node` is ~50x slower than native at decoding UTF9. Shouldn't be a huge deal since most of the heavy lifting is done server-side, but emscripten is far from efficient.
