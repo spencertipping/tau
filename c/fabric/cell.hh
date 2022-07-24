@@ -28,7 +28,7 @@ struct cell
 {
   cell_monitor monitor;
 
-  virtual ~cell() {}
+  ~cell() {}
 
 
 };

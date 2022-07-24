@@ -59,8 +59,8 @@ struct coro
   coro(std::string, M &, std::function<T()>);
   ~coro();
 
-  bool  done()   const noexcept { return  ret != nullptr; }
-  T    &result() const noexcept { return *ret; };
+  bool  done()   const { return  ret != nullptr; }
+  T    &result() const { return *ret; };
   coro &operator()();
   coro &operator<<(T&&);
 };
