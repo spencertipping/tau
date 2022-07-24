@@ -7,6 +7,7 @@
 #include "cell.hh"
 #include "scheduler.hh"
 
+
 #include "../begin.hh"
 
 
@@ -19,7 +20,7 @@ namespace ts = tau::species;
 struct leaf
 {
   ts::species const &species;
-
+  scheduler          sched;
 };
 
 

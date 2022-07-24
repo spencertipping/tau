@@ -23,7 +23,7 @@ coro<T, M>::coro(std::string         name_,
                  std::function<T()>  f)
   : name   (name_),
     monitor(monitor_),
-    ret    (nullptr),
+    is_done(false),
     k      (new bc::continuation)
 {
   coro_init();
@@ -42,8 +42,7 @@ template<class T, class M>
 coro<T, M>::~coro()
 {
   monitor.finalize(*this);
-  if (k)   delete k;
-  if (ret) delete ret;
+  if (k) delete k;
 }
 
 
@@ -52,9 +51,8 @@ coro<T, M> &coro<T, M>::operator<<(T &&ret_)
 {
   assert(!done());
   assert(!is_main);
-  ret  = new T;
-  *ret = ret_;
-  monitor.ret(*this, *ret);
+  monitor.ret(*this, ret = std::move(ret_));
+  is_done = true;
 
   if (k) { delete k; k = nullptr; }
   return *this;

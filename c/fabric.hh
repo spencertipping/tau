@@ -3,9 +3,8 @@
 
 
 #include "fabric/pipe.hh"
-#include "fabric/chan.hh"
-#include "fabric/monitor.hh"
 #include "fabric/cell.hh"
+#include "fabric/leaf.hh"
 
 
 #endif

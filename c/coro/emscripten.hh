@@ -38,7 +38,7 @@ coro<T, M>::coro(std::string         name_,
   : name   (name_),
     monitor(monitor_),
     f      (f_),
-    ret    (nullptr)
+    is_done(false)
 {
   coro_init();
   monitor.init(*this);
@@ -56,7 +56,6 @@ coro<T, M>::~coro()
   monitor.finalize(*this);
   if (k.async_stack) std::free(k.async_stack);
   if (k.c_stack)     std::free(k.c_stack);
-  if (ret)           delete ret;
 }
 
 
@@ -78,9 +77,8 @@ coro<T, M> &coro<T, M>::operator()()
 template<class T, class M>
 coro<T, M> &coro<T, M>::operator<<(T &&ret_)
 {
-  ret  = new T;
-  *ret = ret_;
-  monitor.ret(*this, *ret);
+  monitor.ret(*this, ret = ret_);
+  is_done = true;
   return *this;
 }
 

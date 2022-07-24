@@ -53,16 +53,18 @@ struct coro
   std::string        name;
   std::function<T()> f;
   coro_k             k;
-  T                 *ret;
+  bool               is_done;
+  T                  ret;
   M                 &monitor;
 
   coro(std::string, M &, std::function<T()>);
   ~coro();
 
-  bool  done()   const { return  ret != nullptr; }
-  T    &result() const { return *ret; };
-  coro &operator()();
-  coro &operator<<(T&&);
+  bool     done()   const { return is_done; }
+  T const &result() const { return ret; };
+  coro    &operator()();
+  coro    &operator<<(T&&);
+  coro    &operator<<(T const &);
 };
 
 
