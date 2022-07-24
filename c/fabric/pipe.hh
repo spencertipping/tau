@@ -26,8 +26,10 @@ namespace tc = tau::coro;
 
 struct null_interceptor
 {
-  void intercept();
+  void intercept() {}
 };
+
+null_interceptor the_null_interceptor{};
 
 
 template<class T, class I = null_interceptor>
@@ -42,7 +44,9 @@ struct pipe
   std::queue<qe>  xs;
   I              &interceptor;
 
-  pipe(size_t capacity_) : capacity(capacity_)
+  pipe(size_t capacity_)
+    : capacity(capacity_),
+      interceptor(the_null_interceptor)
     { assert(capacity); }
 
   pipe(size_t capacity_, I &interceptor_)
@@ -54,17 +58,18 @@ struct pipe
   bool readable() const { return xs.size() > 0; }
   bool writable() const { return xs.size() < capacity; }
 
-  void await_read()  const { while (capacity && !readable()) tc::yield(); }
-  void await_write() const { while (capacity && !writable()) tc::yield(); }
+  void await_read()  const { while (!closed() && !readable()) tc::yield(); }
+  void await_write() const { while (!closed() && !writable()) tc::yield(); }
 
   operator bool() const { await_read(); return readable(); }
 
-  void close()        { capacity = 0; }
-  bool closed() const { return capacity; }
-  size_t size() const { return xs.size(); }
+  void   close()        { capacity = 0; }
+  bool   closed() const { return !capacity; }
+  size_t size()   const { return xs.size(); }
 
   double pressure() const
-    { return log2(write_delay.mean_split() / read_delay.mean_split()); }
+    { return log2(static_cast<double>(write_delay.mean_split().count()))
+           - log2(static_cast<double>(read_delay .mean_split().count())); }
 
 
   bool operator<<(T const &x)
@@ -81,7 +86,7 @@ struct pipe
       if (!readable()) return false;
       x = std::get<1>(xs.front());
       latency << stopwatch::now() - std::get<0>(xs.front());
-      x.pop();
+      xs.pop();
       return true; }
 };
 
@@ -89,13 +94,15 @@ struct pipe
 template<class T>
 static std::ostream &operator<<(std::ostream &s, pipe<T> &p)
 {
-  s << "pipe["
-    << (p.readable() ? "R" : "r")
-    << (p.writable() ? "W" : "w")
-    << " n=" << p.latency.n_splits
-    << " c=" << p.size() << "/" << p.capacity
-    << " λ=" << (p.latency.mean_split() / 1us) << "μs"
-    << " σ=" << p.pressure() << "]";
+  return s << "pipe["
+           << (p.readable() ? "R" : "r")
+           << (p.writable() ? "W" : p.closed() ? "#" : "w")
+           << " n=" << p.latency.n_splits
+           << " c=" << p.size() << "/" << p.capacity
+           << " rl=" << p.read_delay.mean_split()
+           << " wl=" << p.write_delay.mean_split()
+           << " λ=" << p.latency.mean_split()
+           << " σ=" << p.pressure() << "]";
 }
 
 

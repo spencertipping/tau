@@ -1,7 +1,4 @@
 *.~undo-tree~
-t/coro-basics
-t/coro-basics.js
-t/coro-basics.wasm
-t/utf9-basics
-t/utf9-basics.js
-t/utf9-basics.wasm
+t/*-basics
+t/*-basics.js
+t/*-basics.wasm

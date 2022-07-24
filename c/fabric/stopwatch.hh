@@ -5,6 +5,7 @@
 #include <cassert>
 #include <chrono>
 #include <cstdint>
+#include <iostream>
 
 #include "../begin.hh"
 
@@ -64,6 +65,10 @@ struct stopwatch
   lh       splits;
 
 
+  span elapsed() const
+    { assert(is_running);
+      return now() - last_start; }
+
   stopwatch &operator<<(span s)
     { total_elapsed += s;
       splits << s.count();
@@ -89,6 +94,17 @@ struct stopwatch
 
   static tp now() { return std::chrono::steady_clock::now(); }
 };
+
+
+static std::ostream &operator<<(std::ostream &s, stopwatch::span t)
+{
+  if      (t <= 100us) return s << t.count() << "ns";
+  else if (t <= 100ms) return s << t / 1us << "μs";
+  else if (t <= 100s)  return s << t / 1ms << "ms";
+  else if (t <= 10h)   return s << t / 1s  << "s";
+  else                 return s << t / 1h  << "h";
+  return s;
+}
 
 
 }
