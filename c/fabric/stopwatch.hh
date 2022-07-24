@@ -41,11 +41,11 @@ struct log_histogram
 
   static inline int ilog(uint64_t x)
     { int i = 0;
-      if (x >> 32) i += 32, x &= 0xffffffffull;
-      if (x >> 16) i += 16, x &= 0xffffull;
-      if (x >> 8)  i += 8,  x &= 0xffull;
-      if (x >> 4)  i += 4,  x &= 0xfull;
-      if (x >> 2)  i += 2,  x &= 0x3ull;
+      if (x >> 32) i += 32, x >>= 32;
+      if (x >> 16) i += 16, x >>= 16;
+      if (x >> 8)  i += 8,  x >>= 8;
+      if (x >> 4)  i += 4,  x >>= 2;
+      if (x >> 2)  i += 2,  x >>= 1;
       if (x >> 1)  i++;
       return i; }
 };
@@ -65,9 +65,11 @@ struct stopwatch
   lh       splits;
 
 
+  span p(double p) const
+    { return 1ns * (1ull << splits.icdf(p) + 1); }
+
   span elapsed() const
-    { assert(is_running);
-      return now() - last_start; }
+    { return total_elapsed + (is_running ? now() - last_start : 0ns); }
 
   stopwatch &operator<<(span s)
     { total_elapsed += s;
@@ -104,6 +106,32 @@ static std::ostream &operator<<(std::ostream &s, stopwatch::span t)
   else if (t <= 10h)   return s << t / 1s  << "s";
   else                 return s << t / 1h  << "h";
   return s;
+}
+
+
+template<class F, class O, size_t N>
+static std::ostream &operator<<(std::ostream &s, log_histogram<F, O, N> &h)
+{
+  F      m  = h.n[0]; for (int i = 1; i < N; ++i) m = std::max(m, h.n[i]);
+  size_t u  = N - 1;  while (u > 0 && !h.n[u]) --u;
+  let    ml = log_histogram<F, O, N>::ilog(m);
+
+  u = std::min(N, u + 7 & ~7);
+  if (ml)
+    for (int i = 0; i < u; ++i)
+      s << ".123456789abcdef|"[log_histogram<F, O, N>::ilog(h.n[i]) * 16 / ml]
+        << (i + 1 & 7 ? "" : " ");
+
+  return s;
+}
+
+
+static std::ostream &operator<<(std::ostream &s, stopwatch &w)
+{
+  return s << "sw[" << (w.is_running ? "R" : "s")
+           << " n=" << w.n_splits
+           << " e=" << w.elapsed()
+           << " h=" << w.splits << "]";
 }
 
 
