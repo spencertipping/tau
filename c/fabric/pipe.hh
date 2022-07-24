@@ -99,8 +99,6 @@ static std::ostream &operator<<(std::ostream &s, pipe<T> &p)
            << (p.writable() ? "W" : p.closed() ? "#" : "w")
            << " n=" << p.latency.n_splits
            << " c=" << p.size() << "/" << p.capacity
-           << " rl=" << p.read_delay.mean_split()
-           << " wl=" << p.write_delay.mean_split()
            << " λ=" << p.latency.mean_split()
            << " σ=" << p.pressure() << "]";
 }
