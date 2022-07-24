@@ -12,6 +12,7 @@
 
 
 #include "../coro.hh"
+
 #include "stopwatch.hh"
 
 
@@ -24,12 +25,16 @@ namespace tau::fabric
 namespace tc = tau::coro;
 
 
+template<class T, class I> struct pipe;
+
 namespace
 {
 
 struct null_interceptor
 {
-  static void intercept() {}
+  void intercept_close() {}
+  bool intercept_read()  { return false; }
+  bool intercept_write() { return false; }
 };
 
 }
@@ -45,8 +50,9 @@ struct pipe
   stopwatch      latency;
   size_t         capacity;
   std::deque<qe> xs;
+  I              interceptor;
 
-  pipe(size_t capacity_) : capacity(capacity_) { assert(capacity); }
+  pipe(size_t c_, I const &i_) : capacity(c_), interceptor(i_) { assert(capacity); }
 
 
   bool readable() const { return xs.size() > 0; }
@@ -57,7 +63,7 @@ struct pipe
 
   operator bool() const { await_read(); return readable(); }
 
-  void   close()        { capacity = 0; }
+  void   close()        { interceptor.intercept_close(); capacity = 0; }
   bool   closed() const { return !capacity; }
   size_t size()   const { return xs.size(); }
 
@@ -78,17 +84,17 @@ struct pipe
 
 
   bool operator<<(T const &x)
-    { I::intercept();
-      let n = stopwatch::now();
-      write_delay.start(); await_write(); write_delay.stop();
+    { let n = stopwatch::now();
+      if (!interceptor.intercept_write())
+      { write_delay.start(); await_write(); write_delay.stop(); }
       if (!writable()) return false;
       xs.push_back(qe(n, x));
       return true; }
 
 
   bool operator>>(T &x)
-    { I::intercept();
-      read_delay.start(); await_read(); read_delay.stop();
+    { if (!interceptor.intercept_read())
+      { read_delay.start(); await_read(); read_delay.stop(); }
       if (!readable()) return false;
       x = std::get<1>(xs.front());
       latency << stopwatch::now() - std::get<0>(xs.front());

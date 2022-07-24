@@ -101,10 +101,11 @@ struct stopwatch
 static std::ostream &operator<<(std::ostream &s, stopwatch::span t)
 {
   if      (t <= 100us) return s << t.count() << "ns";
-  else if (t <= 100ms) return s << t / 1us << "μs";
-  else if (t <= 100s)  return s << t / 1ms << "ms";
-  else if (t <= 10h)   return s << t / 1s  << "s";
-  else                 return s << t / 1h  << "h";
+  else if (t <= 100ms) return s << t / 1us   << "μs";
+  else if (t <= 100s)  return s << t / 1ms   << "ms";
+  else if (t <= 1h)    return s << t / 1s    << "s";
+  else if (t <= 10h)   return s << t / 1min  << "m";
+  else                 return s << t / 1h    << "h";
   return s;
 }
 
@@ -131,7 +132,9 @@ static std::ostream &operator<<(std::ostream &s, stopwatch &w)
   return s << "sw[" << (w.is_running ? "R" : "s")
            << " n=" << w.n_splits
            << " e=" << w.elapsed()
-           << " h=" << w.splits << "]";
+           << " p50=" << w.p(0.5)
+           << " p90=" << w.p(0.9)
+           << " p99=" << w.p(0.99) << "]";
 }
 
 

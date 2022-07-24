@@ -20,10 +20,11 @@ void try_streams()
 {
   cout << "trying streams" << endl;
   tc::null_monitor m;
+  tf::null_interceptor i;
 
-  tf::pipe<int> s1(8);
-  tf::pipe<int> s2(8);
-  tf::pipe<int> s3(8);
+  tf::pipe<int> s1(8, i);
+  tf::pipe<int> s2(8, i);
+  tf::pipe<int> s3(8, i);
 
   tf::stopwatch clk; clk.start();
 

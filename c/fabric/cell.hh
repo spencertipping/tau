@@ -2,12 +2,14 @@
 #define tau_fabric_cell_h
 
 
+#include <functional>
+
+
 #include "../utf9.hh"
 #include "../coro.hh"
 #include "../species.hh"
 
-#include "either.hh"
-#include "monitor.hh"
+#include "scheduler.hh"
 
 
 #include "../begin.hh"
@@ -16,25 +18,34 @@
 namespace tau::fabric
 {
 
-namespace t9 = tau::utf9;
-namespace tc = tau::coro;
-
-
-typedef either<t9::val, t9::val>                 cell_coro_result;
-typedef tc::coro<cell_coro_result, cell_monitor> cell_coro;
+namespace ts = tau::species;
 
 
 struct cell
 {
-  cell_monitor monitor;
+  ts::species const &species;
+
+
+  cell(ts::species const &species_)
+    : species(species_)
+    {
+    }
 
   ~cell() {}
 
-
+  bool operator==(cell &x) const { return this == &x; }
 };
 
 
 }
+
+
+template<> struct std::hash<tau::fabric::cell>
+{
+  static std::hash<void const*> h;
+  uint64_t operator()(tau::fabric::cell const &c) const
+    { return h(&c); }
+};
 
 
 #include "../end.hh"
