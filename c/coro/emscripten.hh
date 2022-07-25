@@ -21,63 +21,78 @@ static coro_k *this_coro_state;
 static bool    free_stacks;
 
 
-template<class T, class M>
+template<class T>
 void coro_invoke(void *c_)
 {
-  auto &c(*reinterpret_cast<coro<T, M>*>(c_));
-  c << c.f();
+  auto c(*reinterpret_cast<coro<T>**>(c_));
+  *c << c->f();
   free_stacks = true;
   yield();
 }
 
 
-template<class T, class M>
-coro<T, M>::coro(std::string         name_,
-                 M                  &monitor_,
-                 std::function<T()>  f_)
-  : name   (name_),
-    monitor(monitor_),
-    f      (f_),
+template<class T> coro<T>::coro() : thisptr(nullptr) {}
+template<class T>
+coro<T>::coro(std::function<T()> f_)
+  : f      (f_),
     is_done(false)
 {
   coro_init();
-  monitor.init(*this);
   k.async_stack = std::malloc(stack_size);
   k.c_stack     = std::malloc(stack_size);
-  emscripten_fiber_init(&k.k, &coro_invoke<T, M>, this,
+  thisptr       = reinterpret_cast<coro<T>**>(std::malloc(sizeof(coro<T>**)));
+  *thisptr      = this;
+  emscripten_fiber_init(&k.k, &coro_invoke<T>, thisptr,
                         k.c_stack, stack_size,
                         k.async_stack, stack_size);
 }
 
 
-template<class T, class M>
-coro<T, M>::~coro()
+template<class T>
+coro<T>::~coro()
 {
-  monitor.finalize(*this);
   if (k.async_stack) std::free(k.async_stack);
   if (k.c_stack)     std::free(k.c_stack);
+  if (thisptr)       std::free(thisptr);
 }
 
 
-template<class T, class M>
-coro<T, M> &coro<T, M>::operator()()
+template<class T>
+coro<T> &coro<T>::operator=(coro<T> &&x)
+{
+  f             = std::move(x.f);
+  k.k           = std::move(x.k.k);
+  k.async_stack = x.k.async_stack;
+  k.c_stack     = x.k.c_stack;
+  is_done       = x.is_done;
+  ret           = std::move(x.ret);
+  thisptr       = x.thisptr;
+  *thisptr      = this;
+
+  x.thisptr       = nullptr;
+  x.k.async_stack = nullptr;
+  x.k.c_stack     = nullptr;
+
+  return *this;
+}
+
+
+template<class T>
+coro<T> &coro<T>::operator()()
 {
   assert(!done());
   assert(this_coro_state == &main_coro_state);
   free_stacks     = false;
   let last        = this_coro_state;
   this_coro_state = &k;
-  monitor.enter(*this);
   emscripten_fiber_swap(&last->k, &k.k);
-  monitor.exit(*this);
   return *this;
 }
 
 
-template<class T, class M>
-coro<T, M> &coro<T, M>::operator<<(T &&ret_)
+template<class T>
+coro<T> &coro<T>::operator<<(T &&ret_)
 {
-  monitor.ret(*this, ret = ret_);
   is_done = true;
   return *this;
 }

@@ -127,7 +127,7 @@ static std::ostream &operator<<(std::ostream &s, log_histogram<F, O, N> &h)
 }
 
 
-static std::ostream &operator<<(std::ostream &s, stopwatch &w)
+static std::ostream &operator<<(std::ostream &s, stopwatch const &w)
 {
   return s << "sw[" << (w.is_running ? "R" : "s")
            << " n=" << w.n_splits

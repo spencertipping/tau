@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 
+#include "../utf9.hh"
 #include "../coro.hh"
 
 #include "pipe.hh"
@@ -22,6 +23,7 @@ namespace tau::fabric
 
 using namespace std::literals;
 
+namespace t9 = tau::utf9;
 namespace tc = tau::coro;
 
 
@@ -33,37 +35,13 @@ typedef uint64_t task_id;
 typedef uint64_t pipe_id;
 
 
-struct task_monitor
-{
-  template<class T>
-  using co = tc::coro<T, task_monitor>;
-
-  stopwatch s;
-
-  template<class T> void init    (co<T> const &c) {}
-  template<class T> void enter   (co<T> const &c) { s.start(); }
-  template<class T> void exit    (co<T> const &c) { s.stop();  }
-  template<class T> void ret     (co<T> const &c, T const &) {}
-  template<class T> void finalize(co<T> const &c) {}
-};
-
-
-struct pipe_interceptor
-{
-  scheduler &s;
-  pipe_id    i;
-
-  void intercept_close();
-  bool intercept_read();
-  bool intercept_write();
-};
-
-
 // FIXME: task results should be something more interesting, probably
-typedef int                                 task_result;
-typedef tc::coro<task_result, task_monitor> task_coro;
-typedef std::function<task_result()>        task_fn;
-typedef pipe<task_result, pipe_interceptor> scheduled_pipe;
+typedef int                          task_result;
+typedef tc::coro<task_result>        task_coro;
+typedef std::function<task_result()> task_fn;
+
+typedef t9::val                      pipe_val;
+typedef pipe<t9::val>                scheduled_pipe;
 
 
 struct runnable_state
@@ -71,8 +49,7 @@ struct runnable_state
   enum state
   {
     RUNNABLE,
-    PRECISE_SLEEP,
-    IMPRECISE_SLEEP,
+    SLEEP,
     READ_BLOCKED,
     WRITE_BLOCKED
   };
@@ -84,28 +61,36 @@ struct runnable_state
     pipe_id       pipe;
   };
 
-  bool is_timed() const { return s == PRECISE_SLEEP || s == IMPRECISE_SLEEP; }
+  bool is_timed() const { return s == SLEEP; }
 };
 
 
 struct scheduled_task
 {
-  task_monitor   monitor;
+  stopwatch      monitor;
   task_coro      coro;
   runnable_state state;
-  double         prio;
 
+  scheduled_task() : state{runnable_state::RUNNABLE} {}
   scheduled_task(task_id i, task_fn &f)
-    : coro(task_coro(std::to_string(i), monitor, f)),
+    : coro(task_coro(f)),
       state{runnable_state::RUNNABLE} {}
 
-  stopwatch::span p(double p) const { return monitor.s.p(p); }
+
+  scheduled_task &operator=(scheduled_task &&t)
+    { monitor = t.monitor;
+      coro    = std::move(t.coro);
+      state   = t.state;
+      return *this; }
+
+
+  stopwatch::span p(double p) const { return monitor.p(p); }
 
   bool operator<(scheduled_task const &t) const;
 };
 
 
-struct task_schedule
+struct deadline_schedule
 {
   scheduler &s;
   bool operator()(task_id a, task_id b) const;
@@ -114,45 +99,84 @@ struct task_schedule
 
 struct scheduler
 {
+  template<class S>
+  using pq = std::priority_queue<task_id, std::vector<task_id>, S>;
+
+
   std::unordered_map<task_id, scheduled_task> tasks;
   std::unordered_map<pipe_id, scheduled_pipe> pipes;
   std::unordered_map<pipe_id, task_id>        read_blocks;
   std::unordered_map<pipe_id, task_id>        write_blocks;
 
-  task_schedule ts;
-  std::priority_queue<task_id,
-                      std::vector<task_id>,
-                      task_schedule> queue;
+  deadline_schedule ds;
 
-  task_id current_task {0};
-  task_id next_task_id {1};
-  pipe_id next_pipe_id {1};
+  std::queue<task_id>   run_queue;
+  pq<deadline_schedule> sleep_queue;
 
-
-  scheduler() : ts{*this}, queue(ts) {}
+  task_id current_task;
+  task_id next_task_id;
+  pipe_id next_pipe_id;
+  stopwatch::tp const ctime;
 
 
+  scheduler() : ds          {*this},
+                sleep_queue (ds),
+                current_task{0},
+                next_task_id{1},
+                next_pipe_id{1},
+                ctime       (stopwatch::now()) {}
+
+
+  stopwatch::span uptime() const { return stopwatch::now() - ctime; }
+
+
+  void     close   (pipe_id);
+  bool     has_next(pipe_id);
+  pipe_val next    (pipe_id);
+  bool     write   (pipe_id, pipe_val const &);
+
+
+  size_t runnable_tasks() const { return run_queue.size(); }
+
+  stopwatch::tp next_deadline() const
+    { return sleep_queue.size()
+        ? tasks.at(sleep_queue.top()).state.deadline
+        : stopwatch::tp{0ns}; }
+
+
+  void awaken_sleepers()
+    { let n = stopwatch::now();
+      while (sleep_queue.size() && tasks.at(sleep_queue.top()).state.deadline <= n)
+      { let t = sleep_queue.top();
+        sleep_queue.pop();
+        wake(t); } }
+
+
+  task_id next_runnable() { return run_queue.size() ? run_queue.front() : 0; }
   void run_until_deadline()
     { task_id i;
-      while ((i = next()) && tasks.at(i).state.s == runnable_state::RUNNABLE)
-      { queue.pop(); step(i); } }
+      while (i = next_runnable())
+      { run_queue.pop();
+        yield_into(i);
+        awaken_sleepers(); } }
 
-  task_id next() { return queue.size() ? queue.top() : 0; }
-  void step(task_id i)
-    { assert(tasks.at(i).state.s == runnable_state::RUNNABLE);
+  void yield_into(task_id i)
+    { assert(!current_task);
+      assert(tasks.at(i).state.s == runnable_state::RUNNABLE);
       current_task = i;
       tasks.at(i).coro();
       current_task = 0; }
 
 
-  pipe_id create_pipe(size_t capacity)
+  pipe_id create_pipe(size_t capacity = 64)
     { let k = next_pipe_id++;
-      pipes.emplace(k, scheduled_pipe(capacity, pipe_interceptor{*this, k}));
+      pipes[k] = scheduled_pipe(capacity);
       return k; }
 
   task_id create_task(task_fn f)
     { let k = next_task_id++;
-      tasks.emplace(k, scheduled_task(k, f));
+      tasks[k] = scheduled_task(k, f);
+      wake(k);
       return k; }
 
   void destroy_pipe(pipe_id i)
@@ -172,31 +196,18 @@ struct scheduler
   void write_wake(pipe_id);
   void wake(task_id);
 
-  void intercept_close(pipe_id i);
-  void intercept_read(pipe_id i);
-  void intercept_write(pipe_id i);
-
   void sleep(stopwatch::span s)
     { let   d = stopwatch::now() + s;
       auto &t = tasks.at(current_task);
-      t.state.s        = runnable_state::IMPRECISE_SLEEP;
+      t.state.s        = runnable_state::SLEEP;
       t.state.deadline = d;
-      tc::yield(); }
-
-  void sleep(stopwatch::tp d)
-    { auto &t = tasks.at(current_task);
-      t.state.s        = runnable_state::PRECISE_SLEEP;
-      t.state.deadline = d;
+      sleep_queue.push(current_task);
       tc::yield(); }
 };
 
 
-void pipe_interceptor::intercept_close() { s.intercept_close(i); }
-bool pipe_interceptor::intercept_read()  { s.intercept_read(i);  return true; }
-bool pipe_interceptor::intercept_write() { s.intercept_write(i); return true; }
-
-
-bool task_schedule::operator()(task_id a, task_id b) const { return s.tasks.at(a) < s.tasks.at(b); }
+bool deadline_schedule::operator()(task_id a, task_id b) const
+{ return s.tasks.at(a).state.deadline < s.tasks.at(b).state.deadline; }
 
 
 bool scheduled_task::operator<(scheduled_task const &t) const
@@ -204,8 +215,7 @@ bool scheduled_task::operator<(scheduled_task const &t) const
   if (state.s != t.state.s) return state.s < t.state.s;
   switch (state.s)
   {
-  case runnable_state::PRECISE_SLEEP:
-  case runnable_state::IMPRECISE_SLEEP:
+  case runnable_state::SLEEP:
     return state.deadline < t.state.deadline;
 
   default:
@@ -219,47 +229,69 @@ void scheduler::wake(task_id i)
   auto &t = tasks.at(i);
   assert(!t.coro.done());
   t.state.s = runnable_state::RUNNABLE;
-  queue.push(i);
+  run_queue.push(i);
 }
 
 
-void scheduler::intercept_close(pipe_id i)
-{
-  read_wake(i);
-  write_wake(i);
-}
-
-
-void scheduler::intercept_read(pipe_id i)
+void scheduler::close(pipe_id i)
 {
   auto &p = pipes.at(i);
-  if (!p.readable())
+  if (!p.closed())
+  {
+    read_wake(i);
+    write_wake(i);
+    p.close();
+  }
+}
+
+
+bool scheduler::has_next(pipe_id i)
+{
+  auto &p = pipes.at(i);
+  if (p.readable()) read_wake(i);
+  else
   {
     p.read_delay.start();
-    auto &t = tasks.at(current_task);
-    t.state.s    = runnable_state::READ_BLOCKED;
-    t.state.pipe = i;
-    read_blocks[i] = current_task;
-    tc::yield();
+    while (!p.readable())
+    {
+      auto &t = tasks.at(current_task);
+      t.state.s    = runnable_state::READ_BLOCKED;
+      t.state.pipe = i;
+      read_blocks[i] = current_task;
+      tc::yield();
+    }
+    p.read_delay.stop();
   }
-  else
-    read_wake(i);
+
+  return p.has_next();
 }
 
-void scheduler::intercept_write(pipe_id i)
+
+pipe_val scheduler::next(pipe_id i)
+{
+  return pipes.at(i).next();
+}
+
+
+bool scheduler::write(pipe_id i, pipe_val const &v)
 {
   auto &p = pipes.at(i);
-  if (!p.writable())
+  if (p.writable()) write_wake(i);
+  else
   {
     p.write_delay.start();
-    auto &t = tasks.at(current_task);
-    t.state.s    = runnable_state::WRITE_BLOCKED;
-    t.state.pipe = i;
-    write_blocks[i] = current_task;
-    tc::yield();
+    while (!p.writable())
+    {
+      auto &t = tasks.at(current_task);
+      t.state.s    = runnable_state::WRITE_BLOCKED;
+      t.state.pipe = i;
+      write_blocks[i] = current_task;
+      tc::yield();
+    }
+    p.write_delay.stop();
   }
-  else
-    write_wake(i);
+
+  return p.write(v);
 }
 
 

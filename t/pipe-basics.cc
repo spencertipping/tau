@@ -19,21 +19,18 @@ namespace tf = tau::fabric;
 void try_streams()
 {
   cout << "trying streams" << endl;
-  tc::null_monitor m;
-  tf::null_interceptor i;
-
-  tf::pipe<int> s1(8, i);
-  tf::pipe<int> s2(8, i);
-  tf::pipe<int> s3(8, i);
+  tf::pipe<int> s1(8);
+  tf::pipe<int> s2(8);
+  tf::pipe<int> s3(8);
 
   tf::stopwatch clk; clk.start();
 
-  tc::coro<int> f1("f1", m, [&]() {
+  tc::coro<int> f1([&]() {
     cout << "f1 starting" << endl;
     for (int i = 0;; ++i)
     {
       cout << clk.elapsed() << ": writing to s1" << endl;
-      if (!(s1 << i)) { cout << "s1 rejected " << i << endl; break; }
+      if (!s1.write(i)) { cout << "s1 rejected " << i << endl; break; }
       cout << clk.elapsed() << ": wrote to s1" << endl;
       std::this_thread::sleep_for(10ms);
     }
@@ -41,17 +38,16 @@ void try_streams()
     return 0;
   });
 
-  tc::coro<int> f2("f2", m, [&]() {
+  tc::coro<int> f2([&]() {
     cout << "f2 starting" << endl;
     int t = 0;
-    int x;
     cout << clk.elapsed() << ": reading from s1" << endl;
-    while (s1 >> x)
+    while (s1.has_next())
     {
       cout << clk.elapsed() << ": read from s1" << endl;
-      t += x;
+      t += s1.next();
       cout << clk.elapsed() << ": writing to s2" << endl;
-      if (!(s2 << t)) { cout << "s2 rejected " << t << endl; break; }
+      if (!s2.write(t)) { cout << "s2 rejected " << t << endl; break; }
       cout << clk.elapsed() << ": wrote to s2" << endl;
       std::this_thread::sleep_for(20ms);
       cout << clk.elapsed() << ": reading from s1" << endl;
@@ -61,16 +57,16 @@ void try_streams()
     return 0;
   });
 
-  tc::coro<int> f3("f3", m, [&]() {
+  tc::coro<int> f3([&]() {
     cout << "f3 starting" << endl;
     for (int i = 0; i < 100; ++i)
     {
-      int x;
       cout << clk.elapsed() << ": reading from s2" << endl;
-      if (!(s2 >> x)) { cout << "s2 gave no input" << endl; break; }
+      if (!s2.has_next()) { cout << "s2 gave no input" << endl; break; }
+      let x = s2.next();
       cout << clk.elapsed() << ": read from s2" << endl;
       cout << clk.elapsed() << ": writing to s3" << endl;
-      if (!(s3 << x)) { cout << "s3 rejected " << x << endl; break; }
+      if (!s3.write(x)) { cout << "s3 rejected " << x << endl; break; }
       cout << clk.elapsed() << ": wrote to s3" << endl;
       std::this_thread::sleep_for(40ms);
     }
@@ -79,14 +75,13 @@ void try_streams()
     return 0;
   });
 
-  tc::coro<int> f4("f4", m, [&]() {
+  tc::coro<int> f4([&]() {
     cout << "f4 starting" << endl;
-    int x;
     cout << clk.elapsed() << ": reading from s3" << endl;
-    while (s3 >> x)
+    while (s3.has_next())
     {
       cout << clk.elapsed() << ": read from s3" << endl;
-      cout << x << endl;
+      cout << s3.next() << endl;
       cout << clk.elapsed() << ": reading from s3" << endl;
     }
     s3.close();

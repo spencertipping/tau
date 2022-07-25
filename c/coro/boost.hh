@@ -1,9 +1,11 @@
 #ifndef tau_coro_native_h
 #define tau_coro_native_h
 
+
 #include <cassert>
 
 #include "class.hh"
+
 
 #include "../begin.hh"
 
@@ -17,41 +19,55 @@ namespace bc = boost::context;
 static bool is_main;
 
 
-template<class T, class M>
-coro<T, M>::coro(std::string         name_,
-                 M                  &monitor_,
-                 std::function<T()>  f)
-  : name   (name_),
-    monitor(monitor_),
-    is_done(false),
+template<class T> coro<T>::coro() : thisptr(nullptr) {}
+template<class T>
+coro<T>::coro(std::function<T()> f)
+  : is_done(false),
     k      (new bc::continuation)
 {
   coro_init();
-  monitor.init(*this);
+  thisptr  = reinterpret_cast<coro<T>**>(std::malloc(sizeof(coro<T>**)));
+  *thisptr = this;
+
+  let t = thisptr;
   *k = bc::callcc(
-    [&, f](bc::continuation &&cc) {
+    [t, f](bc::continuation &&cc) {
       is_main = true;
       *main_coro_state = cc.resume();
-      *this << f();
+      **t << f();
       return std::move(*main_coro_state);
     });
 }
 
 
-template<class T, class M>
-coro<T, M>::~coro()
+template<class T>
+coro<T>::~coro()
 {
-  monitor.finalize(*this);
-  if (k) delete k;
+  if (k)       delete k;
+  if (thisptr) std::free(thisptr);
 }
 
 
-template<class T, class M>
-coro<T, M> &coro<T, M>::operator<<(T &&ret_)
+template<class T>
+coro<T> &coro<T>::operator=(coro<T> &&c)
+{
+  thisptr  = c.thisptr;
+  *thisptr = this;
+  k        = c.k;
+  is_done  = c.is_done;
+  ret      = std::move(c.ret);
+
+  c.k       = nullptr;
+  c.thisptr = nullptr;
+  return *this;
+}
+
+
+template<class T>
+coro<T> &coro<T>::operator<<(T &&ret_)
 {
   assert(!done());
   assert(!is_main);
-  monitor.ret(*this, ret = std::move(ret_));
   is_done = true;
 
   if (k) { delete k; k = nullptr; }
@@ -59,17 +75,15 @@ coro<T, M> &coro<T, M>::operator<<(T &&ret_)
 }
 
 
-template<class T, class M>
-coro<T, M> &coro<T, M>::operator()()
+template<class T>
+coro<T> &coro<T>::operator()()
 {
   assert(!done());
   assert(is_main);
 
   is_main = false;
-  monitor.enter(*this);
   auto cc = k->resume();
   if (k) *k = std::move(cc);  // NOTE: k can be nulled within k->resume()
-  monitor.exit(*this);
   is_main = true;
   return *this;
 }

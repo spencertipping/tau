@@ -35,33 +35,23 @@ namespace tau::coro
 static coro_k main_coro_state;
 
 
-template<class T, class M> struct coro;
-
-struct null_monitor
-{
-  template<class T> void init    (coro<T, null_monitor> const &)            {}
-  template<class T> void enter   (coro<T, null_monitor> const &)            {}
-  template<class T> void exit    (coro<T, null_monitor> const &)            {}
-  template<class T> void ret     (coro<T, null_monitor> const &, T const &) {}
-  template<class T> void finalize(coro<T, null_monitor> const &)            {}
-};
-
-
-template<class T, class M = null_monitor>
+template<class T>
 struct coro
 {
-  std::string        name;
   std::function<T()> f;
   coro_k             k;
   bool               is_done;
   T                  ret;
-  M                 &monitor;
+  coro<T>          **thisptr;
 
-  coro(std::string, M &, std::function<T()>);
+  coro();
+  coro(std::function<T()>);
   ~coro();
 
   bool     done()   const { return is_done; }
   T const &result() const { return ret; };
+
+  coro<T> &operator=(coro<T> &&);
   coro    &operator()();
   coro    &operator<<(T&&);
   coro    &operator<<(T const &);

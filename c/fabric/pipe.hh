@@ -25,22 +25,7 @@ namespace tau::fabric
 namespace tc = tau::coro;
 
 
-template<class T, class I> struct pipe;
-
-namespace
-{
-
-struct null_interceptor
-{
-  void intercept_close() {}
-  bool intercept_read()  { return false; }
-  bool intercept_write() { return false; }
-};
-
-}
-
-
-template<class T, class I = null_interceptor>
+template<class T>
 struct pipe
 {
   typedef std::pair<stopwatch::tp, T> qe;
@@ -50,9 +35,18 @@ struct pipe
   stopwatch      latency;
   size_t         capacity;
   std::deque<qe> xs;
-  I              interceptor;
 
-  pipe(size_t c_, I const &i_) : capacity(c_), interceptor(i_) { assert(capacity); }
+  pipe() {}
+  pipe(size_t c_) : capacity(c_) { assert(capacity); }
+
+
+  pipe<T> &operator=(pipe<T> &&p)
+    { read_delay = p.read_delay;
+      write_delay = p.write_delay;
+      latency     = p.latency;
+      capacity    = p.capacity;
+      xs          = std::move(p.xs);
+      return *this; }
 
 
   bool readable() const { return xs.size() > 0; }
@@ -61,9 +55,7 @@ struct pipe
   void await_read()  const { while (!closed() && !readable()) tc::yield(); }
   void await_write() const { while (!closed() && !writable()) tc::yield(); }
 
-  operator bool() const { await_read(); return readable(); }
-
-  void   close()        { interceptor.intercept_close(); capacity = 0; }
+  void   close()        { capacity = 0; }
   bool   closed() const { return !capacity; }
   size_t size()   const { return xs.size(); }
 
@@ -83,28 +75,26 @@ struct pipe
            - log2(static_cast<double>(read_delay .mean_split().count())); }
 
 
-  bool operator<<(T const &x)
+  bool write(T const &x)
     { let n = stopwatch::now();
-      if (!interceptor.intercept_write())
-      { write_delay.start(); await_write(); write_delay.stop(); }
+      await_write();
       if (!writable()) return false;
       xs.push_back(qe(n, x));
       return true; }
 
 
-  bool operator>>(T &x)
-    { if (!interceptor.intercept_read())
-      { read_delay.start(); await_read(); read_delay.stop(); }
-      if (!readable()) return false;
-      x = std::get<1>(xs.front());
+  bool has_next() { await_read(); return readable(); }
+  T next()
+    { assert(readable());
+      let x = std::get<1>(xs.front());
       latency << stopwatch::now() - std::get<0>(xs.front());
       xs.pop_front();
-      return true; }
+      return x; }
 };
 
 
 template<class T>
-static std::ostream &operator<<(std::ostream &s, pipe<T> &p)
+static std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
 {
   return s << "pipe["
            << (p.readable() ? "R" : "r")
