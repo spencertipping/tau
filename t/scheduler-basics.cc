@@ -77,39 +77,28 @@ int main()
 
 
   cout << "starting the scheduler loop" << endl;
-  while (s.runnable_tasks())
+  while (s.runnable_tasks() || s.next_deadline().time_since_epoch() > 0s)
   {
-    //cout << s.uptime() << ": " << s.runnable_tasks() << " runnable task(s)" << endl;
+    s.run_until_deadline();
 
-    let t = s.next_runnable();
-    //cout << s.uptime() << ": next task: " << t << endl;
-    if (t) s.run_queue.pop();
-
-    //cout << s.uptime() << ": yielding into " << t << endl;
-    s.yield_into(t);
-    //cout << s.uptime() << ": returned from " << t << endl;
-
-    let d = s.next_deadline();
-    //cout << s.uptime() << ": next deadline: " << (d - stopwatch::now()) << endl;
-    if (d.time_since_epoch() > 0s)
+    while (!s.runnable_tasks() && s.next_deadline().time_since_epoch() > 0s)
     {
-      std::this_thread::sleep_until(d);
-      //cout << s.uptime() << ": awake" << endl;
+      std::this_thread::sleep_until(s.next_deadline());
+      s.awaken_sleepers();
     }
 
-    //cout << s.uptime() << ": awakening sleepers..." << endl;
-    s.awaken_sleepers();
-    //cout << s.uptime() << ": runnable tasks = " << s.runnable_tasks() << endl;
+    cout << s.uptime() << ": runnable tasks = " << s.runnable_tasks()
+         << "; next deadline = " << (s.next_deadline() - stopwatch::now())
+         << endl;
+
+    cout << s.uptime() << "p1 = " << s.pipe(p1) << endl;
+    cout << s.uptime() << "p2 = " << s.pipe(p2) << endl;
+    cout << s.uptime() << "p3 = " << s.pipe(p3) << endl;
   }
 
 
   // TODO: why do we get fewer than 100 entries out of the pipe?
   // We're exiting too early.
-
-
-  cout << "p1 = " << s.pipe(p1) << endl;
-  cout << "p2 = " << s.pipe(p2) << endl;
-  cout << "p3 = " << s.pipe(p3) << endl;
 
 
   s.close(p1);
