@@ -24,20 +24,17 @@ int main()
 {
   tf::scheduler s;
 
-  let p1 = s.create_pipe();
-  let p2 = s.create_pipe();
-  let p3 = s.create_pipe();
+  let p1 = s.create_pipe(8);
+  let p2 = s.create_pipe(12);
+  let p3 = s.create_pipe(16);
 
 
   let t1 = s.create_task([&]() {
     for (int64_t i = 0;; ++i)
-    {
       if (!s.write(p1, t9::val(i))) { cout << "s1 rejected " << i << endl; break; }
-    }
     s.close(p1);
     return 0;
   });
-
 
   let t2 = s.create_task([&]() {
     int64_t t = 0;
@@ -52,7 +49,6 @@ int main()
     return 0;
   });
 
-
   let t3 = s.create_task([&]() {
     for (int i = 0; s.has_next(p2) && i < 100; ++i)
     {
@@ -65,13 +61,12 @@ int main()
     return 0;
   });
 
-
   let t4 = s.create_task([&]() {
-    while (s.has_next(p3))
-    {
-      cout << s.next(p3) << endl;
-    }
+    int64_t last;
+    while (s.has_next(p3)) cout << (last = s.next(p3)) << endl;
     s.close(p3);
+
+    cout << "final value: " << last << endl;
     return 0;
   });
 
@@ -91,9 +86,9 @@ int main()
          << "; next deadline = " << (s.next_deadline() - stopwatch::now())
          << endl;
 
-    cout << s.uptime() << "p1 = " << s.pipe(p1) << endl;
-    cout << s.uptime() << "p2 = " << s.pipe(p2) << endl;
-    cout << s.uptime() << "p3 = " << s.pipe(p3) << endl;
+    cout << s.uptime() << ": p1 = " << s.pipe(p1) << endl;
+    cout << s.uptime() << ": p2 = " << s.pipe(p2) << endl;
+    cout << s.uptime() << ": p3 = " << s.pipe(p3) << endl;
   }
 
 

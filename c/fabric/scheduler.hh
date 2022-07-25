@@ -248,10 +248,9 @@ void scheduler::close(pipe_id i)
 bool scheduler::has_next(pipe_id i)
 {
   auto &p = pipes.at(i);
+  p.read_delay.start();
   if (p.readable()) read_wake(i);
   else
-  {
-    p.read_delay.start();
     while (!p.readable())
     {
       auto &t = tasks.at(current_task);
@@ -260,8 +259,7 @@ bool scheduler::has_next(pipe_id i)
       read_blocks[i] = current_task;
       tc::yield();
     }
-    p.read_delay.stop();
-  }
+  p.read_delay.stop();
 
   return p.has_next();
 }
@@ -276,10 +274,9 @@ pipe_val scheduler::next(pipe_id i)
 bool scheduler::write(pipe_id i, pipe_val const &v)
 {
   auto &p = pipes.at(i);
+  p.write_delay.start();
   if (p.writable()) write_wake(i);
   else
-  {
-    p.write_delay.start();
     while (!p.writable())
     {
       auto &t = tasks.at(current_task);
@@ -288,8 +285,7 @@ bool scheduler::write(pipe_id i, pipe_val const &v)
       write_blocks[i] = current_task;
       tc::yield();
     }
-    p.write_delay.stop();
-  }
+  p.write_delay.stop();
 
   return p.write(v);
 }
