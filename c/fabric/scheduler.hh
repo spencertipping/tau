@@ -91,6 +91,13 @@ struct scheduler
     { assert(i != current_task);
       tasks.erase(i); }
 
+  task_result collect_task(task_id i)
+    { auto &t = tasks.at(i);
+      assert(t.state == DONE);
+      let r = t.coro.result();
+      destroy_task(i);
+      return r; }
+
   scheduled_pipe const &pipe(pipe_id i)     const { return pipes.at(i); }
   scheduled_task const &task(task_id i = 0) const { return tasks.at(i ? i : current_task); }
 

@@ -69,6 +69,7 @@ coro<T> &coro<T>::operator<<(T &&ret_)
   assert(!done());
   assert(!is_main);
   is_done = true;
+  ret     = std::move(ret_);
 
   if (k) { delete k; k = nullptr; }
   return *this;

@@ -33,6 +33,7 @@ int main()
     for (int64_t i = 0;; ++i)
       if (!s.write(p1, t9::val(i))) { cout << "s1 rejected " << i << endl; break; }
     s.close(p1);
+    cout << "t1 returning" << endl;
     return 0;
   });
 
@@ -46,6 +47,7 @@ int main()
     }
     s.close(p1);
     s.close(p2);
+    cout << "t2 returning" << endl;
     return 0;
   });
 
@@ -58,6 +60,7 @@ int main()
     }
     s.close(p2);
     s.close(p3);
+    cout << "t3 returning" << endl;
     return 0;
   });
 
@@ -67,47 +70,15 @@ int main()
     s.close(p3);
 
     cout << "final value: " << last << endl;
-    return 0;
+    cout << "t4 returning" << endl;
+    return last;
   });
 
 
   cout << "starting the scheduler loop" << endl;
   s.run_until(stopwatch::now() + 20s);
 
-
-  if (0)
-  {
-    while (s.runnable_tasks() || s.next_deadline().time_since_epoch() > 0s)
-    {
-      s.run_until_deadline();
-
-      while (!s.runnable_tasks() && s.next_deadline().time_since_epoch() > 0s)
-      {
-        std::this_thread::sleep_until(s.next_deadline());
-        s.advance_time();
-      }
-
-      cout << s.uptime() << ": runnable tasks = " << s.runnable_tasks()
-           << "; next deadline = " << (s.next_deadline() - stopwatch::now())
-           << endl;
-
-      cout << s.uptime() << ": p1 = " << s.pipe(p1) << endl;
-      cout << s.uptime() << ": p2 = " << s.pipe(p2) << endl;
-      cout << s.uptime() << ": p3 = " << s.pipe(p3) << endl;
-    }
-
-    // TODO: why do we get fewer than 100 entries out of the pipe?
-    // We're exiting too early.
-
-    s.close(p1);
-    s.close(p2);
-    s.close(p3);
-    s.run_until_deadline();
-  }
-
-
   cout << s << endl;
-
 
   cout << s.uptime() << ": loop end; destroying pipes" << endl;
 
@@ -115,13 +86,12 @@ int main()
   s.destroy_pipe(p2);
   s.destroy_pipe(p3);
 
-  s.destroy_task(t1);
-  s.destroy_task(t2);
-  s.destroy_task(t3);
-  s.destroy_task(t4);
+  cout << "t1 returned " << s.collect_task(t1) << endl;
+  cout << "t2 returned " << s.collect_task(t2) << endl;
+  cout << "t3 returned " << s.collect_task(t3) << endl;
+  cout << "t4 returned " << s.collect_task(t4) << endl;
 
-
-  cout << "all done" << endl;
+  cout << "all done " << s << endl;
 
 
   return 0;
