@@ -113,7 +113,8 @@ void try_streams()
 
 int main()
 {
-  try_streams();
+  if (0) try_streams();
+  cout << "this demo no longer works; use a scheduler" << endl;
   return 0;
 }
 

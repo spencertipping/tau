@@ -63,7 +63,7 @@ int main()
 
   let t4 = s.create_task([&]() {
     int64_t last;
-    while (s.has_next(p3)) cout << (last = s.next(p3)) << endl;
+    while (s.has_next(p3)) cout << s.uptime() << ": " << (last = s.next(p3)) << endl;
     s.close(p3);
 
     cout << "final value: " << last << endl;
@@ -72,34 +72,41 @@ int main()
 
 
   cout << "starting the scheduler loop" << endl;
-  while (s.runnable_tasks() || s.next_deadline().time_since_epoch() > 0s)
-  {
-    s.run_until_deadline();
+  s.run_until(stopwatch::now() + 20s);
 
-    while (!s.runnable_tasks() && s.next_deadline().time_since_epoch() > 0s)
+
+  if (0)
+  {
+    while (s.runnable_tasks() || s.next_deadline().time_since_epoch() > 0s)
     {
-      std::this_thread::sleep_until(s.next_deadline());
-      s.awaken_sleepers();
+      s.run_until_deadline();
+
+      while (!s.runnable_tasks() && s.next_deadline().time_since_epoch() > 0s)
+      {
+        std::this_thread::sleep_until(s.next_deadline());
+        s.advance_time();
+      }
+
+      cout << s.uptime() << ": runnable tasks = " << s.runnable_tasks()
+           << "; next deadline = " << (s.next_deadline() - stopwatch::now())
+           << endl;
+
+      cout << s.uptime() << ": p1 = " << s.pipe(p1) << endl;
+      cout << s.uptime() << ": p2 = " << s.pipe(p2) << endl;
+      cout << s.uptime() << ": p3 = " << s.pipe(p3) << endl;
     }
 
-    cout << s.uptime() << ": runnable tasks = " << s.runnable_tasks()
-         << "; next deadline = " << (s.next_deadline() - stopwatch::now())
-         << endl;
+    // TODO: why do we get fewer than 100 entries out of the pipe?
+    // We're exiting too early.
 
-    cout << s.uptime() << ": p1 = " << s.pipe(p1) << endl;
-    cout << s.uptime() << ": p2 = " << s.pipe(p2) << endl;
-    cout << s.uptime() << ": p3 = " << s.pipe(p3) << endl;
+    s.close(p1);
+    s.close(p2);
+    s.close(p3);
+    s.run_until_deadline();
   }
 
 
-  // TODO: why do we get fewer than 100 entries out of the pipe?
-  // We're exiting too early.
-
-
-  s.close(p1);
-  s.close(p2);
-  s.close(p3);
-  s.run_until_deadline();
+  cout << s << endl;
 
 
   cout << s.uptime() << ": loop end; destroying pipes" << endl;

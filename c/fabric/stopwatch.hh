@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cstdint>
 #include <iostream>
+#include <numeric>
 
 #include "../begin.hh"
 
@@ -53,10 +54,10 @@ struct log_histogram
 
 struct stopwatch
 {
-  typedef std::chrono::steady_clock             clk;
-  typedef std::chrono::time_point<clk>          tp;
-  typedef std::chrono::nanoseconds              span;
-  typedef log_histogram<uint64_t, uint64_t, 64> lh;
+  typedef std::chrono::steady_clock                              clk;
+  typedef std::chrono::time_point<clk, std::chrono::nanoseconds> tp;
+  typedef std::chrono::nanoseconds                               span;
+  typedef log_histogram<uint64_t, uint64_t, 64>                  lh;
 
   bool     is_running    {false};
   tp       last_start    {0ns};
@@ -94,7 +95,9 @@ struct stopwatch
       *this << s;
       return s; }
 
-  static tp now() { return std::chrono::steady_clock::now(); }
+  static tp now()               { return clk::now(); }
+  static constexpr tp never()   { return tp{0ns}; }
+  static constexpr tp forever() { return tp{std::numeric_limits<tp::duration::rep>::max() * 1ns}; }
 };
 
 
@@ -111,7 +114,7 @@ static std::ostream &operator<<(std::ostream &s, stopwatch::span t)
 
 
 template<class F, class O, size_t N>
-static std::ostream &operator<<(std::ostream &s, log_histogram<F, O, N> &h)
+static std::ostream &operator<<(std::ostream &s, log_histogram<F, O, N> const &h)
 {
   F      m  = h.n[0]; for (int i = 1; i < N; ++i) m = std::max(m, h.n[i]);
   size_t u  = N - 1;  while (u > 0 && !h.n[u]) --u;

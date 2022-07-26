@@ -22,8 +22,6 @@
 namespace tau::fabric
 {
 
-namespace tc = tau::coro;
-
 
 template<class T>
 struct pipe
@@ -41,7 +39,7 @@ struct pipe
 
 
   pipe<T> &operator=(pipe<T> &&p)
-    { read_delay = p.read_delay;
+    { read_delay  = p.read_delay;
       write_delay = p.write_delay;
       latency     = p.latency;
       capacity    = p.capacity;
@@ -51,9 +49,6 @@ struct pipe
 
   bool readable() const { return xs.size() > 0; }
   bool writable() const { return xs.size() < capacity; }
-
-  void await_read()  const { while (!closed() && !readable()) tc::yield(); }
-  void await_write() const { while (!closed() && !writable()) tc::yield(); }
 
   void   close()        { capacity = 0; }
   bool   closed() const { return !capacity; }
@@ -77,13 +72,12 @@ struct pipe
 
   bool write(T const &x)
     { let n = stopwatch::now();
-      await_write();
       if (!writable()) return false;
       xs.push_back(qe(n, x));
       return true; }
 
 
-  bool has_next() { await_read(); return readable(); }
+  bool has_next() { return readable(); }
   T next()
     { assert(readable());
       let x = std::get<1>(xs.front());
@@ -99,12 +93,12 @@ static std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
   return s << "pipe["
            << (p.readable() ? "R" : "r")
            << (p.writable() ? "W" : p.closed() ? "#" : "w")
-           << " n=" << p.total_written()
-           << " c=" << p.size() << "/" << p.capacity
-           << " rd=" << p.read_delay
-           << " wd=" << p.write_delay
-           << " λ=" << p.λ()
-           << " σ=" << p.σ() << "]";
+           << " n="  << p.total_written()
+           << " c="  << p.size() << "/" << p.capacity
+           << " rd=" << p.read_delay.mean_split()
+           << " wd=" << p.write_delay.mean_split()
+           << " λ="  << p.λ()
+           << " σ="  << p.σ() << "]";
 }
 
 
