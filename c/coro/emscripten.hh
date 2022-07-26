@@ -94,6 +94,7 @@ template<class T>
 coro<T> &coro<T>::operator<<(T &&ret_)
 {
   is_done = true;
+  ret     = std::move(ret_);
   return *this;
 }
 
