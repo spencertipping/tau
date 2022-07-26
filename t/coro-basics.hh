@@ -9,6 +9,9 @@
 
 #include "../tau/module/begin.hh"
 
+namespace t::coro_basics
+{
+
 using namespace std;
 using namespace tau;
 
@@ -147,8 +150,9 @@ int main()
 {
   try_streams();
   bench();
-
   return 0;
+}
+
 }
 
 

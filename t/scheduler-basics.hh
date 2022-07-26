@@ -9,6 +9,10 @@
 #include "../tau/module/begin.hh"
 
 
+namespace t::scheduler_basics
+{
+
+
 using namespace std;
 using namespace std::literals;
 
@@ -90,6 +94,9 @@ int main()
 
 
   return 0;
+}
+
+
 }
 
 

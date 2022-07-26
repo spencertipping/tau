@@ -11,6 +11,10 @@
 #include "../tau/module/begin.hh"
 
 
+namespace t::utf9_basics
+{
+
+
 using namespace std;
 using namespace tau;
 
@@ -206,6 +210,9 @@ int main()
   cout << "try_printing_types" << endl; try_printing_types();
   cout << "try_loading_stuff"  << endl; try_loading_stuff();
   return 0;
+}
+
+
 }
 
 

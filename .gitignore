@@ -1,4 +1,4 @@
 *.~undo-tree~
-t/*-basics
-t/*-basics.js
-t/*-basics.wasm
+t/test
+t/*.js
+t/*.wasm
