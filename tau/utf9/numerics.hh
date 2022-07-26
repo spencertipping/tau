@@ -9,7 +9,7 @@
 
 #include "errors.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -74,6 +74,6 @@ inline int32_t  coi32(int64_t x) { return oi32(x) ? throw internal_error("i32o")
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

@@ -3,9 +3,9 @@
 #include <thread>
 
 
-#include "../c/fabric.hh"
+#include "../tau.hh"
 
-#include "../c/begin.hh"
+#include "../tau/module/begin.hh"
 
 
 using namespace std;
@@ -119,4 +119,4 @@ int main()
 }
 
 
-#include "../c/end.hh"
+#include "../tau/module/end.hh"

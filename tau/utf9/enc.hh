@@ -7,7 +7,7 @@
 #include "obuf.hh"
 #include "val.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -131,6 +131,6 @@ oenc &operator<<(oenc &o, val const &v)
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

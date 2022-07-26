@@ -6,7 +6,7 @@
 
 #include "ibuf.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -107,6 +107,6 @@ struct obuf : public oenc
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

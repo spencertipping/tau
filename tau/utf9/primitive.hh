@@ -8,7 +8,7 @@
 #include "errors.hh"
 #include "ibuf.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -78,6 +78,6 @@ static_assert(sizeof(greek) == sizeof(uint64_t));
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

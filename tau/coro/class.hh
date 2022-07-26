@@ -4,7 +4,7 @@
 #include <functional>
 #include <string>
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 #ifdef __EMSCRIPTEN__
@@ -76,6 +76,6 @@ static void coro_init()
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

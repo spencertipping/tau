@@ -4,7 +4,7 @@
 
 #include "ibuf.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -390,6 +390,6 @@ inline uint64_t ibuf::tvlen(uint64_t i) const { return tvlfns[xs[i]](*this, i); 
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

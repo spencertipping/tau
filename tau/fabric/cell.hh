@@ -12,7 +12,7 @@
 #include "scheduler.hh"
 
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::fabric
@@ -48,6 +48,6 @@ template<> struct std::hash<tau::fabric::cell>
 };
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

@@ -12,7 +12,7 @@
 #include "pipe.hh"
 
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::fabric
@@ -108,7 +108,7 @@ std::ostream &operator<<(std::ostream &s, scheduled_task const &t)
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 
 #endif

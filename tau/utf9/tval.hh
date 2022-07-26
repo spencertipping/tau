@@ -10,7 +10,7 @@
 #include "obuf.hh"
 #include "typecode.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -174,6 +174,6 @@ tbuf tarray(uint64_t n, tbuf const &t)
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

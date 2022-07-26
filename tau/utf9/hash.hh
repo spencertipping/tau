@@ -9,7 +9,7 @@
 
 #include "numerics.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 static_assert(sizeof(XXH64_hash_t) == sizeof(uint64_t));
@@ -24,6 +24,6 @@ inline uint64_t xxc(uint64_t a, uint64_t b)               { a = ce(a); return XX
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

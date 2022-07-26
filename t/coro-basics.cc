@@ -4,9 +4,10 @@
 
 #include "unistd.h"
 
-#include "../c/coro.hh"
-#include "../c/begin.hh"
+#include "../tau.hh"
 
+
+#include "../tau/module/begin.hh"
 
 using namespace std;
 using namespace tau::coro;
@@ -151,4 +152,4 @@ int main()
 }
 
 
-#include "../c/end.hh"
+#include "../tau/module/end.hh"

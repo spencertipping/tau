@@ -13,7 +13,7 @@
 #include "tval.hh"
 #include "typecode.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -569,6 +569,6 @@ template<> struct std::hash<tau::utf9::tval>
 { uint64_t operator()(tau::utf9::tval const &t) { return t.h(); } };
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

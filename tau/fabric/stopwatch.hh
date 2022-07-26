@@ -8,7 +8,7 @@
 #include <iostream>
 #include <numeric>
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::fabric
@@ -143,7 +143,7 @@ static std::ostream &operator<<(std::ostream &s, stopwatch const &w)
 
 }
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 
 #endif

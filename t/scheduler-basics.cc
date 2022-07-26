@@ -4,10 +4,9 @@
 #include <thread>
 
 
-#include "../c/utf9.hh"
-#include "../c/fabric.hh"
+#include "../tau.hh"
 
-#include "../c/begin.hh"
+#include "../tau/module/begin.hh"
 
 
 using namespace std;
@@ -17,7 +16,6 @@ using namespace tau::utf9;
 
 namespace tf = tau::fabric;
 namespace t9 = tau::utf9;
-
 
 
 int main()
@@ -98,5 +96,4 @@ int main()
 }
 
 
-
-#include "../c/end.hh"
+#include "../tau/module/end.hh"

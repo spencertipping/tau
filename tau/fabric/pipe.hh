@@ -16,7 +16,7 @@
 #include "stopwatch.hh"
 
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::fabric
@@ -105,6 +105,6 @@ static std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

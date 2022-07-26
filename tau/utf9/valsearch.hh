@@ -8,7 +8,7 @@
 #include "errors.hh"
 #include "val.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -191,6 +191,6 @@ template <class KF> val val::make_th() const
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

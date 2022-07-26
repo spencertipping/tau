@@ -5,7 +5,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -85,6 +85,6 @@ inline std::ostream &operator<<(std::ostream &s, utf9_error const &e) { return e
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

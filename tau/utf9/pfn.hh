@@ -6,7 +6,7 @@
 
 #include "ibuf.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -137,6 +137,6 @@ pfn const sfns[256] =
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -140,6 +140,6 @@ val_type const bts[256] =
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

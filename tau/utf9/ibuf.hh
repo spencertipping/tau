@@ -8,7 +8,7 @@
 #include "errors.hh"
 #include "numerics.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::utf9
@@ -84,6 +84,6 @@ struct ibuf
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

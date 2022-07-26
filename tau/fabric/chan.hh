@@ -5,7 +5,7 @@
 #include "monitor.hh"
 #include "pipe.hh"
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::fabric
@@ -22,6 +22,6 @@ struct chan
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

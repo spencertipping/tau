@@ -8,7 +8,7 @@
 #include "scheduler.hh"
 
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::fabric
@@ -27,6 +27,6 @@ struct leaf
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

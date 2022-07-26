@@ -10,7 +10,7 @@
 #include "class.hh"
 
 
-#include "../begin.hh"
+#include "../module/begin.hh"
 
 
 namespace tau::coro
@@ -129,6 +129,6 @@ static void coro_init_()
 }
 
 
-#include "../end.hh"
+#include "../module/end.hh"
 
 #endif

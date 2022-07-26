@@ -5,8 +5,10 @@
 
 #include "unistd.h"
 
-#include "../c/utf9.hh"
-#include "../c/begin.hh"
+
+#include "../tau.hh"
+
+#include "../tau/module/begin.hh"
 
 
 using namespace std;
@@ -207,4 +209,4 @@ int main()
 }
 
 
-#include "../c/end.hh"
+#include "../tau/module/end.hh"
