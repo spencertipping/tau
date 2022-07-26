@@ -4,7 +4,10 @@
 
 #include "tau/utf9.hh"
 #include "tau/coro.hh"
-#include "tau/fabric.hh"
+#include "tau/cell.hh"
+#include "tau/leaf.hh"
+#include "tau/scheduler.hh"
+#include "tau/stopwatch.hh"
 #include "tau/species.hh"
 
 

@@ -18,9 +18,6 @@ namespace tau::utf9
 {
 
 
-namespace  // val/tval << operators
-{
-
 std::ostream &operator<<(std::ostream &s, sym   const &y) { return s << 's' << reinterpret_cast<void*>(y.h); }
 std::ostream &operator<<(std::ostream &s, hash  const &h) { return s << 'h' << reinterpret_cast<void*>(h.h); }
 std::ostream &operator<<(std::ostream &s, pidfd const &p) { return s << "[p=" << p.pid << ",fd=" << p.fd << "]"; }
@@ -138,8 +135,6 @@ std::ostream &operator<<(std::ostream &s, val const &v)
 std::ostream &operator<<(std::ostream &s, obuf const &o)
 {
   return s.write(reinterpret_cast<char*>(o.b), o.i);
-}
-
 }
 
 

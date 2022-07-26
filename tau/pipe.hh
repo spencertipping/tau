@@ -11,15 +11,15 @@
 #include <utility>
 
 
-#include "../coro.hh"
+#include "coro.hh"
 
 #include "stopwatch.hh"
 
 
-#include "../module/begin.hh"
+#include "module/begin.hh"
 
 
-namespace tau::fabric
+namespace tau
 {
 
 
@@ -88,7 +88,7 @@ struct pipe
 
 
 template<class T>
-static std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
+std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
 {
   return s << "pipe["
            << (p.readable() ? "R" : "r")
@@ -105,6 +105,6 @@ static std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
 }
 
 
-#include "../module/end.hh"
+#include "module/end.hh"
 
 #endif

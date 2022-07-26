@@ -12,7 +12,7 @@
 
 
 using namespace std;
-using namespace tau::utf9;
+using namespace tau;
 
 
 template <class T> struct debug { T &b; };
@@ -50,11 +50,11 @@ void try_loading_stuff()
       0x10,
     };
 
-    ibuf b(buf, sizeof(buf));
-    val  x(b,   0);
-    val  y(b,   6);
-    val  z(b,   12);
-    val  a(b,   12 + b.len(12));
+    i9 b(buf, sizeof(buf));
+    u9  x(b,   0);
+    u9  y(b,   6);
+    u9  z(b,   12);
+    u9  a(b,   12 + b.len(12));
 
     cout << x << " :: " << x.type() << " = " << x.h() << endl;
     cout << y << " :: " << y.type() << " = " << y.h() << endl;
@@ -62,23 +62,23 @@ void try_loading_stuff()
     cout << a << " :: " << a.type() << " = " << a.h() << endl;
     cout << x << " <=> " << y << " = " << x.compare(y) << endl;
 
-    obuf o1; o1 << z[0];
-    ibuf i1(o1.data(), o1.size());
-    cout << z[0] << " -> " << debug<obuf>{o1} << "-> " << val(i1, 0) << endl;
+    o9 o1; o1 << z[0];
+    i9 i1(o1.data(), o1.size());
+    cout << z[0] << " -> " << debug<o9>{o1} << "-> " << u9(i1, 0) << endl;
 
-    obuf o2; o2 << z[1];
-    ibuf i2(o2.data(), o2.size());
-    cout << z[1] << " -> " << debug<obuf>{o2} << "-> " << val(i2, 0) << endl;
+    o9 o2; o2 << z[1];
+    i9 i2(o2.data(), o2.size());
+    cout << z[1] << " -> " << debug<o9>{o2} << "-> " << u9(i2, 0) << endl;
 
-    obuf o3; z.atype().pack(o3, z[0]); z.atype().pack(o3, z[1]);
-    ibuf i3(o3.data(), o3.size());
-    cout << val(z.atype(), i3, 0) << ", " << val(z.atype(), i3, 8) << endl;
+    o9 o3; z.atype().pack(o3, z[0]); z.atype().pack(o3, z[1]);
+    i9 i3(o3.data(), o3.size());
+    cout << u9(z.atype(), i3, 0) << ", " << u9(z.atype(), i3, 8) << endl;
 
     for (int64_t upper = 1; upper <= 1048576 * 16; upper *= 16)
     {
-      obuf o4;
-      val v4 = tau::utf9::tuple(upper);
-      for (int64_t i = 0; i < upper; ++i) v4 << val(i);
+      o9 o4;
+      u9 v4 = tau::utf9::tuple(upper);
+      for (int64_t i = 0; i < upper; ++i) v4 << u9(i);
 
       {
         auto start = chrono::steady_clock::now();
@@ -90,17 +90,17 @@ void try_loading_stuff()
 
       cout << "buffer size: " << o4.size() << endl;
 
-      ibuf i4(o4.data(), o4.size());
+      i9 i4(o4.data(), o4.size());
 
       auto sv = string_view(reinterpret_cast<char const*>(o4.data()),
                             min(static_cast<unsigned long long>(o4.size()), 256ull));
       //cout << debug<string_view>{sv} << endl;
 
-      cout << val(i4, 0).bsize() << " == " << i4.l << endl;
+      cout << u9(i4, 0).bsize() << " == " << i4.l << endl;
 
       {
         auto start = chrono::steady_clock::now();
-        auto c     = val(i4, 0).compare(v4);
+        auto c     = u9(i4, 0).compare(v4);
         auto end   = chrono::steady_clock::now();
         chrono::duration<double> d = end - start;
         cout << upper << ": " << c << ": " << d.count() << "s" << endl;
@@ -127,7 +127,7 @@ void try_loading_stuff()
 
       {
         auto start = chrono::steady_clock::now();
-        uint64_t t = 0; for (auto const &x : val(i4, 0)) t += static_cast<int64_t>(x);
+        uint64_t t = 0; for (auto const &x : u9(i4, 0)) t += static_cast<int64_t>(x);
         auto end   = chrono::steady_clock::now();
         chrono::duration<double> d = end - start;
         cout << upper << ": " << t << " == " << (upper * (upper - 1)) / 2 << ": " << d.count() << "s" << endl;
@@ -135,14 +135,14 @@ void try_loading_stuff()
 
       {
         auto start = chrono::steady_clock::now();
-        auto h     = val(i4, 0).h();
+        auto h     = u9(i4, 0).h();
         auto end   = chrono::steady_clock::now();
         chrono::duration<double> d = end - start;
         cout << upper << ": " << h << ": " << d.count() << "s" << endl;
       }
     }
   }
-  catch (utf9_error const &e)
+  catch (u9e const &e)
   {
     cout << "ERROR " << e << endl;
     _exit(1);
@@ -155,17 +155,17 @@ void try_orderings()
   try
   {
     auto v = tau::utf9::tuple();
-    for (int64_t i = 0; i < 100; ++i) v << val(i);
+    for (int64_t i = 0; i < 100; ++i) v << u9(i);
     for (int64_t i = -10; i < 110; ++i)
-      if (v.to<val::kf_te>(val(i), none).exists() != (i >= 0 && i < 100))
+      if (v.to<u9::kf_te>(u9(i), none).exists() != (i >= 0 && i < 100))
         cout << "ord find mismatch for " << i << endl;
 
-    auto vh = v.make_th<val::kf_te>();
+    auto vh = v.make_th<u9::kf_te>();
     for (int64_t i = -10; i < 110; ++i)
-      if (vh.th<val::kf_te>(val(i), none).exists() != (i >= 0 && i < 100))
+      if (vh.th<u9::kf_te>(u9(i), none).exists() != (i >= 0 && i < 100))
         cout << "hash find mismatch for " << i << endl;
   }
-  catch (utf9_error const &e)
+  catch (u9e const &e)
   {
     cout << "ERROR " << e << endl;
     _exit(1);
@@ -177,19 +177,19 @@ void try_printing_types()
 {
   try
   {
-    cout << tval(tu8) << endl;
-    cout << tval(ttuple({tu8, tu16})) << endl;
-    cout << tval(ttuple({tu8, tu16, tu32, tu64, ti8, ti16, ti32, ti64})) << endl;
-    cout << tval(ttuple({tu8, ttuple({tu16, tu32, tu64}), ti8, ti16, ti32, ti64})) << endl;
-    cout << tval(ttuple({tarray(100ul, ttuple({tu64, tu32})), tu64})) << endl;
+    cout << t9(tu8) << endl;
+    cout << t9(ttuple({tu8, tu16})) << endl;
+    cout << t9(ttuple({tu8, tu16, tu32, tu64, ti8, ti16, ti32, ti64})) << endl;
+    cout << t9(ttuple({tu8, ttuple({tu16, tu32, tu64}), ti8, ti16, ti32, ti64})) << endl;
+    cout << t9(ttuple({tarray(100ul, ttuple({tu64, tu32})), tu64})) << endl;
   }
-  catch (decoding_error const &e)
+  catch (u9de const &e)
   {
     cout << "ERROR " << e << endl;
-    cout << debug<ibuf const>{e.b} << endl;
+    cout << debug<i9 const>{e.b} << endl;
     _exit(1);
   }
-  catch (utf9_error const &e)
+  catch (u9e const &e)
   {
     cout << "ERROR " << e << endl;
     _exit(1);

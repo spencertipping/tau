@@ -10,7 +10,7 @@
 #include "../tau/module/begin.hh"
 
 using namespace std;
-using namespace tau::coro;
+using namespace tau;
 
 
 template <typename T>
@@ -26,7 +26,7 @@ struct stream
   inline bool tail_ready() const { return !omega && xs.size() > 0; }
   inline T&&  pop()
     {
-      while (!tail_ready()) yield();
+      while (!tail_ready()) tau::coro::yield();
       T&& x = std::move(xs[0]);
       xs.pop_front();
       return std::move(x);
@@ -34,7 +34,7 @@ struct stream
 
   inline stream<T> &operator<<(T &x)
     {
-      while (!head_ready()) yield();
+      while (!head_ready()) tau::coro::yield();
       xs.push_back(x);
       return *this;
     }
@@ -48,7 +48,7 @@ void try_streams()
   stream<int> s1(4);
   stream<int> s2(4);
 
-  coro<int> f1([&]() {
+  co<int> f1([&]() {
     cout << "f1 started" << endl;
     cout << &s1 << ", " << &s2 << endl;
     for (int i = 0;; ++i)
@@ -59,7 +59,7 @@ void try_streams()
     return 0;
   });
 
-  coro<int> f2([&]() {
+  co<int> f2([&]() {
     cout << "f2 started" << endl;
     cout << &s1 << ", " << &s2 << endl;
     for (int t = 0;;)
@@ -73,7 +73,7 @@ void try_streams()
     return 0;
   });
 
-  coro<int> f3([&]() {
+  co<int> f3([&]() {
     cout << "f3 started" << endl;
     for (int i = 0; i < 10; ++i) cout << s2.pop() << endl;
     s2.omega = true;
@@ -102,7 +102,7 @@ void bench()
   stream<int> s2(256);
 
 
-  coro<int> f1([&]() {
+  co<int> f1([&]() {
     for (int i = 0; i < 1000000; ++i) s1 << i;
     return 1000000;
   });
@@ -122,7 +122,7 @@ void bench()
   }
 
 
-  coro<int> f2([&]() {
+  co<int> f2([&]() {
     for (int i = 0; i < 1000000; ++i) s2 << i;
     return 1000000;
   });

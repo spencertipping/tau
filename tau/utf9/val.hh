@@ -283,18 +283,12 @@ struct val
       } }
 
 
-  operator float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->f32(i + 1)                       : vf; }
-  operator sym()    const { require_type(1ull << SYMBOL);  return has_ibuf() ? sym{b->u64(i + 1)}                  : vy; }
-  operator pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
-  operator greek()  const { require_type(1ull << GREEK);   return has_ibuf() ? greek{*b, i}                        : vg;  }
-  operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->u8(i) == 0x0d                    : !!vu; }
-
-  operator double() const
-    { require_type(1ull << FLOAT64);
-      return type() == FLOAT64
-        ? has_ibuf() ? b->f64(i + 1) : vd
-        : static_cast<double>(static_cast<uint64_t>(*this))
-        / static_cast<double>(std::numeric_limits<uint64_t>::max()); }
+  operator          sym()    const { require_type(1ull << SYMBOL);  return has_ibuf() ? sym{b->u64(i + 1)}                  : vy; }
+  operator          pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
+  operator          greek()  const { require_type(1ull << GREEK);   return has_ibuf() ? greek{*b, i}                        : vg;  }
+  explicit operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->u8(i) == 0x0d                    : !!vu; }
+  operator          float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->f32(i + 1)                       : vf; }
+  operator          double() const { require_type(1ull << FLOAT64); return has_ibuf() ? b->f64(i + 1) : vd; }
 
   operator uint64_t() const
     { if (type() == INT) throw voperation_error("i->u", *this);

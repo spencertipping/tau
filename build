@@ -26,12 +26,10 @@ case $cmd in
   t*) cd "$(dirname "$0")"
       t g++ "${t_gcc_opts[@]}" t/utf9-basics.cc -o t/utf9-basics
       t g++ "${t_gcc_opts[@]}" t/coro-basics.cc -o t/coro-basics -lboost_context
-      t g++ "${t_gcc_opts[@]}" t/pipe-basics.cc -o t/pipe-basics -lboost_context
       t g++ "${t_gcc_opts[@]}" t/scheduler-basics.cc -o t/scheduler-basics -lboost_context
 
       t dev/emsdk em++ "${t_em_opts[@]}" t/utf9-basics.cc -o t/utf9-basics.js
       t dev/emsdk em++ "${t_em_opts[@]}" t/coro-basics.cc -o t/coro-basics.js
-      t dev/emsdk em++ "${t_em_opts[@]}" t/pipe-basics.cc -o t/pipe-basics.js
       t dev/emsdk em++ "${t_em_opts[@]}" t/scheduler-basics.cc -o t/scheduler-basics.js
       ;;
 

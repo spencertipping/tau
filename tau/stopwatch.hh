@@ -8,10 +8,10 @@
 #include <iostream>
 #include <numeric>
 
-#include "../module/begin.hh"
+#include "module/begin.hh"
 
 
-namespace tau::fabric
+namespace tau
 {
 
 using namespace std::literals;
@@ -101,7 +101,7 @@ struct stopwatch
 };
 
 
-static std::ostream &operator<<(std::ostream &s, stopwatch::span t)
+std::ostream &operator<<(std::ostream &s, stopwatch::span const &t)
 {
   if      (t <= 100us) return s << t.count() << "ns";
   else if (t <= 100ms) return s << t / 1us   << "μs";
@@ -114,7 +114,7 @@ static std::ostream &operator<<(std::ostream &s, stopwatch::span t)
 
 
 template<class F, class O, size_t N>
-static std::ostream &operator<<(std::ostream &s, log_histogram<F, O, N> const &h)
+std::ostream &operator<<(std::ostream &s, log_histogram<F, O, N> const &h)
 {
   F      m  = h.n[0]; for (int i = 1; i < N; ++i) m = std::max(m, h.n[i]);
   size_t u  = N - 1;  while (u > 0 && !h.n[u]) --u;
@@ -130,7 +130,7 @@ static std::ostream &operator<<(std::ostream &s, log_histogram<F, O, N> const &h
 }
 
 
-static std::ostream &operator<<(std::ostream &s, stopwatch const &w)
+std::ostream &operator<<(std::ostream &s, stopwatch const &w)
 {
   return s << "sw[" << (w.is_running ? "R" : "s")
            << " n=" << w.n_splits
@@ -143,7 +143,7 @@ static std::ostream &operator<<(std::ostream &s, stopwatch const &w)
 
 }
 
-#include "../module/end.hh"
+#include "module/end.hh"
 
 
 #endif

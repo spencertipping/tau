@@ -20,4 +20,50 @@
 #include "utf9/ostream.hh"
 
 
+#include "module/begin.hh"
+
+namespace tau
+{
+
+
+typedef tau::utf9::utf9_error       u9e;
+typedef tau::utf9::decoding_error   u9de;
+typedef tau::utf9::encoding_error   u9ee;
+typedef tau::utf9::internal_error   u9ie;
+typedef tau::utf9::toperation_error u9te;
+typedef tau::utf9::voperation_error u9ve;
+
+
+typedef tau::utf9::val  u9;
+typedef tau::utf9::tval t9;
+typedef tau::utf9::ibuf i9;
+typedef tau::utf9::obuf o9;
+
+
+using tau::utf9::tu8;
+using tau::utf9::tu16;
+using tau::utf9::tu32;
+using tau::utf9::tu64;
+
+using tau::utf9::ti8;
+using tau::utf9::ti16;
+using tau::utf9::ti32;
+using tau::utf9::ti64;
+
+using tau::utf9::ttuple;
+using tau::utf9::tarray;
+using tau::utf9::tutf8;
+using tau::utf9::tbytes;
+
+using tau::utf9::none;
+
+
+using tau::utf9::operator<<;
+
+
+}
+
+#include "module/end.hh"
+
+
 #endif

@@ -14,18 +14,19 @@
 #include "../utf9.hh"
 #include "../coro.hh"
 
-#include "pipe.hh"
-#include "stopwatch.hh"
-#include "scheduler-types.hh"
+#include "../pipe.hh"
+#include "../stopwatch.hh"
+
+#include "types.hh"
 
 
 #include "../module/begin.hh"
 
-
-namespace tau::fabric
+namespace tau::scheduler
 {
 
 using namespace std::literals;
+using tau::operator<<;
 
 namespace tc = tau::coro;
 
@@ -264,7 +265,6 @@ std::ostream &operator<<(std::ostream &s, scheduler const &x)
 
 
 }
-
 
 #include "../module/end.hh"
 

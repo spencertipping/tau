@@ -11,16 +11,13 @@
 
 using namespace std;
 using namespace std::literals;
-using namespace tau::fabric;
-using namespace tau::utf9;
 
-namespace tf = tau::fabric;
-namespace t9 = tau::utf9;
+using namespace tau;
 
 
 int main()
 {
-  tf::scheduler s;
+  sc s;
 
   let p1 = s.create_pipe(8);
   let p2 = s.create_pipe(12);
@@ -29,7 +26,7 @@ int main()
 
   let t1 = s.create_task([&]() {
     for (int64_t i = 0;; ++i)
-      if (!s.write(p1, t9::val(i))) { cout << "s1 rejected " << i << endl; break; }
+      if (!s.write(p1, u9(i))) { cout << "s1 rejected " << i << endl; break; }
     s.close(p1);
     cout << "t1 returning" << endl;
     return 0;
@@ -40,7 +37,7 @@ int main()
     while (s.has_next(p1))
     {
       t += static_cast<int64_t>(s.next(p1));
-      if (!s.write(p2, t9::val(t))) { cout << "s2 rejected " << t << endl; break; }
+      if (!s.write(p2, u9(t))) { cout << "s2 rejected " << t << endl; break; }
       s.sleep(1ms);
     }
     s.close(p1);

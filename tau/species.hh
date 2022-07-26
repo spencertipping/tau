@@ -6,8 +6,7 @@
 
 #include "module/begin.hh"
 
-
-namespace tau::species
+namespace tau
 {
 
 
@@ -18,7 +17,6 @@ struct species
 
 
 }
-
 
 #include "module/end.hh"
 

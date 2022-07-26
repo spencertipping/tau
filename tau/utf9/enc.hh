@@ -14,9 +14,6 @@ namespace tau::utf9
 {
 
 
-namespace  // bytecode encoding
-{
-
 // Tuple-emitting buffer
 struct tenc : public oenc
 {
@@ -123,8 +120,6 @@ oenc &operator<<(oenc &o, val const &v)
   case BOGUS:
   default: throw voperation_error("enc<<v ns type", v);
   }
-}
-
 }
 
 

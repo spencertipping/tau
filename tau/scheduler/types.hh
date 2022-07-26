@@ -9,19 +9,17 @@
 #include "../utf9.hh"
 #include "../coro.hh"
 
-#include "pipe.hh"
+#include "../pipe.hh"
 
 
 #include "../module/begin.hh"
 
 
-namespace tau::fabric
+namespace tau::scheduler
 {
 
 using namespace std::literals;
-
-namespace t9 = tau::utf9;
-namespace tc = tau::coro;
+using tau::operator<<;
 
 
 struct scheduler;
@@ -34,11 +32,11 @@ typedef uint64_t pipe_id;
 
 // FIXME: task results should be something more interesting, probably
 typedef int                          task_result;
-typedef tc::coro<task_result>        task_coro;
+typedef co<task_result>              task_coro;
 typedef std::function<task_result()> task_fn;
 
-typedef t9::val                      pipe_val;
-typedef pipe<t9::val>                scheduled_pipe;
+typedef u9                           pipe_val;
+typedef pipe<pipe_val>               scheduled_pipe;
 
 
 enum task_state
@@ -83,7 +81,7 @@ struct deadline_schedule
 };
 
 
-std::ostream &operator<<(std::ostream &s, task_state t)
+std::ostream &operator<<(std::ostream &s, task_state const &t)
 {
   switch (t)
   {
