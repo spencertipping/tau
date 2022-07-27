@@ -24,7 +24,7 @@ shift
 
 case $cmd in
   t*) cd "$(dirname "$0")"
-      t g++            "${t_gcc_opts[@]}" t/test.cc -o t/test -lboost_context
+      t g++            "${t_gcc_opts[@]}" -g t/test.cc -o t/test -lboost_context
       t dev/emsdk em++ "${t_em_opts[@]}"  t/test.cc -o t/test.js
       ;;
 
