@@ -436,48 +436,23 @@ struct val
 
   // All functions below use hinting: hi or hk to indicate the thing that was
   // hinted, and h to indicate the byte offset (beyond mbegin()) to start
-  // looking (for arrays, hi to indicate the element offset). In every case,
-  // hi < i and hk < k (or for hashed, H[hk] < H[k]); decoding is forward-only,
-  // so hints can't overshoot.
+  // looking. In every case, h <= offset and hk <= k (or for hashed, H[hk] <
+  // H[k]); decoding is forward-only, so hints can't overshoot.
   val tp(uint64_t i, uint64_t hi = 0, uint64_t h = 0) const;
 
 
   struct kf_te { val const &operator()(val const &e)  { return e; } };
   struct kf_tk { val const  operator()(val const &kv) { return kv[0]; } };
 
-  struct kf_ae
-  { ibuf const &b;
-    tval const  t;
-    uint64_t    s;
-    uint64_t    o;
-    kf_ae(val const &a) : b(*a.b), t(a.atype()), s(a.astride()), o(a.ibegin()) {}
-    val operator()(uint64_t i) const { return val(t, b, o + s*i); } };
-
-  struct kf_ak
-  { ibuf const &b;
-    tval const  t;
-    uint64_t    s;
-    uint64_t    o;
-    kf_ak(val const &a) : b(*a.b), t(a.atype()[0]), s(a.astride()), o(a.ibegin()) {}
-    val operator()(uint64_t i) const { return val(t, b, o + s*i); } };
-
   template <class KF> val io(val const &k) const;
   template <class KF> val ih(val const &k) const;
-
-  template <class KF> val to(val const &k, val const &hk, uint64_t h  = 0) const;
-  template <class KF> val th(val const &k, val const &hk, uint64_t h  = 0) const;
-  template <class KF> val ao(val const &k, val const &hk, uint64_t hi = 0) const;
-  template <class KF> val ah(val const &k, val const &hk, uint64_t hi = 0) const;
+  template <class KF> val to(val const &k, val const &hk, uint64_t h = 0) const;
+  template <class KF> val th(val const &k, val const &hk, uint64_t h = 0) const;
 
   template <class KF> bool is_to() const;
   template <class KF> bool is_th() const;
-  template <class KF> bool is_ao() const;
-  template <class KF> bool is_ah() const;
-
-  template <class KF> val make_to() const;
-  template <class KF> val make_th() const;
-  template <class KF> val make_ao() const;  // TODO: how should this work?
-  template <class KF> val make_ah() const;  // we can't store arrays natively
+  template <class KF> val  make_to() const;
+  template <class KF> val  make_th() const;
 };
 
 

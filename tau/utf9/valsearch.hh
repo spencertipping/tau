@@ -125,9 +125,6 @@ val s_th(val      const &b,
 }
 
 
-// TODO: s_ao and s_ah
-
-
 inline val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
 {
   if (!has_ibuf()) return (*vt)[i];
@@ -171,36 +168,6 @@ template <class KF> bool val::is_th() const
   return true;
 }
 
-template <class KF> bool val::is_ao() const
-{
-  KF kf(*this);
-  let n = len();
-  if (!n) return true;
-  val last = none;
-  for (uint64_t i = 1; i < n; ++i)
-  {
-    let k = kf(i);
-    if (last.exists() && k < last) return false;
-    last = k;
-  }
-  return true;
-}
-
-template <class KF> bool val::is_ah() const
-{
-  KF kf(*this);
-  let n = len();
-  if (!n) return true;
-  hash lh = 0;
-  for (uint64_t i = 1; i < n; ++i)
-  {
-    let h = kf(i).h();
-    if (h < lh) return false;
-    lh = h;
-  }
-  return true;
-}
-
 
 template <class KF> val val::make_to() const
 {
@@ -235,9 +202,6 @@ template <class KF> val val::make_th() const
 
   return val(vs);
 }
-
-
-// TODO: make_ao and make_ah
 
 
 }

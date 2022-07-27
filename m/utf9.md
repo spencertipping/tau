@@ -146,8 +146,8 @@ When `array` is used as an array element, its `l` should be the length of each p
 Maps and sets are indexed structures in that finding an element requires less than _O(n)_ time. UTF9 implements three types of indexes:
 
 + `pos`: element position → byte offset
-+ `elt`: element {ord | hash} → {byte offset | position}
-+ `key`: element first member {ord | hash} → {byte offset | position}
++ `elt`: element {ord | hash} → byte offset
++ `key`: element first member {ord | hash} → byte offset
 
 **NOTE:** most `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
 
@@ -159,6 +159,8 @@ Because indexes imply a container type, we have two markers, `map` and `set`, th
 
 
 #### Index bytecodes
+**TODO:** re-compact these since we've deleted val keying
+
 | Byte   | Following bytes    | Description                 |
 |--------|--------------------|-----------------------------|
 | `0x50` | `l32 bits vs...`   | position index              |
@@ -173,10 +175,6 @@ Because indexes imply a container type, we have two markers, `map` and `set`, th
 | `0x59` | `l16 n16 kt ps...` | hashkey value-ordered index |
 | `0x5a` | `l16 n16 kt ps...` | ordkey value-random index   |
 | `0x5b` | `l16 n16 kt ps...` | ordkey value-ordered index  |
-| `0x5c` | `l16 n16 kt ps...` | hashval value-random index  |
-| `0x5d` | `l16 n16 kt ps...` | hashval value-ordered index |
-| `0x5e` | `l16 n16 kt ps...` | ordval value-random index   |
-| `0x5f` | `l16 n16 kt ps...` | ordval value-ordered index  |
 | `0x64` | `l32 n32 kt ps...` | hashset value-random index  |
 | `0x65` | `l32 n32 kt ps...` | hashset value-ordered index |
 | `0x66` | `l32 n32 kt ps...` | ordset value-random index   |
@@ -185,10 +183,6 @@ Because indexes imply a container type, we have two markers, `map` and `set`, th
 | `0x69` | `l32 n32 kt ps...` | hashkey value-ordered index |
 | `0x6a` | `l32 n32 kt ps...` | ordkey value-random index   |
 | `0x6b` | `l32 n32 kt ps...` | ordkey value-ordered index  |
-| `0x6c` | `l32 n32 kt ps...` | hashval value-random index  |
-| `0x6d` | `l32 n32 kt ps...` | hashval value-ordered index |
-| `0x6e` | `l32 n32 kt ps...` | ordval value-random index   |
-| `0x6f` | `l32 n32 kt ps...` | ordval value-ordered index  |
 | `0x74` | `l64 n64 kt ps...` | hashset value-random index  |
 | `0x75` | `l64 n64 kt ps...` | hashset value-ordered index |
 | `0x76` | `l64 n64 kt ps...` | ordset value-random index   |
@@ -197,16 +191,10 @@ Because indexes imply a container type, we have two markers, `map` and `set`, th
 | `0x79` | `l64 n64 kt ps...` | hashkey value-ordered index |
 | `0x7a` | `l64 n64 kt ps...` | ordkey value-random index   |
 | `0x7b` | `l64 n64 kt ps...` | ordkey value-ordered index  |
-| `0x7c` | `l64 n64 kt ps...` | hashval value-random index  |
-| `0x7d` | `l64 n64 kt ps...` | hashval value-ordered index |
-| `0x7e` | `l64 n64 kt ps...` | ordval value-random index   |
-| `0x7f` | `l64 n64 kt ps...` | ordval value-ordered index  |
 
 **NOTE:** the size of the index target subscripts is the same as the size of the length -- that is, `l16` uses 16-bit unsigned ints to index into the data structure.
 
 **NOTE:** `l16`, `l32`, and `l64` encode `len(kt) + len(ps...)` -- that is, the key type is included. This avoids typecode parsing overhead when we want to skip over the index.
-
-Each element offset is encoded in the same number of bits as the index length, so for `0x5N` indexes the element offset is `uint16`; for `0x7N` it would be `uint64`.
 
 Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They can be downsampled by a number of bits, encoded as an `int8`; for example, if `bits = 2`, then the byte-offset table encodes the positions of `[0]`, `[4]`, `[8]`, `[12]`, etc. This trades space for time.
 
