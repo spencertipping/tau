@@ -10,12 +10,7 @@
 
 #include "../module/begin.hh"
 
-
 namespace tau::utf9
-{
-
-
-namespace  // container search helper functions
 {
 
 
@@ -133,9 +128,6 @@ val s_th(val      const &b,
 // TODO: s_ao and s_ah
 
 
-}
-
-
 inline val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
 {
   if (!has_ibuf()) return (*vt)[i];
@@ -149,6 +141,66 @@ inline val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
 
 template <class KF> inline val val::to(val const &k, val const &hk, uint64_t const h) const { return s_to<KF>(*this, k, hk, h); }
 template <class KF> inline val val::th(val const &k, val const &hk, uint64_t const h) const { return s_th<KF>(*this, k, hk, h); }
+
+
+template <class KF> bool val::is_to() const
+{
+  KF kf;
+  if (!len()) return true;
+  val last = none;
+  for (let &v : *this)
+  {
+    let k = kf(v);
+    if (last.exists() && k < last) return false;
+    last = k;
+  }
+  return true;
+}
+
+template <class KF> bool val::is_th() const
+{
+  KF kf;
+  if (!len()) return true;
+  hash lh = 0;
+  for (let &v : *this)
+  {
+    let h = kf(v).h();
+    if (h < lh) return false;
+    lh = h;
+  }
+  return true;
+}
+
+template <class KF> bool val::is_ao() const
+{
+  KF kf(*this);
+  let n = len();
+  if (!n) return true;
+  val last = none;
+  for (uint64_t i = 1; i < n; ++i)
+  {
+    let k = kf(i);
+    if (last.exists() && k < last) return false;
+    last = k;
+  }
+  return true;
+}
+
+template <class KF> bool val::is_ah() const
+{
+  KF kf(*this);
+  let n = len();
+  if (!n) return true;
+  hash lh = 0;
+  for (uint64_t i = 1; i < n; ++i)
+  {
+    let h = kf(i).h();
+    if (h < lh) return false;
+    lh = h;
+  }
+  return true;
+}
+
 
 template <class KF> val val::make_to() const
 {
@@ -190,7 +242,7 @@ template <class KF> val val::make_th() const
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif

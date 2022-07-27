@@ -143,29 +143,27 @@ When `array` is used as an array element, its `l` should be the length of each p
 
 
 ### Container indexes
-Indexes provide precise seek offsets for some or all elements in a collection, indexed by some function (often `x` for sets or `x[0]` for maps). The index covers every element if the collection is not already sorted along the index axis.
+Maps and sets are indexed structures in that finding an element requires less than _O(n)_ time. UTF9 implements three types of indexes:
 
-All `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
++ `pos`: element position → byte offset
++ `elt`: element {ord | hash} → {byte offset | position}
++ `key`: element first member {ord | hash} → {byte offset | position}
 
-**NOTE:** container indexes are intended for memory-resident structures, and are not optimized for disk-resident or framed data.
+**NOTE:** most `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
 
+_In every case, the collection elements are sorted by the indexing axis._ This is important because it allows us to define partial indexes; that is, indexes that don't cover every element. This makes every index an interpolation basis.
 
-#### Index configurations
-+ **key:** `pos` vs `set` vs `mapkey` vs `mapval`
-+ **key order:** `hash-order` vs `compare-order`
-+ **value order:** `ordered` vs `random`
+Small collections don't require indexes, so indexed collection lengths begin at 16 bits.
 
-Because multiple indexes can be prepended to the same container, it's possible to have a map+set+inverse map, all in one.
-
-Value orderings impact the index in an important way: _a random index must include every element in the collection._ Value-ordered indexes need not include every element, since it's possible to interpolation-search and scan forwards.
+Because indexes imply a container type, we have two markers, `map` and `set`, that provide no index data but still indicate that the collection ahead is meant to be interpreted as a map or set, respectively. These are used for very small containers, e.g. small JSON maps, that wouldn't benefit from accelerated lookups but whose type information is still important.
 
 
 #### Index bytecodes
 | Byte   | Following bytes    | Description                 |
 |--------|--------------------|-----------------------------|
-| `0x50` | `l16 bits vs...`   | position index              |
-| `0x51` | `l32 bits vs...`   | position index              |
-| `0x52` | `l64 bits vs...`   | position index              |
+| `0x50` | `l32 bits vs...`   | position index              |
+| `0x51` | `l64 bits vs...`   | position index              |
+| `0x52` | 0                  | set type-hint               |
 | `0x53` | 0                  | map type-hint               |
 | `0x54` | `l16 n16 kt ps...` | hashset value-random index  |
 | `0x55` | `l16 n16 kt ps...` | hashset value-ordered index |

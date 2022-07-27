@@ -166,6 +166,7 @@ struct val
         } }
 
 
+  // NOTE: &~2 is valid regardless of ibuf pointer status due to alignment
   val &operator=(val &&x)      { tag = x.tag;      i = x.i; x.tag &= ~2; return *this; }
   val &operator=(val const &x) { tag = x.tag & ~2; i = x.i;              return *this; }
 
@@ -443,7 +444,6 @@ struct val
 
   struct kf_te { val const &operator()(val const &e)  { return e; } };
   struct kf_tk { val const  operator()(val const &kv) { return kv[0]; } };
-  struct kf_tv { val const  operator()(val const &kv) { return kv[1]; } };
 
   struct kf_ae
   { ibuf const &b;
@@ -451,7 +451,7 @@ struct val
     uint64_t    s;
     uint64_t    o;
     kf_ae(val const &a) : b(*a.b), t(a.atype()), s(a.astride()), o(a.ibegin()) {}
-    val const operator()(uint64_t i) const { return val(t, b, o + s*i); } };
+    val operator()(uint64_t i) const { return val(t, b, o + s*i); } };
 
   struct kf_ak
   { ibuf const &b;
@@ -459,15 +459,7 @@ struct val
     uint64_t    s;
     uint64_t    o;
     kf_ak(val const &a) : b(*a.b), t(a.atype()[0]), s(a.astride()), o(a.ibegin()) {}
-    val const operator()(uint64_t i) const { return val(t, b, o + s*i); } };
-
-  struct kf_av
-  { ibuf const &b;
-    tval const  t;
-    uint64_t    s;
-    uint64_t    o;
-    kf_av(val const &a) : b(*a.b), t(a.atype()[1]), s(a.astride()), o(a.ibegin() + a.atype().offset_of(1)) {}
-    val const operator()(uint64_t i) const { return val(t, b, o + s*i); } };
+    val operator()(uint64_t i) const { return val(t, b, o + s*i); } };
 
   template <class KF> val io(val const &k) const;
   template <class KF> val ih(val const &k) const;
@@ -477,10 +469,15 @@ struct val
   template <class KF> val ao(val const &k, val const &hk, uint64_t hi = 0) const;
   template <class KF> val ah(val const &k, val const &hk, uint64_t hi = 0) const;
 
+  template <class KF> bool is_to() const;
+  template <class KF> bool is_th() const;
+  template <class KF> bool is_ao() const;
+  template <class KF> bool is_ah() const;
+
   template <class KF> val make_to() const;
   template <class KF> val make_th() const;
-  template <class KF> val make_ao() const;
-  template <class KF> val make_ah() const;
+  template <class KF> val make_ao() const;  // TODO: how should this work?
+  template <class KF> val make_ah() const;  // we can't store arrays natively
 };
 
 

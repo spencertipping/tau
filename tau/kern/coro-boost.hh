@@ -9,7 +9,6 @@
 
 #include "../module/begin.hh"
 
-
 namespace tau::kern::coro
 {
 
@@ -105,7 +104,7 @@ static void coro_init_()
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif

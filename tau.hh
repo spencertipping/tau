@@ -3,7 +3,6 @@
 
 
 #include "tau/utf9.hh"
-#include "tau/species.hh"
 #include "tau/stopwatch.hh"
 
 #include "tau/kern/coro.hh"
