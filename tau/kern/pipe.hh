@@ -13,7 +13,7 @@
 
 #include "coro.hh"
 
-#include "stopwatch.hh"
+#include "../stopwatch.hh"
 
 
 #include "../module/begin.hh"
@@ -89,6 +89,7 @@ struct pipe
 template<class T>
 std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
 {
+  using tau::operator<<;
   return s << "pipe["
            << (p.readable() ? "R" : "r")
            << (p.writable() ? "W" : p.closed() ? "#" : "w")

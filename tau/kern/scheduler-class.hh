@@ -15,7 +15,7 @@
 
 #include "coro.hh"
 #include "pipe.hh"
-#include "stopwatch.hh"
+#include "../stopwatch.hh"
 
 #include "scheduler-types.hh"
 
@@ -26,6 +26,8 @@ namespace tau::kern::scheduler
 {
 
 using namespace std::literals;
+
+using tau::operator<<;
 using tau::kern::operator<<;
 
 namespace tc = tau::kern::coro;

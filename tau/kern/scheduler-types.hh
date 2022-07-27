@@ -18,7 +18,7 @@ namespace tau::kern::scheduler
 {
 
 using namespace std::literals;
-using tau::kern::operator<<;
+using tau::operator<<;
 
 
 struct scheduler;

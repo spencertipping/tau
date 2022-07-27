@@ -9,12 +9,12 @@
 #include <numeric>
 
 
-#include "log-histogram.hh"
+#include "kern/log-histogram.hh"
 
 
-#include "../module/begin.hh"
+#include "module/begin.hh"
 
-namespace tau::kern
+namespace tau
 {
 
 using namespace std::literals;
@@ -25,7 +25,7 @@ struct stopwatch
   typedef std::chrono::steady_clock                              clk;
   typedef std::chrono::time_point<clk, std::chrono::nanoseconds> tp;
   typedef std::chrono::nanoseconds                               span;
-  typedef log_histogram<uint64_t, uint64_t, 64>                  lh;
+  typedef kern::log_histogram<uint64_t, uint64_t, 64>            lh;
 
   bool     is_running    {false};
   tp       last_start    {0ns};
@@ -94,7 +94,7 @@ std::ostream &operator<<(std::ostream &s, stopwatch const &w)
 
 }
 
-#include "../module/end.hh"
+#include "module/end.hh"
 
 
 #endif
