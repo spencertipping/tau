@@ -20,7 +20,7 @@ using namespace tau;
 
 int main()
 {
-  tau::kern::sc s;
+  tau::kern::scheduler s;
 
   let p1 = s.create_pipe(8);
   let p2 = s.create_pipe(12);

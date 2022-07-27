@@ -7,10 +7,9 @@
 #include "tau/stopwatch.hh"
 
 #include "tau/kern/coro.hh"
-#include "tau/kern/cell.hh"
-#include "tau/kern/leaf.hh"
 #include "tau/kern/log-histogram.hh"
-#include "tau/kern/scheduler.hh"
+#include "tau/kern/scheduler-types.hh"
+#include "tau/kern/scheduler-class.hh"
 
 
 #endif

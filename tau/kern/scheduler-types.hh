@@ -14,7 +14,7 @@
 
 #include "../module/begin.hh"
 
-namespace tau::kern::scheduler
+namespace tau::kern
 {
 
 using namespace std::literals;

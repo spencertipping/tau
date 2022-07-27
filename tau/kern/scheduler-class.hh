@@ -22,13 +22,12 @@
 
 #include "../module/begin.hh"
 
-namespace tau::kern::scheduler
+namespace tau::kern
 {
 
 using namespace std::literals;
 
 using tau::operator<<;
-using tau::kern::operator<<;
 
 namespace tc = tau::kern::coro;
 
