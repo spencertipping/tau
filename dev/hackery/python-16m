@@ -1,23 +1,32 @@
 #!/usr/bin/env python3
 from time import time
+
+
 xs = []
 start = time()
 for i in range(1 << 24):
   xs.append(i)
 end = time()
-
 print(f"prepare list = {end - start}s")
+
 
 start = time()
 t = 0
 for x in xs:
   t += x
 end = time()
-
 print(f"total = {t}, duration = {end - start}s")
+
+
+ys = tuple(xs)
+start = time()
+h = hash(ys)
+end = time()
+print(f"compute hash = {h}, duration = {end - start}s")
+del ys
+
 
 start = time()
 del xs
 end = time()
-
 print(f"delete list = {end - start}s")

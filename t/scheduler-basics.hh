@@ -6,12 +6,11 @@
 
 #include "../tau.hh"
 
-#include "../tau/module/begin.hh"
 
+#include "../tau/module/begin.hh"
 
 namespace t::scheduler_basics
 {
-
 
 using namespace std;
 using namespace std::literals;
@@ -21,7 +20,7 @@ using namespace tau;
 
 int main()
 {
-  sc s;
+  tau::kern::sc s;
 
   let p1 = s.create_pipe(8);
   let p2 = s.create_pipe(12);

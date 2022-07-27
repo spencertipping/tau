@@ -1,5 +1,5 @@
-#ifndef tau_fabric_pipe_h
-#define tau_fabric_pipe_h
+#ifndef tau_kern_pipe_h
+#define tau_kern_pipe_h
 
 
 #include <cassert>
@@ -16,10 +16,9 @@
 #include "stopwatch.hh"
 
 
-#include "module/begin.hh"
+#include "../module/begin.hh"
 
-
-namespace tau
+namespace tau::kern
 {
 
 
@@ -104,7 +103,7 @@ std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
 
 }
 
+#include "../module/end.hh"
 
-#include "module/end.hh"
 
 #endif

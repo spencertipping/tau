@@ -12,23 +12,23 @@
 
 
 #include "../utf9.hh"
-#include "../coro.hh"
 
-#include "../pipe.hh"
-#include "../stopwatch.hh"
+#include "coro.hh"
+#include "pipe.hh"
+#include "stopwatch.hh"
 
-#include "types.hh"
+#include "scheduler-types.hh"
 
 
 #include "../module/begin.hh"
 
-namespace tau::scheduler
+namespace tau::kern::scheduler
 {
 
 using namespace std::literals;
-using tau::operator<<;
+using tau::kern::operator<<;
 
-namespace tc = tau::coro;
+namespace tc = tau::kern::coro;
 
 
 void thread_sleep_until(stopwatch::tp t) { std::this_thread::sleep_until(t); }

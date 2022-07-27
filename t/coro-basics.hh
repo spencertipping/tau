@@ -14,6 +14,10 @@ namespace t::coro_basics
 
 using namespace std;
 using namespace tau;
+using namespace tau::kern;
+
+template<class T>
+using co = tau::kern::coro::coro<T>;
 
 
 template <typename T>
@@ -29,7 +33,7 @@ struct stream
   inline bool tail_ready() const { return !omega && xs.size() > 0; }
   inline T&&  pop()
     {
-      while (!tail_ready()) tau::coro::yield();
+      while (!tail_ready()) tau::kern::coro::yield();
       T&& x = std::move(xs[0]);
       xs.pop_front();
       return std::move(x);
@@ -37,7 +41,7 @@ struct stream
 
   inline stream<T> &operator<<(T &x)
     {
-      while (!head_ready()) tau::coro::yield();
+      while (!head_ready()) tau::kern::coro::yield();
       xs.push_back(x);
       return *this;
     }
@@ -111,16 +115,15 @@ void bench()
   });
 
   {
-    auto start = chrono::steady_clock::now();
+    let start = stopwatch::now();
     uint64_t t = 0;
     while (!f1.done())
     {
       while (!f1.done() && s1.head_ready()) f1();
       while (s1.tail_ready()) t += s1.pop();
     }
-    auto end   = chrono::steady_clock::now();
-    chrono::duration<double> d = end - start;
-    cout << "1M via stream(4), yielding " << t << ": " << d.count() << "s" << endl;
+    let end = stopwatch::now();
+    cout << "1M via stream(4), yielding " << t << ": " << end - start << endl;
     cout << "f1 returned " << f1.result() << endl;
   }
 
@@ -131,16 +134,15 @@ void bench()
   });
 
   {
-    auto start = chrono::steady_clock::now();
+    let start = stopwatch::now();
     uint64_t t = 0;
     while (!f2.done())
     {
       while (!f2.done() && s2.head_ready()) f2();
       while (s2.tail_ready()) t += s2.pop();
     }
-    auto end   = chrono::steady_clock::now();
-    chrono::duration<double> d = end - start;
-    cout << "1M via stream(256), yielding " << t << ": " << d.count() << "s" << endl;
+    let end = stopwatch::now();
+    cout << "1M via stream(256), yielding " << t << ": " << end - start << endl;
     cout << "f2 returned " << f2.result() << endl;
   }
 }

@@ -8,15 +8,19 @@
 
 #include "../tau.hh"
 
-#include "../tau/module/begin.hh"
 
+#include "../tau/module/begin.hh"
 
 namespace t::utf9_basics
 {
 
-
 using namespace std;
 using namespace tau;
+
+// TODO: why is this required?
+// NOTE: using tau::kern; doesn't work; we have to explicitly include the
+// operator itself
+using tau::operator<<;
 
 
 template <class T> struct debug { T &b; };
@@ -55,10 +59,10 @@ void try_loading_stuff()
     };
 
     i9 b(buf, sizeof(buf));
-    u9  x(b,   0);
-    u9  y(b,   6);
-    u9  z(b,   12);
-    u9  a(b,   12 + b.len(12));
+    u9 x(b,   0);
+    u9 y(b,   6);
+    u9 z(b,   12);
+    u9 a(b,   12 + b.len(12));
 
     cout << x << " :: " << x.type() << " = " << x.h() << endl;
     cout << y << " :: " << y.type() << " = " << y.h() << endl;
@@ -85,11 +89,10 @@ void try_loading_stuff()
       for (int64_t i = 0; i < upper; ++i) v4 << u9(i);
 
       {
-        auto start = chrono::steady_clock::now();
+        let start = stopwatch::now();
         o4 << v4;
-        auto end   = chrono::steady_clock::now();
-        chrono::duration<double> d = end - start;
-        cout << upper << " write output: " << d.count() << "s" << endl;
+        let end = stopwatch::now();
+        cout << upper << " write output: " << end - start << endl;
       }
 
       cout << "buffer size: " << o4.size() << endl;
@@ -103,46 +106,41 @@ void try_loading_stuff()
       cout << u9(i4, 0).bsize() << " == " << i4.l << endl;
 
       {
-        auto start = chrono::steady_clock::now();
-        auto c     = u9(i4, 0).compare(v4);
-        auto end   = chrono::steady_clock::now();
-        chrono::duration<double> d = end - start;
-        cout << upper << ": " << c << ": " << d.count() << "s" << endl;
+        let start = stopwatch::now();
+        let c     = u9(i4, 0).compare(v4);
+        let end   = stopwatch::now();
+        cout << upper << ": " << c << ": " << end - start << endl;
       }
 
       {
         std::vector<int64_t> xs;
         xs.reserve(upper);
         for (int64_t i = 0; i < upper; ++i) xs.push_back(i);
-        auto start = chrono::steady_clock::now();
+        let start = stopwatch::now();
         uint64_t t = 0; for (auto const &x : xs) t += x;
-        auto end   = chrono::steady_clock::now();
-        chrono::duration<double> d = end - start;
-        cout << "native sum: " << t << ": " << d.count() << "s" << endl;
+        let end   = stopwatch::now();
+        cout << "native sum: " << t << ": " << end - start << endl;
       }
 
       {
-        auto start = chrono::steady_clock::now();
+        let start = stopwatch::now();
         uint64_t t = 0; for (auto const &x : v4) t += static_cast<int64_t>(x);
-        auto end   = chrono::steady_clock::now();
-        chrono::duration<double> d = end - start;
-        cout << "isum: " << t << ": " << d.count() << "s" << endl;
+        let end   = stopwatch::now();
+        cout << "isum: " << t << ": " << end - start << endl;
       }
 
       {
-        auto start = chrono::steady_clock::now();
+        let start = stopwatch::now();
         uint64_t t = 0; for (auto const &x : u9(i4, 0)) t += static_cast<int64_t>(x);
-        auto end   = chrono::steady_clock::now();
-        chrono::duration<double> d = end - start;
-        cout << upper << ": " << t << " == " << (upper * (upper - 1)) / 2 << ": " << d.count() << "s" << endl;
+        let end   = stopwatch::now();
+        cout << upper << ": " << t << " == " << (upper * (upper - 1)) / 2 << ": " << end - start << endl;
       }
 
       {
-        auto start = chrono::steady_clock::now();
-        auto h     = u9(i4, 0).h();
-        auto end   = chrono::steady_clock::now();
-        chrono::duration<double> d = end - start;
-        cout << upper << ": " << h << ": " << d.count() << "s" << endl;
+        let start = stopwatch::now();
+        let h     = u9(i4, 0).h();
+        let end   = stopwatch::now();
+        cout << upper << ": " << h << ": " << end - start << endl;
       }
     }
   }
@@ -214,6 +212,5 @@ int main()
 
 
 }
-
 
 #include "../tau/module/end.hh"

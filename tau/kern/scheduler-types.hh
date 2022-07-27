@@ -7,19 +7,18 @@
 
 
 #include "../utf9.hh"
-#include "../coro.hh"
 
-#include "../pipe.hh"
+#include "coro.hh"
+#include "pipe.hh"
 
 
 #include "../module/begin.hh"
 
-
-namespace tau::scheduler
+namespace tau::kern::scheduler
 {
 
 using namespace std::literals;
-using tau::operator<<;
+using tau::kern::operator<<;
 
 
 struct scheduler;
@@ -32,7 +31,7 @@ typedef uint64_t pipe_id;
 
 // FIXME: task results should be something more interesting, probably
 typedef int                          task_result;
-typedef co<task_result>              task_coro;
+typedef coro::coro<task_result>      task_coro;
 typedef std::function<task_result()> task_fn;
 
 typedef u9                           pipe_val;
@@ -104,7 +103,6 @@ std::ostream &operator<<(std::ostream &s, scheduled_task const &t)
 
 
 }
-
 
 #include "../module/end.hh"
 

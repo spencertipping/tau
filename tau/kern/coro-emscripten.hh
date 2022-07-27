@@ -1,5 +1,5 @@
-#ifndef tau_coro_emscripten_h
-#define tau_coro_emscripten_h
+#ifndef tau_kern_coro_emscripten_h
+#define tau_kern_coro_emscripten_h
 
 
 #include <cassert>
@@ -7,13 +7,12 @@
 #include <functional>
 #include <memory>
 
-#include "class.hh"
+#include "coro-class.hh"
 
 
 #include "../module/begin.hh"
 
-
-namespace tau::coro
+namespace tau::kern::coro
 {
 
 
@@ -128,7 +127,7 @@ static void coro_init_()
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif

@@ -5,17 +5,18 @@
 #include <functional>
 
 
-#include "utf9.hh"
+#include "../utf9.hh"
+#include "../species.hh"
+
 #include "coro.hh"
-#include "species.hh"
 
 #include "scheduler.hh"
 
 
-#include "module/begin.hh"
+#include "../module/begin.hh"
 
 
-namespace tau
+namespace tau::kern
 {
 
 
@@ -36,14 +37,14 @@ struct cell
 }
 
 
-template<> struct std::hash<tau::cell>
+template<> struct std::hash<tau::kern::cell>
 {
   static std::hash<void const*> h;
-  uint64_t operator()(tau::cell const &c) const
+  uint64_t operator()(tau::kern::cell const &c) const
     { return h(&c); }
 };
 
 
-#include "module/end.hh"
+#include "../module/end.hh"
 
 #endif

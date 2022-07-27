@@ -1,16 +1,16 @@
-#ifndef tau_coro_native_h
-#define tau_coro_native_h
+#ifndef tau_kern_coro_boost_h
+#define tau_kern_coro_boost_h
 
 
 #include <cassert>
 
-#include "class.hh"
+#include "coro-class.hh"
 
 
 #include "../module/begin.hh"
 
 
-namespace tau::coro
+namespace tau::kern::coro
 {
 
 namespace bc = boost::context;
