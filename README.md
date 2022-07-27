@@ -1,14 +1,5 @@
 # Tau
-**TODO:** clarify internal vs external APIs for these modules
-
 + [utf9](m/utf9.md)
-+ [coro](m/coro.md)
-+ [species](m/species.md)
-+ [trunk](m/trunk.md)
-+ [leaf](m/leaf.md)
-+ [cell](m/cell.md)
-+ [port](m/port.md)
-+ [pipe](m/pipe.md)
 
 
 ## Setup
