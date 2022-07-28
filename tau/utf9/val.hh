@@ -441,6 +441,10 @@ struct val
   val tp(uint64_t i, uint64_t hi = 0, uint64_t h = 0) const;
 
 
+  // te = tuple element (tuple-as-set)
+  // tk = tuple key (tuple-as-map)
+  // to = tuple ordered (indexed things in sorted order)
+  // th = tuple hashed (indexed things sorted by hash)
   struct kf_te { val const &operator()(val const &e)  { return e; } };
   struct kf_tk { val const  operator()(val const &kv) { return kv[0]; } };
 
@@ -449,9 +453,9 @@ struct val
   template <class KF> val to(val const &k, val const &hk, uint64_t h = 0) const;
   template <class KF> val th(val const &k, val const &hk, uint64_t h = 0) const;
 
-  template <class KF> bool is_to() const;
+  template <class KF> bool is_to() const;    // check for correct ordering
   template <class KF> bool is_th() const;
-  template <class KF> val  make_to() const;
+  template <class KF> val  make_to() const;  // make an ordered copy
   template <class KF> val  make_th() const;
 };
 
