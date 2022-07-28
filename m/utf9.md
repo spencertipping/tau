@@ -161,36 +161,24 @@ Because indexes imply a container type, we have two markers, `map` and `set`, th
 #### Index bytecodes
 **TODO:** re-compact these since we've deleted val keying
 
-| Byte   | Following bytes    | Description                 |
-|--------|--------------------|-----------------------------|
-| `0x50` | `l32 bits vs...`   | position index              |
-| `0x51` | `l64 bits vs...`   | position index              |
-| `0x52` | 0                  | set type-hint               |
-| `0x53` | 0                  | map type-hint               |
-| `0x54` | `l16 n16 kt ps...` | hashset value-random index  |
-| `0x55` | `l16 n16 kt ps...` | hashset value-ordered index |
-| `0x56` | `l16 n16 kt ps...` | ordset value-random index   |
-| `0x57` | `l16 n16 kt ps...` | ordset value-ordered index  |
-| `0x58` | `l16 n16 kt ps...` | hashkey value-random index  |
-| `0x59` | `l16 n16 kt ps...` | hashkey value-ordered index |
-| `0x5a` | `l16 n16 kt ps...` | ordkey value-random index   |
-| `0x5b` | `l16 n16 kt ps...` | ordkey value-ordered index  |
-| `0x64` | `l32 n32 kt ps...` | hashset value-random index  |
-| `0x65` | `l32 n32 kt ps...` | hashset value-ordered index |
-| `0x66` | `l32 n32 kt ps...` | ordset value-random index   |
-| `0x67` | `l32 n32 kt ps...` | ordset value-ordered index  |
-| `0x68` | `l32 n32 kt ps...` | hashkey value-random index  |
-| `0x69` | `l32 n32 kt ps...` | hashkey value-ordered index |
-| `0x6a` | `l32 n32 kt ps...` | ordkey value-random index   |
-| `0x6b` | `l32 n32 kt ps...` | ordkey value-ordered index  |
-| `0x74` | `l64 n64 kt ps...` | hashset value-random index  |
-| `0x75` | `l64 n64 kt ps...` | hashset value-ordered index |
-| `0x76` | `l64 n64 kt ps...` | ordset value-random index   |
-| `0x77` | `l64 n64 kt ps...` | ordset value-ordered index  |
-| `0x78` | `l64 n64 kt ps...` | hashkey value-random index  |
-| `0x79` | `l64 n64 kt ps...` | hashkey value-ordered index |
-| `0x7a` | `l64 n64 kt ps...` | ordkey value-random index   |
-| `0x7b` | `l64 n64 kt ps...` | ordkey value-ordered index  |
+| Byte   | Following bytes    | Description    |
+|--------|--------------------|----------------|
+| `0x50` | `l32 bits vs...`   | position index |
+| `0x51` | `l64 bits vs...`   | position index |
+| `0x52` | 0                  | set type-hint  |
+| `0x53` | 0                  | map type-hint  |
+| `0x55` | `l16 n16 kt ps...` | hashset index  |
+| `0x57` | `l16 n16 kt ps...` | ordset index   |
+| `0x59` | `l16 n16 kt ps...` | hashmap index  |
+| `0x5b` | `l16 n16 kt ps...` | ordmap index   |
+| `0x65` | `l32 n32 kt ps...` | hashset index  |
+| `0x67` | `l32 n32 kt ps...` | ordset index   |
+| `0x69` | `l32 n32 kt ps...` | hashmap index  |
+| `0x6b` | `l32 n32 kt ps...` | ordmap index   |
+| `0x75` | `l64 n64 kt ps...` | hashset index  |
+| `0x77` | `l64 n64 kt ps...` | ordset index   |
+| `0x79` | `l64 n64 kt ps...` | hashmap index  |
+| `0x7b` | `l64 n64 kt ps...` | ordmap index   |
 
 **NOTE:** the size of the index target subscripts is the same as the size of the length -- that is, `l16` uses 16-bit unsigned ints to index into the data structure.
 
