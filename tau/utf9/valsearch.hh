@@ -8,13 +8,14 @@
 #include "errors.hh"
 #include "val.hh"
 
+
 #include "../module/begin.hh"
 
 namespace tau::utf9
 {
 
 
-size_t const not_found_bit = 1ull << sizeof(size_t) * 8 - 1;
+static size_t constexpr const not_found_bit = 1ull << sizeof(size_t) * 8 - 1;
 
 
 template <class KF>
@@ -81,6 +82,7 @@ uint64_t interpsearch(std::vector<val> const &vs,
 }
 
 
+#if TAU_VAL_SUPPORTS_ORD_IDX
 template <class KF>
 val s_to(val      const &b,
          val      const &k,
@@ -102,6 +104,7 @@ val s_to(val      const &b,
   }
   return none;
 }
+#endif
 
 
 template <class KF>
@@ -136,10 +139,14 @@ inline val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
   return val(*b, o);
 }
 
+#if TAU_VAL_SUPPORTS_ORD_IDX
 template <class KF> inline val val::to(val const &k, val const &hk, uint64_t const h) const { return s_to<KF>(*this, k, hk, h); }
+#endif
+
 template <class KF> inline val val::th(val const &k, val const &hk, uint64_t const h) const { return s_th<KF>(*this, k, hk, h); }
 
 
+#if TAU_VAL_SUPPORTS_ORD_IDX
 template <class KF> bool val::is_to() const
 {
   KF kf;
@@ -153,6 +160,8 @@ template <class KF> bool val::is_to() const
   }
   return true;
 }
+#endif
+
 
 template <class KF> bool val::is_th() const
 {
@@ -169,6 +178,7 @@ template <class KF> bool val::is_th() const
 }
 
 
+#if TAU_VAL_SUPPORTS_ORD_IDX
 template <class KF> val val::make_to() const
 {
   KF kf;
@@ -179,6 +189,8 @@ template <class KF> val val::make_to() const
             [=](val const &a, val const &b) { return kf(a) < kf(b); });
   return val(v);
 }
+#endif
+
 
 template <class KF> val val::make_th() const
 {

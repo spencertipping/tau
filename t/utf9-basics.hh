@@ -158,9 +158,12 @@ void try_orderings()
   {
     auto v = tau::utf9::tuple();
     for (int64_t i = 0; i < 100; ++i) v << u9(i);
+
+#if TAU_VAL_SUPPORTS_ORD_IDX
     for (int64_t i = -10; i < 110; ++i)
       if (v.to<u9::kf_te>(u9(i), none).exists() != (i >= 0 && i < 100))
         cout << "ord find mismatch for " << i << endl;
+#endif
 
     auto vh = v.make_th<u9::kf_te>();
     for (int64_t i = -10; i < 110; ++i)

@@ -147,7 +147,9 @@ Maps and sets are indexed structures in that finding an element requires less th
 
 + `pos`: element position → byte offset
 + `elt`: element {ord | hash} → byte offset
-+ `key`: element first member {ord | hash} → byte offset
++ `key`: element first member {_ord (proposed)_ | hash} → byte offset
+
+**NOTE:** `ord*` may not have a compelling use case. We probably want `hash*` as our ordering, as it's likely to be much faster for most operations.
 
 **NOTE:** most `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
 
@@ -158,37 +160,29 @@ Small collections don't require indexes, so indexed collection lengths begin at 
 Because indexes imply a container type, we have two markers, `map` and `set`, that provide no index data but still indicate that the collection ahead is meant to be interpreted as a map or set, respectively. These are used for very small containers, e.g. small JSON maps, that wouldn't benefit from accelerated lookups but whose type information is still important.
 
 
+#### Index structure
+An index consists of many elements, each of the form `(key, offset)`, always stored in a packed array. `ord*` indexes make sense for numbers and strings, `hash*` indexes are for arbitrary (hashable) types. We use a packed array to provide quick jumping across index elements.
+
+`hash*` keys are always `uint` values sized equally to the offsets, so `hashmap16` contains `(u16 hash, u16 offset)` pairs.
+
+`ord*` keys are TBD and may be dropped. I'm not sure when we would want them.
+
+
 #### Index bytecodes
-**TODO:** re-compact these since we've deleted val keying
-
-| Byte   | Following bytes    | Description    |
-|--------|--------------------|----------------|
-| `0x50` | `l32 bits vs...`   | position index |
-| `0x51` | `l64 bits vs...`   | position index |
-| `0x52` | 0                  | set type-hint  |
-| `0x53` | 0                  | map type-hint  |
-| `0x55` | `l16 n16 kt ps...` | hashset index  |
-| `0x57` | `l16 n16 kt ps...` | ordset index   |
-| `0x59` | `l16 n16 kt ps...` | hashmap index  |
-| `0x5b` | `l16 n16 kt ps...` | ordmap index   |
-| `0x65` | `l32 n32 kt ps...` | hashset index  |
-| `0x67` | `l32 n32 kt ps...` | ordset index   |
-| `0x69` | `l32 n32 kt ps...` | hashmap index  |
-| `0x6b` | `l32 n32 kt ps...` | ordmap index   |
-| `0x75` | `l64 n64 kt ps...` | hashset index  |
-| `0x77` | `l64 n64 kt ps...` | ordset index   |
-| `0x79` | `l64 n64 kt ps...` | hashmap index  |
-| `0x7b` | `l64 n64 kt ps...` | ordmap index   |
-
-**NOTE:** the size of the index target subscripts is the same as the size of the length -- that is, `l16` uses 16-bit unsigned ints to index into the data structure.
-
-**NOTE:** `l16`, `l32`, and `l64` encode `len(kt) + len(ps...)` -- that is, the key type is included. This avoids typecode parsing overhead when we want to skip over the index.
+| Byte   | Following bytes    | Description     |
+|--------|--------------------|-----------------|
+| `0x50` | `l32 bits vs...`   | position index  |
+| `0x51` | `l64 bits vs...`   | position index  |
+| `0x52` | 0                  | set type-hint   |
+| `0x53` | 0                  | map type-hint   |
+| `0x54` | `l16 n16 hp16s...` | hashset16 index |
+| `0x55` | `l16 n16 hp16s...` | hashmap16 index |
+| `0x56` | `l32 n32 hp32s...` | hashset32 index |
+| `0x57` | `l32 n32 hp32s...` | hashmap32 index |
+| `0x58` | `l64 n64 hp64s...` | hashset64 index |
+| `0x59` | `l64 n64 hp64s...` | hashmap64 index |
 
 Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They can be downsampled by a number of bits, encoded as an `int8`; for example, if `bits = 2`, then the byte-offset table encodes the positions of `[0]`, `[4]`, `[8]`, `[12]`, etc. This trades space for time.
-
-**NOTE:** the index's target values refer to the target base plus the exact element offset; there is no header stuff that you need to think about when fetching the element. This minimizes the likelihood of cache misses when using indexes to fetch things.
-
-`ord*` indexes need not be present in the original collection; the purpose is to provide interpolation points against the query space.
 
 
 ## Ordering

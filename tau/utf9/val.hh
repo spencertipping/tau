@@ -13,7 +13,11 @@
 #include "tval.hh"
 #include "typecode.hh"
 
+
 #include "../module/begin.hh"
+
+
+#define TAU_VAL_SUPPORTS_ORD_IDX 0
 
 
 namespace tau::utf9
@@ -448,14 +452,16 @@ struct val
   struct kf_te { val const &operator()(val const &e)  { return e; } };
   struct kf_tk { val const  operator()(val const &kv) { return kv[0]; } };
 
-  template <class KF> val io(val const &k) const;
-  template <class KF> val ih(val const &k) const;
-  template <class KF> val to(val const &k, val const &hk, uint64_t h = 0) const;
-  template <class KF> val th(val const &k, val const &hk, uint64_t h = 0) const;
-
+# if TAU_VAL_SUPPORTS_ORD_IDX
+  template <class KF> val  io(val const &k) const;
+  template <class KF> val  to(val const &k, val const &hk, uint64_t h = 0) const;
   template <class KF> bool is_to() const;    // check for correct ordering
-  template <class KF> bool is_th() const;
   template <class KF> val  make_to() const;  // make an ordered copy
+# endif
+
+  template <class KF> val  ih(val const &k) const;
+  template <class KF> val  th(val const &k, val const &hk, uint64_t h = 0) const;
+  template <class KF> bool is_th() const;
   template <class KF> val  make_th() const;
 };
 
@@ -540,5 +546,6 @@ template<> struct std::hash<tau::utf9::tval>
 
 
 #include "../module/end.hh"
+
 
 #endif
