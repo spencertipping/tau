@@ -182,6 +182,8 @@ An index consists of many elements, each of the form `(key, offset)`, always sto
 | `0x58` | `l64 n64 hp64s...` | hashset64 index |
 | `0x59` | `l64 n64 hp64s...` | hashmap64 index |
 
+**NOTE:** index `l16`, `l32`, and `l64` define the _index + collection_ length. Byte offsets are with respect to the collection start, which always occurs at `n{16,32,64} * sizeof(hp{16,32,64})` -- and `sizeof(hpN) == N / 4`.
+
 Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They can be downsampled by a number of bits, encoded as an `int8`; for example, if `bits = 2`, then the byte-offset table encodes the positions of `[0]`, `[4]`, `[8]`, `[12]`, etc. This trades space for time.
 
 

@@ -118,26 +118,28 @@ lfn const lfns[256] =
   fixtuple8_lf, fixtuple8_lf, fixtuple8_lf, fixtuple8_lf,
 
   // 0x50-0x5f
-  lf(1 + 2 + 1 + b.u16(i + 1)),
   lf(1 + 4 + 1 + b.u32(i + 1)),
   lf(1 + 8 + 1 + b.u64(i + 1)),
   l1,
+  l1,
 
-  idx16_lf, idx16_lf, idx16_lf, idx16_lf,
-  idx16_lf, idx16_lf, idx16_lf, idx16_lf,
-  idx16_lf, idx16_lf, idx16_lf, idx16_lf,
+  idx16_lf, idx16_lf, idx32_lf, idx32_lf,
+  idx64_lf, idx64_lf,
+
+  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_lf, bogus_lf,
 
   // 0x60-0x6f
   bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  idx32_lf, idx32_lf, idx32_lf, idx32_lf,
-  idx32_lf, idx32_lf, idx32_lf, idx32_lf,
-  idx32_lf, idx32_lf, idx32_lf, idx32_lf,
+  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
 
   // 0x70-0x7f
   bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  idx64_lf, idx64_lf, idx64_lf, idx64_lf,
-  idx64_lf, idx64_lf, idx64_lf, idx64_lf,
-  idx64_lf, idx64_lf, idx64_lf, idx64_lf,
+  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
+  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
 
   // 0x80-0xbf
   fixint_lf, fixint_lf, fixint_lf, fixint_lf,
