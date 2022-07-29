@@ -17,6 +17,7 @@
 #include "../module/begin.hh"
 
 
+// TODO: delete this once the spec is finalized
 #define TAU_VAL_SUPPORTS_ORD_IDX 0
 
 
@@ -428,6 +429,7 @@ struct val
   val operator[](uint64_t i) const
     { return type() == ARRAY ? ap(i)
            : type() == TUPLE ? tp(i)
+           : type() == INDEX ? ip(i)
            : throw voperation_error("v[u64]", *this); }
 
   val operator[](val const &v) const
@@ -443,6 +445,8 @@ struct val
   // looking. In every case, h <= offset and hk <= k (or for hashed, H[hk] <
   // H[k]); decoding is forward-only, so hints can't overshoot.
   val tp(uint64_t i, uint64_t hi = 0, uint64_t h = 0) const;
+
+  val ip(uint64_t i) const { throw voperation_error("i[u64] TODO", *this); }
 
 
   // te = tuple element (tuple-as-set)

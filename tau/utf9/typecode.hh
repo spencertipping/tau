@@ -29,7 +29,7 @@ enum val_type : uint8_t
 
   TUPLE    = 0x20,
   ARRAY    = 0x24,
-  INDEX    = 0x30,
+  INDEX    = 0x30,  // TODO: split into map/set
 
   NONE     = 0x3e,  // fictitious: not a real value
   BOGUS    = 0x3f,

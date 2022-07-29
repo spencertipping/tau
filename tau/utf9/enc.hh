@@ -114,6 +114,9 @@ oenc &operator<<(oenc &o, val const &v)
 
   case TUPLE: { tenc t(o, v.vt->size()); for (let &x : *v.vt) t << x; return o; }
   case ARRAY: throw internal_error("enc<<iarray");
+
+  // TODO: once we have MAP and SET typecodes,
+  // write tuple → index conversions
   case INDEX: throw internal_error("enc<<idx no ibuf");
 
   case NONE:

@@ -104,6 +104,33 @@ val s_to(val      const &b,
   }
   return none;
 }
+
+template <class KF> inline val val::to(val const &k, val const &hk, uint64_t const h) const { return s_to<KF>(*this, k, hk, h); }
+
+template <class KF> bool val::is_to() const
+{
+  KF kf;
+  if (!len()) return true;
+  val last = none;
+  for (let &v : *this)
+  {
+    let k = kf(v);
+    if (last.exists() && k < last) return false;
+    last = k;
+  }
+  return true;
+}
+
+template <class KF> val val::make_to() const
+{
+  KF kf;
+  let v = new std::vector<val>;
+  v->reserve(len());
+  for (let &x : *this) v->push_back(x);
+  std::sort(v->begin(), v->end(),
+            [=](val const &a, val const &b) { return kf(a) < kf(b); });
+  return val(v);
+}
 #endif
 
 
@@ -139,28 +166,7 @@ inline val val::tp(uint64_t i, uint64_t const hi, uint64_t const h) const
   return val(*b, o);
 }
 
-#if TAU_VAL_SUPPORTS_ORD_IDX
-template <class KF> inline val val::to(val const &k, val const &hk, uint64_t const h) const { return s_to<KF>(*this, k, hk, h); }
-#endif
-
 template <class KF> inline val val::th(val const &k, val const &hk, uint64_t const h) const { return s_th<KF>(*this, k, hk, h); }
-
-
-#if TAU_VAL_SUPPORTS_ORD_IDX
-template <class KF> bool val::is_to() const
-{
-  KF kf;
-  if (!len()) return true;
-  val last = none;
-  for (let &v : *this)
-  {
-    let k = kf(v);
-    if (last.exists() && k < last) return false;
-    last = k;
-  }
-  return true;
-}
-#endif
 
 
 template <class KF> bool val::is_th() const
@@ -176,20 +182,6 @@ template <class KF> bool val::is_th() const
   }
   return true;
 }
-
-
-#if TAU_VAL_SUPPORTS_ORD_IDX
-template <class KF> val val::make_to() const
-{
-  KF kf;
-  let v = new std::vector<val>;
-  v->reserve(len());
-  for (let &x : *this) v->push_back(x);
-  std::sort(v->begin(), v->end(),
-            [=](val const &a, val const &b) { return kf(a) < kf(b); });
-  return val(v);
-}
-#endif
 
 
 template <class KF> val val::make_th() const
