@@ -58,8 +58,9 @@ Any datatype with a non-constant length has the length prepended to it so we can
 ### Unused (reserved) bytes
 + `0x0f`
 + `0x17`
-+ `0x60-0x63`
-+ `0x70-0x73`
++ `0x5a`-`0x5f`
++ `0x60`-`0x6f`
++ `0x70`-`0x7f`
 
 
 ### Atomic types
@@ -163,24 +164,26 @@ Because indexes imply a container type, we have two markers, `map` and `set`, th
 #### Index structure
 An index consists of many elements, each of the form `(key, offset)`, always stored in a packed array. `ord*` indexes make sense for numbers and strings, `hash*` indexes are for arbitrary (hashable) types. We use a packed array to provide quick jumping across index elements.
 
-`hash*` keys are always `uint` values sized equally to the offsets, so `hashmap16` contains `(u16 hash, u16 offset)` pairs.
+`hash*` keys are always `uint` values sized equally to the offsets, so `hashmap16` contains `(u16 hash, u16 offset)` pairs. `u16 hash = full_hash >> 48`.
 
 `ord*` keys are TBD and may be dropped. I'm not sure when we would want them.
 
+**FIXME:** hash indexes should be radix crossing point lookups -- i.e. omit `u16 hash` from the pairs since they increase so uniformly.
+
 
 #### Index bytecodes
-| Byte   | Following bytes    | Description     |
-|--------|--------------------|-----------------|
-| `0x50` | `l32 bits vs...`   | position index  |
-| `0x51` | `l64 bits vs...`   | position index  |
-| `0x52` | 0                  | set type-hint   |
-| `0x53` | 0                  | map type-hint   |
-| `0x54` | `l16 n16 hp16s...` | hashset16 index |
-| `0x55` | `l16 n16 hp16s...` | hashmap16 index |
-| `0x56` | `l32 n32 hp32s...` | hashset32 index |
-| `0x57` | `l32 n32 hp32s...` | hashmap32 index |
-| `0x58` | `l64 n64 hp64s...` | hashset64 index |
-| `0x59` | `l64 n64 hp64s...` | hashmap64 index |
+| Byte   | Following bytes    | Description                |
+|--------|--------------------|----------------------------|
+| `0x50` | 0                  | set type-hint              |
+| `0x51` | 0                  | map type-hint              |
+| `0x52` | `l32 bits vs...`   | position index (list type) |
+| `0x53` | `l64 bits vs...`   | position index (list type) |
+| `0x54` | `l16 n16 hp16s...` | hashset16 index            |
+| `0x55` | `l16 n16 hp16s...` | hashmap16 index            |
+| `0x56` | `l32 n32 hp32s...` | hashset32 index            |
+| `0x57` | `l32 n32 hp32s...` | hashmap32 index            |
+| `0x58` | `l64 n64 hp64s...` | hashset64 index            |
+| `0x59` | `l64 n64 hp64s...` | hashmap64 index            |
 
 **NOTE:** index `l16`, `l32`, and `l64` define the _index + collection_ length. Byte offsets are with respect to the collection start, which always occurs at `n{16,32,64} * sizeof(hp{16,32,64})` -- and `sizeof(hpN) == N / 4`.
 
