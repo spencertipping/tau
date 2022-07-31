@@ -85,7 +85,7 @@ void try_loading_stuff()
     for (int64_t upper = 1; upper <= 1048576 * 16; upper *= 16)
     {
       o9 o4;
-      u9 v4 = tau::utf9::tuple(upper);
+      u9 v4 = u9t(upper);
       for (int64_t i = 0; i < upper; ++i) v4 << u9(i);
 
       {
@@ -99,8 +99,8 @@ void try_loading_stuff()
 
       i9 i4(o4.data(), o4.size());
 
-      auto sv = string_view(reinterpret_cast<char const*>(o4.data()),
-                            min(static_cast<unsigned long long>(o4.size()), 256ull));
+      //auto sv = string_view(reinterpret_cast<char const*>(o4.data()),
+      //                      min(static_cast<unsigned long long>(o4.size()), 256ull));
       //cout << debug<string_view>{sv} << endl;
 
       cout << u9(i4, 0).bsize() << " == " << i4.l << endl;
@@ -156,14 +156,8 @@ void try_orderings()
 {
   try
   {
-    auto v = tau::utf9::tuple();
+    auto v = u9t();
     for (int64_t i = 0; i < 100; ++i) v << u9(i);
-
-#if TAU_VAL_SUPPORTS_ORD_IDX
-    for (int64_t i = -10; i < 110; ++i)
-      if (v.to<u9::kf_te>(u9(i), none).exists() != (i >= 0 && i < 100))
-        cout << "ord find mismatch for " << i << endl;
-#endif
 
     auto vh = v.make_th<u9::kf_te>();
     for (int64_t i = -10; i < 110; ++i)
@@ -207,9 +201,9 @@ int main()
   cout << "native endianness: "
        << (std::endian::native == std::endian::big ? "big" : "little") << endl;
 
+  cout << "try_loading_stuff"  << endl; try_loading_stuff();
   cout << "try_orderings"      << endl; try_orderings();
   cout << "try_printing_types" << endl; try_printing_types();
-  cout << "try_loading_stuff"  << endl; try_loading_stuff();
   return 0;
 }
 

@@ -9,11 +9,13 @@ t() {
 
 usage() {
   echo "usage: $0 t[est]"
+  echo "       $0 d[ebug]"
   exit 1
 }
 
 
 t_gcc_opts=( -std=c++20 -O3 )
+t_gcc_debug_opts=( -Wall -Wno-parentheses -std=c++20 -O0 -g )
 t_em_opts=(  -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses )
 
 
@@ -23,9 +25,13 @@ cmd=$1
 shift
 
 case $cmd in
+  d*) cd "$(dirname "$0")"
+      t g++ "${t_gcc_debug_opts[@]}" t/test.cc -o t/test-debug -lboost_context
+      ;;
+
   t*) cd "$(dirname "$0")"
-      t g++            "${t_gcc_opts[@]}" -g t/test.cc -o t/test -lboost_context
-      t dev/emsdk em++ "${t_em_opts[@]}"  t/test.cc -o t/test.js
+      t g++            "${t_gcc_opts[@]}"       t/test.cc -o t/test -lboost_context
+      t dev/emsdk em++ "${t_em_opts[@]}"        t/test.cc -o t/test.js
       ;;
 
   *)  usage

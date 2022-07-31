@@ -17,10 +17,6 @@
 #include "../module/begin.hh"
 
 
-// TODO: delete this once the spec is finalized
-#define TAU_VAL_SUPPORTS_ORD_IDX 0
-
-
 namespace tau::utf9
 {
 
@@ -51,14 +47,19 @@ struct val
 
 
   // Tagging bit schema:
-  // type:8 | owned:1 | immediate:1
-  static constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << 2 | (own ? 2 : 0) | 1; }
-  static constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> 2); }
+  // type:6 | owned:1 | immediate:1
+  static uint64_t const constexpr immed_bit = 1;
+  static uint64_t const constexpr owned_bit = 2;
+  static uint8_t  const constexpr tagshift  = 2;
+  static_assert((immed_bit | owned_bit) >> tagshift == 0);
+
+  static constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << tagshift | (own ? owned_bit : 0) | immed_bit; }
+  static constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> tagshift); }
 
 
   // Immediate data structure ownership follows const-ness
-  constexpr val(val const &v) : tag(v.tag & ~2), i(v.i) {}
-            val(val &&v)      : tag(v.tag),      i(v.i) { v.tag &= ~2ul; }
+  constexpr val(val const &v) : tag(v.tag & ~owned_bit), i(v.i) {}
+            val(val &&v)      : tag(v.tag),              i(v.i) { v.tag &= ~owned_bit; }
 
 
   val(uint64_t tag_, uint64_t v_) : tag(tag_), vu(v_) {}
@@ -68,40 +69,51 @@ struct val
       b->check(i);
       b->check(i + b->len(i) - 1); }
 
-  val(uint64_t vu_) : tag(tagify(UINT)),    vu(vu_) {}
-  val(int64_t vi_)  : tag(tagify(INT)),     vi(vi_) {}
-  val(double vd_)   : tag(tagify(FLOAT64)), vd(vd_) {}
-  val(float vf_)    : tag(tagify(FLOAT32)), vf(vf_) {}
-  val(sym vy_)      : tag(tagify(SYMBOL)),  vy(vy_) {}
-  val(pidfd vp_)    : tag(tagify(PIDFD)),   vp(vp_) {}
-  val(greek vg_)    : tag(tagify(GREEK)),   vg(vg_) {}
-  val(bool b_)      : tag(tagify(BOOL)),    vu(b_)  {}
+  explicit val(uint64_t vu_) : tag(tagify(UINT64)), vu(vu_) {}
+  explicit val(int64_t vi_)  : tag(tagify(INT64)),  vi(vi_) {}
+  explicit val(uint32_t vu_) : tag(tagify(UINT32)), vu(vu_) {}
+  explicit val(int32_t vi_)  : tag(tagify(INT32)),  vi(vi_) {}
+  explicit val(uint16_t vu_) : tag(tagify(UINT16)), vu(vu_) {}
+  explicit val(int16_t vi_)  : tag(tagify(INT16)),  vi(vi_) {}
+  explicit val(uint8_t vu_)  : tag(tagify(UINT8)),  vu(vu_) {}
+  explicit val(int8_t vi_)   : tag(tagify(INT8)),   vi(vi_) {}
 
-  val(std::vector<val> *vt_) : tag(tagify(TUPLE, true)), vt(vt_) {}
+  explicit val(double vd_)   : tag(tagify(FLOAT64)), vd(vd_) {}
+  explicit val(float vf_)    : tag(tagify(FLOAT32)), vf(vf_) {}
+  val(sym vy_)               : tag(tagify(SYMBOL)),  vy(vy_) {}
+  val(pidfd vp_)             : tag(tagify(PIDFD)),   vp(vp_) {}
+  val(greek vg_)             : tag(tagify(GREEK)),   vg(vg_) {}
+  explicit val(bool b_)      : tag(tagify(BOOL)),    vu(b_)  {}
 
-  val(std::initializer_list<val> vs)
-    : tag(tagify(TUPLE, true)),
-      vt(new std::vector<val>(vs.begin(), vs.end())) {}
+  val(std::vector<val> *vt_, val_type t_ = TUPLE)
+    : tag(tagify(t_, true)),
+      vt(vt_)
+    { require_type(1ull << TUPLE | 1ull << ARRAY | 1ull << LIST | 1ull << SET | 1ull << MAP); }
+
+  val(std::initializer_list<val> vs, val_type t_ = TUPLE)
+    : tag(tagify(t_, true)),
+      vt(new std::vector<val>(vs.begin(), vs.end()))
+    { require_type(1ull << TUPLE | 1ull << ARRAY | 1ull << LIST | 1ull << SET | 1ull << MAP); }
 
   val(std::string const &s, val_type t_ = UTF8)
     : tag(tagify(t_, true)),
       vb(reinterpret_cast<std::basic_string_view<uint8_t>*>(
            new std::string_view(s.begin(), s.end())))
-    {}
+    { require_type(1ull << BYTES | 1ull << UTF8); }
 
 
   val(tval const &t_, ibuf const &b, uint64_t i)
     { switch (t_.typecode())
       {
-      case 0x00: tag = tagify(UINT); vu = b.u8 (i); break;
-      case 0x01: tag = tagify(UINT); vu = b.u16(i); break;
-      case 0x02: tag = tagify(UINT); vu = b.u32(i); break;
-      case 0x03: tag = tagify(UINT); vu = b.u64(i); break;
+      case 0x00: tag = tagify(UINT8);  vu = b.u8 (i); break;
+      case 0x01: tag = tagify(UINT16); vu = b.u16(i); break;
+      case 0x02: tag = tagify(UINT32); vu = b.u32(i); break;
+      case 0x03: tag = tagify(UINT64); vu = b.u64(i); break;
 
-      case 0x04: tag = tagify(INT); vi = b.i8 (i); break;
-      case 0x05: tag = tagify(INT); vi = b.i16(i); break;
-      case 0x06: tag = tagify(INT); vi = b.i32(i); break;
-      case 0x07: tag = tagify(INT); vi = b.i64(i); break;
+      case 0x04: tag = tagify(INT8);  vi = b.i8 (i); break;
+      case 0x05: tag = tagify(INT16); vi = b.i16(i); break;
+      case 0x06: tag = tagify(INT32); vi = b.i32(i); break;
+      case 0x07: tag = tagify(INT64); vi = b.i64(i); break;
 
       case 0x08: tag = tagify(FLOAT32); vf = b.f32(i); break;
       case 0x09: tag = tagify(FLOAT64); vd = b.f64(i); break;
@@ -145,10 +157,10 @@ struct val
       case 0x45:
       case 0x46:
       case 0x47:
-        // NOTE: this isn't an array because keeping it that way would require
-        // extra type information that we don't have space to store. Instead,
-        // arrays degrade to tuples when copied out.
-        tag = tagify(TUPLE, true);
+        // Unpack the array into the tuple representation, but track the fact
+        // that it began as an array. We can reconstruct the array type by
+        // examining the first element.
+        tag = tagify(ARRAY, true);
         vt  = new std::vector<val>;
         vt->reserve(t_.len());
         for (uint64_t j = 0; j < t_.len(); j++)
@@ -161,36 +173,34 @@ struct val
 
 
   ~val()
-    { if (tag & 2)  // value is owned, so we need to free it
+    { if (tag & owned_bit)  // value is owned, so we need to free it
         // NOTE: if() above for performance; the switch below is slower and is
         // the uncommon case
         switch (tag)
         {
-        case tagify(UTF8,  true): case tagify(BYTES, true): delete vb; break;
-        case tagify(TUPLE, true): case tagify(ARRAY, true): delete vt; break;
+        case tagify(UTF8,  true):
+        case tagify(BYTES, true): delete vb; break;
+
+        case tagify(TUPLE, true):
+        case tagify(ARRAY, true):
+        case tagify(LIST,  true):
+        case tagify(SET,   true):
+        case tagify(MAP,   true): delete vt; break;
         } }
 
 
   // NOTE: &~2 is valid regardless of ibuf pointer status due to alignment
-  val &operator=(val &&x)      { tag = x.tag;      i = x.i; x.tag &= ~2; return *this; }
-  val &operator=(val const &x) { tag = x.tag & ~2; i = x.i;              return *this; }
+  val &operator=(val &&x)      { tag = x.tag;              i = x.i; x.tag &= ~owned_bit; return *this; }
+  val &operator=(val const &x) { tag = x.tag & ~owned_bit; i = x.i;                      return *this; }
 
 
   bool     exists()                      const { return type() != NONE; }
-  bool     has_ibuf()                    const { return !(tag & 1); }
-  bool     is_immediate()                const { return !has_ibuf(); }
+  bool     has_ibuf()                    const { return !(tag & immed_bit); }
   val_type type()                        const { return has_ibuf() ? bts[b->u8(i)] : tag_type(tag); }
-  void     require_ibuf()                const { if (!has_ibuf()) throw voperation_error("ibuf required", *this); }
-  void     require_type(val_type_mask m) const { if (!(1ull << type() & m)) throw voperation_error("invalid type", *this); }
+  bool     has_type(val_type_mask m)     const { return (1ull << type() & m); }
+  void     require_ibuf()                const { if (!has_ibuf())  throw voperation_error("ibuf required", *this); }
+  void     require_type(val_type_mask m) const { if (!has_type(m)) throw voperation_error("invalid type", *this); }
   uint64_t bsize()                       const { require_ibuf(); return b->len(i); }
-
-
-  // Skip past all prefix indexes to get to the structure being indexed
-  val list() const
-    { require_ibuf();
-      uint64_t j = i;
-      while (bts[b->cu8(j)] == INDEX) j += b->len(j);
-      return j; }
 
 
   uint64_t mlen() const { return mend() - mbegin(); }
@@ -278,7 +288,8 @@ struct val
   uint64_t asub(uint64_t i) const { return ibegin() + astride() * i; }
 
   tval atype() const
-    { require_ibuf(); require_type(1ull << ARRAY);
+    { require_ibuf();  // FIXME: infer type from first tuple element if no ibuf
+      require_type(1ull << ARRAY);
       switch (b->u8(i))
       {
       case 0x44: return tval(*b, i + 3);
@@ -289,6 +300,11 @@ struct val
       } }
 
 
+  val target() const
+    { require_type(1ull << LIST | 1ull << SET | 1ull << MAP);
+      return has_ibuf() ? val(*b, ibegin()) : *this; }
+
+
   operator          sym()    const { require_type(1ull << SYMBOL);  return has_ibuf() ? sym{b->u64(i + 1)}                  : vy; }
   operator          pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->u32(i + 1), b->u32(i + 5)} : vp; }
   operator          greek()  const { require_type(1ull << GREEK);   return has_ibuf() ? greek{*b, i}                        : vg;  }
@@ -296,9 +312,9 @@ struct val
   operator          float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->f32(i + 1)                       : vf; }
   operator          double() const { require_type(1ull << FLOAT64); return has_ibuf() ? b->f64(i + 1) : vd; }
 
-  operator uint64_t() const
-    { if (type() == INT) throw voperation_error("i->u", *this);
-      require_type(1ull << UINT);
+  explicit operator uint64_t() const
+    { if (has_type(1ull << INT8 | 1ull << INT16 | 1ull << INT32 | 1ull << INT64)) throw voperation_error("i->u", *this);
+      require_type(1ull << UINT8 | 1ull << UINT16 | 1ull << UINT32 | 1ull << UINT64);
       if (!has_ibuf()) return vu;
       let x = b->u8(i);
       switch (x)
@@ -310,9 +326,9 @@ struct val
       default: throw internal_error("val u64");
       } }
 
-  operator int64_t() const
-    { if (type() == UINT) throw voperation_error("u->i", *this);
-      require_type(1ull << INT);
+  explicit operator int64_t() const
+    { if (1ull << UINT8 | 1ull << UINT16 | 1ull << UINT32 | 1ull << UINT64) throw voperation_error("u->i", *this);
+      require_type(1ull << INT8 | 1ull << INT16 | 1ull << INT32 | 1ull << INT64);
       if (!has_ibuf()) return vi;
       let x = b->u8(i);
       if (x >= 0x80) return x - 0x80;
@@ -340,8 +356,8 @@ struct val
 #define ht(ct)                                                          \
         { let x = ce(static_cast<uint64_t>(static_cast<ct>(*this)));    \
           return xxh(&x, sizeof x, t); }
-      case UINT:    ht(uint64_t)
-      case INT:     ht(int64_t)
+      case UINT64: case UINT32: case UINT16: case UINT8: ht(uint64_t)
+      case INT64:  case INT32:  case INT16:  case INT8:  ht(int64_t)
       case SYMBOL:  ht(sym)
       case PIDFD:   ht(pidfd)
 #undef ht
@@ -354,11 +370,13 @@ struct val
       case NULLTYPE: return xxh(NULL, 0, t);
       case GREEK: { let g = static_cast<greek>(*this); return xxc(g.l, g.v); }
 
-      case ARRAY:
       case UTF8:
       case BYTES: return xxh(mbegin(), mend() - mbegin(), t);
 
       case TUPLE:
+      case LIST:
+      case SET:
+      case MAP:
       { uint64_t h = xxh(NULL, 0, t);
         for (let &v : *this) h = xxc(v.h().h, h);
         return h; }
@@ -378,8 +396,8 @@ struct val
         { let x1 = static_cast<t>(*this);               \
           let x2 = static_cast<t>(v);                   \
           return x1 > x2 ? 1 : x1 < x2 ? -1 : 0; }
-      case UINT:    cmpblock(uint64_t)
-      case INT:     cmpblock(int64_t)
+      case UINT64: case UINT32: case UINT16: case UINT8: cmpblock(uint64_t)
+      case INT64:  case INT32:  case INT16:  case INT8:  cmpblock(int64_t)
       case FLOAT32: cmpblock(float)
       case FLOAT64: cmpblock(double)
       case SYMBOL:  cmpblock(sym)
@@ -392,7 +410,6 @@ struct val
 
       case UTF8:
       case BYTES:
-      case ARRAY:
       { if (let tc = atype().compare(v.atype())) throw binop_error("cta", *this, v);
         let n1 =   mend() -   mbegin();
         let n2 = v.mend() - v.mbegin();
@@ -427,10 +444,14 @@ struct val
 
 
   val operator[](uint64_t i) const
-    { return type() == ARRAY ? ap(i)
-           : type() == TUPLE ? tp(i)
-           : type() == INDEX ? ip(i)
-           : throw voperation_error("v[u64]", *this); }
+    { switch(type())
+      {
+      case BYTES: return val(mbegin()[i]);
+      case TUPLE: return tp(i);
+      case ARRAY: return ap(i);
+      case LIST:  return lp(i);
+      default:    throw voperation_error("v[u64]", *this);
+      } }
 
   val operator[](val const &v) const
     { throw voperation_error("v[v] TODO", *this); }
@@ -446,7 +467,7 @@ struct val
   // H[k]); decoding is forward-only, so hints can't overshoot.
   val tp(uint64_t i, uint64_t hi = 0, uint64_t h = 0) const;
 
-  val ip(uint64_t i) const { throw voperation_error("i[u64] TODO", *this); }
+  val lp(uint64_t i) const { throw voperation_error("l[u64] TODO", *this); }
 
 
   // te = tuple element (tuple-as-set)
@@ -455,13 +476,6 @@ struct val
   // th = tuple hashed (indexed things sorted by hash)
   struct kf_te { val const &operator()(val const &e)  { return e; } };
   struct kf_tk { val const  operator()(val const &kv) { return kv[0]; } };
-
-# if TAU_VAL_SUPPORTS_ORD_IDX
-  template <class KF> val  io(val const &k) const;
-  template <class KF> val  to(val const &k, val const &hk, uint64_t h = 0) const;
-  template <class KF> bool is_to() const;    // check for correct ordering
-  template <class KF> val  make_to() const;  // make an ordered copy
-# endif
 
   template <class KF> val  ih(val const &k) const;
   template <class KF> val  th(val const &k, val const &hk, uint64_t h = 0) const;
@@ -482,28 +496,26 @@ inline val ρ(uint32_t x) { return val(greek{greek::Ρ, x}); }
 inline val θ(uint32_t x) { return val(greek{greek::Θ, x}); }
 inline val θ(double   x) { return val(greek{greek::Θ, static_cast<uint32_t>(x * static_cast<double>(std::numeric_limits<uint32_t>::max()))}); }
 
-inline val tuple(uint64_t n = 0) { let vt = new std::vector<val>; if (n) vt->reserve(n); return val(vt); }
+inline val u9t(uint64_t n = 0) { let vt = new std::vector<val>; if (n) vt->reserve(n); return val(vt); }
+inline val u9a(uint64_t n = 0) { let vt = new std::vector<val>; if (n) vt->reserve(n); return val(vt, ARRAY); }
+inline val u9l(uint64_t n = 0) { let vt = new std::vector<val>; if (n) vt->reserve(n); return val(vt, LIST); }
+inline val u9s(uint64_t n = 0) { let vt = new std::vector<val>; if (n) vt->reserve(n); return val(vt, SET); }
+inline val u9m(uint64_t n = 0) { let vt = new std::vector<val>; if (n) vt->reserve(n); return val(vt, MAP); }
 
 
 inline oenc &tval::pack(oenc &o, val const &v) const
 {
   switch (type())
   {
-  case UINT:
-  case INT:
-    switch (typecode())
-    {
-    case 0x00: return o.u8 (cou8(v));
-    case 0x01: return o.u16(cou16(v));
-    case 0x02: return o.u32(cou32(v));
-    case 0x03: return o.u64(v);
-    case 0x04: return o.u8 (coi8(v));
-    case 0x05: return o.u16(coi16(v));
-    case 0x06: return o.u32(coi32(v));
-    case 0x07: return o.u64(static_cast<int64_t>(v));
-    default: throw internal_error("ipack");
-    }
-    break;
+  case UINT8:  return o.u8(cou8(static_cast<uint64_t>(v)));
+  case UINT16: return o.u16(cou16(static_cast<uint64_t>(v)));
+  case UINT32: return o.u32(cou32(static_cast<uint64_t>(v)));
+  case UINT64: return o.u64(static_cast<uint64_t>(v));
+
+  case INT8:   return o.u8(coi8(static_cast<int64_t>(v)));
+  case INT16:  return o.u16(coi16(static_cast<int64_t>(v)));
+  case INT32:  return o.u32(coi32(static_cast<int64_t>(v)));
+  case INT64:  return o.u64(static_cast<int64_t>(v));
 
   case FLOAT32: return o.f32(static_cast<float>(v));
   case FLOAT64: return o.f64(static_cast<double>(v));
@@ -531,12 +543,13 @@ inline oenc &tval::pack(oenc &o, val const &v) const
     if (n || vi != ve) throw encoding_error("a vn>tn", *this, v);
     return o; }
 
+  case LIST:
+  case SET:
+  case MAP: return pack(o, v.target());
+
   default: throw encoding_error("ns", *this, v);
   }
 }
-
-static_assert(sizeof(tval) == 24);
-static_assert(sizeof(val)  == 16);
 
 
 }

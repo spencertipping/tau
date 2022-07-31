@@ -64,7 +64,7 @@ int main()
 
   let t4 = s.create_task([&]() {
     int64_t last;
-    while (s.has_next(p3)) cout << s.uptime() << ": " << (last = s.next(p3)) << endl;
+    while (s.has_next(p3)) cout << s.uptime() << ": " << (last = static_cast<int64_t>(s.next(p3))) << endl;
     s.close(p3);
 
     cout << "final value: " << last << endl;

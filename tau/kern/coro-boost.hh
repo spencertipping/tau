@@ -21,8 +21,8 @@ static bool is_main;
 template<class T> coro<T>::coro() : thisptr(nullptr) {}
 template<class T>
 coro<T>::coro(std::function<T()> f)
-  : is_done(false),
-    k      (new bc::continuation)
+  : k      (new bc::continuation),
+    is_done(false)
 {
   coro_init();
   thisptr  = reinterpret_cast<coro<T>**>(std::malloc(sizeof(coro<T>**)));

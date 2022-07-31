@@ -2,6 +2,9 @@
 #define tau_utf9_h
 
 
+#include <type_traits>
+
+
 #include "utf9/errors.hh"
 #include "utf9/numerics.hh"
 #include "utf9/hash.hh"
@@ -26,6 +29,13 @@ namespace tau
 {
 
 
+static_assert(sizeof(tau::utf9::val)  == 16);
+static_assert(sizeof(tau::utf9::tval) == 24);
+static_assert(std::is_polymorphic<tau::utf9::val>::value  == false);
+static_assert(std::is_polymorphic<tau::utf9::tval>::value == false);
+static_assert(std::is_polymorphic<tau::utf9::ibuf>::value == false);
+
+
 typedef tau::utf9::utf9_error       u9e;
 typedef tau::utf9::decoding_error   u9de;
 typedef tau::utf9::encoding_error   u9ee;
@@ -38,6 +48,23 @@ typedef tau::utf9::val  u9;
 typedef tau::utf9::tval t9;
 typedef tau::utf9::ibuf i9;
 typedef tau::utf9::obuf o9;
+
+
+let u9n = tau::utf9::none;
+
+using tau::utf9::u9t;
+using tau::utf9::u9a;
+using tau::utf9::u9l;
+using tau::utf9::u9s;
+using tau::utf9::u9m;
+
+using tau::utf9::α;
+using tau::utf9::ω;
+using tau::utf9::ι;
+using tau::utf9::κ;
+using tau::utf9::τ;
+using tau::utf9::ρ;
+using tau::utf9::θ;
 
 
 using tau::utf9::tu8;

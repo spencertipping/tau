@@ -76,18 +76,19 @@ oenc &operator<<(oenc &o, val const &v)
 
   switch (v.type())
   {
-  case UINT:
-  { uint64_t x = v;
-    return x >> 32 ? o.u8(0x03).u64(x) : x >> 16 ? o.u8(0x02).u32(x)
-         : x >>  8 ? o.u8(0x01).u16(x) :           o.u8(0x00).u8(x); }
+  case UINT8:  return o.u8(UINT8).u8(cou8(static_cast<uint64_t>(v)));
+  case UINT16: return o.u8(UINT16).u16(cou16(static_cast<uint64_t>(v)));
+  case UINT32: return o.u8(UINT32).u32(cou32(static_cast<uint64_t>(v)));
+  case UINT64: return o.u8(UINT64).u64(static_cast<uint64_t>(v));
 
-  case INT:
-  { int64_t x = v;
+  case INT8:
+  { int64_t x = static_cast<int64_t>(v);
     if (x >= 0 && x < 128) return o.u8(0x80 + x);
-    return x != x << 32 >> 32 ? o.u8(0x07).u64(x)
-         : x != x << 48 >> 48 ? o.u8(0x06).u32(x)
-         : x != x << 56 >> 56 ? o.u8(0x05).u16(x)
-         :                      o.u8(0x04).u8(x); }
+    else                   return o.u8(INT8).u8(coi8(x)); }
+
+  case INT16: return o.u8(INT16).u16(coi16(static_cast<int64_t>(v)));
+  case INT32: return o.u8(INT32).u32(coi32(static_cast<int64_t>(v)));
+  case INT64: return o.u8(INT64).u64(static_cast<int64_t>(v));
 
   case FLOAT32:  return o.u8(0x08).f32(v);
   case FLOAT64:  return o.u8(0x09).f64(v);
@@ -113,11 +114,11 @@ oenc &operator<<(oenc &o, val const &v)
       .xs(v.vb->data(), l); }
 
   case TUPLE: { tenc t(o, v.vt->size()); for (let &x : *v.vt) t << x; return o; }
-  case ARRAY: throw internal_error("enc<<iarray");
+  case ARRAY: throw internal_error("TODO enc<<iarray");
 
-  // TODO: once we have MAP and SET typecodes,
-  // write tuple → index conversions
-  case INDEX: throw internal_error("enc<<idx no ibuf");
+  case LIST: throw internal_error("TODO enc<<list");
+  case SET:  throw internal_error("TODO enc<<set");
+  case MAP:  throw internal_error("TODO enc<<map");
 
   case NONE:
   case BOGUS:

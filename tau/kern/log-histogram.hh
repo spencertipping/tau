@@ -13,7 +13,7 @@ namespace tau::kern
 {
 
 
-template<class F = uint64_t, class O = uint64_t, size_t N = 64>
+template<class F = uint64_t, class O = uint64_t, unsigned N = 64>
 struct log_histogram
 {
   F n[N]{0};
@@ -25,14 +25,14 @@ struct log_histogram
       if (!t) return 0;
       F c  = 0;
       F tc = static_cast<F>(t * p);
-      for (int i = 0; i < N; ++i)
+      for (unsigned i = 0; i < N; ++i)
         if ((c += n[i]) > tc)
           return i;
       return N; }
 
-  F total(int n_ = N) const
+  F total(unsigned n_ = N) const
     { F t = 0;
-      for (int i = 0; i < n_; ++i) t += n[i];
+      for (unsigned i = 0; i < n_; ++i) t += n[i];
       return t; }
 
 
@@ -48,12 +48,12 @@ struct log_histogram
 };
 
 
-template<class F, class O, size_t N>
+template<class F, class O, unsigned N>
 std::ostream &operator<<(std::ostream &s, log_histogram<F, O, N> const &h)
 {
-  F      m  = h.n[0]; for (int i = 1; i < N; ++i) m = std::max(m, h.n[i]);
-  size_t u  = N - 1;  while (u > 0 && !h.n[u]) --u;
-  let    ml = log_histogram<F, O, N>::ilog(m);
+  F        m  = h.n[0]; for (int i = 1; i < N; ++i) m = std::max(m, h.n[i]);
+  unsigned u  = N - 1;  while (u > 0 && !h.n[u]) --u;
+  let      ml = log_histogram<F, O, N>::ilog(m);
 
   u = std::min(N, u + 7 & ~7);
   if (ml)

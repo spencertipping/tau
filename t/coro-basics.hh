@@ -24,10 +24,10 @@ template <typename T>
 struct stream
 {
   deque<T> xs;
-  int      capacity;
+  unsigned capacity;
   bool     omega = false;
 
-  stream(int c) : capacity(c) {}
+  stream(unsigned c) : capacity(c) {}
 
   inline bool head_ready() const { return !omega && xs.size() < capacity; }
   inline bool tail_ready() const { return !omega && xs.size() > 0; }

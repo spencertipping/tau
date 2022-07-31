@@ -31,9 +31,15 @@ let p10 = pf(b + (i + 10));
 let p17 = pf(b + (i + 17));
 
 // NOTE: index mbegin() points to the beginning of the tuple
-let i16_pf = pf(b + (i + 5  + 4  * b.u16(i + 3)));
-let i32_pf = pf(b + (i + 9  + 8  * b.u32(i + 5)));
-let i64_pf = pf(b + (i + 17 + 16 * b.u64(i + 9)));
+let pidx8_pf  = pf(b + (1 + 1 + 1 +     (b.u8 (i + 1) >> b.u8(i + 2))));
+let pidx16_pf = pf(b + (1 + 2 + 1 + 2 * (b.u16(i + 1) >> b.u8(i + 3))));
+let pidx32_pf = pf(b + (1 + 4 + 1 + 4 * (b.u32(i + 1) >> b.u8(i + 5))));
+let pidx64_pf = pf(b + (1 + 8 + 1 + 8 * (b.u64(i + 1) >> b.u8(i + 9))));
+
+let idx8_pf  = pf(b + (1 + 1 + 1 +     (~0ull >> b.u8(i + 2))));
+let idx16_pf = pf(b + (1 + 2 + 1 + 2 * (~0ull >> b.u8(i + 3))));
+let idx32_pf = pf(b + (1 + 4 + 1 + 4 * (~0ull >> b.u8(i + 5))));
+let idx64_pf = pf(b + (1 + 8 + 1 + 8 * (~0ull >> b.u8(i + 9))));
 
 
 pfn const sfns[256] =
@@ -72,12 +78,10 @@ pfn const sfns[256] =
   p2, p2, p2, p2,
 
   // 0x50-0x5f
-  p6,     p10,    bogus_pf, bogus_pf,
-  i16_pf, i16_pf, i32_pf, i32_pf,
-  i64_pf, i64_pf,
-
-  bogus_pf, bogus_pf, bogus_pf, bogus_pf,
-  bogus_pf, bogus_pf,
+  pidx8_pf, pidx16_pf, pidx32_pf, pidx64_pf,
+  idx8_pf,  idx16_pf,  idx32_pf,  idx64_pf,
+  idx8_pf,  idx16_pf,  idx32_pf,  idx64_pf,
+  bogus_pf, bogus_pf,  bogus_pf,  bogus_pf,
 
   // 0x60-0x6f
   bogus_pf, bogus_pf, bogus_pf, bogus_pf,

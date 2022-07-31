@@ -51,9 +51,15 @@ let fixbytes_lf  = lf(1 + (b.u8(i) - 0x30));
 let fixtuple8_lf = lf(2 + b.u8(i + 1));
 let fixint_lf    = l1;
 
-let idx16_lf = lf(1 + 2 + b.u16(i + 1));
-let idx32_lf = lf(1 + 4 + b.u32(i + 1));
-let idx64_lf = lf(1 + 8 + b.u64(i + 1));
+let pidx8_lf  = lf(b.u8(i + 1)  + 4  +     (b.u8 (i + 2) >> b.u8(i + 3)));
+let pidx16_lf = lf(b.u16(i + 1) + 6  + 2 * (b.u16(i + 3) >> b.u8(i + 5)));
+let pidx32_lf = lf(b.u32(i + 1) + 10 + 4 * (b.u32(i + 5) >> b.u8(i + 9)));
+let pidx64_lf = lf(b.u64(i + 1) + 18 + 8 * (b.u64(i + 9) >> b.u8(i + 17)));
+
+let idx8_lf  = lf(b.u8(i + 1)  + 3  +     (~0ull >> b.u8(i + 2)));
+let idx16_lf = lf(b.u16(i + 1) + 4  + 2 * (~0ull >> b.u8(i + 3)));
+let idx32_lf = lf(b.u32(i + 1) + 6  + 4 * (~0ull >> b.u8(i + 5)));
+let idx64_lf = lf(b.u64(i + 1) + 10 + 8 * (~0ull >> b.u8(i + 9)));
 
 let bogus_lf   = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus lf",   b, i); };
 let bogus_tlf  = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus tlf",  b, i); };
@@ -118,16 +124,10 @@ lfn const lfns[256] =
   fixtuple8_lf, fixtuple8_lf, fixtuple8_lf, fixtuple8_lf,
 
   // 0x50-0x5f
-  lf(1 + 4 + 1 + b.u32(i + 1)),
-  lf(1 + 8 + 1 + b.u64(i + 1)),
-  l1,
-  l1,
-
-  idx16_lf, idx16_lf, idx32_lf, idx32_lf,
-  idx64_lf, idx64_lf,
-
-  bogus_lf, bogus_lf, bogus_lf, bogus_lf,
-  bogus_lf, bogus_lf,
+  pidx8_lf, pidx16_lf, pidx32_lf, pidx64_lf,
+  idx8_lf,  idx16_lf,  idx32_lf,  idx64_lf,
+  idx8_lf,  idx16_lf,  idx32_lf,  idx64_lf,
+  l1, l1, l1, bogus_lf,
 
   // 0x60-0x6f
   bogus_lf, bogus_lf, bogus_lf, bogus_lf,

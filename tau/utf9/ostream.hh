@@ -26,8 +26,14 @@ std::ostream &operator<<(std::ostream &s, val_type t)
 {
   switch (t)
   {
-  case UINT:     return s << "uint";
-  case INT:      return s << "int";
+  case UINT8:    return s << "u8";
+  case UINT16:   return s << "u16";
+  case UINT32:   return s << "u32";
+  case UINT64:   return s << "u64";
+  case INT8:     return s << "i8";
+  case INT16:    return s << "i16";
+  case INT32:    return s << "i32";
+  case INT64:    return s << "i64";
   case FLOAT32:  return s << "f32";
   case FLOAT64:  return s << "f64";
   case SYMBOL:   return s << "sym";
@@ -40,7 +46,9 @@ std::ostream &operator<<(std::ostream &s, val_type t)
   case BYTES:    return s << "bytes";
   case TUPLE:    return s << "tuple";
   case ARRAY:    return s << "array";
-  case INDEX:    return s << "index";
+  case LIST:     return s << "list";
+  case SET:      return s << "set";
+  case MAP:      return s << "map";
 
   case BOGUS:    return s << "bogus";
   case NONE:     return s << "none";
@@ -52,10 +60,17 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
 {
   switch (t.type())
   {
-  case UINT:    return s << "u" << t.vsize() * 8;
-  case INT:     return s << "i" << t.vsize() * 8;
-  case FLOAT32:
-  case FLOAT64: return s << "f" << t.vsize() * 8;
+  case UINT8:   return s << "u8";
+  case UINT16:  return s << "u16";
+  case UINT32:  return s << "u32";
+  case UINT64:  return s << "u64";
+  case INT8:    return s << "i8";
+  case INT16:   return s << "i16";
+  case INT32:   return s << "i32";
+  case INT64:   return s << "i64";
+  case FLOAT32: return s << "f32";
+  case FLOAT64: return s << "f64";
+
   case SYMBOL:  return s << "s";
   case PIDFD:   return s << "p";
 
@@ -80,8 +95,8 @@ std::ostream &operator<<(std::ostream &s, val const &v)
 {
   switch (v.type())
   {
-  case UINT:    return s << static_cast<uint64_t>(v);
-  case INT:     return s << static_cast<int64_t>(v);
+  case UINT8: case UINT16: case UINT32: case UINT64: return s << static_cast<uint64_t>(v);
+  case INT8:  case INT16:  case INT32:  case INT64:  return s << static_cast<int64_t>(v);
   case FLOAT32: return s << static_cast<float>(v);
   case FLOAT64: return s << static_cast<double>(v);
   case SYMBOL:  return s << static_cast<sym>(v);
@@ -107,13 +122,18 @@ std::ostream &operator<<(std::ostream &s, val const &v)
   case BYTES: return s << "b["  << static_cast<std::string_view>(v) << "]";  // FIXME: should be hex
 
   case TUPLE:
-  { s << "(";
+  case LIST:
+  case SET:
+  case MAP:
+  { let t = v.type();
+    s << (t == TUPLE ? "(" : t == LIST ? "[" : "{");
     bool first = true;
     for (let &x : v)
     { if (first) first = false;
       else       s << ", ";
-      s << x; }
-    return s << ")"; }
+      if (t == MAP && x.type() == TUPLE && x.len() == 2) s << x[0] << ": " << x[1];
+      else s << x; }
+    return s << (t == TUPLE ? ")" : t == LIST ? "]" : "}"); }
 
   case ARRAY:
   { s << "array<" << v.atype() << ">[" << v.len() << "][";
@@ -123,8 +143,6 @@ std::ostream &operator<<(std::ostream &s, val const &v)
       else       s << ", ";
       s << val(v.atype(), *v.b, v.asub(i)); }
     return s << "]"; }
-
-  case INDEX: return s << "index[]";
 
   case NONE:  return s << "none";
   case BOGUS: return s << "bogus";

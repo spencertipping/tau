@@ -112,19 +112,19 @@ struct tval
 typedef ibuf tbuf;
 
 
-tbuf const tu8 {0x00};
-tbuf const tu16{0x01};
-tbuf const tu32{0x02};
-tbuf const tu64{0x03};
-tbuf const ti8 {0x04};
-tbuf const ti16{0x05};
-tbuf const ti32{0x06};
-tbuf const ti64{0x07};
-tbuf const tf32{0x08};
-tbuf const tf64{0x09};
+tbuf const tu8 {UINT8};
+tbuf const tu16{UINT16};
+tbuf const tu32{UINT32};
+tbuf const tu64{UINT64};
+tbuf const ti8 {INT8};
+tbuf const ti16{INT16};
+tbuf const ti32{INT32};
+tbuf const ti64{INT64};
+tbuf const tf32{FLOAT32};
+tbuf const tf64{FLOAT64};
 
-tbuf const tsym  {0x0a};
-tbuf const tpidfd{0x0b};
+tbuf const tsym  {SYMBOL};
+tbuf const tpidfd{PIDFD};
 
 tbuf tutf8(uint64_t l)
 {

@@ -58,8 +58,7 @@ Any datatype with a non-constant length has the length prepended to it so we can
 ### Unused (reserved) bytes
 + `0x0f`
 + `0x17`
-+ `0x55`-`0x57`
-+ `0x5e`-`0x5f`
++ `0x5c`-`0x5f`
 + `0x60`-`0x6f`
 + `0x70`-`0x7f`
 
@@ -82,6 +81,7 @@ Any datatype with a non-constant length has the length prepended to it so we can
 | `0x0c`      | 0               | `false`                      |
 | `0x0d`      | 0               | `true`                       |
 | `0x0e`      | 0               | `null`                       |
+| `0x0f`      |                 | **reserved**                 |
 | `0x10`      | 0               | `alpha`                      |
 | `0x11`      | 0               | `iota`                       |
 | `0x12`      | 0               | `kappa`                      |
@@ -89,6 +89,7 @@ Any datatype with a non-constant length has the length prepended to it so we can
 | `0x14`      | 4               | `theta`, `uint32 x`          |
 | `0x15`      | 0               | `tau`                        |
 | `0x16`      | 0               | `omega`                      |
+| `0x17`      | 0               | **reserved**                 |
 | `0x18`      | 1 + len         | `utf8`, 8-bit _byte_ length  |
 | `0x19`      | 2 + len         | `utf8`, 16-bit _byte_ length |
 | `0x1a`      | 4 + len         | `utf8`, 32-bit _byte_ length |
@@ -148,34 +149,38 @@ When `array` is used as an array element, its `l` should be the length of each p
 Maps and sets are indexed structures in that finding an element requires less than _O(n)_ time. UTF9 implements three types of indexes:
 
 + `pos`: element position → byte offset
-+ `elt`: element hash → byte offset
-+ `key`: element first member hash → byte offset
++ `set`: element hash → byte offset
++ `map`: element first member hash → byte offset (elements are _n_-tuples, _n ≥ 1_)
 
 **NOTE:** most `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
 
 _In every case, the collection elements are sorted by the indexing axis._ This is important because it allows us to define partial indexes; that is, indexes that don't cover every element. This makes every index an interpolation basis.
 
-Small collections usually don't require indexes, so indexed collection lengths begin at 16 bits.
-
 Because indexes imply a container type, we have two markers, `map` and `set`, that provide no index data but still indicate that the collection ahead is meant to be interpreted as a map or set, respectively. These are used for very small containers, e.g. small JSON maps, that wouldn't benefit from accelerated lookups but whose type information is still important.
 
 
 #### Index bytecodes
-| Byte   | Following bytes  | Description             |
-|--------|------------------|-------------------------|
-| `0x50` | 0                | set type-hint           |
-| `0x51` | 0                | map type-hint           |
-| `0x52` | `l16 bits vs...` | pos16 index (list type) |
-| `0x53` | `l32 bits vs...` | pos32 index (list type) |
-| `0x54` | `l64 bits vs...` | pos64 index (list type) |
-| `0x58` | `l16 bits vs...` | hashset16 index         |
-| `0x59` | `l16 bits vs...` | hashmap16 index         |
-| `0x5a` | `l32 bits vs...` | hashset32 index         |
-| `0x5b` | `l32 bits vs...` | hashmap32 index         |
-| `0x5c` | `l64 bits vs...` | hashset64 index         |
-| `0x5d` | `l64 bits vs...` | hashmap64 index         |
+| Byte   | Following bytes      | Description             |
+|--------|----------------------|-------------------------|
+| `0x50` | `l8 n8 bits vs...`   | pos8 index (list type)  |
+| `0x51` | `l16 n16 bits vs...` | pos16 index (list type) |
+| `0x52` | `l32 n32 bits vs...` | pos32 index (list type) |
+| `0x53` | `l64 n64 bits vs...` | pos64 index (list type) |
+| `0x54` | `l8 bits vs...`      | hashset8 index          |
+| `0x55` | `l16 bits vs...`     | hashset16 index         |
+| `0x56` | `l32 bits vs...`     | hashset32 index         |
+| `0x57` | `l64 bits vs...`     | hashset64 index         |
+| `0x58` | `l8 bits vs...`      | hashmap8 index          |
+| `0x59` | `l16 bits vs...`     | hashmap16 index         |
+| `0x5a` | `l32 bits vs...`     | hashmap32 index         |
+| `0x5b` | `l64 bits vs...`     | hashmap64 index         |
+| `0x5c` | 0                    | list type-hint          |
+| `0x5d` | 0                    | set type-hint           |
+| `0x5e` | 0                    | map type-hint           |
 
-**NOTE:** index `l16`, `l32`, and `l64` define the _index + collection_ length. Byte offsets are with respect to the collection start, which always occurs immediately after the final `vs...` offset.
+`lN` is defined as the length of the collection following the index; for example, the total size of a `hashset8` index would be `l8 + 3 + (~0ull >> bits)` -- that is, the collection length plus the bytecode, `l8` byte, and `bits` byte, plus the size of the `vs...` lookup table. The collection always immediately follows `vs...`.
+
+**NOTE:** `0x5c`, `0x5d`, and `0x5e` merely hint the type of a tuple, so they don't require the tuple to be sorted in any particular way. These are otherwise equivalent to degenerate forms of `pos8`, `hashset8`, and `hashmap8`, but those require at least one extra byte each.
 
 Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They can be downsampled by a number of bits, encoded as an `int8`; for example, if `bits = 2`, then the byte-offset table encodes the positions of `[0]`, `[4]`, `[8]`, `[12]`, etc. This trades space for time, ultimately providing a random-accessibility continuum between tuples-as-linked-lists and tuples-as-arrays.
 
@@ -191,8 +196,21 @@ fixtuple4 length=4 fixint5 fixint5 fixint1 fixint64  <- bytecodes
 Any index will be a packed array of offsets that refer to one of the tuple values directly, in this case `2`, `3`, `4`, or `5`. So we might have a positional index that looks like this:
 
 ```
-pos32
+0    1   2   3      4  5  6  7   8         9            <- byte offsets
+pos8 l=6 n=4 bits=0 02 03 04 05  fixtuple4 length=4 ... <- bytecodes
+                                 ^
+                                 |
+                                 tuple starts here
 ```
+
+
+### Space/time tradeoffs
+How do we set `bits`? The encoder needs two parameters:
+
+1. The overhead ceiling per collection, as a fraction (e.g. the index should take up no more than 50% of the collection size)
+2. The jump ceiling per seek, as an absolute number (e.g. no indexed retrieval should require more than _n_ cache misses)
+
+(2) is optional; most of the time we use (1).
 
 
 ## Ordering
@@ -216,7 +234,6 @@ O<greek>(x, y) = α < ι < κ < θ < ρ < τ < ω
 
 O<utf8> (x, y) = memcmp(x[0..min], y[0..min]) || x.length <=> y.length
 O<bytes>(x, y) = memcmp(x[0..min], y[0..min]) || x.length <=> y.length
-O<array>(x, y) = O(x.atype, y.atype) || memcmp(x[0..min], y[0..min]) || x.length <=> y.length
 O<tuple>(x, y) = x[0] <=> y[0] || O<tuple>(x[1..], y[1..]) || x.length <=> y.length
 ```
 
@@ -250,11 +267,7 @@ H<bytes>  (x) = xxh(x.data, x.length, 0x1c)
 
 H<tuple>  ((x, ...)) = xxc(H(x), H<tuple>((...)))
 H<tuple>  (())       = xxh(NULL, 0, 0x20)
-
-H<array>  (xs) = xxh(&xs.data, sizeof(xs.data), 0x24)
 ```
-
-Note that array primitives are always stored big-endian, so `H<array>` is portable.
 
 
 ## Transit spec

@@ -82,58 +82,6 @@ uint64_t interpsearch(std::vector<val> const &vs,
 }
 
 
-#if TAU_VAL_SUPPORTS_ORD_IDX
-template <class KF>
-val s_to(val      const &b,
-         val      const &k,
-         val      const &hk,
-         uint64_t const h)
-{
-  if (hk.exists() && hk > k) throw internal_error("s_to hk>k");
-  KF kf;
-  if (!b.has_ibuf()) { let i = binsearch<KF>(*b.vt, k); return i & not_found_bit ? none : (*b.vt)[i]; }
-  for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
-  {
-    let v = val(*b.b, o);
-    switch (k.compare(kf(v)))
-    {
-    case -1: break;
-    case  0: return v;
-    case  1: return none;
-    }
-  }
-  return none;
-}
-
-template <class KF> inline val val::to(val const &k, val const &hk, uint64_t const h) const { return s_to<KF>(*this, k, hk, h); }
-
-template <class KF> bool val::is_to() const
-{
-  KF kf;
-  if (!len()) return true;
-  val last = none;
-  for (let &v : *this)
-  {
-    let k = kf(v);
-    if (last.exists() && k < last) return false;
-    last = k;
-  }
-  return true;
-}
-
-template <class KF> val val::make_to() const
-{
-  KF kf;
-  let v = new std::vector<val>;
-  v->reserve(len());
-  for (let &x : *this) v->push_back(x);
-  std::sort(v->begin(), v->end(),
-            [=](val const &a, val const &b) { return kf(a) < kf(b); });
-  return val(v);
-}
-#endif
-
-
 template <class KF>
 val s_th(val      const &b,
          val      const &k,

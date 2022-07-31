@@ -26,7 +26,7 @@ static_assert(sizeof(double)    == sizeof(uint64_t));
 static_assert(sizeof(float)     == sizeof(uint32_t));
 static_assert(sizeof(char)      == sizeof(uint8_t));
 
-static_assert(sizeof(void*)  <= sizeof(uint64_t));  // <=, not ==, required for emscripten
+static_assert(sizeof(void*) <= sizeof(uint64_t));  // <=, not ==, required for emscripten
 
 
 inline uint64_t ce(uint64_t x) { return LE ? bswap_64(x) : x; }

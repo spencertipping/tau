@@ -13,8 +13,14 @@ namespace tau::utf9
 
 enum val_type : uint8_t
 {
-  UINT     = 0x00,
-  INT      = 0x04,
+  UINT8    = 0x00,
+  UINT16   = 0x01,
+  UINT32   = 0x02,
+  UINT64   = 0x03,
+  INT8     = 0x04,
+  INT16    = 0x05,
+  INT32    = 0x06,
+  INT64    = 0x07,
   FLOAT32  = 0x08,
   FLOAT64  = 0x09,
   SYMBOL   = 0x0a,
@@ -29,23 +35,30 @@ enum val_type : uint8_t
 
   TUPLE    = 0x20,
   ARRAY    = 0x24,
-  INDEX    = 0x30,  // TODO: split into map/set
+  LIST     = 0x30,  // indexed tuple variants
+  SET      = 0x31,
+  MAP      = 0x32,
 
   NONE     = 0x3e,  // fictitious: not a real value
   BOGUS    = 0x3f,
+
+  MAX_VAL_TYPE = BOGUS,
 };
 
+
 typedef uint64_t val_type_mask;
+
+static_assert(MAX_VAL_TYPE < sizeof(val_type_mask) * 8);
 
 
 namespace  // Type dispatch tables
 {
 
-val_type const bts[256] =
+val_type const constexpr bts[256] =
 {
   // 0x00-0x0f
-  UINT, UINT, UINT, UINT,
-  INT,  INT,  INT,  INT,
+  UINT8, UINT16, UINT32, UINT64,
+  INT8,  INT16,  INT32,  INT64,
   FLOAT32, FLOAT64, SYMBOL, PIDFD,
   BOOL, BOOL, NULLTYPE, BOGUS,
 
@@ -74,12 +87,10 @@ val_type const bts[256] =
   TUPLE, TUPLE, TUPLE, TUPLE,
 
   // 0x50-0x5f
-  INDEX, INDEX, INDEX, INDEX,
-  INDEX, INDEX, INDEX, INDEX,
-  INDEX, INDEX,
-
-  BOGUS, BOGUS,
-  BOGUS, BOGUS, BOGUS, BOGUS,
+  LIST,  LIST,  LIST,  LIST,
+  SET,   SET,   SET,   SET,
+  MAP,   MAP,   MAP,   MAP,
+  LIST,  MAP,   SET,   BOGUS,
 
   // 0x60-0x6f
   BOGUS, BOGUS, BOGUS, BOGUS,
@@ -94,49 +105,53 @@ val_type const bts[256] =
   BOGUS, BOGUS, BOGUS, BOGUS,
 
   // 0x80-0xbf
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
 
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
 
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
 
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
 
   // 0xc0-0xff
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
 
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
 
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
 
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
-  INT, INT, INT, INT,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
+  INT8, INT8, INT8, INT8,
 };
 
 }
+
+
+static_assert(bts[0x7f] != INT8);
+static_assert(bts[0x80] == INT8);
 
 
 }
