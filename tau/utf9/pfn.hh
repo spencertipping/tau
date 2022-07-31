@@ -4,10 +4,11 @@
 
 #include <cstdint>
 
+#include "error-proto.hh"
 #include "ibuf.hh"
 
-#include "../module/begin.hh"
 
+#include "../module/begin.hh"
 
 namespace tau::utf9
 {
@@ -18,7 +19,7 @@ namespace tau::utf9
 typedef uint8_t const*(*pfn)(ibuf const &, uint64_t);
 
 
-let bogus_pf = [](ibuf const &b, uint64_t i) -> uint8_t const* { throw decoding_error("bogus pf", b, i); };
+let bogus_pf = [](ibuf const &b, uint64_t i) -> uint8_t const* { return throw_decoding_error<uint8_t const *>("bogus pf", b, i); };
 
 let p1  = pf(b + (i + 1));
 let p2  = pf(b + (i + 2));

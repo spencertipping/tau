@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-#include "errors.hh"
+#include "error-proto.hh"
 #include "hash.hh"
 #include "ibuf.hh"
 #include "obuf.hh"
@@ -20,6 +20,7 @@ namespace tau::utf9
 // A typecode beginning at a specific bytecode location
 struct tval
 {
+  // TODO: tagging for ibuf ownership
   ibuf const * const b;
   uint64_t     const i;
   uint64_t     const e;
@@ -40,7 +41,7 @@ struct tval
 
 
   it begin() const
-    { if (type() != TUPLE) throw toperation_error("begin()", *this);
+    { if (type() != TUPLE) return throw_top_error<it>("begin()", *this);
       if (typecode() >= 0x48 && typecode() <= 0x4f) return it{b, i + 2};
       switch (typecode())
       {
@@ -48,14 +49,14 @@ struct tval
       case 0x41: return it{b, i + 5};
       case 0x42: return it{b, i + 9};
       case 0x43: return it{b, i + 17};
-      default: throw internal_error("tval begin()");
+      default: return throw_internal_error<it>("tval begin()");
       } }
 
   it end() const { return it{b, e}; }
 
   tval operator[](uint64_t i) const { it i_ = begin(); while (i--) ++i_; return *i_; }
   uint64_t offset_of(uint64_t i) const
-    { if (type() != TUPLE) throw toperation_error("offset_of()", *this);
+    { if (type() != TUPLE) return throw_top_error<uint64_t>("offset_of()", *this);
       if (!i) return 0;
       --i;
       uint64_t s = 0;
@@ -71,7 +72,7 @@ struct tval
 
 
   uint64_t len() const
-    { if (type() != ARRAY && type() != TUPLE) throw toperation_error("len()", *this);
+    { if (type() != ARRAY && type() != TUPLE) throw_top_error<uint64_t>("len()", *this);
       if (typecode() >= 0x48 && typecode() <= 0x4f) return typecode() - 0x48;
       switch (typecode())
       {
@@ -79,18 +80,18 @@ struct tval
       case 0x41: case 0x45: return b->u16(i + 3);
       case 0x42: case 0x46: return b->u32(i + 5);
       case 0x43: case 0x47: return b->u64(i + 9);
-      default: throw internal_error("tval len()");
+      default: return throw_internal_error<uint64_t>("tval len()");
       } }
 
   tval atype() const
-    { if (type() != ARRAY) throw toperation_error("atype()", *this);
+    { if (type() != ARRAY) return throw_top_error<tval>("atype()", *this);
       switch (typecode())
       {
       case 0x44: return tval(*b, i + 3);
       case 0x45: return tval(*b, i + 5);
       case 0x46: return tval(*b, i + 9);
       case 0x47: return tval(*b, i + 17);
-      default: throw internal_error("tval atype()");
+      default: return throw_internal_error<tval>("tval atype()");
       } }
 
 

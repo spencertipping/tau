@@ -1,5 +1,6 @@
 *.~undo-tree~
 t/test
-t/test-debug
+t/test-*
 t/*.js
 t/*.wasm
+t/*.log

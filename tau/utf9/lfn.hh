@@ -2,6 +2,7 @@
 #define tau_utf9_lfn_h
 
 
+#include "error-proto.hh"
 #include "ibuf.hh"
 
 #include "../module/begin.hh"
@@ -61,9 +62,9 @@ let idx16_lf = lf(b.u16(i + 1) + 4  + 2 * (~0ull >> b.u8(i + 3)));
 let idx32_lf = lf(b.u32(i + 1) + 6  + 4 * (~0ull >> b.u8(i + 5)));
 let idx64_lf = lf(b.u64(i + 1) + 10 + 8 * (~0ull >> b.u8(i + 9)));
 
-let bogus_lf   = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus lf",   b, i); };
-let bogus_tlf  = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus tlf",  b, i); };
-let bogus_tvlf = [](ibuf const &b, uint64_t i) -> uint64_t { throw decoding_error("bogus tvlf", b, i); };
+let bogus_lf   = [](ibuf const &b, uint64_t i) -> uint64_t { return throw_decoding_error<uint64_t>("bogus lf",   b, i); };
+let bogus_tlf  = [](ibuf const &b, uint64_t i) -> uint64_t { return throw_decoding_error<uint64_t>("bogus tlf",  b, i); };
+let bogus_tvlf = [](ibuf const &b, uint64_t i) -> uint64_t { return throw_decoding_error<uint64_t>("bogus tvlf", b, i); };
 
 
 // Typecode length functions

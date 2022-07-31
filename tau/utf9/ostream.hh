@@ -167,22 +167,22 @@ std::ostream &decoding_error::operator>>(std::ostream &s) const
 
 std::ostream &toperation_error::operator>>(std::ostream &s) const
 {
-  return s << "toperation_error" << m << " " << t;
+  return s << "toperation_error(" << m << ": " << t << ")";
 }
 
 std::ostream &voperation_error::operator>>(std::ostream &s) const
 {
-  return s << "voperation_error" << m << " " << v;
+  return s << "voperation_error(" << m << ": " << v << ")";
 }
 
 std::ostream &binop_error::operator>>(std::ostream &s) const
 {
-  return s << "binop_error" << m << "(" << a << ", " << b << ")";
+  return s << "binop_error(" << m << ": " << a << ", " << b << ")";
 }
 
 std::ostream &encoding_error::operator>>(std::ostream &s) const
 {
-  return s << "encoding_error" << m << " " << t << " " << v;
+  return s << "encoding_error(" << m << ": " << t << " " << v << ")";
 }
 
 

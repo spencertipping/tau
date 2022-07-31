@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstring>
 
-#include "errors.hh"
+#include "error-proto.hh"
 #include "numerics.hh"
 
 #include "../module/begin.hh"
@@ -36,7 +36,7 @@ struct ibuf
 
 
   bool has  (uint64_t i) const { return i < l; }
-  void check(uint64_t i) const { if (!has(i)) throw decoding_error("ibuf bounds", *this, i); }
+  void check(uint64_t i) const { if (!has(i)) throw_decoding_error("ibuf bounds", *this, i); }
 
   uint64_t len  (uint64_t i) const;
   uint64_t tlen (uint64_t i) const;

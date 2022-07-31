@@ -6,6 +6,11 @@
 #include "unistd.h"
 
 
+#ifndef QUICK
+#define QUICK 0
+#endif
+
+
 #include "../tau.hh"
 
 
@@ -107,8 +112,20 @@ void try_loading_stuff()
     o9 o3; z.atype().pack(o3, z[0]); z.atype().pack(o3, z[1]);
     i9 i3(o3.data(), o3.size());
     cout << u9(z.atype(), i3, 0) << ", " << u9(z.atype(), i3, 8) << endl;
+  }
+  catch (u9e const &e)
+  {
+    cout << "ERROR " << e << endl;
+    _exit(1);
+  }
+}
 
-    for (int64_t upper = 1; upper <= 1048576 * 16; upper *= 16)
+
+void try_bench()
+{
+  try
+  {
+    for (int64_t upper = 1; upper <= (QUICK ? 65536 : 1048576 * 16); upper *= 16)
     {
       o9 o4;
       u9 v4 = u9t(upper);
@@ -188,12 +205,34 @@ void try_orderings()
     auto vh = v.make_th<u9::kf_te>();
     for (int64_t i = -10; i < 110; ++i)
       if (vh.th<u9::kf_te>(u9(i), none).exists() != (i >= 0 && i < 100))
-        cout << "hash find mismatch for " << i << endl;
+      { cout << "hash find mismatch for " << i << endl;
+        _exit(1); }
   }
   catch (u9e const &e)
   {
     cout << "ERROR " << e << endl;
     _exit(1);
+  }
+}
+
+
+void try_coercion_error()
+{
+  try
+  {
+    uint8_t buf[] = {
+      0x00, 0x7f,
+    };
+    i9 b(buf, sizeof(buf));
+    u9 x(b,   0);
+
+    cout << static_cast<int64_t>(x) << endl;
+    cout << "the previous cast should have failed" << endl;
+    _exit(1);
+  }
+  catch (u9e const &e)
+  {
+    cout << "correctly caught error: " << e << endl;
   }
 }
 
@@ -228,8 +267,10 @@ int main()
        << (std::endian::native == std::endian::big ? "big" : "little") << endl;
 
   cout << "try_really_simple"  << endl; try_really_simple();
+  cout << "try_coercion_error" << endl; try_coercion_error();
   //cout << "try_loading_stuff"  << endl; try_loading_stuff();
   cout << "try_orderings"      << endl; try_orderings();
+  cout << "try_bench"          << endl; try_bench();
   cout << "try_printing_types" << endl; try_printing_types();
   return 0;
 }

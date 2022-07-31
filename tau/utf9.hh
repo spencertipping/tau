@@ -5,7 +5,7 @@
 #include <type_traits>
 
 
-#include "utf9/errors.hh"
+#include "utf9/error-proto.hh"
 #include "utf9/numerics.hh"
 #include "utf9/hash.hh"
 #include "utf9/ibuf.hh"
@@ -21,6 +21,7 @@
 #include "utf9/valsearch.hh"
 #include "utf9/enc.hh"
 #include "utf9/ostream.hh"
+#include "utf9/errors.hh"
 
 
 #include "module/begin.hh"

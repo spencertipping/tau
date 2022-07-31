@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <string>
 
-#include "errors.hh"
+#include "error-proto.hh"
 #include "ibuf.hh"
 
 #include "../module/begin.hh"
@@ -61,7 +61,7 @@ struct greek
       case 0x14: l = Θ; v = b.u32(i + 1); break;
       case 0x15: l = Τ; v = 0; break;
       case 0x16: l = Ω; v = 0; break;
-      default: throw internal_error("greek bdec");
+      default: throw_internal_error("greek bdec");
       } }
 
   bool has_v() const { return l == Ρ || l == Θ; }
