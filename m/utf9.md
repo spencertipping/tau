@@ -58,7 +58,8 @@ Any datatype with a non-constant length has the length prepended to it so we can
 ### Unused (reserved) bytes
 + `0x0f`
 + `0x17`
-+ `0x5a`-`0x5f`
++ `0x55`-`0x57`
++ `0x5e`-`0x5f`
 + `0x60`-`0x6f`
 + `0x70`-`0x7f`
 
@@ -147,47 +148,51 @@ When `array` is used as an array element, its `l` should be the length of each p
 Maps and sets are indexed structures in that finding an element requires less than _O(n)_ time. UTF9 implements three types of indexes:
 
 + `pos`: element position → byte offset
-+ `elt`: element {ord | hash} → byte offset
-+ `key`: element first member {_ord (proposed)_ | hash} → byte offset
-
-**NOTE:** `ord*` may not have a compelling use case. We probably want `hash*` as our ordering, as it's likely to be much faster for most operations.
++ `elt`: element hash → byte offset
++ `key`: element first member hash → byte offset
 
 **NOTE:** most `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
 
 _In every case, the collection elements are sorted by the indexing axis._ This is important because it allows us to define partial indexes; that is, indexes that don't cover every element. This makes every index an interpolation basis.
 
-Small collections don't require indexes, so indexed collection lengths begin at 16 bits.
+Small collections usually don't require indexes, so indexed collection lengths begin at 16 bits.
 
 Because indexes imply a container type, we have two markers, `map` and `set`, that provide no index data but still indicate that the collection ahead is meant to be interpreted as a map or set, respectively. These are used for very small containers, e.g. small JSON maps, that wouldn't benefit from accelerated lookups but whose type information is still important.
 
 
-#### Index structure
-An index consists of many elements, each of the form `(key, offset)`, always stored in a packed array. `ord*` indexes make sense for numbers and strings, `hash*` indexes are for arbitrary (hashable) types. We use a packed array to provide quick jumping across index elements.
-
-`hash*` keys are always `uint` values sized equally to the offsets, so `hashmap16` contains `(u16 hash, u16 offset)` pairs. `u16 hash = full_hash >> 48`.
-
-`ord*` keys are TBD and may be dropped. I'm not sure when we would want them.
-
-**FIXME:** hash indexes should be radix crossing point lookups -- i.e. omit `u16 hash` from the pairs since they increase so uniformly.
-
-
 #### Index bytecodes
-| Byte   | Following bytes    | Description                |
-|--------|--------------------|----------------------------|
-| `0x50` | 0                  | set type-hint              |
-| `0x51` | 0                  | map type-hint              |
-| `0x52` | `l32 bits vs...`   | position index (list type) |
-| `0x53` | `l64 bits vs...`   | position index (list type) |
-| `0x54` | `l16 n16 hp16s...` | hashset16 index            |
-| `0x55` | `l16 n16 hp16s...` | hashmap16 index            |
-| `0x56` | `l32 n32 hp32s...` | hashset32 index            |
-| `0x57` | `l32 n32 hp32s...` | hashmap32 index            |
-| `0x58` | `l64 n64 hp64s...` | hashset64 index            |
-| `0x59` | `l64 n64 hp64s...` | hashmap64 index            |
+| Byte   | Following bytes  | Description             |
+|--------|------------------|-------------------------|
+| `0x50` | 0                | set type-hint           |
+| `0x51` | 0                | map type-hint           |
+| `0x52` | `l16 bits vs...` | pos16 index (list type) |
+| `0x53` | `l32 bits vs...` | pos32 index (list type) |
+| `0x54` | `l64 bits vs...` | pos64 index (list type) |
+| `0x58` | `l16 bits vs...` | hashset16 index         |
+| `0x59` | `l16 bits vs...` | hashmap16 index         |
+| `0x5a` | `l32 bits vs...` | hashset32 index         |
+| `0x5b` | `l32 bits vs...` | hashmap32 index         |
+| `0x5c` | `l64 bits vs...` | hashset64 index         |
+| `0x5d` | `l64 bits vs...` | hashmap64 index         |
 
-**NOTE:** index `l16`, `l32`, and `l64` define the _index + collection_ length. Byte offsets are with respect to the collection start, which always occurs at `n{16,32,64} * sizeof(hp{16,32,64})` -- and `sizeof(hpN) == N / 4`.
+**NOTE:** index `l16`, `l32`, and `l64` define the _index + collection_ length. Byte offsets are with respect to the collection start, which always occurs immediately after the final `vs...` offset.
 
-Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They can be downsampled by a number of bits, encoded as an `int8`; for example, if `bits = 2`, then the byte-offset table encodes the positions of `[0]`, `[4]`, `[8]`, `[12]`, etc. This trades space for time.
+Position indexes translate `[i]` subscripts to byte-offsets within a tuple. They can be downsampled by a number of bits, encoded as an `int8`; for example, if `bits = 2`, then the byte-offset table encodes the positions of `[0]`, `[4]`, `[8]`, `[12]`, etc. This trades space for time, ultimately providing a random-accessibility continuum between tuples-as-linked-lists and tuples-as-arrays.
+
+
+#### Index structure
+Indexes are arrays of byte offsets into a tuple. For example, suppose we have a tuple of ints:
+
+```
+0         1        2       3       4       5         <- byte offsets
+fixtuple4 length=4 fixint5 fixint5 fixint1 fixint64  <- bytecodes
+```
+
+Any index will be a packed array of offsets that refer to one of the tuple values directly, in this case `2`, `3`, `4`, or `5`. So we might have a positional index that looks like this:
+
+```
+pos32
+```
 
 
 ## Ordering
@@ -253,7 +258,7 @@ Note that array primitives are always stored big-endian, so `H<array>` is portab
 
 
 ## Transit spec
-A lightweight framing protocol that wraps one or more values over non-persistent connections, e.g. pipes or networks. There is no integrity verification or alignment.
+A lightweight framing protocol that wraps one or more values over non-persistent connections, e.g. pipes or networks. There is no integrity verification or alignment because we assume all transit strategies are durable.
 
 ```cpp
 struct utf9_transit_frame
@@ -296,7 +301,7 @@ Frames are 16-byte aligned and begin with magic+length, the boundary value, the 
 ```cpp
 struct utf9_disk_frame_header
 {
-  uint8_t const magic[8]   = {0xff, 0xff, 'u', 't', 'f', '9', 'f', 0x00};
+  uint8_t const magic[8]   = {0xff, 0xff, 'u', 't', 'f', '9', 'f', VERSION};
   uint64_t      length;  // NOTE: always big-endian
   int128 const  boundary   = utf9_disk_header.boundary;
   int128        frame_sha  = sha256(frame) >> 128;
@@ -315,4 +320,4 @@ struct utf9_disk_frame
 
 `sizeof(utf9_frame_header) == 80`. Because frames carry the header overhead, each frame can contain multiple values emitted back to back. The frame is there to provide integrity checking for its contents and to provide a seek point within the file, making it possible to jump to an arbitrary location and find a nearby frame boundary.
 
-`boundary` decreases the amount of overhead required to scan for a frame boundary, while `frame_sha` and `signed_sha` provide robust confirmation.
+`boundary` decreases the amount of overhead required to scan for a frame boundary, while `frame_sha` and `signed_sha` provide robust confirmation. Padding means that `boundary` will always be 16-byte aligned.
