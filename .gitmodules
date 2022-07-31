@@ -2,8 +2,8 @@
 	path = c/cityhash
 	url = https://github.com/google/cityhash
 [submodule "c/xxHash"]
-	path = d/xxHash
+	path = dep/xxHash
 	url = https://github.com/Cyan4973/xxHash/
 [submodule "c/PicoSHA2"]
-	path = d/PicoSHA2
+	path = dep/PicoSHA2
 	url = https://github.com/okdshin/PicoSHA2
