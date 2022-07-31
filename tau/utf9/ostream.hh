@@ -132,7 +132,7 @@ std::ostream &operator<<(std::ostream &s, val const &v)
     { if (first) first = false;
       else       s << ", ";
       if (t == MAP && x.type() == TUPLE && x.len() == 2) s << x[0] << ": " << x[1];
-      else s << x; }
+      else                                               s << x; }
     return s << (t == TUPLE ? ")" : t == LIST ? "]" : "}"); }
 
   case ARRAY:

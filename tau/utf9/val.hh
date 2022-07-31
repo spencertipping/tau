@@ -211,7 +211,7 @@ struct val
       return vb->data(); }
 
   uint8_t const *mend() const
-    { if (has_ibuf()) return *b + i + b->len(i);
+    { if (has_ibuf()) return *b + (i + b->len(i));
       require_type(1ull << UTF8 | 1ull << BYTES);
       return vb->data() + vb->size(); }
 
@@ -237,13 +237,13 @@ struct val
     bool operator==(it const &rhs) const { return b == rhs.b && i == rhs.i; }
   };
 
-  it begin() const {
-    require_type(1ull << TUPLE | 1ull << ARRAY);
-    return has_ibuf() ? it(b, ibegin()) : it(vt->begin()); }
+  it begin() const
+    { require_type(1ull << TUPLE | 1ull << ARRAY | 1ull << LIST | 1ull << SET | 1ull << MAP);
+      return has_ibuf() ? it(b, ibegin()) : it(vt->begin()); }
 
-  it end() const {
-    require_type(1ull << TUPLE | 1ull << ARRAY);
-    return has_ibuf() ? it(b, iend()) : it(vt->end()); }
+  it end() const
+    { require_type(1ull << TUPLE | 1ull << ARRAY | 1ull << LIST | 1ull << SET | 1ull << MAP);
+      return has_ibuf() ? it(b, iend()) : it(vt->end()); }
 
 
   uint64_t len() const
@@ -327,7 +327,7 @@ struct val
       } }
 
   explicit operator int64_t() const
-    { if (1ull << UINT8 | 1ull << UINT16 | 1ull << UINT32 | 1ull << UINT64) throw voperation_error("u->i", *this);
+    { if (has_type(1ull << UINT8 | 1ull << UINT16 | 1ull << UINT32 | 1ull << UINT64)) throw voperation_error("u->i", *this);
       require_type(1ull << INT8 | 1ull << INT16 | 1ull << INT32 | 1ull << INT64);
       if (!has_ibuf()) return vi;
       let x = b->u8(i);
@@ -461,10 +461,10 @@ struct val
   // the array type + tag + vector). So this will be called only with an ibuf.
   val ap(uint64_t i) const { require_ibuf(); return val(atype(), *b, asub(i)); }
 
-  // All functions below use hinting: hi or hk to indicate the thing that was
-  // hinted, and h to indicate the byte offset (beyond mbegin()) to start
-  // looking. In every case, h <= offset and hk <= k (or for hashed, H[hk] <
-  // H[k]); decoding is forward-only, so hints can't overshoot.
+  // Hinting: hi or hk to indicate the thing that was hinted, and h to indicate
+  // the byte offset (beyond mbegin()) to start looking. In every case, h <=
+  // offset and hk <= k (or for hashed, H[hk] < H[k]); decoding is forward-only,
+  // so hints can't overshoot.
   val tp(uint64_t i, uint64_t hi = 0, uint64_t h = 0) const;
 
   val lp(uint64_t i) const { throw voperation_error("l[u64] TODO", *this); }

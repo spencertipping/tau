@@ -39,6 +39,32 @@ template <class T> ostream &operator<<(ostream &s, debug<T> const &d)
 }
 
 
+void try_really_simple()
+{
+  try
+  {
+    uint8_t buf[] = {
+      0x00, 0x7f,
+      0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+      0x4b, 0x03, 0x81, 0x82, 0x83,
+    };
+    i9 b(buf, sizeof(buf));
+    u9 x(b,   0);
+    u9 y(b,   x.i + b.len(x.i));
+    u9 z(b,   y.i + b.len(y.i));
+
+    cout << "uint8 127 = "    << x.i << ">" << b.len(x.i) << ": " << x << endl;
+    cout << "uint64 65536 = " << y.i << ">" << b.len(y.i) << ": " << y << endl;
+    cout << "fixtuple3 = "    << z.i << ">" << b.len(z.i) << ": " << z << endl;
+  }
+  catch (u9e const &e)
+  {
+    cout << "ERROR " << e << endl;
+    _exit(1);
+  }
+}
+
+
 void try_loading_stuff()
 {
   try
@@ -201,7 +227,8 @@ int main()
   cout << "native endianness: "
        << (std::endian::native == std::endian::big ? "big" : "little") << endl;
 
-  cout << "try_loading_stuff"  << endl; try_loading_stuff();
+  cout << "try_really_simple"  << endl; try_really_simple();
+  //cout << "try_loading_stuff"  << endl; try_loading_stuff();
   cout << "try_orderings"      << endl; try_orderings();
   cout << "try_printing_types" << endl; try_printing_types();
   return 0;

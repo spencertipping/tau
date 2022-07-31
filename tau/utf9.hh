@@ -51,7 +51,6 @@ typedef tau::utf9::obuf o9;
 
 
 let u9n = tau::utf9::none;
-
 using tau::utf9::u9t;
 using tau::utf9::u9a;
 using tau::utf9::u9l;
