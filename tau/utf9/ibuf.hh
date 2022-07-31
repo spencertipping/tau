@@ -32,6 +32,9 @@ struct ibuf
   ibuf(ibuf const &b) : xs(new uint8_t[b.l]), l(b.l), owned(true)
     { std::memcpy(const_cast<uint8_t*>(xs), b.xs, l); }
 
+  ibuf(ibuf &&b) : xs(b.xs), l(b.l), owned(b.owned)
+    { b.xs = nullptr; b.l = 0; b.owned = false; }
+
   ~ibuf() { if (owned) delete[] xs; }
 
 

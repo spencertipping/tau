@@ -268,7 +268,10 @@ int main()
 
   cout << "try_really_simple"  << endl; try_really_simple();
   cout << "try_coercion_error" << endl; try_coercion_error();
+
+  cout << "TODO: re-enable try_loading_stuff" << endl;
   //cout << "try_loading_stuff"  << endl; try_loading_stuff();
+
   cout << "try_orderings"      << endl; try_orderings();
   cout << "try_bench"          << endl; try_bench();
   cout << "try_printing_types" << endl; try_printing_types();

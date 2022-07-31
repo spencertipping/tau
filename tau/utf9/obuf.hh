@@ -68,7 +68,7 @@ struct obuf : public oenc
   obuf() {}
   obuf(uint64_t c) : b(new uint8_t[c]), l(c), i(0) {}
 
-  virtual ~obuf() { if (b) delete[] b;}
+  virtual ~obuf() { if (b) delete[] b; }
 
 
   ibuf convert_to_ibuf()

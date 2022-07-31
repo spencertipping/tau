@@ -17,16 +17,39 @@ namespace tau::utf9
 {
 
 
+struct tbuf;
+
+
 // A typecode beginning at a specific bytecode location
 struct tval
 {
-  // TODO: tagging for ibuf ownership
-  ibuf const * const b;
-  uint64_t     const i;
-  uint64_t     const e;
+  uint64_t const tag;  // NOTE: contains ibuf* plus ownership bit
+  uint64_t const i;
+  uint64_t const e;
 
-  tval(ibuf const &b_, uint64_t i_) : b(&b_), i(i_), e(i + b->ctlen(i)) {}
-  tval(ibuf const &b_)              : b(&b_), i(0),  e(    b->ctlen(0)) {}
+  static inline uint64_t tagify(ibuf const * b_, bool own = false)
+    { return reinterpret_cast<uint64_t>(b_) | (own ? 1 : 0); }
+
+
+  tval(ibuf const &b_, uint64_t i_ = 0, bool own = false)
+    : tag(tagify(&b_, own)),
+      i(i_),
+      e(i + b().ctlen(i)) {}
+
+  tval(tbuf const &b_, uint64_t i_ = 0, bool own = false)
+    : tag(tagify(reinterpret_cast<ibuf const *>(&b_), own)),
+      i(i_),
+      e(i + b().ctlen(i)) {}
+
+  tval(tbuf *b_)
+    : tag(tagify(reinterpret_cast<ibuf*>(b_), true)),
+      i(0),
+      e(b().ctlen(0)) {}
+
+  ~tval() { if (tag & 1) delete reinterpret_cast<ibuf*>(tag & ~1ull); }
+
+
+  ibuf const &b() const { return *reinterpret_cast<ibuf const*>(tag & ~1ull); }
 
 
   struct it
@@ -42,17 +65,17 @@ struct tval
 
   it begin() const
     { if (type() != TUPLE) return throw_top_error<it>("begin()", *this);
-      if (typecode() >= 0x48 && typecode() <= 0x4f) return it{b, i + 2};
+      if (typecode() >= 0x48 && typecode() <= 0x4f) return it{&b(), i + 2};
       switch (typecode())
       {
-      case 0x40: return it{b, i + 3};
-      case 0x41: return it{b, i + 5};
-      case 0x42: return it{b, i + 9};
-      case 0x43: return it{b, i + 17};
-      default: return throw_internal_error<it>("tval begin()");
+      case 0x40: return it{&b(), i + 3};
+      case 0x41: return it{&b(), i + 5};
+      case 0x42: return it{&b(), i + 9};
+      case 0x43: return it{&b(), i + 17};
+      default:   return throw_internal_error<it>("tval begin()");
       } }
 
-  it end() const { return it{b, e}; }
+  it end() const { return it{&b(), e}; }
 
   tval operator[](uint64_t i) const { it i_ = begin(); while (i--) ++i_; return *i_; }
   uint64_t offset_of(uint64_t i) const
@@ -65,10 +88,10 @@ struct tval
       return s; }
 
 
-  uint8_t  typecode() const { return b->u8(i); }
+  uint8_t  typecode() const { return b().u8(i); }
   val_type type()     const { return bts[typecode()]; }
-  uint64_t vsize()    const { return b->tvlen(i); }
-  uint64_t tsize()    const { return b->tlen(i); }
+  uint64_t vsize()    const { return b().tvlen(i); }
+  uint64_t tsize()    const { return b().tlen(i); }
 
 
   uint64_t len() const
@@ -76,10 +99,10 @@ struct tval
       if (typecode() >= 0x48 && typecode() <= 0x4f) return typecode() - 0x48;
       switch (typecode())
       {
-      case 0x40: case 0x44: return b->u8(i + 2);
-      case 0x41: case 0x45: return b->u16(i + 3);
-      case 0x42: case 0x46: return b->u32(i + 5);
-      case 0x43: case 0x47: return b->u64(i + 9);
+      case 0x40: case 0x44: return b().u8(i + 2);
+      case 0x41: case 0x45: return b().u16(i + 3);
+      case 0x42: case 0x46: return b().u32(i + 5);
+      case 0x43: case 0x47: return b().u64(i + 9);
       default: return throw_internal_error<uint64_t>("tval len()");
       } }
 
@@ -87,10 +110,10 @@ struct tval
     { if (type() != ARRAY) return throw_top_error<tval>("atype()", *this);
       switch (typecode())
       {
-      case 0x44: return tval(*b, i + 3);
-      case 0x45: return tval(*b, i + 5);
-      case 0x46: return tval(*b, i + 9);
-      case 0x47: return tval(*b, i + 17);
+      case 0x44: return tval(b(), i + 3);
+      case 0x45: return tval(b(), i + 5);
+      case 0x46: return tval(b(), i + 9);
+      case 0x47: return tval(b(), i + 17);
       default: return throw_internal_error<tval>("tval atype()");
       } }
 
@@ -100,17 +123,24 @@ struct tval
   int compare(tval const &t) const
     { let n1 =   tsize();
       let n2 = t.tsize();
-      return n1 > n2 ? 1 : n1 < n2 ? -1 : std::memcmp(*b + i, *t.b + t.i, n1); }
+      return n1 > n2 ? 1 : n1 < n2 ? -1 : std::memcmp(b() + i, t.b() + t.i, n1); }
 
 
-  uint64_t h() const { return xxh(b + i, e - i, 1); }
+  uint64_t h() const { return xxh(b() + i, e - i, 1); }
 
   // Encode a value without any type prefixes
   oenc &pack(oenc&, val const&) const;
 };
 
 
-typedef ibuf tbuf;
+struct tbuf : public ibuf
+{
+  tbuf(std::initializer_list<int> xs_) : ibuf(xs_) {}
+  tbuf(ibuf const &b_) : ibuf(b_) {}
+  tbuf(ibuf &&b_)      : ibuf(b_) {}
+
+  operator tval() const { return tval(*this, 0, true); }
+};
 
 
 tbuf const tu8 {UINT8};
@@ -126,6 +156,7 @@ tbuf const tf64{FLOAT64};
 
 tbuf const tsym  {SYMBOL};
 tbuf const tpidfd{PIDFD};
+
 
 tbuf tutf8(uint64_t l)
 {
