@@ -29,11 +29,12 @@ cd "$(dirname "$0")"
 
 case $cmd in
   q*) t g++ "${t_gcc_debug_opts[@]}" -DQUICK=1 t/test.cc -o t/test-quick -lboost_context
-      if t/test-quick > t/test-quick.log; then
+      if valgrind --track-origins=yes t/test-quick > t/test-quick.log; then
         echo -e "\033[1;32mall ok\033[0;0m"
       else
         echo -e "\033[1;31merror\033[0;0m"
-        cat t/test-quick.log
+        less t/test-quick.log
+        exit 1
       fi
       ;;
 

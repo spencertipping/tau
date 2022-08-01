@@ -4,6 +4,7 @@
 
 #include <cstdint>
 
+#include "error-proto.hh"
 #include "obuf.hh"
 #include "val.hh"
 
@@ -113,16 +114,32 @@ oenc &operator<<(oenc &o, val const &v)
             l >> 8  ? o.u8(0x1d).u16(l) : o.u8(0x1c).u8(l))
       .xs(v.vb->data(), l); }
 
-  case TUPLE: { tenc t(o, v.vt->size()); for (let &x : *v.vt) t << x; return o; }
-  case ARRAY: throw internal_error("TODO enc<<iarray");
+  case TUPLE:
+  { tenc t(o, v.vt->size());
+    for (let &x : *v.vt) t << x;
+    return o; }
 
-  case LIST: throw internal_error("TODO enc<<list");
-  case SET:  throw internal_error("TODO enc<<set");
-  case MAP:  throw internal_error("TODO enc<<map");
+  case ARRAY:
+  { let n = v.len();
+    let t = v.atype();
+    let l = n * t.vsize() + t.tsize();
+
+    if      (ou32(l)) o.u8(0x47).u64(l).u64(n);
+    else if (ou16(l)) o.u8(0x46).u32(l).u32(n);
+    else if (ou8(l))  o.u8(0x45).u16(l).u16(n);
+    else              o.u8(0x44).u8(l) .u8(n);
+
+    o.xs(t.b().xs + t.i, t.e - t.i);
+    for (let &x : *v.vt) t.pack(o, x);
+    return o; }
+
+  case LIST: return throw_internal_error<oenc&>("TODO enc<<list");
+  case SET:  return throw_internal_error<oenc&>("TODO enc<<set");
+  case MAP:  return throw_internal_error<oenc&>("TODO enc<<map");
 
   case NONE:
   case BOGUS:
-  default: throw voperation_error("enc<<v ns type", v);
+  default: return throw_vop_error<oenc&>("enc<<v ns type", v);
   }
 }
 

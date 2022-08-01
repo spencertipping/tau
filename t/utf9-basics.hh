@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <iostream>
 #include <string_view>
@@ -95,15 +96,22 @@ void try_loading_stuff()
     u9 z(b,   12);
     u9 a(b,   12 + b.len(12));
 
+    assert(12 + b.len(12) < b.size());
+
     cout << x << " :: " << x.type() << " = " << x.h() << endl;
     cout << y << " :: " << y.type() << " = " << y.h() << endl;
-    cout << z << " :: " << z.type() << " = " << z.h() << "; l = " << z.len() << endl;
+    cout << z
+         << " :: " << z.type()
+         << " = " << z.h()
+         << "; l = " << z.len() << endl;
     cout << a << " :: " << a.type() << " = " << a.h() << endl;
     cout << x << " <=> " << y << " = " << x.compare(y) << endl;
 
     o9 o1; o1 << z[0];
     i9 i1(o1.data(), o1.size());
-    cout << z[0] << " -> " << debug<o9>{o1} << "-> " << u9(i1, 0) << endl;
+    cout << z[0] << endl;
+    cout << " -> " << debug<i9>{i1} << endl;
+    cout << " -> " << u9(i1, 0) << endl;
 
     o9 o2; o2 << z[1];
     i9 i2(o2.data(), o2.size());
@@ -267,11 +275,8 @@ int main()
        << (std::endian::native == std::endian::big ? "big" : "little") << endl;
 
   cout << "try_really_simple"  << endl; try_really_simple();
-  cout << "try_coercion_error" << endl; try_coercion_error();
-
-  cout << "TODO: re-enable try_loading_stuff" << endl;
-  //cout << "try_loading_stuff"  << endl; try_loading_stuff();
-
+  //cout << "try_coercion_error" << endl; try_coercion_error();
+  cout << "try_loading_stuff"  << endl; try_loading_stuff();
   cout << "try_orderings"      << endl; try_orderings();
   cout << "try_bench"          << endl; try_bench();
   cout << "try_printing_types" << endl; try_printing_types();

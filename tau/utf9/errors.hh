@@ -36,6 +36,14 @@ struct internal_error : virtual public utf9_error
     { return s << "internal_error " << m; }
 };
 
+struct badbyte_error : virtual public utf9_error
+{
+  uint8_t byte;
+  badbyte_error(std::string const &m_, uint8_t b_) : utf9_error(m_), byte(b_) {}
+  std::ostream &operator>>(std::ostream &s) const
+    { return s << "badbyte_error " << m << ": " << static_cast<int>(byte); }
+};
+
 struct decoding_error : virtual public utf9_error
 {
   ibuf const b;
@@ -82,6 +90,7 @@ inline std::ostream &operator<<(std::ostream &s, utf9_error const &e) { return e
 
 
 template<class T> inline T throw_internal_error(std::string const &m)                              { throw internal_error(m); }
+template<class T> inline T throw_badbyte_error (std::string const &m, uint8_t b)                   { throw badbyte_error(m, b); }
 template<class T> inline T throw_decoding_error(std::string const &m, ibuf const &b, uint64_t i)   { throw decoding_error(m, b, i); }
 template<class T> inline T throw_top_error     (std::string const &m, tval const &t)               { throw toperation_error(m, t); }
 template<class T> inline T throw_vop_error     (std::string const &m, val const &v)                { throw voperation_error(m, v); }

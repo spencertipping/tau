@@ -31,12 +31,12 @@ struct stream
 
   inline bool head_ready() const { return !omega && xs.size() < capacity; }
   inline bool tail_ready() const { return !omega && xs.size() > 0; }
-  inline T&&  pop()
+  inline T    pop()
     {
       while (!tail_ready()) tau::kern::coro::yield();
-      T&& x = std::move(xs[0]);
+      T x = xs.front();
       xs.pop_front();
-      return std::move(x);
+      return x;
     }
 
   inline stream<T> &operator<<(T &x)

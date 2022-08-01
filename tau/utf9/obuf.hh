@@ -59,16 +59,16 @@ struct oenc
 
 
 // A fully buffered bytecode encoder
-struct obuf : public oenc
+struct obuf : public virtual oenc
 {
-  uint8_t * b = nullptr;  // buffer data (will be moved)
-  uint64_t  l = 0;        // allocated size
-  uint64_t  i = 0;        // position of next byte to be written
+  uint8_t * b;  // buffer data (will be moved)
+  uint64_t  l;  // allocated size
+  uint64_t  i;  // position of next byte to be written
 
-  obuf() {}
+  obuf() : b(nullptr), l(0), i(0) {}
   obuf(uint64_t c) : b(new uint8_t[c]), l(c), i(0) {}
 
-  virtual ~obuf() { if (b) delete[] b; }
+  ~obuf() { if (b) delete[] b; }
 
 
   ibuf convert_to_ibuf()

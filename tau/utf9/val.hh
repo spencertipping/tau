@@ -104,7 +104,9 @@ struct val
 
 
   val(tval const &t_, ibuf const &b, uint64_t i)
-    { switch (t_.typecode())
+    { b.check(i);
+      b.check(i + t_.vsize() - 1);
+      switch (t_.typecode())
       {
       case 0x00: tag = tagify(UINT8);  vu = b.u8 (i); break;
       case 0x01: tag = tagify(UINT16); vu = b.u16(i); break;
@@ -222,29 +224,56 @@ struct val
 
   struct it
   {
+    enum kind { VEC, IBUF_TUPLE, IBUF_ARRAY };
+
     union
-    { ibuf               const * const b;
-      std::vector<val>::const_iterator vi; };
+    { ibuf const *buf;
+      uint64_t    tag; };
 
-    uint64_t i;
+    union
+    { std::vector<val>::const_iterator vi;
+      uint64_t                         i; };
 
-    it(ibuf const *b_, uint64_t i_)          : b(b_),   i(i_)   {}
-    it(std::vector<val>::const_iterator vi_) : vi(vi_), i(-1ul) {}
+    tval     atype;
+    uint64_t stride;
 
-    bool is_v() const { return i == -1ul; }
+    it(std::vector<val>::const_iterator vi_) : buf(nullptr), vi(vi_), atype(tu8) { tag |= VEC; }
+    it(ibuf const *b_, uint64_t i_)          : buf(b_), i(i_), atype(tu8)        { tag |= IBUF_TUPLE; }
+    it(ibuf const *b_, tval const &atype_, uint64_t i_)
+      : buf(b_), i(i_), atype(atype_), stride(atype.vsize()) { tag |= IBUF_ARRAY; }
 
-    val  operator*()               const { return is_v() ? *vi : val(*b, i); }
-    it  &operator++()                    { if (is_v()) ++vi; else i += b->len(i); return *this; }
-    bool operator==(it const &rhs) const { return b == rhs.b && i == rhs.i; }
+    bool operator==(it const &x) const { return i == x.i; }
+
+    ibuf const &b() const { return *reinterpret_cast<ibuf const *>(reinterpret_cast<uint64_t>(buf) & ~7); }
+
+    val operator*() const
+      { switch (tag & 3)
+        {
+        case VEC:        return *vi;
+        case IBUF_TUPLE: return val(b(), i);
+        case IBUF_ARRAY: return val(atype, b(), i);
+        default:         return throw_badbyte_error<val>("it*", tag & 3);
+        } }
+
+    it &operator++()
+      { switch (tag & 3)
+        {
+        case VEC:        ++vi;            break;
+        case IBUF_TUPLE: i += b().len(i); break;
+        case IBUF_ARRAY: i += stride;     break;
+        default:         return throw_badbyte_error<it&>("it++", tag & 3);
+        }
+        return *this; }
   };
+
 
   it begin() const
     { require_type(1ull << TUPLE | 1ull << ARRAY | 1ull << LIST | 1ull << SET | 1ull << MAP);
-      return has_ibuf() ? it(b, ibegin()) : it(vt->begin()); }
+      return has_ibuf() ? type() == ARRAY ? it(b, atype(), ibegin()) : it(b, ibegin()) : it(vt->begin()); }
 
   it end() const
     { require_type(1ull << TUPLE | 1ull << ARRAY | 1ull << LIST | 1ull << SET | 1ull << MAP);
-      return has_ibuf() ? it(b, iend()) : it(vt->end()); }
+      return has_ibuf() ? type() == ARRAY ? it(b, atype(), iend()) : it(b, iend()) : it(vt->end()); }
 
 
   uint64_t len() const
@@ -254,15 +283,15 @@ struct val
       case tagify(BYTES, true): return vb->size();
 
       case tagify(ARRAY, true):
+      case tagify(LIST, true):
+      case tagify(MAP, true):
+      case tagify(SET, true):
       case tagify(TUPLE, true): return vt->size();
 
       default:
-      {
+      { require_ibuf();
         let x = b->u8(i);
         if (x >= 0x48 && x <= 0x4f) return x - 0x48;
-        if (x >= 0x54 && x <= 0x5f) return b->u16(i + 1) >> 1;
-        if (x >= 0x64 && x <= 0x6f) return b->u32(i + 1) >> 2;
-        if (x >= 0x74 && x <= 0x7f) return b->u64(i + 1) >> 3;
         switch (x)
         {
         case 0x18: case 0x1c: return b->u8 (i + 1);
@@ -275,11 +304,6 @@ struct val
         case 0x42: case 0x46: return b->u32(i + 5);
         case 0x43: case 0x47: return b->u64(i + 9);
 
-        case 0x50: return b->u16(i + 1) >> 1;
-        case 0x51: return b->u32(i + 1) >> 2;
-        case 0x52: return b->u64(i + 1) >> 3;
-        case 0x53: return 0;
-
         default: return throw_vop_error<uint64_t>("len()", *this);
         } }
       } }
@@ -289,8 +313,8 @@ struct val
   uint64_t asub(uint64_t i) const { return ibegin() + astride() * i; }
 
   tval atype() const
-    { require_ibuf();  // FIXME: infer type from first tuple element if no ibuf
-      require_type(1ull << ARRAY);
+    { require_type(1ull << ARRAY);
+      if (!has_ibuf()) return len() ? (*this)[0].inferred_type() : static_cast<tval>(tu8);
       switch (b->u8(i))
       {
       case 0x44: return tval(*b, i + 3);
@@ -298,6 +322,40 @@ struct val
       case 0x46: return tval(*b, i + 9);
       case 0x47: return tval(*b, i + 17);
       default: return throw_internal_error<tval>("val atype()");
+      } }
+
+  tval inferred_type()  const { return static_cast<tval>(inferred_type_()); }
+  tbuf inferred_type_() const
+    { switch(type())
+      {
+      case UINT8:   return tu8;
+      case UINT16:  return tu16;
+      case UINT32:  return tu32;
+      case UINT64:  return tu64;
+      case INT8:    return ti8;
+      case INT16:   return ti16;
+      case INT32:   return ti32;
+      case INT64:   return ti64;
+      case FLOAT32: return tf32;
+      case FLOAT64: return tf64;
+      case SYMBOL:  return tsym;
+      case PIDFD:   return tpidfd;
+      case UTF8:    return tutf8(len());
+      case BYTES:   return tbytes(len());
+
+      case ARRAY: { let n = len(); return tarray(n, n > 0 ? (*this)[0].inferred_type_() : tu8); }
+
+      case TUPLE:
+      case LIST:
+      case SET:
+      case MAP:
+      { std::vector<tbuf> ts;
+        ts.reserve(len());
+        uint64_t i = 0;
+        for (let &x : *this) ts[i++] = x.inferred_type_();
+        return ttuple(ts); }
+
+      default: return throw_vop_error<tbuf>("infer_type", *this);
       } }
 
 
@@ -375,6 +433,7 @@ struct val
       case BYTES: return xxh(mbegin(), mend() - mbegin(), t);
 
       case TUPLE:
+      case ARRAY:
       case LIST:
       case SET:
       case MAP:
@@ -418,6 +477,10 @@ struct val
         return n1 > n2 ? 1 : n1 < n2 ? -1 : 0; }
 
       case TUPLE:
+      case ARRAY:
+      case LIST:
+      case SET:
+      case MAP:
       { bool m1 = false, m2 = false;
         for (it i1 = begin(), i2 = v.begin(), e1 = end(), e2 = v.end();
              m1 = i1 != e1, m2 = i2 != e2, m1 && m2;
@@ -458,9 +521,8 @@ struct val
     { return throw_vop_error<val>("v[v] TODO", *this); }
 
 
-  // NOTE: immediate vals are never arrays (since there isn't space to store
-  // the array type + tag + vector). So this will be called only with an ibuf.
-  val ap(uint64_t i) const { require_ibuf(); return val(atype(), *b, asub(i)); }
+  val ap(uint64_t i) const
+    { return has_ibuf() ? val(atype(), *b, asub(i)) : (*vt)[i]; }
 
   // Hinting: hi or hk to indicate the thing that was hinted, and h to indicate
   // the byte offset (beyond mbegin()) to start looking. In every case, h <=

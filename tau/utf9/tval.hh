@@ -46,6 +46,8 @@ struct tval
       i(0),
       e(b().ctlen(0)) {}
 
+  tval(tval const &t) : tag(tagify(&t.b(), false)), i(t.i), e(t.e) {}
+
   ~tval() { if (tag & 1) delete reinterpret_cast<ibuf*>(tag & ~1ull); }
 
 
@@ -95,7 +97,7 @@ struct tval
 
 
   uint64_t len() const
-    { if (type() != ARRAY && type() != TUPLE) throw_top_error<uint64_t>("len()", *this);
+    { if (type() != ARRAY && type() != TUPLE)       return throw_top_error<uint64_t>("len()", *this);
       if (typecode() >= 0x48 && typecode() <= 0x4f) return typecode() - 0x48;
       switch (typecode())
       {
@@ -135,11 +137,12 @@ struct tval
 
 struct tbuf : public ibuf
 {
+  tbuf() : ibuf() {}
   tbuf(std::initializer_list<int> xs_) : ibuf(xs_) {}
   tbuf(ibuf const &b_) : ibuf(b_) {}
   tbuf(ibuf &&b_)      : ibuf(b_) {}
 
-  operator tval() const { return tval(*this, 0, true); }
+  operator tval() && { return tval(new tbuf(std::move(*this))); }
 };
 
 
@@ -176,7 +179,8 @@ tbuf tbytes(uint64_t l)
        :           obuf(2).u8(0x1c).u8(l).convert_to_ibuf();
 }
 
-tbuf ttuple(std::initializer_list<tbuf const> const &xs)
+template<class T = std::initializer_list<tbuf>>
+tbuf ttuple(T const &xs)
 {
   let      n = xs.size();
   uint64_t s = 0;

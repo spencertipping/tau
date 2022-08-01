@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 
+#include "error-proto.hh"
 #include "errors.hh"
 #include "primitive.hh"
 #include "tval.hh"
@@ -71,8 +72,8 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
   case FLOAT32: return s << "f32";
   case FLOAT64: return s << "f64";
 
-  case SYMBOL:  return s << "s";
-  case PIDFD:   return s << "p";
+  case SYMBOL:  return s << "sym";
+  case PIDFD:   return s << "pidfd";
 
   case UTF8:    return s << "u[" << t.vsize() << "]";
   case BYTES:   return s << "b[" << t.vsize() << "]";
@@ -87,7 +88,7 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
 
   case ARRAY: return s << t.atype() << "[" << t.len() << "]";
 
-  default: throw internal_error("ns typecode");
+  default: return throw_badbyte_error<std::ostream&>("ns typecode", t.type());
   }
 }
 
@@ -114,7 +115,7 @@ std::ostream &operator<<(std::ostream &s, val const &v)
     case greek::Θ: return s << "θ(" << static_cast<double>(g.v) / static_cast<double>(std::numeric_limits<uint32_t>::max()) << ")";
     case greek::Τ: return s << "τ";
     case greek::Ω: return s << "ω";
-    default: throw internal_error("greek<<");
+    default: return throw_badbyte_error<std::ostream&>("greek<<", g.l);
     }
   }
 
@@ -138,10 +139,10 @@ std::ostream &operator<<(std::ostream &s, val const &v)
   case ARRAY:
   { s << "array<" << v.atype() << ">[" << v.len() << "][";
     bool first = true;
-    for (uint64_t i = 0; i < v.len(); ++i)
+    for (let &x : v)
     { if (first) first = false;
       else       s << ", ";
-      s << val(v.atype(), *v.b, v.asub(i)); }
+      s << x; }
     return s << "]"; }
 
   case NONE:  return s << "none";

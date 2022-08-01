@@ -22,6 +22,7 @@ struct ibuf
   uint64_t        l;
   bool            owned;
 
+
   ibuf(uint8_t const *xs_, uint64_t l_, bool owned_ = false)
     : xs(xs_), l(l_), owned(owned_) {}
 
@@ -29,13 +30,30 @@ struct ibuf
     : xs(new uint8_t[xs_.size()]), l(xs_.size()), owned(true)
     { uint64_t i = 0; for (let x : xs_) const_cast<uint8_t*>(xs)[i++] = cou8(x); }
 
-  ibuf(ibuf const &b) : xs(new uint8_t[b.l]), l(b.l), owned(true)
-    { std::memcpy(const_cast<uint8_t*>(xs), b.xs, l); }
-
-  ibuf(ibuf &&b) : xs(b.xs), l(b.l), owned(b.owned)
-    { b.xs = nullptr; b.l = 0; b.owned = false; }
+  ibuf()              : xs(nullptr), l(0), owned(false) {}
+  ibuf(ibuf const &b) : owned(false) { *this = b; }
+  ibuf(ibuf &&b)      : owned(false) { *this = std::move(b); }
 
   ~ibuf() { if (owned) delete[] xs; }
+
+
+  ibuf &operator=(ibuf const &b)
+    { if (owned) delete[] xs;
+      xs    = new uint8_t[b.l];
+      l     = b.l;
+      owned = true;
+      std::memcpy(const_cast<uint8_t*>(xs), b.xs, l);
+      return *this; }
+
+  ibuf &operator=(ibuf &&b)
+    { if (owned) delete[] xs;
+      xs    = b.xs;
+      l     = b.l;
+      owned = b.owned;
+      b.xs    = nullptr;
+      b.l     = 0;
+      b.owned = false;
+      return *this; }
 
 
   bool has  (uint64_t i) const { return i < l; }
