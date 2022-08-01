@@ -508,7 +508,7 @@ struct val
 
 
   val operator[](uint64_t i) const
-    { switch(type())
+    { switch (type())
       {
       case BYTES: return val(mbegin()[i]);
       case TUPLE: return tp(i);

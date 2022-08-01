@@ -29,7 +29,7 @@ struct tenc : public oenc
 
   ~tenc() { write_header(); }
 
-  ibuf convert_to_ibuf() { throw internal_error("tenc cti"); }
+  ibuf convert_to_ibuf() { return throw_internal_error<ibuf>("tenc->ibuf"); }
 
   int header_size()
     { let m = l | n;
