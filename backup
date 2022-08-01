@@ -1,0 +1,24 @@
+#!/bin/bash
+if [[ "$USER" != spencertipping ]]; then
+  echo 'this script only works for spencer'
+  exit 1
+fi
+
+cd "$(dirname "$0")"
+git push
+
+points=( rorbot.35:tau/
+         reichenbach.35:tau/
+         rorbot.35:/mnt/v1/st/tau/
+         iniidae.35:tau/
+         orange.35:tau/
+         xiphosuran.35:r/tau/
+         joyce@iya.35:.spencer/tau/ )
+
+git fsck --full --strict || exit $?
+git commit-graph verify || exit $?
+for p in "${points[@]}"; do
+  ( ssh "${p%%:*}" mkdir -p "${p#*:}"
+    rsync -aP --inplace --delete .git "$p" ) &
+done
+wait
