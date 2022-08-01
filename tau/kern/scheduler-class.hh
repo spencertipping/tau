@@ -26,7 +26,6 @@ namespace tau::kern
 {
 
 using namespace std::literals;
-
 using tau::operator<<;
 
 namespace tc = tau::kern::coro;
