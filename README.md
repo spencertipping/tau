@@ -1,5 +1,6 @@
 # Tau
 + [utf9](doc/utf9.md)
++ [kern](doc/kern.md)
 
 
 ## Setup
