@@ -167,7 +167,7 @@ void try_bench()
         let start = stopwatch::now();
         uint64_t t = 0; for (auto const &x : xs) t += x;
         let end   = stopwatch::now();
-        cout << "native sum: " << t << ": " << end - start << endl;
+        cout << "csum: " << t << ": " << end - start << endl;
       }
 
       {
@@ -179,16 +179,23 @@ void try_bench()
 
       {
         let start = stopwatch::now();
+        uint64_t t = 0; for (auto const &x : u9(i4, 0)) ++t;
+        let end   = stopwatch::now();
+        cout << "decode: " << end - start << endl;
+      }
+
+      {
+        let start = stopwatch::now();
         uint64_t t = 0; for (auto const &x : u9(i4, 0)) t += static_cast<int64_t>(x);
         let end   = stopwatch::now();
-        cout << upper << ": " << t << " == " << (upper * (upper - 1)) / 2 << ": " << end - start << endl;
+        cout << "decode+sum: " << t << " == " << (upper * (upper - 1)) / 2 << ": " << end - start << endl;
       }
 
       {
         let start = stopwatch::now();
         let h     = u9(i4, 0).h();
         let end   = stopwatch::now();
-        cout << upper << ": " << h << ": " << end - start << endl;
+        cout << "hash " << upper << ": " << h << ": " << end - start << endl;
       }
     }
   }

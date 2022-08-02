@@ -23,19 +23,17 @@
 namespace tau::flux
 {
 
-using namespace std::literals;
-
 
 template<class T>
 struct pipe
 {
-  typedef std::pair<util::stopwatch::tp, T> qe;
+  typedef std::pair<stopwatch::tp, T> qe;
 
-  util::stopwatch read_delay;
-  util::stopwatch write_delay;
-  util::stopwatch latency;
-  size_t          capacity;
-  std::deque<qe>  xs;
+  stopwatch      read_delay;
+  stopwatch      write_delay;
+  stopwatch      latency;
+  size_t         capacity;
+  std::deque<qe> xs;
 
   pipe() {}
   pipe(size_t c_) : capacity(c_) { assert(capacity); }
@@ -61,10 +59,10 @@ struct pipe
   size_t total_written() const { return total_read() + xs.size(); }
 
 
-  util::stopwatch::span λ() const
+  stopwatch::span λ() const
     { if (latency.n_splits + xs.size() == 0) return 0ns;
       auto t = 0ns;
-      let  n = util::stopwatch::now();
+      let  n = stopwatch::now();
       for (let &x : xs) t += n - std::get<0>(x);
       return (t + latency.total_elapsed) / (latency.n_splits + xs.size()); }
 
@@ -74,7 +72,7 @@ struct pipe
 
 
   bool write(T const &x)
-    { let n = util::stopwatch::now();
+    { let n = stopwatch::now();
       if (!writable()) return false;
       xs.push_back(qe(n, x));
       return true; }
@@ -84,7 +82,7 @@ struct pipe
   T next()
     { assert(readable());
       let x = std::get<1>(xs.front());
-      latency << util::stopwatch::now() - std::get<0>(xs.front());
+      latency << stopwatch::now() - std::get<0>(xs.front());
       xs.pop_front();
       return x; }
 };

@@ -4,3 +4,4 @@ t/test-*
 t/*.js
 t/*.wasm
 t/*.log
+t/*.o

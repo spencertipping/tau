@@ -31,7 +31,7 @@ typedef int                          task_result;
 typedef coro::coro<task_result>      task_coro;
 typedef std::function<task_result()> task_fn;
 
-typedef u9                           pipe_val;
+typedef u9                           pipe_val;  // FIXME: shared_ptr
 typedef pipe<pipe_val>               core_pipe;
 typedef task                         core_task;
 

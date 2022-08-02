@@ -8,10 +8,12 @@
 
 namespace tau::flux
 {
+
 using namespace std::literals;
 using namespace tau::util;
 
 using tau::util::operator<<;
+
 }
 
 #include "../module/end.hh"
