@@ -41,6 +41,17 @@ struct core
   typedef void(*sleep_until_fn)(stopwatch::tp);
 
 
+  // TODO: it should be possible to wait on a union of conditions
+  // (e.g. pipe readable | 100ms are up)
+
+  // TODO: split this class into several sub-pieces:
+  // + pipe sleep/wake system
+  // + deadline scheduler
+  // + deadline risk management
+  // + quantum limit (for more precise time slicing)
+  // + run queue
+
+
   // invariant: every task is in read_blocks, write_blocks, run_queue, or
   // sleep_queue
   std::unordered_map<task_id, core_task> tasks;
