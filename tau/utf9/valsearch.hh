@@ -90,16 +90,16 @@ val s_th(val      const &b,
 {
   if (hk.exists() && hk > k) throw internal_error("s_th hk>k");
   KF kf;
-  if (!b.has_ibuf()) { let i = interpsearch<KF>(*b.vt, k); return i & not_found_bit ? none : (*b.vt)[i]; }
+  if (!b.has_ibuf()) { let i = interpsearch<KF>(*b.vt, k); return i & not_found_bit ? u9n : (*b.vt)[i]; }
   let kh = k.h().h;
   for (uint64_t o = b.ibegin() + h; o < b.iend(); o += b.b->len(o))
   {
     let v  = val(*b.b, o);
     let vh = kf(v).h().h;
-    if (kh > vh)  return none;
+    if (kh > vh)  return u9n;
     if (kh == vh) return v;
   }
-  return none;
+  return u9n;
 }
 
 

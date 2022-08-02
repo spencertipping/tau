@@ -22,10 +22,7 @@ namespace t::utf9_basics
 
 using namespace std;
 using namespace tau;
-
-// TODO: why is this required?
-// NOTE: using tau::kern; doesn't work; we have to explicitly include the
-// operator itself
+using tau::util::stopwatch;
 using tau::operator<<;
 
 
@@ -212,7 +209,7 @@ void try_orderings()
 
     auto vh = v.make_th<u9::kf_te>();
     for (int64_t i = -10; i < 110; ++i)
-      if (vh.th<u9::kf_te>(u9(i), none).exists() != (i >= 0 && i < 100))
+      if (vh.th<u9::kf_te>(u9(i), u9n).exists() != (i >= 0 && i < 100))
       { cout << "hash find mismatch for " << i << endl;
         _exit(1); }
   }

@@ -1,8 +1,9 @@
-#ifndef tau_kern_pipe_h
-#define tau_kern_pipe_h
+#ifndef tau_flux_pipe_h
+#define tau_flux_pipe_h
 
 
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <queue>
@@ -11,27 +12,30 @@
 #include <utility>
 
 
+#include "init.hh"
 #include "coro.hh"
 
-#include "../stopwatch.hh"
+#include "../util/stopwatch.hh"
 
 
 #include "../module/begin.hh"
 
-namespace tau::kern
+namespace tau::flux
 {
+
+using namespace std::literals;
 
 
 template<class T>
 struct pipe
 {
-  typedef std::pair<stopwatch::tp, T> qe;
+  typedef std::pair<util::stopwatch::tp, T> qe;
 
-  stopwatch      read_delay;
-  stopwatch      write_delay;
-  stopwatch      latency;
-  size_t         capacity;
-  std::deque<qe> xs;
+  util::stopwatch read_delay;
+  util::stopwatch write_delay;
+  util::stopwatch latency;
+  size_t          capacity;
+  std::deque<qe>  xs;
 
   pipe() {}
   pipe(size_t c_) : capacity(c_) { assert(capacity); }
@@ -57,10 +61,10 @@ struct pipe
   size_t total_written() const { return total_read() + xs.size(); }
 
 
-  stopwatch::span λ() const
+  util::stopwatch::span λ() const
     { if (latency.n_splits + xs.size() == 0) return 0ns;
       auto t = 0ns;
-      let  n = stopwatch::now();
+      let  n = util::stopwatch::now();
       for (let &x : xs) t += n - std::get<0>(x);
       return (t + latency.total_elapsed) / (latency.n_splits + xs.size()); }
 
@@ -70,7 +74,7 @@ struct pipe
 
 
   bool write(T const &x)
-    { let n = stopwatch::now();
+    { let n = util::stopwatch::now();
       if (!writable()) return false;
       xs.push_back(qe(n, x));
       return true; }
@@ -80,7 +84,7 @@ struct pipe
   T next()
     { assert(readable());
       let x = std::get<1>(xs.front());
-      latency << stopwatch::now() - std::get<0>(xs.front());
+      latency << util::stopwatch::now() - std::get<0>(xs.front());
       xs.pop_front();
       return x; }
 };
@@ -89,7 +93,6 @@ struct pipe
 template<class T>
 std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
 {
-  using tau::operator<<;
   return s << "pipe["
            << (p.readable() ? "R" : "r")
            << (p.writable() ? "W" : p.closed() ? "#" : "w")

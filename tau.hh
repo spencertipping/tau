@@ -3,12 +3,22 @@
 
 
 #include "tau/utf9.hh"
-#include "tau/stopwatch.hh"
+#include "tau/flux.hh"
 
-#include "tau/kern/coro.hh"
-#include "tau/kern/log-histogram.hh"
-#include "tau/kern/scheduler-types.hh"
-#include "tau/kern/scheduler-class.hh"
+#include "tau/util/log-histogram.hh"
+#include "tau/util/stopwatch.hh"
+
+
+#include "tau/module/begin.hh"
+
+namespace tau
+{
+
+using tau::util::operator<<;
+
+}
+
+#include "tau/module/end.hh"
 
 
 #endif

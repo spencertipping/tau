@@ -1,5 +1,5 @@
-#ifndef tau_kern_coro_class_h
-#define tau_kern_coro_class_h
+#ifndef tau_flux_coro_class_h
+#define tau_flux_coro_class_h
 
 #include <functional>
 #include <string>
@@ -14,7 +14,7 @@
 #endif
 
 
-namespace tau::kern::coro
+namespace tau::flux::coro
 {
 
 

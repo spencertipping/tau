@@ -1,5 +1,5 @@
-#ifndef tau_fabric_scheduler_h
-#define tau_fabric_scheduler_h
+#ifndef tau_flux_core_impl_h
+#define tau_flux_core_impl_h
 
 
 #include <chrono>
@@ -12,31 +12,28 @@
 
 
 #include "../utf9.hh"
+#include "../util/stopwatch.hh"
 
+#include "init.hh"
 #include "coro.hh"
 #include "pipe.hh"
-#include "../stopwatch.hh"
-
-#include "scheduler-types.hh"
+#include "core-defs.hh"
+#include "core-task.hh"
 
 
 #include "../module/begin.hh"
 
-namespace tau::kern
+namespace tau::flux
 {
 
 using namespace std::literals;
-using tau::operator<<;
-
-namespace tc = tau::kern::coro;
+namespace tc = tau::flux::coro;
 
 
 void thread_sleep_until(stopwatch::tp t) { std::this_thread::sleep_until(t); }
 
 
-std::ostream &operator<<(std::ostream &s, scheduler const &x);
-
-struct scheduler
+struct core
 {
   template<class S>
   using pq = std::priority_queue<task_id, std::vector<task_id>, S>;
@@ -46,11 +43,11 @@ struct scheduler
 
   // invariant: every task is in read_blocks, write_blocks, run_queue, or
   // sleep_queue
-  std::unordered_map<task_id, scheduled_task> tasks;
-  std::unordered_map<pipe_id, scheduled_pipe> pipes;
-  std::unordered_map<pipe_id, task_id>        read_blocks;
-  std::unordered_map<pipe_id, task_id>        write_blocks;
-  std::unordered_set<task_id>                 done_tasks;
+  std::unordered_map<task_id, core_task> tasks;
+  std::unordered_map<pipe_id, core_pipe> pipes;
+  std::unordered_map<pipe_id, task_id>   read_blocks;
+  std::unordered_map<pipe_id, task_id>   write_blocks;
+  std::unordered_set<task_id>            done_tasks;
 
   deadline_schedule ds;
 
@@ -63,29 +60,29 @@ struct scheduler
   stopwatch::tp const ctime;
 
 
-  scheduler() : ds          {*this},
-                sleep_queue (ds),
-                current_task{0},
-                next_task_id{1},
-                next_pipe_id{1},
-                ctime       (stopwatch::now()) {}
+  core() : ds          {*this},
+           sleep_queue (ds),
+           current_task{0},
+           next_task_id{1},
+           next_pipe_id{1},
+           ctime       (stopwatch::now()) {}
 
 
   stopwatch::span uptime() const { return stopwatch::now() - ctime; }
 
   pipe_id create_pipe(size_t capacity = 64)
     { let k = next_pipe_id++;
-      pipes[k] = scheduled_pipe(capacity);
+      pipes[k] = core_pipe(capacity);
       return k; }
 
-  task_id create_task(task_fn f)
+  task_id create_task(task_fn const &f)
     { let k = next_task_id++;
-      tasks[k] = scheduled_task(f);
+      tasks[k] = core_task(f);
       wake(k);
       return k; }
 
   void destroy_pipe(pipe_id i)
-    { assert(pipe(i).closed());
+    { assert(pipes.at(i).closed());
       pipes.erase(i); }
 
   void destroy_task(task_id i)
@@ -98,9 +95,6 @@ struct scheduler
       let r = t.coro.result();
       destroy_task(i);
       return r; }
-
-  scheduled_pipe const &pipe(pipe_id i)     const { return pipes.at(i); }
-  scheduled_task const &task(task_id i = 0) const { return tasks.at(i ? i : current_task); }
 
 
   void     close   (pipe_id);
@@ -164,10 +158,10 @@ struct scheduler
 
 
 bool deadline_schedule::operator()(task_id a, task_id b) const
-{ return s.tasks.at(a).deadline < s.tasks.at(b).deadline; }
+{ return c.tasks.at(a).deadline < c.tasks.at(b).deadline; }
 
 
-void scheduler::wake(task_id i)
+void core::wake(task_id i)
 {
   auto &t = tasks.at(i);
   assert(!t.coro.done());
@@ -176,7 +170,7 @@ void scheduler::wake(task_id i)
 }
 
 
-void scheduler::close(pipe_id i)
+void core::close(pipe_id i)
 {
   auto &p = pipes.at(i);
   if (!p.closed())
@@ -188,7 +182,7 @@ void scheduler::close(pipe_id i)
 }
 
 
-bool scheduler::has_next(pipe_id i)
+bool core::has_next(pipe_id i)
 {
   auto &p = pipes.at(i);
   p.read_delay.start();
@@ -206,7 +200,7 @@ bool scheduler::has_next(pipe_id i)
 }
 
 
-pipe_val scheduler::next(pipe_id i)
+pipe_val core::next(pipe_id i)
 {
   auto &p = pipes.at(i);
   assert(p.readable());
@@ -214,7 +208,7 @@ pipe_val scheduler::next(pipe_id i)
 }
 
 
-bool scheduler::write(pipe_id i, pipe_val const &v)
+bool core::write(pipe_id i, pipe_val const &v)
 {
   auto &p = pipes.at(i);
   p.write_delay.start();
@@ -232,7 +226,7 @@ bool scheduler::write(pipe_id i, pipe_val const &v)
 }
 
 
-void scheduler::read_wake(pipe_id i)
+void core::read_wake(pipe_id i)
 {
   if (!read_blocks.contains(i)) return;
   let t = read_blocks[i];
@@ -240,7 +234,7 @@ void scheduler::read_wake(pipe_id i)
   wake(t);
 }
 
-void scheduler::write_wake(pipe_id i)
+void core::write_wake(pipe_id i)
 {
   if (!write_blocks.contains(i)) return;
   let t = write_blocks[i];
@@ -249,9 +243,9 @@ void scheduler::write_wake(pipe_id i)
 }
 
 
-std::ostream &operator<<(std::ostream &s, scheduler const &x)
+std::ostream &operator<<(std::ostream &s, core const &x)
 {
-  s << "scheduler " << x.uptime() << std::endl;
+  s << "flux::core[" << x.uptime() << "]" << std::endl;
   for (let &t : x.tasks) s << "  " << t.first << " " << t.second << std::endl;
   for (let &[k, v] : x.pipes)
   {

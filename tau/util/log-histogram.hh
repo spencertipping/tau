@@ -1,5 +1,5 @@
-#ifndef tau_kern_log_histogram_h
-#define tau_kern_log_histogram_h
+#ifndef tau_util_log_histogram_h
+#define tau_util_log_histogram_h
 
 
 #include <cstdint>
@@ -9,7 +9,7 @@
 
 #include "../module/begin.hh"
 
-namespace tau::kern
+namespace tau::util
 {
 
 

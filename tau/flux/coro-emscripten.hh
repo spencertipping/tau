@@ -1,5 +1,5 @@
-#ifndef tau_kern_coro_emscripten_h
-#define tau_kern_coro_emscripten_h
+#ifndef tau_flux_coro_emscripten_h
+#define tau_flux_coro_emscripten_h
 
 
 #include <cassert>
@@ -7,12 +7,14 @@
 #include <functional>
 #include <memory>
 
+#include "init.hh"
 #include "coro-class.hh"
 
 
+#ifdef __EMSCRIPTEN__  // reduces clang-lsp errors during development
 #include "../module/begin.hh"
 
-namespace tau::kern::coro
+namespace tau::flux::coro
 {
 
 
@@ -128,6 +130,7 @@ static void coro_init_()
 }
 
 #include "../module/end.hh"
+#endif
 
 
 #endif

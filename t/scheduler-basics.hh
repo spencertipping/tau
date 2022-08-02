@@ -3,9 +3,7 @@
 #include <iostream>
 #include <thread>
 
-
 #include "../tau.hh"
-
 
 #include "../tau/module/begin.hh"
 
@@ -20,52 +18,52 @@ using namespace tau;
 
 int main()
 {
-  tau::kern::scheduler s;
+  tau::flux::core c;
 
-  let p1 = s.create_pipe(8);
-  let p2 = s.create_pipe(12);
-  let p3 = s.create_pipe(16);
+  let p1 = c.create_pipe(8);
+  let p2 = c.create_pipe(12);
+  let p3 = c.create_pipe(16);
 
 
-  let t1 = s.create_task([&]() {
+  let t1 = c.create_task([&]() {
     for (int64_t i = 0;; ++i)
-      if (!s.write(p1, u9(i))) { cout << "s1 rejected " << i << endl; break; }
-    s.close(p1);
+      if (!c.write(p1, u9(i))) { cout << "s1 rejected " << i << endl; break; }
+    c.close(p1);
     cout << "t1 returning" << endl;
     return 0;
   });
 
-  let t2 = s.create_task([&]() {
+  let t2 = c.create_task([&]() {
     int64_t t = 0;
-    while (s.has_next(p1))
+    while (c.has_next(p1))
     {
-      t += static_cast<int64_t>(s.next(p1));
-      if (!s.write(p2, u9(t))) { cout << "s2 rejected " << t << endl; break; }
-      s.sleep(1ms);
+      t += static_cast<int64_t>(c.next(p1));
+      if (!c.write(p2, u9(t))) { cout << "s2 rejected " << t << endl; break; }
+      c.sleep(1ms);
     }
-    s.close(p1);
-    s.close(p2);
+    c.close(p1);
+    c.close(p2);
     cout << "t2 returning" << endl;
     return 0;
   });
 
-  let t3 = s.create_task([&]() {
-    for (int i = 0; s.has_next(p2) && i < 100; ++i)
+  let t3 = c.create_task([&]() {
+    for (int i = 0; c.has_next(p2) && i < 100; ++i)
     {
-      let x = s.next(p2);
-      if (!s.write(p3, x)) { cout << "s3 rejected " << x << endl; break; }
-      s.sleep(2ms);
+      let x = c.next(p2);
+      if (!c.write(p3, x)) { cout << "s3 rejected " << x << endl; break; }
+      c.sleep(2ms);
     }
-    s.close(p2);
-    s.close(p3);
+    c.close(p2);
+    c.close(p3);
     cout << "t3 returning" << endl;
     return 0;
   });
 
-  let t4 = s.create_task([&]() {
+  let t4 = c.create_task([&]() {
     int64_t last;
-    while (s.has_next(p3)) cout << s.uptime() << ": " << (last = static_cast<int64_t>(s.next(p3))) << endl;
-    s.close(p3);
+    while (c.has_next(p3)) cout << c.uptime() << ": " << (last = static_cast<int64_t>(c.next(p3))) << endl;
+    c.close(p3);
 
     cout << "final value: " << last << endl;
     cout << "t4 returning" << endl;
@@ -74,29 +72,27 @@ int main()
 
 
   cout << "starting the scheduler loop" << endl;
-  s.run_until(stopwatch::now() + 20s);
+  c.run_until(util::stopwatch::now() + 20s);
 
-  cout << s << endl;
+  cout << c << endl;
 
-  cout << s.uptime() << ": loop end; destroying pipes" << endl;
+  cout << c.uptime() << ": loop end; destroying pipes" << endl;
 
-  s.destroy_pipe(p1);
-  s.destroy_pipe(p2);
-  s.destroy_pipe(p3);
+  c.destroy_pipe(p1);
+  c.destroy_pipe(p2);
+  c.destroy_pipe(p3);
 
-  cout << "t1 returned " << s.collect_task(t1) << endl;
-  cout << "t2 returned " << s.collect_task(t2) << endl;
-  cout << "t3 returned " << s.collect_task(t3) << endl;
-  cout << "t4 returned " << s.collect_task(t4) << endl;
+  cout << "t1 returned " << c.collect_task(t1) << endl;
+  cout << "t2 returned " << c.collect_task(t2) << endl;
+  cout << "t3 returned " << c.collect_task(t3) << endl;
+  cout << "t4 returned " << c.collect_task(t4) << endl;
 
-  cout << "all done " << s << endl;
+  cout << "all done " << c << endl;
 
 
   return 0;
 }
 
-
 }
-
 
 #include "../tau/module/end.hh"

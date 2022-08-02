@@ -547,7 +547,7 @@ struct val
 };
 
 
-val const none(val::tagify(NONE), 0);
+val const u9n(val::tagify(NONE), 0);
 
 val const α(val(greek{greek::Α}));
 val const ω(val(greek{greek::Ω}));

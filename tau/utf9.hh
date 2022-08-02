@@ -32,9 +32,9 @@ namespace tau
 
 static_assert(sizeof(tau::utf9::val)  == 16);
 static_assert(sizeof(tau::utf9::tval) == 24);
-static_assert(std::is_polymorphic<tau::utf9::val>::value  == false);
-static_assert(std::is_polymorphic<tau::utf9::tval>::value == false);
-static_assert(std::is_polymorphic<tau::utf9::ibuf>::value == false);
+static_assert(!std::is_polymorphic<tau::utf9::val >::value);
+static_assert(!std::is_polymorphic<tau::utf9::tval>::value);
+static_assert(!std::is_polymorphic<tau::utf9::ibuf>::value);
 
 
 typedef tau::utf9::utf9_error       u9e;
@@ -45,13 +45,16 @@ typedef tau::utf9::toperation_error u9te;
 typedef tau::utf9::voperation_error u9ve;
 
 
+using tau::utf9::ce;
+
+
 typedef tau::utf9::val  u9;
 typedef tau::utf9::tval t9;
 typedef tau::utf9::ibuf i9;
 typedef tau::utf9::obuf o9;
 
 
-let u9n = tau::utf9::none;
+using tau::utf9::u9n;
 using tau::utf9::u9t;
 using tau::utf9::u9a;
 using tau::utf9::u9l;
@@ -81,8 +84,6 @@ using tau::utf9::ttuple;
 using tau::utf9::tarray;
 using tau::utf9::tutf8;
 using tau::utf9::tbytes;
-
-using tau::utf9::none;
 
 
 using tau::utf9::operator<<;

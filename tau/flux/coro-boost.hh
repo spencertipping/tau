@@ -1,15 +1,16 @@
-#ifndef tau_kern_coro_boost_h
-#define tau_kern_coro_boost_h
+#ifndef tau_flux_coro_boost_h
+#define tau_flux_coro_boost_h
 
 
 #include <cassert>
 
+#include "init.hh"
 #include "coro-class.hh"
 
 
 #include "../module/begin.hh"
 
-namespace tau::kern::coro
+namespace tau::flux::coro
 {
 
 namespace bc = boost::context;

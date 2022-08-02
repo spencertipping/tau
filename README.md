@@ -1,5 +1,13 @@
 # Tau
+Design:
+
 + [utf9](doc/utf9.md)
++ [flux](doc/flux.md)
+  + [fusion](doc/fusion.md)
+
+Technical notes:
+
++ [emscripten](dev/emscripten.md)
 
 
 ## Setup
@@ -11,15 +19,11 @@ $ sudo apt install -y \
        libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev libxcb-xinput-dev
 ```
 
+To build and run test files, both natively and with emscripten/node:
 
-### Building test files
 ```sh
-$ ./build t
+$ ./build t && t/test && node t/test.js
 ```
-
-**NOTE:** emscripten via `node` is ~50x slower than native at decoding UTF9. Shouldn't be a huge deal since most of the heavy lifting is done server-side, but emscripten is far from efficient.
-
-**NOTE:** `wasm64` is enabled with `-sMEMORY64=1`, but it requires no exceptions and fails with asyncify. It also seems to load an experimental set of emscripten libraries -- I doubt we can make it work.
 
 
 ## Next steps
