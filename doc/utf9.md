@@ -1,5 +1,5 @@
 # UTF9
-Key characteristics of `utf9`:
+Key characteristics of UTF9:
 
 + Efficient to serialize/deserialize, both in space and time
 + Able to hold large (>1TiB) amounts of data
@@ -8,7 +8,7 @@ Key characteristics of `utf9`:
 + Fast C++ API for tau record fields
 + Side-channel symbols: _α_, _ω_, _ι_, _κ_, _τ_, _θ_, and _ρ_
 
-There are several big parts of the `utf9` bytecode:
+There are several big parts of the UTF9 bytecode:
 
 1. The bytecode itself, used to store values
 2. The typecode, a truncated subset used to encode array element types
@@ -17,15 +17,10 @@ There are several big parts of the `utf9` bytecode:
 5. Disk containers, used to guarantee atomicity + integrity
 6. Greek symbols, which are side-band data
 
-**FIXME:** indexes need to include the collection data, and we probably can't have multiple indexes; otherwise tuple-element iteration becomes ambiguous: for `index tuple`, is `index` an independent element, or is it logically joined to `tuple`? (It should be joined.)
-
-Indexed containers should have a couple of modifications:
-
-1. We prepend the indexes in a group, so we have an "indexed container" object that specifies number-of-indexes and what-not
-2. Some indexed containers, especially if values are large, should be split, so we have a column of keys and a column of values rather than `(k, v)` pairs
-
 
 ## Greek symbols
+From the perspective of a single UTF9 datastream:
+
 + _α_ is a "time begins now" message sent by newly-connected stream elements
 + _ω_ is an error/EOF marker that means "time has ended and will never resume"
 + _ι_ means "you can start sending data now"
@@ -38,13 +33,13 @@ _ρ_ expresses distance in absolute terms: _ρ(x)_ means "there are _x_ remainin
 
 
 ## Bytecode
-`utf9` is inspired by `msgpack` and designed to be usable in-place, that is without "unpacking" into an in-memory datastructure. This means a few things:
+UTF9 is inspired by `msgpack` and designed to be usable in-place, that is without "unpacking" into an in-memory datastructure. This means a few things:
 
-1. Containers within `utf9` records are lazily loaded
+1. Containers within UTF9 records are lazily loaded
 2. Containers prepend byte-lengths, indexes, and complexity measures
-3. Functionally speaking, `utf9` behaves like a micro-heap that is GC'd prior to serialization
+3. Functionally speaking, UTF9 behaves like a micro-heap that is GC'd prior to serialization
 
-Lazy loading means that a `utf9` record view must store a diff in order to provide mutability. This diff can have a ravel, which means we can stream values into a `utf9` diff reduction to construct a final object (emitted on _τ_). This model unifies diff-streaming and atomic record edits, providing a nice scaffold for later features like OT -- nothing stops us from defining an OT diff reducer that reorders edits on user-submitted time and emits the reconciled state.
+Lazy loading means that a UTF9 record view must store a diff in order to provide mutability. This diff can have a ravel, which means we can stream values into a UTF9 diff reduction to construct a final object (emitted on _τ_). This model unifies diff-streaming and atomic record edits, providing a nice scaffold for later features like OT -- nothing stops us from defining an OT diff reducer that reorders edits on user-submitted time and emits the reconciled state.
 
 
 ### Design
@@ -152,7 +147,7 @@ Maps and sets are indexed structures in that finding an element requires less th
 + `set`: element hash → byte offset
 + `map`: element first member hash → byte offset (elements are _n_-tuples, _n ≥ 1_)
 
-**NOTE:** most `utf9` datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
+**NOTE:** most UTF9 datatypes have default intrinsic hashes and ordering, both of which are guaranteed to be stable across platforms and architectures. This makes it possible to persist ordered/hashed things on one system and use them elsewhere.
 
 _In every case, the collection elements are sorted by the indexing axis._ This is important because it allows us to define partial indexes; that is, indexes that don't cover every element. This makes every index an interpolation basis.
 
@@ -239,9 +234,9 @@ O<tuple>(x, y) = x[0] <=> y[0] || O<tuple>(x[1..], y[1..]) || x.length <=> y.len
 
 
 ## Hashing
-Some values can be hashed. Like ordering, hashing is stable across platforms, architectures, and degrees of semantic freedom within `utf9`.
+Some values can be hashed. Like ordering, hashing is stable across platforms, architectures, and degrees of semantic freedom within UTF9.
 
-`utf9` hashing is defined in terms of [xxhash](https://cyan4973.github.io/xxHash/), from which we have two functions:
+UTF9 hashing is defined in terms of [xxhash](https://cyan4973.github.io/xxHash/), from which we have two functions:
 
 ```cpp
 uint64_t xxh(void*, size_t, uint64_t seed) = XXH64;
@@ -294,7 +289,7 @@ Similar to the transit spec, but intended for long-term persistence and easy loo
 
 
 ### Persistent header
-Disk-persisted `utf9` frames begin with a header that establishes some context, including the frame boundary.
+Disk-persisted UTF9 frames begin with a header that establishes some context, including the frame boundary.
 
 ```cpp
 #define VERSION 0x01
@@ -308,7 +303,7 @@ struct utf9_disk_header
 ```
 
 
-### `utf9` frames
+### UTF9 frames
 Frames are 16-byte aligned and begin with magic+length, the boundary value, the frame key, and the signed frame key.
 
 ```cpp

@@ -1,9 +1,10 @@
 # Tau
 Design:
 
++ [phi](doc/phi.md)
 + [utf9](doc/utf9.md)
++ [pipe](doc/pipe.md)
 + [flux](doc/flux.md)
-  + [fusion](doc/fusion.md)
 
 Technical notes:
 
