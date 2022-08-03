@@ -1,5 +1,5 @@
-#ifndef tau_flux_core_impl_h
-#define tau_flux_core_impl_h
+#ifndef tau_flux_λ_h
+#define tau_flux_λ_h
 
 
 #include <chrono>
@@ -17,8 +17,8 @@
 #include "init.hh"
 #include "coro.hh"
 #include "pipe.hh"
-#include "core-defs.hh"
-#include "core-task.hh"
+#include "defs.hh"
+#include "lambda-defs.hh"
 
 
 #include "../module/begin.hh"
@@ -36,6 +36,8 @@ using pq = std::priority_queue<λi, std::vector<λi>, S>;
 void thread_sleep_until(stopwatch::tp t) { std::this_thread::sleep_until(t); }
 
 
+// TODO: convert this to a task manager that is consumed by Ψ, not the user
+// TODO: remove pipe management from this
 struct Λ
 {
   typedef void(*sleep_until_fn)(stopwatch::tp);

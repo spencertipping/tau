@@ -59,7 +59,7 @@ struct pipe
   size_t total_written() const { return total_read() + xs.size(); }
 
 
-  stopwatch::span λ() const
+  stopwatch::span δ() const
     { if (latency.n_splits + xs.size() == 0) return 0ns;
       auto t = 0ns;
       let  n = stopwatch::now();
@@ -98,7 +98,7 @@ std::ostream &operator<<(std::ostream &s, pipe<T> const &p)
            << " c="  << p.size() << "/" << p.capacity
            << " rd=" << p.read_delay.mean_split()
            << " wd=" << p.write_delay.mean_split()
-           << " λ="  << p.λ()
+           << " δ="  << p.δ()
            << " σ="  << p.σ() << "]";
 }
 

@@ -1,5 +1,5 @@
-#ifndef tau_flux_core_defs_h
-#define tau_flux_core_defs_h
+#ifndef tau_flux_defs_h
+#define tau_flux_defs_h
 
 
 #include <chrono>
@@ -19,9 +19,10 @@ namespace tau::flux
 {
 
 
-struct Λ;  // flux core
-struct λ;  // unit coro
 struct Ψ;  // unit boundary
+struct Λ;  // flux core
+struct Φ;  // flux manager
+struct λ;  // unit coro
 
 
 typedef uint64_t λi;

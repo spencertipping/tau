@@ -4,22 +4,10 @@
 
 #include "flux/init.hh"
 #include "flux/coro.hh"
-#include "flux/core-defs.hh"
-#include "flux/core-impl.hh"
-
-
-#include "module/begin.hh"
-
-namespace tau
-{
-
-
-
-
-
-}
-
-#include "module/end.hh"
+#include "flux/pipe.hh"
+#include "flux/defs.hh"
+#include "flux/lambda-defs.hh"
+#include "flux/lambda.hh"
 
 
 #endif
