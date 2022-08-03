@@ -19,27 +19,29 @@ namespace tau::flux
 {
 
 
-struct core;
-struct task;
+struct Λ;  // flux core
+struct λ;  // unit coro
+struct Ψ;  // unit boundary
 
 
-typedef uint64_t task_id;
-typedef uint64_t pipe_id;
+typedef uint64_t λi;
+typedef uint64_t ψi;
+typedef uint64_t Ψi;
+
 
 // FIXME: task results should be something more interesting, probably
-typedef int                          task_result;
-typedef coro::coro<task_result>      task_coro;
-typedef std::function<task_result()> task_fn;
+typedef int                 λv;
+typedef coro::coro<λv>      λc;
+typedef std::function<λv()> λf;
 
-typedef u9                           pipe_val;  // FIXME: shared_ptr
-typedef pipe<pipe_val>               core_pipe;
-typedef task                         core_task;
+typedef u9                  ψv;  // FIXME: shared_ptr, ibuf handling
+typedef pipe<ψv>            ψ;
 
 
 struct deadline_schedule
 {
-  core &c;
-  bool operator()(task_id a, task_id b) const;
+  Λ &c;
+  bool operator()(λi a, λi b) const;
 };
 
 

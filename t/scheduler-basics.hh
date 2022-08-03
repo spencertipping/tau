@@ -18,7 +18,7 @@ using namespace tau;
 
 int main()
 {
-  tau::flux::core c;
+  tau::flux::Λ c;
 
   let p1 = c.create_pipe(8);
   let p2 = c.create_pipe(12);

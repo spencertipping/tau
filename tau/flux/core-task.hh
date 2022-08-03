@@ -17,7 +17,7 @@ namespace tau::flux
 {
 
 
-enum task_state
+enum λs
 {
   RUNNABLE,
   SLEEPING,
@@ -27,18 +27,18 @@ enum task_state
 };
 
 
-struct task
+struct λ
 {
   stopwatch     monitor;
-  task_coro     coro;
+  λc            coro;
   stopwatch::tp deadline;
-  task_state    state;
+  λs            state;
 
-  task() {}
-  task(task_fn const &f) : coro(task_coro(f)), state{RUNNABLE} {}
+  λ() {}
+  λ(λf const &f) : coro(λc(f)), state{RUNNABLE} {}
 
 
-  task &operator=(task &&t)
+  λ &operator=(λ &&t)
     { monitor  = t.monitor;
       coro     = std::move(t.coro);
       deadline = t.deadline;
@@ -47,11 +47,11 @@ struct task
 
   stopwatch::span p(double p) const { return monitor.p(p); }
 
-  bool operator<(task const &t) const;
+  bool operator<(λ const &t) const;
 };
 
 
-std::ostream &operator<<(std::ostream &s, task_state const &t)
+std::ostream &operator<<(std::ostream &s, λs const &t)
 {
   switch (t)
   {
@@ -65,7 +65,7 @@ std::ostream &operator<<(std::ostream &s, task_state const &t)
 }
 
 
-std::ostream &operator<<(std::ostream &s, task const &t)
+std::ostream &operator<<(std::ostream &s, λ const &t)
 {
   s << "task[" << t.state;
   if (t.state == SLEEPING) s << " d=" << (t.deadline - stopwatch::now());
