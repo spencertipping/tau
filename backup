@@ -19,6 +19,6 @@ git fsck --full --strict || exit $?
 git commit-graph verify || exit $?
 for p in "${points[@]}"; do
   ( ssh "${p%%:*}" mkdir -p "${p#*:}"
-    rsync -aP --inplace --delete .git "$p" ) &
+    rsync -aP --delete .git "$p" ) &
 done
 wait
