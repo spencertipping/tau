@@ -1,10 +1,13 @@
 # Tau
 Design:
 
-+ [phi](doc/phi.md)
 + [utf9](doc/utf9.md)
-+ [pipe](doc/pipe.md)
-+ [flux](doc/flux.md)
++ [greeks](doc/greeks.md)
+  + [φ](doc/phi.md)
+  + [ψ](doc/psi.md)
+  + [γ](doc/gamma.md)
+  + [λ](doc/lambda.md)
+  + [Θ](doc/theta.md)
 
 Technical notes:
 
