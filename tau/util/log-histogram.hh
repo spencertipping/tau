@@ -45,6 +45,11 @@ struct log_histogram
       if (x >> 2)  i += 2,  x >>= 1;
       if (x >> 1)  i++;
       return i; }
+
+
+  log_histogram<F, O, N> &operator+=(log_histogram<F, O, N> const &x)
+    { for (unsigned i = 0; i < N; ++i) n[i] += x.n[i];
+      return *this; }
 };
 
 

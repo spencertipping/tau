@@ -63,6 +63,15 @@ struct stopwatch
       *this << s;
       return s; }
 
+
+  stopwatch &operator+=(stopwatch const &s)
+    { assert(!s.is_running);
+      total_elapsed += s.total_elapsed;
+      n_splits      += s.n_splits;
+      splits        += s.splits;
+      return *this; }
+
+
   static tp now()               { return clk::now(); }
   static constexpr tp never()   { return tp{0ns}; }
   static constexpr tp forever() { return tp{std::numeric_limits<tp::duration::rep>::max() * 1ns}; }
