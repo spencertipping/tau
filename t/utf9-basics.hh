@@ -22,6 +22,7 @@ namespace t::utf9_basics
 
 using namespace std;
 using namespace tau;
+using namespace tau::util::numerics;
 using tau::util::stopwatch;
 using tau::operator<<;
 
@@ -273,11 +274,42 @@ void try_printing_types()
 }
 
 
+void try_bit_preferences()
+{
+  o9 b;
+  for (unsigned i = 1; i < 10000000; i *= 7)
+    for (unsigned lb = 0; lb <= 4; ++lb)
+    {
+      let n = i;
+      let l = i << lb;
+      cout << "n = " << i << "; l = " << l << ": ";
+
+      let lbits = (int) b.list_pos_bits(n, l);
+      let sbits = (int) b.set_rcp_bits(n, l);
+      cout << "list_pos_bits = " << lbits << " = " << (n     >> lbits) << " x " << (int) su(l) << "; ";
+      cout << "set_rcp_bits  = " << sbits << " = " << (~0ull >> sbits) << " x " << (int) su(l) << endl;
+
+      if (lbits < 64 && (n >> lbits) * su(l) > l >> b.INDEX_SIZE_BITS)
+      {
+        cout << "ERROR: oversize list_pos index" << endl;
+        _exit(1);
+      }
+
+      if (sbits < 64 && (~0ull >> sbits) * su(l) > l >> b.INDEX_SIZE_BITS)
+      {
+        cout << "ERROR: oversize set_rcp index" << endl;
+        _exit(1);
+      }
+    }
+}
+
+
 int main()
 {
   cout << "native endianness: "
        << (std::endian::native == std::endian::big ? "big" : "little") << endl;
 
+  cout << "try_bit_preferences" << endl; try_bit_preferences();
   cout << "try_really_simple"  << endl; try_really_simple();
   //cout << "try_coercion_error" << endl; try_coercion_error();
   cout << "try_loading_stuff"  << endl; try_loading_stuff();

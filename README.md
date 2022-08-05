@@ -19,8 +19,12 @@ For all of `dev/hackery` on Ubuntu 22.04:
 
 ```sh
 $ sudo apt install -y \
+       build-essential \
        libboost-fiber-dev libboost-context-dev libmsgpack-dev \
-       libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev libxcb-xinput-dev
+       libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev \
+       libxcb-xinput-dev \
+       g++-multilib-i686-linux-gnu \
+       libc6-dbg{,-i386-cross}
 ```
 
 To build and run test files, both natively and with emscripten/node:

@@ -5,10 +5,12 @@
 #include "init.hh"
 #include "coro-class.hh"
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 #  include "coro-emscripten.hh"
-#else
+#elif defined(__LP64__)
 #  include "coro-boost.hh"
+#else
+#  warning compiling without coro support (no emscripten or LP64)
 #endif
 
 

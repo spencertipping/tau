@@ -62,6 +62,8 @@ let idx16_lf = lf(b.u16(i + 1) + 4  + 2 * (~0ull >> b.u8(i + 3)));
 let idx32_lf = lf(b.u32(i + 1) + 6  + 4 * (~0ull >> b.u8(i + 5)));
 let idx64_lf = lf(b.u64(i + 1) + 10 + 8 * (~0ull >> b.u8(i + 9)));
 
+let hint_lf  = lf(1 + b.len(i + 1));
+
 let bogus_lf   = [](ibuf const &b, uint64_t i) -> uint64_t { return throw_decoding_error<uint64_t>("bogus lf",   b, i); };
 let bogus_tlf  = [](ibuf const &b, uint64_t i) -> uint64_t { return throw_decoding_error<uint64_t>("bogus tlf",  b, i); };
 let bogus_tvlf = [](ibuf const &b, uint64_t i) -> uint64_t { return throw_decoding_error<uint64_t>("bogus tvlf", b, i); };
@@ -128,7 +130,7 @@ lfn const lfns[256] =
   pidx8_lf, pidx16_lf, pidx32_lf, pidx64_lf,
   idx8_lf,  idx16_lf,  idx32_lf,  idx64_lf,
   idx8_lf,  idx16_lf,  idx32_lf,  idx64_lf,
-  l1, l1, l1, bogus_lf,
+  hint_lf,  hint_lf,   hint_lf,   bogus_lf,
 
   // 0x60-0x6f
   bogus_lf, bogus_lf, bogus_lf, bogus_lf,

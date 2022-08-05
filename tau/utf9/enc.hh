@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include "error-proto.hh"
+#include "numerics.hh"
 #include "obuf.hh"
 #include "val.hh"
 
@@ -101,17 +102,17 @@ oenc &operator<<(oenc &o, val const &v)
   case UTF8:
   { let l = v.len();
     return (l < 16  ? o.u8(0x20 + l) :
-            l >> 32 ? o.u8(0x1b).u64(l) :
-            l >> 16 ? o.u8(0x1a).u32(l) :
-            l >> 8  ? o.u8(0x19).u16(l) : o.u8(0x18).u8(l))
+            ou32(l) ? o.u8(0x1b).u64(l) :
+            ou16(l) ? o.u8(0x1a).u32(l) :
+            ou8(l)  ? o.u8(0x19).u16(l) : o.u8(0x18).u8(l))
       .xs(v.vb->data(), l); }
 
   case BYTES:
   { let l = v.len();
     return (l < 16  ? o.u8(0x30 + l) :
-            l >> 32 ? o.u8(0x1f).u64(l) :
-            l >> 16 ? o.u8(0x1e).u32(l) :
-            l >> 8  ? o.u8(0x1d).u16(l) : o.u8(0x1c).u8(l))
+            ou32(l) ? o.u8(0x1f).u64(l) :
+            ou16(l) ? o.u8(0x1e).u32(l) :
+            ou8(l)  ? o.u8(0x1d).u16(l) : o.u8(0x1c).u8(l))
       .xs(v.vb->data(), l); }
 
   case TUPLE:

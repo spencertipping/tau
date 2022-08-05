@@ -146,7 +146,7 @@ std::ostream &operator<<(std::ostream &s, val const &v)
     return s << "]"; }
 
   case NONE:  return s << "none";
-  case BOGUS: return s << "bogus";
+  case BOGUS: return s << "bogus(" << v.tag << ", " << v.i << ")";
   default:    return s << "???";
   }
 }

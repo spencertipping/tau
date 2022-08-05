@@ -49,10 +49,13 @@ struct val
 
   // Tagging bit schema:
   // type:6 | owned:1 | immediate:1
+  // NOTE: 32-bit builds are just 4-byte aligned, so these are all the bits
+  // we have to work with
   static uint64_t const constexpr immed_bit = 1;
   static uint64_t const constexpr owned_bit = 2;
+  static uint64_t const constexpr tagmask   = immed_bit | owned_bit;
   static uint8_t  const constexpr tagshift  = 2;
-  static_assert((immed_bit | owned_bit) >> tagshift == 0);
+  static_assert(tagmask >> tagshift == 0);
 
   static constexpr inline uint64_t tagify  (val_type t, bool own = false) { return static_cast<uint64_t>(t) << tagshift | (own ? owned_bit : 0) | immed_bit; }
   static constexpr inline val_type tag_type(uint64_t tag)                 { return static_cast<val_type>(tag >> tagshift); }
@@ -66,7 +69,7 @@ struct val
   val(uint64_t tag_, uint64_t v_) : tag(tag_), vu(v_) {}
 
   val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
-    { if (reinterpret_cast<uint64_t>(b) & 7) throw_internal_error("unaligned");
+    { if (reinterpret_cast<uint64_t>(b) & tagmask) throw_internal_error("unaligned");
       b->check(i);
       b->check(i + b->len(i) - 1); }
 

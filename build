@@ -38,11 +38,13 @@ case $cmd in
       fi
       ;;
 
-  d*) t g++ "${t_gcc_debug_opts[@]}" t/test.cc -o t/test-debug -lboost_context
+  d*) t g++                "${t_gcc_debug_opts[@]}"      t/test.cc -o t/test-debug -lboost_context
+      t i686-linux-gnu-g++ "${t_gcc_debug_opts[@]}" -m32 t/test.cc -o t/test32-debug
       ;;
 
-  t*) t g++            "${t_gcc_opts[@]}"       t/test.cc -o t/test -lboost_context
-      t dev/emsdk em++ "${t_em_opts[@]}"        t/test.cc -o t/test.js
+  t*) t g++                "${t_gcc_opts[@]}"       t/test.cc -o t/test   -lboost_context
+      t i686-linux-gnu-g++ "${t_gcc_opts[@]}" -m32  t/test.cc -o t/test32
+      t dev/emsdk em++     "${t_em_opts[@]}"        t/test.cc -o t/test.js
       ;;
 
   *)  usage

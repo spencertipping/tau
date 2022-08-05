@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include "ibuf.hh"
+#include "numerics.hh"
 
 #include "../module/begin.hh"
 
@@ -16,6 +17,9 @@ namespace tau::utf9
 // A bytecode encoder with no specified storage backend
 struct oenc
 {
+  static const constexpr uint8_t INDEX_SIZE_BITS = 3;
+
+
   virtual ~oenc() {};
 
   virtual void     ensure_capacity(uint64_t l_) = 0;
@@ -26,6 +30,32 @@ struct oenc
   virtual uint64_t size() const = 0;
   virtual void     fill(uint8_t c, uint64_t n) = 0;
   virtual ibuf     convert_to_ibuf() = 0;
+
+
+  virtual uint8_t  list_pos_bits(uint64_t n, uint64_t l) const
+    { if (n <= 16) return 64;
+      let  s = n << bu(l);
+      auto r = 0;
+      while (s >> r >= l >> INDEX_SIZE_BITS) ++r;
+      return r; }
+
+  virtual uint8_t  set_rcp_bits(uint64_t n, uint64_t l) const
+    { if (n <= 16) return 64;
+
+      // Return a value such that s * (~0ull >> r) <= l >> INDEX_SIZE_BITS
+      // -- or, solving for r:
+      //
+      // ~0ull >> r <= (l >> INDEX_SIZE_BITS) / s
+      // ~0ull >> r <= (l >> ISB + b)
+      //          r >= 64 - (ilog(l) - ISB - b)
+      let  b = bu(l);
+      auto r = 64 - (ilog(l) - INDEX_SIZE_BITS - b);
+      while (~0ull >> r >= l >> INDEX_SIZE_BITS + b) ++r;
+      return r; }
+
+  virtual uint8_t  map_rcp_bits(uint64_t n, uint64_t l) const
+    { return set_rcp_bits(n, l); }
+
 
   oenc &u8 (uint8_t  x) { push(x); return *this; }
   oenc &u16(uint16_t x) { u8 (x >> 8);  return u8 (x & 0xff); }

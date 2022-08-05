@@ -25,7 +25,7 @@ struct Φ::inner
   bool      ψe(u9) const;
   u9        ψr(u9);
   bool      ψa(u9);
-  bool      ψw(u9, u9 const&);
+  bool      ψw(u9, u9 const &);
   Ψ::ψit    ψs(u9) const;  // iterable
 
   Φ::inner &Θa(Θ::span s) { return Φa(now() + s); }
@@ -33,7 +33,7 @@ struct Φ::inner
 };
 ```
 
-**TODO:** `ψw` needs some GC attention
+**NOTE:** `ψw` has the option of just `obuf << v` for memory management, which is worst-case about as computationally expensive as data structure allocation in Python. Then the underlying pipe carries `shared_ptr<obuf>` objects and we have no issues with GC. If we have exceptionally large values, we can refer to them using a static checkin/checkout dictionary Φ -- but that requires us to manage GC manually.
 
 
 ## Outer abstraction
@@ -51,10 +51,10 @@ struct Φ::outer
 
   Φ::outer &ψc(u9, ψi);
   Φ::outer &λc(u9, λi);
-  ψi        ψg(u9 s) const { return ψm.at(s); }
-  λi        λg(u9 s) const { return λm.at(s); }
-  Φ::outer &ψd(u9);
-  Φ::outer &λd(u9);
+  Φ::outer &ψd(u9 const &);
+  Φ::outer &λd(u9 const &);
+  ψi        ψg(u9 const &s) const { return ψm.at(s); }
+  λi        λg(u9 const &s) const { return λm.at(s); }
 
   Θs        Θp() const;  // time profile
 };

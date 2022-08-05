@@ -53,7 +53,7 @@ Any datatype with a non-constant length has the length prepended to it so we can
 ### Unused (reserved) bytes
 + `0x0f`
 + `0x17`
-+ `0x5c`-`0x5f`
++ `0x5f`
 + `0x60`-`0x6f`
 + `0x70`-`0x7f`
 
