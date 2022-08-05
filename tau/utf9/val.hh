@@ -227,7 +227,7 @@ struct val
 
   struct it
   {
-    enum kind { VEC, IBUF_TUPLE, IBUF_ARRAY };
+    enum kind { VEC = 1, IBUF_TUPLE = 2, IBUF_ARRAY = 3 };
 
     union
     { ibuf const *buf;
@@ -240,14 +240,14 @@ struct val
     tval     atype;
     uint64_t stride;
 
-    it(std::vector<val>::const_iterator vi_) : buf(nullptr), vi(vi_), atype(tu8) { tag |= VEC; }
-    it(ibuf const *b_, uint64_t i_)          : buf(b_), i(i_), atype(tu8)        { tag |= IBUF_TUPLE; }
+    it(std::vector<val>::const_iterator vi_) : buf(nullptr), i(0), atype(tu8) { vi = vi_; tag |= VEC; }
+    it(ibuf const *b_, uint64_t i_)          : buf(b_), i(i_), atype(tu8)     { tag |= IBUF_TUPLE; }
     it(ibuf const *b_, tval const &atype_, uint64_t i_)
       : buf(b_), i(i_), atype(atype_), stride(atype.vsize()) { tag |= IBUF_ARRAY; }
 
     bool operator==(it const &x) const { return i == x.i; }
 
-    ibuf const &b() const { return *reinterpret_cast<ibuf const *>(reinterpret_cast<uint64_t>(buf) & ~3); }
+    ibuf const &b() const { return *reinterpret_cast<ibuf const *>(reinterpret_cast<uint64_t>(buf) & ~3ull); }
 
     val operator*() const
       { switch (tag & 3)
