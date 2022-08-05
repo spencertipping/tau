@@ -131,7 +131,7 @@ void try_bench()
 {
   try
   {
-    for (int64_t upper = 1; upper <= (QUICK ? 65536 : 1048576 * 16); upper *= 16)
+    for (int64_t upper = 1; upper <= (QUICK ? 16384 : 1048576 * 16); upper *= 16)
     {
       o9 o4;
       u9 v4 = u9t(upper);

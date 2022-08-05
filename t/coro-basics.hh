@@ -7,6 +7,11 @@
 #include "../tau.hh"
 
 
+#ifndef QUICK
+#define QUICK 0
+#endif
+
+
 #include "../tau/module/begin.hh"
 
 namespace t::coro_basics
@@ -152,7 +157,7 @@ void bench()
 int main()
 {
   try_streams();
-  bench();
+  if (!QUICK) bench();
   return 0;
 }
 
