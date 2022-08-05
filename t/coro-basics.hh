@@ -122,7 +122,7 @@ void bench()
 
   {
     let start = stopwatch::now();
-    uint64_t t = 0;
+    u64 t = 0;
     while (!f1.done())
     {
       while (!f1.done() && s1.head_ready()) f1();
@@ -141,7 +141,7 @@ void bench()
 
   {
     let start = stopwatch::now();
-    uint64_t t = 0;
+    u64 t = 0;
     while (!f2.done())
     {
       while (!f2.done() && s2.head_ready()) f2();

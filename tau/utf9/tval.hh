@@ -2,7 +2,7 @@
 #define tau_utf9_tval_h
 
 
-#include <cstdint>
+#include "../types.hh"
 
 #include "error-proto.hh"
 #include "hash.hh"
@@ -23,41 +23,41 @@ struct tbuf;
 // A typecode beginning at a specific bytecode location
 struct tval
 {
-  uint64_t const tag;  // NOTE: contains ibuf* plus ownership bit
-  uint64_t const i;
-  uint64_t const e;
+  uN const tag;  // NOTE: contains ibuf* plus ownership bit
+  uN const i;
+  uN const e;
 
-  static inline uint64_t tagify(ibuf const * b_, bool own = false)
-    { return reinterpret_cast<uint64_t>(b_) | (own ? 1 : 0); }
+  static inline uN tagify(ibuf const * b_, bool own = false)
+    { return Rc<uN>(b_) | (own ? 1 : 0); }
 
 
-  tval(ibuf const &b_, uint64_t i_ = 0, bool own = false)
+  tval(ibuf const &b_, uN i_ = 0, bool own = false)
     : tag(tagify(&b_, own)),
       i(i_),
       e(i + b().ctlen(i)) {}
 
-  tval(tbuf const &b_, uint64_t i_ = 0, bool own = false)
-    : tag(tagify(reinterpret_cast<ibuf const *>(&b_), own)),
+  tval(tbuf const &b_, uN i_ = 0, bool own = false)
+    : tag(tagify(Rc<ibuf const *>(&b_), own)),
       i(i_),
       e(i + b().ctlen(i)) {}
 
   tval(tbuf *b_)
-    : tag(tagify(reinterpret_cast<ibuf*>(b_), true)),
+    : tag(tagify(Rc<ibuf*>(b_), true)),
       i(0),
       e(b().ctlen(0)) {}
 
   tval(tval const &t) : tag(tagify(&t.b(), false)), i(t.i), e(t.e) {}
 
-  ~tval() { if (tag & 1) delete reinterpret_cast<ibuf*>(tag & ~1ull); }
+  ~tval() { if (tag & 1) delete Rc<ibuf*>(tag & ~1ull); }
 
 
-  ibuf const &b() const { return *reinterpret_cast<ibuf const*>(tag & ~1ull); }
+  ibuf const &b() const { return *Rc<ibuf const*>(tag & ~1ull); }
 
 
   struct it
   {
     ibuf const * const b;
-    uint64_t           i;
+    uN                 i;
 
     tval operator* ()            const { return tval(*b, i); }
     it  &operator++()                  { i += b->tlen(i); return *this; }
@@ -79,25 +79,25 @@ struct tval
 
   it end() const { return it{&b(), e}; }
 
-  tval operator[](uint64_t i) const { it i_ = begin(); while (i--) ++i_; return *i_; }
-  uint64_t offset_of(uint64_t i) const
-    { if (type() != TUPLE) return throw_top_error<uint64_t>("offset_of()", *this);
+  tval operator[](uN i) const { it i_ = begin(); while (i--) ++i_; return *i_; }
+  uN offset_of(uN i) const
+    { if (type() != TUPLE) return throw_top_error<u64>("offset_of()", *this);
       if (!i) return 0;
       --i;
-      uint64_t s = 0;
+      u64 s = 0;
       it i_ = begin();
       while (i--) s += (*i_).vsize(), ++i_;
       return s; }
 
 
-  uint8_t  typecode() const { return b().u8(i); }
+  u8       typecode() const { return b().u8(i); }
   val_type type()     const { return bts[typecode()]; }
-  uint64_t vsize()    const { return b().tvlen(i); }
-  uint64_t tsize()    const { return b().tlen(i); }
+  uN       vsize()    const { return b().tvlen(i); }
+  uN       tsize()    const { return b().tlen(i); }
 
 
-  uint64_t len() const
-    { if (type() != ARRAY && type() != TUPLE)       return throw_top_error<uint64_t>("len()", *this);
+  u64 len() const
+    { if (type() != ARRAY && type() != TUPLE)       return throw_top_error<u64>("len()", *this);
       if (typecode() >= 0x48 && typecode() <= 0x4f) return typecode() - 0x48;
       switch (typecode())
       {
@@ -105,7 +105,7 @@ struct tval
       case 0x41: case 0x45: return b().u16(i + 3);
       case 0x42: case 0x46: return b().u32(i + 5);
       case 0x43: case 0x47: return b().u64(i + 9);
-      default: return throw_internal_error<uint64_t>("tval len()");
+      default: return throw_internal_error<u64>("tval len()");
       } }
 
   tval atype() const
@@ -128,7 +128,7 @@ struct tval
       return n1 > n2 ? 1 : n1 < n2 ? -1 : std::memcmp(b() + i, t.b() + t.i, n1); }
 
 
-  uint64_t h() const { return xxh(b() + i, e - i, 1); }
+  u64 h() const { return xxh(b() + i, e - i, 1); }
 
   // Encode a value without any type prefixes
   oenc &pack(oenc&, val const&) const;
@@ -137,8 +137,8 @@ struct tval
 
 struct tbuf : public ibuf
 {
-  tbuf() : ibuf() {}
-  tbuf(std::initializer_list<int> xs_) : ibuf(xs_) {}
+  tbuf()               : ibuf() {}
+  tbuf(Il<int> xs_)    : ibuf(xs_) {}
   tbuf(ibuf const &b_) : ibuf(b_) {}
   tbuf(ibuf &&b_)      : ibuf(b_) {}
 
@@ -161,7 +161,7 @@ tbuf const tsym  {SYMBOL};
 tbuf const tpidfd{PIDFD};
 
 
-tbuf tutf8(uint64_t l)
+tbuf tutf8(uN l)
 {
   return l < 16  ? tbuf{0x20 + cou8(l)}
        : ou32(l) ? obuf(9).u8(0x1b).u64(l).convert_to_ibuf()
@@ -170,7 +170,7 @@ tbuf tutf8(uint64_t l)
        :           obuf(2).u8(0x18).u8(l).convert_to_ibuf();
 }
 
-tbuf tbytes(uint64_t l)
+tbuf tbytes(uN l)
 {
   return l < 16  ? tbuf{0x30 + cou8(l)}
        : ou32(l) ? obuf(9).u8(0x1f).u64(l).convert_to_ibuf()
@@ -179,11 +179,11 @@ tbuf tbytes(uint64_t l)
        :           obuf(2).u8(0x1c).u8(l).convert_to_ibuf();
 }
 
-template<class T = std::initializer_list<tbuf>>
+template<class T = Il<tbuf>>
 tbuf ttuple(T const &xs)
 {
-  let      n = xs.size();
-  uint64_t s = 0;
+  let n = xs.size();
+  uN s = 0;
   for (let &x : xs) s += tval(x).vsize();
 
   obuf r(16);
@@ -197,7 +197,7 @@ tbuf ttuple(T const &xs)
   return r.convert_to_ibuf();
 }
 
-tbuf tarray(uint64_t n, tbuf const &t)
+tbuf tarray(uN n, tbuf const &t)
 {
   let s = tval(t).vsize() * n;
   return ou32(s) ? (obuf(16).u8(0x47).u64(s).u64(n) << t).convert_to_ibuf()

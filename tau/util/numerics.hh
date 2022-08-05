@@ -5,6 +5,9 @@
 #include <bit>
 #include <cstdint>
 
+
+#include "../types.hh"
+
 #include "../module/begin.hh"
 
 
@@ -15,66 +18,62 @@ namespace tau::util::numerics
 let constexpr LE = std::endian::native == std::endian::little;
 let constexpr BE = std::endian::native == std::endian::big;
 
-
 static_assert(LE || BE, "unsupported endianness");
 
-static_assert(sizeof(long long) == sizeof(uint64_t));
-static_assert(sizeof(double)    == sizeof(uint64_t));
-static_assert(sizeof(float)     == sizeof(uint32_t));
-static_assert(sizeof(char)      == sizeof(uint8_t));
 
-static_assert(sizeof(void*) <= sizeof(uint64_t));  // <=, not ==, required for emscripten
+inline constexpr u16 bs16(u16 x) { return      x >> 8   | x                                         << 8; }
+inline constexpr u32 bs32(u32 x) { return bs16(x >> 16) | static_cast<u32>(bs16(x & 0xffffull))     << 16; }
+inline constexpr u64 bs64(u64 x) { return bs32(x >> 32) | static_cast<u64>(bs32(x & 0xffffffffull)) << 32; }
 
-
-inline constexpr uint16_t bs16(uint16_t x) { return      x >> 8   | x                                              << 8; }
-inline constexpr uint32_t bs32(uint32_t x) { return bs16(x >> 16) | static_cast<uint32_t>(bs16(x & 0xffffull))     << 16; }
-inline constexpr uint64_t bs64(uint64_t x) { return bs32(x >> 32) | static_cast<uint64_t>(bs32(x & 0xffffffffull)) << 32; }
+static_assert(bs16(0x1234u)               == 0x3412u);
+static_assert(bs32(0x12345678u)           == 0x78563412u);
+static_assert(bs64(0x0123456789abcdefull) == 0xefcdab8967452301ull);
 
 
-inline constexpr uint64_t ce(uint64_t x) { return LE ? bs64(x) : x; }
-inline constexpr uint32_t ce(uint32_t x) { return LE ? bs32(x) : x; }
-inline constexpr uint16_t ce(uint16_t x) { return LE ? bs16(x) : x; }
+inline constexpr u64 ce(u64 x) { return LE ? bs64(x) : x; }
+inline constexpr u32 ce(u32 x) { return LE ? bs32(x) : x; }
+inline constexpr u16 ce(u16 x) { return LE ? bs16(x) : x; }
 
-inline constexpr int64_t  ce(int64_t x)  { return LE ? bs64(x) : x; }
-inline constexpr int32_t  ce(int32_t x)  { return LE ? bs32(x) : x; }
-inline constexpr int16_t  ce(int16_t x)  { return LE ? bs16(x) : x; }
+inline constexpr i64 ce(i64 x) { return LE ? bs64(x) : x; }
+inline constexpr i32 ce(i32 x) { return LE ? bs32(x) : x; }
+inline constexpr i16 ce(i16 x) { return LE ? bs16(x) : x; }
 
-inline constexpr double ce(double const x)
+inline constexpr f64 ce(f64 const x)
 {
   if (BE) return x;
-  union { double xd; uint64_t xi; }; xd = x;
+  union { f64 xd; u64 xi; }; xd = x;
   xi = bs64(xi);
   return xd;
 }
 
-inline constexpr float ce(float const x)
+inline constexpr f32 ce(f32 const x)
 {
   if (BE) return x;
-  union { float xf; uint32_t xi; }; xf = x;
+  union { f32 xf; u32 xi; }; xf = x;
   xi = bs32(xi);
   return xf;
 }
 
 
-inline constexpr bool ou8 (uint64_t x) { return !!(x >> 8); }
-inline constexpr bool ou16(uint64_t x) { return !!(x >> 16); }
-inline constexpr bool ou32(uint64_t x) { return !!(x >> 32); }
+inline constexpr bool ou8 (u64 x) { return !!(x >> 8); }
+inline constexpr bool ou16(u64 x) { return !!(x >> 16); }
+inline constexpr bool ou32(u64 x) { return !!(x >> 32); }
 
-inline constexpr bool oi8 (int64_t x) { return x << 56 >> 56 != x; }
-inline constexpr bool oi16(int64_t x) { return x << 48 >> 48 != x; }
-inline constexpr bool oi32(int64_t x) { return x << 32 >> 32 != x; }
-
-
-inline constexpr uint8_t  bu(uint64_t x) { return ou32(x) ? 3 : ou16(x) ? 2 : ou8(x) ? 1 : 0; }
-inline constexpr uint8_t  bi(int64_t  x) { return oi32(x) ? 3 : oi16(x) ? 2 : oi8(x) ? 1 : 0; }
-
-inline constexpr uint8_t  su(uint64_t x) { return 1 << bu(x); }
-inline constexpr uint8_t  si(int64_t  x) { return 1 << bi(x); }
+inline constexpr bool oi8 (i64 x) { return x << 56 >> 56 != x; }
+inline constexpr bool oi16(i64 x) { return x << 48 >> 48 != x; }
+inline constexpr bool oi32(i64 x) { return x << 32 >> 32 != x; }
 
 
-constexpr uint8_t ilog(uint64_t x)
-{ uint8_t i = 0;
-  for (uint8_t j = 32; j; j >>= 1) if (x >> j) i += j, x >>= j;
+inline constexpr u8 bu(u64 x) { return ou32(x) ? 3 : ou16(x) ? 2 : ou8(x) ? 1 : 0; }
+inline constexpr u8 bi(i64 x) { return oi32(x) ? 3 : oi16(x) ? 2 : oi8(x) ? 1 : 0; }
+
+inline constexpr u8 su(u64 x) { return 1 << bu(x); }
+inline constexpr u8 si(i64 x) { return 1 << bi(x); }
+
+
+constexpr u8 ilog(u64 x)
+{ u8 i = 0;
+  for (u8 j = 32; j; j >>= 1) if (x >> j) i += j, x >>= j;
   return i; }
 
 

@@ -11,6 +11,7 @@
 #include <unordered_set>
 
 
+#include "../types.hh"
 #include "../utf9.hh"
 #include "../util/stopwatch.hh"
 
@@ -29,9 +30,6 @@ namespace tau::flux
 using namespace std::literals;
 namespace tc = tau::flux::coro;
 
-template<class S>
-using pq = std::priority_queue<λi, std::vector<λi>, S>;
-
 
 void thread_sleep_until(stopwatch::tp t) { std::this_thread::sleep_until(t); }
 
@@ -43,9 +41,6 @@ struct Λ
   typedef void(*sleep_until_fn)(stopwatch::tp);
 
 
-  // TODO: it should be possible to wait on a union of conditions
-  // (e.g. pipe readable | 100ms are up)
-
   // TODO: split this class into several sub-pieces:
   // + pipe sleep/wake system
   // + deadline scheduler
@@ -56,16 +51,16 @@ struct Λ
 
   // invariant: every task is in read_blocks, write_blocks, run_queue, or
   // sleep_queue
-  std::unordered_map<λi, λ>  tasks;
-  std::unordered_map<ψi, ψ>  pipes;
-  std::unordered_map<ψi, λi> read_blocks;
-  std::unordered_map<ψi, λi> write_blocks;
-  std::unordered_set<λi>     done_tasks;
+  M<λi, λ>  tasks;
+  M<ψi, ψ>  pipes;
+  M<ψi, λi> read_blocks;
+  M<ψi, λi> write_blocks;
+  S<λi>     done_tasks;
 
   deadline_schedule ds;
 
-  std::queue<λi>        run_queue;
-  pq<deadline_schedule> sleep_queue;
+  Q<λi>                     run_queue;
+  PQ<λi, deadline_schedule> sleep_queue;
 
   λi current_task;
   λi next_task_id;
@@ -85,7 +80,7 @@ struct Λ
 
   stopwatch::span uptime() const { return stopwatch::now() - ctime; }
 
-  ψi create_pipe(size_t capacity = 64)
+  ψi create_pipe(uN capacity = 64)
     { let k = next_pipe_id++;
       pipes[k] = ψ(capacity);
       return k; }
@@ -118,7 +113,7 @@ struct Λ
   bool write   (ψi, ψv const &);
 
 
-  size_t        runnable_tasks() const { return run_queue.size(); }
+  uN            runnable_tasks() const { return run_queue.size(); }
   λi            next_runnable()  const { return run_queue.size() ? run_queue.front() : 0; }
   stopwatch::tp next_deadline()  const { return sleep_queue.size()
       ? tasks.at(sleep_queue.top()).deadline

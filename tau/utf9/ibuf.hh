@@ -2,9 +2,9 @@
 #define tau_utf9_ibuf_h
 
 
-#include <cstdint>
 #include <cstring>
 
+#include "../types.hh"
 #include "error-proto.hh"
 #include "numerics.hh"
 
@@ -18,17 +18,17 @@ namespace tau::utf9
 // A bytecode decoder with fully-buffered and bounded source data.
 struct ibuf
 {
-  uint8_t const * xs;
-  uint64_t        l;
-  bool            owned;
+  U8 const * xs;
+  uN         l;
+  bool       owned;
 
 
-  ibuf(uint8_t const *xs_, uint64_t l_, bool owned_ = false)
+  ibuf(u8 const *xs_, uN l_, bool owned_ = false)
     : xs(xs_), l(l_), owned(owned_) {}
 
-  ibuf(std::initializer_list<int> xs_)
-    : xs(new uint8_t[xs_.size()]), l(xs_.size()), owned(true)
-    { uint64_t i = 0; for (let x : xs_) const_cast<uint8_t*>(xs)[i++] = cou8(x); }
+  ibuf(Il<int> xs_)
+    : xs(new U8[xs_.size()]), l(xs_.size()), owned(true)
+    { U64 i = 0; for (let x : xs_) Cc<U8*>(xs)[i++] = cou8(x); }
 
   ibuf()              : xs(nullptr), l(0), owned(false) {}
   ibuf(ibuf const &b) : owned(false) { *this = b; }
@@ -39,10 +39,10 @@ struct ibuf
 
   ibuf &operator=(ibuf const &b)
     { if (owned) delete[] xs;
-      xs    = new uint8_t[b.l];
+      xs    = new U8[b.l];
       l     = b.l;
       owned = true;
-      std::memcpy(const_cast<uint8_t*>(xs), b.xs, l);
+      std::memcpy(Cc<U8*>(xs), b.xs, l);
       return *this; }
 
   ibuf &operator=(ibuf &&b)
@@ -56,49 +56,48 @@ struct ibuf
       return *this; }
 
 
-  bool has  (uint64_t i) const { return i < l; }
-  void check(uint64_t i) const { if (!has(i)) throw_decoding_error("ibuf bounds", *this, i); }
+  bool has  (uN i) const { return i < l; }
+  void check(uN i) const { if (!has(i)) throw_decoding_error("ibuf bounds", *this, i); }
 
-  uint64_t len  (uint64_t i) const;
-  uint64_t tlen (uint64_t i) const;
-  uint64_t tvlen(uint64_t i) const;
+  uN len  (uN i) const;
+  uN tlen (uN i) const;
+  uN tvlen(uN i) const;
 
-  uint64_t ctlen(uint64_t i) const
-    { check(i);
-      let n = tlen(i);
-      check(i + n - 1);
-      return n; }
+  uN ctlen(uN i) const { check(i); let n = tlen(i); check(i + n - 1); return n; }
 
 
-  uint8_t const *data() const { return xs; }
-  size_t         size() const { return l; }
+  U8 const *data() const { return xs; }
+  uN        size() const { return l; }
 
 
-  uint8_t const *operator+(uint64_t i) const { return xs + i; }
+  U8 const *operator+(uN i) const { return xs + i; }
 
 
-  uint8_t  u8 (uint64_t i) const { return xs[i]; }
-  uint16_t u16(uint64_t i) const { return ce(*reinterpret_cast<uint16_t const*>(xs + i)); }
-  uint32_t u32(uint64_t i) const { return ce(*reinterpret_cast<uint32_t const*>(xs + i)); }
-  uint64_t u64(uint64_t i) const { return ce(*reinterpret_cast<uint64_t const*>(xs + i)); }
+  U8  u8 (uN i) const { return xs[i]; }
+  U16 u16(uN i) const { return ce(*Rc<u16c*>(xs + i)); }
+  U32 u32(uN i) const { return ce(*Rc<u32c*>(xs + i)); }
+  U64 u64(uN i) const { return ce(*Rc<u64c*>(xs + i)); }
 
-  int8_t   i8 (uint64_t i) const { return reinterpret_cast<int8_t const*>(xs)[i]; }
-  int16_t  i16(uint64_t i) const { return ce(*reinterpret_cast<int16_t const*>(xs + i)); }
-  int32_t  i32(uint64_t i) const { return ce(*reinterpret_cast<int32_t const*>(xs + i)); }
-  int64_t  i64(uint64_t i) const { return ce(*reinterpret_cast<int64_t const*>(xs + i)); }
+  I8  i8 (uN i) const { return Rc<i8c*>(xs)[i]; }
+  I16 i16(uN i) const { return ce(*Rc<i16c*>(xs + i)); }
+  I32 i32(uN i) const { return ce(*Rc<i32c*>(xs + i)); }
+  I64 i64(uN i) const { return ce(*Rc<i64c*>(xs + i)); }
 
-  uint8_t  ci8 (uint64_t i) const { check(i);     return i8(i);  }
-  uint16_t ci16(uint64_t i) const { check(i + 1); return i16(i); }
-  uint32_t ci32(uint64_t i) const { check(i + 3); return i32(i); }
-  uint64_t ci64(uint64_t i) const { check(i + 7); return i64(i); }
+  U8  ci8 (uN i) const { check(i);               return i8(i);  }
+  U16 ci16(uN i) const { check(i); check(i + 1); return i16(i); }
+  U32 ci32(uN i) const { check(i); check(i + 3); return i32(i); }
+  U64 ci64(uN i) const { check(i); check(i + 7); return i64(i); }
 
-  uint8_t  cu8 (uint64_t i) const { check(i);     return u8(i);  }
-  uint16_t cu16(uint64_t i) const { check(i + 1); return u16(i); }
-  uint32_t cu32(uint64_t i) const { check(i + 3); return u32(i); }
-  uint64_t cu64(uint64_t i) const { check(i + 7); return u64(i); }
+  U8  cu8 (uN i) const { check(i);               return u8(i);  }
+  U16 cu16(uN i) const { check(i); check(i + 1); return u16(i); }
+  U32 cu32(uN i) const { check(i); check(i + 3); return u32(i); }
+  U64 cu64(uN i) const { check(i); check(i + 7); return u64(i); }
 
-  float  f32(uint64_t i) const { return ce(*reinterpret_cast<float const*>(xs + i)); }
-  double f64(uint64_t i) const { return ce(*reinterpret_cast<double const*>(xs + i)); }
+  F32 f32(uN i) const { return ce(*Rc<f32c*>(xs + i)); }
+  F64 f64(uN i) const { return ce(*Rc<f64c*>(xs + i)); }
+
+  F32 cf32(uN i) const { check(i); check(i + 3); return f32(i); }
+  F64 cf64(uN i) const { check(i); check(i + 7); return f64(i); }
 };
 
 

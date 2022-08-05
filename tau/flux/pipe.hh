@@ -15,6 +15,7 @@
 #include "init.hh"
 #include "coro.hh"
 
+#include "../types.hh"
 #include "../util/stopwatch.hh"
 
 
@@ -32,11 +33,11 @@ struct pipe
   stopwatch      read_delay;
   stopwatch      write_delay;
   stopwatch      latency;
-  size_t         capacity;
+  uN             capacity;
   std::deque<qe> xs;
 
   pipe() {}
-  pipe(size_t c_) : capacity(c_) { assert(capacity); }
+  pipe(uN c_) : capacity(c_) { assert(capacity); }
 
 
   pipe<T> &operator=(pipe<T> &&p)
@@ -51,12 +52,12 @@ struct pipe
   bool readable() const { return xs.size() > 0; }
   bool writable() const { return xs.size() < capacity; }
 
-  void   close()        { capacity = 0; }
-  bool   closed() const { return !capacity; }
-  size_t size()   const { return xs.size(); }
+  void close()        { capacity = 0; }
+  bool closed() const { return !capacity; }
+  uN   size()   const { return xs.size(); }
 
-  size_t total_read()    const { return latency.n_splits; }
-  size_t total_written() const { return total_read() + xs.size(); }
+  u64  total_read()    const { return latency.n_splits; }
+  u64  total_written() const { return total_read() + xs.size(); }
 
 
   stopwatch::span δ() const
@@ -66,9 +67,9 @@ struct pipe
       for (let &x : xs) t += n - std::get<0>(x);
       return (t + latency.total_elapsed) / (latency.n_splits + xs.size()); }
 
-  double σ() const
-    { return log2(static_cast<double>(write_delay.mean_split().count()))
-           - log2(static_cast<double>(read_delay .mean_split().count())); }
+  f64 σ() const
+    { return log2(Sc<f64>(write_delay.mean_split().count()))
+           - log2(Sc<f64>(read_delay .mean_split().count())); }
 
 
   bool write(T const &x)

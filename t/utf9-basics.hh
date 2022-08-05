@@ -34,7 +34,7 @@ template <class T> ostream &operator<<(ostream &s, debug<T> const &d)
   s << "len=" << d.b.size() << ":" << endl;
   for (unsigned i = 0; i < d.b.size();)
   {
-    uint8_t c = d.b.data()[i];
+    u8 c = d.b.data()[i];
     s.put("0123456789abcdef"[c >> 4]);
     s.put("0123456789abcdef"[c & 15]);
     s.put(++i & 15 ? ' ' : '\n');
@@ -47,7 +47,7 @@ void try_really_simple()
 {
   try
   {
-    uint8_t buf[] = {
+    u8c buf[] = {
       0x00, 0x7f,
       0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
       0x4b, 0x03, 0x81, 0x82, 0x83,
@@ -73,7 +73,7 @@ void try_loading_stuff()
 {
   try
   {
-    uint8_t buf[] = {
+    u8c buf[] = {
       0x49, 0x03, 0x05, 0xff, 0xf0, 0x80,
       0x40, 0x03, 0x01, 0x05, 0x02, 0x01,
 
@@ -131,11 +131,11 @@ void try_bench()
 {
   try
   {
-    for (int64_t upper = 1; upper <= (QUICK ? 16384 : 1048576 * 16); upper *= 16)
+    for (uN upper = 1; upper <= (QUICK ? 16384 : 1048576 * 16); upper *= 16)
     {
       o9 o4;
       u9 v4 = u9t(upper);
-      for (int64_t i = 0; i < upper; ++i) v4 << u9(i);
+      for (uN i = 0; i < upper; ++i) v4 << u9(i);
 
       {
         let start = stopwatch::now();
@@ -162,32 +162,32 @@ void try_bench()
       }
 
       {
-        std::vector<int64_t> xs;
+        std::vector<i64> xs;
         xs.reserve(upper);
-        for (int64_t i = 0; i < upper; ++i) xs.push_back(i);
+        for (i64 i = 0; i < upper; ++i) xs.push_back(i);
         let start = stopwatch::now();
-        uint64_t t = 0; for (auto const &x : xs) t += x;
+        u64 t = 0; for (auto const &x : xs) t += x;
         let end   = stopwatch::now();
         cout << "csum: " << t << ": " << end - start << endl;
       }
 
       {
         let start = stopwatch::now();
-        uint64_t t = 0; for (auto const &x : v4) t += static_cast<int64_t>(x);
+        u64 t = 0; for (auto const &x : v4) t += static_cast<i64>(x);
         let end   = stopwatch::now();
         cout << "isum: " << t << ": " << end - start << endl;
       }
 
       {
         let start = stopwatch::now();
-        uint64_t t = 0; for (auto const &x : u9(i4, 0)) ++t;
+        u64 t = 0; for (auto const &x : u9(i4, 0)) ++t;
         let end   = stopwatch::now();
         cout << "decode: " << end - start << endl;
       }
 
       {
         let start = stopwatch::now();
-        uint64_t t = 0; for (auto const &x : u9(i4, 0)) t += static_cast<int64_t>(x);
+        u64 t = 0; for (auto const &x : u9(i4, 0)) t += static_cast<i64>(x);
         let end   = stopwatch::now();
         cout << "decode+sum: " << t << " == " << (upper * (upper - 1)) / 2 << ": " << end - start << endl;
       }
@@ -213,10 +213,10 @@ void try_orderings()
   try
   {
     auto v = u9t();
-    for (int64_t i = 0; i < 100; ++i) v << u9(i);
+    for (i64 i = 0; i < 100; ++i) v << u9(i);
 
     auto vh = v.make_th<u9::kf_te>();
-    for (int64_t i = -10; i < 110; ++i)
+    for (i64 i = -10; i < 110; ++i)
       if (vh.th<u9::kf_te>(u9(i), u9n).exists() != (i >= 0 && i < 100))
       { cout << "hash find mismatch for " << i << endl;
         _exit(1); }
@@ -233,13 +233,13 @@ void try_coercion_error()
 {
   try
   {
-    uint8_t buf[] = {
+    u8c buf[] = {
       0x00, 0x7f,
     };
     i9 b(buf, sizeof(buf));
     u9 x(b,   0);
 
-    cout << static_cast<int64_t>(x) << endl;
+    cout << static_cast<i64>(x) << endl;
     cout << "the previous cast should have failed" << endl;
     _exit(1);
   }
@@ -277,8 +277,8 @@ void try_printing_types()
 void try_bit_preferences()
 {
   o9 b;
-  for (unsigned i = 1; i < 10000000; i *= 7)
-    for (unsigned lb = 0; lb <= 4; ++lb)
+  for (uN i = 1; i < 10000000; i *= 7)
+    for (uN lb = 0; lb <= 4; ++lb)
     {
       let n = i;
       let l = i << lb;

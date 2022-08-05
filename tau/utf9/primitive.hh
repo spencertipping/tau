@@ -2,42 +2,44 @@
 #define tau_utf9_primitive_h
 
 
-#include <cstdint>
 #include <string>
+
+
+#include "../types.hh"
 
 #include "error-proto.hh"
 #include "ibuf.hh"
 
-#include "../module/begin.hh"
 
+#include "../module/begin.hh"
 
 namespace tau::utf9
 {
 
 struct sym
 {
-  uint64_t h;
+  u64 h;
   sym(std::string const &s) : h(std::hash<std::string>{}(s)) {}
-  sym(uint64_t h_)          : h(h_)                          {}
-  operator uint64_t() const { return h; }
+  sym(u64 h_)               : h(h_)                          {}
+  operator u64() const { return h; }
 };
 
 struct hash
 {
-  uint64_t h;
-  hash(uint64_t h_) : h(h_) {}
-  operator uint64_t() const { return h; }
+  u64 h;
+  hash(u64 h_) : h(h_) {}
+  operator u64() const { return h; }
   int compare(hash const x) const { return h > x.h ? 1 : h < x.h ? -1 : 0; }
 };
 
 struct pidfd
 {
-  uint32_t pid;
-  uint32_t fd;
+  u32 pid;
+  u32 fd;
 
-  pidfd(uint32_t pid_, uint32_t fd_) : pid(pid_), fd(fd_) {}
+  pidfd(u32 pid_, u32 fd_) : pid(pid_), fd(fd_) {}
 
-  operator uint64_t() const { return (uint64_t) pid << 32 | fd; }
+  operator u64() const { return (u64) pid << 32 | fd; }
 
   bool operator<(pidfd const &v) const { return pid < v.pid || pid == v.pid && fd < v.fd; }
   bool operator>(pidfd const &v) const { return pid > v.pid || pid == v.pid && fd > v.fd; }
@@ -45,13 +47,13 @@ struct pidfd
 
 struct greek
 {
-  enum letter : uint8_t { Α, Ι, Κ, Ρ, Θ, Τ, Ω };
-  letter   l;
-  uint32_t v;
+  enum letter : u8 { Α, Ι, Κ, Ρ, Θ, Τ, Ω };
+  letter l;
+  u32    v;
 
   greek(letter l_) : l(l_), v(0) {}
-  greek(letter l_, uint32_t v_) : l(l_), v(v_) {}
-  greek(ibuf const &b, uint64_t i)
+  greek(letter l_, u32 v_) : l(l_), v(v_) {}
+  greek(ibuf const &b, u64 i)
     { switch(b.u8(i))
       {
       case 0x10: l = Α; v = 0; break;
@@ -70,14 +72,14 @@ struct greek
 };
 
 
-static_assert(sizeof(sym)   == sizeof(uint64_t));
-static_assert(sizeof(hash)  == sizeof(uint64_t));
-static_assert(sizeof(pidfd) == sizeof(uint64_t));
-static_assert(sizeof(greek) == sizeof(uint64_t));
+static_assert(sizeof(sym)   == sizeof(u64));
+static_assert(sizeof(hash)  == sizeof(u64));
+static_assert(sizeof(pidfd) == sizeof(u64));
+static_assert(sizeof(greek) == sizeof(u64));
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif

@@ -2,11 +2,11 @@
 #define tau_util_log_histogram_h
 
 
-#include <cstdint>
 #include <cstddef>
 #include <iostream>
 
 
+#include "../types.hh"
 #include "../util/numerics.hh"
 
 
@@ -16,7 +16,7 @@ namespace tau::util
 {
 
 
-template<class F = uint64_t, class O = uint64_t, unsigned N = 64>
+template<class F = u64, class O = u64, unsigned N = 64>
 struct log_histogram
 {
   F n[N]{0};

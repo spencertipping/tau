@@ -6,6 +6,8 @@
 #include <stdexcept>
 
 
+#include "../types.hh"
+
 #include "error-proto.hh"
 #include "ibuf.hh"
 #include "tval.hh"
@@ -24,7 +26,7 @@ struct utf9_error : public std::exception
   utf9_error(std::string const &m_) : m(m_) {}
   virtual std::ostream &operator>>(std::ostream&) const = 0;
 
-  static std::string hexify(uint8_t b)
+  static std::string hexify(u8 b)
     { char r[2] = {"0123456789abcdef"[b >> 4], "0123456789abcdef"[b & 15]};
       return std::string(r, 2); }
 };
@@ -38,8 +40,8 @@ struct internal_error : virtual public utf9_error
 
 struct badbyte_error : virtual public utf9_error
 {
-  uint8_t byte;
-  badbyte_error(std::string const &m_, uint8_t b_) : utf9_error(m_), byte(b_) {}
+  u8 byte;
+  badbyte_error(std::string const &m_, u8 b_) : utf9_error(m_), byte(b_) {}
   std::ostream &operator>>(std::ostream &s) const
     { return s << "badbyte_error " << m << ": " << static_cast<int>(byte); }
 };
@@ -47,8 +49,8 @@ struct badbyte_error : virtual public utf9_error
 struct decoding_error : virtual public utf9_error
 {
   ibuf const b;
-  uint64_t i;
-  decoding_error(std::string const &m_, ibuf const &b_, uint64_t i_)
+  uNc  i;
+  decoding_error(std::string const &m_, ibuf const &b_, uN i_)
     : utf9_error(m_), b(b_), i(i_) {}
   std::ostream &operator>>(std::ostream&) const;
 };
@@ -90,8 +92,8 @@ inline std::ostream &operator<<(std::ostream &s, utf9_error const &e) { return e
 
 
 template<class T> inline T throw_internal_error(std::string const &m)                              { throw internal_error(m); }
-template<class T> inline T throw_badbyte_error (std::string const &m, uint8_t b)                   { throw badbyte_error(m, b); }
-template<class T> inline T throw_decoding_error(std::string const &m, ibuf const &b, uint64_t i)   { throw decoding_error(m, b, i); }
+template<class T> inline T throw_badbyte_error (std::string const &m, u8 b)                        { throw badbyte_error(m, b); }
+template<class T> inline T throw_decoding_error(std::string const &m, ibuf const &b, uN i)         { throw decoding_error(m, b, i); }
 template<class T> inline T throw_top_error     (std::string const &m, tval const &t)               { throw toperation_error(m, t); }
 template<class T> inline T throw_vop_error     (std::string const &m, val const &v)                { throw voperation_error(m, v); }
 template<class T> inline T throw_binop_error   (std::string const &m, val const &a, val const &b)  { throw binop_error(m, a, b); }

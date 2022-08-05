@@ -2,7 +2,7 @@
 #define tau_utf9_pfn_h
 
 
-#include <cstdint>
+#include "../types.hh"
 
 #include "error-proto.hh"
 #include "ibuf.hh"
@@ -14,12 +14,12 @@ namespace tau::utf9
 {
 
 
-#define pf(body) [](ibuf const &b, uint64_t i) -> uint8_t const* { return (body); }
+#define pf(body) [](ibuf const &b, u64 i) -> u8c* { return (body); }
 
-typedef uint8_t const*(*pfn)(ibuf const &, uint64_t);
+typedef u8c*(*pfn)(ibuf const &, u64);
 
 
-let bogus_pf = [](ibuf const &b, uint64_t i) -> uint8_t const* { return throw_decoding_error<uint8_t const *>("bogus pf", b, i); };
+let bogus_pf = [](ibuf const &b, u64 i) -> u8c* { return throw_decoding_error<u8c *>("bogus pf", b, i); };
 
 let p1  = pf(b + (i + 1));
 let p2  = pf(b + (i + 2));

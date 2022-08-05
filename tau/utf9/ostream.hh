@@ -3,7 +3,8 @@
 
 
 #include <iostream>
-#include <limits>
+
+#include "../types.hh"
 
 #include "error-proto.hh"
 #include "errors.hh"
@@ -19,8 +20,8 @@ namespace tau::utf9
 {
 
 
-std::ostream &operator<<(std::ostream &s, sym   const &y) { return s << 's' << reinterpret_cast<void*>(y.h); }
-std::ostream &operator<<(std::ostream &s, hash  const &h) { return s << 'h' << reinterpret_cast<void*>(h.h); }
+std::ostream &operator<<(std::ostream &s, sym   const &y) { return s << 's' << Rc<void*>(y.h); }
+std::ostream &operator<<(std::ostream &s, hash  const &h) { return s << 'h' << Rc<void*>(h.h); }
 std::ostream &operator<<(std::ostream &s, pidfd const &p) { return s << "[p=" << p.pid << ",fd=" << p.fd << "]"; }
 
 std::ostream &operator<<(std::ostream &s, val_type t)
@@ -53,7 +54,7 @@ std::ostream &operator<<(std::ostream &s, val_type t)
 
   case BOGUS:    return s << "bogus";
   case NONE:     return s << "none";
-  default:       return s << "??? " << static_cast<uint8_t>(t);
+  default:       return s << "??? " << Sc<u8>(t);
   }
 }
 
@@ -96,31 +97,31 @@ std::ostream &operator<<(std::ostream &s, val const &v)
 {
   switch (v.type())
   {
-  case UINT8: case UINT16: case UINT32: case UINT64: return s << static_cast<uint64_t>(v);
-  case INT8:  case INT16:  case INT32:  case INT64:  return s << static_cast<int64_t>(v);
-  case FLOAT32: return s << static_cast<float>(v);
-  case FLOAT64: return s << static_cast<double>(v);
-  case SYMBOL:  return s << static_cast<sym>(v);
-  case PIDFD:   return s << static_cast<pidfd>(v);
+  case UINT8: case UINT16: case UINT32: case UINT64: return s << Sc<u64>(v);
+  case INT8:  case INT16:  case INT32:  case INT64:  return s << Sc<i64>(v);
+  case FLOAT32: return s << Sc<float>(v);
+  case FLOAT64: return s << Sc<double>(v);
+  case SYMBOL:  return s << Sc<sym>(v);
+  case PIDFD:   return s << Sc<pidfd>(v);
 
   case GREEK:
   {
-    let g = static_cast<greek>(v);
+    let g = Sc<greek>(v);
     switch(g.l)
     {
     case greek::Α: return s << "α";
     case greek::Ι: return s << "ι";
     case greek::Κ: return s << "κ";
     case greek::Ρ: return s << "ρ(" << g.v << ")";
-    case greek::Θ: return s << "θ(" << static_cast<double>(g.v) / static_cast<double>(std::numeric_limits<uint32_t>::max()) << ")";
+    case greek::Θ: return s << "θ(" << Sc<f64>(g.v) / Sc<f64>(Nl<u32>::max()) << ")";
     case greek::Τ: return s << "τ";
     case greek::Ω: return s << "ω";
     default: return throw_badbyte_error<std::ostream&>("greek<<", g.l);
     }
   }
 
-  case UTF8:  return s << "u8[" << static_cast<std::string_view>(v) << "]";
-  case BYTES: return s << "b["  << static_cast<std::string_view>(v) << "]";  // FIXME: should be hex
+  case UTF8:  return s << "u8[" << Sc<std::string_view>(v) << "]";
+  case BYTES: return s << "b["  << Sc<std::string_view>(v) << "]";  // FIXME: should be hex
 
   case TUPLE:
   case LIST:
@@ -153,7 +154,7 @@ std::ostream &operator<<(std::ostream &s, val const &v)
 
 std::ostream &operator<<(std::ostream &s, obuf const &o)
 {
-  return s.write(reinterpret_cast<char*>(o.b), o.i);
+  return s.write(Rc<char*>(o.b), o.i);
 }
 
 

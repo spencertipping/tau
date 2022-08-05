@@ -26,7 +26,7 @@ int main()
 
 
   let t1 = c.create_task([&]() {
-    for (int64_t i = 0;; ++i)
+    for (iN i = 0;; ++i)
       if (!c.write(p1, u9(i))) { cout << "s1 rejected " << i << endl; break; }
     c.close(p1);
     cout << "t1 returning" << endl;
@@ -34,10 +34,10 @@ int main()
   });
 
   let t2 = c.create_task([&]() {
-    int64_t t = 0;
+    i64 t = 0;
     while (c.has_next(p1))
     {
-      t += static_cast<int64_t>(c.next(p1));
+      t += Sc<i64>(c.next(p1));
       if (!c.write(p2, u9(t))) { cout << "s2 rejected " << t << endl; break; }
       c.sleep(1ms);
     }
@@ -61,8 +61,8 @@ int main()
   });
 
   let t4 = c.create_task([&]() {
-    int64_t last;
-    while (c.has_next(p3)) cout << c.uptime() << ": " << (last = static_cast<int64_t>(c.next(p3))) << endl;
+    i64 last;
+    while (c.has_next(p3)) cout << c.uptime() << ": " << (last = Sc<i64>(c.next(p3))) << endl;
     c.close(p3);
 
     cout << "final value: " << last << endl;

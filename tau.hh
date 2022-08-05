@@ -2,6 +2,7 @@
 #define tau_h
 
 
+#include "tau/types.hh"
 #include "tau/utf9.hh"
 #include "tau/flux.hh"
 

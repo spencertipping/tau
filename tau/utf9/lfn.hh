@@ -2,6 +2,8 @@
 #define tau_utf9_lfn_h
 
 
+#include "../types.hh"
+
 #include "error-proto.hh"
 #include "ibuf.hh"
 
@@ -15,8 +17,8 @@ namespace tau::utf9
 namespace  // Length traversal dispatch
 {
 
-typedef uint64_t(*lfn)(ibuf const &, uint64_t);
-#define lf(body) [](ibuf const &b, uint64_t i) -> uint64_t { return static_cast<uint64_t>(body); }
+typedef u64(*lfn)(ibuf const &, u64);
+#define lf(body) [](ibuf const &b, u64 i) -> u64 { return static_cast<u64>(body); }
 
 
 let l1  = lf(1);
@@ -64,15 +66,15 @@ let idx64_lf = lf(b.u64(i + 1) + 10 + 8 * (~0ull >> b.u8(i + 9)));
 
 let hint_lf  = lf(1 + b.len(i + 1));
 
-let bogus_lf   = [](ibuf const &b, uint64_t i) -> uint64_t { return throw_decoding_error<uint64_t>("bogus lf",   b, i); };
-let bogus_tlf  = [](ibuf const &b, uint64_t i) -> uint64_t { return throw_decoding_error<uint64_t>("bogus tlf",  b, i); };
-let bogus_tvlf = [](ibuf const &b, uint64_t i) -> uint64_t { return throw_decoding_error<uint64_t>("bogus tvlf", b, i); };
+let bogus_lf   = [](ibuf const &b, u64 i) -> u64 { return throw_decoding_error<u64>("bogus lf",   b, i); };
+let bogus_tlf  = [](ibuf const &b, u64 i) -> u64 { return throw_decoding_error<u64>("bogus tlf",  b, i); };
+let bogus_tvlf = [](ibuf const &b, u64 i) -> u64 { return throw_decoding_error<u64>("bogus tvlf", b, i); };
 
 
 // Typecode length functions
-inline uint64_t tuple_tl(ibuf const &b, uint64_t i, uint64_t n)
+inline u64 tuple_tl(ibuf const &b, u64 i, u64 n)
 {
-  uint64_t l = 0;
+  u64 l = 0;
   while (n--) l += b.tlen(i + l);
   return l;
 }
@@ -387,9 +389,9 @@ lfn const tvlfns[256] =
 }
 
 
-inline uint64_t ibuf::len  (uint64_t i) const { return lfns  [xs[i]](*this, i); }
-inline uint64_t ibuf::tlen (uint64_t i) const { return tlfns [xs[i]](*this, i); }
-inline uint64_t ibuf::tvlen(uint64_t i) const { return tvlfns[xs[i]](*this, i); }
+inline uN ibuf::len  (uN i) const { return lfns  [xs[i]](*this, i); }
+inline uN ibuf::tlen (uN i) const { return tlfns [xs[i]](*this, i); }
+inline uN ibuf::tvlen(uN i) const { return tvlfns[xs[i]](*this, i); }
 
 
 }

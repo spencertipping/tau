@@ -5,6 +5,7 @@
 #include <iostream>
 
 
+#include "../types.hh"
 #include "../util/stopwatch.hh"
 
 #include "init.hh"
@@ -17,7 +18,7 @@ namespace tau::flux
 {
 
 
-enum λs
+enum λs : u8
 {
   RUNNABLE,
   SLEEPING,
@@ -61,7 +62,7 @@ std::ostream &operator<<(std::ostream &s, λs const &t)
   case READ_BLOCKED:  return s << "I";
   case WRITE_BLOCKED: return s << "O";
   case DONE:          return s << "Z";
-  default:            return s << "BOGUS " << static_cast<int64_t>(t);
+  default:            return s << "BOGUS " << Sc<u8>(t);
   }
 }
 
@@ -70,8 +71,7 @@ std::ostream &operator<<(std::ostream &s, λ const &t)
 {
   s << "λ[" << t.state;
   if (t.state == SLEEPING) s << " d=t+" << (t.deadline - stopwatch::now());
-  else if (t.state == READ_BLOCKED || t.state == WRITE_BLOCKED)
-    s << t.blocker;
+  else if (t.state == READ_BLOCKED || t.state == WRITE_BLOCKED) s << t.blocker;
   return s << " " << t.monitor << "]";
 }
 

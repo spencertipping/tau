@@ -2,7 +2,7 @@
 #define tau_utf9_typecode_h
 
 
-#include <cstdint>
+#include "../types.hh"
 
 #include "../module/begin.hh"
 
@@ -11,7 +11,7 @@ namespace tau::utf9
 {
 
 
-enum val_type : uint8_t
+enum val_type : u8
 {
   UINT8    = 0x00,
   UINT16   = 0x01,
@@ -46,7 +46,7 @@ enum val_type : uint8_t
 };
 
 
-typedef uint64_t val_type_mask;
+typedef u64 val_type_mask;
 
 static_assert(MAX_VAL_TYPE < sizeof(val_type_mask) * 8);
 

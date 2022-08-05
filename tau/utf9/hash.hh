@@ -7,23 +7,27 @@
 # include "../deps/picosha2.h"
 #undef XXH_INLINE_ALL
 
+
+#include "../types.hh"
+
 #include "numerics.hh"
 
+
 #include "../module/begin.hh"
-
-
-static_assert(sizeof(XXH64_hash_t) == sizeof(uint64_t));
-
 
 namespace tau::utf9
 {
 
-inline uint64_t xxh(void const * x, size_t l, uint64_t s) { return XXH64(x, l, s); }
-inline uint64_t xxc(uint64_t a, uint64_t b)               { a = ce(a); return XXH64(&a, sizeof a, b); }
+
+static_assert(sizeof(XXH64_hash_t) == sizeof(u64));
+
+inline u64 xxh(void const *x, uN l, u64 s) { return XXH64(x, l, s); }
+inline u64 xxc(u64 a, u64 b)               { a = ce(a); return XXH64(&a, sizeof a, b); }
+
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif

@@ -3,9 +3,9 @@ Design:
 
 + [utf9](doc/utf9.md)
 + [greeks](doc/greeks.md)
+  + [γ](doc/gamma.md)
   + [φ](doc/phi.md)
   + [ψ](doc/psi.md)
-  + [γ](doc/gamma.md)
   + [λ](doc/lambda.md)
   + [Θ](doc/theta.md)
 

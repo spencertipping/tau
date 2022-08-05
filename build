@@ -15,9 +15,9 @@ usage() {
 }
 
 
-t_gcc_opts=( -std=c++20 -O3 )
-t_gcc_debug_opts=( -Wall -Wno-parentheses -std=c++20 -O0 -g )
-t_em_opts=(  -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses )
+t_gcc_opts=(       -fpermissive                        -std=c++20 -O3 )
+t_gcc_debug_opts=( -fpermissive -Wall -Wno-parentheses -std=c++20 -O0 -g )
+t_em_opts=(        -fpermissive                        -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses )
 
 
 (( $# )) || usage

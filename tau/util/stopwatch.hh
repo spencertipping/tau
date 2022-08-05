@@ -4,10 +4,11 @@
 
 #include <cassert>
 #include <chrono>
-#include <cstdint>
 #include <iostream>
 #include <numeric>
 
+
+#include "../types.hh"
 
 #include "log-histogram.hh"
 
@@ -25,13 +26,13 @@ struct stopwatch
   typedef std::chrono::steady_clock                              clk;
   typedef std::chrono::time_point<clk, std::chrono::nanoseconds> tp;
   typedef std::chrono::nanoseconds                               span;
-  typedef log_histogram<uint64_t, uint64_t, 64>                  lh;
+  typedef log_histogram<u64, u64, 64>                            lh;
 
-  bool     is_running    {false};
-  tp       last_start    {0ns};
-  span     total_elapsed {0};
-  uint64_t n_splits      {0};
-  lh       splits;
+  bool  is_running    {false};
+  tp    last_start    {0ns};
+  span  total_elapsed {0};
+  u64   n_splits      {0};
+  lh    splits;
 
 
   span p(double p) const

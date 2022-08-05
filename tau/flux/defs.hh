@@ -6,6 +6,7 @@
 #include <iostream>
 
 
+#include "../types.hh"
 #include "../utf9.hh"
 
 #include "init.hh"
@@ -25,9 +26,9 @@ struct Φ;  // flux manager
 struct λ;  // unit coro
 
 
-typedef uint64_t λi;
-typedef uint64_t ψi;
-typedef uint64_t Ψi;
+typedef uN λi;
+typedef uN ψi;
+typedef uN Ψi;
 
 
 // FIXME: task results should be something more interesting, probably

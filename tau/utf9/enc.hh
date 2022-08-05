@@ -2,7 +2,7 @@
 #define tau_utf9_enc_h
 
 
-#include <cstdint>
+#include "../types.hh"
 
 #include "error-proto.hh"
 #include "numerics.hh"
@@ -19,13 +19,13 @@ namespace tau::utf9
 // Tuple-emitting buffer
 struct tenc : public oenc
 {
-  oenc     &b;
-  uint64_t  si;   // starting position of this tuple within b
-  uint64_t  l;    // current inner length of this tuple
-  uint64_t  n;    // number of tuple elements
-  int       lh;   // current header size in bytes
+  oenc &b;
+  uN   si;   // starting position of this tuple within b
+  uN   l;    // current inner length of this tuple
+  uN   n;    // number of tuple elements
+  int  lh;   // current header size in bytes
 
-  tenc(oenc &b_, uint64_t n_) : b(b_), si(b.size()), l(0), n(n_), lh(0)
+  tenc(oenc &b_, uN n_) : b(b_), si(b.size()), l(0), n(n_), lh(0)
     { write_header(); }
 
   ~tenc() { write_header(); }
@@ -57,18 +57,18 @@ struct tenc : public oenc
       b.seek(si + lh + l); }
 
 
-  uint64_t size() const { return l + lh; }
+  uN size() const { return l + lh; }
 
-  void fill(uint8_t c, uint64_t n)          { ensure_capacity(l += n); b.fill(c, n);   ensure_hlen(); }
-  void push(uint8_t x)                      { ensure_capacity(++l);    b.u8(x);        ensure_hlen(); }
-  void write(uint8_t const *xs, uint64_t n) { ensure_capacity(l += n); b.write(xs, n); ensure_hlen(); }
+  void fill(U8 c, uN n)          { ensure_capacity(l += n); b.fill(c, n);   ensure_hlen(); }
+  void push(U8 x)                { ensure_capacity(++l);    b.u8(x);        ensure_hlen(); }
+  void write(U8 const *xs, uN n) { ensure_capacity(l += n); b.write(xs, n); ensure_hlen(); }
 
-  void seek(uint64_t to) { b.seek(to + si + lh); }
-  void move(uint64_t from, uint64_t to, uint64_t n)
+  void seek(uN to) { b.seek(to + si + lh); }
+  void move(uN from, uN to, uN n)
     { if (to > from) ensure_capacity(l + (to - from));
       b.move(si + lh + from, si + lh + to, n); }
 
-  void ensure_capacity(uint64_t l_) { b.ensure_capacity(si + l_); }
+  void ensure_capacity(uN l_) { b.ensure_capacity(si + l_); }
 };
 
 
@@ -78,25 +78,25 @@ oenc &operator<<(oenc &o, val const &v)
 
   switch (v.type())
   {
-  case UINT8:  return o.u8(UINT8).u8(cou8(static_cast<uint64_t>(v)));
-  case UINT16: return o.u8(UINT16).u16(cou16(static_cast<uint64_t>(v)));
-  case UINT32: return o.u8(UINT32).u32(cou32(static_cast<uint64_t>(v)));
-  case UINT64: return o.u8(UINT64).u64(static_cast<uint64_t>(v));
+  case UINT8:  return o.u8(UINT8).u8(cou8(Sc<u64>(v)));
+  case UINT16: return o.u8(UINT16).u16(cou16(Sc<u64>(v)));
+  case UINT32: return o.u8(UINT32).u32(cou32(Sc<u64>(v)));
+  case UINT64: return o.u8(UINT64).u64(Sc<u64>(v));
 
   case INT8:
-  { int64_t x = static_cast<int64_t>(v);
+  { let x = Sc<i64>(v);
     if (x >= 0 && x < 128) return o.u8(0x80 + x);
     else                   return o.u8(INT8).u8(coi8(x)); }
 
-  case INT16: return o.u8(INT16).u16(coi16(static_cast<int64_t>(v)));
-  case INT32: return o.u8(INT32).u32(coi32(static_cast<int64_t>(v)));
-  case INT64: return o.u8(INT64).u64(static_cast<int64_t>(v));
+  case INT16: return o.u8(INT16).u16(coi16(Sc<i64>(v)));
+  case INT32: return o.u8(INT32).u32(coi32(Sc<i64>(v)));
+  case INT64: return o.u8(INT64).u64(Sc<i64>(v));
 
   case FLOAT32:  return o.u8(0x08).f32(v);
   case FLOAT64:  return o.u8(0x09).f64(v);
-  case SYMBOL:   return o.u8(0x0a).u64(static_cast<sym>(v).h);
-  case PIDFD:    return o.u8(0x0b).u32(static_cast<pidfd>(v).pid).u32(static_cast<pidfd>(v).fd);
-  case BOOL:     return o.u8(static_cast<bool>(v) ? 0x0d : 0x0c);
+  case SYMBOL:   return o.u8(0x0a).u64(Sc<sym>(v).h);
+  case PIDFD:    return o.u8(0x0b).u32(Sc<pidfd>(v).pid).u32(Sc<pidfd>(v).fd);
+  case BOOL:     return o.u8(Sc<bool>(v) ? 0x0d : 0x0c);
   case NULLTYPE: return o.u8(0x0e);
 
   case UTF8:
