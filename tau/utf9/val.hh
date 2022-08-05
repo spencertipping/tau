@@ -68,7 +68,7 @@ struct val
 
   val(uint64_t tag_, uint64_t v_) : tag(tag_), vu(v_) {}
 
-  val(ibuf const &b_, uint64_t i_) : b(&b_), i(i_)
+  val(ibuf const &b_, uint64_t i_) : tag(reinterpret_cast<uint64_t>(&b_)), i(i_)
     { if (reinterpret_cast<uint64_t>(b) & tagmask) throw_internal_error("unaligned");
       b->check(i);
       b->check(i + b->len(i) - 1); }
@@ -106,26 +106,26 @@ struct val
     { require_type(1ull << BYTES | 1ull << UTF8); }
 
 
-  val(tval const &t_, ibuf const &b, uint64_t i)
-    { b.check(i);
-      b.check(i + t_.vsize() - 1);
+  val(tval const &t_, ibuf const &b_, uint64_t i)
+    { b_.check(i);
+      b_.check(i + t_.vsize() - 1);
       switch (t_.typecode())
       {
-      case 0x00: tag = tagify(UINT8);  vu = b.u8 (i); break;
-      case 0x01: tag = tagify(UINT16); vu = b.u16(i); break;
-      case 0x02: tag = tagify(UINT32); vu = b.u32(i); break;
-      case 0x03: tag = tagify(UINT64); vu = b.u64(i); break;
+      case 0x00: tag = tagify(UINT8);  vu = b_.u8 (i); break;
+      case 0x01: tag = tagify(UINT16); vu = b_.u16(i); break;
+      case 0x02: tag = tagify(UINT32); vu = b_.u32(i); break;
+      case 0x03: tag = tagify(UINT64); vu = b_.u64(i); break;
 
-      case 0x04: tag = tagify(INT8);  vi = b.i8 (i); break;
-      case 0x05: tag = tagify(INT16); vi = b.i16(i); break;
-      case 0x06: tag = tagify(INT32); vi = b.i32(i); break;
-      case 0x07: tag = tagify(INT64); vi = b.i64(i); break;
+      case 0x04: tag = tagify(INT8);  vi = b_.i8 (i); break;
+      case 0x05: tag = tagify(INT16); vi = b_.i16(i); break;
+      case 0x06: tag = tagify(INT32); vi = b_.i32(i); break;
+      case 0x07: tag = tagify(INT64); vi = b_.i64(i); break;
 
-      case 0x08: tag = tagify(FLOAT32); vf = b.f32(i); break;
-      case 0x09: tag = tagify(FLOAT64); vd = b.f64(i); break;
+      case 0x08: tag = tagify(FLOAT32); vf = b_.f32(i); break;
+      case 0x09: tag = tagify(FLOAT64); vd = b_.f64(i); break;
 
-      case 0x0a: tag = tagify(SYMBOL); vy = sym{b.u64(i)}; break;
-      case 0x0b: tag = tagify(PIDFD);  vp = pidfd{b.u32(i), b.u32(i + 4)}; break;
+      case 0x0a: tag = tagify(SYMBOL); vy = sym{b_.u64(i)}; break;
+      case 0x0b: tag = tagify(PIDFD);  vp = pidfd{b_.u32(i), b_.u32(i + 4)}; break;
 
       case 0x20: case 0x21: case 0x22: case 0x23:
       case 0x24: case 0x25: case 0x26: case 0x27:
@@ -134,7 +134,7 @@ struct val
       case 0x18:
       case 0x19:
       case 0x1a:
-      case 0x1b: tag = tagify(UTF8, true); vb = new std::basic_string_view<uint8_t>(b + i, t_.vsize()); break;
+      case 0x1b: tag = tagify(UTF8, true); vb = new std::basic_string_view<uint8_t>(b_ + i, t_.vsize()); break;
 
       case 0x30: case 0x31: case 0x32: case 0x33:
       case 0x34: case 0x35: case 0x36: case 0x37:
@@ -143,7 +143,7 @@ struct val
       case 0x1c:
       case 0x1d:
       case 0x1e:
-      case 0x1f: tag = tagify(BYTES, true); vb = new std::basic_string_view<uint8_t>(b + i, t_.vsize()); break;
+      case 0x1f: tag = tagify(BYTES, true); vb = new std::basic_string_view<uint8_t>(b_ + i, t_.vsize()); break;
 
       case 0x48: case 0x49: case 0x4a: case 0x4b:
       case 0x4c: case 0x4d: case 0x4e: case 0x4f:
@@ -155,7 +155,7 @@ struct val
         vt  = new std::vector<val>;
         vt->reserve(t_.len());
         for (let &t : t_)
-        { vt->push_back(val(t, b, i));
+        { vt->push_back(val(t, b_, i));
           i += t.vsize(); }
         break;
 
@@ -170,7 +170,7 @@ struct val
         vt  = new std::vector<val>;
         vt->reserve(t_.len());
         for (uint64_t j = 0; j < t_.len(); j++)
-        { vt->push_back(val(t_.atype(), b, i));
+        { vt->push_back(val(t_.atype(), b_, i));
           i += t_.atype().vsize(); }
         break;
 
@@ -247,7 +247,7 @@ struct val
 
     bool operator==(it const &x) const { return i == x.i; }
 
-    ibuf const &b() const { return *reinterpret_cast<ibuf const *>(reinterpret_cast<uint64_t>(buf) & ~7); }
+    ibuf const &b() const { return *reinterpret_cast<ibuf const *>(reinterpret_cast<uint64_t>(buf) & ~3); }
 
     val operator*() const
       { switch (tag & 3)
