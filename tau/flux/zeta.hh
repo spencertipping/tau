@@ -53,6 +53,7 @@ struct ζ
   uN   n()     const { return xs.size(); }
 
 
+  // Mean per-item latency through this pipe
   ΔΘ δ() const
     { if (lΘ.n + xs.size() == 0) return 0ns;
       auto t = 0ns;
@@ -60,6 +61,7 @@ struct ζ
       for (let &x : xs) t += n - std::get<0>(x);
       return (t + lΘ.Σ()) / (lΘ.n + xs.size()); }
 
+  // Signed IO variability (data pressure)
   f64 σ() const
     { return log2(Sf(wΘ.σ().count()))
            - log2(Sf(rΘ.σ().count())); }
