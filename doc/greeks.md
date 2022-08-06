@@ -8,8 +8,8 @@ In code, suffixes modify concepts: `λi` is an ID for a λ, for example.
 + γ: an operator, from the inside
   + ψ: γ-specific port
 + Γ: the flux core
+  + Φ: IO boundary (`epoll` or WASM loop)
   + Ψ: IO fabric
-    + Φ: γ IO surface
     + ζ: unidirectional pipe
   + Θ: time/deadline scheduler
   + Λ: execution multiplexer
