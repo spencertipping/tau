@@ -2,6 +2,9 @@
 #define tau_utf9_h
 
 
+#define tau_defines_utf9 1
+
+
 #include <type_traits>
 
 

@@ -2,6 +2,9 @@
 #define tau_types_h
 
 
+#define tau_defines_types 1
+
+
 #include <cstddef>
 #include <cstdint>
 #include <functional>

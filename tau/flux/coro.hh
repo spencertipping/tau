@@ -10,7 +10,7 @@
 #elif defined(__LP64__)
 #  include "coro-boost.hh"
 #else
-#  warning compiling without coro support (no emscripten or LP64)
+#  error λ not supported on this architecture (trying to load tau::flux)
 #endif
 
 
