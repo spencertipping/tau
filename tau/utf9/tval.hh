@@ -27,7 +27,7 @@ struct tval
   uN const i;
   uN const e;
 
-  static inline uN tagify(ibuf const * b_, bool own = false)
+  static inline uN tagify(ibuf const *b_, bool own = false)
     { return Rc<uN>(b_) | (own ? 1 : 0); }
 
 
@@ -46,7 +46,7 @@ struct tval
       i(0),
       e(b().ctlen(0)) {}
 
-  tval(tval const &t) : tag(tagify(&t.b(), false)), i(t.i), e(t.e) {}
+  tval(tval const &t) : tag(tagify(t.b().copy(), true)), i(t.i), e(t.e) {}
 
   ~tval() { if (tag & 1) delete Rc<ibuf*>(tag & ~1ull); }
 
@@ -91,7 +91,7 @@ struct tval
 
 
   u8       typecode() const { return b().U8(i); }
-  val_type type()     const { return bts[typecode()]; }
+  val_type type()     const { return tts[typecode()]; }
   uN       vsize()    const { return b().tvlen(i); }
   uN       tsize()    const { return b().tlen(i); }
 

@@ -71,28 +71,32 @@ void try_really_simple()
 
 void try_loading_stuff()
 {
+  u8c buf[] = {
+    0x49, 0x03, 0x05, 0xff, 0xf0, 0x80,
+    0x40, 0x03, 0x01, 0x05, 0x02, 0x01,
+
+    0x44, 0x14, 0x02,          // array8 len=20 n=2
+    0x44, 0x08, 0x04, 0x05,    //   t = array8 len=8 n=4 t=uint16
+    0x00, 0x01, 0x02, 0x03,  // [0][0]
+    0x04, 0x05, 0x06, 0x07,  // [0][1]
+    0x08, 0x09, 0x0a, 0x0b,  // [1][0]
+    0x0c, 0x0d, 0x0e, 0x0f,  // [1][1]
+
+    0x10,
+  };
+
+  i9 b(buf, sizeof(buf));
+  u9 x(b,   0);
+  u9 y(b,   6);
+  u9 z(b,   12);
+  u9 a(b,   12 + b.len(12));
+
+  o9 o1;
+  o9 o2;
+  o9 o3;
+
   try
   {
-    u8c buf[] = {
-      0x49, 0x03, 0x05, 0xff, 0xf0, 0x80,
-      0x40, 0x03, 0x01, 0x05, 0x02, 0x01,
-
-      0x44, 0x14, 0x02,          // array8 len=20 n=2
-      0x44, 0x08, 0x04, 0x05,    //   t = array8 len=8 n=4 t=uint16
-        0x00, 0x01, 0x02, 0x03,  // [0][0]
-        0x04, 0x05, 0x06, 0x07,  // [0][1]
-        0x08, 0x09, 0x0a, 0x0b,  // [1][0]
-        0x0c, 0x0d, 0x0e, 0x0f,  // [1][1]
-
-      0x10,
-    };
-
-    i9 b(buf, sizeof(buf));
-    u9 x(b,   0);
-    u9 y(b,   6);
-    u9 z(b,   12);
-    u9 a(b,   12 + b.len(12));
-
     assert(12 + b.len(12) < b.size());
 
     cout << x << " :: " << x.type() << " = " << x.h() << endl;
@@ -104,17 +108,17 @@ void try_loading_stuff()
     cout << a << " :: " << a.type() << " = " << a.h() << endl;
     cout << x << " <=> " << y << " = " << x.compare(y) << endl;
 
-    o9 o1; o1 << z[0];
+    o1 << z[0];
     i9 i1(o1.data(), o1.size());
     cout << z[0] << endl;
     cout << " -> " << debug<i9>{i1} << endl;
     cout << " -> " << u9(i1, 0) << endl;
 
-    o9 o2; o2 << z[1];
+    o2 << z[1];
     i9 i2(o2.data(), o2.size());
     cout << z[1] << " -> " << debug<o9>{o2} << "-> " << u9(i2, 0) << endl;
 
-    o9 o3; z.atype().pack(o3, z[0]); z.atype().pack(o3, z[1]);
+    z.atype().pack(o3, z[0]); z.atype().pack(o3, z[1]);
     i9 i3(o3.data(), o3.size());
     cout << u9(z.atype(), i3, 0) << ", " << u9(z.atype(), i3, 8) << endl;
   }

@@ -196,7 +196,7 @@ struct val
 
   bool     exists()                      const { return type() != NONE; }
   bool     has_ibuf()                    const { return !(tag & immed_bit); }
-  val_type type()                        const { return has_ibuf() ? bts[b->U8(i)] : tag_type(tag); }
+  val_type type()                        const { return has_ibuf() ? vts[b->U8(i)] : tag_type(tag); }
   bool     has_type(val_type_mask m)     const { return (1ull << type() & m); }
   void     require_ibuf()                const { if (!has_ibuf())  throw_vop_error("ibuf required", *this); }
   void     require_type(val_type_mask m) const { if (!has_type(m)) throw_vop_error("invalid type", *this); }
@@ -397,6 +397,8 @@ struct val
         ? std::string_view(Rc<char const*>(mbegin()), mlen())
         : *Rc<std::string_view const*>(vb); }
 
+  val coerce(val_type t_) const { return val{tagify(t_), vu}; }
+
 
   hash h() const
     { let t = type();
@@ -571,14 +573,14 @@ inline oenc &tval::pack(oenc &o, val const &v) const
   case UINT8:  return o.U8(cou8(Sc<u64>(v)));
   case UINT16: return o.U16(cou16(Sc<u64>(v)));
   case UINT32: return o.U32(cou32(Sc<u64>(v)));
-  case UINT64: return o.U64(Sc<u64>(v));
-  case UINT:   return throw_encoding_error<oenc&>("pack var uint", *this, v);
+  case UINT64:
+  case UINT:   return o.U64(Sc<u64>(v));
 
   case INT8:   return o.U8(coi8(Sc<i64>(v)));
   case INT16:  return o.U16(coi16(Sc<i64>(v)));
   case INT32:  return o.U32(coi32(Sc<i64>(v)));
-  case INT64:  return o.U64(Sc<i64>(v));
-  case INT:    return throw_encoding_error<oenc&>("pack var int", *this, v);
+  case INT64:
+  case INT:    return o.U64(Sc<i64>(v));
 
   case FLOAT32: return o.F32(Sc<f64>(v));
   case FLOAT64: return o.F64(Sc<f32>(v));

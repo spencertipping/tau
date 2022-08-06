@@ -55,6 +55,8 @@ struct ibuf
       b.owned = false;
       return *this; }
 
+  ibuf *copy() const { let r = new ibuf; *r = *this; return r; }
+
 
   bool has  (uN i) const { return i < l; }
   void check(uN i) const { if (!has(i)) throw_decoding_error("ibuf bounds", *this, i); }
