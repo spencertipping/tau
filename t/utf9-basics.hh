@@ -23,7 +23,7 @@ namespace t::utf9_basics
 using namespace std;
 using namespace tau;
 using namespace tau::util::numerics;
-using tau::util::stopwatch;
+using tau::util::ΣΘΔ;
 using tau::operator<<;
 
 
@@ -142,9 +142,9 @@ void try_bench()
 
       {
         o4.clear();
-        let start = stopwatch::now();
+        let start = ΣΘΔ::now();
         o4 << v4;
-        let end = stopwatch::now();
+        let end = ΣΘΔ::now();
         cout << upper << " write output: " << end - start << endl;
       }
 
@@ -159,9 +159,9 @@ void try_bench()
       cout << u9(i4, 0).bsize() << " == " << i4.l << endl;
 
       {
-        let start = stopwatch::now();
+        let start = ΣΘΔ::now();
         let c     = u9(i4, 0).compare(v4);
-        let end   = stopwatch::now();
+        let end   = ΣΘΔ::now();
         cout << upper << ": " << c << ": " << end - start << endl;
       }
 
@@ -169,37 +169,37 @@ void try_bench()
         V<i64> xs;
         xs.reserve(upper);
         for (iN i = 0; i < upper; ++i) xs.push_back(i);
-        let start = stopwatch::now();
+        let start = ΣΘΔ::now();
         u64 t = 0; for (auto const &x : xs) t += x;
-        let end   = stopwatch::now();
+        let end   = ΣΘΔ::now();
         cout << "csum: " << t << ": " << end - start << endl;
       }
 
       {
-        let start = stopwatch::now();
+        let start = ΣΘΔ::now();
         i64 t = 0; for (auto const &x : v4) t += static_cast<i64>(x);
-        let end   = stopwatch::now();
+        let end   = ΣΘΔ::now();
         cout << "isum: " << t << ": " << end - start << endl;
       }
 
       {
-        let start = stopwatch::now();
+        let start = ΣΘΔ::now();
         i64 t = 0; for (auto const &x : u9(i4, 0)) ++t;
-        let end   = stopwatch::now();
+        let end   = ΣΘΔ::now();
         cout << "decode: " << end - start << endl;
       }
 
       {
-        let start = stopwatch::now();
+        let start = ΣΘΔ::now();
         i64 t = 0; for (auto const &x : u9(i4, 0)) t += static_cast<i64>(x);
-        let end   = stopwatch::now();
+        let end   = ΣΘΔ::now();
         cout << "decode+sum: " << t << " == " << (upper * (upper - 1)) / 2 << ": " << end - start << endl;
       }
 
       {
-        let start = stopwatch::now();
+        let start = ΣΘΔ::now();
         let h     = u9(i4, 0).h();
-        let end   = stopwatch::now();
+        let end   = ΣΘΔ::now();
         cout << "hash " << upper << ": " << h << ": " << end - start << endl;
       }
     }

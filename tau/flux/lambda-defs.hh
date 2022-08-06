@@ -6,7 +6,7 @@
 
 
 #include "../types.hh"
-#include "../util/stopwatch.hh"
+#include "../util/shd.hh"
 
 #include "init.hh"
 #include "defs.hh"
@@ -28,13 +28,14 @@ enum λs : u8
 };
 
 
+// TODO: oblierate this; we'll split it across multiple facet-managers
 struct λ
 {
-  stopwatch     monitor;
-  λc            coro;
-  stopwatch::tp deadline;
-  λs            state;
-  ψi            blocker;
+  ΣΘΔ     monitor;
+  λc      coro;
+  ΣΘΔ::Θp deadline;
+  λs      state;
+  ψi      blocker;
 
   λ() {}
   λ(λf const &f) : coro(λc(f)), state{RUNNABLE} {}
@@ -47,7 +48,7 @@ struct λ
       blocker  = t.blocker;
       return *this; }
 
-  stopwatch::span p(double p) const { return monitor.p(p); }
+  ΔΘ p(double p) const { return monitor.p(p); }
 
   bool operator<(λ const &t) const;
 };
@@ -70,7 +71,7 @@ std::ostream &operator<<(std::ostream &s, λs const &t)
 std::ostream &operator<<(std::ostream &s, λ const &t)
 {
   s << "λ[" << t.state;
-  if (t.state == SLEEPING) s << " d=t+" << (t.deadline - stopwatch::now());
+  if (t.state == SLEEPING) s << " d=t+" << (t.deadline - ΣΘΔ::now());
   else if (t.state == READ_BLOCKED || t.state == WRITE_BLOCKED) s << t.blocker;
   return s << " " << t.monitor << "]";
 }

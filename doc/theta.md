@@ -6,8 +6,8 @@ Deadline scheduling is an interesting problem because Λ is cooperatively-thread
 ```cpp
 struct Θ
 {
-  M<λi, Θw> λΘ;
-  λi        cur;
+  M<λi, ΣΘΔ> λΘ;
+  λi         cur;
 
 
 };

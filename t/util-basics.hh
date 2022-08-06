@@ -26,7 +26,7 @@ using tau::operator<<;
 
 void try_stopwatch()
 {
-  stopwatch s;
+  ΣΘΔ s;
   cout << "empty stopwatch: " << s << endl;
 
   s.start();
@@ -41,10 +41,10 @@ void bench_stopwatch()
 {
   if (!QUICK)
   {
-    stopwatch t;
+    ΣΘΔ t;
     t.start();
 
-    stopwatch s;
+    ΣΘΔ s;
     for (unsigned i = 0; i < 1000000; ++i)
     {
       s.start();
@@ -54,10 +54,10 @@ void bench_stopwatch()
     t.stop();
 
     cout << "all stopwatch observations: " << s << endl;
-    cout << "each stopwatch observation: " << t.elapsed() / 1000000 << endl;
+    cout << "each stopwatch observation: " << t.Σ() / 1000000 << endl;
 
-    stopwatch::span z;
-    stopwatch u;
+    ΔΘ z;
+    ΣΘΔ u;
     u.start();
     for (unsigned i = 0; i < 1000000; ++i)
     {
@@ -68,7 +68,7 @@ void bench_stopwatch()
 
     cout << "total z: " << z << endl;
     cout << "p(x) calculations: " << u << endl;
-    cout << "p(x) each: " << u.elapsed() / 1000000 << endl;
+    cout << "p(x) each: " << u.Σ() / 1000000 << endl;
   }
 }
 

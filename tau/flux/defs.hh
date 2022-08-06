@@ -11,7 +11,7 @@
 
 #include "init.hh"
 #include "coro.hh"
-#include "pipe.hh"
+#include "zeta.hh"
 
 
 #include "../module/begin.hh"
@@ -32,12 +32,12 @@ typedef uN Ψi;
 
 
 // FIXME: task results should be something more interesting, probably
-typedef int                 λv;
-typedef coro::coro<λv>      λc;
-typedef std::function<λv()> λf;
+typedef int            λv;
+typedef coro::coro<λv> λc;
+typedef F<λv()>        λf;
 
-typedef u9                  ψv;  // FIXME: shared_ptr, ibuf handling
-typedef pipe<ψv>            ψ;
+typedef u9             ψv;  // FIXME: shared_ptr, ibuf handling
+typedef ζ<ψv>          ψ;   // FIXME: need bidirectional
 
 
 struct deadline_schedule

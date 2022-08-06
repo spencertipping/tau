@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <initializer_list>
 #include <limits>
 #include <queue>
@@ -48,6 +49,7 @@ typedef f64 const f64c;
 typedef f32 const f32c;
 
 
+template<class T>          using F  = std::function<T>;
 template<class T>          using Il = std::initializer_list<T>;
 template<class T>          using H  = std::hash<T>;
 template<class K, class V> using M  = std::unordered_map<K, V>;

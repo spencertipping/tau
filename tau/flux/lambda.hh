@@ -13,11 +13,11 @@
 
 #include "../types.hh"
 #include "../utf9.hh"
-#include "../util/stopwatch.hh"
+#include "../util/shd.hh"
 
 #include "init.hh"
 #include "coro.hh"
-#include "pipe.hh"
+#include "zeta.hh"
 #include "defs.hh"
 #include "lambda-defs.hh"
 
@@ -31,14 +31,14 @@ using namespace std::literals;
 namespace tc = tau::flux::coro;
 
 
-void thread_sleep_until(stopwatch::tp t) { std::this_thread::sleep_until(t); }
+void thread_sleep_until(ΣΘΔ::Θp t) { std::this_thread::sleep_until(t); }
 
 
 // TODO: convert this to a task manager that is consumed by Ψ, not the user
 // TODO: remove pipe management from this
 struct Λ
 {
-  typedef void(*sleep_until_fn)(stopwatch::tp);
+  typedef void(*sleep_until_fn)(ΣΘΔ::Θp);
 
 
   // TODO: split this class into several sub-pieces:
@@ -67,7 +67,7 @@ struct Λ
   ψi next_pipe_id;
   Ψi next_boundary_id;
 
-  stopwatch::tp const ctime;
+  ΣΘΔ::Θp const ctime;
 
 
   Λ() : ds          {*this},
@@ -75,10 +75,10 @@ struct Λ
         current_task{0},
         next_task_id{1},
         next_pipe_id{1},
-        ctime       (stopwatch::now()) {}
+        ctime       (ΣΘΔ::now()) {}
 
 
-  stopwatch::span uptime() const { return stopwatch::now() - ctime; }
+  ΔΘ uptime() const { return ΣΘΔ::now() - ctime; }
 
   ψi create_pipe(uN capacity = 64)
     { let k = next_pipe_id++;
@@ -92,7 +92,7 @@ struct Λ
       return k; }
 
   void destroy_pipe(ψi i)
-    { assert(pipes.at(i).closed());
+    { assert(pipes.at(i).ci());
       pipes.erase(i); }
 
   void destroy_task(λi i)
@@ -115,22 +115,22 @@ struct Λ
 
   uN            runnable_tasks() const { return run_queue.size(); }
   λi            next_runnable()  const { return run_queue.size() ? run_queue.front() : 0; }
-  stopwatch::tp next_deadline()  const { return sleep_queue.size()
+  ΣΘΔ::Θp next_deadline()  const { return sleep_queue.size()
       ? tasks.at(sleep_queue.top()).deadline
-      : stopwatch::never(); }
+      : ΣΘΔ::never(); }
 
-  stopwatch::tp run_until_deadline()
+  ΣΘΔ::Θp run_until_deadline()
     { for (λi i; i = next_runnable();)
       { run_queue.pop();
         run(i);
         advance_time(); }
       return next_deadline(); }
 
-  void run_until(stopwatch::tp  limit = stopwatch::forever(),
+  void run_until(ΣΘΔ::Θp  limit = ΣΘΔ::forever(),
                  sleep_until_fn sfn   = &thread_sleep_until)
-    { while (stopwatch::now() < limit && runnable_tasks())
+    { while (ΣΘΔ::now() < limit && runnable_tasks())
       { let d = run_until_deadline();
-        if (d != stopwatch::never()) (*sfn)(d);
+        if (d != ΣΘΔ::never()) (*sfn)(d);
         advance_time(); } }
 
   void run(λi i)
@@ -143,7 +143,7 @@ struct Λ
       if (t.coro.done()) { t.state = DONE; done_tasks.insert(i); }
       current_task = 0; }
 
-  void advance_time(stopwatch::tp n = stopwatch::now())
+  void advance_time(ΣΘΔ::Θp n = ΣΘΔ::now())
     { while (sleep_queue.size() && tasks.at(sleep_queue.top()).deadline <= n)
       { let t = sleep_queue.top();
         sleep_queue.pop();
@@ -154,9 +154,9 @@ struct Λ
   void write_wake(λi);
   void wake(λi);
 
-  void sleep(stopwatch::span s)
+  void sleep(ΔΘ s)
     { auto &t = tasks.at(current_task);
-      t.deadline = stopwatch::now() + s;
+      t.deadline = ΣΘΔ::now() + s;
       t.state    = SLEEPING;
       sleep_queue.push(current_task);
       tc::yield(); }
@@ -183,7 +183,7 @@ void Λ::wake(λi i)
 void Λ::close(λi i)
 {
   auto &p = pipes.at(i);
-  if (!p.closed())
+  if (!p.ci())
   {
     read_wake(i);
     write_wake(i);
@@ -195,16 +195,16 @@ void Λ::close(λi i)
 bool Λ::has_next(ψi i)
 {
   auto &p = pipes.at(i);
-  p.read_delay.start();
-  if (p.readable()) write_wake(i);
+  p.rΘ.start();
+  if (p.ri()) write_wake(i);
   else
-    while (!p.readable() && !p.closed())
+    while (!p.ri() && !p.ci())
     {
       read_blocks[i] = current_task;
       tasks.at(current_task).state = READ_BLOCKED;
       tc::yield();
     }
-  p.read_delay.stop();
+  p.rΘ.stop();
 
   return p.has_next();
 }
@@ -213,7 +213,7 @@ bool Λ::has_next(ψi i)
 ψv Λ::next(ψi i)
 {
   auto &p = pipes.at(i);
-  assert(p.readable());
+  assert(p.ri());
   return p.next();
 }
 
@@ -221,16 +221,16 @@ bool Λ::has_next(ψi i)
 bool Λ::write(ψi i, ψv const &v)
 {
   auto &p = pipes.at(i);
-  p.write_delay.start();
-  if (p.writable()) read_wake(i);
+  p.wΘ.start();
+  if (p.wi()) read_wake(i);
   else
-    while (!p.writable() && !p.closed())
+    while (!p.wi() && !p.ci())
     {
       write_blocks[i] = current_task;
       tasks.at(current_task).state = WRITE_BLOCKED;
       tc::yield();
     }
-  p.write_delay.stop();
+  p.wΘ.stop();
 
   return p.write(v);
 }

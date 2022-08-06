@@ -7,7 +7,7 @@
 #include "tau/flux.hh"
 
 #include "tau/util/log-histogram.hh"
-#include "tau/util/stopwatch.hh"
+#include "tau/util/shd.hh"
 
 
 #include "tau/module/begin.hh"

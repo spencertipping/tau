@@ -121,14 +121,14 @@ void bench()
   });
 
   {
-    let start = stopwatch::now();
+    let start = ΣΘΔ::now();
     u64 t = 0;
     while (!f1.done())
     {
       while (!f1.done() && s1.head_ready()) f1();
       while (s1.tail_ready()) t += s1.pop();
     }
-    let end = stopwatch::now();
+    let end = ΣΘΔ::now();
     cout << "1M via stream(4), yielding " << t << ": " << end - start << endl;
     cout << "f1 returned " << f1.result() << endl;
   }
@@ -140,14 +140,14 @@ void bench()
   });
 
   {
-    let start = stopwatch::now();
+    let start = ΣΘΔ::now();
     u64 t = 0;
     while (!f2.done())
     {
       while (!f2.done() && s2.head_ready()) f2();
       while (s2.tail_ready()) t += s2.pop();
     }
-    let end = stopwatch::now();
+    let end = ΣΘΔ::now();
     cout << "1M via stream(256), yielding " << t << ": " << end - start << endl;
     cout << "f2 returned " << f2.result() << endl;
   }
