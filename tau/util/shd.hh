@@ -25,17 +25,16 @@ typedef std::chrono::steady_clock       Θc;
 typedef std::chrono::nanoseconds        ΔΘ;
 typedef std::chrono::time_point<Θc, ΔΘ> Θp;
 
+
+// Definition of time quantum
 ΔΘ const constexpr Θq = 1ns;
+static_assert(Θq.count() == 1);
+static_assert(std::is_integral<ΔΘ::rep>::value);
 
 
 inline           Θp now()     { return Θc::now(); }
 inline constexpr Θp never()   { return Θp{0ns}; }
 inline constexpr Θp forever() { return Θp{Nl<typename Θp::duration::rep>::max() * Θq}; }
-
-
-// Definition of time quantum
-static_assert(Θq.count() == 1);
-static_assert(std::is_integral<ΔΘ::rep>::value);
 
 
 struct ΣΘΔ
@@ -76,9 +75,9 @@ O &operator<<(O &s, ΣΘΔ const &w)
   return s << "ΣΘΔ[" << (w.Θr ? "R" : "s")
            << " n=" << w.n
            << " Σ=" << w.Σ()
-           << " p50=" << w.p(0.5)
-           << " p90=" << w.p(0.9)
-           << " p99=" << w.p(0.99) << "]";
+           << " 50=" << w.p(0.5)
+           << " 90=" << w.p(0.9)
+           << " 99=" << w.p(0.99) << "]";
 }
 #endif
 

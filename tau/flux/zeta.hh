@@ -22,13 +22,11 @@ namespace tau::flux
 template<class T>
 struct ζ
 {
-  typedef P<Θp, T> qe;
-
-  ΣΘΔ   rΘ;
-  ΣΘΔ   wΘ;
-  ΣΘΔ   lΘ;
-  uN    c;
-  D<qe> xs;
+  ΣΘΔ         rΘ;
+  ΣΘΔ         wΘ;
+  ΣΘΔ         lΘ;
+  uN          c;
+  D<P<Θp, T>> xs;
 
   ζ(uN c_ = 64) : c(c_) { assert(c); }
 
@@ -70,6 +68,12 @@ struct ζ
     { let n = now();
       if (!wi()) return false;
       xs.push_back(qe(n, x));
+      return true; }
+
+  bool w(T &&x)
+    { let n = now();
+      if (!wi()) return false;
+      xs.push_back(qe(n, std::move(x)));
       return true; }
 
   T r()
