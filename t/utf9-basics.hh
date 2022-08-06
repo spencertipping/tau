@@ -222,6 +222,11 @@ void try_orderings()
     auto vh = v.make_th<u9::kf_te>();
     if (!vh.is_th<u9::kf_te>())
     { cout << "not hash-ordered after make_th" << endl;
+      cout << "INITIAL ORDERING" << endl;
+      for (let &x : v) cout << "  " << x << ": " << x.h() << endl;
+      cout << endl;
+      cout << "SORTED ORDERING" << endl;
+      for (let &x : vh) cout << "  " << x << ": " << x.h() << endl;
       _exit(1); }
 
     for (i64 i = -10; i < 110; ++i)

@@ -134,8 +134,9 @@ template <class KF> bool val::is_th() const
 
 template <class KF> val val::make_th() const
 {
-  struct hi0 { u64 h; uN i; };
-  struct hi  { u64 h; uN i; u8 pad[sizeof(val) - sizeof(hi0)]; };  // shenanigans
+  // NOTE: this fails with uN i, even in a size-forcing union. It also fails if
+  // sizeof(val) == 12, e.g. on 32-bit builds. Pretty fragile, not sure why.
+  struct hi { u64 h; u64 i; };
   static_assert(sizeof(hi) == sizeof(val));
 
   KF kf;
@@ -153,8 +154,8 @@ template <class KF> val val::make_th() const
             [](hi const &a, hi const &b) { return a.h < b.h; });
 
   let vs = Rc<V<val>*>(vh);
-  if (has_ibuf()) for (uN i = 0; i < vs->size(); ++i) (*vs)[i] = val(*b, (*vh)[i].i);
-  else            for (uN i = 0; i < vs->size(); ++i) (*vs)[i] = (*vt)[(*vh)[i].i];
+  if (has_ibuf()) for (uN i = 0; i < vs->size(); ++i) { let j = (*vh)[i].i; (*vs)[i] = val(*b, j); }
+  else            for (uN i = 0; i < vs->size(); ++i) { let j = (*vh)[i].i; (*vs)[i] = (*vt)[j]; }
 
   return val(vs);
 }
