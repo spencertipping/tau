@@ -6,9 +6,11 @@ Deadline scheduling is an interesting problem because Λ is cooperatively-thread
 ```cpp
 struct Θ
 {
-  M<λi, ΣΘΔ> λΘ;
-  λi         cur;
+  PQ<λi, deadline> λΘω;
+  M<λi, ΣΘΔ>       λΘ;
+  λi               cur;
 
-
+  void y();    // yield if necessary to meet deadlines
+  void r(λi);  // run a λ
 };
 ```
