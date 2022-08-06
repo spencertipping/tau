@@ -5,36 +5,7 @@
 
 This means operators are inside-Φ multi-coro actors, programs are outside-Φ flux topologies.
 
-
-## Inner abstraction
-The API used to write an operator within the τ runtime.
-
-```cpp
-struct Φ::inner
-{
-  u9        gs();                // gensym for identifiers
-  ΣΘΔ       γΘ() const;          // Σ[Θλ]
-
-  Φ::inner &λc(u9, λf);
-  bool      λe(u9) const;        // does λ exist
-  λr        λw(u9);              // gracefully await λ
-  Φ::inner &λx(u9);              // kill λ
-  ΣΘΔ       λΘ(u9) const;
-
-  Φ::inner &ψc(u9);              // define port (send ω to close)
-  bool      ψe(u9) const;        // does ψ exist
-  u9        ψr(u9);              // read item
-  bool      ψri(u9);             // is readable
-  bool      ψw(u9, u9 const &);  // write item
-  bool      ψwi(u9) const;       // is writable right now
-  Ψ::ψit    ψs(u9) const;        // iterable
-
-  Φ::inner &Θw(ΔΘ s) { return Φa(now() + s); }
-  Φ::inner &Θw(Θp);
-};
-```
-
-**NOTE:** `ψw` has the option of just `obuf << v` for memory management, which is worst-case about as computationally expensive as data structure allocation in Python. Then the underlying pipe carries `shared_ptr<obuf>` objects and we have no issues with GC. If we have exceptionally large values, we can refer to them using a static checkin/checkout dictionary Φ -- but that requires us to manage GC manually.
+γs don't refer to Φ directly.
 
 
 ## Outer abstraction

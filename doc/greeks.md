@@ -10,7 +10,7 @@ In code, suffixes modify concepts: `λi` is an ID for a λ, for example.
 + Γ: the flux core
   + Ψ: IO fabric
     + Φ: γ IO surface
-    + ζ: unidirectional queue
+    + ζ: unidirectional pipe
   + Θ: time/deadline scheduler
   + Λ: execution multiplexer
     + λ: cooperative task
