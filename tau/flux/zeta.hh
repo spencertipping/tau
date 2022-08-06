@@ -5,14 +5,13 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
-#include <string>
 #include <utility>
 
 
-#include "init.hh"
-
 #include "../types.hh"
 #include "../util/shd.hh"
+
+#include "types.hh"
 
 
 #include "../module/begin.hh"
@@ -24,7 +23,7 @@ namespace tau::flux
 template<class T>
 struct ζ
 {
-  typedef std::pair<Θp, T> qe;
+  typedef P<Θp, T> qe;
 
   ΣΘΔ   rΘ;
   ΣΘΔ   wΘ;
@@ -49,9 +48,9 @@ struct ζ
   u64  rΣ()    const { return lΘ.n; }
   u64  wΣ()    const { return rΣ() + xs.size(); }
 
-  void close()       { c = 0; }
+  void x()           { c = 0; }
   bool ci()    const { return !c; }
-  uN   size()  const { return xs.size(); }
+  uN   n()     const { return xs.size(); }
 
 
   ΔΘ δ() const
@@ -66,13 +65,13 @@ struct ζ
            - log2(Sf(rΘ.σ().count())); }
 
 
-  bool write(T const &x)
+  bool w(T const &x)
     { let n = now();
       if (!wi()) return false;
       xs.push_back(qe(n, x));
       return true; }
 
-  T read()
+  T r()
     { assert(ri());
       let [t, x] = xs.front();
       lΘ << now() - t;
@@ -88,7 +87,7 @@ O &operator<<(O &s, ζ<T> const &z)
            << (z.ri() ? "R" : "r")
            << (z.wi() ? "W" : z.ci() ? "#" : "w")
            << " n="  << z.wΣ()
-           << " c="  << z.size() << "/" << z.c
+           << " c="  << z.n() << "/" << z.c
            << " rd=" << z.rΘ.σ()
            << " wd=" << z.wΘ.σ()
            << " δ="  << z.δ()

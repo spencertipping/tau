@@ -4,8 +4,8 @@
 
 #include <cassert>
 
+
 #include "../types.hh"
-#include "init.hh"
 #include "lambda-class.hh"
 
 

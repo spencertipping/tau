@@ -9,8 +9,7 @@
 #include "util-basics.hh"
 
 #if tau_defines_flux
-#  include "coro-basics.hh"
-#  include "scheduler-basics.hh"
+# include "coro-basics.hh"
 #endif
 
 
@@ -31,7 +30,6 @@ int main(int argc, char **argv)
 
 #if tau_defines_flux
     t::coro_basics::main();
-    t::scheduler_basics::main();
 #endif
   }
   else
@@ -44,7 +42,6 @@ int main(int argc, char **argv)
       else if (!strcmp("util", a))  fs.push_back(t::util_basics::main);
 #if tau_defines_flux
       else if (!strcmp("coro", a))  fs.push_back(t::coro_basics::main);
-      else if (!strcmp("sched", a)) fs.push_back(t::scheduler_basics::main);
 #endif
       else
       {

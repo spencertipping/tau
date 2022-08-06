@@ -13,7 +13,7 @@ The API used to write an operator within the τ runtime.
 struct Φ::inner
 {
   u9        gs();                // gensym for identifiers
-  ΣΘΔ       γΘ() const;          // Σλ
+  ΣΘΔ       γΘ() const;          // Σ[Θλ]
 
   Φ::inner &λc(u9, λf);
   bool      λe(u9) const;        // does λ exist
@@ -24,14 +24,13 @@ struct Φ::inner
   Φ::inner &ψc(u9);              // define port (send ω to close)
   bool      ψe(u9) const;        // does ψ exist
   u9        ψr(u9);              // read item
-  bool      ψri(u9) const;       // is readable right now
-  bool      ψni(u9);             // has next item
+  bool      ψri(u9);             // is readable
   bool      ψw(u9, u9 const &);  // write item
   bool      ψwi(u9) const;       // is writable right now
   Ψ::ψit    ψs(u9) const;        // iterable
 
-  Φ::inner &Θa(ΔΘ s) { return Φa(now() + s); }
-  Φ::inner &Θa(ΣΘΔ::Θp);
+  Φ::inner &Θw(ΔΘ s) { return Φa(now() + s); }
+  Φ::inner &Θw(Θp);
 };
 ```
 

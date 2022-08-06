@@ -7,9 +7,10 @@
 #if defined(__EMSCRIPTEN__) || defined(__LP64__)
 # define tau_defines_flux 1
 
-# include "flux/init.hh"
+# include "flux/types.hh"
 # include "flux/lambda.hh"
 # include "flux/Lambda.hh"
+# include "flux/theta.hh"
 # include "flux/zeta.hh"
 #else
 # define tau_defines_flux 0

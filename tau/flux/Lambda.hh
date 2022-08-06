@@ -6,7 +6,9 @@
 
 
 #include "../types.hh"
-#include "init.hh"
+#include "../utf9.hh"
+
+#include "types.hh"
 #include "lambda.hh"
 
 
@@ -16,28 +18,36 @@ namespace tau::flux
 {
 
 
-enum λs  // lambda runnability state (informative, not canonical)
+struct λc            // async blocking condition
 {
-  λR,    // runnable
-  λS,    // stopped
-  λI,    // blocked on read from ζ
-  λO,    // blocked on write to ζ
-  λΘ,    // waiting for a time
-  λZ,    // done (zombie)
+  bool i = false;
+  λc &a() { i = true;        return *this; }  // awaken
+  λc &w() { while (!i) λy(); return *this; }  // wait
 };
-
-
-typedef uN      λi;  // λ identifier
-typedef f64     λp;  // λ priority (lower = more important)
-typedef int     Λr;  // type of value returned to Λ
-typedef F<Λr()> λf;
 
 
 // NOTE: managed λs should yield out with tau::flux::λy()
 struct Λ             // manager of λs
 {
-  struct Λλ  { λ<Λr> l; λs s; λp p; };
-  struct λip { Λ &l; bool operator()(λi a, λi b) const { return l.ls.at(a).p < l.ls.at(b).p; } };
+  struct Λλ
+  {
+    λ<Λr> l;
+    λs    s;
+    λp    p;
+
+    Λλ() {}
+    Λλ(λf f) : l(λ<Λr>(f)), s(λS), p(0) {}
+
+    Λλ &operator=(Λλ &&x)
+      { l = std::move(x.l);
+        s = x.s;
+        p = x.p;
+        return *this; }
+  };
+
+  struct λip
+  { Λ &l;
+    bool operator()(λi a, λi b) const { return l.ls.at(a).p < l.ls.at(b).p; } };
 
   λip         lp;
   M<λi, Λλ>   ls;    // all λs
@@ -51,9 +61,9 @@ struct Λ             // manager of λs
   uN   n ()     const { return ls.size(); }
   λi   i ()     const { return ri; }
   λs   si(λi i) const { return ls.at(i).s; }
-  λp   pi(λi i) const { return ls.at(i).p; }
+  λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : NAN; }
 
-  λi   c(λf f, f64 p = 0)              { let   i = ni++;     ls.emplace(i, Λλ{λ<Λr>(f), λR, p}); r(i);                     return i; }
+  λi   c(λf f, f64 p = 0)              { let   i = ni++;     ls[i] = Λλ(f); r(i, p, λR);                            return i; }
   Λ   &r(λi i, f64 p = NAN, λs s = λR) { auto &l = ls.at(i); if (!std::isnan(p)) l.p = p; if ((l.s = s) == λR) rq.push(i); return *this; }
   Λr   w(λi i)                         { assert(ri != i); let r = ls.at(i).l.result(); ls.erase(i);                        return r; }
   Λ   &x(λi i)                         { assert(ri != i); assert(e(i));                ls.erase(i);                        return *this; }
@@ -65,8 +75,16 @@ struct Λ             // manager of λs
       return *this; }
 
   λi operator()()
-    { while (!rq.empty()) { let i = rq.top(); rq.pop(); if (e(i) && si(i) == λR) return i; }
+    { while (!rq.empty())
+      { let i = rq.top();
+        if (e(i) && si(i) == λR) return i;
+        else                     rq.pop(); }
       return 0; }
+
+  // NOTE: not used by Γ, as this doesn't provide timing insight
+  Λ &go(bool(*f)() = [](){ return true; })
+    { for (λi t; f() && (t = (*this)()); *this << t);
+      return *this; }
 };
 
 
@@ -88,9 +106,8 @@ O &operator<<(O &s, λs const &t)
 O &operator<<(O &s, Λ::Λλ const &l)
 {
   s << "λ" << l.s;
-  return l.s == λZ
-    ? s << "=" << l.l.result()
-    : s << ":" << l.p;
+  return l.s == λZ ? s << "=" << l.l.result()
+                   : s << ":" << l.p;
 }
 
 

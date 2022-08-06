@@ -5,10 +5,13 @@ In code, suffixes modify concepts: `λi` is an ID for a λ, for example.
 
 **NOTE:** these are τ-internal abstractions; for UTF9 state symbols, see [utf9.md](utf9.md).
 
-+ γ: an operator (Γ: the flux core)
++ γ: an operator, from the inside
++ Γ: the flux core
 + Φ: user/kernel boundary
-+ Ψ: cross-γ flux
-+ ψ: within-γ port
++ φ:
++ Ψ: cross-γ IPC multiplexer
++ ψ: γ-specific port
 + ζ: unidirectional queue
-+ λ: coro/fiber (Λ = coro scheduler)
++ λ: fiber
++ Λ: execution multiplexer
 + Θ: time/deadline scheduler

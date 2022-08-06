@@ -23,7 +23,7 @@ using namespace tau::flux;
 using namespace tau::util;
 
 template<class T>
-using co = tau::flux::coro::coro<T>;
+using co = tau::flux::λ<T>;
 
 
 template <typename T>
@@ -39,7 +39,7 @@ struct stream
   inline bool tail_ready() const { return !omega && xs.size() > 0; }
   inline T    pop()
     {
-      while (!tail_ready()) tau::flux::coro::yield();
+      while (!tail_ready()) tau::flux::λy();
       T x = xs.front();
       xs.pop_front();
       return x;
@@ -47,7 +47,7 @@ struct stream
 
   inline stream<T> &operator<<(T &x)
     {
-      while (!head_ready()) tau::flux::coro::yield();
+      while (!head_ready()) tau::flux::λy();
       xs.push_back(x);
       return *this;
     }

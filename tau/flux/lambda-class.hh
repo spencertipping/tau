@@ -2,6 +2,9 @@
 #define tau_flux_λ_class_h
 
 
+#include <cassert>
+
+
 #ifdef __EMSCRIPTEN__
 # include <emscripten/fiber.h>
 #elif tau_assume_emscripten
@@ -20,10 +23,8 @@
 #endif
 
 
-#include <cassert>
-
 #include "../types.hh"
-
+#include "types.hh"
 
 #include "../module/begin.hh"
 
@@ -45,8 +46,20 @@ namespace tau::flux
 
 
 void λy();                       // yield
+void λinit_();                   // implementation-specific main λ init
 uN const constexpr λss = 65536;  // stack size
 λk                 λmk;          // main continuation
+
+
+// NOTE: init mechanics used only by λ ctor; not useful to importers
+// of λ.hh, as they are automatically managed.
+void λinit()
+{
+  static bool called = false;
+  if (called) return;
+  λinit_();
+  called = true;
+}
 
 
 template<class T>
@@ -70,18 +83,6 @@ struct λ
   λ    &operator<<(T&&);
   λ    &operator<<(T const &);
 };
-
-
-// NOTE: init mechanics used only by λ ctor; not useful to importers
-// of λ.hh, as they are automatically managed.
-void λinit_();
-void λinit()
-{
-  static bool called = false;
-  if (called) return;
-  λinit_();
-  called = true;
-}
 
 
 }

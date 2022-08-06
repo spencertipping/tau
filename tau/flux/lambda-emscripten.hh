@@ -8,9 +8,9 @@
 #include <cassert>
 #include <memory>
 
+
 #include "../types.hh"
 
-#include "init.hh"
 #include "lambda-class.hh"
 
 

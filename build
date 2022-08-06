@@ -9,15 +9,19 @@ t() {
 
 usage() {
   echo "usage: $0 t[est]"
+  echo "       $0 c[ompile]"
   echo "       $0 d[ebug]"
   echo "       $0 q[uick]"
   exit 1
 }
 
 
-t_gcc_opts=(                              -std=c++20 -O3 )
-t_gcc_debug_opts=( -Wall -Wno-parentheses -std=c++20 -O0 -g )
-t_em_opts=(                               -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses )
+t_gcc_opts=(-std=c++20 -O3 )
+t_em_opts=( -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses )
+t_gcc_debug_opts=(
+  -Wall -Wno-parentheses -Wno-misleading-indentation
+  -std=c++20 -O0 -g
+)
 
 
 (( $# )) || usage
@@ -28,6 +32,9 @@ shift
 cd "$(dirname "$0")"
 
 case $cmd in
+  c*) t g++ "${t_gcc_debug_opts[@]}" -DQUICK=1 t/test.cc -o t/test-quick -lboost_context
+      ;;
+
   q*) rm -f t/test-quick t/test32-quick
       t g++                "${t_gcc_debug_opts[@]}" -DQUICK=1      t/test.cc -o t/test-quick -lboost_context &
       t i686-linux-gnu-g++ "${t_gcc_debug_opts[@]}" -DQUICK=1 -m32 t/test.cc -o t/test32-quick &
