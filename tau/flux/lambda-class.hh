@@ -20,6 +20,8 @@
 #endif
 
 
+#include <cassert>
+
 #include "../types.hh"
 
 
@@ -60,8 +62,8 @@ struct λ
   λ(F<T()>);
   ~λ();
 
-  bool     done()   const { return is_done; }
-  T const &result() const { return ret; };
+  bool     done()   const {                  return is_done; }
+  T const &result() const { assert(is_done); return ret; };
 
   λ<T> &operator=(λ<T> &&);
   λ    &operator()();
