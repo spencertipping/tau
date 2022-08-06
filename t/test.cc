@@ -1,10 +1,3 @@
-#if (defined(__EMSCRIPTEN__) || defined(__LP64__))
-#  define HAVE_CONTEXT 1
-#else
-#  define HAVE_CONTEXT 0
-#endif
-
-
 #include <cstring>
 #include <iostream>
 #include <vector>
@@ -15,7 +8,7 @@
 #include "utf9-basics.hh"
 #include "util-basics.hh"
 
-#if HAVE_CONTEXT
+#if tau_defines_flux
 #  include "coro-basics.hh"
 #  include "scheduler-basics.hh"
 #endif
@@ -36,7 +29,7 @@ int main(int argc, char **argv)
     t::utf9_basics::main();
     t::util_basics::main();
 
-#if HAVE_CONTEXT
+#if tau_defines_flux
     t::coro_basics::main();
     t::scheduler_basics::main();
 #endif
@@ -49,7 +42,7 @@ int main(int argc, char **argv)
       let a = argv[i];
       if      (!strcmp("utf9", a))  fs.push_back(t::utf9_basics::main);
       else if (!strcmp("util", a))  fs.push_back(t::util_basics::main);
-#if HAVE_CONTEXT
+#if tau_defines_flux
       else if (!strcmp("coro", a))  fs.push_back(t::coro_basics::main);
       else if (!strcmp("sched", a)) fs.push_back(t::scheduler_basics::main);
 #endif

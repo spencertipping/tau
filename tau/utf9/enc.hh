@@ -35,9 +35,9 @@ struct tenc : public oenc
   int header_size()
     { let m = l | n;
       return !(m >> 8) && n < 8 ? 2
-           : m >> 32            ? 17
-           : m >> 16            ? 9
-           : m >> 8             ? 5 : 3; }
+           : ou32(m)            ? 17
+           : ou16(m)            ? 9
+           : ou8(m)             ? 5 : 3; }
 
   void ensure_hlen()
     { let h = header_size();
