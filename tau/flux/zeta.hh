@@ -3,17 +3,13 @@
 
 
 #include <cassert>
-#include <chrono>
 #include <cmath>
 #include <iostream>
-#include <queue>
-#include <stdexcept>
 #include <string>
 #include <utility>
 
 
 #include "init.hh"
-#include "coro.hh"
 
 #include "../types.hh"
 #include "../util/shd.hh"
@@ -36,8 +32,7 @@ struct ζ
   uN    c;
   D<qe> xs;
 
-  ζ() {}
-  ζ(uN c_) : c(c_) { assert(c); }
+  ζ(uN c_ = 64) : c(c_) { assert(c); }
 
 
   ζ<T> &operator=(ζ<T> &&p)
@@ -79,8 +74,8 @@ struct ζ
 
   T read()
     { assert(ri());
-      let x = std::get<1>(xs.front());
-      lΘ << now() - std::get<0>(xs.front());
+      let [t, x] = xs.front();
+      lΘ << now() - t;
       xs.pop_front();
       return x; }
 };
