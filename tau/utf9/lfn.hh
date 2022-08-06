@@ -7,8 +7,8 @@
 #include "error-proto.hh"
 #include "ibuf.hh"
 
-#include "../module/begin.hh"
 
+#include "../module/begin.hh"
 
 namespace tau::utf9
 {
@@ -17,8 +17,8 @@ namespace tau::utf9
 namespace  // Length traversal dispatch
 {
 
-typedef u64(*lfn)(ibuf const &, u64);
-#define lf(body) [](ibuf const &b, u64 i) -> u64 { return static_cast<u64>(body); }
+typedef uN(*lfn)(ibuf const &, uN);
+#define lf(body) [](ibuf const &b, uN i) -> uN { return Sc<uN>(body); }
 
 
 let l1  = lf(1);
@@ -54,25 +54,25 @@ let fixbytes_lf  = lf(1 + (b.U8(i) - 0x30));
 let fixtuple8_lf = lf(2 + b.U8(i + 1));
 let fixint_lf    = l1;
 
-let pidx8_lf  = lf(b.U8(i + 1)  + 4  +     (b.U8 (i + 2) >> b.U8(i + 3)));
+let pidx8_lf  = lf(b.U8 (i + 1) + 4  +     (b.U8 (i + 2) >> b.U8(i + 3)));
 let pidx16_lf = lf(b.U16(i + 1) + 6  + 2 * (b.U16(i + 3) >> b.U8(i + 5)));
 let pidx32_lf = lf(b.U32(i + 1) + 10 + 4 * (b.U32(i + 5) >> b.U8(i + 9)));
 let pidx64_lf = lf(b.U64(i + 1) + 18 + 8 * (b.U64(i + 9) >> b.U8(i + 17)));
 
-let idx8_lf  = lf(b.U8(i + 1)  + 3  +     (~0ull >> b.U8(i + 2)));
+let idx8_lf  = lf(b.U8 (i + 1) + 3  +     (~0ull >> b.U8(i + 2)));
 let idx16_lf = lf(b.U16(i + 1) + 4  + 2 * (~0ull >> b.U8(i + 3)));
 let idx32_lf = lf(b.U32(i + 1) + 6  + 4 * (~0ull >> b.U8(i + 5)));
 let idx64_lf = lf(b.U64(i + 1) + 10 + 8 * (~0ull >> b.U8(i + 9)));
 
 let hint_lf  = lf(1 + b.len(i + 1));
 
-let bogus_lf   = [](ibuf const &b, u64 i) -> u64 { return throw_decoding_error<u64>("bogus lf",   b, i); };
-let bogus_tlf  = [](ibuf const &b, u64 i) -> u64 { return throw_decoding_error<u64>("bogus tlf",  b, i); };
-let bogus_tvlf = [](ibuf const &b, u64 i) -> u64 { return throw_decoding_error<u64>("bogus tvlf", b, i); };
+let bogus_lf   = [](ibuf const &b, uN i) -> uN { return throw_decoding_error<uN>("bogus lf",   b, i); };
+let bogus_tlf  = [](ibuf const &b, uN i) -> uN { return throw_decoding_error<uN>("bogus tlf",  b, i); };
+let bogus_tvlf = [](ibuf const &b, uN i) -> uN { return throw_decoding_error<uN>("bogus tvlf", b, i); };
 
 
 // Typecode length functions
-inline u64 tuple_tl(ibuf const &b, u64 i, u64 n)
+inline u64 tuple_tl(ibuf const &b, uN i, uN n)
 {
   u64 l = 0;
   while (n--) l += b.tlen(i + l);
@@ -396,7 +396,7 @@ inline uN ibuf::tvlen(uN i) const { return tvlfns[xs[i]](*this, i); }
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif

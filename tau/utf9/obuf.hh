@@ -17,6 +17,8 @@ namespace tau::utf9
 // A bytecode encoder with no specified storage backend
 struct oenc
 {
+  // Target size reduction of index wrt collection; that is,
+  // sizeof(idx) <= sizeof(thing) >> INDEX_SIZE_BITS
   static const constexpr u8 INDEX_SIZE_BITS = 3;
 
 

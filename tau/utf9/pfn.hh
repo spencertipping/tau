@@ -14,12 +14,12 @@ namespace tau::utf9
 {
 
 
-#define pf(body) [](ibuf const &b, u64 i) -> u8c* { return (body); }
+#define pf(body) [](ibuf const &b, uN i) -> u8c* { return (body); }
 
-typedef u8c*(*pfn)(ibuf const &, u64);
+typedef u8c*(*pfn)(ibuf const &, uN);
 
 
-let bogus_pf = [](ibuf const &b, u64 i) -> u8c* { return throw_decoding_error<u8c *>("bogus pf", b, i); };
+let bogus_pf = [](ibuf const &b, uN i) -> u8c* { return throw_decoding_error<u8c *>("bogus pf", b, i); };
 
 let p1  = pf(b + (i + 1));
 let p2  = pf(b + (i + 2));

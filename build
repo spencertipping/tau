@@ -28,8 +28,9 @@ shift
 cd "$(dirname "$0")"
 
 case $cmd in
-  q*) t g++                "${t_gcc_debug_opts[@]}" -DQUICK=1      t/test.cc -o t/test-quick -lboost_context
-      t i686-linux-gnu-g++ "${t_gcc_debug_opts[@]}" -DQUICK=1 -m32 t/test.cc -o t/test32-quick
+  q*) t g++                "${t_gcc_debug_opts[@]}" -DQUICK=1      t/test.cc -o t/test-quick -lboost_context &
+      t i686-linux-gnu-g++ "${t_gcc_debug_opts[@]}" -DQUICK=1 -m32 t/test.cc -o t/test32-quick &
+      wait
 
       if valgrind --track-origins=yes t/test-quick >t/test-quick.log 2>&1; then
         echo -e "\033[1;32m64-bit all ok\033[0;0m"
