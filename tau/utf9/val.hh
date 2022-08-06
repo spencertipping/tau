@@ -439,7 +439,6 @@ struct val
   int compare(val const &v) const
     { let t1 =   type();
       let t2 = v.type();
-
       let m1 = 1ull << t1;
       let m2 = 1ull << t2;
 
@@ -453,13 +452,10 @@ struct val
       if (m1 & float_types && m2 & float_types) cmpblock(f64);
 
       if (t1 != t2) throw_binop_error("ct", *this, v);
+
       switch (t1)
       {
 
-      case UINT: case UINT64: case UINT32: case UINT16: case UINT8: cmpblock(u64)
-      case INT:  case INT64:  case INT32:  case INT16:  case INT8:  cmpblock(i64)
-      case FLOAT32: cmpblock(f32)
-      case FLOAT64: cmpblock(f64)
       case SYMBOL:  cmpblock(sym)
       case PIDFD:   cmpblock(pidfd)
       case BOOL:    cmpblock(bool)
