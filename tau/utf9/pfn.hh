@@ -32,15 +32,15 @@ let p10 = pf(b + (i + 10));
 let p17 = pf(b + (i + 17));
 
 // NOTE: index mbegin() points to the beginning of the tuple
-let pidx8_pf  = pf(b + (1 + 1 + 1 +     (b.u8 (i + 1) >> b.u8(i + 2))));
-let pidx16_pf = pf(b + (1 + 2 + 1 + 2 * (b.u16(i + 1) >> b.u8(i + 3))));
-let pidx32_pf = pf(b + (1 + 4 + 1 + 4 * (b.u32(i + 1) >> b.u8(i + 5))));
-let pidx64_pf = pf(b + (1 + 8 + 1 + 8 * (b.u64(i + 1) >> b.u8(i + 9))));
+let pidx8_pf  = pf(b + (1 + 1 + 1 +     (b.U8 (i + 1) >> b.U8(i + 2))));
+let pidx16_pf = pf(b + (1 + 2 + 1 + 2 * (b.U16(i + 1) >> b.U8(i + 3))));
+let pidx32_pf = pf(b + (1 + 4 + 1 + 4 * (b.U32(i + 1) >> b.U8(i + 5))));
+let pidx64_pf = pf(b + (1 + 8 + 1 + 8 * (b.U64(i + 1) >> b.U8(i + 9))));
 
-let idx8_pf  = pf(b + (1 + 1 + 1 +     (~0ull >> b.u8(i + 2))));
-let idx16_pf = pf(b + (1 + 2 + 1 + 2 * (~0ull >> b.u8(i + 3))));
-let idx32_pf = pf(b + (1 + 4 + 1 + 4 * (~0ull >> b.u8(i + 5))));
-let idx64_pf = pf(b + (1 + 8 + 1 + 8 * (~0ull >> b.u8(i + 9))));
+let idx8_pf  = pf(b + (1 + 1 + 1 +     (~0ull >> b.U8(i + 2))));
+let idx16_pf = pf(b + (1 + 2 + 1 + 2 * (~0ull >> b.U8(i + 3))));
+let idx32_pf = pf(b + (1 + 4 + 1 + 4 * (~0ull >> b.U8(i + 5))));
+let idx64_pf = pf(b + (1 + 8 + 1 + 8 * (~0ull >> b.U8(i + 9))));
 
 
 pfn const sfns[256] =

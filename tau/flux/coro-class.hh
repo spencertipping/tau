@@ -4,8 +4,6 @@
 #include <functional>
 #include <string>
 
-#include "../module/begin.hh"
-
 
 #ifdef __EMSCRIPTEN__
 #  include <emscripten/fiber.h>
@@ -14,12 +12,19 @@
 #endif
 
 
+#include "../types.hh"
+
+
+#include "../module/begin.hh"
+
 namespace tau::flux::coro
 {
 
 
+uN const constexpr stack_size = 65536;
+
+
 #ifdef __EMSCRIPTEN__
-  static constexpr size_t stack_size = 1048576;
   struct coro_k
   {
     emscripten_fiber_t  k;
@@ -75,7 +80,7 @@ static void coro_init()
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif

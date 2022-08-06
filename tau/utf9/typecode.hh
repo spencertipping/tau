@@ -39,6 +39,9 @@ enum val_type : u8
   SET      = 0x31,
   MAP      = 0x32,
 
+  UINT     = 0x3c,  // auto-sized ints (not real, just for API convenience)
+  INT      = 0x3d,
+
   NONE     = 0x3e,  // fictitious: not a real value
   BOGUS    = 0x3f,
 
@@ -49,6 +52,12 @@ enum val_type : u8
 typedef u64 val_type_mask;
 
 static_assert(MAX_VAL_TYPE < sizeof(val_type_mask) * 8);
+
+
+val_type_mask const constexpr uint_types  = 1ull << UINT | 1ull << UINT64 | 1ull << UINT32 | 1ull << UINT16 | 1ull << UINT8;
+val_type_mask const constexpr int_types   = 1ull <<  INT | 1ull <<  INT64 | 1ull <<  INT32 | 1ull <<  INT16 | 1ull <<  INT8;
+val_type_mask const constexpr float_types = 1ull << FLOAT32 | 1ul << FLOAT64;
+val_type_mask const constexpr multi_types = 1ull << TUPLE | 1ull << ARRAY | 1ull << LIST | 1ull << SET | 1ull << MAP;
 
 
 namespace  // Type dispatch tables

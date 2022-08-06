@@ -32,10 +32,12 @@ std::ostream &operator<<(std::ostream &s, val_type t)
   case UINT16:   return s << "u16";
   case UINT32:   return s << "u32";
   case UINT64:   return s << "u64";
+  case UINT:     return s << "uint";
   case INT8:     return s << "i8";
   case INT16:    return s << "i16";
   case INT32:    return s << "i32";
   case INT64:    return s << "i64";
+  case INT:      return s << "int";
   case FLOAT32:  return s << "f32";
   case FLOAT64:  return s << "f64";
   case SYMBOL:   return s << "sym";
@@ -66,10 +68,12 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
   case UINT16:  return s << "u16";
   case UINT32:  return s << "u32";
   case UINT64:  return s << "u64";
+  case UINT:    return s << "uint";
   case INT8:    return s << "i8";
   case INT16:   return s << "i16";
   case INT32:   return s << "i32";
   case INT64:   return s << "i64";
+  case INT:     return s << "int";
   case FLOAT32: return s << "f32";
   case FLOAT64: return s << "f64";
 
@@ -97,10 +101,10 @@ std::ostream &operator<<(std::ostream &s, val const &v)
 {
   switch (v.type())
   {
-  case UINT8: case UINT16: case UINT32: case UINT64: return s << Sc<u64>(v);
-  case INT8:  case INT16:  case INT32:  case INT64:  return s << Sc<i64>(v);
-  case FLOAT32: return s << Sc<float>(v);
-  case FLOAT64: return s << Sc<double>(v);
+  case UINT: case UINT8: case UINT16: case UINT32: case UINT64: return s << Sc<u64>(v);
+  case INT:  case INT8:  case INT16:  case INT32:  case INT64:  return s << Sc<i64>(v);
+  case FLOAT32: return s << Sc<f32>(v);
+  case FLOAT64: return s << Sc<f64>(v);
   case SYMBOL:  return s << Sc<sym>(v);
   case PIDFD:   return s << Sc<pidfd>(v);
 

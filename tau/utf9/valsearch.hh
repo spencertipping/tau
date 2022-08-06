@@ -141,15 +141,18 @@ template <class KF> val val::make_th() const
   KF kf;
   let vh = new V<hi>;
   vh->reserve(len());
-  if (has_ibuf()) for (let &x : *this) vh->push_back(hi{kf(x).h(), x.i});
+  if (has_ibuf())
+    for (let &x : *this) vh->push_back(hi{kf(x).h(), x.i});
   else
-  { uN j = 0;
-    for (let &x : *this) vh->push_back(hi{kf(x).h(), j++}); }
+  {
+    uN j = 0;
+    for (let &x : *this) vh->push_back(hi{kf(x).h(), j++});
+  }
 
   std::sort(vh->begin(), vh->end(),
             [](hi const &a, hi const &b) { return a.h < b.h; });
 
-  let vs = reinterpret_cast<V<val>*>(vh);
+  let vs = Rc<V<val>*>(vh);
   if (has_ibuf()) for (uN i = 0; i < vs->size(); ++i) (*vs)[i] = val(*b, (*vh)[i].i);
   else            for (uN i = 0; i < vs->size(); ++i) (*vs)[i] = (*vt)[(*vh)[i].i];
 

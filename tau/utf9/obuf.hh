@@ -32,14 +32,14 @@ struct oenc
   virtual ibuf convert_to_ibuf() = 0;
 
 
-  virtual U8 list_pos_bits(uN n, uN l) const
+  virtual u8 list_pos_bits(uN n, uN l) const
     { if (n <= 16) return 64;
       let  s = n << bu(l);
       auto r = 0;
       while (s >> r >= l >> INDEX_SIZE_BITS) ++r;
       return r; }
 
-  virtual U8 set_rcp_bits(uN n, uN l) const
+  virtual u8 set_rcp_bits(uN n, uN l) const
     { if (n <= 16) return 64;
 
       // Return a value such that s * (~0ull >> r) <= l >> INDEX_SIZE_BITS
@@ -53,7 +53,7 @@ struct oenc
       while (~0ull >> r >= l >> INDEX_SIZE_BITS + b) ++r;
       return r; }
 
-  virtual U8 map_rcp_bits(uN n, uN l) const
+  virtual u8 map_rcp_bits(uN n, uN l) const
     { return set_rcp_bits(n, l); }
 
 
@@ -99,6 +99,12 @@ struct obuf : public virtual oenc
   obuf(uN c) : b(new u8[c]), l(c), i(0) {}
 
   ~obuf() { if (b) delete[] b; }
+
+
+  void clear()
+    { if (b) delete[] b;
+      b = nullptr;
+      i = l = 0; }
 
 
   ibuf convert_to_ibuf()

@@ -54,13 +54,13 @@ struct greek
   greek(letter l_) : l(l_), v(0) {}
   greek(letter l_, u32 v_) : l(l_), v(v_) {}
   greek(ibuf const &b, u64 i)
-    { switch(b.u8(i))
+    { switch(b.U8(i))
       {
       case 0x10: l = Α; v = 0; break;
       case 0x11: l = Ι; v = 0; break;
       case 0x12: l = Κ; v = 0; break;
-      case 0x13: l = Ρ; v = b.u32(i + 1); break;
-      case 0x14: l = Θ; v = b.u32(i + 1); break;
+      case 0x13: l = Ρ; v = b.U32(i + 1); break;
+      case 0x14: l = Θ; v = b.U32(i + 1); break;
       case 0x15: l = Τ; v = 0; break;
       case 0x16: l = Ω; v = 0; break;
       default: throw_internal_error("greek bdec");

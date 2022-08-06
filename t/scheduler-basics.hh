@@ -26,7 +26,7 @@ int main()
 
 
   let t1 = c.create_task([&]() {
-    for (iN i = 0;; ++i)
+    for (i64 i = 0;; ++i)
       if (!c.write(p1, u9(i))) { cout << "s1 rejected " << i << endl; break; }
     c.close(p1);
     cout << "t1 returning" << endl;

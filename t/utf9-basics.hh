@@ -77,13 +77,12 @@ void try_loading_stuff()
       0x49, 0x03, 0x05, 0xff, 0xf0, 0x80,
       0x40, 0x03, 0x01, 0x05, 0x02, 0x01,
 
-      0x44, 0x14, 0x02,
-      0x44, 0x08, 0x04, 0x05,
-      // 0x4c, 0x08, 0x05, 0x05, 0x05, 0x05,
-        //0x19, 0x00, 0x08,
-
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-      0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+      0x44, 0x14, 0x02,          // array8 len=20 n=2
+      0x44, 0x08, 0x04, 0x05,    //   t = array8 len=8 n=4 t=uint16
+        0x00, 0x01, 0x02, 0x03,  // [0][0]
+        0x04, 0x05, 0x06, 0x07,  // [0][1]
+        0x08, 0x09, 0x0a, 0x0b,  // [1][0]
+        0x0c, 0x0d, 0x0e, 0x0f,  // [1][1]
 
       0x10,
     };
@@ -129,15 +128,16 @@ void try_loading_stuff()
 
 void try_bench()
 {
+  o9 o4;
   try
   {
-    for (uN upper = 1; upper <= (QUICK ? 16384 : 1048576 * 16); upper *= 16)
+    for (iN upper = 1; upper <= (QUICK ? 16384 : 1048576 * 16); upper *= 16)
     {
-      o9 o4;
       u9 v4 = u9t(upper);
-      for (uN i = 0; i < upper; ++i) v4 << u9(i);
+      for (i64 i = 0; i < upper; ++i) v4 << u9(i, tau::utf9::INT);
 
       {
+        o4.clear();
         let start = stopwatch::now();
         o4 << v4;
         let end = stopwatch::now();
@@ -162,9 +162,9 @@ void try_bench()
       }
 
       {
-        std::vector<i64> xs;
+        V<i64> xs;
         xs.reserve(upper);
-        for (i64 i = 0; i < upper; ++i) xs.push_back(i);
+        for (iN i = 0; i < upper; ++i) xs.push_back(i);
         let start = stopwatch::now();
         u64 t = 0; for (auto const &x : xs) t += x;
         let end   = stopwatch::now();
@@ -173,21 +173,21 @@ void try_bench()
 
       {
         let start = stopwatch::now();
-        u64 t = 0; for (auto const &x : v4) t += static_cast<i64>(x);
+        i64 t = 0; for (auto const &x : v4) t += static_cast<i64>(x);
         let end   = stopwatch::now();
         cout << "isum: " << t << ": " << end - start << endl;
       }
 
       {
         let start = stopwatch::now();
-        u64 t = 0; for (auto const &x : u9(i4, 0)) ++t;
+        i64 t = 0; for (auto const &x : u9(i4, 0)) ++t;
         let end   = stopwatch::now();
         cout << "decode: " << end - start << endl;
       }
 
       {
         let start = stopwatch::now();
-        u64 t = 0; for (auto const &x : u9(i4, 0)) t += static_cast<i64>(x);
+        i64 t = 0; for (auto const &x : u9(i4, 0)) t += static_cast<i64>(x);
         let end   = stopwatch::now();
         cout << "decode+sum: " << t << " == " << (upper * (upper - 1)) / 2 << ": " << end - start << endl;
       }
@@ -213,11 +213,15 @@ void try_orderings()
   try
   {
     auto v = u9t();
-    for (i64 i = 0; i < 100; ++i) v << u9(i);
+    for (i64 i = 0; i < 100; ++i) v << u9(i, tau::utf9::INT64);
 
     auto vh = v.make_th<u9::kf_te>();
+    if (!vh.is_th<u9::kf_te>())
+    { cout << "not hash-ordered after make_th" << endl;
+      _exit(1); }
+
     for (i64 i = -10; i < 110; ++i)
-      if (vh.th<u9::kf_te>(u9(i), u9n).exists() != (i >= 0 && i < 100))
+      if (vh.th<u9::kf_te>(u9(i, tau::utf9::INT64), u9n).exists() != (i >= 0 && i < 100))
       { cout << "hash find mismatch for " << i << endl;
         _exit(1); }
   }

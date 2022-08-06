@@ -90,7 +90,7 @@ struct tval
       return s; }
 
 
-  u8       typecode() const { return b().u8(i); }
+  u8       typecode() const { return b().U8(i); }
   val_type type()     const { return bts[typecode()]; }
   uN       vsize()    const { return b().tvlen(i); }
   uN       tsize()    const { return b().tlen(i); }
@@ -101,10 +101,10 @@ struct tval
       if (typecode() >= 0x48 && typecode() <= 0x4f) return typecode() - 0x48;
       switch (typecode())
       {
-      case 0x40: case 0x44: return b().u8(i + 2);
-      case 0x41: case 0x45: return b().u16(i + 3);
-      case 0x42: case 0x46: return b().u32(i + 5);
-      case 0x43: case 0x47: return b().u64(i + 9);
+      case 0x40: case 0x44: return b().U8(i + 2);
+      case 0x41: case 0x45: return b().U16(i + 3);
+      case 0x42: case 0x46: return b().U32(i + 5);
+      case 0x43: case 0x47: return b().U64(i + 9);
       default: return throw_internal_error<u64>("tval len()");
       } }
 
@@ -164,19 +164,19 @@ tbuf const tpidfd{PIDFD};
 tbuf tutf8(uN l)
 {
   return l < 16  ? tbuf{0x20 + cou8(l)}
-       : ou32(l) ? obuf(9).u8(0x1b).u64(l).convert_to_ibuf()
-       : ou16(l) ? obuf(5).u8(0x1a).u32(l).convert_to_ibuf()
-       : ou8(l)  ? obuf(3).u8(0x19).u16(l).convert_to_ibuf()
-       :           obuf(2).u8(0x18).u8(l).convert_to_ibuf();
+       : ou32(l) ? obuf(9).U8(0x1b).U64(l).convert_to_ibuf()
+       : ou16(l) ? obuf(5).U8(0x1a).U32(l).convert_to_ibuf()
+       : ou8(l)  ? obuf(3).U8(0x19).U16(l).convert_to_ibuf()
+       :           obuf(2).U8(0x18).U8(l).convert_to_ibuf();
 }
 
 tbuf tbytes(uN l)
 {
   return l < 16  ? tbuf{0x30 + cou8(l)}
-       : ou32(l) ? obuf(9).u8(0x1f).u64(l).convert_to_ibuf()
-       : ou16(l) ? obuf(5).u8(0x1e).u32(l).convert_to_ibuf()
-       : ou8(l)  ? obuf(3).u8(0x1d).u16(l).convert_to_ibuf()
-       :           obuf(2).u8(0x1c).u8(l).convert_to_ibuf();
+       : ou32(l) ? obuf(9).U8(0x1f).U64(l).convert_to_ibuf()
+       : ou16(l) ? obuf(5).U8(0x1e).U32(l).convert_to_ibuf()
+       : ou8(l)  ? obuf(3).U8(0x1d).U16(l).convert_to_ibuf()
+       :           obuf(2).U8(0x1c).U8(l).convert_to_ibuf();
 }
 
 template<class T = Il<tbuf>>
@@ -187,11 +187,11 @@ tbuf ttuple(T const &xs)
   for (let &x : xs) s += tval(x).vsize();
 
   obuf r(16);
-  if      (ou32(s) || ou32(n)) r.u8(0x43).u64(s).u64(n);
-  else if (ou16(s) || ou16(n)) r.u8(0x42).u32(s).u32(n);
-  else if (ou8(s)  || ou8(n))  r.u8(0x41).u16(s).u16(n);
-  else if (n < 8)              r.u8(0x48 + n).u8(s);
-  else                         r.u8(0x40).u8(s).u8(n);
+  if      (ou32(s) || ou32(n)) r.U8(0x43).U64(s).U64(n);
+  else if (ou16(s) || ou16(n)) r.U8(0x42).U32(s).U32(n);
+  else if (ou8(s)  || ou8(n))  r.U8(0x41).U16(s).U16(n);
+  else if (n < 8)              r.U8(0x48 + n).U8(s);
+  else                         r.U8(0x40).U8(s).U8(n);
 
   for (let &x : xs) r << x;
   return r.convert_to_ibuf();
@@ -200,10 +200,10 @@ tbuf ttuple(T const &xs)
 tbuf tarray(uN n, tbuf const &t)
 {
   let s = tval(t).vsize() * n;
-  return ou32(s) ? (obuf(16).u8(0x47).u64(s).u64(n) << t).convert_to_ibuf()
-       : ou16(s) ? (obuf(16).u8(0x46).u32(s).u32(n) << t).convert_to_ibuf()
-       : ou8(s)  ? (obuf(16).u8(0x45).u16(s).u16(n) << t).convert_to_ibuf()
-       :           (obuf(16).u8(0x44).u8(s) .u8(n)  << t).convert_to_ibuf();
+  return ou32(s) ? (obuf(16).U8(0x47).U64(s).U64(n) << t).convert_to_ibuf()
+       : ou16(s) ? (obuf(16).U8(0x46).U32(s).U32(n) << t).convert_to_ibuf()
+       : ou8(s)  ? (obuf(16).U8(0x45).U16(s).U16(n) << t).convert_to_ibuf()
+       :           (obuf(16).U8(0x44).U8(s) .U8(n)  << t).convert_to_ibuf();
 }
 
 

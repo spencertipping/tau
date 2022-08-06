@@ -34,35 +34,35 @@ let l17 = lf(17);
 
 
 // Value-length functions
-let str8_lf   = lf(2 + b.u8 (i + 1));
-let str16_lf  = lf(3 + b.u16(i + 1));
-let str32_lf  = lf(5 + b.u32(i + 1));
-let str64_lf  = lf(9 + b.u64(i + 1));
+let str8_lf   = lf(2 + b.U8 (i + 1));
+let str16_lf  = lf(3 + b.U16(i + 1));
+let str32_lf  = lf(5 + b.U32(i + 1));
+let str64_lf  = lf(9 + b.U64(i + 1));
 
-let list8_lf  = lf(3  + b.u8 (i + 1));
-let list16_lf = lf(5  + b.u16(i + 1));
-let list32_lf = lf(9  + b.u32(i + 1));
-let list64_lf = lf(17 + b.u64(i + 1));
+let list8_lf  = lf(3  + b.U8 (i + 1));
+let list16_lf = lf(5  + b.U16(i + 1));
+let list32_lf = lf(9  + b.U32(i + 1));
+let list64_lf = lf(17 + b.U64(i + 1));
 
-let u8_tvlf  = lf(b.u8 (i + 1));
-let u16_tvlf = lf(b.u16(i + 1));
-let u32_tvlf = lf(b.u32(i + 1));
-let u64_tvlf = lf(b.u64(i + 1));
+let u8_tvlf  = lf(b.U8 (i + 1));
+let u16_tvlf = lf(b.U16(i + 1));
+let u32_tvlf = lf(b.U32(i + 1));
+let u64_tvlf = lf(b.U64(i + 1));
 
-let fixutf8_lf   = lf(1 + (b.u8(i) - 0x20));
-let fixbytes_lf  = lf(1 + (b.u8(i) - 0x30));
-let fixtuple8_lf = lf(2 + b.u8(i + 1));
+let fixutf8_lf   = lf(1 + (b.U8(i) - 0x20));
+let fixbytes_lf  = lf(1 + (b.U8(i) - 0x30));
+let fixtuple8_lf = lf(2 + b.U8(i + 1));
 let fixint_lf    = l1;
 
-let pidx8_lf  = lf(b.u8(i + 1)  + 4  +     (b.u8 (i + 2) >> b.u8(i + 3)));
-let pidx16_lf = lf(b.u16(i + 1) + 6  + 2 * (b.u16(i + 3) >> b.u8(i + 5)));
-let pidx32_lf = lf(b.u32(i + 1) + 10 + 4 * (b.u32(i + 5) >> b.u8(i + 9)));
-let pidx64_lf = lf(b.u64(i + 1) + 18 + 8 * (b.u64(i + 9) >> b.u8(i + 17)));
+let pidx8_lf  = lf(b.U8(i + 1)  + 4  +     (b.U8 (i + 2) >> b.U8(i + 3)));
+let pidx16_lf = lf(b.U16(i + 1) + 6  + 2 * (b.U16(i + 3) >> b.U8(i + 5)));
+let pidx32_lf = lf(b.U32(i + 1) + 10 + 4 * (b.U32(i + 5) >> b.U8(i + 9)));
+let pidx64_lf = lf(b.U64(i + 1) + 18 + 8 * (b.U64(i + 9) >> b.U8(i + 17)));
 
-let idx8_lf  = lf(b.u8(i + 1)  + 3  +     (~0ull >> b.u8(i + 2)));
-let idx16_lf = lf(b.u16(i + 1) + 4  + 2 * (~0ull >> b.u8(i + 3)));
-let idx32_lf = lf(b.u32(i + 1) + 6  + 4 * (~0ull >> b.u8(i + 5)));
-let idx64_lf = lf(b.u64(i + 1) + 10 + 8 * (~0ull >> b.u8(i + 9)));
+let idx8_lf  = lf(b.U8(i + 1)  + 3  +     (~0ull >> b.U8(i + 2)));
+let idx16_lf = lf(b.U16(i + 1) + 4  + 2 * (~0ull >> b.U8(i + 3)));
+let idx32_lf = lf(b.U32(i + 1) + 6  + 4 * (~0ull >> b.U8(i + 5)));
+let idx64_lf = lf(b.U64(i + 1) + 10 + 8 * (~0ull >> b.U8(i + 9)));
 
 let hint_lf  = lf(1 + b.len(i + 1));
 
@@ -79,12 +79,12 @@ inline u64 tuple_tl(ibuf const &b, u64 i, u64 n)
   return l;
 }
 
-let fixtuple_tlf = lf(2 + tuple_tl(b, i + 2, b.u8(i) - 0x48));
+let fixtuple_tlf = lf(2 + tuple_tl(b, i + 2, b.U8(i) - 0x48));
 
 
 // Typecode value length functions
-let fixutf8_tvlf   = lf(b.u8(i) - 0x20);
-let fixbytes_tvlf  = lf(b.u8(i) - 0x30);
+let fixutf8_tvlf   = lf(b.U8(i) - 0x20);
+let fixbytes_tvlf  = lf(b.U8(i) - 0x30);
 let fixtuple8_tvlf = u8_tvlf;
 
 
@@ -216,10 +216,10 @@ lfn const tlfns[256] =
   l1, l1, l1, l1,
 
   // 0x40-0x4f
-  lf(3  + tuple_tl(b, i + 3,  b.u8 (i + 2))),
-  lf(5  + tuple_tl(b, i + 5,  b.u16(i + 3))),
-  lf(9  + tuple_tl(b, i + 9,  b.u32(i + 5))),
-  lf(17 + tuple_tl(b, i + 17, b.u64(i + 9))),
+  lf(3  + tuple_tl(b, i + 3,  b.U8 (i + 2))),
+  lf(5  + tuple_tl(b, i + 5,  b.U16(i + 3))),
+  lf(9  + tuple_tl(b, i + 9,  b.U32(i + 5))),
+  lf(17 + tuple_tl(b, i + 17, b.U64(i + 9))),
 
   lf(3  + b.tlen(i + 3)),
   lf(5  + b.tlen(i + 5)),
