@@ -3,6 +3,8 @@
 
 
 #include <iostream>
+#include <ios>
+
 
 #include "../types.hh"
 
@@ -20,9 +22,19 @@ namespace tau::utf9
 {
 
 
-std::ostream &operator<<(std::ostream &s, sym   const &y) { return s << 's' << Rc<void*>(y.h); }
-std::ostream &operator<<(std::ostream &s, hash  const &h) { return s << 'h' << Rc<void*>(h.h); }
+inline std::ostream &hexout(std::ostream &s, u64 x)
+{
+  let f = s.flags();
+  s << std::hex << std::nouppercase << x;
+  s.flags(f);
+  return s;
+}
+
+
+std::ostream &operator<<(std::ostream &s, sym   const &y) { return hexout(s << 's', y.h); }
+std::ostream &operator<<(std::ostream &s, hash  const &h) { return hexout(s << 'h', h.h); }
 std::ostream &operator<<(std::ostream &s, pidfd const &p) { return s << "[p=" << p.pid << ",fd=" << p.fd << "]"; }
+
 
 std::ostream &operator<<(std::ostream &s, val_type t)
 {
@@ -60,6 +72,7 @@ std::ostream &operator<<(std::ostream &s, val_type t)
   }
 }
 
+
 std::ostream &operator<<(std::ostream &s, tval const &t)
 {
   switch (t.type())
@@ -96,6 +109,7 @@ std::ostream &operator<<(std::ostream &s, tval const &t)
   default: return throw_badbyte_error<std::ostream&>("ns typecode", t.type());
   }
 }
+
 
 std::ostream &operator<<(std::ostream &s, val const &v)
 {
@@ -152,9 +166,10 @@ std::ostream &operator<<(std::ostream &s, val const &v)
 
   case NONE:  return s << "none";
   case BOGUS: return s << "bogus(" << v.tag << ", " << v.i << ")";
-  default:    return s << "???";
+  default:    return s << "??? t=" << v.type();
   }
 }
+
 
 std::ostream &operator<<(std::ostream &s, obuf const &o)
 {

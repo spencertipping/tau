@@ -213,7 +213,7 @@ void try_orderings()
   try
   {
     auto v = u9t();
-    for (i64 i = 0; i < 100; ++i) v << u9(i, tau::utf9::INT64);
+    for (i64 i = 0; i < 100; ++i) v << u9(i, tau::utf9::INT);
 
     auto vh = v.make_th<u9::kf_te>();
     if (!vh.is_th<u9::kf_te>())
@@ -221,7 +221,7 @@ void try_orderings()
       _exit(1); }
 
     for (i64 i = -10; i < 110; ++i)
-      if (vh.th<u9::kf_te>(u9(i, tau::utf9::INT64), u9n).exists() != (i >= 0 && i < 100))
+      if (vh.th<u9::kf_te>(u9(i, tau::utf9::INT), u9n).exists() != (i >= 0 && i < 100))
       { cout << "hash find mismatch for " << i << endl;
         _exit(1); }
   }

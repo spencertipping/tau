@@ -19,8 +19,8 @@ namespace tau::utf9
 struct sym
 {
   u64 h;
-  sym(std::string const &s) : h(std::hash<std::string>{}(s)) {}
-  sym(u64 h_)               : h(h_)                          {}
+  sym(std::string const &s) : h(H<std::string>{}(s)) {}
+  sym(u64 h_)               : h(h_)                  {}
   operator u64() const { return h; }
 };
 

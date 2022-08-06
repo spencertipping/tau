@@ -31,11 +31,12 @@ struct val
   typedef uN tag_t;
 
 
-  // ibuf const * will be 8-byte aligned, so tags with the low bit set are
-  // type designators; see tagify() and tag_type().
+  // ibuf const * will be at least 4-byte aligned, so tags with the low bit set
+  // are type designators; see tagify() and tag_type().
   union
   { ibuf const * b;
-    tag_t        tag; } const;
+    tag_t        tag;
+    u64          _this_field_forces_val_size_to_16_bytes; } const;
 
   union
   { uN        i;
@@ -60,7 +61,7 @@ struct val
   static u8    const constexpr tagshift  = 2;
   static_assert(tagmask >> tagshift == 0);
 
-  static constexpr inline tag_t    tagify  (val_type t, bool own = false) { return Sc<u64>(t) << tagshift | (own ? owned_bit : 0) | immed_bit; }
+  static constexpr inline tag_t    tagify  (val_type t, bool own = false) { return Sc<tag_t>(t) << tagshift | (own ? owned_bit : 0) | immed_bit; }
   static constexpr inline val_type tag_type(tag_t tag)                    { return Sc<val_type>(tag >> tagshift); }
 
 
@@ -79,26 +80,22 @@ struct val
   explicit val(u64 vu_, val_type t_ = UINT) : tag(tagify(t_)), vu(vu_) {}
   explicit val(i64 vi_, val_type t_ = INT)  : tag(tagify(t_)), vi(vi_) {}
 
-  explicit val(f64 vd_) : tag(tagify(FLOAT64)), vd(vd_) {}
-  explicit val(f32 vf_) : tag(tagify(FLOAT32)), vf(vf_) {}
-  val(sym vy_)          : tag(tagify(SYMBOL)),  vy(vy_) {}
-  val(pidfd vp_)        : tag(tagify(PIDFD)),   vp(vp_) {}
-  val(greek vg_)        : tag(tagify(GREEK)),   vg(vg_) {}
-  explicit val(bool b_) : tag(tagify(BOOL)),    vu(b_)  {}
+  explicit val(f64 vd_)   : tag(tagify(FLOAT64)), vd(vd_) {}
+  explicit val(f32 vf_)   : tag(tagify(FLOAT32)), vf(vf_) {}
+  explicit val(sym vy_)   : tag(tagify(SYMBOL)),  vy(vy_) {}
+  explicit val(pidfd vp_) : tag(tagify(PIDFD)),   vp(vp_) {}
+  explicit val(greek vg_) : tag(tagify(GREEK)),   vg(vg_) {}
+  explicit val(bool b_)   : tag(tagify(BOOL)),    vu(b_)  {}
 
-  val(V<val> *vt_, val_type t_ = TUPLE)
-    : tag(tagify(t_, true)),
-      vt(vt_)
+  val(V<val> *vt_, val_type t_ = TUPLE) : tag(tagify(t_, true)), vt(vt_)
     { require_type(multi_types); }
 
-  val(Il<val> vs, val_type t_ = TUPLE)
-    : tag(tagify(t_, true)),
-      vt(new V<val>(vs.begin(), vs.end()))
+  val(Il<val> vs, val_type t_ = TUPLE) : tag(tagify(t_, true)),
+                                         vt(new V<val>(vs.begin(), vs.end()))
     { require_type(multi_types); }
 
-  val(std::string const &s, val_type t_ = UTF8)
-    : tag(tagify(t_, true)),
-      vb(Rc<Bv*>(new std::string_view(s.begin(), s.end())))
+  val(std::string const &s, val_type t_ = UTF8) : tag(tagify(t_, true)),
+                                                  vb(Rc<Bv*>(new std::string_view(s.begin(), s.end())))
     { require_type(1ull << BYTES | 1ull << UTF8); }
 
 
@@ -238,7 +235,7 @@ struct val
 
     bool operator==(it const &x) const { return i == x.i; }
 
-    ibuf const &b() const { return *Rc<ibuf const *>(Rc<u64>(buf) & ~3ull); }
+    ibuf const &b() const { return *Rc<ibuf const *>(Rc<uN>(buf) & ~3ull); }
 
     val operator*() const
       { switch (tag & 3)
@@ -263,11 +260,11 @@ struct val
 
   it begin() const
     { require_type(multi_types);
-      return has_ibuf() ? type() == ARRAY ? it(b, atype(), ibegin()) : it(b, ibegin()) : it(vt->begin()); }
+      return !has_ibuf() ? it(vt->begin()) : type() == ARRAY ? it(b, atype(), ibegin()) : it(b, ibegin()); }
 
   it end() const
     { require_type(multi_types);
-      return has_ibuf() ? type() == ARRAY ? it(b, atype(), iend()) : it(b, iend()) : it(vt->end()); }
+      return !has_ibuf() ? it(vt->end())   : type() == ARRAY ? it(b, atype(), iend())   : it(b, iend()); }
 
 
   uN len() const
@@ -406,11 +403,11 @@ struct val
       switch (t)
       {
 
-#define ht(ct) { let x = ce(Sc<u64>(Sc<ct>(*this))); return xxh(&x, sizeof x, t); }
-      case UINT: case UINT64: case UINT32: case UINT16: case UINT8: ht(u64)
-      case INT:  case INT64:  case INT32:  case INT16:  case INT8:  ht(i64)
-      case SYMBOL:  ht(sym)
-      case PIDFD:   ht(pidfd)
+#define ht(ct, t_) { let x = ce(Sc<u64>(Sc<ct>(*this))); return xxh(&x, sizeof x, t_); }
+      case UINT: case UINT64: case UINT32: case UINT16: case UINT8: ht(u64, UINT)
+      case INT:  case INT64:  case INT32:  case INT16:  case INT8:  ht(i64, INT)
+      case SYMBOL: ht(sym,   SYMBOL)
+      case PIDFD:  ht(pidfd, PIDFD)
 #undef ht
 
       case FLOAT64: { let x = ce(Sc<f64>(*this)); return xxh(&x, sizeof x, t); }
