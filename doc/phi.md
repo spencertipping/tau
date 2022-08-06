@@ -21,7 +21,7 @@ struct Φ::inner
   Φ::inner &λx(u9);              // kill λ
   ΣΘΔ       λΘ(u9) const;
 
-  Φ::inner &ψc(u9);              // create port (send ω to close)
+  Φ::inner &ψc(u9);              // define port (send ω to close)
   bool      ψe(u9) const;        // does ψ exist
   u9        ψr(u9);              // read item
   bool      ψri(u9) const;       // is readable right now

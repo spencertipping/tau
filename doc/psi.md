@@ -11,4 +11,4 @@ Back-traffic is often used to send control messages; e.g. κ = "writes are block
 
 
 ## Ψ/Φ
-Φ boundaries interact with Ψ by receiving the read-end of one ζ and the write-end of the other ζ for a given ψ. (The other sides connect to a different Φ.)
+Φ boundaries interact with Ψ by receiving the read-end of one ζ and the write-end of the other ζ for a given ψ. (The other sides connect to a single different Φ.)

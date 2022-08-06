@@ -322,6 +322,8 @@ struct utf9_disk_frame
 {
   utf9_disk_frame_header header;
   uint8_t                frame  [header.length];
+
+  // FIXME: wrong bit-twiddly thing below I think
   uint8_t const          padding[header.length + 15 & ~15] = {0};
 };
 ```
