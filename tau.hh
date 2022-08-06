@@ -6,7 +6,7 @@
 #include "tau/utf9.hh"
 #include "tau/flux.hh"
 
-#include "tau/util/log-histogram.hh"
+#include "tau/util/pi.hh"
 #include "tau/util/shd.hh"
 
 

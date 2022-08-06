@@ -1,16 +1,17 @@
-#ifndef tau_util_stopwatch_h
-#define tau_util_stopwatch_h
+#ifndef tau_util_shd_h
+#define tau_util_shd_h
 
 
 #include <cassert>
 #include <chrono>
 #include <iostream>
 #include <numeric>
+#include <type_traits>
 
 
 #include "../types.hh"
 
-#include "log-histogram.hh"
+#include "pi.hh"
 
 
 #include "../module/begin.hh"
@@ -21,67 +22,44 @@ namespace tau::util
 using namespace std::literals;
 
 
-typedef std::chrono::nanoseconds ΔΘ;
+typedef std::chrono::steady_clock       Θc;
+typedef std::chrono::nanoseconds        ΔΘ;
+typedef std::chrono::time_point<Θc, ΔΘ> Θp;
+
+ΔΘ const constexpr Θq = 1ns;
 
 
-template<class clk = std::chrono::steady_clock>
-struct ΣΘΔ_
+inline           Θp now()     { return Θc::now(); }
+inline constexpr Θp never()   { return Θp{0ns}; }
+inline constexpr Θp forever() { return Θp{Nl<typename Θp::duration::rep>::max() * Θq}; }
+
+
+// Definition of time quantum
+static_assert(Θq.count() == 1);
+static_assert(std::is_integral<ΔΘ::rep>::value);
+
+
+struct ΣΘΔ
 {
-  typedef std::chrono::time_point<clk, ΔΘ> Θp;
-  typedef log_histogram<u64, u64, 64>      lh;
-
   bool Θr {false};
   Θp   Θl {0ns};
   ΔΘ   ΣΔ {0};
   u64  n  {0};
-  lh   h;
+  πι   h;
 
+  ΔΘ   p         (f64 p)  const { return Θq * (1ull << h.icdf(p) + 1); }
+  ΔΘ   Σ         ()       const { return ΣΔ + (Θr ? now() - Θl : 0ns); }
+  ΔΘ   σ         ()       const { if (!n) return 0ns; return ΣΔ / n; }
 
-  ΔΘ p(f64 p) const { return 1ns * (1ull << h.icdf(p) + 1); }
-  ΔΘ Σ()      const { return ΣΔ + (Θr ? now() - Θl : 0ns); }
-
-  ΣΘΔ_ &operator<<(ΔΘ s)
-    { ΣΔ += s;
-      h << s.count();
-      ++n;
-      return *this; }
-
-  ΔΘ σ() const
-    { if (!n) return 0ns;
-      return ΣΔ / n; }
-
-  ΣΘΔ_ &start()
-    { assert(!Θr);
-      Θl = now();
-      Θr = true;
-      return *this; }
-
-  ΔΘ stop()
-    { assert(Θr);
-      let s = now() - Θl;
-      Θr = false;
-      *this << s;
-      return s; }
-
-
-  ΣΘΔ_ &operator+=(ΣΘΔ_ const &s)
-    { assert(!s.Θr);
-      ΣΔ += s.ΣΔ;
-      n      += s.n;
-      h        += s.h;
-      return *this; }
-
-
-  static           Θp now()     { return clk::now(); }
-  static constexpr Θp never()   { return Θp{0ns}; }
-  static constexpr Θp forever() { return Θp{Nl<typename Θp::duration::rep>::max() * 1ns}; }
+  ΣΘΔ &start     ()             { assert(!Θr); Θl = now(); Θr = true; return *this; }
+  ΔΘ   stop      ()             { let s = cancel(); *this << s; return s; }
+  ΔΘ   cancel    ()             { assert(Θr); Θr = false; return now() - Θl; }
+  ΣΘΔ &operator+=(ΣΘΔ const &s) { assert(!s.Θr); ΣΔ += s.ΣΔ; n += s.n; h += s.h; return *this; }
+  ΣΘΔ &operator<<(ΔΘ s)         { ΣΔ += s; h << s.count(); ++n; return *this; }
 };
 
 
-typedef ΣΘΔ_<> ΣΘΔ;
-
-
-std::ostream &operator<<(std::ostream &s, ΔΘ const &t)
+O &operator<<(O &s, ΔΘ const &t)
 {
   if      (t <= 100us) return s << t.count() << "ns";
   else if (t <= 100ms) return s << t / 1us   << "μs";
@@ -93,10 +71,9 @@ std::ostream &operator<<(std::ostream &s, ΔΘ const &t)
 }
 
 
-template<class T>
-std::ostream &operator<<(std::ostream &s, ΣΘΔ_<T> const &w)
+O &operator<<(O &s, ΣΘΔ const &w)
 {
-  return s << "sw[" << (w.Θr ? "R" : "s")
+  return s << "ΣΘΔ[" << (w.Θr ? "R" : "s")
            << " n=" << w.n
            << " Σ=" << w.Σ()
            << " p50=" << w.p(0.5)

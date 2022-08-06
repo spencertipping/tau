@@ -20,6 +20,7 @@ namespace t::util_basics
 
 using namespace std;
 using namespace std::literals;
+using namespace tau;
 using namespace tau::util;
 using tau::operator<<;
 
@@ -59,9 +60,9 @@ void bench_stopwatch()
     ΔΘ z;
     ΣΘΔ u;
     u.start();
-    for (unsigned i = 0; i < 1000000; ++i)
+    for (uN i = 0; i < 1000000; ++i)
     {
-      let x = (double) i / 1000000.0;
+      let x = Sf(i) / 1000000.0;
       z += s.p(x);
     }
     u.stop();

@@ -1,5 +1,5 @@
-#ifndef tau_flux_pipe_h
-#define tau_flux_pipe_h
+#ifndef tau_flux_zeta_h
+#define tau_flux_zeta_h
 
 
 #include <cassert>
@@ -28,13 +28,13 @@ namespace tau::flux
 template<class T>
 struct ζ
 {
-  typedef std::pair<ΣΘΔ::Θp, T> qe;
+  typedef std::pair<Θp, T> qe;
 
-  ΣΘΔ            rΘ;
-  ΣΘΔ            wΘ;
-  ΣΘΔ            lΘ;
-  uN             c;
-  std::deque<qe> xs;
+  ΣΘΔ   rΘ;
+  ΣΘΔ   wΘ;
+  ΣΘΔ   lΘ;
+  uN    c;
+  D<qe> xs;
 
   ζ() {}
   ζ(uN c_) : c(c_) { assert(c); }
@@ -44,53 +44,50 @@ struct ζ
     { rΘ = p.rΘ;
       wΘ = p.wΘ;
       lΘ = p.lΘ;
-      c    = p.c;
-      xs          = std::move(p.xs);
+      c  = p.c;
+      xs = std::move(p.xs);
       return *this; }
 
 
-  bool ri() const { return xs.size() > 0; }
-  bool wi() const { return xs.size() < c; }
+  bool ri()    const { return xs.size() > 0; }
+  bool wi()    const { return xs.size() < c; }
+  u64  rΣ()    const { return lΘ.n; }
+  u64  wΣ()    const { return rΣ() + xs.size(); }
 
   void close()       { c = 0; }
   bool ci()    const { return !c; }
   uN   size()  const { return xs.size(); }
 
-  u64  rΣ()    const { return lΘ.n; }
-  u64  wΣ() const { return rΣ() + xs.size(); }
-
 
   ΔΘ δ() const
     { if (lΘ.n + xs.size() == 0) return 0ns;
       auto t = 0ns;
-      let  n = ΣΘΔ::now();
+      let  n = now();
       for (let &x : xs) t += n - std::get<0>(x);
       return (t + lΘ.Σ()) / (lΘ.n + xs.size()); }
 
   f64 σ() const
-    { return log2(Sc<f64>(wΘ.σ().count()))
-           - log2(Sc<f64>(rΘ.σ().count())); }
+    { return log2(Sf(wΘ.σ().count()))
+           - log2(Sf(rΘ.σ().count())); }
 
 
   bool write(T const &x)
-    { let n = ΣΘΔ::now();
+    { let n = now();
       if (!wi()) return false;
       xs.push_back(qe(n, x));
       return true; }
 
-
-  bool has_next() { return ri(); }
-  T next()
+  T read()
     { assert(ri());
       let x = std::get<1>(xs.front());
-      lΘ << ΣΘΔ::now() - std::get<0>(xs.front());
+      lΘ << now() - std::get<0>(xs.front());
       xs.pop_front();
       return x; }
 };
 
 
 template<class T>
-std::ostream &operator<<(std::ostream &s, ζ<T> const &z)
+O &operator<<(O &s, ζ<T> const &z)
 {
   return s << "ζ["
            << (z.ri() ? "R" : "r")

@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <limits>
 #include <queue>
 #include <string>
@@ -49,6 +50,10 @@ typedef f64 const f64c;
 typedef f32 const f32c;
 
 
+typedef std::ostream O;
+
+
+template<class T>          using D  = std::deque<T>;
 template<class T>          using F  = std::function<T>;
 template<class T>          using Il = std::initializer_list<T>;
 template<class T>          using H  = std::hash<T>;
@@ -75,6 +80,11 @@ typedef iN const iNc;
 template<class T, class U> inline constexpr T Rc(U x) { return reinterpret_cast<T>(x); }
 template<class T, class U> inline constexpr T Sc(U x) { return      static_cast<T>(x); }
 template<class T, class U> inline constexpr T Cc(U x) { return       const_cast<T>(x); }
+
+
+template<class T> inline constexpr u64 Su(T x) { return Sc<u64>(x); }
+template<class T> inline constexpr i64 Si(T x) { return Sc<i64>(x); }
+template<class T> inline constexpr f64 Sf(T x) { return Sc<f64>(x); }
 
 
 #if TAU_ERASE_CSTDINT_TYPES

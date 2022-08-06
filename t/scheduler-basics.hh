@@ -72,7 +72,7 @@ int main()
 
 
   cout << "starting the scheduler loop" << endl;
-  c.run_until(util::ΣΘΔ::now() + 20s);
+  c.run_until(util::now() + 20s);
 
   cout << c << endl;
 

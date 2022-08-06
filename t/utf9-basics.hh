@@ -23,7 +23,7 @@ namespace t::utf9_basics
 using namespace std;
 using namespace tau;
 using namespace tau::util::numerics;
-using tau::util::ΣΘΔ;
+using namespace tau::util;
 using tau::operator<<;
 
 
@@ -142,9 +142,9 @@ void try_bench()
 
       {
         o4.clear();
-        let start = ΣΘΔ::now();
+        let start = now();
         o4 << v4;
-        let end = ΣΘΔ::now();
+        let end = now();
         cout << upper << " write output: " << end - start << endl;
       }
 
@@ -159,9 +159,9 @@ void try_bench()
       cout << u9(i4, 0).bsize() << " == " << i4.l << endl;
 
       {
-        let start = ΣΘΔ::now();
+        let start = now();
         let c     = u9(i4, 0).compare(v4);
-        let end   = ΣΘΔ::now();
+        let end   = now();
         cout << upper << ": " << c << ": " << end - start << endl;
       }
 
@@ -169,37 +169,37 @@ void try_bench()
         V<i64> xs;
         xs.reserve(upper);
         for (iN i = 0; i < upper; ++i) xs.push_back(i);
-        let start = ΣΘΔ::now();
+        let start = now();
         u64 t = 0; for (auto const &x : xs) t += x;
-        let end   = ΣΘΔ::now();
+        let end   = now();
         cout << "csum: " << t << ": " << end - start << endl;
       }
 
       {
-        let start = ΣΘΔ::now();
+        let start = now();
         i64 t = 0; for (auto const &x : v4) t += static_cast<i64>(x);
-        let end   = ΣΘΔ::now();
+        let end   = now();
         cout << "isum: " << t << ": " << end - start << endl;
       }
 
       {
-        let start = ΣΘΔ::now();
+        let start = now();
         i64 t = 0; for (auto const &x : u9(i4, 0)) ++t;
-        let end   = ΣΘΔ::now();
+        let end   = now();
         cout << "decode: " << end - start << endl;
       }
 
       {
-        let start = ΣΘΔ::now();
+        let start = now();
         i64 t = 0; for (auto const &x : u9(i4, 0)) t += static_cast<i64>(x);
-        let end   = ΣΘΔ::now();
+        let end   = now();
         cout << "decode+sum: " << t << " == " << (upper * (upper - 1)) / 2 << ": " << end - start << endl;
       }
 
       {
-        let start = ΣΘΔ::now();
+        let start = now();
         let h     = u9(i4, 0).h();
-        let end   = ΣΘΔ::now();
+        let end   = now();
         cout << "hash " << upper << ": " << h << ": " << end - start << endl;
       }
     }

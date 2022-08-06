@@ -31,14 +31,14 @@ using namespace std::literals;
 namespace tc = tau::flux::coro;
 
 
-void thread_sleep_until(ΣΘΔ::Θp t) { std::this_thread::sleep_until(t); }
+void thread_sleep_until(Θp t) { std::this_thread::sleep_until(t); }
 
 
 // TODO: convert this to a task manager that is consumed by Ψ, not the user
 // TODO: remove pipe management from this
 struct Λ
 {
-  typedef void(*sleep_until_fn)(ΣΘΔ::Θp);
+  typedef void(*sleep_until_fn)(Θp);
 
 
   // TODO: split this class into several sub-pieces:
@@ -67,7 +67,7 @@ struct Λ
   ψi next_pipe_id;
   Ψi next_boundary_id;
 
-  ΣΘΔ::Θp const ctime;
+  Θp const ctime;
 
 
   Λ() : ds          {*this},
@@ -75,10 +75,10 @@ struct Λ
         current_task{0},
         next_task_id{1},
         next_pipe_id{1},
-        ctime       (ΣΘΔ::now()) {}
+        ctime       (now()) {}
 
 
-  ΔΘ uptime() const { return ΣΘΔ::now() - ctime; }
+  ΔΘ uptime() const { return now() - ctime; }
 
   ψi create_pipe(uN capacity = 64)
     { let k = next_pipe_id++;
@@ -113,24 +113,24 @@ struct Λ
   bool write   (ψi, ψv const &);
 
 
-  uN            runnable_tasks() const { return run_queue.size(); }
-  λi            next_runnable()  const { return run_queue.size() ? run_queue.front() : 0; }
-  ΣΘΔ::Θp next_deadline()  const { return sleep_queue.size()
+  uN runnable_tasks() const { return run_queue.size(); }
+  λi next_runnable()  const { return run_queue.size() ? run_queue.front() : 0; }
+  Θp next_deadline()  const { return sleep_queue.size()
       ? tasks.at(sleep_queue.top()).deadline
-      : ΣΘΔ::never(); }
+      : never(); }
 
-  ΣΘΔ::Θp run_until_deadline()
+  Θp run_until_deadline()
     { for (λi i; i = next_runnable();)
       { run_queue.pop();
         run(i);
         advance_time(); }
       return next_deadline(); }
 
-  void run_until(ΣΘΔ::Θp  limit = ΣΘΔ::forever(),
+  void run_until(Θp             limit = forever(),
                  sleep_until_fn sfn   = &thread_sleep_until)
-    { while (ΣΘΔ::now() < limit && runnable_tasks())
+    { while (now() < limit && runnable_tasks())
       { let d = run_until_deadline();
-        if (d != ΣΘΔ::never()) (*sfn)(d);
+        if (d != never()) (*sfn)(d);
         advance_time(); } }
 
   void run(λi i)
@@ -143,7 +143,7 @@ struct Λ
       if (t.coro.done()) { t.state = DONE; done_tasks.insert(i); }
       current_task = 0; }
 
-  void advance_time(ΣΘΔ::Θp n = ΣΘΔ::now())
+  void advance_time(Θp n = now())
     { while (sleep_queue.size() && tasks.at(sleep_queue.top()).deadline <= n)
       { let t = sleep_queue.top();
         sleep_queue.pop();
@@ -156,7 +156,7 @@ struct Λ
 
   void sleep(ΔΘ s)
     { auto &t = tasks.at(current_task);
-      t.deadline = ΣΘΔ::now() + s;
+      t.deadline = now() + s;
       t.state    = SLEEPING;
       sleep_queue.push(current_task);
       tc::yield(); }
@@ -206,7 +206,7 @@ bool Λ::has_next(ψi i)
     }
   p.rΘ.stop();
 
-  return p.has_next();
+  return p.ri();
 }
 
 
@@ -214,7 +214,7 @@ bool Λ::has_next(ψi i)
 {
   auto &p = pipes.at(i);
   assert(p.ri());
-  return p.next();
+  return p.read();
 }
 
 
@@ -253,9 +253,9 @@ void Λ::write_wake(ψi i)
 }
 
 
-std::ostream &operator<<(std::ostream &s, Λ const &x)
+O &operator<<(O &s, Λ const &x)
 {
-  s << "flux::core[" << x.uptime() << "]" << std::endl;
+  s << "Λ[" << x.uptime() << "]" << std::endl;
   for (let &t : x.tasks) s << "  " << t.first << " " << t.second << std::endl;
   for (let &[k, v] : x.pipes)
   {

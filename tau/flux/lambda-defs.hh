@@ -31,11 +31,11 @@ enum λs : u8
 // TODO: oblierate this; we'll split it across multiple facet-managers
 struct λ
 {
-  ΣΘΔ     monitor;
-  λc      coro;
-  ΣΘΔ::Θp deadline;
-  λs      state;
-  ψi      blocker;
+  ΣΘΔ monitor;
+  λc  coro;
+  Θp  deadline;
+  λs  state;
+  ψi  blocker;
 
   λ() {}
   λ(λf const &f) : coro(λc(f)), state{RUNNABLE} {}
@@ -54,7 +54,7 @@ struct λ
 };
 
 
-std::ostream &operator<<(std::ostream &s, λs const &t)
+O &operator<<(O &s, λs const &t)
 {
   switch (t)
   {
@@ -63,15 +63,15 @@ std::ostream &operator<<(std::ostream &s, λs const &t)
   case READ_BLOCKED:  return s << "I";
   case WRITE_BLOCKED: return s << "O";
   case DONE:          return s << "Z";
-  default:            return s << "BOGUS " << Sc<u8>(t);
+  default:            return s << "BOGUS " << Su(t);
   }
 }
 
 
-std::ostream &operator<<(std::ostream &s, λ const &t)
+O &operator<<(O &s, λ const &t)
 {
   s << "λ[" << t.state;
-  if (t.state == SLEEPING) s << " d=t+" << (t.deadline - ΣΘΔ::now());
+  if      (t.state == SLEEPING)                                 s << " d=t+" << (t.deadline - now());
   else if (t.state == READ_BLOCKED || t.state == WRITE_BLOCKED) s << t.blocker;
   return s << " " << t.monitor << "]";
 }
