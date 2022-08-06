@@ -4,7 +4,6 @@
 
 #include <cassert>
 #include <chrono>
-#include <iostream>
 #include <numeric>
 #include <type_traits>
 
@@ -49,7 +48,7 @@ struct ΣΘΔ
 
   ΔΘ   p         (f64 p)  const { return Θq * (1ull << h.icdf(p) + 1); }
   ΔΘ   Σ         ()       const { return ΣΔ + (Θr ? now() - Θl : 0ns); }
-  ΔΘ   σ         ()       const { if (!n) return 0ns; return ΣΔ / n; }
+  ΔΘ   μ         ()       const { if (!n) return 0ns; return ΣΔ / n; }
 
   ΣΘΔ &start     ()             { assert(!Θr); Θl = now(); Θr = true; return *this; }
   ΔΘ   stop      ()             { let s = cancel(); *this << s; return s; }
@@ -59,6 +58,7 @@ struct ΣΘΔ
 };
 
 
+#if tau_debug_iostream
 O &operator<<(O &s, ΔΘ const &t)
 {
   if      (t <= 100us) return s << t.count() << "ns";
@@ -80,6 +80,7 @@ O &operator<<(O &s, ΣΘΔ const &w)
            << " p90=" << w.p(0.9)
            << " p99=" << w.p(0.99) << "]";
 }
+#endif
 
 
 }

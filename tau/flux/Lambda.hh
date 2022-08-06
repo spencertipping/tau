@@ -88,21 +88,7 @@ struct Λ             // manager of λs
 };
 
 
-O &operator<<(O &s, λs const &t)
-{
-  switch (t)
-  {
-  case λR: return s << "R";
-  case λS: return s << "S";
-  case λI: return s << "I";
-  case λO: return s << "O";
-  case λΘ: return s << "Θ";
-  case λZ: return s << "Z";
-  default: return s << "BOGUS " << Su(t);
-  }
-}
-
-
+#if tau_debug_iostream
 O &operator<<(O &s, Λ::Λλ const &l)
 {
   s << "λ" << l.s;
@@ -117,6 +103,7 @@ O &operator<<(O &s, Λ const &l)
   for (let &[k, v] : l.ls) s << "  " << k << "\t" << v << std::endl;
   return s;
 }
+#endif
 
 
 }

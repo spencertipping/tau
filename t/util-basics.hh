@@ -55,7 +55,7 @@ void bench_stopwatch()
     t.stop();
 
     cout << "all stopwatch observations: " << s << endl;
-    cout << "each stopwatch observation: " << t.Σ() / 1000000 << endl;
+    cout << "each stopwatch observation: " << t.μ() << endl;
 
     ΔΘ z;
     ΣΘΔ u;

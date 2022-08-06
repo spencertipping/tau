@@ -15,7 +15,9 @@
 namespace tau
 {
 
+#if tau_debug_iostream
 using tau::util::operator<<;
+#endif
 
 }
 

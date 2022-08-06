@@ -4,7 +4,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <iostream>
 #include <utility>
 
 
@@ -63,8 +62,8 @@ struct ζ
 
   // Signed IO variability (data pressure)
   f64 σ() const
-    { return log2(Sf(wΘ.σ().count()))
-           - log2(Sf(rΘ.σ().count())); }
+    { return log2(Sf(wΘ.μ().count()))
+           - log2(Sf(rΘ.μ().count())); }
 
 
   bool w(T const &x)
@@ -82,6 +81,7 @@ struct ζ
 };
 
 
+#if tau_debug_iostream
 template<class T>
 O &operator<<(O &s, ζ<T> const &z)
 {
@@ -95,6 +95,7 @@ O &operator<<(O &s, ζ<T> const &z)
            << " δ="  << z.δ()
            << " σ="  << z.σ() << "]";
 }
+#endif
 
 
 }

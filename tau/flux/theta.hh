@@ -48,6 +48,24 @@ struct Θ
 };
 
 
+#if tau_debug_iostream
+O &operator<<(O &s, Θ::Θλ const &l)
+{
+  s << "Θλ[";
+  if (l.d != never()) s << " d=t+" << l.d - now();
+  return s << l.m << " y=" << l.y << "]";
+}
+
+O &operator<<(O &s, Θ const &h)
+{
+  s << "Θ" << std::endl;
+  for (let &[k, v] : h.ls)
+    s << "  " << k << ": " << v << std::endl;
+  return s;
+}
+#endif
+
+
 }
 
 #include "../module/end.hh"

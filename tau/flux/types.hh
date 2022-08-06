@@ -6,8 +6,6 @@
 
 
 #include "../types.hh"
-#include "../utf9.hh"
-#include "../util/pi.hh"
 #include "../util/shd.hh"
 
 
@@ -20,7 +18,9 @@ namespace tau::flux
 using namespace std::literals;
 using namespace tau::util;
 
+#if tau_debug_iostream
 using tau::util::operator<<;
+#endif
 
 
 typedef uN      λi;  // λ identifier
@@ -38,6 +38,23 @@ enum λs  // lambda runnability state
   λΘ,    // waiting for a time
   λZ,    // done (zombie)
 };
+
+
+#if tau_debug_iostream
+O &operator<<(O &s, λs const &t)
+{
+  switch (t)
+  {
+  case λR: return s << "R";
+  case λS: return s << "S";
+  case λI: return s << "I";
+  case λO: return s << "O";
+  case λΘ: return s << "Θ";
+  case λZ: return s << "Z";
+  default: return s << "BOGUS " << Su(t);
+  }
+}
+#endif
 
 
 }

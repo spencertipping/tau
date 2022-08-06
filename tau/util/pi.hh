@@ -2,10 +2,6 @@
 #define tau_util_pi_h
 
 
-#include <cstddef>
-#include <iostream>
-
-
 #include "../types.hh"
 #include "../util/numerics.hh"
 
@@ -47,6 +43,7 @@ struct πι_
 typedef πι_<> πι;
 
 
+#if tau_debug_iostream
 template<class F, class X, uN N>
 O &operator<<(O &s, πι_<F, X, N> const &h)
 {
@@ -62,6 +59,7 @@ O &operator<<(O &s, πι_<F, X, N> const &h)
 
   return s;
 }
+#endif
 
 
 }

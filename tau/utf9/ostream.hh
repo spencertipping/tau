@@ -22,6 +22,13 @@ namespace tau::utf9
 {
 
 
+std::ostream &operator<<(std::ostream &s, obuf const &o)
+{
+  return s.write(Rc<char*>(o.b), o.i);
+}
+
+
+#if tau_debug_iostream
 inline std::ostream &hexout(std::ostream &s, u64 x)
 {
   let f = s.flags();
@@ -171,12 +178,6 @@ std::ostream &operator<<(std::ostream &s, val const &v)
 }
 
 
-std::ostream &operator<<(std::ostream &s, obuf const &o)
-{
-  return s.write(Rc<char*>(o.b), o.i);
-}
-
-
 std::ostream &decoding_error::operator>>(std::ostream &s) const
 {
   s << "decoding_error " << m << std::endl;
@@ -205,6 +206,7 @@ std::ostream &encoding_error::operator>>(std::ostream &s) const
 {
   return s << "encoding_error(" << m << ": " << t << " " << v << ")";
 }
+#endif
 
 
 }
