@@ -33,7 +33,7 @@ struct Ψ
   φi           ci{0};
   ψi           qi{0};
 
-  Ψ(Λ &l_, uN c__ = 64) : l(l_), c_(c__) {}
+  Ψ(Λ &l_, uN ζc = 64) : l(l_), c_(ζc) {}
 
   ψi     ψc()      { qs[ιi(qi, qs)] = 0;        return qi; }
   ζ<ζv> &ψrζ(ψi i) { auto &c = cs.at(qs.at(i)); return c.a == i ? c.ba : c.ab; }
@@ -41,29 +41,52 @@ struct Ψ
   ΣΘΔ   &ψrΘ(ψi i) { auto &c = cs.at(qs.at(i)); return c.a == i ? c.ra : c.rb; }
   ΣΘΔ   &ψwΘ(ψi i) { auto &c = cs.at(qs.at(i)); return c.a == i ? c.wa : c.wb; }
 
-  bool   ψri(ψi i)       { return ψrζ(i).ri(); }
-  bool   ψwi(ψi i)       { return ψwζ(i).wi(); }
-  ζv     ψr (ψi i)       { return ψrζ(i).r();  } // TODO: auto-close
-  bool   ψw (ψi i, ζv x) { return ψwζ(i).w(x); }
+  bool   ψri(ψi i) { return ψrζ(i).ri(); }
+  bool   ψwi(ψi i) { return ψwζ(i).wi(); }
+
+  ζv ψr(ψi i)
+    { for (let j : lw[i]) { l.r(j, NAN, λR); break; }
+      auto &z = ψrζ(i);
+      let   r = z.r();
+      if (z.xi() && !z.n())
+      {
+        // TODO: do _something_ here, but what exactly?
+      }
+      return r; }
+
+  bool ψw(ψi i, ζv x)
+    { for (let j : lr[i]) { l.r(j, NAN, λR); break; }
+      return ψwζ(i).w(x); }
+
+  // TODO: define what it means to close a port
+  // Closing the writer and closing the port are two different actions.
+  //
+  // I think we need to model half-open states.
 
   // FIXME: delete φ iff both directions are closed and all contents
   // have been consumed (maybe assert this)
-  Ψ &ψx (ψi i)
-    { lr.erase(i);
+  //
+  // TODO: wake readers and writers
+  //
+  // i.e. this function should correspond to a γ user-close, not a kernel
+  // close.
+  Ψ &ψx(ψi i)
+    {
+      lr.erase(i);
       lw.erase(i);
       φx(qs.at(i));
       qs.erase(i);
       return *this; }
 
+  // NOTE: ψrw and ψww are promises to do the actual IO action if possible.
+  // This is how we can awaken just one λ per IO.
   bool ψrw(ψi i)
     { auto &z = ψrζ(i);
       auto &h = ψrΘ(i);
       h.start();
-      while (!z.ri() && !z.ci())
+      while (!z.ri() && !z.xi())
       { if (!l.z()) l.r(l.ri, NAN, λI);
         lr[i].emplace(l.ri);
-        for (let j : lw[i]) l.r(j, NAN, λR);
-        lw.erase(i);
         λy(); }
       h.stop();
       return z.ri(); }
@@ -72,11 +95,9 @@ struct Ψ
     { auto &z = ψwζ(i);
       auto &h = ψwΘ(i);
       h.start();
-      while (!z.wi() && !z.ci())
+      while (!z.wi() && !z.xi())
       { if (!l.z()) l.r(l.ri, NAN, λO);
         lw[i].emplace(l.ri);
-        for (let j : lr[i]) l.r(j, NAN, λR);
-        lr.erase(i);
         λy(); }
       h.stop();
       return z.wi(); }

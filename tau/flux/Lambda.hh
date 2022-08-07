@@ -18,7 +18,7 @@ namespace tau::flux
 {
 
 
-struct λc            // async blocking condition
+struct λc  // async blocking condition
 {
   bool i = false;
   λc &a() { i = true;        return *this; }  // awaken
@@ -26,8 +26,8 @@ struct λc            // async blocking condition
 };
 
 
-// NOTE: managed λs should yield out with tau::flux::λy()
-struct Λ             // manager of λs
+// NOTE: managed λs should yield out with Λ.y
+struct Λ
 {
   struct Λλ
   {
@@ -50,31 +50,44 @@ struct Λ             // manager of λs
     bool operator()(λi a, λi b) const { return l.ls.at(a).p < l.ls.at(b).p; } };
 
   λip         lp;
-  M<λi, Λλ>   ls;    // all λs
-  PQ<λi, λip> rq;    // prioritized schedule
-  λi          ni{0}; // next λi (always nonzero for managed λ)
-  λi          ri{0}; // currently running λi (0 = main thread)
+  M<λi, Λλ>   ls;     // all λs
+  M<λi, λi>   lz;     // λs awaiting each thing
+  PQ<λi, λip> rq;     // prioritized schedule
+  λi          ni{0};  // next λi (always nonzero for managed λ)
+  λi          ri{0};  // currently running λi (0 = main thread)
 
   Λ() : lp{*this}, rq(lp) {}
 
   bool e (λi i) const { return ls.contains(i); }
   uN   n ()     const { return ls.size(); }
   λi   i ()     const { return ri; }
+  bool z ()     const { return !ri; }
   λs   si(λi i) const { return ls.at(i).s; }
   λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : NAN; }
 
-  λi   c(λf f, f64 p = 0)              { let   i = ιi(ni, ls); ls[i] = Λλ(f); r(i, p, λR);                                 return i; }
+  λi   c(λf f, f64 p = 0)              { let   i = ιi(ni, ls); ls[i] = Λλ(f); r(i, p, λR);                                 return  i; }
   Λ   &r(λi i, f64 p = NAN, λs s = λR) { auto &l = ls.at(i); if (!std::isnan(p)) l.p = p; if ((l.s = s) == λR) rq.push(i); return *this; }
-  Λr   w(λi i)                         { assert(ri != i); let r = ls.at(i).l.result(); ls.erase(i);                        return r; }
   Λ   &x(λi i)                         { assert(ri != i); assert(e(i));                ls.erase(i);                        return *this; }
+  Λ   &y(λs s)                         { assert(!z());                                 r(ri, NAN, s); λy();                return *this; }
 
-  // true if we are the root process (zero)
-  bool z() const { return !ri; }
+  bool wi(λi i) { return si(i) == λZ; }
+  Λr   w (λi i)
+    { assert(ri != i);  // λ cannot await itself
+      assert(!z() || wi(i));
+      while (!wi(i))
+      { assert(!lz.contains(i));
+        lz[i] = ri;
+        y(λW); }
+      let r = ls.at(i).l.result();
+      ls.erase(i);
+      return r; }
 
   Λ &operator<<(λi i)
-    { assert(!ri);
+    { assert(z());
       auto &l = ls.at(ri = i); l.l(); ri = 0;
-      if (l.l.done()) l.s = λZ;
+      if (l.l.done())
+      { l.s = λZ;
+        if (lz.contains(i)) { r(lz[i], NAN, λR); lz.erase(i); } }
       return *this; }
 
   λi operator()()
@@ -84,9 +97,9 @@ struct Λ             // manager of λs
         else                     rq.pop(); }
       return 0; }
 
-  // NOTE: not used by Γ, as this doesn't provide timing insight
-  Λ &go(F<bool()> const &f = [](){ return true; })
-    { for (λi t; f() && (t = (*this)()); *this << t);
+  Λ &go(F<bool(Λ&, λi)> const &f = [](Λ&, λi){ return true; })
+    { for (λi t; (t = (*this)()) && f(*this, t); *this << t);
+      f(*this, 0);
       return *this; }
 };
 
@@ -94,6 +107,7 @@ struct Λ             // manager of λs
 #if tau_debug_iostream
 O &operator<<(O &s, Λ::Λλ const &l)
 {
+  assert((l.s == λZ) == l.l.done());
   s << "λ" << l.s;
   return l.s == λZ ? s << "=" << l.l.result()
                    : s << ":" << l.p;

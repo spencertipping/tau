@@ -41,7 +41,7 @@ struct ζ
   u64  wΣ()    const { return rΣ() + xs.size(); }
 
   void x()           { c = 0; }
-  bool ci()    const { return !c; }
+  bool xi()    const { return !c; }
   uN   n()     const { return xs.size(); }
 
 
