@@ -21,8 +21,6 @@ namespace tau::flux
 template<class T>
 struct ζ
 {
-  ΣΘΔ         rΘ;
-  ΣΘΔ         wΘ;
   ΣΘΔ         lΘ;
   uN          c;
   D<P<Θp, T>> xs;
@@ -31,9 +29,7 @@ struct ζ
 
 
   ζ<T> &operator=(ζ<T> &&p)
-    { rΘ = p.rΘ;
-      wΘ = p.wΘ;
-      lΘ = p.lΘ;
+    { lΘ = p.lΘ;
       c  = p.c;
       xs = std::move(p.xs);
       return *this; }
@@ -56,11 +52,6 @@ struct ζ
       let  n = now();
       for (let &x : xs) t += n - std::get<0>(x);
       return (t + lΘ.Σ()) / (lΘ.n + xs.size()); }
-
-  // Signed IO variability (data pressure)
-  f64 σ() const
-    { return log2(Sf(wΘ.μ().count()))
-           - log2(Sf(rΘ.μ().count())); }
 
 
   bool w(T const &x)
@@ -91,12 +82,9 @@ O &operator<<(O &s, ζ<T> const &z)
   return s << "ζ["
            << (z.ri() ? "R" : "r")
            << (z.wi() ? "W" : z.ci() ? "#" : "w")
-           << " n="  << z.wΣ()
-           << " c="  << z.n() << "/" << z.c
-           << " rd=" << z.rΘ.σ()
-           << " wd=" << z.wΘ.σ()
-           << " δ="  << z.δ()
-           << " σ="  << z.σ() << "]";
+           << " n=" << z.wΣ()
+           << " c=" << z.n() << "/" << z.c
+           << " δ=" << z.δ() << "]";
 }
 #endif
 
