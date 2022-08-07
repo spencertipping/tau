@@ -25,7 +25,7 @@ struct Ψ
     ΣΘΔ   ra, rb, wa, wb; };
 
   Λ           &l;
-  uN           c_;
+  uN           ζc;
   M<φi, φ>     cs;
   M<ψi, φi>    qs;
   M<ψi, S<λi>> lr;
@@ -33,7 +33,7 @@ struct Ψ
   φi           ci{0};
   ψi           qi{0};
 
-  Ψ(Λ &l_, uN ζc = 64) : l(l_), c_(ζc) {}
+  Ψ(Λ &l_, uN ζc_ = 64) : l(l_), ζc(ζc_) {}
 
   ψi     ψc()      { qs[ιi(qi, qs)] = 0;        return qi; }
   ζ<ζv> &ψrζ(ψi i) { auto &c = cs.at(qs.at(i)); return c.a == i ? c.ba : c.ab; }
@@ -105,7 +105,7 @@ struct Ψ
 
   φi φc(ψi a, ψi b, uN c = 0)
     { assert(qs.at(a) == 0 && qs.at(b) == 0);
-      if (!c) c = c_;
+      if (!c) c = ζc;
       cs[qs[a] = qs[b] = ιi(ci, cs)] = {a, b, ζ<ζv>(c), ζ<ζv>(c)};
       return ci; }
 
