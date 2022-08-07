@@ -11,6 +11,8 @@
 # include "flux/lambda.hh"
 # include "flux/Lambda.hh"
 # include "flux/theta.hh"
+# include "flux/psi.hh"
+# include "flux/phi.hh"
 # include "flux/zeta.hh"
 #else
 # define tau_defines_flux 0

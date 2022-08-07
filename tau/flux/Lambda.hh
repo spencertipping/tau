@@ -52,7 +52,7 @@ struct Λ             // manager of λs
   λip         lp;
   M<λi, Λλ>   ls;    // all λs
   PQ<λi, λip> rq;    // prioritized schedule
-  λi          ni{1}; // next λi (always nonzero for managed λ)
+  λi          ni{0}; // next λi (always nonzero for managed λ)
   λi          ri{0}; // currently running λi (0 = main thread)
 
   Λ() : lp{*this}, rq(lp) {}
@@ -63,10 +63,13 @@ struct Λ             // manager of λs
   λs   si(λi i) const { return ls.at(i).s; }
   λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : NAN; }
 
-  λi   c(λf f, f64 p = 0)              { let   i = ni++;     ls[i] = Λλ(f); r(i, p, λR);                            return i; }
+  λi   c(λf f, f64 p = 0)              { let   i = ιi(ni, ls); ls[i] = Λλ(f); r(i, p, λR);                                 return i; }
   Λ   &r(λi i, f64 p = NAN, λs s = λR) { auto &l = ls.at(i); if (!std::isnan(p)) l.p = p; if ((l.s = s) == λR) rq.push(i); return *this; }
   Λr   w(λi i)                         { assert(ri != i); let r = ls.at(i).l.result(); ls.erase(i);                        return r; }
   Λ   &x(λi i)                         { assert(ri != i); assert(e(i));                ls.erase(i);                        return *this; }
+
+  // true if we are the root process (zero)
+  bool z() const { return !ri; }
 
   Λ &operator<<(λi i)
     { assert(!ri);
@@ -82,7 +85,7 @@ struct Λ             // manager of λs
       return 0; }
 
   // NOTE: not used by Γ, as this doesn't provide timing insight
-  Λ &go(bool(*f)() = [](){ return true; })
+  Λ &go(F<bool()> const &f = [](){ return true; })
     { for (λi t; f() && (t = (*this)()); *this << t);
       return *this; }
 };

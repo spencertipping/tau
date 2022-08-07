@@ -12,12 +12,22 @@ namespace tau::util
 {
 
 
-template<class F = u64, class X = u64, uN N = 64>
+struct πilog
+{
+  uN operator()(uN x) { return numerics::ilog(x); }
+};
+
+
+template<class F = u64,    // frequency of observation
+         class X = u64,    // thing being observed
+         uN    N = 64,     // number of bins
+         class π = πilog>  // observation → bin
 struct πι_
 {
+  π π_;
   F n[N]{0};
 
-  πι_ &operator<<(X x) { ++n[numerics::ilog(x)]; return *this; }
+  πι_ &operator<<(X x) { ++n[π_(x)]; return *this; }
 
   int icdf(double p) const
     { let t = total();
@@ -44,8 +54,8 @@ typedef πι_<> πι;
 
 
 #if tau_debug_iostream
-template<class F, class X, uN N>
-O &operator<<(O &s, πι_<F, X, N> const &h)
+template<class F, class X, uN N, class π>
+O &operator<<(O &s, πι_<F, X, N, π> const &h)
 {
   F   m  = h.n[0]; for (uN i = 1; i < N; ++i) m = std::max(m, h.n[i]);
   uN  u  = N - 1;  while (u > 0 && !h.n[u]) --u;

@@ -6,6 +6,8 @@ Design:
   + [Γ](doc/gamma.md)
   + [Λ](doc/lambda.md)
   + [Θ](doc/theta.md)
+  + [Ψ](doc/psi.md)
+  + [Φ](doc/phi.md)
 
 Technical notes:
 

@@ -6,6 +6,7 @@
 
 
 #include "../types.hh"
+#include "../utf9.hh"
 #include "../util/shd.hh"
 
 
@@ -23,10 +24,27 @@ using tau::util::operator<<;
 #endif
 
 
+// NOTE: we can use native ints even if they're just int32; to do this,
+// we need a custom increment function ιi() that detects collisions from
+// reuse.
+
 typedef uN      λi;  // λ identifier
 typedef f64     λp;  // λ priority (lower = more important)
 typedef int     Λr;  // type of value returned to Λ
 typedef F<Λr()> λf;
+
+typedef uN      ψi;  // Γ-local port identifier
+typedef uN      φi;  // internal connection identifier
+
+typedef SP<i9>  ζv;
+
+
+template<class K, class V>
+inline K ιi(K &c, M<K, V> const &m)
+{
+  while (m.contains(++c) || !c);
+  return c;
+}
 
 
 enum λs  // lambda runnability state
@@ -35,6 +53,7 @@ enum λs  // lambda runnability state
   λS,    // stopped
   λI,    // blocked on read from ζ
   λO,    // blocked on write to ζ
+  λW,    // waiting for a λ
   λΘ,    // waiting for a time
   λZ,    // done (zombie)
 };
@@ -49,6 +68,7 @@ O &operator<<(O &s, λs const &t)
   case λS: return s << "S";
   case λI: return s << "I";
   case λO: return s << "O";
+  case λW: return s << "W";
   case λΘ: return s << "Θ";
   case λZ: return s << "Z";
   default: return s << "BOGUS " << Su(t);

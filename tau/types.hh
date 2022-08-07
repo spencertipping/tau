@@ -11,6 +11,7 @@
 #include <initializer_list>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <queue>
 #include <string>
 #include <string_view>
@@ -66,6 +67,7 @@ template<class T, class U> using P  = std::pair<T, U>;
 template<class T, class C> using PQ = std::priority_queue<T, std::vector<T>, C>;
 template<class T>          using Q  = std::queue<T>;
 template<class K>          using S  = std::unordered_set<K>;
+template<class T>          using SP = std::shared_ptr<T>;
 template<class T>          using V  = std::vector<T>;
 template<class T>          using Vi = typename std::vector<T>::const_iterator;
 
