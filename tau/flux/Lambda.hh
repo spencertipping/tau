@@ -78,6 +78,7 @@ struct Λ
       { assert(!lz.contains(i));
         lz[i] = ri;
         y(λW); }
+      lz.erase(ri);
       let r = ls.at(i).l.result();
       ls.erase(i);
       return r; }
@@ -87,7 +88,7 @@ struct Λ
       auto &l = ls.at(ri = i); l.l(); ri = 0;
       if (l.l.done())
       { l.s = λZ;
-        if (lz.contains(i)) { r(lz[i], NAN, λR); lz.erase(i); } }
+        if (lz.contains(i)) r(lz[i], NAN, λR); }
       return *this; }
 
   λi operator()()

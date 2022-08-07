@@ -85,9 +85,10 @@ struct Ψ
       auto &h = ψrΘ(i);
       h.start();
       while (!z.ri() && !z.xi())
-      { if (!l.z()) l.r(l.ri, NAN, λI);
-        lr[i].emplace(l.ri);
+      { if (!l.z()) l.r(l.i(), NAN, λI);
+        lr[i].emplace(l.i());
         λy(); }
+      lr[i].erase(l.i());
       h.stop();
       return z.ri(); }
 
@@ -96,9 +97,10 @@ struct Ψ
       auto &h = ψwΘ(i);
       h.start();
       while (!z.wi() && !z.xi())
-      { if (!l.z()) l.r(l.ri, NAN, λO);
-        lw[i].emplace(l.ri);
+      { if (!l.z()) l.r(l.i(), NAN, λO);
+        lw[i].emplace(l.i());
         λy(); }
+      lw[i].erase(l.i());
       h.stop();
       return z.wi(); }
 
