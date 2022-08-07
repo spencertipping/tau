@@ -57,13 +57,13 @@ struct ζ
   bool w(T const &x)
     { let n = now();
       if (!wi()) return false;
-      xs.push_back(qe(n, x));
+      xs.push_back(std::make_pair(n, x));
       return true; }
 
   bool w(T &&x)
     { let n = now();
       if (!wi()) return false;
-      xs.push_back(qe(n, std::move(x)));
+      xs.push_back(std::make_pair(n, std::move(x)));
       return true; }
 
   T r()
