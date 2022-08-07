@@ -3,17 +3,20 @@
 
 
 #include "../types.hh"
+#include "../util/numerics.hh"
 
 #include "error-proto.hh"
-#include "numerics.hh"
 #include "obuf.hh"
 #include "val.hh"
 
-#include "../module/begin.hh"
 
+#include "../module/begin.hh"
 
 namespace tau::utf9
 {
+
+
+using namespace tau::util::numerics;
 
 
 // Tuple-emitting buffer
@@ -162,7 +165,7 @@ oenc &operator<<(oenc &o, val const &v)
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif

@@ -9,7 +9,6 @@
 
 
 #include "utf9/error-proto.hh"
-#include "utf9/numerics.hh"
 #include "utf9/hash.hh"
 #include "utf9/ibuf.hh"
 #include "utf9/obuf.hh"

@@ -2,7 +2,6 @@
 #define tau_utf9_errors_h
 
 
-#include <iostream>
 #include <stdexcept>
 
 

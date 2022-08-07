@@ -3,15 +3,18 @@
 
 
 #include "../types.hh"
+#include "../util/numerics.hh"
 
 #include "ibuf.hh"
-#include "numerics.hh"
+
 
 #include "../module/begin.hh"
 
-
 namespace tau::utf9
 {
+
+
+using namespace tau::util::numerics;
 
 
 // A bytecode encoder with no specified storage backend
@@ -144,7 +147,7 @@ struct obuf : public virtual oenc
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif

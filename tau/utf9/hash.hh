@@ -3,20 +3,23 @@
 
 
 #define XXH_INLINE_ALL 1
-# include "../deps/xxhash.h"
-# include "../deps/picosha2.h"
+#include "../deps/xxhash.h"
 #undef XXH_INLINE_ALL
+
+#include "../deps/picosha2.h"
 
 
 #include "../types.hh"
-
-#include "numerics.hh"
+#include "../util/numerics.hh"
 
 
 #include "../module/begin.hh"
 
 namespace tau::utf9
 {
+
+
+using namespace tau::util::numerics;
 
 
 static_assert(sizeof(XXH64_hash_t) == sizeof(u64));

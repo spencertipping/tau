@@ -22,22 +22,28 @@ struct Ψ
   { ψi    a,  b;
     ζ<ζv> ab, ba; };
 
-  Λ                &l;
-  M<φi, φ>          cs;
-  M<ψi, P<φi, φi>>  qs;
-  φi                ci{0};
-  ψi                qi{0};
+  Λ         &l;
+  uN         c_;
+  M<φi, φ>   cs;
+  M<ψi, φi>  qs;
+  φi         ci{0};
+  ψi         qi{0};
 
-  Ψ(Λ &l_) : l(l_) {}
+  Ψ(Λ &l_, uN c__ = 64) : l(l_), c_(c__) {}
 
-  // TODO: frame the API for making connections and issuing IO
-  ψi ψc() { let i = ιi(qi, qs); qs[i] = std::make_pair(0, 0); return i; }
+  ψi ψc() { qs[ιi(qi, qs)] = 0; return qi; }
 
-  φi φc(ψi a, ψi b)
-    { // TODO: assert no existing connection
-      let i = ιi(ci, cs);
+  φi φc(ψi a, ψi b, uN c = 0)
+    { assert(qs.at(a) == 0 && qs.at(b) == 0);
+      if (!c) c = c_;
+      cs[qs[a] = qs[b] = ιi(ci, cs)] = {a, b, ζ<ζv>(c), ζ<ζv>(c)};
+      return ci; }
 
-    }
+  Ψ &φx(φi i)
+    { let &c = cs[i];
+      qs.erase(c.a); qs.erase(c.b);
+      cs.erase(i);
+      return *this; }
 };
 
 

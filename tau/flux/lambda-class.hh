@@ -2,9 +2,6 @@
 #define tau_flux_λ_class_h
 
 
-#include <cassert>
-
-
 #ifdef __EMSCRIPTEN__
 # include <emscripten/fiber.h>
 #elif tau_assume_emscripten

@@ -2,9 +2,6 @@
 #define tau_flux_λ_boost_h
 
 
-#include <cassert>
-
-
 #include "../types.hh"
 #include "lambda-class.hh"
 

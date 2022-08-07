@@ -20,4 +20,11 @@
 #endif
 
 
+#if tau_debug
+# include <cassert>
+#else
+# define assert(x) void(0)
+#endif
+
+
 #define let auto const

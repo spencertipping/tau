@@ -2,7 +2,6 @@
 #define tau_flux_zeta_h
 
 
-#include <cassert>
 #include <cmath>
 #include <utility>
 

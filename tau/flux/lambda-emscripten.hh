@@ -2,10 +2,10 @@
 #define tau_flux_λ_emscripten_h
 
 
+// For interactive development with clang/lsp; this is a nop in production
 #define tau_assume_emscripten 1
 
 
-#include <cassert>
 #include <memory>
 
 

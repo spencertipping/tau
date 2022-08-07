@@ -4,15 +4,21 @@
 
 #include <cstring>
 
+
 #include "../types.hh"
+#include "../util/numerics.hh"
+
 #include "error-proto.hh"
-#include "numerics.hh"
+
 
 #include "../module/begin.hh"
 
 
 namespace tau::utf9
 {
+
+
+using namespace tau::util::numerics;
 
 
 // A bytecode decoder with fully-buffered and bounded source data.

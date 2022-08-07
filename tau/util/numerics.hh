@@ -3,13 +3,12 @@
 
 
 #include <bit>
-#include <cstdint>
 
 
 #include "../types.hh"
 
-#include "../module/begin.hh"
 
+#include "../module/begin.hh"
 
 namespace tau::util::numerics
 {
@@ -64,6 +63,15 @@ inline constexpr bool oi16(i64 x) { return x << 48 >> 48 != x; }
 inline constexpr bool oi32(i64 x) { return x << 32 >> 32 != x; }
 
 
+inline constexpr u8  cou8 (u64 x) { assert(!ou8(x));  return x; }
+inline constexpr u16 cou16(u64 x) { assert(!ou16(x)); return x; }
+inline constexpr u32 cou32(u64 x) { assert(!ou32(x)); return x; }
+
+inline constexpr i8  coi8 (i64 x) { assert(!oi8(x)); return x; }
+inline constexpr i16 coi16(i64 x) { assert(!ou16(x)); return x; }
+inline constexpr i32 coi32(i64 x) { assert(!oi32(x)); return x; }
+
+
 inline constexpr u8 bu(u64 x) { return ou32(x) ? 3 : ou16(x) ? 2 : ou8(x) ? 1 : 0; }
 inline constexpr u8 bi(i64 x) { return oi32(x) ? 3 : oi16(x) ? 2 : oi8(x) ? 1 : 0; }
 
@@ -71,15 +79,16 @@ inline constexpr u8 su(u64 x) { return 1 << bu(x); }
 inline constexpr u8 si(i64 x) { return 1 << bi(x); }
 
 
-constexpr u8 ilog(u64 x)
+template<class T>
+inline constexpr u8 ilog(T x)
 { u8 i = 0;
-  for (u8 j = 32; j; j >>= 1) if (x >> j) i += j, x >>= j;
+  for (u8 j = sizeof(T) * 4; j; j >>= 1) if (x >> j) i += j, x >>= j;
   return i; }
 
 
 }
 
-
 #include "../module/end.hh"
+
 
 #endif
