@@ -47,12 +47,11 @@ struct Ψ
   bool   ψw (ψi i, ζv x) { return ψwζ(i).w(x); }
 
   // FIXME: delete φ iff both directions are closed and all contents
-  // have been consumed
+  // have been consumed (maybe assert this)
   Ψ &ψx (ψi i)
     { lr.erase(i);
       lw.erase(i);
-      let c = qs.at(i);
-      φx(c);
+      φx(qs.at(i));
       qs.erase(i);
       return *this; }
 
