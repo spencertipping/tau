@@ -10,9 +10,7 @@ git push
 points=( rorbot.35:tau/
          reichenbach.35:tau/
          rorbot.35:/mnt/v1/st/tau/
-         iniidae.35:tau/
          orange.35:tau/
-         xiphosuran.35:r/tau/
          joyce@iya.35:.spencer/tau/ )
 
 git fsck --full --strict || exit $?
