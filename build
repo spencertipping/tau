@@ -68,6 +68,20 @@ case $cmd in
       t i686-linux-gnu-g++ "${t_gcc_opts[@]}" -m32  t/test.cc -o t/test32 &
       t dev/emsdk em++     "${t_em_opts[@]}"        t/test.cc -o t/test.js &
       wait
+
+      time t/test         || :; test64_ret=$?
+      time t/test32       || :; test32_ret=$?
+      time node t/test.js || :; testjs_ret=$?
+
+      echo
+
+      ret=$(( test64_ret | test32_ret | testjs_ret ))
+      if (( ret )); then
+        echo -e "\033[1;31mERROR: $test64_ret, $test32_ret, $testjs_ret\033[0;0m"
+      else
+        echo -e "\033[1;32mall ok: $test64_ret, $test32_ret, $testjs_ret\033[0;0m"
+      fi
+      exit $ret
       ;;
 
   *)  usage
