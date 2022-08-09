@@ -38,6 +38,20 @@ void try_stopwatch()
 }
 
 
+void try_nonce()
+{
+  nonce n;
+  cout << "nonce   = " <<   n << endl;
+  cout << "nonce++ = " << ++n << endl;
+  cout << "nonce++ = " << ++n << endl;
+
+  nonce r{0ull, -1ull};
+  cout << "nonce   = " <<   r << endl;
+  cout << "nonce++ = " << ++r << endl;
+  cout << "nonce++ = " << ++r << endl;
+}
+
+
 void bench_stopwatch()
 {
   if (!QUICK)
@@ -76,6 +90,7 @@ void bench_stopwatch()
 
 int main()
 {
+  try_nonce();
   try_stopwatch();
   bench_stopwatch();
   return 0;

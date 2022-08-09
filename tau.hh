@@ -8,6 +8,8 @@
 
 #include "tau/util/pi.hh"
 #include "tau/util/shd.hh"
+#include "tau/util/nonce.hh"
+#include "tau/util/ostream.hh"
 
 
 #include "tau/module/begin.hh"

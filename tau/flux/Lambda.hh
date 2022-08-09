@@ -18,14 +18,6 @@ namespace tau::flux
 {
 
 
-struct λc  // async blocking condition
-{
-  bool i = false;
-  λc &a() { i = true;        return *this; }  // awaken
-  λc &w() { while (!i) λy(); return *this; }  // wait
-};
-
-
 // NOTE: managed λs should yield out with Λ.y
 struct Λ
 {

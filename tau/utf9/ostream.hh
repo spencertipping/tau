@@ -7,6 +7,7 @@
 
 
 #include "../types.hh"
+#include "../util/ostream.hh"
 
 #include "error-proto.hh"
 #include "errors.hh"
@@ -15,11 +16,14 @@
 #include "typecode.hh"
 #include "val.hh"
 
+
 #include "../module/begin.hh"
 
 
 namespace tau::utf9
 {
+
+using tau::util::hexout;
 
 
 std::ostream &operator<<(std::ostream &s, obuf const &o)
@@ -29,15 +33,6 @@ std::ostream &operator<<(std::ostream &s, obuf const &o)
 
 
 #if tau_debug_iostream
-inline std::ostream &hexout(std::ostream &s, u64 x)
-{
-  let f = s.flags();
-  s << std::hex << std::nouppercase << x;
-  s.flags(f);
-  return s;
-}
-
-
 std::ostream &operator<<(std::ostream &s, sym   const &y) { return hexout(s << 's', y.h); }
 std::ostream &operator<<(std::ostream &s, hash  const &h) { return hexout(s << 'h', h.h); }
 std::ostream &operator<<(std::ostream &s, pidfd const &p) { return s << "[p=" << p.pid << ",fd=" << p.fd << "]"; }
