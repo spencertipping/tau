@@ -31,7 +31,15 @@ u8c constexpr Ψω = 0x16;
 
 ζv Ψv(u8c &b)
 {
-  return std::shared_ptr<i9>(new i9{&b, 0});
+  return std::shared_ptr<i9>(new i9{&b, 1});
+}
+
+
+ζv Ψv(u9 const &x)
+{
+  o9 b;
+  auto *r = new i9((b << x).convert_to_ibuf());
+  return std::shared_ptr<i9>(r);
 }
 
 
@@ -83,24 +91,14 @@ struct Ψ
         q.pop(); }
       return *this; }
 
-  Ψ &ψx(ψi i)
-    { auto &z = ψwζ(i); if (z.xi()) return *this;
-      let o = φo(i);
-      ψws(i) = z.n() ? ζκ : ζω;
-      λws(lr[o]); lr.erase(o);
-      λws(lw[i]); lw.erase(i);
-      z.x();
-      // TODO: if both sides closed, φx
-      return *this; }
-
   // NOTE: ψrw and ψww are promises to do the actual IO action if possible.
   // This is how we can awaken just one λ per IO.
 
-  // TODO: ζs update is read/write synchronous, so we have the following
+  // ζs update is read/write synchronous, so we have the following
   // ownership of updates:
   //
-  // reader: α → ι (since the reader is guaranteed a α regardless of timing)
-  // writer: ι → κ
+  // reader: α → ι|κ|ω (since the reader is guaranteed an α regardless of timing)
+  // writer: ι → κ|ω (since only the writer can call ζ.x())
   // reader: κ → ω and corresponding φx
 
   bool ψrw(ψi i)
@@ -108,65 +106,63 @@ struct Ψ
       auto &h = ψrΘ(i);
       auto &z = ψrζ(i);
       let   n = ψn(i);  // for security
+
+      // invariant: lr[i] is popped at least once per wakeup of this λ
       h.start();
       while ((e = ψe(i) && φe(i) && n == ψn(i)) && !z.ri() && !z.xi())
-      { // invariant: lr[i] is popped at least once per wakeup of this λ
-        if (!l.z()) l.r(l.i(), NAN, λI), lr[i].emplace(l.i());
+      { if (!l.z()) l.r(l.i(), NAN, λI), lr[i].emplace(l.i());
         λy(); }
       h.stop();
+
       return e && z.ri(); }
 
-  /*
+  ζs ζrs(ζ<ζv> const &z) const { return z.xi() ? z.n() ? ζκ : ζω : ζι; }
   ζv ψr(ψi i)
-    { auto &s = ψrs(i);
+    { if (!ψe(i) || !φe(i)) return Ψv(Ψω);
+      let o = φo(i);
+      if (φe(i) && lw.contains(o)) λw(lw[o]);
+      auto &s = ψrs(i);
       switch (s)
       {
-      case ζα: if (φe(i)) s = ζι; return Ψv(Ψα);
+      case ζα: if (φe(i)) s = ζrs(ψrζ(i)); return Ψv(Ψα);
       case ζι:
-      { auto &z = ψrζ(i);
-          if (z.xi()) s = z.ri() ? ζκ : ζω;
-
-
-
-      }
-
-
-      case ζκ:
-      { auto &z = ψrζ(i);
-
-      }
-
-
-
-
-
-      }
-
-
-      if (z.xi() && !z.n())
-      {
-
-      }
-      else
-        while (!w.empty() && !l.e(w.front())) l.r(w.front(), NAN, λR), w.pop();
-      return r; }
-  */
+      case ζκ: { auto &z = ψrζ(i); let v = z.r(); s = ζrs(z); return v; }
+      case ζω: return Ψv(Ψω);
+      default: return nullptr;  // unreachable
+      } }
 
   bool ψww(ψi i)
-    { auto &z = ψwζ(i);
+    { bool  e = ψe(i) && φe(i); if (!e) return false;
+      auto &z = ψwζ(i);
       auto &h = ψwΘ(i);
+      let   n = ψn(i);
       h.start();
-      while (!z.wi() && !z.xi())
-      { if (!l.z()) l.r(l.i(), NAN, λO);
-        lw[i].emplace(l.i());
+      while ((e = ψe(i) && φe(i) && n == ψn(i)) && !z.wi() && !z.xi())
+      { if (!l.z()) l.r(l.i(), NAN, λI), lw[i].emplace(l.i());
         λy(); }
       h.stop();
-      return z.wi(); }
+      return e && z.wi(); }
 
   bool ψw(ψi i, ζv x)
-    { auto &z = ψwζ(i);
-      if (!z.xi()) λw(lr[i]);
-      return z.w(x); }
+    { let o = φo(i);
+      if (φe(i) && lr.contains(o)) λw(lr[o]);
+      return ψwζ(i).w(x); }
+
+  // TODO: change this logic; we should close when both sides have closed,
+  // regardless of whether data is in the pipes
+  Ψ &ψx(ψi i)  // close the writer from this side of the φ pair
+    { if (!ψe(i) || !φe(i)) return *this;
+      auto &z = ψwζ(i); if (z.xi()) return *this;
+      let   o = φo(i);
+
+      // wake any readers on the other side, and any writers on this side
+      λws(lr[o]); lr.erase(o);
+      λws(lw[i]); lw.erase(i);
+      z.x();
+      ψws(i) = z.n() ? ζκ : ζω;
+
+      if (!z.n() && ψe(o) && ψws(o) == ζω) { φx(qs.at(i)); qs.erase(i); qs.erase(o); }
+      return *this; }
 
 
   φi φc(ψi a, ψi b, uN c = 0)

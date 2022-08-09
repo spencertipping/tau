@@ -201,6 +201,7 @@ struct val
   void     require_ibuf()                const { if (!has_ibuf())  throw_vop_error("ibuf required", *this); }
   void     require_type(val_type_mask m) const { if (!has_type(m)) throw_vop_error("invalid type", *this); }
   uN       bsize()                       const { require_ibuf(); return b->len(i); }
+  bool     is_greek()                    const { return has_type(1ull << GREEK); }
 
 
   uN mlen() const { return mend() - mbegin(); }
