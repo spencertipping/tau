@@ -3,13 +3,26 @@
 
 
 ## ψ states
-A γ creating ψs will observe them in several states:
+A γ creating ψs will observe them in several states, roughly corresponding to the state symbols that the reader would receive:
 
-+ _disconnected:_ `γ.ψc()` called, but nothing has been connected yet
-+ _connected:_ a φ exists, containing two ζs to connect this ψ to another ψ elsewhere: φ sends _α_ to both sides
-+ _half-close pending:_ this side has closed its writing ζ, which may contain unread data
-+ _half-closed:_ this side has closed its writing ζ and the other side has read it fully (culminating in a φ-generated _ω_ terminator)
-+ _close-pending:_ both sides have closed their writing ζs, which may contain unread data
-+ _closed:_ both side have closed ζ and read all pending data, including the _ω_ terminators
++ _α:_ `γ.ψc()` called, but nothing has been connected yet
++ _ι:_ a φ exists, containing two ζs to connect this ψ to another ψ elsewhere: φ sends _α_ to both sides
 
-Note that _closed_ is semantically similar to _disconnected,_ in that the underlying φ is gone, but ψs cannot be reused; so you need to `ψx` and then `ψc` to create a new connection.
+From there, the two constituent ζs can each progress through these states independently of the other:
+
++ _ι:_ default state, same as above
++ _κ:_ the writer has closed the ζ, reader can still consume queued data
++ _ω:_ the reader has consumed all data; the next symbol is the finalizing _ω_
+
+We denote the ψ state with two symbols, the first for the read-ζ and the second for the write-ζ. That gives us the following set:
+
++ `αα`
++ `ιι`
++ `ικ`
++ `ιω`
++ `κι`
++ `κκ`
++ `κω`
++ `ωι`
++ `ωκ`
++ `ωω`

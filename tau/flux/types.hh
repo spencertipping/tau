@@ -60,8 +60,20 @@ enum λs  // lambda runnability state
 };
 
 
+enum ζs
+{
+  ζα,
+  ζι,
+  ζκ,
+  ζω,
+};
+
+
+typedef P<ζs, ζs> ψs;
+
+
 #if tau_debug_iostream
-O &operator<<(O &s, λs const &t)
+O &operator<<(O &s, λs t)
 {
   switch (t)
   {
@@ -74,6 +86,25 @@ O &operator<<(O &s, λs const &t)
   case λZ: return s << "Z";
   default: return s << "BOGUS " << Su(t);
   }
+}
+
+
+O &operator<<(O &s, ζs t)
+{
+  switch (t)
+  {
+  case ζα: return s << "α";
+  case ζι: return s << "ι";
+  case ζκ: return s << "κ";
+  case ζω: return s << "ω";
+  default: return s << "BOGUS " << Su(t);
+  }
+}
+
+
+O &operator<<(O &s, ψs &t)
+{
+  return s << std::get<0>(t) << std::get<1>(t);
 }
 #endif
 
