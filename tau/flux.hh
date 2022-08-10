@@ -11,6 +11,7 @@
 # include "flux/lambda.hh"
 # include "flux/Lambda.hh"
 # include "flux/theta.hh"
+# include "flux/u9z.hh"
 # include "flux/psi.hh"
 # include "flux/phi.hh"
 # include "flux/zeta.hh"

@@ -37,8 +37,6 @@ typedef F<Λr()> λf;
 typedef uN      ψi;  // Γ-local port identifier
 typedef uN      φi;  // internal connection identifier
 
-typedef SP<i9>  ζv;
-
 
 template<class K, class V>
 inline K ιi(K &c, M<K, V> const &m)
@@ -60,18 +58,6 @@ enum λs  // lambda runnability state
 };
 
 
-enum ζs
-{
-  ζα,
-  ζι,
-  ζκ,
-  ζω,
-};
-
-
-typedef P<ζs, ζs> ψs;
-
-
 #if tau_debug_iostream
 O &operator<<(O &s, λs t)
 {
@@ -86,25 +72,6 @@ O &operator<<(O &s, λs t)
   case λZ: return s << "Z";
   default: return s << "BOGUS " << Su(t);
   }
-}
-
-
-O &operator<<(O &s, ζs t)
-{
-  switch (t)
-  {
-  case ζα: return s << "α";
-  case ζι: return s << "ι";
-  case ζκ: return s << "κ";
-  case ζω: return s << "ω";
-  default: return s << "BOGUS " << Su(t);
-  }
-}
-
-
-O &operator<<(O &s, ψs &t)
-{
-  return s << std::get<0>(t) << std::get<1>(t);
 }
 #endif
 

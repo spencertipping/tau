@@ -18,7 +18,6 @@ namespace tau::flux
 {
 
 
-// TODO: c is a size, and each element has a size
 template<class T, class S>
 struct ζ
 {
@@ -32,7 +31,7 @@ struct ζ
   ζ(uN c_ = 64) : c(c_), Σs(0), Σw(0) { assert(c); }
 
 
-  ζ &operator=(ζ<T, S> &&p)
+  ζ &operator=(ζ &&p)
     { s  = p.s;
       lΘ = p.lΘ;
       c  = p.c;
@@ -63,6 +62,7 @@ struct ζ
     { let n = now();
       if (!wi()) return false;
       let s_ = s(x);
+      assert(s_);
       Σs += s_;
       Σw += s_;
       xs.push_back(std::make_pair(n, x));
@@ -72,6 +72,7 @@ struct ζ
     { let n = now();
       if (!wi()) return false;
       let s_ = s(x);
+      assert(s_);
       Σs += s_;
       Σw += s_;
       xs.push_back(std::make_pair(n, std::move(x)));

@@ -33,10 +33,13 @@ struct val
 
   // ibuf const * will be at least 4-byte aligned, so tags with the low bit set
   // are type designators; see tagify() and tag_type().
+  //
+  // NOTE: tag64 just forces val to be 16 bytes long, and provides a way to
+  // fully initialize the structure
   union
   { ibuf const * b;
     tag_t        tag;
-    u64          _this_field_forces_val_size_to_16_bytes; } const;
+    u64          tag64; } const;
 
   union
   { uN        i;
@@ -51,8 +54,8 @@ struct val
     V<val>   *vt; } const;
 
 
-  // Tagging bit schema:
-  // type:6 | owned:1 | immediate:1
+  // Tagging bit schema: type:6 | owned:1 | immediate:1
+  // (typecodes confined to 6 bits to fit into u64 for bitmasking)
   // NOTE: 32-bit builds are just 4-byte aligned, so these are all the bits
   // we have to work with
   static tag_t const constexpr immed_bit = 1;
@@ -67,10 +70,10 @@ struct val
 
   // Immediate data structure ownership follows const-ness
   constexpr val(val const &v) : tag(v.tag & ~owned_bit), vu(v.vu) {}
-            val(val &&v)      : tag(v.tag),              vu(v.vu) { v.tag &= ~owned_bit; }
+  constexpr val(val &&v)      : tag(v.tag),              vu(v.vu) { v.tag &= ~owned_bit; }
 
 
-  val(tag_t tag_, u64 v_) : tag(tag_), vu(v_) {}
+  val(u64 tag64_, u64 v_) : tag64(tag64_), vu(v_) {}
 
   val(ibuf const &b_, uN i_) : b(&b_), i(i_)
     { if (Rc<uN>(b) & tagmask) throw_internal_error("unaligned");
@@ -190,8 +193,8 @@ struct val
 
 
   // NOTE: &~owned_bit is valid regardless of ibuf pointer status due to alignment
-  val &operator=(val &&x)      { tag = x.tag;              i = x.i; x.tag &= ~owned_bit; return *this; }
-  val &operator=(val const &x) { tag = x.tag & ~owned_bit; i = x.i;                      return *this; }
+  val &operator=(val &&x)      { tag64 = x.tag64;              i = x.i; x.tag &= ~owned_bit; return *this; }
+  val &operator=(val const &x) { tag64 = x.tag64 & ~owned_bit; i = x.i;                      return *this; }
 
 
   bool     exists()                      const { return type() != NONE; }
@@ -200,8 +203,10 @@ struct val
   bool     has_type(val_type_mask m)     const { return (1ull << type() & m); }
   void     require_ibuf()                const { if (!has_ibuf())  throw_vop_error("ibuf required", *this); }
   void     require_type(val_type_mask m) const { if (!has_type(m)) throw_vop_error("invalid type", *this); }
-  uN       bsize()                       const { require_ibuf(); return b->len(i); }
   bool     is_greek()                    const { return has_type(1ull << GREEK); }
+
+  // net immediate byte-size of this object, in GC terms (excluding sizeof(*this))
+  uN bsize() const { return has_ibuf() ? b->len(i) : has_type(string_types) ? vb->size() : has_type(multi_types) ? vt->size() * sizeof(val) : 0; }
 
 
   uN mlen() const { return mend() - mbegin(); }

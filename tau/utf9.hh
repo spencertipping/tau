@@ -32,7 +32,7 @@ namespace tau
 {
 
 
-static_assert(sizeof(tau::utf9::val) <= 16);
+static_assert(sizeof(tau::utf9::val) == 16);
 static_assert(!std::is_polymorphic<tau::utf9::val >::value);
 static_assert(!std::is_polymorphic<tau::utf9::tval>::value);
 static_assert(!std::is_polymorphic<tau::utf9::ibuf>::value);

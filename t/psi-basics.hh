@@ -28,18 +28,17 @@ void try_io()
   let p = q.φc(a, b, 3);
 
   let f = l.c([&]() {
-    iN t = 0;
+    i64 t = 0;
     for (iN i = 0; i < 10; ++i)
     {
       let v = u9{i};
       cout << "a → b " << v << endl;
-      if (q.ψww(a)) q.ψw(a, Ψv(v));
+      if (q.ψww(a)) q.ψw(a, v);
       else cout << "ψww == false??" << endl, _exit(1);
 
       if (q.ψrw(a))
       {
-        auto p = q.ψr(a);
-        let  v = u9(*p, 0);
+        u9 v = q.ψr(a);
         cout << "a got " << v << endl;
       }
 
@@ -53,15 +52,14 @@ void try_io()
   });
 
   let g = l.c([&]() {
-    iN t = 0;
+    i64 t = 0;
     while (q.ψrw(b))
     {
-      auto p = q.ψr(b);
-      let  v = u9(*p, 0);
+      u9 v = q.ψr(b);
       cout << "b got " << v << endl;
       if (!v.is_greek()) t += Sc<i64>(v);
       if (t > 10) q.ψx(b);
-      else if (q.ψww(b)) q.ψw(b, Ψv(u9{t}));
+      else if (q.ψww(b)) q.ψw(b, u9{t});
     }
 
     cout << "g is returning " << t << endl;
