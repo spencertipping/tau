@@ -58,9 +58,9 @@ struct ζ
       return (t + lΘ.Σ()) / (lΘ.n + xs.size()); }
 
 
-  bool w(T const &x)
+  bool w(T const &x, bool force = false)
     { let n = now();
-      if (!wi()) return false;
+      if (!force && !wi()) return false;
       let s_ = s(x);
       assert(s_);
       Σs += s_;
@@ -68,9 +68,9 @@ struct ζ
       xs.push_back(std::make_pair(n, x));
       return true; }
 
-  bool w(T &&x)
+  bool w(T &&x, bool force = false)
     { let n = now();
-      if (!wi()) return false;
+      if (!force && !wi()) return false;
       let s_ = s(x);
       assert(s_);
       Σs += s_;

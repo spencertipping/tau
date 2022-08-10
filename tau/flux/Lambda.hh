@@ -59,8 +59,8 @@ struct Λ
 
   λi   c(λf f, f64 p = 0)              { let   i = ιi(ni, ls); ls[i] = Λλ(f); r(i, p, λR);                                 return  i; }
   Λ   &r(λi i, f64 p = NAN, λs s = λR) { auto &l = ls.at(i); if (!std::isnan(p)) l.p = p; if ((l.s = s) == λR) rq.push(i); return *this; }
-  Λ   &x(λi i)                         { assert(ri != i); assert(e(i));                ls.erase(i);                        return *this; }
-  Λ   &y(λs s)                         { assert(!z());                                 r(ri, NAN, s); λy();                return *this; }
+  Λ   &x(λi i)                         { assert(ri != i); assert(e(i));                   ls.erase(i);                     return *this; }
+  Λ   &y(λs s)                         {                                                                                                   if (!z()) r(ri, NAN, s); λy();   return *this; }
 
   bool wi(λi i) { return si(i) == λZ; }
   Λr   w (λi i)

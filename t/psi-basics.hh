@@ -25,7 +25,7 @@ void try_io()
 
   let a = q.ψc();
   let b = q.ψc();
-  let p = q.φc(a, b, 3);
+  let p = q.φc(a, b, 256);
 
   let f = l.c([&]() {
     i64 t = 0;
@@ -36,13 +36,15 @@ void try_io()
       if (q.ψww(a)) q.ψw(a, v);
       else cout << "ψww == false??" << endl, _exit(1);
 
-      if (q.ψrw(a))
+      while (q.ψri(a))
       {
         u9 v = q.ψr(a);
         cout << "a got " << v << endl;
       }
 
       t += i;
+
+      cout << "a→b pipe: " << q.ψwζ(a) << endl;
     }
 
     q.ψx(a);
