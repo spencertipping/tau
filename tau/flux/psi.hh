@@ -90,9 +90,11 @@ struct Ψ
 
   u9v ψr(ψi i)
     { assert(φe(i));
-      let o = φo(i);
-      if (φe(i) && lw.contains(o)) λw(lw[o]);
-      return ψrζ(i).r(); }
+      let o = φo(i); if (φe(i) && lw.contains(o)) λw(lw[o]);
+      auto &z = ψrζ(i);
+      return z.ri() ? z.r()
+           : z.xi() ? u9v{ω}
+           :          u9v{κ}; }
 
   bool ψww(ψi i)
     { bool  e = ψe(i) && φe(i); if (!e) return false;

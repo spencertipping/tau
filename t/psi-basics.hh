@@ -61,6 +61,7 @@ void try_io()
       if (q.ψww(b)) q.ψw(b, u9{t});
     }
 
+    cout << "final read before closing: " << q.ψr(b) << endl;
     q.ψx(b);
 
     cout << "g is returning " << t << endl;
