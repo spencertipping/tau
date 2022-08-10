@@ -58,9 +58,10 @@ void try_io()
       u9 v = q.ψr(b);
       cout << "b got " << v << endl;
       if (!v.is_greek()) t += Sc<i64>(v);
-      if (t > 10) q.ψx(b);
-      else if (q.ψww(b)) q.ψw(b, u9{t});
+      if (q.ψww(b)) q.ψw(b, u9{t});
     }
+
+    q.ψx(b);
 
     cout << "g is returning " << t << endl;
     return t;

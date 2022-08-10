@@ -84,7 +84,7 @@ struct Ψ
       while ((e = ψe(i) && φe(i) && n == ψn(i)) && !z.ri() && !z.xi())
       { if (!l.z()) l.r(l.i(), NAN, λI), lr[i].emplace(l.i());
         λy(); }
-      h.stop();
+      if (e) h.stop();
 
       return e && z.ri(); }
 
@@ -103,7 +103,7 @@ struct Ψ
       while ((e = ψe(i) && φe(i) && n == ψn(i)) && !z.wi() && !z.xi())
       { if (!l.z()) l.r(l.i(), NAN, λI), lw[i].emplace(l.i());
         λy(); }
-      h.stop();
+      if (e) h.stop();
       return e && z.wi(); }
 
   bool ψw(ψi i, u9v const &x)
