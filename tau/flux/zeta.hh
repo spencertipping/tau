@@ -18,36 +18,41 @@ namespace tau::flux
 {
 
 
-template<class T>
+// TODO: c is a size, and each element has a size
+template<class T, class S>
 struct ζ
 {
+  S           s;
   ΣΘΔ         lΘ;
   uN          c;
+  uN          Σs;
+  u64         Σw;
   D<P<Θp, T>> xs;
 
-  ζ(uN c_ = 64) : c(c_) { assert(c); }
+  ζ(uN c_ = 64) : c(c_), Σs(0), Σw(0) { assert(c); }
 
 
-  ζ<T> &operator=(ζ<T> &&p)
-    { lΘ = p.lΘ;
+  ζ &operator=(ζ<T, S> &&p)
+    { s  = p.s;
+      lΘ = p.lΘ;
       c  = p.c;
+      Σs = p.Σs;
+      Σw = p.Σw;
       xs = std::move(p.xs);
       return *this; }
 
 
-  bool ri()    const { return xs.size() > 0; }
-  bool wi()    const { return xs.size() < c; }
-  u64  rΣ()    const { return lΘ.n; }
-  u64  wΣ()    const { return rΣ() + xs.size(); }
+  bool  ri()   const {        return xs.size() > 0; }
+  bool  wi()   const {        return Σs < c; }
+  u64   rΣ()   const {        return Σw - Σs; }
+  u64   wΣ()   const {        return Σw; }
 
-  void x()           { c = 0; }
-  bool xi()    const { return !c; }
-  uN   n()     const { return xs.size(); }
+  ζ    &x ()         { c = 0; return *this; }
+  bool  xi()   const {        return !c; }
 
 
-  // Mean per-item latency through this pipe
-  ΔΘ δ() const
-    { if (lΘ.n + xs.size() == 0) return 0ns;
+  ΔΘ μΘ() const
+    { if (!Σw) return 0ns;
       auto t = 0ns;
       let  n = now();
       for (let &x : xs) t += n - std::get<0>(x);
@@ -57,12 +62,18 @@ struct ζ
   bool w(T const &x)
     { let n = now();
       if (!wi()) return false;
+      let s_ = s(x);
+      Σs += s_;
+      Σw += s_;
       xs.push_back(std::make_pair(n, x));
       return true; }
 
   bool w(T &&x)
     { let n = now();
       if (!wi()) return false;
+      let s_ = s(x);
+      Σs += s_;
+      Σw += s_;
       xs.push_back(std::make_pair(n, std::move(x)));
       return true; }
 
@@ -70,21 +81,22 @@ struct ζ
     { assert(ri());
       let [t, x] = xs.front();
       lΘ << now() - t;
+      Σs -= s(x);
       xs.pop_front();
       return x; }
 };
 
 
 #if tau_debug_iostream
-template<class T>
-O &operator<<(O &s, ζ<T> const &z)
+template<class T, class S>
+O &operator<<(O &s, ζ<T, S> const &z)
 {
   return s << "ζ["
            << (z.ri() ? "R" : "r")
-           << (z.wi() ? "W" : z.ci() ? "#" : "w")
-           << " n=" << z.wΣ()
-           << " c=" << z.n() << "/" << z.c
-           << " δ=" << z.δ() << "]";
+           << (z.wi() ? "W" : z.xi() ? "#" : "w")
+           << " w=" << z.wΣ()
+           << " s=" << z.Σs << "/" << z.c
+           << " μΘ=" << z.μΘ() << "]";
 }
 #endif
 
