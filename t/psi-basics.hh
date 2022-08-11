@@ -25,7 +25,7 @@ void try_io()
 
   let a = q.ψc();
   let b = q.ψc();
-  let p = q.φc(a, b, 256);
+  q.φc(a, b, 256);
 
   cout << "initial Ψ state:" << endl;
   cout << q << endl;

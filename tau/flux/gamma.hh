@@ -26,10 +26,12 @@ struct γ
   sha256         gsi{0, 0, 0, 0};
   M<sha256, λi>  yλ;
   M<sha256, ψi>  yψ;
+  Θp             t0;
 
-  γ(Γ &g_, γi i_) : g(g_), i(i_) {}
+  γ(Γ &g_, γi i_) : g(g_), i(i_), t0(now()) {}
 
   u9         gs()               { return u9{++gsi}; }
+  ΔΘ         Θi()         const { return now() - t0; }
 
   γ         &λc(u9c &s, λf &&f) { assert(!yλ.contains(s)); yλ[s] = g.λc(i, std::move(f)); return *this; }
   bool       λe(u9c &s)   const {                                                         return yλ.contains(s); }
@@ -45,10 +47,13 @@ struct γ
   bool ψww(u9c &s) const { return g.ψww(i, yψ.at(s)); }
 
   bool ψw(u9c &s, u9 &&v)
-    { if (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i); return true; }
+    { if      (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i); return true; }
+      else if (v == ω) { g.ψx(i, yψ.at(s)); yψ.erase(s);           return true; }
       return g.ψw(i, yψ.at(s), std::move(v)); }
+
   bool ψw(u9c &s, u9c &v)
-    { if (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i); return true; }
+    { if      (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i); return true; }
+      else if (v == ω) { g.ψx(i, yψ.at(s)); yψ.erase(s);           return true; }
       return g.ψw(i, yψ.at(s), v); }
 
   γ &Θw(ΔΘ t) { return Θw(now() + t); }
@@ -71,6 +76,19 @@ inline γ &Γ::γc()
   ye = true;
   delete gs[i];
   gs.erase(i);
+  return *this;
+}
+
+
+inline Γ &Γ::φc(γi a, u9c &aq, γi b, u9c &bq, uN ζc)
+{
+  return φc(*gs.at(a), aq, *gs.at(b), bq, ζc);
+}
+
+
+Γ &Γ::φc(γ const &a, u9c &aq, γ const &b, u9c &bq, uN ζc)
+{
+  q.φc(a.yψ.at(aq), b.yψ.at(bq), ζc);
   return *this;
 }
 

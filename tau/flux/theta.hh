@@ -27,11 +27,11 @@ struct Θ
 
   Θ(Λ &l_) : l(l_), qp{*this}, dq(qp) {}
 
-  Θ &c(λi i)       { ls[i] = Θλ(never());                                       return *this; }
-  Θ &x(λi i)       { ls.erase(i);                                               return *this; }
-  Θ &w(λi i, Θp t) { auto &l = ls.at(i); assert(t <= l.d); l.d = t; dq.push(i); return *this; }
-  Θ &r(λi i)       { auto &l = ls.at(i); l.m.start(); l.y.start();              return *this; }
-  Θ &s(λi i)       { auto &l = ls.at(i); l.m.stop();  l.y.stop();               return *this; }
+  Θ &c(λi i)       { ls[i] = Θλ(never());                                         return *this; }
+  Θ &x(λi i)       { ls.erase(i);                                                 return *this; }
+  Θ &w(λi i, Θp t) { auto &l = ls.at(i); assert(t <= l.d); l.d = t; dq.push(i);   return *this; }
+  Θ &r(λi i)       { auto &l = ls.at(i); l.d = never(); l.m.start(); l.y.start(); return *this; }
+  Θ &s(λi i)       { auto &l = ls.at(i);                l.m.stop();  l.y.stop();  return *this; }
 
   ΣΘΔ const &mi(λi i) const { return ls.at(i).m; }
   ΣΘΔ const &yi(λi i) const { return ls.at(i).y; }

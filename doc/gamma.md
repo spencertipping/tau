@@ -33,6 +33,4 @@ struct γ
 };
 ```
 
-**TODO:** add greek signal interface: inbound async signals from a listener function, probably? (`ζ<u9>`?)
-
 **NOTE:** `ψw` has the option of just `obuf << v` for memory management, which is worst-case about as computationally expensive as data structure allocation in Python. Then the underlying pipe carries `shared_ptr<obuf>` objects and we have no issues with GC. If we have exceptionally large values, we can refer to them using a static checkin/checkout dictionary Φ -- but that requires us to manage GC manually.

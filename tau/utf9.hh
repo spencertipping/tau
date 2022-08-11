@@ -5,6 +5,7 @@
 #define tau_defines_utf9 1
 
 
+#include <string>
 #include <type_traits>
 
 
@@ -92,6 +93,12 @@ using tau::utf9::tbytes;
 
 
 using tau::utf9::operator<<;
+
+
+u9 operator""y(char const *s, uN l)
+{
+  return u9y(std::string{s, l});
+}
 
 
 }

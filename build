@@ -19,7 +19,7 @@ usage() {
 t_gcc_opts=(-std=c++20 -O3 )
 t_em_opts=( -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses )
 t_gcc_debug_opts=(
-  -Wall -Wno-parentheses -Wno-misleading-indentation
+  -Wall -Wno-parentheses -Wno-misleading-indentation -Wno-literal-suffix
   -std=c++20 -O0 -g
 )
 

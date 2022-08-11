@@ -6,10 +6,12 @@
 #include "tau/utf9.hh"
 #include "tau/flux.hh"
 
+#include "tau/util/hash.hh"
 #include "tau/util/pi.hh"
 #include "tau/util/shd.hh"
 #include "tau/util/nonce.hh"
 #include "tau/util/ostream.hh"
+#include "tau/util/numerics.hh"
 
 
 #include "tau/module/begin.hh"

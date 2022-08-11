@@ -25,10 +25,11 @@ struct Γ
   Φ    f  {l};
   γi   gi {0};
   bool ye {true};
+  Θp   t0;
 
   f64 θp;
 
-  Γ(f64 θp_ = 0.9) : θp(θp_) {}
+  Γ(f64 θp_ = 0.9) : t0(now()), θp(θp_) {}
 
   M<λi, γi> lg;
   M<ψi, γi> qg;
@@ -37,7 +38,9 @@ struct Γ
   γ &γc();
   Γ &γx(γi);
 
-  Γ         &y ()               { if (ye && h.y(l.i(), θp)) h.s(l.i()), l.y(λR);              return *this; }
+  ΔΘ         Θi()         const { return now() - t0; }
+
+  Γ         &y ()               { if (ye && !l.z() && h.y(l.i(), θp)) h.s(l.i()), l.y(λR);    return *this; }
 
   λi         λc(γi g, λf &&f)   { y(); let i = l.c(std::move(f)); lg[i] = g; h.c(i);          return i; }
   Λr         λw(γi g, λi i)     { y(); assert(lg.at(i) == g); let r = l.w(i); h.x(i);         return r; }
@@ -56,10 +59,14 @@ struct Γ
 
   Γ    &Θw (γi g, Θp t)         { y(); assert(lg.at(l.i()) == g); h.w(l.i(), t); l.y(λs::λΘ); return *this; }
 
+  Γ    &go(F<bool(λi)> const &f = [](λi){ return true; })
+    { for (λi t; (t = l()) && f(t);) h.r(t), l << t, h.s(t);
+      f(0);
+      return *this; }
 
-  // TODO: Λ stepping
 
-  // TODO: Ψ interconnection
+  Γ &φc(γi       a, u9c &aq, γi       b, u9c &bq, uN ζc = ζc0);
+  Γ &φc(γ const &a, u9c &aq, γ const &b, u9c &bq, uN ζc = ζc0);
 };
 
 

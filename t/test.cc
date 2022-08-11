@@ -11,6 +11,7 @@
 #if tau_defines_flux
 # include "coro-basics.hh"
 # include "psi-basics.hh"
+# include "gamma-basics.hh"
 #endif
 
 
@@ -32,6 +33,7 @@ int main(int argc, char **argv)
 #if tau_defines_flux
     t::coro_basics::main();
     t::psi_basics::main();
+    t::gamma_basics::main();
 #endif
   }
   else
@@ -43,8 +45,9 @@ int main(int argc, char **argv)
       if      (!strcmp("utf9", a))  fs.push_back(t::utf9_basics::main);
       else if (!strcmp("util", a))  fs.push_back(t::util_basics::main);
 #if tau_defines_flux
-      else if (!strcmp("coro", a))  fs.push_back(t::coro_basics::main);
-      else if (!strcmp("psi",  a))  fs.push_back(t::psi_basics::main);
+      else if (!strcmp("coro",  a)) fs.push_back(t::coro_basics::main);
+      else if (!strcmp("psi",   a)) fs.push_back(t::psi_basics::main);
+      else if (!strcmp("gamma", a)) fs.push_back(t::gamma_basics::main);
 #endif
       else
       {
