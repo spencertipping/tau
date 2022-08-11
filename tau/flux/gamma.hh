@@ -29,17 +29,50 @@ struct γ
 
   γ(Γ &g_, γi i_) : g(g_), i(i_) {}
 
-  γ         &λc(u9 const &s, λf &&f) { assert(!yλ.contains(s)); yλ[s] = g.λc(i, std::move(f)); return *this; }
-  bool       λe(u9 const &s)   const {                                                         return yλ.contains(s); }
-  Λr         λw(u9 const &s)         { let r = g.λw(i, yλ.at(s)); yλ.erase(s);                 return r; }
-  γ         &λx(u9 const &s)         { g.λx(i, yλ.at(s));         yλ.erase(s);                 return *this; }
-  ΣΘΔ const &λΘ(u9 const &s)         {                                                         return g.λΘ(i, yλ.at(s)); }
+  u9         gs()               { return u9{++gsi}; }
 
-  // TODO: ψ functions
+  γ         &λc(u9c &s, λf &&f) { assert(!yλ.contains(s)); yλ[s] = g.λc(i, std::move(f)); return *this; }
+  bool       λe(u9c &s)   const {                                                         return yλ.contains(s); }
+  Λr         λw(u9c &s)         { let r = g.λw(i, yλ.at(s)); yλ.erase(s);                 return r; }
+  γ         &λx(u9c &s)         { g.λx(i, yλ.at(s));         yλ.erase(s);                 return *this; }
+  ΣΘΔ const &λΘ(u9c &s)         {                                                         return g.λΘ(i, yλ.at(s)); }
+
+  bool ψri(u9c &s) const { return g.ψri(i, yψ.at(s)); }
+  bool ψrw(u9c &s) const { return g.ψrw(i, yψ.at(s)); }
+  u9   ψr (u9c &s) const { return g.ψr (i, yψ.at(s)); }
+
+  bool ψwi(u9c &s) const { return g.ψwi(i, yψ.at(s)); }
+  bool ψww(u9c &s) const { return g.ψww(i, yψ.at(s)); }
+
+  bool ψw(u9c &s, u9 &&v)
+    { if (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i); return true; }
+      return g.ψw(i, yψ.at(s), std::move(v)); }
+  bool ψw(u9c &s, u9c &v)
+    { if (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i); return true; }
+      return g.ψw(i, yψ.at(s), v); }
+
+  γ &Θw(ΔΘ t) { return Θw(now() + t); }
+  γ &Θw(Θp t) { g.Θw(i, t); return *this; }
 };
 
 
-inline γ &Γ::γc() { return *(gs[ιi(gi, gs)] = new γ{*this, gi}); }
+inline γ &Γ::γc()
+{
+  return *(gs[ιi(gi, gs)] = new γ{*this, gi});
+}
+
+
+Γ &Γ::γx(γi i)
+{
+  let &g = *gs[i];
+  ye = false;
+  for (let &[_, l] : g.yλ) λx(i, l);
+  for (let &[_, q] : g.yψ) ψx(i, q);
+  ye = true;
+  delete gs[i];
+  gs.erase(i);
+  return *this;
+}
 
 
 #if tau_debug_iostream

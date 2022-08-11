@@ -53,7 +53,9 @@ typedef tau::utf9::tval t9;
 typedef tau::utf9::ibuf i9;
 typedef tau::utf9::obuf o9;
 
-typedef tau::utf9::sha256 u9sha;
+typedef u9 const u9c;
+typedef t9 const t9c;
+typedef i9 const i9c;
 
 
 using tau::utf9::u9n;

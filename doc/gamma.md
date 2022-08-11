@@ -10,22 +10,23 @@ Operators receive a γ object that functions as their Γ call interface.
 ```cpp
 struct γ
 {
-  u9      gs();                 // gensym for identifiers
-  ΣΘΔ     γΘ() const;           // Σ[λΘ]
+  u9      gs();            // gensym for identifiers
+  ΣΘΔ     γΘ() const;      // Σ[λΘ]
 
   γ      &λc(u9, λf);
-  bool    λe(u9) const;         // does λ exist
-  λr      λw(u9);               // gracefully await λ
-  γ      &λx(u9);               // kill λ
+  bool    λe(u9) const;    // does λ exist
+  λr      λw(u9);          // gracefully await λ
+  γ      &λx(u9);          // kill λ
   ΣΘΔ    &λΘ(u9) const;
 
-  γ      &ψc (u9);              // define port (send ω to close)
-  bool    ψe (u9) const;        // does ψ exist
-  u9      ψr (u9);              // read item
-  bool    ψri(u9);              // is readable
-  bool    ψw (u9, u9 const &);  // write item
-  bool    ψwi(u9) const;        // is writable right now
-  Ψ::ψit  ψs (u9) const;        // iterable
+  bool    ψri(u9);         // is readable right now
+  bool    ψrw(u9);         // is readable
+  u9      ψr (u9);         // read item
+  bool    ψwi(u9) const;   // is writable right now
+  bool    ψww(u9) const;   // is writable
+  bool    ψw (u9, u9c &);  // write item
+  bool    ψe (u9) const;   // does ψ exist
+  Ψ::ψit  ψs (u9) const;   // iterable
 
   γ      &Θw(ΔΘ s) { return Θw(now() + s); }
   γ      &Θw(Θp);
