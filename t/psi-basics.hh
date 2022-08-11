@@ -27,9 +27,12 @@ void try_io()
   let b = q.ψc();
   let p = q.φc(a, b, 256);
 
+  cout << "initial Ψ state:" << endl;
+  cout << q << endl;
+
   let f = l.c([&]() {
     i64 t = 0;
-    for (iN i = 0; i < 10; ++i)
+    for (i64 i = 0; i < 10; ++i)
     {
       let v = u9{i};
       cout << "a → b " << v << endl;
@@ -75,6 +78,8 @@ void try_io()
 
   cout << "final Λ state:" << endl;
   cout << l << endl;
+  cout << "final Ψ state:" << endl;
+  cout << q << endl;
 
   cout << "ended; λs = " << l.w(f) << ", " << l.w(g) << endl;
   cout << "post-wait Λ state:" << endl;

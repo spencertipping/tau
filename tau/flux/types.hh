@@ -38,6 +38,9 @@ typedef uN      ψi;  // Γ-local port identifier
 typedef uN      φi;  // internal connection identifier
 
 
+uNc constexpr ζc₀ = 65536;
+
+
 template<class K, class V>
 inline K ιi(K &c, M<K, V> const &m)
 {

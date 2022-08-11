@@ -28,7 +28,7 @@ struct ζ
   u64         Σw;
   D<P<Θp, T>> xs;
 
-  ζ(uN c_ = 64) : c(c_), Σs(0), Σw(0) { assert(c); }
+  ζ(uN c_ = ζc₀) : c(c_), Σs(0), Σw(0) { assert(c); }
 
 
   ζ &operator=(ζ &&p)

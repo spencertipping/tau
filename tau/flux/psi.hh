@@ -44,7 +44,7 @@ struct Ψ
   ψi           qi{0};
   nonce        ni{0};
 
-  Ψ(Λ &l_, uN ζc_ = 64) : l(l_), ζc(ζc_) {}
+  Ψ(Λ &l_, uN ζc_ = ζc₀) : l(l_), ζc(ζc_) {}
 
   ψi   ψc ()           { qs[ιi(qi, qs)] = 0;        return qi; }
   bool ψe (ψi i) const {                            return qs.contains(i); }
@@ -154,13 +154,18 @@ struct Ψ
 #if tau_debug_iostream
 O &operator<<(O &s, Ψ::φ const &c)
 {
-  return s << "TODO: φ";
+  return s << "φ["
+           << c.a << "-" << c.b << " " << c.n << " "
+           << c.ab << " " << c.ba << "]";
 }
 
 
 O &operator<<(O &s, Ψ const &q)
 {
-  return s << "TODO: Ψ";
+  s << "Ψ ζc=" << q.ζc << std::endl;
+  for (let &[k, c] : q.qs)
+    s << "  " << k << "\t" << q.cs.at(c) << std::endl;
+  return s;
 }
 #endif
 
