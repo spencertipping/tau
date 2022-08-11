@@ -58,10 +58,10 @@ struct Γ
   bool  ψw (γi g, ψi i, u9 &&v) { y(); assert(qg.at(i) == g);                                 return q.ψw(i, std::move(v)); }
   bool  ψw (γi g, ψi i, u9c &v) { y(); assert(qg.at(i) == g);                                 return q.ψw(i, v); }
 
+  Γ    &Θw (γi g, Θp t)         { y(); assert(lg.at(l.i()) == g); h.w(l.i(), t); l.y(λs::λΘ); return *this; }
+
   Γ &φc(γi       a, u9c &aq, γi       b, u9c &bq, uN ζc = ζc0);
   Γ &φc(γ const &a, u9c &aq, γ const &b, u9c &bq, uN ζc = ζc0);
-
-  Γ &Θw(γi g, Θp t)         { y(); assert(lg.at(l.i()) == g); h.w(l.i(), t); l.y(λs::λΘ); return *this; }
 
   Θp go(F<bool(λi)> const &f = [](λi){ return true; })
     { for (λi t; (t = l()) && f(t);) { h.r(t); l << t; h.s(t); }
