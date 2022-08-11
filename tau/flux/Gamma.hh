@@ -30,6 +30,7 @@ struct Γ
   f64 θp;
 
   Γ(f64 θp_ = 0.9) : t0(now()), θp(θp_) {}
+  ~Γ();
 
   M<λi, γi> lg;
   M<ψi, γi> qg;
@@ -60,7 +61,23 @@ struct Γ
   Γ    &Θw (γi g, Θp t)         { y(); assert(lg.at(l.i()) == g); h.w(l.i(), t); l.y(λs::λΘ); return *this; }
 
   Γ    &go(F<bool(λi)> const &f = [](λi){ return true; })
-    { for (λi t; (t = l()) && f(t);) h.r(t), l << t, h.s(t);
+    { for (λi t; (t = l()) && f(t);)
+      {
+        std::cout << "THETARUN " << t << std::endl;
+        h.r(t);
+        std::cout << "theta stopwatches:" << std::endl;
+        std::cout << "  m = " << h.mi(t) << std::endl;
+        std::cout << "  y = " << h.yi(t) << std::endl;
+        std::cout << "RUNNING " << t << std::endl;
+        l << t;
+        std::cout << "STOPPED " << t << ": " << l.si(t) << std::endl;
+        std::cout << "theta stopwatches:" << std::endl;
+        std::cout << "  m = " << h.mi(t) << std::endl;
+        std::cout << "  y = " << h.yi(t) << std::endl;
+        h.s(t);
+        std::cout << "THETASTOP " << t << std::endl;
+
+      }
       f(0);
       return *this; }
 

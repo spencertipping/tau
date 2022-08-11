@@ -32,6 +32,7 @@ struct γ
 
   u9         gs()               { return u9{++gsi}; }
   ΔΘ         Θi()         const { return now() - t0; }
+  ΣΘΔ        γΘ()         const { ΣΘΔ r; for (let &[_, l] : yλ) r += g.λΘ(i, l);          return r; }
 
   γ         &λc(u9c &s, λf &&f) { assert(!yλ.contains(s)); yλ[s] = g.λc(i, std::move(f)); return *this; }
   bool       λe(u9c &s)   const {                                                         return yλ.contains(s); }
@@ -59,6 +60,12 @@ struct γ
   γ &Θw(ΔΘ t) { return Θw(now() + t); }
   γ &Θw(Θp t) { g.Θw(i, t); return *this; }
 };
+
+
+Γ::~Γ()
+{
+  for (let &[_, p] : gs) delete p;
+}
 
 
 inline γ &Γ::γc()
