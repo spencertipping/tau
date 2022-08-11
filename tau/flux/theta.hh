@@ -35,7 +35,10 @@ struct Θ
 
   ΣΘΔ const &mi(λi i) const { return ls.at(i).m; }
   ΣΘΔ const &yi(λi i) const { return ls.at(i).y; }
+  Θp         di(λi i) const { return i ? ls.at(i).d : never(); }
   Θp          Δ()     const { return dq.empty() ? forever() : ls.at(dq.top()).d; }
+
+  λi operator()()           { if (dq.empty()) return 0; let l = dq.top(); dq.pop(); return l; }
 
   // Probabilistic yield for upcoming deadline (returns true iff the specified
   // thread should yield now).
@@ -44,7 +47,6 @@ struct Θ
   // λ's yield timer is updated.
   bool y(λi i, f64 p = 0.9)
     { auto &l = ls.at(i); l.y.stop(); l.y.start();
-      std::cout << "yield-check " << i << std::endl;
       return now() + l.y.p(p) >= Δ(); }
 };
 

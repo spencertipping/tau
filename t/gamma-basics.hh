@@ -1,3 +1,4 @@
+#include <thread>
 #include <unistd.h>
 
 
@@ -86,9 +87,13 @@ using tau::operator<<;
   g.λc("main"y, [&, t]() {
     while (g.ψrw("stdin"y))
     {
-      g.Θw(t);
-      if (!g.ψww("stdout"y)) break;
-      else g.ψw("stdout"y, g.ψr("stdin"y));
+      let v = g.ψr("stdin"y);
+      if (!v.is_greek())
+      {
+        g.Θw(t);
+        if (!g.ψww("stdout"y)) break;
+        else g.ψw("stdout"y, v);
+      }
     }
     g.ψw("stdin"y, ω);
     g.ψw("stdout"y, ω);
@@ -125,7 +130,9 @@ void try_gamma()
   g.φc(c, "stdout"y, d, "stdin"y, 64);
 
   cout << "running gamma" << endl;
-  g.go();
+  for (Θp t; (t = g.go()) != never();)
+    std::this_thread::sleep_until(t);
+
   cout << "done; exit state is " << d.λw("main"y) << endl;
   cout << "timings:" << endl;
   cout << "  a = " << a.γΘ() << endl;
@@ -141,7 +148,7 @@ void try_sleep()
 {
   Γ g;
   γ &a = n(g.γc(), 100),
-    &b = sleep(g.γc(), 100ns),
+    &b = sleep(g.γc(), 1ms),
     &c = out(g.γc());
 
   cout << "connecting stdout <-> stdin" << endl;
@@ -149,7 +156,13 @@ void try_sleep()
   g.φc(b, "stdout"y, c, "stdin"y, 64);
 
   cout << "running gamma" << endl;
-  g.go();
+
+  for (Θp t; (t = g.go()) != never();)
+  {
+    cout << "sleeping until t+" << now() - t << endl;
+    std::this_thread::sleep_until(t);
+  }
+
   cout << "timings:" << endl;
   cout << "  a = " << a.γΘ() << endl;
   cout << "  b = " << b.γΘ() << endl;
