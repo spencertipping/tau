@@ -112,7 +112,10 @@ oenc &operator<<(oenc &o, val const &v)
 
   case FLOAT32:  return o.U8(0x08).F32(v);
   case FLOAT64:  return o.U8(0x09).F64(v);
-  case SYMBOL:   return o.U8(0x0a).U64(Sc<sym>(v).h);
+  case SYMBOL:
+  { let h = Sc<sha256>(v);
+    return o.U8(0x0a).U64(h.xs[0]).U64(h.xs[1]).U64(h.xs[2]).U64(h.xs[3]); }
+
   case PIDFD:    return o.U8(0x0b).U32(Sc<pidfd>(v).pid).U32(Sc<pidfd>(v).fd);
   case BOOL:     return o.U8(Sc<bool>(v) ? 0x0d : 0x0c);
   case NULLTYPE: return o.U8(0x0e);

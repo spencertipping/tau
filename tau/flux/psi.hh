@@ -1,5 +1,5 @@
-#ifndef tau_flux_psi_h
-#define tau_flux_psi_h
+#ifndef tau_flux_ψ_h
+#define tau_flux_ψ_h
 
 
 #include "../types.hh"
@@ -163,8 +163,7 @@ O &operator<<(O &s, Ψ::φ const &c)
 O &operator<<(O &s, Ψ const &q)
 {
   s << "Ψ ζc=" << q.ζc << std::endl;
-  for (let &[k, c] : q.qs)
-    s << "  " << k << "\t" << q.cs.at(c) << std::endl;
+  for (let &[_, c] : q.cs) s << "  " << c << std::endl;
   return s;
 }
 #endif

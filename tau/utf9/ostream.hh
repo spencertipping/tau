@@ -33,7 +33,6 @@ std::ostream &operator<<(std::ostream &s, obuf const &o)
 
 
 #if tau_debug_iostream
-std::ostream &operator<<(std::ostream &s, sym   const &y) { return hexout(s << 's', y.h); }
 std::ostream &operator<<(std::ostream &s, hash  const &h) { return hexout(s << 'h', h.h); }
 std::ostream &operator<<(std::ostream &s, pidfd const &p) { return s << "[p=" << p.pid << ",fd=" << p.fd << "]"; }
 
@@ -121,7 +120,7 @@ std::ostream &operator<<(std::ostream &s, val const &v)
   case INT:  case INT8:  case INT16:  case INT32:  case INT64:  return s << Sc<i64>(v);
   case FLOAT32: return s << Sc<f32>(v);
   case FLOAT64: return s << Sc<f64>(v);
-  case SYMBOL:  return s << Sc<sym>(v);
+  case SYMBOL:  return s << Sc<sha256>(v);
   case PIDFD:   return s << Sc<pidfd>(v);
 
   case GREEK:

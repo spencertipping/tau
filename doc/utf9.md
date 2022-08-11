@@ -71,7 +71,7 @@ Any datatype with a non-constant length has the length prepended to it so we can
 | `0x07`      | 8               | `int64`                      |
 | `0x08`      | 4               | `float32`                    |
 | `0x09`      | 8               | `float64`                    |
-| `0x0a`      | 8               | `symbol`                     |
+| `0x0a`      | 32              | `symbol`                     |
 | `0x0b`      | 8               | `pidfd`, `uint32` pid and fd |
 | `0x0c`      | 0               | `false`                      |
 | `0x0d`      | 0               | `true`                       |
@@ -250,7 +250,7 @@ H<uint>   (x) = xxc(x, 0x00)
 H<int>    (x) = xxc(x, 0x04)
 H<float32>(x) = xxh(big_endian(x), 4, 0x08)
 H<float64>(x) = xxh(big_endian(x), 8, 0x09)
-H<symbol> (x) = xxh(x.text, x.length, 0x0a)
+H<symbol> (x) = (x >> 64) ^ (x & 0xffffffffffffffff)
 H<pidfd>  (x) = xxc(xxc(x.pid, x.fd), 0x0b)
 H<bool>   (x) = xxc(NULL, 0, x ? 0x0d : 0x0c)
 H<null>   (x) = xxh(NULL, 0, 0x0e)

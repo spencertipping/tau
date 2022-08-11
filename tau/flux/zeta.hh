@@ -1,5 +1,5 @@
-#ifndef tau_flux_zeta_h
-#define tau_flux_zeta_h
+#ifndef tau_flux_ζ_h
+#define tau_flux_ζ_h
 
 
 #include <cmath>
@@ -58,24 +58,26 @@ struct ζ
       return (t + lΘ.Σ()) / (lΘ.n + xs.size()); }
 
 
-  bool w(T const &x, bool force = false)
+  bool w(T const &x, bool force = false, bool front = false)
     { let n = now();
       if (!force && !wi()) return false;
       let s_ = s(x);
       assert(s_);
       Σs += s_;
       Σw += s_;
-      xs.push_back(std::make_pair(n, x));
+      if (front) xs.push_front(std::make_pair(n, x));
+      else       xs.push_back (std::make_pair(n, x));
       return true; }
 
-  bool w(T &&x, bool force = false)
+  bool w(T &&x, bool force = false, bool front = false)
     { let n = now();
       if (!force && !wi()) return false;
       let s_ = s(x);
       assert(s_);
       Σs += s_;
       Σw += s_;
-      xs.push_back(std::make_pair(n, std::move(x)));
+      if (front) xs.push_front(std::make_pair(n, std::move(x)));
+      else       xs.push_back (std::make_pair(n, std::move(x)));
       return true; }
 
   T r()

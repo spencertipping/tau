@@ -61,6 +61,7 @@ using tau::utf9::u9a;
 using tau::utf9::u9l;
 using tau::utf9::u9s;
 using tau::utf9::u9m;
+using tau::utf9::u9y;
 
 using tau::utf9::α;
 using tau::utf9::ω;

@@ -8,6 +8,7 @@
 #include "../types.hh"
 
 #include "error-proto.hh"
+#include "hash.hh"
 #include "ibuf.hh"
 
 
@@ -16,13 +17,6 @@
 namespace tau::utf9
 {
 
-struct sym
-{
-  u64 h;
-  sym(std::string const &s) : h(H<std::string>{}(s)) {}
-  sym(u64 h_)               : h(h_)                  {}
-  operator u64() const { return h; }
-};
 
 struct hash
 {
@@ -31,6 +25,7 @@ struct hash
   operator u64() const { return h; }
   int compare(hash const x) const { return h > x.h ? 1 : h < x.h ? -1 : 0; }
 };
+
 
 struct pidfd
 {
@@ -44,6 +39,7 @@ struct pidfd
   bool operator<(pidfd const &v) const { return pid < v.pid || pid == v.pid && fd < v.fd; }
   bool operator>(pidfd const &v) const { return pid > v.pid || pid == v.pid && fd > v.fd; }
 };
+
 
 struct greek
 {
@@ -72,10 +68,10 @@ struct greek
 };
 
 
-static_assert(sizeof(sym)   == sizeof(u64));
 static_assert(sizeof(hash)  == sizeof(u64));
 static_assert(sizeof(pidfd) == sizeof(u64));
 static_assert(sizeof(greek) == sizeof(u64));
+
 
 }
 

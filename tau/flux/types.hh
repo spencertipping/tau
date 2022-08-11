@@ -36,6 +36,7 @@ typedef F<Λr()> λf;
 
 typedef uN      ψi;  // Γ-local port identifier
 typedef uN      φi;  // internal connection identifier
+typedef uN      γi;
 
 
 uNc constexpr ζc₀ = 65536;

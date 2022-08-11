@@ -1,5 +1,5 @@
-#ifndef tau_flux_theta_h
-#define tau_flux_theta_h
+#ifndef tau_flux_θ_h
+#define tau_flux_θ_h
 
 
 #include "../types.hh"

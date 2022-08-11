@@ -48,7 +48,7 @@ struct val
     f64       vd;
     f32       vf;
     pidfd     vp;
-    sym       vy;
+    sha256   *vy;
     greek     vg;
     Bv const *vb;
     V<val>   *vt; } const;
@@ -83,12 +83,12 @@ struct val
   explicit val(u64 vu_, val_type t_ = UINT) : tag(tagify(t_)), vu(vu_) {}
   explicit val(i64 vi_, val_type t_ = INT)  : tag(tagify(t_)), vi(vi_) {}
 
-  explicit val(f64 vd_)   : tag(tagify(FLOAT64)), vd(vd_) {}
-  explicit val(f32 vf_)   : tag(tagify(FLOAT32)), vf(vf_) {}
-  explicit val(sym vy_)   : tag(tagify(SYMBOL)),  vy(vy_) {}
-  explicit val(pidfd vp_) : tag(tagify(PIDFD)),   vp(vp_) {}
-  explicit val(greek vg_) : tag(tagify(GREEK)),   vg(vg_) {}
-  explicit val(bool b_)   : tag(tagify(BOOL)),    vu(b_)  {}
+  explicit val(f64 vd_)           : tag(tagify(FLOAT64)),      vd(vd_) {}
+  explicit val(f32 vf_)           : tag(tagify(FLOAT32)),      vf(vf_) {}
+  explicit val(pidfd vp_)         : tag(tagify(PIDFD)),        vp(vp_) {}
+  explicit val(greek vg_)         : tag(tagify(GREEK)),        vg(vg_) {}
+  explicit val(bool b_)           : tag(tagify(BOOL)),         vu(b_)  {}
+  explicit val(sha256 const &vy_) : tag(tagify(SYMBOL, true)), vy(new sha256(vy_)) {}
 
   val(V<val> *vt_, val_type t_ = TUPLE) : tag(tagify(t_, true)), vt(vt_)
     { require_type(multi_types); }
@@ -120,8 +120,8 @@ struct val
       case 0x08: tag = tagify(FLOAT32); vf = b_.F32(i); break;
       case 0x09: tag = tagify(FLOAT64); vd = b_.F64(i); break;
 
-      case 0x0a: tag = tagify(SYMBOL); vy = sym{b_.U64(i)}; break;
-      case 0x0b: tag = tagify(PIDFD);  vp = pidfd{b_.U32(i), b_.U32(i + 4)}; break;
+      case 0x0a: tag = tagify(SYMBOL, true); vy = new sha256(b_, i); break;
+      case 0x0b: tag = tagify(PIDFD);        vp.pid = b_.U32(i); vp.fd = b_.U32(i + 4); break;
 
       case 0x20: case 0x21: case 0x22: case 0x23:
       case 0x24: case 0x25: case 0x26: case 0x27:
@@ -189,6 +189,8 @@ struct val
         case tagify(LIST,  true):
         case tagify(SET,   true):
         case tagify(MAP,   true): delete vt; break;
+
+        case tagify(SYMBOL, true): delete vy; break;
         } }
 
 
@@ -361,7 +363,7 @@ struct val
       return has_ibuf() ? val(*b, ibegin()) : *this; }
 
 
-  operator          sym()    const { require_type(1ull << SYMBOL);  return has_ibuf() ? sym{b->U64(i + 1)}                  : vy; }
+  operator          sha256() const { require_type(1ull << SYMBOL);  return has_ibuf() ? sha256{*b, i}                       : *vy; }
   operator          pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->U32(i + 1), b->U32(i + 5)} : vp; }
   operator          greek()  const { require_type(1ull << GREEK);   return has_ibuf() ? greek{*b, i}                        : vg;  }
   explicit operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->U8(i) == 0x0d                    : !!vu; }
@@ -414,7 +416,7 @@ struct val
 #define ht(ct, t_) { let x = ce(Sc<u64>(Sc<ct>(*this))); return xxh(&x, sizeof x, t_); }
       case UINT: case UINT64: case UINT32: case UINT16: case UINT8: ht(u64, UINT)
       case INT:  case INT64:  case INT32:  case INT16:  case INT8:  ht(i64, INT)
-      case SYMBOL: ht(sym,   SYMBOL)
+      case SYMBOL: return std::hash<sha256>{}(Sc<sha256>(*this));
       case PIDFD:  ht(pidfd, PIDFD)
 #undef ht
 
@@ -462,9 +464,9 @@ struct val
       switch (t1)
       {
 
-      case SYMBOL:  cmpblock(sym)
-      case PIDFD:   cmpblock(pidfd)
-      case BOOL:    cmpblock(bool)
+      case SYMBOL: cmpblock(sha256)
+      case PIDFD:  cmpblock(pidfd)
+      case BOOL:   cmpblock(bool)
 #undef cmpblock
 
       case NULLTYPE: return 0;
@@ -567,6 +569,8 @@ inline val u9l(uN n = 0) { let vt = new V<val>; if (n) vt->reserve(n); return va
 inline val u9s(uN n = 0) { let vt = new V<val>; if (n) vt->reserve(n); return val(vt, SET); }
 inline val u9m(uN n = 0) { let vt = new V<val>; if (n) vt->reserve(n); return val(vt, MAP); }
 
+inline val u9y(std::string const &s) { return val{sha(s)}; }
+
 
 inline oenc &tval::pack(oenc &o, val const &v) const
 {
@@ -586,8 +590,9 @@ inline oenc &tval::pack(oenc &o, val const &v) const
 
   case FLOAT32: return o.F32(Sc<f64>(v));
   case FLOAT64: return o.F64(Sc<f32>(v));
-  case SYMBOL:  return o.U64(Sc<u64>(v));
-  case PIDFD:   return o.U32(Sc<pidfd>(v).pid).U32(static_cast<pidfd>(v).fd);
+
+  case SYMBOL: { let s = Sc<sha256>(v); return o.U64(s.xs[0]).U64(s.xs[1]).U64(s.xs[2]).U64(s.xs[3]); }
+  case PIDFD:  { let p = Sc<pidfd>(v);  return o.U32(p.pid).U32(p.fd); }
 
   case UTF8:
   case BYTES:
@@ -623,10 +628,10 @@ inline oenc &tval::pack(oenc &o, val const &v) const
 
 
 template<> struct std::hash<tau::utf9::val>
-{ uint64_t operator()(tau::utf9::val const &v) { return v.h(); } };
+{ uint64_t operator()(tau::utf9::val const &v) const { return v.h(); } };
 
 template<> struct std::hash<tau::utf9::tval>
-{ uint64_t operator()(tau::utf9::tval const &t) { return t.h(); } };
+{ uint64_t operator()(tau::utf9::tval const &t) const { return t.h(); } };
 
 
 #include "../module/end.hh"

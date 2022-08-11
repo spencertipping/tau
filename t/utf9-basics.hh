@@ -317,18 +317,35 @@ void try_bit_preferences()
 }
 
 
+void try_symbols()
+{
+  u9 a = u9y("foo");
+  u9 b = u9y("foo");
+  u9 c = u9y("bar");
+
+  assert(a == b);
+  assert(c > b);
+
+  cout << "symbols:" << endl;
+  cout << "  foo = " << a << endl;
+  cout << "  foo = " << b << endl;
+  cout << "  bar = " << c << endl;
+}
+
+
 int main()
 {
   cout << "native endianness: "
        << (std::endian::native == std::endian::big ? "big" : "little") << endl;
 
+  cout << "try_symbols"         << endl; try_symbols();
   cout << "try_bit_preferences" << endl; try_bit_preferences();
-  cout << "try_really_simple"  << endl; try_really_simple();
-  //cout << "try_coercion_error" << endl; try_coercion_error();
-  cout << "try_loading_stuff"  << endl; try_loading_stuff();
-  cout << "try_orderings"      << endl; try_orderings();
-  cout << "try_bench"          << endl; try_bench();
-  cout << "try_printing_types" << endl; try_printing_types();
+  cout << "try_really_simple"   << endl; try_really_simple();
+  cout << "try_coercion_error"  << endl; try_coercion_error();
+  cout << "try_loading_stuff"   << endl; try_loading_stuff();
+  cout << "try_orderings"       << endl; try_orderings();
+  cout << "try_bench"           << endl; try_bench();
+  cout << "try_printing_types"  << endl; try_printing_types();
   return 0;
 }
 

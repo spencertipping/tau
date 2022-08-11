@@ -31,6 +31,7 @@ let l7  = lf(7);
 let l8  = lf(8);
 let l9  = lf(9);
 let l17 = lf(17);
+let l33 = lf(33);
 
 
 // Value-length functions
@@ -94,7 +95,7 @@ lfn const lfns[256] =
   // 0x00 - 0x0f
   l2, l3, l5, l9,
   l2, l3, l5, l9,
-  l5, l9, l9, l9,
+  l5, l9, l33, l9,
   l1, l1, l1, bogus_lf,
 
   // 0x10 - 0x1f
