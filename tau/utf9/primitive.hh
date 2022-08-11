@@ -8,7 +8,6 @@
 #include "../types.hh"
 
 #include "error-proto.hh"
-#include "hash.hh"
 #include "ibuf.hh"
 
 

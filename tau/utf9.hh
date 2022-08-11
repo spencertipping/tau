@@ -9,7 +9,6 @@
 
 
 #include "utf9/error-proto.hh"
-#include "utf9/hash.hh"
 #include "utf9/ibuf.hh"
 #include "utf9/obuf.hh"
 
@@ -53,6 +52,8 @@ typedef tau::utf9::val  u9;
 typedef tau::utf9::tval t9;
 typedef tau::utf9::ibuf i9;
 typedef tau::utf9::obuf o9;
+
+typedef tau::utf9::sha256 u9sha;
 
 
 using tau::utf9::u9n;

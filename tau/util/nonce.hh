@@ -30,6 +30,11 @@ O &operator<<(O &s, nonce const &n)
 
 }
 
+
+template<> struct std::hash<tau::util::nonce>
+{ uint64_t operator()(tau::util::nonce const &n) const { return n.h ^ n.l; } };
+
+
 #include "../module/end.hh"
 
 

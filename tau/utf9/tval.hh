@@ -4,8 +4,9 @@
 
 #include "../types.hh"
 
+#include "../util/hash.hh"
+
 #include "error-proto.hh"
-#include "hash.hh"
 #include "ibuf.hh"
 #include "obuf.hh"
 #include "typecode.hh"
@@ -15,6 +16,8 @@
 
 namespace tau::utf9
 {
+
+using namespace tau::util;
 
 
 struct tbuf;

@@ -330,6 +330,7 @@ void try_symbols()
   cout << "  foo = " << a << endl;
   cout << "  foo = " << b << endl;
   cout << "  bar = " << c << endl;
+
 }
 
 

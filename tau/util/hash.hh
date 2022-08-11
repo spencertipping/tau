@@ -1,5 +1,5 @@
-#ifndef tau_utf9_hash_h
-#define tau_utf9_hash_h
+#ifndef tau_util_hash_h
+#define tau_util_hash_h
 
 
 #define XXH_INLINE_ALL 1
@@ -10,15 +10,15 @@
 
 
 #include "../types.hh"
-#include "../util/numerics.hh"
-#include "../util/ostream.hh"
 
-#include "ibuf.hh"
+#include "nonce.hh"
+#include "numerics.hh"
+#include "ostream.hh"
 
 
 #include "../module/begin.hh"
 
-namespace tau::utf9
+namespace tau::util
 {
 
 using namespace tau::util::numerics;
@@ -34,17 +34,17 @@ struct sha256
 {
   u64 xs[4];
 
+  sha256(u64 a, u64 b, u64 c, u64 d)
+    { xs[0] = a;
+      xs[1] = b;
+      xs[2] = c;
+      xs[3] = d; }
+
   sha256(V<u8> const &b)
     { xs[0] = ce(*Rc<u64c*>(b.data()));
       xs[1] = ce(*Rc<u64c*>(b.data() + 8));
       xs[2] = ce(*Rc<u64c*>(b.data() + 16));
       xs[3] = ce(*Rc<u64c*>(b.data() + 24)); }
-
-  sha256(ibuf const &b, uN i)
-    { xs[0] = b.U64(i);
-      xs[1] = b.U64(i + 8);
-      xs[2] = b.U64(i + 16);
-      xs[3] = b.U64(i + 24); }
 
   sha256(sha256 const &s)
     { xs[0] = s.xs[0];
@@ -67,6 +67,12 @@ struct sha256
   bool operator==(sha256 const &s_) const
     { return xs[0] == s_.xs[0] && xs[1] == s_.xs[1]
           && xs[2] == s_.xs[2] && xs[3] == s_.xs[3]; }
+
+  sha256 &operator++()
+    { if (!++xs[3]) if (!++xs[2]) if (!++xs[1]) ++xs[0];
+      return *this; }
+
+  operator nonce() const { return nonce{xs[2], xs[3]}; }
 };
 
 
@@ -98,8 +104,8 @@ O &operator<<(O &s, sha256 const &h)
 }
 
 
-template<> struct std::hash<tau::utf9::sha256>
-{ uint64_t operator()(tau::utf9::sha256 const &v) const { return v.xs[0] ^ v.xs[1] ^ v.xs[2] ^ v.xs[3]; } };
+template<> struct std::hash<tau::util::sha256>
+{ uint64_t operator()(tau::util::sha256 const &v) const { return v.xs[0] ^ v.xs[1] ^ v.xs[2] ^ v.xs[3]; } };
 
 
 #include "../module/end.hh"

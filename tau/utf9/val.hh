@@ -7,6 +7,8 @@
 
 #include "../types.hh"
 
+#include "../util/hash.hh"
+
 #include "error-proto.hh"
 #include "ibuf.hh"
 #include "pfn.hh"
@@ -20,6 +22,8 @@
 
 namespace tau::utf9
 {
+
+using namespace tau::util;
 
 
 // utf9 value, either bytecode-bound or immediate
@@ -120,7 +124,7 @@ struct val
       case 0x08: tag = tagify(FLOAT32); vf = b_.F32(i); break;
       case 0x09: tag = tagify(FLOAT64); vd = b_.F64(i); break;
 
-      case 0x0a: tag = tagify(SYMBOL, true); vy = new sha256(b_, i); break;
+      case 0x0a: tag = tagify(SYMBOL, true); vy = new sha256(b_.U64(i), b_.U64(i + 8), b_.U64(i + 16), b_.U64(i + 24)); break;
       case 0x0b: tag = tagify(PIDFD);        vp.pid = b_.U32(i); vp.fd = b_.U32(i + 4); break;
 
       case 0x20: case 0x21: case 0x22: case 0x23:
@@ -363,12 +367,12 @@ struct val
       return has_ibuf() ? val(*b, ibegin()) : *this; }
 
 
-  operator          sha256() const { require_type(1ull << SYMBOL);  return has_ibuf() ? sha256{*b, i}                       : *vy; }
-  operator          pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->U32(i + 1), b->U32(i + 5)} : vp; }
-  operator          greek()  const { require_type(1ull << GREEK);   return has_ibuf() ? greek{*b, i}                        : vg;  }
-  explicit operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->U8(i) == 0x0d                    : !!vu; }
-  operator          float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->F32(i + 1)                       : vf; }
-  operator          double() const { require_type(1ull << FLOAT64); return has_ibuf() ? b->F64(i + 1) : vd; }
+  operator          sha256() const { require_type(1ull << SYMBOL);  return has_ibuf() ? sha256{b->U64(i + 1), b->U64(i + 9), b->U64(i + 17), b->U64(i + 25)} :  *vy; }
+  operator          pidfd()  const { require_type(1ull << PIDFD);   return has_ibuf() ? pidfd{b->U32(i + 1), b->U32(i + 5)}                                  :   vp; }
+  operator          greek()  const { require_type(1ull << GREEK);   return has_ibuf() ? greek{*b, i}                                                         :   vg;  }
+  explicit operator bool()   const { require_type(1ull << BOOL);    return has_ibuf() ? b->U8(i) == 0x0d                                                     : !!vu; }
+  operator          float()  const { require_type(1ull << FLOAT32); return has_ibuf() ? b->F32(i + 1)                                                        :   vf; }
+  operator          double() const { require_type(1ull << FLOAT64); return has_ibuf() ? b->F64(i + 1)                                                        :   vd; }
 
   explicit operator u64() const
     { if (has_type(int_types)) throw_vop_error("i->u", *this);
