@@ -69,7 +69,7 @@ struct λ
   λ<T> **thisptr;
 
   λ();
-  λ(F<T()>);
+  λ(F<T()>&&);
   ~λ();
 
   bool     done()   const {                  return is_done; }

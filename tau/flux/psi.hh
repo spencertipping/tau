@@ -44,7 +44,7 @@ struct Ψ
   ψi           qi{0};
   nonce        ni{0};
 
-  Ψ(Λ &l_, uN ζc_ = ζc₀) : l(l_), ζc(ζc_) {}
+  Ψ(Λ &l_, uN ζc_ = ζc0) : l(l_), ζc(ζc_) {}
 
   ψi   ψc ()           { qs[ιi(qi, qs)] = 0;        return qi; }
   bool ψe (ψi i) const {                            return qs.contains(i); }

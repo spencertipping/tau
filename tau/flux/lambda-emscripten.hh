@@ -36,8 +36,8 @@ void λinvoke(void *λ_)
 
 template<class T> λ<T>::λ() : thisptr(nullptr) {}
 template<class T>
-λ<T>::λ(F<T()> f_)
-  : f      (f_),
+λ<T>::λ(F<T()> &&f_)
+  : f      (std::move(f_)),
     is_done(false)
 {
   λinit();

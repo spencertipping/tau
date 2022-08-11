@@ -17,7 +17,7 @@ struct γ
   bool    λe(u9) const;         // does λ exist
   λr      λw(u9);               // gracefully await λ
   γ      &λx(u9);               // kill λ
-  ΣΘΔ     λΘ(u9) const;
+  ΣΘΔ    &λΘ(u9) const;
 
   γ      &ψc (u9);              // define port (send ω to close)
   bool    ψe (u9) const;        // does ψ exist

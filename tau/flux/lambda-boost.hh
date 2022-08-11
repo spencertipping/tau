@@ -19,7 +19,7 @@ bool λmi;  // true if current continuation is main
 
 template<class T> λ<T>::λ() : thisptr(nullptr) {}
 template<class T>
-λ<T>::λ(F<T()> f)
+λ<T>::λ(F<T()> &&f)
   : k      (new λbc::continuation),
     is_done(false)
 {

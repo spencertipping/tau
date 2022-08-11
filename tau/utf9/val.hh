@@ -576,7 +576,7 @@ inline val u9m(uN n = 0) { let vt = new V<val>; if (n) vt->reserve(n); return va
 inline val u9y(std::string const &s) { return val{sha(s)}; }
 
 
-inline oenc &tval::pack(oenc &o, val const &v) const
+oenc &tval::pack(oenc &o, val const &v) const
 {
   switch (type())
   {

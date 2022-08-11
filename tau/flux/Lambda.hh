@@ -28,7 +28,7 @@ struct Λ
     λp    p;
 
     Λλ() {}
-    Λλ(λf f) : l(λ<Λr>(f)), s(λS), p(0) {}
+    Λλ(λf &&f) : l(λ<Λr>(std::move(f))), s(λS), p(0) {}
 
     Λλ &operator=(Λλ &&x)
       { l = std::move(x.l);
@@ -57,7 +57,7 @@ struct Λ
   λs   si(λi i) const { return ls.at(i).s; }
   λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : NAN; }
 
-  λi   c(λf f, f64 p = 0)              { let   i = ιi(ni, ls); ls[i] = Λλ(f); r(i, p, λR);                                 return  i; }
+  λi   c(λf &&f, f64 p = 0)            { let   i = ιi(ni, ls); ls[i] = Λλ(std::move(f)); r(i, p, λR);                      return  i; }
   Λ   &r(λi i, f64 p = NAN, λs s = λR) { auto &l = ls.at(i); if (!std::isnan(p)) l.p = p; if ((l.s = s) == λR) rq.push(i); return *this; }
   Λ   &x(λi i)                         { assert(ri != i); assert(e(i));                   ls.erase(i);                     return *this; }
   Λ   &y(λs s)                         {                                                                                                   if (!z()) r(ri, NAN, s); λy();   return *this; }

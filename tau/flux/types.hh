@@ -39,7 +39,7 @@ typedef uN      φi;  // internal connection identifier
 typedef uN      γi;
 
 
-uNc constexpr ζc₀ = 65536;
+uNc constexpr ζc0 = 65536;
 
 
 template<class K, class V>
