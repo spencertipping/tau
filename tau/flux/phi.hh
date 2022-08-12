@@ -1,5 +1,5 @@
-#ifndef tau_flux_phi_h
-#define tau_flux_phi_h
+#ifndef tau_flux_φ_h
+#define tau_flux_φ_h
 
 
 #include "phi-class.hh"
