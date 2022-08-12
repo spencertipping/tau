@@ -130,7 +130,7 @@ using tau::operator<<;
     while (g.ψrw("connect"y))
     {
       cout << "multisum connection" << endl;
-      let p = g.gs();
+      auto p = g.gs();
       g.ψm("connect"y, p);
       g.ψw("connect"y, α);
 
@@ -138,7 +138,7 @@ using tau::operator<<;
 
       vs->emplace(p);
       cout << "multisum: creating socket process " << p << endl;
-      g.λc(p, [&, p, vs, total]() {
+      g.λc(p, [&, p = std::move(p), vs, total]() {
         cout << "multisum " << p << ": started" << endl;
         while (g.ψrw(p))
         {
@@ -156,7 +156,6 @@ using tau::operator<<;
         g.ψw(p, ω);
         return 0;
       });
-      cout << "multisum: created socket process " << p << endl;
     }
 
     cout << "multisum: done" << endl;
@@ -179,8 +178,6 @@ using tau::operator<<;
     G.φc(g, "socket"y, s, "connect"y, 64);
     cout << "setting up reader for " << g.i << endl;
 
-    // TODO: why does this produce lots of uninitialized errors in valgrind?
-    if (0)
     g.λc("reader"y, [&]() {
       while (g.ψrw("socket"y))
         cout << "client " << g.i << " received " << g.ψr("socket"y) << endl;
@@ -198,6 +195,25 @@ using tau::operator<<;
   });
 
   return g;
+}
+
+
+void try_nested()
+{
+  Γ g;
+  γ &a = g.γc();
+
+  a.λc("outer"y, [&]() {
+    cout << "outer fn" << endl;
+    a.λc("inner"y, [&]() {
+      cout << "inner fn" << endl;
+      return 0;
+    });
+    cout << "outer fn returning" << endl;
+    return 0;
+  });
+
+  g.go();
 }
 
 
@@ -277,6 +293,7 @@ void try_server()
 
 int main()
 {
+  cout << "try_nested" << endl; try_nested();
   cout << "try_gamma"  << endl; try_gamma();
   cout << "try_sleep"  << endl; try_sleep();
   cout << "try_server" << endl; try_server();

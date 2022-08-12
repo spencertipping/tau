@@ -19,26 +19,22 @@ bool λmi;  // true if current continuation is main
 
 template<class T> λ<T>::λ() : k(nullptr), thisptr(nullptr) {}
 template<class T>
-λ<T>::λ(F<T()> &&f)
-  : k      (new λbc::continuation),
+λ<T>::λ(F<T()> &&f_)
+  : f      (std::move(f_)),
+    k      (nullptr),
     is_done(false)
 {
   λinit();
   thisptr  = Rc<λ<T>**>(std::malloc(sizeof(λ<T>**)));
   *thisptr = this;
 
-  let t = thisptr;
-  std::cout << "k = " << k << std::endl;
-  std::cout << "thisptr = " << thisptr << std::endl;
-  *k = λbc::callcc(
-    [t, f = std::move(f)](λbc::continuation &&cc) {
-      std::cout << "inside new continuation" << std::endl;
-      let m = λmi;
-      if (m) *λmk = cc.resume();
-      else   cc   = cc.resume();
-      **t << f();
-      return m ? std::move(*λmk) : std::move(cc);
-    });
+  if (λmi)
+    k = new λbc::continuation(λbc::callcc(
+      [t = thisptr](λbc::continuation &&cc) {
+        *λmk = cc.resume();
+        **t << (*t)->f();
+        return std::move(*λmk);
+      }));
 }
 
 
@@ -57,6 +53,7 @@ template<class T>
   thisptr  = c.thisptr;
   *thisptr = this;
   k        = c.k;
+  f        = std::move(c.f);
   is_done  = c.is_done;
   ret      = std::move(c.ret);
 
@@ -86,8 +83,22 @@ template<class T>
   assert(λmi);
 
   λmi = false;
-  auto cc = k->resume();
-  if (k) *k = std::move(cc);  // NOTE: k can be nulled within k->resume()
+  if (!k)
+  {
+    k = new λbc::continuation;
+    auto cc = λbc::callcc(
+      [t = thisptr](λbc::continuation &&cc) {
+        **t << (*t)->f();
+        return std::move(cc);
+      });
+    if (k) *k = std::move(cc);
+  }
+  else
+  {
+    auto cc = k->resume();
+    if (k) *k = std::move(cc);  // NOTE: k can be nulled within k->resume()
+  }
+
   λmi = true;
   return *this;
 }

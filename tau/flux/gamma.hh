@@ -34,7 +34,7 @@ struct γ
   ΔΘ         Θi()          const { return now() - t0; }
   ΣΘΔ        γΘ()          const { ΣΘΔ r; for (let &[_, l] : yλ) r += g.λΘ(i, l);                   return r; }
 
-  γ         &λc (u9c &s, λf &&f) { assert(!yλ.contains(s)); yλ[s] = g.λc(i, std::move(f));          return *this; }
+  γ         &λc (u9c &s, λf f)   { assert(!yλ.contains(s)); yλ[s] = g.λc(i, std::move(f));          return *this; }
   bool       λe (u9c &s)   const {                                                                  return yλ.contains(s); }
   Λr         λw (u9c &s)         { let r = g.λw(i, yλ.at(s)); yλ.erase(s);                          return r; }
   bool       λwi(u9c &s)   const {                                                                  return g.λwi(i, yλ.at(s)); }
