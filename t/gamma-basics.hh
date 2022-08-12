@@ -179,18 +179,24 @@ using tau::operator<<;
     cout << "setting up reader for " << g.i << endl;
 
     g.λc("reader"y, [&]() {
+      i64 l = 0;
       while (g.ψrw("socket"y))
-        cout << "client " << g.i << " received " << g.ψr("socket"y) << endl;
-      g.ψw("socket"y, ω);
-      return 0;
+      {
+        let v = g.ψr("socket"y);
+        cout << "client " << g.i << " received " << v << endl;
+        if (!v.is_greek()) l = Sc<i64>(v);
+      }
+      cout << "client " << g.i << " returning " << l << endl;
+      return l;
     });
 
     for (i64 i = 0; i < n_; ++i)
     {
       cout << g.Θi() << ": >>> " << i << endl;
-      if (!g.ψww("socket"y)) break;
+      if (!g.ψww("socket"y)) cout << "failed to write " << i << endl;
       else g.ψw("socket"y, u9{i});
     }
+
     return 0;
   });
 
@@ -286,6 +292,23 @@ void try_server()
     cout << "sleeping until t+" << now() - t << endl;
     std::this_thread::sleep_until(t);
   }
+
+  a.ψw("socket"y, ω);
+  b.ψw("socket"y, ω);
+  for (Θp t; (t = g.go()) != never();)
+  {
+    cout << "sleeping until t+" << now() - t << endl;
+    std::this_thread::sleep_until(t);
+  }
+
+  let ar = a.λw("reader"y);
+  let br = b.λw("reader"y);
+
+  cout << "ar = " << ar << endl;
+  cout << "br = " << br << endl;
+
+  assert(ar == 235);
+  assert(br == 235);
 
   cout << "done" << endl;
 }

@@ -31,7 +31,7 @@ using tau::util::operator<<;
 
 typedef uN      λi;  // λ identifier
 typedef f64     λp;  // λ priority (lower = more important)
-typedef int     Λr;  // type of value returned to Λ
+typedef i64     Λr;  // type of value returned to Λ
 typedef F<Λr()> λf;
 
 typedef uN      ψi;  // Γ-local port identifier
