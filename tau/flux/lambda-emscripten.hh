@@ -111,7 +111,10 @@ void λy()
 
   if (λsx)
   {
-    let s = λthis;
+    // FIXME: why does λthis contain disposable stacks if we assigned
+    // it from &λmk above?
+    //let s = λthis;
+    let s = t;
     if (s->async_stack) { std::free(s->async_stack); s->async_stack = nullptr; }
     if (s->c_stack)     { std::free(s->c_stack);     s->c_stack     = nullptr; }
   }

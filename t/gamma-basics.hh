@@ -143,7 +143,7 @@ using tau::operator<<;
         while (g.ψrw(p))
         {
           let v = g.ψr(p);
-          cout << "multisum " << p << ": received" << v << endl;
+          cout << "multisum " << p << ": received " << v << endl;
           if (!v.is_greek())
           {
             *total += Sc<i64>(v);
