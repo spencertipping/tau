@@ -70,6 +70,12 @@ O &operator<<(O &s, ΔΘ const &t)
 }
 
 
+O &operator<<(O &s, Θp const &p)
+{
+  return s << "t+" << p - now();
+}
+
+
 O &operator<<(O &s, ΣΘΔ const &w)
 {
   return s << "ΣΘΔ[" << (w.Θr ? "R" : "s")

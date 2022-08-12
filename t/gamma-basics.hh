@@ -272,7 +272,7 @@ void try_sleep()
 
   for (Θp t; (t = g.go()) != never();)
   {
-    cout << "sleeping until t+" << t - now() << endl;
+    cout << "sleeping until " << t << endl;
     std::this_thread::sleep_until(t);
   }
 
@@ -295,7 +295,7 @@ void try_server()
   cout << "running gamma" << endl;
   for (Θp t; (t = g.go()) != never();)
   {
-    cout << "sleeping until t+" << t - now() << endl;
+    cout << "sleeping until " << t << endl;
     std::this_thread::sleep_until(t);
   }
 
@@ -303,7 +303,7 @@ void try_server()
   b.ψw("socket"y, ω);
   for (Θp t; (t = g.go()) != never();)
   {
-    cout << "sleeping until t+" << t - now() << endl;
+    cout << "sleeping until " << t << endl;
     std::this_thread::sleep_until(t);
   }
 

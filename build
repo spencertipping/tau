@@ -17,7 +17,7 @@ usage() {
 }
 
 
-t_gcc_opts=(-std=c++20 -O3 )
+t_gcc_opts=(-std=c++20 -O3 -Wno-literal-suffix )
 t_em_opts=(
   -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -sASSERTIONS
   -Wno-parentheses -Wno-user-defined-literals
