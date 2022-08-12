@@ -17,7 +17,10 @@ usage() {
 
 
 t_gcc_opts=(-std=c++20 -O3 )
-t_em_opts=( -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -Wno-parentheses -Wno-user-defined-literals )
+t_em_opts=(
+  -std=c++20 -O3 -fexceptions -sASYNCIFY -sTOTAL_MEMORY=1024MB -sASSERTIONS
+  -Wno-parentheses -Wno-user-defined-literals
+)
 t_gcc_debug_opts=(
   -Wall -Wno-parentheses -Wno-misleading-indentation -Wno-literal-suffix
   -std=c++20 -O0 -g
@@ -43,7 +46,7 @@ case $cmd in
       if valgrind --track-origins=yes t/test-quick >t/test-quick.log 2>&1; then
         echo -e "\033[1;32m64-bit all ok\033[0;0m"
       else
-        echo -e "\033[1;31merror\033[0;0m"
+        echo -e "\033[1;31m64-bit error\033[0;0m"
         less t/test-quick.log
         exit 1
       fi
@@ -51,8 +54,17 @@ case $cmd in
       if valgrind --track-origins=yes t/test32-quick >t/test32-quick.log 2>&1; then
         echo -e "\033[1;32m32-bit all ok\033[0;0m"
       else
-        echo -e "\033[1;31merror\033[0;0m"
+        echo -e "\033[1;31m32-bit error\033[0;0m"
         less t/test32-quick.log
+        exit 1
+      fi
+
+      t dev/emsdk em++     "${t_em_opts[@]}" -DQUICK=1 t/test.cc -o t/test-quick.js
+      if node t/test-quick.js >t/testjs-quick.log 2>&1; then
+        echo -e "\033[1;32mjs all ok\033[0;0m"
+      else
+        echo -e "\033[1;31mjs error\033[0;0m"
+        less t/testjs-quick.log
         exit 1
       fi
       ;;
@@ -69,9 +81,13 @@ case $cmd in
       t dev/emsdk em++     "${t_em_opts[@]}"        t/test.cc -o t/test.js &
       wait
 
-      time t/test         || :; test64_ret=$?
-      time t/test32       || :; test32_ret=$?
-      time node t/test.js || :; testjs_ret=$?
+      test64_ret=0
+      test32_ret=0
+      testjs_ret=0
+
+      time t/test         || test64_ret=$?
+      time t/test32       || test32_ret=$?
+      time node t/test.js || testjs_ret=$?
 
       echo
 

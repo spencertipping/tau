@@ -2,6 +2,9 @@
 #include <unistd.h>
 
 
+#define tau_debug 1
+
+
 #include "../tau.hh"
 
 

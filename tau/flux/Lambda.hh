@@ -2,6 +2,15 @@
 #define tau_flux_Λ_h
 
 
+#if !defined(tau_debug_flux_Λ_randp)
+# define tau_debug_flux_Λ_randp tau_debug
+#endif
+
+
+#if tau_debug_flux_Λ_randp
+# include <random>
+#endif
+
 #include <cmath>
 
 
@@ -37,9 +46,17 @@ struct Λ
         return *this; }
   };
 
+#if tau_debug_flux_Λ_randp
   struct λip
   { Λ &l;
-    bool operator()(λi a, λi b) const { return l.ls.at(a).p < l.ls.at(b).p; } };
+    std::default_random_engine  g;
+    std::bernoulli_distribution d{0.5};
+    bool operator()(λi a, λi b) { return d(g); } };
+#else
+  struct λip
+  { Λ &l;
+    bool operator()(λi a, λi b) const { return l.pi(a) < l.pi(b); } };
+#endif
 
   λip         lp;
   M<λi, Λλ>   ls;     // all λs

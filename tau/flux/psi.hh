@@ -76,7 +76,7 @@ struct Ψ
       lr[t]  = lr[i];    lr.erase(i);
       lw[t]  = lw[i];    lw.erase(i);
       lφc[t] = lφc[i];   lφc.erase(i);
-      lφx[t] = lφx[i];   lφx.erase(i);
+      lφx[t] = lφx[i];   λws(lφx[i]); lφx.erase(i);
       if (cs.contains(qs.at(t)))
       { auto &c = cs[qs.at(t)];
         if (c.a == i) c.a = t;
@@ -178,6 +178,7 @@ struct Ψ
       { lφx[i].emplace(l.i()); l.y(λφx); }
       return qs.contains(i); }
 
+  // FIXME: this function has a task ordering dependency: if
   φi φc(ψi a, ψi b, uN c = 0)
     { assert(φxw(a));
       assert(φxw(b));
