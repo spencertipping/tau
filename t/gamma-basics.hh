@@ -3,6 +3,9 @@
 
 
 #define tau_debug 1
+#ifndef QUICK
+# define QUICK 0
+#endif
 
 
 #include "../tau.hh"
@@ -258,7 +261,7 @@ void try_sleep()
 {
   Γ g;
   γ &a = n(g.γc(), 100),
-    &b = sleep(g.γc(), 1ms),
+    &b = sleep(g.γc(), QUICK ? 500ns : 1ms),
     &c = out(g.γc());
 
   cout << "connecting stdout <-> stdin" << endl;
@@ -269,7 +272,7 @@ void try_sleep()
 
   for (Θp t; (t = g.go()) != never();)
   {
-    cout << "sleeping until t+" << now() - t << endl;
+    cout << "sleeping until t+" << t - now() << endl;
     std::this_thread::sleep_until(t);
   }
 
@@ -292,7 +295,7 @@ void try_server()
   cout << "running gamma" << endl;
   for (Θp t; (t = g.go()) != never();)
   {
-    cout << "sleeping until t+" << now() - t << endl;
+    cout << "sleeping until t+" << t - now() << endl;
     std::this_thread::sleep_until(t);
   }
 
@@ -300,7 +303,7 @@ void try_server()
   b.ψw("socket"y, ω);
   for (Θp t; (t = g.go()) != never();)
   {
-    cout << "sleeping until t+" << now() - t << endl;
+    cout << "sleeping until t+" << t - now() << endl;
     std::this_thread::sleep_until(t);
   }
 
