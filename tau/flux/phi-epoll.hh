@@ -5,4 +5,23 @@
 #include <sys/epoll.h>
 
 
+#include "../types.hh"
+#include "../utf9.hh"
+#include "types.hh"
+
+
+#include "../module/begin.hh"
+
+namespace tau::flux
+{
+
+
+// TODO: define γ lifecycle
+
+
+}
+
+#include "../module/end.hh"
+
+
 #endif
