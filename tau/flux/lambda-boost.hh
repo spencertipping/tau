@@ -17,7 +17,7 @@ namespace λbc = boost::context;
 bool λmi;  // true if current continuation is main
 
 
-template<class T> λ<T>::λ() : thisptr(nullptr) {}
+template<class T> λ<T>::λ() : k(nullptr), thisptr(nullptr) {}
 template<class T>
 λ<T>::λ(F<T()> &&f)
   : k      (new λbc::continuation),
@@ -28,9 +28,11 @@ template<class T>
   *thisptr = this;
 
   let t = thisptr;
+  std::cout << "k = " << k << std::endl;
   std::cout << "thisptr = " << thisptr << std::endl;
   *k = λbc::callcc(
     [t, f = std::move(f)](λbc::continuation &&cc) {
+      std::cout << "inside new continuation" << std::endl;
       let m = λmi;
       if (m) *λmk = cc.resume();
       else   cc   = cc.resume();

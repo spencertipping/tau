@@ -147,7 +147,7 @@ using tau::operator<<;
           if (!v.is_greek())
           {
             *total += Sc<i64>(v);
-            for (let &u : v)
+            for (let &u : *vs)
               if (g.ψww(u)) g.ψw(u, u9{*total});
           }
         }

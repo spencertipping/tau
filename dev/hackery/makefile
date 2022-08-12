@@ -18,6 +18,9 @@ fabric1: fabric1.cc
 fabric2: fabric2.cc
 	g++ -O3 -o fabric2 fabric2.cc -lboost_fiber -lboost_context
 
+callcc-nested: callcc-nested.cc
+	g++ -O3 -o callcc-nested callcc-nested.cc -lboost_fiber -lboost_context
+
 fabric1-static: fabric1.cc
 	g++ -O3 -o fabric1-static fabric1.cc \
 	          /usr/lib/x86_64-linux-gnu/libboost_context.a \
