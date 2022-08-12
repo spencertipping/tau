@@ -121,14 +121,12 @@ using tau::operator<<;
   auto *vs    = new S<u9>;
   i64  *total = new i64;
 
+  *total = 0;
+
   g.ψw("connect"y, α);
   g.λc("main"y, [&, vs, total]() {
     cout << "multisum main started" << endl;
 
-    // FIXME: we need to be able to await connection state changes
-    // Right now, "connect"y is disconnected because the incoming clients
-    // have not yet done anything -- so we should observe this port as
-    // being unreadable until someone φc's it
     while (g.ψrw("connect"y))
     {
       cout << "multisum connection" << endl;
@@ -139,6 +137,7 @@ using tau::operator<<;
       cout << "multisum: moved to " << p << endl;
 
       vs->emplace(p);
+      cout << "multisum: creating socket process " << p << endl;
       g.λc(p, [&, p, vs, total]() {
         cout << "multisum " << p << ": started" << endl;
         while (g.ψrw(p))
@@ -157,6 +156,7 @@ using tau::operator<<;
         g.ψw(p, ω);
         return 0;
       });
+      cout << "multisum: created socket process " << p << endl;
     }
 
     cout << "multisum: done" << endl;
@@ -172,8 +172,15 @@ using tau::operator<<;
 γ &nprint(Γ &G, γ &g, γ &s, i64 n_)
 {
   g.ψw("socket"y, α);
+
+  cout << "setting up writer for " << g.i << endl;
   g.λc("writer"y, [&, n_]() {
+    cout << "socket connection for " << g.i << endl;
     G.φc(g, "socket"y, s, "connect"y, 64);
+    cout << "setting up reader for " << g.i << endl;
+
+    // TODO: why does this produce lots of uninitialized errors in valgrind?
+    if (0)
     g.λc("reader"y, [&]() {
       while (g.ψrw("socket"y))
         cout << "client " << g.i << " received " << g.ψr("socket"y) << endl;

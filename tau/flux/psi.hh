@@ -26,13 +26,26 @@ using tau::util::nonce;
 typedef ζ<u9v, u9vs> ζv;
 
 
+#if tau_debug_iostream
+struct Ψ;
+struct φ;
+
+O &operator<<(O &s, φ const &c);
+O &operator<<(O &s, Ψ const &q);
+#endif
+
+
+struct φ
+{
+  nonce n;
+  ψi  a,  b;
+  ζv  ab, ba;
+  ΣΘΔ ra, rb, wa, wb;
+};
+
+
 struct Ψ
 {
-  struct φ
-  { nonce n;
-    ψi  a,  b;
-    ζv  ab, ba;
-    ΣΘΔ ra, rb, wa, wb; };
 
   Λ           &l;
   uN           ζc;
@@ -40,6 +53,8 @@ struct Ψ
   M<ψi, φi>    qs;
   M<ψi, Q<λi>> lr;  // NOTE: queue for fairness
   M<ψi, Q<λi>> lw;
+  M<ψi, Q<λi>> lφc;
+  M<ψi, Q<λi>> lφx;
   φi           ci{0};
   ψi           qi{0};
   nonce        ni{0};
@@ -57,9 +72,15 @@ struct Ψ
 
   ψi ψm(ψi i)
     { let t = ψc();
-      qs[t] = qs.at(i); qs.erase(i);
-      lr[t] = lr.at(i); lr.erase(i);
-      lw[t] = lw.at(i); lw.erase(i);
+      qs[t]  = qs.at(i); qs.erase(i);
+      lr[t]  = lr[i];    lr.erase(i);
+      lw[t]  = lw[i];    lw.erase(i);
+      lφc[t] = lφc[i];   lφc.erase(i);
+      lφx[t] = lφx[i];   lφx.erase(i);
+      if (cs.contains(qs.at(t)))
+      { auto &c = cs[qs.at(t)];
+        if (c.a == i) c.a = t;
+        else          c.b = t; }
       return t; }
 
   nonce const &ψn(ψi i) const { return cs.at(qs.at(i)).n; }
@@ -79,7 +100,12 @@ struct Ψ
   // This is how we can awaken just one λ per IO.
   bool ψri(ψi i) { return ψrζ(i).ri(); }
   bool ψrw(ψi i)
-    { auto &h = ψrΘ(i);
+    { // Special case: if the port is not yet connected, wait for φc
+      assert(ψe(i));
+      while (!φe(i)) { lφc[i].emplace(l.i()); l.y(λφc); }
+      if (!ψe(i)) return false;
+
+      auto &h = ψrΘ(i);
       auto &z = ψrζ(i);
       let   n = ψn(i);  // for security
 
@@ -102,7 +128,11 @@ struct Ψ
 
   bool ψwi(ψi i) { return ψwζ(i).wi(); }
   bool ψww(ψi i)
-    { auto &z = ψwζ(i);
+    { assert(ψe(i));
+      while (!φe(i)) { lφc[i].emplace(l.i()); l.y(λφc); }
+      if (!ψe(i)) return false;
+
+      auto &z = ψwζ(i);
       auto &h = ψwΘ(i);
       let   n = ψn(i);
       h.start();
@@ -131,35 +161,47 @@ struct Ψ
       λws(lw[i]); lw.erase(i);
       z.w(ω, true);
       z.x();
+      λws(lφc[i]); lφc.erase(i);
+      qs.erase(i);
+      λws(lφx[i]); lφx.erase(i);
 
-      if (ψwζ(o).xi())
+      if (ψe(o) && ψwζ(o).xi())
       { λws(lr[i]); lr.erase(i);
         λws(lw[o]); lw.erase(o);
         φx(qs.at(i));
-        qs.erase(i); qs.erase(o); }
+        λws(lφc[o]); lφc.erase(o); }
 
       return *this; }
 
+  bool φxw(ψi i)
+    { while (qs.contains(i) && cs.contains(qs.at(i)))
+      { lφx[i].emplace(l.i()); l.y(λφx); }
+      return qs.contains(i); }
 
   φi φc(ψi a, ψi b, uN c = 0)
-    { assert(qs.at(a) == 0 && qs.at(b) == 0);
+    { assert(φxw(a));
+      assert(φxw(b));
+      assert(qs.at(a) == 0 && qs.at(b) == 0);
       if (!c) c = ζc;
       auto &f = cs[qs[a] = qs[b] = ιi(ci, cs)] = {++ni, a, b, ζv(c), ζv(c)};
       f.ab.w(α, true);
       f.ba.w(α, true);
+      if (lφc.contains(a)) λw(lφc[a]);
+      if (lφc.contains(b)) λw(lφc[b]);
       return ci; }
 
   Ψ &φx(φi i)
     { if (i)
       { let &c = cs.at(i);
-        qs.erase(c.a); qs.erase(c.b);
+        if (lφx.contains(c.a)) λw(lφx[c.a]);
+        if (lφx.contains(c.b)) λw(lφx[c.b]);
         cs.erase(i); }
       return *this; }
 };
 
 
 #if tau_debug_iostream
-O &operator<<(O &s, Ψ::φ const &c)
+O &operator<<(O &s, φ const &c)
 {
   return s << "φ["
            << c.a << "-" << c.b << " " << c.n << " "

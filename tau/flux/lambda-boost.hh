@@ -28,12 +28,14 @@ template<class T>
   *thisptr = this;
 
   let t = thisptr;
+  std::cout << "thisptr = " << thisptr << std::endl;
   *k = λbc::callcc(
-    [t, f](λbc::continuation &&cc) {
-      λmi  = true;
-      *λmk = cc.resume();
+    [t, f = std::move(f)](λbc::continuation &&cc) {
+      let m = λmi;
+      if (m) *λmk = cc.resume();
+      else   cc   = cc.resume();
       **t << f();
-      return std::move(*λmk);
+      return m ? std::move(*λmk) : std::move(cc);
     });
 }
 
@@ -49,6 +51,7 @@ template<class T>
 template<class T>
 λ<T> &λ<T>::operator=(λ<T> &&c)
 {
+  if (k) delete k;
   thisptr  = c.thisptr;
   *thisptr = this;
   k        = c.k;
@@ -97,6 +100,7 @@ void λy()
 
 void λinit_()
 {
+  λmi = true;
   λmk = new λbc::continuation;
 }
 

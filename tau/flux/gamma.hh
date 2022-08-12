@@ -32,16 +32,16 @@ struct γ
 
   u9         gs()                { return u9{++gsi}; }
   ΔΘ         Θi()          const { return now() - t0; }
-  ΣΘΔ        γΘ()          const { ΣΘΔ r; for (let &[_, l] : yλ) r += g.λΘ(i, l);          return r; }
+  ΣΘΔ        γΘ()          const { ΣΘΔ r; for (let &[_, l] : yλ) r += g.λΘ(i, l);                   return r; }
 
-  γ         &λc (u9c &s, λf &&f) { assert(!yλ.contains(s)); yλ[s] = g.λc(i, std::move(f)); return *this; }
-  bool       λe (u9c &s)   const {                                                         return yλ.contains(s); }
-  Λr         λw (u9c &s)         { let r = g.λw(i, yλ.at(s)); yλ.erase(s);                 return r; }
-  bool       λwi(u9c &s)   const {                                                         return g.λwi(i, yλ.at(s)); }
-  γ         &λx (u9c &s)         { g.λx(i, yλ.at(s));         yλ.erase(s);                 return *this; }
-  ΣΘΔ const &λΘ (u9c &s)         {                                                         return g.λΘ(i, yλ.at(s)); }
+  γ         &λc (u9c &s, λf &&f) { assert(!yλ.contains(s)); yλ[s] = g.λc(i, std::move(f));          return *this; }
+  bool       λe (u9c &s)   const {                                                                  return yλ.contains(s); }
+  Λr         λw (u9c &s)         { let r = g.λw(i, yλ.at(s)); yλ.erase(s);                          return r; }
+  bool       λwi(u9c &s)   const {                                                                  return g.λwi(i, yλ.at(s)); }
+  γ         &λx (u9c &s)         { g.λx(i, yλ.at(s));         yλ.erase(s);                          return *this; }
+  ΣΘΔ const &λΘ (u9c &s)         {                                                                  return g.λΘ(i, yλ.at(s)); }
 
-  γ         &ψm (u9c &f, u9c &t) { assert(!yψ.contains(t)); yψ[t] = g.ψm(i, yψ.at(f));     return *this; }
+  γ         &ψm (u9c &f, u9c &t) { assert(!yψ.contains(t)); yψ[t] = g.ψm(i, yψ.at(f)); yψ.erase(f); return *this; }
 
   bool ψri(u9c &s) const { return g.ψri(i, yψ.at(s)); }
   bool ψrw(u9c &s) const { return g.ψrw(i, yψ.at(s)); }
