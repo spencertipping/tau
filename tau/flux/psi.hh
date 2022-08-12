@@ -114,7 +114,9 @@ struct Ψ
       while (!z.ri() && !z.xi())
       { if (!l.z()) lr[i].emplace(l.i());
         l.y(λI);
-        if (!(ψe(i) && φe(i) && n == ψn(i))) return false; }
+        if (!(ψe(i) && φe(i) && n == ψn(i)))
+        { h.stop();
+          return false; } }
       h.stop();
       return z.ri(); }
 
@@ -139,7 +141,9 @@ struct Ψ
       while (!z.wi() && !z.xi())
       { if (!l.z()) lw[i].emplace(l.i());
         l.y(λO);
-        if (!(ψe(i) && φe(i) && n == ψn(i))) return false; }
+        if (!(ψe(i) && φe(i) && n == ψn(i)))
+        { h.stop();
+          return false; } }
       h.stop();
       return z.wi(); }
 
@@ -178,7 +182,7 @@ struct Ψ
       { lφx[i].emplace(l.i()); l.y(λφx); }
       return qs.contains(i); }
 
-  // FIXME: this function has a task ordering dependency: if
+  // FIXME: this function has a task ordering dependency?
   φi φc(ψi a, ψi b, uN c = 0)
     { assert(φxw(a));
       assert(φxw(b));
