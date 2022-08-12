@@ -85,12 +85,16 @@ template<class T>
   λmi = false;
   if (!k)
   {
+    // TODO: this can probably be optimized? (minor, just the
+    // extra cc.resume)
     k = new λbc::continuation;
     auto cc = λbc::callcc(
       [t = thisptr](λbc::continuation &&cc) {
+        *λmk = cc.resume();
         **t << (*t)->f();
-        return std::move(cc);
+        return std::move(*λmk);
       });
+    cc = cc.resume();
     if (k) *k = std::move(cc);
   }
   else
