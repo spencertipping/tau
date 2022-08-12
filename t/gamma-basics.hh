@@ -34,7 +34,7 @@ using tau::operator<<;
 }
 
 
-γ &plus(γ &g, iN n)
+γ &plus(γ &g, i64 n)
 {
   g.ψw("stdin"y, α);
   g.ψw("stdout"y, α);
@@ -45,7 +45,7 @@ using tau::operator<<;
       if (!v.is_greek())
       {
         if (!g.ψww("stdout"y)) break;
-        else g.ψw("stdout"y, u9{Sc<iN>(v) + n});
+        else g.ψw("stdout"y, u9{Sc<i64>(v) + n});
       }
     }
     g.ψw("stdin"y, ω);
@@ -56,7 +56,7 @@ using tau::operator<<;
 }
 
 
-γ &is_mod(γ &g, iN n)
+γ &is_mod(γ &g, i64 n)
 {
   g.ψw("stdin"y, α);
   g.ψw("stdout"y, α);
@@ -66,7 +66,7 @@ using tau::operator<<;
       let v = g.ψr("stdin"y);
       if (!v.is_greek())
       {
-        let i = Sc<iN>(v);
+        let i = Sc<i64>(v);
         if (!(i % n))
           if (!g.ψww("stdout"y)) break;
           else g.ψw("stdout"y, u9{i});
