@@ -12,6 +12,7 @@ usage() {
   echo "       $0 c[ompile]"
   echo "       $0 d[ebug]"
   echo "       $0 q[uick]"
+  echo "       $0 r[epeat]"
   exit 1
 }
 
@@ -98,6 +99,23 @@ case $cmd in
         echo -e "\033[1;32mall ok: $test64_ret, $test32_ret, $testjs_ret\033[0;0m"
       fi
       exit $ret
+      ;;
+
+  r*) exec 3<&2 2>/dev/null
+      t g++ "${t_gcc_debug_opts[@]}" -DQUICK=1 t/test.cc -o t/test-quick -lboost_context
+      rm -f t/test-quick-repeat.log
+
+      echo "running t/test-quick 1000x"
+      echo -n "0: "
+      for i in `seq 1000`; do
+        t/test-quick "$@" >/dev/null 2>>t/test-quick-repeat.log || :
+        echo -n .
+        if (( i % 50 == 0 )); then
+          echo
+          echo -n "$i: "
+        fi
+      done
+      ni t/test-quick-repeat.log gcO
       ;;
 
   *)  usage

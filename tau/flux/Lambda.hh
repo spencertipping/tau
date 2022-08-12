@@ -49,7 +49,7 @@ struct Λ
 #if tau_debug_flux_Λ_randp
   struct λip
   { Λ &l;
-    std::default_random_engine  g;
+    std::default_random_engine  g{Sc<uN>(now().time_since_epoch().count())};
     std::bernoulli_distribution d{0.5};
     bool operator()(λi a, λi b) { return d(g); } };
 #else
