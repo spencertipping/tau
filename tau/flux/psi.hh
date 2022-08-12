@@ -40,6 +40,7 @@ struct Ψ
   M<ψi, φi>    qs;
   M<ψi, Q<λi>> lr;  // NOTE: queue for fairness
   M<ψi, Q<λi>> lw;
+  M<φi, Q<λi>> lφ;
   φi           ci{0};
   ψi           qi{0};
   nonce        ni{0};
@@ -142,10 +143,16 @@ struct Ψ
       f.ba.w(α, true);
       return ci; }
 
+  bool φw(ψi i)
+    { while (ψi(i) && φe(i)) { if (!l.z()) lφ[i].emplace(l.i()); l.y(λφ); }
+      return ψi(i); }
+
   Ψ &φx(φi i)
     { if (i)
       { let &c = cs.at(i);
         qs.erase(c.a); qs.erase(c.b);
+        if (lφ.contains(c.a)) λw(lφ[c.a]);
+        if (lφ.contains(c.b)) λw(lφ[c.b]);
         cs.erase(i); }
       return *this; }
 };
