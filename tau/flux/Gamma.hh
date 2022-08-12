@@ -50,6 +50,7 @@ struct Γ
 
   ψi    ψc (γi g)               { y(); let i = q.ψc(); qg[i] = g;                             return i; }
   Γ    &ψx (γi g, ψi i)         { y(); assert(qg.at(i) == g); q.ψx(i); qg.erase(i);           return *this; }
+  ψi    ψm (γi g, ψi i)         { y(); assert(qg.at(i) == g); let r = q.ψm(i); qg[r] = g;     return r; }
   bool  ψrw(γi g, ψi i)         { y(); assert(qg.at(i) == g);                                 return q.ψrw(i); }
   bool  ψri(γi g, ψi i)         { y(); assert(qg.at(i) == g);                                 return q.ψri(i); }
   u9    ψr (γi g, ψi i)         { y(); assert(qg.at(i) == g);                                 return q.ψr(i); }

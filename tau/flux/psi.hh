@@ -40,7 +40,6 @@ struct Ψ
   M<ψi, φi>    qs;
   M<ψi, Q<λi>> lr;  // NOTE: queue for fairness
   M<ψi, Q<λi>> lw;
-  M<φi, Q<λi>> lφ;
   φi           ci{0};
   ψi           qi{0};
   nonce        ni{0};
@@ -55,6 +54,13 @@ struct Ψ
   ζv  &ψwζ(ψi i)       { auto &c = cs.at(qs.at(i)); return c.a == i ? c.ab : c.ba; }
   ΣΘΔ &ψrΘ(ψi i)       { auto &c = cs.at(qs.at(i)); return c.a == i ? c.ra : c.rb; }
   ΣΘΔ &ψwΘ(ψi i)       { auto &c = cs.at(qs.at(i)); return c.a == i ? c.wa : c.wb; }
+
+  ψi ψm(ψi i)
+    { let t = ψc();
+      qs[t] = qs.at(i); qs.erase(i);
+      lr[t] = lr.at(i); lr.erase(i);
+      lw[t] = lw.at(i); lw.erase(i);
+      return t; }
 
   nonce const &ψn(ψi i) const { return cs.at(qs.at(i)).n; }
 
@@ -143,16 +149,10 @@ struct Ψ
       f.ba.w(α, true);
       return ci; }
 
-  bool φw(ψi i)
-    { while (ψi(i) && φe(i)) { if (!l.z()) lφ[i].emplace(l.i()); l.y(λφ); }
-      return ψi(i); }
-
   Ψ &φx(φi i)
     { if (i)
       { let &c = cs.at(i);
         qs.erase(c.a); qs.erase(c.b);
-        if (lφ.contains(c.a)) λw(lφ[c.a]);
-        if (lφ.contains(c.b)) λw(lφ[c.b]);
         cs.erase(i); }
       return *this; }
 };

@@ -57,7 +57,6 @@ enum λs  // lambda runnability state
   λI,    // blocked on read from ζ
   λO,    // blocked on write to ζ
   λW,    // waiting for a λ
-  λφ,    // waiting for a φ
   λΘ,    // waiting for a time
   λZ,    // done (zombie)
 };
@@ -73,7 +72,6 @@ O &operator<<(O &s, λs t)
   case λI: return s << "I";
   case λO: return s << "O";
   case λW: return s << "W";
-  case λφ: return s << "φ";
   case λΘ: return s << "Θ";
   case λZ: return s << "Z";
   default: return s << "BOGUS " << Su(t);

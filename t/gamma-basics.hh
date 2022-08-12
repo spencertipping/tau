@@ -116,6 +116,84 @@ using tau::operator<<;
 }
 
 
+γ &multisum(γ &g)
+{
+  auto *vs    = new S<u9>;
+  i64  *total = new i64;
+
+  g.ψw("connect"y, α);
+  g.λc("main"y, [&, vs, total]() {
+    cout << "multisum main started" << endl;
+
+    // FIXME: we need to be able to await connection state changes
+    // Right now, "connect"y is disconnected because the incoming clients
+    // have not yet done anything -- so we should observe this port as
+    // being unreadable until someone φc's it
+    while (g.ψrw("connect"y))
+    {
+      cout << "multisum connection" << endl;
+      let p = g.gs();
+      g.ψm("connect"y, p);
+      g.ψw("connect"y, α);
+
+      cout << "multisum: moved to " << p << endl;
+
+      vs->emplace(p);
+      g.λc(p, [&, p, vs, total]() {
+        cout << "multisum " << p << ": started" << endl;
+        while (g.ψrw(p))
+        {
+          let v = g.ψr(p);
+          cout << "multisum " << p << ": received" << v << endl;
+          if (!v.is_greek())
+          {
+            *total += Sc<i64>(v);
+            for (let &u : v)
+              if (g.ψww(u)) g.ψw(u, u9{*total});
+          }
+        }
+        cout << "multisum " << p << ": done" << endl;
+        vs->erase(p);
+        g.ψw(p, ω);
+        return 0;
+      });
+    }
+
+    cout << "multisum: done" << endl;
+    g.ψw("connect"y, ω);
+
+    return 0;
+  });
+
+  return g;
+}
+
+
+γ &nprint(Γ &G, γ &g, γ &s, i64 n_)
+{
+  g.ψw("socket"y, α);
+  g.λc("writer"y, [&, n_]() {
+    G.φc(g, "socket"y, s, "connect"y, 64);
+    g.λc("reader"y, [&]() {
+      while (g.ψrw("socket"y))
+        cout << "client " << g.i << " received " << g.ψr("socket"y) << endl;
+      g.ψw("socket"y, ω);
+      return 0;
+    });
+
+    for (i64 i = 0; i < n_; ++i)
+    {
+      cout << g.Θi() << ": >>> " << i << endl;
+      if (!g.ψww("socket"y)) break;
+      else g.ψw("socket"y, u9{i});
+    }
+    return 0;
+  });
+
+  return g;
+}
+
+
 void try_gamma()
 {
   Γ g;
@@ -172,10 +250,29 @@ void try_sleep()
 }
 
 
+void try_server()
+{
+  Γ g;
+  γ &m = multisum(g.γc()),
+    &a = nprint(g, g.γc(), m, 10),
+    &b = nprint(g, g.γc(), m, 20);
+
+  cout << "running gamma" << endl;
+  for (Θp t; (t = g.go()) != never();)
+  {
+    cout << "sleeping until t+" << now() - t << endl;
+    std::this_thread::sleep_until(t);
+  }
+
+  cout << "done" << endl;
+}
+
+
 int main()
 {
-  cout << "try_gamma" << endl; try_gamma();
-  cout << "try_sleep" << endl; try_sleep();
+  cout << "try_gamma"  << endl; try_gamma();
+  cout << "try_sleep"  << endl; try_sleep();
+  cout << "try_server" << endl; try_server();
   return 0;
 }
 
