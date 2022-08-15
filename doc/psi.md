@@ -38,6 +38,20 @@ Now that we have the constraints above, a new set of port states falls out:
 
 1. `!ψe`
 2. `ψe && !φe`
-3. `φe`
+3. `φe` (⇒ `ψr` and `ψw`)
 
-**TODO**
+(3) can proceed to either (1) or (2) depending on whether `φx` or `ψw(ω)` was called.
+
+All of the wait-states have to do with _φ:_ we wait on 2→3 (`ψφw`) and 3→2 (`φxw`).
+
+
+### `ψm` invariants
+`ψm` must not be visible to waiting `ψφw` and `φxw`; if it is, then those calls will observe the ψ in an intermediate state -- although maybe the real problem is that `ψm` should create a _new_ ψ in place of the old one.
+
+**Invariant:** `ψm` should not present a disruption in the original ψ; therefore, it should atomically replace the original.
+
+
+### Denial of service
+Suppose we want to rate-limit `ψm` inbound server connections. If `ψm` closes the original ψ, then we can simply not reopen it and the ψ will become unavailable.
+
+If `ψm` does leave the original open, though, then we have to explicitly close it -- which I think is fine. We can create a higher-priority λ to `ψx` and it will take precedence, or we can maintain a state variable in the γ that governs whether the `ψm` λ should run at all. Either way, `ψm`'s ψ replacement doesn't force us to accept very inbound connection.
