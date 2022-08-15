@@ -2,15 +2,6 @@
 #define tau_flux_Λ_h
 
 
-#if !defined(tau_debug_flux_Λ_randp)
-# define tau_debug_flux_Λ_randp tau_debug
-#endif
-
-
-#if tau_debug_flux_Λ_randp
-# include <random>
-#endif
-
 #include <cmath>
 
 
@@ -22,6 +13,15 @@
 
 
 #include "../module/begin.hh"
+
+#if !defined(tau_debug_flux_Λ_randp)
+# define tau_debug_flux_Λ_randp tau_debug
+#endif
+
+#if tau_debug_flux_Λ_randp
+# include <random>
+#endif
+
 
 namespace tau::flux
 {
