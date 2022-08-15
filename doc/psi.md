@@ -30,8 +30,6 @@ We can do this with `ψm`, which allows a γ to move a port from one `ψi` to an
 
 **Solution:** `φcw` to wait until `φc` is ready to be called, then have `ψφw` to wait until a port is connected (for other λs)
 
-We should also have a simple mutex/semaphore construct; a lot of this stuff boils down to classic concurrency.
-
 
 ## Internal state space
 Now that we have the constraints above, a new set of port states falls out:

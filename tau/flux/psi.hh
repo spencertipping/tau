@@ -46,7 +46,6 @@ struct φ
 
 struct Ψ
 {
-
   Λ           &l;
   uN           ζc;
   M<φi, φ>     cs;
@@ -71,16 +70,15 @@ struct Ψ
   ΣΘΔ &ψwΘ(ψi i)       { auto &c = cs.at(qs.at(i)); return c.a == i ? c.wa : c.wb; }
 
   ψi ψm(ψi i)
+  // NOTE: original ψ is automatically re-bound, so there is no moment
+  // for which !ψe
     { let t = ψc();
-      qs[t]  = qs.at(i); qs.erase(i);
-      lr[t]  = lr[i];    lr.erase(i);
-      lw[t]  = lw[i];    lw.erase(i);
-      lφc[t] = lφc[i];   lφc.erase(i);
-      lφx[t] = lφx[i];   λws(lφx[i]); lφx.erase(i);
+      qs[t] = qs.at(i); qs[i] = 0;
+      lr[t] .swap(lr[i]);  lw[t] .swap(lw[i]);
+      lφc[t].swap(lφc[i]); lφx[t].swap(lφx[i]);
       if (cs.contains(qs.at(t)))
       { auto &c = cs[qs.at(t)];
-        if (c.a == i) c.a = t;
-        else          c.b = t; }
+        (c.a == i ? c.a : c.b) = t; }
       return t; }
 
   nonce const &ψn(ψi i) const { return cs.at(qs.at(i)).n; }
