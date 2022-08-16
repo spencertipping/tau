@@ -70,13 +70,12 @@ struct Ψ
   // for which !ψe
     { assert(φe(i));
       let t = ψc();
-      λws(lφx, i); lφx.erase(i);
-      qs[t] = qs.at(i); qs[i] = 0;
+      λws(lφx, i);
+      auto &c = cs.at(qs[t] = qs.at(i)); qs[i] = 0;
+      (c.a == i ? c.a : c.b) = t;
+      lφc.erase(i);
       lr[t].swap(lr[i]);
       lw[t].swap(lw[i]);
-      lφc[t].swap(lφc[i]); // TODO: why would this have data?
-      auto &c = cs[qs.at(t)];
-      (c.a == i ? c.a : c.b) = t;
       return t; }
 
   nonce const &ψn(ψi i) const { return cs.at(qs.at(i)).n; }

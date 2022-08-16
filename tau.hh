@@ -22,11 +22,11 @@
 namespace tau
 {
 
+
 #if tau_debug_iostream || tau_debug_nop
-
 using tau::util::operator<<;
-
 #endif
+
 
 }
 
