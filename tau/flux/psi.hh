@@ -25,15 +25,6 @@ using tau::util::nonce;
 typedef ζ<u9v, u9vs> ζv;
 
 
-#if tau_debug_iostream
-struct Ψ;
-struct φ;
-
-O &operator<<(O &s, φ const &c);
-O &operator<<(O &s, Ψ const &q);
-#endif
-
-
 struct φ
 {
   nonce n;
