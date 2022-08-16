@@ -74,8 +74,8 @@ struct ζ
       assert(s_);
       Σs += s_;
       Σw += s_;
-      if (front) xs.push_front(ζe{x, s_, n});
-      else       xs.push_back (ζe{x, s_, n});
+      if (front) xs.push_front(ζe<T>{x, s_, n});
+      else       xs.push_back (ζe<T>{x, s_, n});
       return true; }
 
   bool w(T &&x, bool force = false, bool front = false)
@@ -85,8 +85,8 @@ struct ζ
       assert(s_);
       Σs += s_;
       Σw += s_;
-      if (front) xs.push_front(ζe{std::move(x), s_, n});
-      else       xs.push_back (ζe{std::move(x), s_, n});
+      if (front) xs.push_front(ζe<T>{std::move(x), s_, n});
+      else       xs.push_back (ζe<T>{std::move(x), s_, n});
       return true; }
 
   T r()

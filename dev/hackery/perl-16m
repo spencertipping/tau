@@ -1,0 +1,24 @@
+#!/usr/bin/env perl
+use Time::HiRes qw/time/;
+
+@xs = ();
+$start = time();
+for (my $i = 0; $i < 1<<24; ++$i)
+{
+  push @xs, $i;
+}
+$end = time();
+printf "prepare list = %fs\n", $end - $start;
+
+
+$start = time();
+$t = 0;
+$t += $_ for @xs;
+$end = time();
+printf "total = %d, duration = %fs\n", $t, $end - $start;
+
+
+$start = time();
+undef @xs;
+$end = time();
+printf "delete list = %fs\n", $end - $start;
