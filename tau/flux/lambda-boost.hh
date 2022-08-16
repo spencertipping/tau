@@ -85,8 +85,9 @@ template<class T>
   λmi = false;
   if (!k)
   {
-    // TODO: this can probably be optimized? (minor, just the
-    // extra cc.resume)
+    // NOTE: I believe we need to capture λmk from the inner continuation's
+    // frame of reference so it knows where to return. I haven't fully worked
+    // this out yet, but cc.resume() at the beginning makes it work reliably.
     k = new λbc::continuation;
     auto cc = λbc::callcc(
       [t = thisptr](λbc::continuation &&cc) {
