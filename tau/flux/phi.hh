@@ -2,13 +2,16 @@
 #define tau_flux_φ_h
 
 
+#include "../arch.hh"
 #include "phi-class.hh"
 
 
-#if defined(__EMSCRIPTEN__)
+#if tau_arch == tau_arch_wasm64 || tau_arch == tau_arch_wasm32
 # include "phi-emscripten.hh"
-#else
+#elif tau_arch == tau_arch_linux64 || tau_arch == tau_arch_linux32
 # include "phi-epoll.hh"
+#else
+# error unsupported architecture for φ
 #endif
 
 

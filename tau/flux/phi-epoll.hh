@@ -16,7 +16,7 @@ namespace tau::flux
 {
 
 
-// TODO: define γ lifecycle
+
 
 
 }

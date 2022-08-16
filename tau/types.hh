@@ -20,6 +20,9 @@
 #include <vector>
 
 
+#include "arch.hh"
+
+
 // enable this to prevent uint8_t, size_t etc from being used
 // within tau code
 #define TAU_ERASE_CSTDINT_TYPES 1
@@ -113,7 +116,13 @@ static_assert(sizeof(f64)       == sizeof(u64));
 static_assert(sizeof(f32)       == sizeof(u32));
 static_assert(sizeof(char)      == sizeof(u8));
 
-static_assert(sizeof(void*) <= sizeof(u64));  // <=, not ==, required for emscripten
+
+#if tau_wordsize == 64
+  static_assert(sizeof(void*) == sizeof(u64));
+#elif tau_wordsize == 32
+  static_assert(sizeof(void*) == sizeof(u32));
+#endif
+
 static_assert(sizeof(void*) == sizeof(uN));
 
 

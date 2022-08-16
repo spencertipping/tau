@@ -6,7 +6,6 @@
 #include "types.hh"
 #include "Lambda.hh"
 #include "theta.hh"
-#include "phi.hh"
 #include "psi.hh"
 
 
@@ -22,7 +21,6 @@ struct Γ
   Λ    l;
   Ψ    q  {l};
   Θ    h  {l};
-  Φ    f  {l};
   γi   gi {0};
   bool ye {true};  // yield-enable: if false, calls are atomic
   Θp   t0;
