@@ -130,6 +130,9 @@ O &operator<<(O &s, Λ const &l)
   for (let &[k, v] : l.ls) s << "  " << k << "\t" << v << std::endl;
   return s;
 }
+#elif tau_debug_nop
+O &operator<<(O &s, Λ::Λλ const &l) { return s; }
+O &operator<<(O &s, Λ     const &l) { return s; }
 #endif
 
 

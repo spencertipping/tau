@@ -106,6 +106,8 @@ struct encoding_error : virtual public utf9_error
 
 #if tau_debug_iostream
 inline O &operator<<(O &s, utf9_error const &e) { return e >> s; }
+#elif tau_debug_nop
+inline O &operator<<(O &s, utf9_error const &) { return s; }
 #endif
 
 

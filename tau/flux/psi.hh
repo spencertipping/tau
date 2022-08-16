@@ -216,6 +216,9 @@ O &operator<<(O &s, Ψ const &q)
   for (let &[_, c] : q.cs) s << "  " << c << std::endl;
   return s;
 }
+#elif tau_debug_nop
+O &operator<<(O &s, φ const &c) { return s; }
+O &operator<<(O &s, Ψ const &q) { return s; }
 #endif
 
 

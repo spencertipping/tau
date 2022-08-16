@@ -8,7 +8,7 @@
 
 
 #ifndef QUICK
-#define QUICK 0
+# define QUICK 0
 #endif
 
 
@@ -24,6 +24,8 @@ using namespace tau::util;
 
 template<class T>
 using co = tau::flux::λ<T>;
+
+using tau::operator<<;
 
 
 template <typename T>

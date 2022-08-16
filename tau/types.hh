@@ -21,6 +21,7 @@
 
 
 #include "arch.hh"
+#include "debug.hh"
 
 
 // enable this to prevent uint8_t, size_t etc from being used

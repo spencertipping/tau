@@ -5,7 +5,9 @@
 #include <unistd.h>
 
 
-#define tau_debug 1
+#ifndef tau_debug
+# define tau_debug 1
+#endif
 
 
 #include "utf9-basics.hh"

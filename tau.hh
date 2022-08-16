@@ -2,6 +2,9 @@
 #define tau_h
 
 
+#include "tau/arch.hh"
+#include "tau/debug.hh"
+
 #include "tau/types.hh"
 #include "tau/utf9.hh"
 #include "tau/flux.hh"
@@ -19,8 +22,10 @@
 namespace tau
 {
 
-#if tau_debug_iostream
+#if tau_debug_iostream || tau_debug_nop
+
 using tau::util::operator<<;
+
 #endif
 
 }

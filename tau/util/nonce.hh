@@ -25,6 +25,8 @@ O &operator<<(O &s, nonce const &n)
 {
   return s << n.h << ":" << n.l;
 }
+#elif tau_debug_nop
+O &operator<<(O &s, nonce const &n) { return s; }
 #endif
 
 

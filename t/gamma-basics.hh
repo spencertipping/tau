@@ -2,7 +2,6 @@
 #include <unistd.h>
 
 
-#define tau_debug 1
 #ifndef QUICK
 # define QUICK 0
 #endif
@@ -20,6 +19,7 @@ using namespace std;
 using namespace tau;
 using namespace tau::flux;
 using namespace tau::util;
+
 using tau::operator<<;
 
 

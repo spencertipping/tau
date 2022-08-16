@@ -69,6 +69,9 @@ O &operator<<(O &s, πι_<F, X, N, π> const &h)
 
   return s;
 }
+#elif tau_debug_nop
+template<class F, class X, uN N, class π>
+O &operator<<(O &s, πι_<F, X, N, π> const &h) { return s; }
 #endif
 
 

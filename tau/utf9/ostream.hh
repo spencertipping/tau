@@ -200,6 +200,12 @@ std::ostream &encoding_error::operator>>(std::ostream &s) const
 {
   return s << "encoding_error(" << m << ": " << t << " " << v << ")";
 }
+#elif tau_debug_nop
+std::ostream &operator<<(std::ostream &s, hash  const &) { return s; }
+std::ostream &operator<<(std::ostream &s, pidfd const &) { return s; }
+std::ostream &operator<<(std::ostream &s, val_type t)    { return s; }
+std::ostream &operator<<(std::ostream &s, tval const &t) { return s; }
+std::ostream &operator<<(std::ostream &s, val const &v)  { return s; }
 #endif
 
 

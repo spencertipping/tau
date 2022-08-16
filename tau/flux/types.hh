@@ -6,6 +6,7 @@
 #include <cmath>
 
 
+#include "../arch.hh"
 #include "../types.hh"
 #include "../utf9.hh"
 #include "../util/shd.hh"
@@ -21,7 +22,7 @@ using namespace std::literals;
 using namespace tau::util;
 
 #if tau_debug_iostream
-using tau::util::operator<<;
+  using tau::util::operator<<;
 #endif
 
 

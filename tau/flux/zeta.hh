@@ -110,6 +110,9 @@ O &operator<<(O &s, ζ<T, S> const &z)
            << " s=" << z.Σs << "/" << z.c
            << " μΘ=" << z.μΘ() << "]";
 }
+#elif tau_debug_nop
+template<class T, class S>
+O &operator<<(O &s, ζ<T, S> const &z) { return s; }
 #endif
 
 

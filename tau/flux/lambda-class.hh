@@ -2,7 +2,11 @@
 #define tau_flux_λ_class_h
 
 
-#ifdef __EMSCRIPTEN__
+#include "../arch.hh"
+#include "../debug.hh"
+
+
+#if tau_arch == tau_arch_wasm64 || tau_arch == tau_arch_wasm32
 # include <emscripten/fiber.h>
 #elif tau_assume_emscripten
   // Enough definitions to enable clang/LSP to understand the emscripten
@@ -29,7 +33,9 @@ namespace tau::flux
 {
 
 
-#if defined(__EMSCRIPTEN__) || tau_assume_emscripten
+#if tau_arch == tau_arch_wasm64                   \
+    || tau_arch == tau_arch_wasm32                \
+    || tau_assume_emscripten
   struct λk
   {
     emscripten_fiber_t  k;

@@ -2,12 +2,12 @@
 #define tau_util_shd_h
 
 
-#include <cassert>
 #include <chrono>
 #include <numeric>
 #include <type_traits>
 
 
+#include "../debug.hh"
 #include "../types.hh"
 
 #include "pi.hh"
@@ -85,6 +85,10 @@ O &operator<<(O &s, ΣΘΔ const &w)
            << " 90=" << w.p(0.9)
            << " 99=" << w.p(0.99) << "]";
 }
+#elif tau_debug_nop
+O &operator<<(O &s, ΔΘ  const &t) { return s; }
+O &operator<<(O &s, Θp  const &p) { return s; }
+O &operator<<(O &s, ΣΘΔ const &w) { return s; }
 #endif
 
 

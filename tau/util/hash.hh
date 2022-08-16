@@ -98,6 +98,8 @@ O &operator<<(O &s, sha256 const &h)
   using tau::util::hexout;
   return hexout(hexout(hexout(hexout(s, h.xs[0]) << ":", h.xs[1]) << ":", h.xs[2]) << ":", h.xs[3]);
 }
+#elif tau_debug_nop
+O &operator<<(O &s, sha256 const &h) { return s; }
 #endif
 
 

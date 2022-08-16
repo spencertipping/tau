@@ -22,6 +22,7 @@ using namespace std;
 using namespace std::literals;
 using namespace tau;
 using namespace tau::util;
+
 using tau::operator<<;
 
 

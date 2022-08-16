@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cassert>
 #include <chrono>
 #include <iostream>
 #include <string_view>
@@ -8,7 +7,7 @@
 
 
 #ifndef QUICK
-#define QUICK 0
+# define QUICK 0
 #endif
 
 
@@ -24,6 +23,7 @@ using namespace std;
 using namespace tau;
 using namespace tau::util::numerics;
 using namespace tau::util;
+
 using tau::operator<<;
 
 

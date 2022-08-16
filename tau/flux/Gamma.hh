@@ -35,7 +35,7 @@ struct Γ
   M<γi, γ*> gs;
 
   γ &γc();
-  Γ &γx(γi);
+ Γ &γx(γi);
 
   Γ         &y  ()              { if (ye && !l.z() && h.y(l.i(), θp)) l.y(λR);                return *this; }
   ΔΘ         Θi ()        const { return now() - t0; }
@@ -78,6 +78,8 @@ O &operator<<(O &s, Γ const &g)
 {
   return s << "Γ TODO";
 }
+#elif tau_debug_nop
+O &operator<<(O &s, Γ const &g) { return s; }
 #endif
 
 
