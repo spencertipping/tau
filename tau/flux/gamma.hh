@@ -41,10 +41,12 @@ struct γ
   γ         &λx (u9c &s)         { g.λx(i, yλ.at(s));         yλ.erase(s);                          return *this; }
   ΣΘΔ const &λΘ (u9c &s)         {                                                                  return g.λΘ(i, yλ.at(s)); }
 
-  bool ψri(u9c &s) const   { return g.ψri(i, yψ.at(s)); }
-  bool ψrw(u9c &s) const   { return g.ψrw(i, yψ.at(s)); }
+  bool φe (u9c &s) const   { return g.φe (i, yψ.at(s)); }
   bool ψφw(u9c &s) const   { return g.ψφw(i, yψ.at(s)); }
   bool ψxw(u9c &s) const   { return g.ψxw(i, yψ.at(s)); }
+
+  bool ψri(u9c &s) const   { return g.ψri(i, yψ.at(s)); }
+  bool ψrw(u9c &s) const   { return g.ψrw(i, yψ.at(s)); }
   u9   ψr (u9c &s) const   { return g.ψr (i, yψ.at(s)); }
   γ   &ψm (u9c &f, u9c &t) { assert(!yψ.contains(t)); yψ[t] = g.ψm(i, yψ.at(f)); return *this; }
 

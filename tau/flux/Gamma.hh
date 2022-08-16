@@ -60,6 +60,7 @@ struct Γ
   bool  ψwi(γi g, ψi i)         { y(); assert(qg.at(i) == g);                                 return q.ψwi(i);}
   bool  ψw (γi g, ψi i, u9 &&v) { y(); assert(qg.at(i) == g);                                 return q.ψw(i, std::move(v)); }
   bool  ψw (γi g, ψi i, u9c &v) { y(); assert(qg.at(i) == g);                                 return q.ψw(i, v); }
+  bool  φe (γi g, ψi i)         { y(); assert(qg.at(i) == g);                                 return q.φe(i); }
 
   Γ    &Θw (γi g, Θp t)         { y(); assert(lg.at(l.i()) == g); h.w(l.i(), t); l.y(λs::λΘ); return *this; }
 
