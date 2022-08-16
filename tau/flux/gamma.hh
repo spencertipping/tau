@@ -45,6 +45,8 @@ struct γ
 
   bool ψri(u9c &s) const { return g.ψri(i, yψ.at(s)); }
   bool ψrw(u9c &s) const { return g.ψrw(i, yψ.at(s)); }
+  bool ψφw(u9c &s) const { return g.ψφw(i, yψ.at(s)); }
+  bool ψxw(u9c &s) const { return g.ψxw(i, yψ.at(s)); }
   u9   ψr (u9c &s) const { return g.ψr (i, yψ.at(s)); }
 
   bool ψwi(u9c &s) const { return g.ψwi(i, yψ.at(s)); }

@@ -108,8 +108,11 @@ case $cmd in
       echo "running t/test-quick 1000x"
       echo -n "0: "
       for i in `seq 1000`; do
-        t/test-quick "$@" >/dev/null 2>>t/test-quick-repeat.log || :
-        echo -n .
+        if t/test-quick "$@" >/dev/null 2>>t/test-quick-repeat.log; then
+          echo -n '.'
+        else
+          echo -n '#'
+        fi
         if (( i % 50 == 0 )); then
           echo
           echo -n "$i: "

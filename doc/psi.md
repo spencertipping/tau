@@ -53,3 +53,7 @@ All of the wait-states have to do with _φ:_ we wait on 2→3 (`ψφw`) and 3→
 Suppose we want to rate-limit `ψm` inbound server connections. If `ψm` closes the original ψ, then we can simply not reopen it and the ψ will become unavailable.
 
 If `ψm` does leave the original open, though, then we have to explicitly close it -- which I think is fine. We can create a higher-priority λ to `ψx` and it will take precedence, or we can maintain a state variable in the γ that governs whether the `ψm` λ should run at all. Either way, `ψm`'s ψ replacement doesn't force us to accept very inbound connection.
+
+
+## `ψrw` and `ψww`
+τ doesn't implement `O_NONBLOCK`; instead, we split `read` and `write` into two separate stages: (1) wait until ready, and (2) execute the action (or fail). Either stage can indicate failure: `ψ_w` and `ψw` return `false`, and `ψr` returns either _κ_ or _ω_, depending on whether the failure is temporary or permanent.

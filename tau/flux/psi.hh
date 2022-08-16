@@ -72,37 +72,41 @@ struct Ψ
   ψi ψm(ψi i)
   // NOTE: original ψ is automatically re-bound, so there is no moment
   // for which !ψe
-    { let t = ψc();
+    { assert(φe(i));
+      let t = ψc();
+      λws(lφx, i); lφx.erase(i);
       qs[t] = qs.at(i); qs[i] = 0;
-      lr[t] .swap(lr[i]);  lw[t] .swap(lw[i]);
-      lφc[t].swap(lφc[i]); lφx[t].swap(lφx[i]);
-      if (cs.contains(qs.at(t)))
-      { auto &c = cs[qs.at(t)];
-        (c.a == i ? c.a : c.b) = t; }
+      lr[t].swap(lr[i]);
+      lw[t].swap(lw[i]);
+      lφc[t].swap(lφc[i]); // TODO: why would this have data?
+      auto &c = cs[qs.at(t)];
+      (c.a == i ? c.a : c.b) = t;
       return t; }
 
   nonce const &ψn(ψi i) const { return cs.at(qs.at(i)).n; }
 
-  Ψ &λw(Q<λi> &q)
-    { while (!q.empty() && !l.e(q.front())) q.pop();
+  template<class T>
+  Ψ &λw(M<T, Q<λi>> &qs, T k)
+    { if (!qs.contains(k)) return *this;
+      auto &q = qs.at(k);
+      while (!q.empty() && !l.e(q.front())) q.pop();
       if (!q.empty()) l.r(q.front(), NAN, λR), q.pop();
       return *this; }
 
-  Ψ &λws(Q<λi> &q)
-    { while (!q.empty())
+  template<class T>
+  Ψ &λws(M<T, Q<λi>> &qs, T k)
+    { auto &q = qs[k];
+      while (!q.empty())
       { if (l.e(q.front())) l.r(q.front(), NAN, λR);
         q.pop(); }
+      qs.erase(k);
       return *this; }
 
   // NOTE: ψrw and ψww are promises to do the actual IO action if possible.
   // This is how we can awaken just one λ per IO.
-  bool ψri(ψi i) { return ψrζ(i).ri(); }
+  bool ψri(ψi i) { return φe(i) && ψrζ(i).ri(); }
   bool ψrw(ψi i)
-    { // Special case: if the port is not yet connected, wait for φc
-      assert(ψe(i));
-      while (!φe(i)) { lφc[i].emplace(l.i()); l.y(λφc); }
-      if (!ψe(i)) return false;
-
+    { assert(φe(i));
       auto &h = ψrΘ(i);
       auto &z = ψrζ(i);
       let   n = ψn(i);  // for security
@@ -120,18 +124,15 @@ struct Ψ
 
   u9v ψr(ψi i)
     { assert(φe(i));
-      let o = φo(i); if (φe(i) && lw.contains(o)) λw(lw[o]);
+      let o = φo(i); if (φe(i)) λw(lw, o);
       auto &z = ψrζ(i);
       return z.ri() ? z.r()
            : z.xi() ? u9v{ω}
            :          u9v{κ}; }
 
-  bool ψwi(ψi i) { return ψwζ(i).wi(); }
+  bool ψwi(ψi i) { return φe(i) && ψwζ(i).wi(); }
   bool ψww(ψi i)
-    { assert(ψe(i));
-      while (!φe(i)) { lφc[i].emplace(l.i()); l.y(λφc); }
-      if (!ψe(i)) return false;
-
+    { assert(φe(i));
       auto &z = ψwζ(i);
       auto &h = ψwΘ(i);
       let   n = ψn(i);
@@ -147,57 +148,68 @@ struct Ψ
 
   bool ψw(ψi i, u9v const &x)
     { let o = φo(i);
-      if (φe(i) && lr.contains(o)) λw(lr[o]);
+      if (φe(i)) λw(lr, o);
       return ψwζ(i).w(x); }
+
+  bool ψφw(ψi i)
+    { assert(ψe(i));
+      while (ψe(i) && !φe(i)) { lφc[i].emplace(l.i()); l.y(λφc); }
+      return ψe(i); }
+
+  bool φxw(ψi i)
+    { assert(ψe(i));
+      while (ψe(i) && φe(i)) { lφx[i].emplace(l.i()); l.y(λφx); }
+      return ψe(i); }
 
   // NOTE: ψx is a promise that no further IO will be done using this
   // port; that is, the port is released and can be invalidated at any
   // time (when both sides of φ are closed, φ is freed)
   Ψ &ψx(ψi i)
     { assert(ψe(i));
-      auto &z = ψwζ(i);
-      if (z.xi()) return *this;
+      if (φe(i))
+      { auto &z = ψwζ(i);
+        if (z.xi()) return *this;
 
-      let o = φo(i);
-      λws(lr[o]); lr.erase(o);
-      λws(lw[i]); lw.erase(i);
-      z.w(ω, true);
-      z.x();
-      λws(lφc[i]); lφc.erase(i);
+        let o = φo(i);
+        λws(lr, o);    // awaken blocked readers on other side (to fail)
+        λws(lw, i);    // awaken blocked writers on this side (to fail)
+        λws(lφx, i);   // this ψ no longer has φ
+
+        z.w(ω, true);  // send final ω
+        z.x();         // close
+
+        assert(!lφc.contains(i) || lφc.at(i).empty());
+        lφc.erase(i);
+
+        if (ψe(o) && φe(o) && ψwζ(o).xi())
+        { λws(lr, i);
+          λws(lw, o);
+          φx(qs.at(i));
+          assert(!lφc.contains(o) || lφc.at(o).empty());
+          lφc.erase(o); } }
+      else
+      { λws(lw, i);
+        λws(lr, i);
+        λws(lφc, i); }
+
       qs.erase(i);
-      λws(lφx[i]); lφx.erase(i);
-
-      if (ψe(o) && ψwζ(o).xi())
-      { λws(lr[i]); lr.erase(i);
-        λws(lw[o]); lw.erase(o);
-        φx(qs.at(i));
-        λws(lφc[o]); lφc.erase(o); }
-
       return *this; }
 
-  bool φxw(ψi i)
-    { while (qs.contains(i) && cs.contains(qs.at(i)))
-      { lφx[i].emplace(l.i()); l.y(λφx); }
-      return qs.contains(i); }
-
-  // FIXME: this function has a task ordering dependency?
   φi φc(ψi a, ψi b, uN c = 0)
-    { assert(φxw(a));
-      assert(φxw(b));
-      assert(qs.at(a) == 0 && qs.at(b) == 0);
+    { if (!φxw(a) || !φxw(b)) return 0;
       if (!c) c = ζc;
       auto &f = cs[qs[a] = qs[b] = ιi(ci, cs)] = {++ni, a, b, ζv(c), ζv(c)};
       f.ab.w(α, true);
       f.ba.w(α, true);
-      if (lφc.contains(a)) λw(lφc[a]);
-      if (lφc.contains(b)) λw(lφc[b]);
+      λw(lφc, a);
+      λw(lφc, b);
       return ci; }
 
   Ψ &φx(φi i)
     { if (i)
       { let &c = cs.at(i);
-        if (lφx.contains(c.a)) λw(lφx[c.a]);
-        if (lφx.contains(c.b)) λw(lφx[c.b]);
+        λw(lφx, c.a);
+        λw(lφx, c.b);
         cs.erase(i); }
       return *this; }
 };

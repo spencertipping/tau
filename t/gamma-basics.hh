@@ -133,7 +133,7 @@ using tau::operator<<;
   g.λc("main"y, [&, vs, total]() {
     cout << "multisum main started" << endl;
 
-    while (g.ψrw("connect"y))
+    while (g.ψφw("connect"y))
     {
       cout << "multisum connection" << endl;
       auto p = g.gs();
@@ -181,6 +181,12 @@ using tau::operator<<;
   cout << "setting up writer for " << g.i << endl;
   g.λc("writer"y, [&, n_]() {
     cout << "socket connection for " << g.i << endl;
+    if (!s.ψxw("connect"y))
+    {
+      cout << "server closed connection before we could connect" << endl;
+      _exit(1);
+    }
+
     G.φc(g, "socket"y, s, "connect"y, 64);
     cout << "setting up reader for " << g.i << endl;
 
