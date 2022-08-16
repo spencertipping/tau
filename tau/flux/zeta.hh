@@ -18,15 +18,24 @@ namespace tau::flux
 {
 
 
+template<class T>
+struct ζe
+{
+  T  x;
+  uN s;
+  Θp h;
+};
+
+
 template<class T, class S>
 struct ζ
 {
-  S           s;
-  ΣΘΔ         lΘ;
-  uN          c;
-  uN          Σs;
-  u64         Σw;
-  D<P<Θp, T>> xs;
+  S        s;
+  ΣΘΔ      lΘ;
+  uN       c;
+  uN       Σs;
+  u64      Σw;
+  D<ζe<T>> xs;
 
   ζ(uN c_ = ζc0) : c(c_), Σs(0), Σw(0) { assert(c); }
 
@@ -54,7 +63,7 @@ struct ζ
     { if (!Σw) return 0ns;
       auto t = 0ns;
       let  n = now();
-      for (let &x : xs) t += n - std::get<0>(x);
+      for (let &x : xs) t += n - x.h;
       return (t + lΘ.Σ()) / (lΘ.n + xs.size()); }
 
 
@@ -65,8 +74,8 @@ struct ζ
       assert(s_);
       Σs += s_;
       Σw += s_;
-      if (front) xs.push_front(std::make_pair(n, x));
-      else       xs.push_back (std::make_pair(n, x));
+      if (front) xs.push_front(ζe{x, s_, n});
+      else       xs.push_back (ζe{x, s_, n});
       return true; }
 
   bool w(T &&x, bool force = false, bool front = false)
@@ -76,17 +85,17 @@ struct ζ
       assert(s_);
       Σs += s_;
       Σw += s_;
-      if (front) xs.push_front(std::make_pair(n, std::move(x)));
-      else       xs.push_back (std::make_pair(n, std::move(x)));
+      if (front) xs.push_front(ζe{std::move(x), s_, n});
+      else       xs.push_back (ζe{std::move(x), s_, n});
       return true; }
 
   T r()
     { assert(ri());
-      let [t, x] = xs.front();
-      lΘ << now() - t;
-      Σs -= s(x);
+      let x = std::move(xs.front());
+      lΘ << now() - x.h;
+      Σs -= x.s;
       xs.pop_front();
-      return x; }
+      return x.x; }
 };
 
 
