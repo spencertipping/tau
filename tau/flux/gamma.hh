@@ -41,13 +41,12 @@ struct γ
   γ         &λx (u9c &s)         { g.λx(i, yλ.at(s));         yλ.erase(s);                          return *this; }
   ΣΘΔ const &λΘ (u9c &s)         {                                                                  return g.λΘ(i, yλ.at(s)); }
 
-  γ         &ψm (u9c &f, u9c &t) { assert(!yψ.contains(t)); yψ[t] = g.ψm(i, yψ.at(f));              return *this; }
-
-  bool ψri(u9c &s) const { return g.ψri(i, yψ.at(s)); }
-  bool ψrw(u9c &s) const { return g.ψrw(i, yψ.at(s)); }
-  bool ψφw(u9c &s) const { return g.ψφw(i, yψ.at(s)); }
-  bool ψxw(u9c &s) const { return g.ψxw(i, yψ.at(s)); }
-  u9   ψr (u9c &s) const { return g.ψr (i, yψ.at(s)); }
+  bool ψri(u9c &s) const   { return g.ψri(i, yψ.at(s)); }
+  bool ψrw(u9c &s) const   { return g.ψrw(i, yψ.at(s)); }
+  bool ψφw(u9c &s) const   { return g.ψφw(i, yψ.at(s)); }
+  bool ψxw(u9c &s) const   { return g.ψxw(i, yψ.at(s)); }
+  u9   ψr (u9c &s) const   { return g.ψr (i, yψ.at(s)); }
+  γ   &ψm (u9c &f, u9c &t) { assert(!yψ.contains(t)); yψ[t] = g.ψm(i, yψ.at(f)); return *this; }
 
   bool ψwi(u9c &s) const { return g.ψwi(i, yψ.at(s)); }
   bool ψww(u9c &s) const { return g.ψww(i, yψ.at(s)); }
@@ -67,7 +66,7 @@ struct γ
 };
 
 
-Γ::~Γ()
+inline Γ::~Γ()
 {
   for (let &[_, p] : gs) delete p;
 }
@@ -79,7 +78,7 @@ inline γ &Γ::γc()
 }
 
 
-Γ &Γ::γx(γi i)
+inline Γ &Γ::γx(γi i)
 {
   let &g = *gs[i];
   ye = false;
@@ -98,7 +97,7 @@ inline Γ &Γ::φc(γi a, u9c &aq, γi b, u9c &bq, uN ζc)
 }
 
 
-Γ &Γ::φc(γ const &a, u9c &aq, γ const &b, u9c &bq, uN ζc)
+inline Γ &Γ::φc(γ const &a, u9c &aq, γ const &b, u9c &bq, uN ζc)
 {
   q.φc(a.yψ.at(aq), b.yψ.at(bq), ζc);
   return *this;

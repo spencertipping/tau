@@ -24,7 +24,7 @@ struct Γ
   Θ    h  {l};
   Φ    f  {l};
   γi   gi {0};
-  bool ye {true};
+  bool ye {true};  // yield-enable: if false, calls are atomic
   Θp   t0;
 
   f64 θp;
