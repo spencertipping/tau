@@ -138,7 +138,6 @@ using tau::operator<<;
       cout << "multisum connection" << endl;
       auto p = g.gs();
       g.ψm("connect"y, p);
-      g.ψw("connect"y, α);
 
       cout << "multisum: moved to " << p << endl;
 
@@ -187,6 +186,7 @@ using tau::operator<<;
       _exit(1);
     }
 
+    // TODO: add φc to γ
     G.φc(g, "socket"y, s, "connect"y, 64);
     cout << "setting up reader for " << g.i << endl;
 

@@ -41,7 +41,7 @@ struct γ
   γ         &λx (u9c &s)         { g.λx(i, yλ.at(s));         yλ.erase(s);                          return *this; }
   ΣΘΔ const &λΘ (u9c &s)         {                                                                  return g.λΘ(i, yλ.at(s)); }
 
-  γ         &ψm (u9c &f, u9c &t) { assert(!yψ.contains(t)); yψ[t] = g.ψm(i, yψ.at(f)); yψ.erase(f); return *this; }
+  γ         &ψm (u9c &f, u9c &t) { assert(!yψ.contains(t)); yψ[t] = g.ψm(i, yψ.at(f));              return *this; }
 
   bool ψri(u9c &s) const { return g.ψri(i, yψ.at(s)); }
   bool ψrw(u9c &s) const { return g.ψrw(i, yψ.at(s)); }

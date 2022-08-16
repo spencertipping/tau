@@ -5,7 +5,6 @@
 #include "../types.hh"
 #include "../utf9.hh"
 #include "../util/nonce.hh"
-#include "../util/shd.hh"
 
 #include "types.hh"
 #include "u9z.hh"
@@ -38,9 +37,8 @@ O &operator<<(O &s, Ψ const &q);
 struct φ
 {
   nonce n;
-  ψi  a,  b;
-  ζv  ab, ba;
-  ΣΘΔ ra, rb, wa, wb;
+  ψi a,  b;
+  ζv ab, ba;
 };
 
 
@@ -66,8 +64,6 @@ struct Ψ
   ψi   φo (ψi i) const { auto &c = cs.at(qs.at(i)); return c.a == i ? c.b : c.a; }
   ζv  &ψrζ(ψi i)       { auto &c = cs.at(qs.at(i)); return c.a == i ? c.ba : c.ab; }
   ζv  &ψwζ(ψi i)       { auto &c = cs.at(qs.at(i)); return c.a == i ? c.ab : c.ba; }
-  ΣΘΔ &ψrΘ(ψi i)       { auto &c = cs.at(qs.at(i)); return c.a == i ? c.ra : c.rb; }
-  ΣΘΔ &ψwΘ(ψi i)       { auto &c = cs.at(qs.at(i)); return c.a == i ? c.wa : c.wb; }
 
   ψi ψm(ψi i)
   // NOTE: original ψ is automatically re-bound, so there is no moment
@@ -107,19 +103,14 @@ struct Ψ
   bool ψri(ψi i) { return φe(i) && ψrζ(i).ri(); }
   bool ψrw(ψi i)
     { assert(φe(i));
-      auto &h = ψrΘ(i);
       auto &z = ψrζ(i);
       let   n = ψn(i);  // for security
 
       // invariant: lr[i] is popped at least once per wakeup of this λ
-      h.start();
       while (!z.ri() && !z.xi())
       { if (!l.z()) lr[i].emplace(l.i());
         l.y(λI);
-        if (!(ψe(i) && φe(i) && n == ψn(i)))
-        { h.stop();
-          return false; } }
-      h.stop();
+        if (!(ψe(i) && φe(i) && n == ψn(i))) return false; }
       return z.ri(); }
 
   u9v ψr(ψi i)
@@ -134,16 +125,11 @@ struct Ψ
   bool ψww(ψi i)
     { assert(φe(i));
       auto &z = ψwζ(i);
-      auto &h = ψwΘ(i);
       let   n = ψn(i);
-      h.start();
       while (!z.wi() && !z.xi())
       { if (!l.z()) lw[i].emplace(l.i());
         l.y(λO);
-        if (!(ψe(i) && φe(i) && n == ψn(i)))
-        { h.stop();
-          return false; } }
-      h.stop();
+        if (!(ψe(i) && φe(i) && n == ψn(i))) return false; }
       return z.wi(); }
 
   bool ψw(ψi i, u9v const &x)
