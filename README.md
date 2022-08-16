@@ -30,7 +30,8 @@ $ sudo apt install -y \
 To build and run test files, both natively and with emscripten/node:
 
 ```sh
-$ ./build t && t/test && node t/test.js
+$ ./build t  # run tests once
+$ ./build r  # run quick test 1000x to verify λ order-independence
 ```
 
 
