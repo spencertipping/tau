@@ -29,8 +29,6 @@ void try_iota_cat()
 }
 
 
-
-
 int main()
 {
   cout << "try_iota_cat" << endl; try_iota_cat();

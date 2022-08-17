@@ -29,6 +29,10 @@ struct iota
       });
     }
 
+  // FIXME: destructor ordering matters; g may or may not be valid here
+  // we probably want γs to be externally owned
+  //
+  // On that point, we probably want γ to be {Γ*, γi} or similar
   ~iota() { g.g.γx(g.i); }
 };
 
