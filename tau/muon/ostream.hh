@@ -5,9 +5,7 @@
 #if tau_debug_iostream || tau_debug_nop
 
 
-#include "../types.hh"
-#include "../utf9.hh"
-#include "../flux.hh"
+#include "base.hh"
 
 
 #include "../module/begin.hh"
@@ -16,22 +14,19 @@ namespace tau::muon
 {
 
 
-struct ostream
+struct ostream : base
 {
   O &s;
-  γ &g;
 
-  ostream(Γ &G, O &s_) : s(s_), g(G.γc())
+  ostream(Γ &G_, O &s_) : base(G_), s(s_)
     {
-      g.ψw("in"y, α);
-      g.λc("main"y, [&]() {
-        if (!g.ψφw("in"y)) return 1;
-        while (g.ψrw("in"y)) s << g.ψr("in"y) << std::endl;
+      g.ψw("in"_q, α);
+      g.λc("main"_l, [&]() {
+        if (!g.ψφw("in"_q)) return 1;
+        while (g.ψrw("in"_q)) s << g.ψr("in"_q) << std::endl;
         return 0;
       });
     }
-
-  ~ostream() { g.g.γx(g.i); }
 };
 
 

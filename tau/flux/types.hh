@@ -10,6 +10,7 @@
 #include "../types.hh"
 #include "../utf9.hh"
 #include "../util/shd.hh"
+#include "../util/hash.hh"
 
 
 #include "../module/begin.hh"
@@ -35,9 +36,19 @@ typedef f64     λp;  // λ priority (lower = more important)
 typedef i64     Λr;  // type of value returned to Λ
 typedef F<Λr()> λf;
 
+typedef u64     γsi;
 typedef uN      ψi;  // Γ-local port identifier
 typedef uN      φi;  // internal connection identifier
 typedef uN      γi;
+
+
+γsi constexpr γsi_str(char const *s, uN l)
+{
+  if (l >= 8) return sha(std::string_view(s, l)).xs[0];
+  u64 r = 0;
+  for (uN i = 0; i < l; ++i) r |= Sc<u8>(s[i]) << (7 - i) * 8;
+  return r;
+}
 
 
 uNc constexpr ζc0 = 65536;

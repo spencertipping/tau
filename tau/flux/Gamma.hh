@@ -62,8 +62,10 @@ struct Γ
 
   Γ    &Θw (γi g, Θp t)         { y(); assert(lg.at(l.i()) == g); h.w(l.i(), t); l.y(λs::λΘ); return *this; }
 
-  Γ &φc(γi       a, u9c &aq, γi       b, u9c &bq, uN ζc = ζc0);
-  Γ &φc(γ const &a, u9c &aq, γ const &b, u9c &bq, uN ζc = ζc0);
+  Γ &φc(γi       a, γsi aq, γi       b, γsi bq, uN ζc = ζc0);
+  Γ &φc(γ const &a, γsi aq, γ const &b, γsi bq, uN ζc = ζc0);
+  Γ &φx(γi       a, γsi aq, γi       b, γsi bq);
+  Γ &φx(γ const &a, γsi aq, γ const &b, γsi bq);
 
   Θp go(F<bool(λi)> const &f = [](λi){ return true; })
     { for (λi t; (t = l()) && f(t);) { h.r(t); l << t; h.s(t); }

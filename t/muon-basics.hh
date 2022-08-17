@@ -24,6 +24,7 @@ void try_iota_cat()
   Γ g;
   let i = muon::iota(g, 10);
   let o = muon::ostream(g, cout);
+  let c = muon::cat(g, i, "out"_q, o, "in"_l);
 
   g.go();
 }

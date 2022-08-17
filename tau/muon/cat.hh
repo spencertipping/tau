@@ -2,10 +2,7 @@
 #define tau_muon_cat_h
 
 
-#include "../types.hh"
-#include "../utf9.hh"
-#include "../flux.hh"
-#include "../util.hh"
+#include "base.hh"
 
 
 #include "../module/begin.hh"
@@ -14,20 +11,18 @@ namespace tau::muon
 {
 
 
-struct cat
+struct cat : base
 {
-  γ   &g;
-  γ   &a, &b;
-  u9c aq, bq;
+  γi  a,  b;
+  γsi aq, bq;
 
-  cat(Γ &G, γ &a_, u9c &aq_, γ &b_, u9c &bq_, uN c = ζc0)
-    : g(G.γc()),
-      a(a_),   b(b_),
+  cat(Γ &G, γ const &a_, γsi aq_, γ const &b_, γsi bq_, uN c = ζc0)
+    : base(G),
+      a(a_.i), b(b_.i),
       aq(aq_), bq(bq_)
-    { G.φc(a.i, aq, b.i, bq, c); }
+    { G.φc(a, aq, b, bq, c); }
 
-  ~cat() { if (a.φe(aq)) a.ψw(aq, ω);
-           if (b.φe(bq)) b.ψw(bq, ω); }
+  ~cat() { G.φx(a, aq, b, bq); }
 };
 
 

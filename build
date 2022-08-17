@@ -62,7 +62,7 @@ case $cmd in
       fi
 
       t dev/emsdk em++     "${t_em_opts[@]}" -DQUICK=1 t/test.cc -o t/test-quick.js
-      if node t/test-quick.js >t/testjs-quick.log 2>&1; then
+      if node --trace-uncaught t/test-quick.js >t/testjs-quick.log 2>&1; then
         echo -e "\033[1;32mjs all ok\033[0;0m"
       else
         echo -e "\033[1;31mjs error\033[0;0m"

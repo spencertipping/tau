@@ -25,15 +25,15 @@ using tau::operator<<;
 
 γ &n(γ &g, i64 n_)
 {
-  g.ψw("stdout"y, α);
-  g.λc("main"y, [&, n_]() {
+  g.ψw("stdout"_q, α);
+  g.λc("main"_l, [&, n_]() {
     for (i64 i = 0; i < n_; ++i)
     {
       cout << g.Θi() << ": >>> " << i << endl;
-      if (!g.ψww("stdout"y)) break;
-      else g.ψw("stdout"y, u9{i});
+      if (!g.ψww("stdout"_q)) break;
+      else g.ψw("stdout"_q, u9{i});
     }
-    g.ψw("stdout"y, ω);
+    g.ψw("stdout"_q, ω);
     return 0;
   });
   return g;
@@ -42,20 +42,20 @@ using tau::operator<<;
 
 γ &plus(γ &g, i64 n)
 {
-  g.ψw("stdin"y, α);
-  g.ψw("stdout"y, α);
-  g.λc("main"y, [&, n]() {
-    while (g.ψrw("stdin"y))
+  g.ψw("stdin"_q, α);
+  g.ψw("stdout"_q, α);
+  g.λc("main"_l, [&, n]() {
+    while (g.ψrw("stdin"_q))
     {
-      let v = g.ψr("stdin"y);
+      let v = g.ψr("stdin"_q);
       if (!v.is_greek())
       {
-        if (!g.ψww("stdout"y)) break;
-        else g.ψw("stdout"y, u9{Sc<i64>(v) + n});
+        if (!g.ψww("stdout"_q)) break;
+        else g.ψw("stdout"_q, u9{Sc<i64>(v) + n});
       }
     }
-    g.ψw("stdin"y, ω);
-    g.ψw("stdout"y, ω);
+    g.ψw("stdin"_q, ω);
+    g.ψw("stdout"_q, ω);
     return 0;
   });
   return g;
@@ -64,22 +64,22 @@ using tau::operator<<;
 
 γ &is_mod(γ &g, i64 n)
 {
-  g.ψw("stdin"y, α);
-  g.ψw("stdout"y, α);
-  g.λc("main"y, [&, n]() {
-    while (g.ψrw("stdin"y))
+  g.ψw("stdin"_q, α);
+  g.ψw("stdout"_q, α);
+  g.λc("main"_q, [&, n]() {
+    while (g.ψrw("stdin"_q))
     {
-      let v = g.ψr("stdin"y);
+      let v = g.ψr("stdin"_q);
       if (!v.is_greek())
       {
         let i = Sc<i64>(v);
         if (!(i % n))
-          if (!g.ψww("stdout"y)) break;
-          else g.ψw("stdout"y, u9{i});
+          if (!g.ψww("stdout"_q)) break;
+          else g.ψw("stdout"_q, u9{i});
       }
     }
-    g.ψw("stdin"y, ω);
-    g.ψw("stdout"y, ω);
+    g.ψw("stdin"_q, ω);
+    g.ψw("stdout"_q, ω);
     return 0;
   });
   return g;
@@ -88,21 +88,21 @@ using tau::operator<<;
 
 γ &sleep(γ &g, ΔΘ t)
 {
-  g.ψw("stdin"y, α);
-  g.ψw("stdout"y, α);
-  g.λc("main"y, [&, t]() {
-    while (g.ψrw("stdin"y))
+  g.ψw("stdin"_q, α);
+  g.ψw("stdout"_q, α);
+  g.λc("main"_l, [&, t]() {
+    while (g.ψrw("stdin"_q))
     {
-      let v = g.ψr("stdin"y);
+      let v = g.ψr("stdin"_q);
       if (!v.is_greek())
       {
         g.Θw(t);
-        if (!g.ψww("stdout"y)) break;
-        else g.ψw("stdout"y, v);
+        if (!g.ψww("stdout"_q)) break;
+        else g.ψw("stdout"_q, v);
       }
     }
-    g.ψw("stdin"y, ω);
-    g.ψw("stdout"y, ω);
+    g.ψw("stdin"_q, ω);
+    g.ψw("stdout"_q, ω);
     return 0;
   });
   return g;
@@ -111,11 +111,11 @@ using tau::operator<<;
 
 γ &out(γ &g)
 {
-  g.ψw("stdin"y, α);
-  g.λc("main"y, [&]() {
-    while (g.ψrw("stdin"y))
-      cout << g.Θi() << ": " << g.ψr("stdin"y) << endl;
-    g.ψw("stdin"y, ω);
+  g.ψw("stdin"_q, α);
+  g.λc("main"_l, [&]() {
+    while (g.ψrw("stdin"_q))
+      cout << g.Θi() << ": " << g.ψr("stdin"_q) << endl;
+    g.ψw("stdin"_q, ω);
     return 0;
   });
   return g;
@@ -124,20 +124,20 @@ using tau::operator<<;
 
 γ &multisum(γ &g)
 {
-  auto *vs    = new S<u9>;
+  auto *vs    = new S<γsi>;
   i64  *total = new i64;
 
   *total = 0;
 
-  g.ψw("connect"y, α);
-  g.λc("main"y, [&, vs, total]() {
+  g.ψw("connect"_l, α);
+  g.λc("main"_l, [&, vs, total]() {
     cout << "multisum main started" << endl;
 
-    while (g.ψφw("connect"y))
+    while (g.ψφw("connect"_l))
     {
       cout << "multisum connection" << endl;
       auto p = g.gs();
-      g.ψm("connect"y, p);
+      g.ψm("connect"_l, p);
 
       cout << "multisum: moved to " << p << endl;
 
@@ -164,7 +164,7 @@ using tau::operator<<;
     }
 
     cout << "multisum: done" << endl;
-    g.ψw("connect"y, ω);
+    g.ψw("connect"_l, ω);
 
     return 0;
   });
@@ -175,26 +175,26 @@ using tau::operator<<;
 
 γ &nprint(Γ &G, γ &g, γ &s, i64 n_)
 {
-  g.ψw("socket"y, α);
+  g.ψw("socket"_l, α);
 
   cout << "setting up writer for " << g.i << endl;
-  g.λc("writer"y, [&, n_]() {
+  g.λc("writer"_l, [&, n_]() {
     cout << "socket connection for " << g.i << endl;
-    if (!s.ψxw("connect"y))
+    if (!s.ψxw("connect"_l))
     {
       cout << "server closed connection before we could connect" << endl;
       _exit(1);
     }
 
     // TODO: add φc to γ
-    G.φc(g, "socket"y, s, "connect"y, 64);
+    G.φc(g, "socket"_l, s, "connect"_l, 64);
     cout << "setting up reader for " << g.i << endl;
 
-    g.λc("reader"y, [&]() {
+    g.λc("reader"_l, [&]() {
       i64 l = 0;
-      while (g.ψrw("socket"y))
+      while (g.ψrw("socket"_l))
       {
-        let v = g.ψr("socket"y);
+        let v = g.ψr("socket"_l);
         cout << "client " << g.i << " received " << v << endl;
         if (!v.is_greek()) l = Sc<i64>(v);
       }
@@ -205,8 +205,8 @@ using tau::operator<<;
     for (i64 i = 0; i < n_; ++i)
     {
       cout << g.Θi() << ": >>> " << i << endl;
-      if (!g.ψww("socket"y)) cout << "failed to write " << i << endl;
-      else g.ψw("socket"y, u9{i});
+      if (!g.ψww("socket"_l)) cout << "failed to write " << i << endl;
+      else g.ψw("socket"_l, u9{i});
     }
 
     return 0;
@@ -221,9 +221,9 @@ void try_nested()
   Γ g;
   γ &a = g.γc();
 
-  a.λc("outer"y, [&]() {
+  a.λc("outer"_q, [&]() {
     cout << "outer fn" << endl;
-    a.λc("inner"y, [&]() {
+    a.λc("inner"_q, [&]() {
       cout << "inner fn" << endl;
       return 0;
     });
@@ -244,15 +244,15 @@ void try_gamma()
     &d = out(g.γc());
 
   cout << "connecting stdout <-> stdin" << endl;
-  g.φc(a, "stdout"y, b, "stdin"y, 64);
-  g.φc(b, "stdout"y, c, "stdin"y, 64);
-  g.φc(c, "stdout"y, d, "stdin"y, 64);
+  g.φc(a, "stdout"_q, b, "stdin"_q, 64);
+  g.φc(b, "stdout"_q, c, "stdin"_q, 64);
+  g.φc(c, "stdout"_q, d, "stdin"_q, 64);
 
   cout << "running gamma" << endl;
   for (Θp t; (t = g.go()) != never();)
     std::this_thread::sleep_until(t);
 
-  cout << "done; exit state is " << d.λw("main"y) << endl;
+  cout << "done; exit state is " << d.λw("main"_l) << endl;
   cout << "timings:" << endl;
   cout << "  a = " << a.γΘ() << endl;
   cout << "  b = " << b.γΘ() << endl;
@@ -271,8 +271,8 @@ void try_sleep()
     &c = out(g.γc());
 
   cout << "connecting stdout <-> stdin" << endl;
-  g.φc(a, "stdout"y, b, "stdin"y, 64);
-  g.φc(b, "stdout"y, c, "stdin"y, 64);
+  g.φc(a, "stdout"_q, b, "stdin"_q, 64);
+  g.φc(b, "stdout"_q, c, "stdin"_q, 64);
 
   cout << "running gamma" << endl;
 
@@ -305,16 +305,16 @@ void try_server()
     std::this_thread::sleep_until(t);
   }
 
-  a.ψw("socket"y, ω);
-  b.ψw("socket"y, ω);
+  a.ψw("socket"_l, ω);
+  b.ψw("socket"_l, ω);
   for (Θp t; (t = g.go()) != never();)
   {
     cout << "sleeping until " << t << endl;
     std::this_thread::sleep_until(t);
   }
 
-  let ar = a.λw("reader"y);
-  let br = b.λw("reader"y);
+  let ar = a.λw("reader"_l);
+  let br = b.λw("reader"_l);
 
   cout << "ar = " << ar << endl;
   cout << "br = " << br << endl;

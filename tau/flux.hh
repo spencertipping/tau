@@ -32,12 +32,17 @@
   using tau::flux::ψi;
   using tau::flux::λi;
   using tau::flux::φi;
+  using tau::flux::γi;
+  using tau::flux::γsi;
 
   using tau::flux::ζc0;
 
-
   using tau::flux::Γ;
   using tau::flux::γ;
+
+
+  inline constexpr γsi operator""_q(char const *s, uN l) { return flux::γsi_str(s, l); }
+  inline constexpr γsi operator""_l(char const *s, uN l) { return operator""_q(s, l); }
 
 
   }

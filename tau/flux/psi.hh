@@ -189,8 +189,8 @@ struct Ψ
   Ψ &φx(φi i)
     { if (i)
       { let &c = cs.at(i);
-        λw(lφx, c.a);
-        λw(lφx, c.b);
+        λws(lφx, c.a);
+        λws(lφx, c.b);
         cs.erase(i); }
       return *this; }
 };
