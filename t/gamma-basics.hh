@@ -243,6 +243,10 @@ void try_gamma()
     &c = is_mod(g.γc(), 5),
     &d = out(g.γc());
 
+  cout << "stdin_q  = " << "stdin"_q  << endl;
+  cout << "stdout_q = " << "stdout"_q << endl;
+  cout << "main_l   = " << "main"_q   << endl;
+
   cout << "connecting stdout <-> stdin" << endl;
   g.φc(a, "stdout"_q, b, "stdin"_q, 64);
   g.φc(b, "stdout"_q, c, "stdin"_q, 64);

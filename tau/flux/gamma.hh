@@ -60,13 +60,13 @@ struct γ
 
   bool ψw(γsi s, u9 &&v)
     { if      (v == α && !yψ.contains(s)) { yψ[s] = g.ψc(i);                                    return true; }
-      else if (v == ω)                    { if (yψ.contains(s)) g.ψx(i, yψ.at(s)); yψ.erase(s); return true; }
-      return yψ.contains(s) && g.ψw(i, yψ.at(s), std::move(v)); }
+      else if (v == ω)                    { if (yψ.contains(s)) g.ψx(i, yψ.at(s)), yψ.erase(s); return true; }
+      return yψ.contains(s) && φe(s) && g.ψw(i, yψ.at(s), std::move(v)); }
 
   bool ψw(γsi s, u9c &v)
     { if      (v == α && !yψ.contains(s)) { yψ[s] = g.ψc(i);                                    return true; }
-      else if (v == ω)                    { if (yψ.contains(s)) g.ψx(i, yψ.at(s)); yψ.erase(s); return true; }
-      return yψ.contains(s) && g.ψw(i, yψ.at(s), v); }
+      else if (v == ω)                    { if (yψ.contains(s)) g.ψx(i, yψ.at(s)), yψ.erase(s); return true; }
+      return yψ.contains(s) && φe(s) && g.ψw(i, yψ.at(s), v); }
 
   γ &Θw(ΔΘ t) { return Θw(now() + t); }
   γ &Θw(Θp t) { g.Θw(i, t); return *this; }

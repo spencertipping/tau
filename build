@@ -61,7 +61,7 @@ case $cmd in
         exit 1
       fi
 
-      t dev/emsdk em++     "${t_em_opts[@]}" -DQUICK=1 t/test.cc -o t/test-quick.js
+      t dev/emsdk em++ "${t_em_opts[@]}" -g -DQUICK=1 t/test.cc -o t/test-quick.html
       if node --trace-uncaught t/test-quick.js >t/testjs-quick.log 2>&1; then
         echo -e "\033[1;32mjs all ok\033[0;0m"
       else

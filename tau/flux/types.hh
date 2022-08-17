@@ -42,16 +42,16 @@ typedef uN      φi;  // internal connection identifier
 typedef uN      γi;
 
 
-γsi constexpr γsi_str(char const *s, uN l)
+constexpr γsi γsi_str(char const *s, uN l)
 {
   if (l >= 8) return sha(std::string_view(s, l)).xs[0];
   u64 r = 0;
-  for (uN i = 0; i < l; ++i) r |= Sc<u8>(s[i]) << (7 - i) * 8;
+  for (uN i = 0; i < l; ++i) r |= Sc<u64>(Sc<u8>(s[i])) << (7 - i) * 8;
   return r;
 }
 
 
-uNc constexpr ζc0 = 65536;
+constexpr uNc ζc0 = 65536;
 
 
 template<class K, class V>
