@@ -10,7 +10,7 @@
 #include "../types.hh"
 #include "../utf9.hh"
 #include "../util/shd.hh"
-#include "../util/hash.hh"
+#include "../util/ostream.hh"
 
 
 #include "../module/begin.hh"
@@ -42,12 +42,19 @@ typedef uN      φi;  // internal connection identifier
 typedef uN      γi;
 
 
-constexpr γsi γsi_str(char const *s, uN l)
+constexpr γsi str_γsi(char const *s, uN l)
 {
-  if (l >= 8) return sha(std::string_view(s, l)).xs[0];
+  if (l > 8) return sha(std::string_view(s, l)).xs[0] | 1ull << 63;
   u64 r = 0;
   for (uN i = 0; i < l; ++i) r |= Sc<u64>(Sc<u8>(s[i])) << (7 - i) * 8;
   return r;
+}
+
+
+std::string γsi_str(γsi s)
+{
+  s = ce(s);
+  return std::string(Rc<char const*>(&s), 8);
 }
 
 
