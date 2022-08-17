@@ -17,6 +17,12 @@ namespace λbc = boost::context;
 bool λmi;  // true if current continuation is main
 
 
+void λm(λbc::continuation &&cc)
+{
+  if (cc) *λmk = std::move(cc);
+}
+
+
 template<class T> λ<T>::λ() : k(nullptr), thisptr(nullptr) {}
 template<class T>
 λ<T>::λ(F<T()> &&f_)
@@ -31,7 +37,7 @@ template<class T>
   if (λmi)
     k = new λbc::continuation(λbc::callcc(
       [t = thisptr](λbc::continuation &&cc) {
-        *λmk = cc.resume();
+        λm(cc.resume());
         **t << (*t)->f();
         return std::move(*λmk);
       }));
@@ -91,7 +97,7 @@ template<class T>
     k = new λbc::continuation;
     auto cc = λbc::callcc(
       [t = thisptr](λbc::continuation &&cc) {
-        *λmk = cc.resume();
+        λm(cc.resume());
         **t << (*t)->f();
         return std::move(*λmk);
       });
@@ -112,6 +118,7 @@ template<class T>
 void λy()
 {
   assert(!λmi);
+  assert(*λmk);
   *λmk = λmk->resume();
 }
 

@@ -48,8 +48,6 @@ struct γ
   γ         &λx (u9c &s)         { if (λe(s)) g.λx(i, yλ.at(s)); yλ.erase(s);                       return *this; }
   ΣΘΔ const &λΘ (u9c &s)         {                                                                  return g.λΘ(i, yλ.at(s)); }
 
-  // FIXME: somehow λs persist beyond λx, called in destructor,
-  // and these methods are called after object desctruction.
   bool φe (u9c &s)   const { return g.φe (i, yψ.at(s)); }
   bool ψφw(u9c &s)   const { return g.ψφw(i, yψ.at(s)); }
   bool ψxw(u9c &s)   const { return g.ψxw(i, yψ.at(s)); }
@@ -63,13 +61,13 @@ struct γ
   bool ψww(u9c &s) const { return yψ.contains(s) && g.ψww(i, yψ.at(s)); }
 
   bool ψw(u9c &s, u9 &&v)
-    { if      (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i); return true; }
-      else if (v == ω) { g.ψx(i, yψ.at(s)); yψ.erase(s);           return true; }
+    { if      (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i);           return true; }
+      else if (v == ω) { if (yψ.contains(s)) g.ψx(i, yψ.at(s)); yψ.erase(s); return true; }
       return yψ.contains(s) && g.ψw(i, yψ.at(s), std::move(v)); }
 
   bool ψw(u9c &s, u9c &v)
-    { if      (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i); return true; }
-      else if (v == ω) { g.ψx(i, yψ.at(s)); yψ.erase(s);           return true; }
+    { if      (v == α) { assert(!yψ.contains(s)); yψ[s] = g.ψc(i);           return true; }
+      else if (v == ω) { if (yψ.contains(s)) g.ψx(i, yψ.at(s)); yψ.erase(s); return true; }
       return yψ.contains(s) && g.ψw(i, yψ.at(s), v); }
 
   γ &Θw(ΔΘ t) { return Θw(now() + t); }

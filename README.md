@@ -25,7 +25,8 @@ $ sudo apt install -y \
        libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev \
        libxcb-xinput-dev \
        g++-multilib-i686-linux-gnu \
-       libc6-dbg{,:i386}
+       libc6-dbg{,:i386} \
+       libstdc++6-12-dbg{,:i386}
 ```
 
 To build and run test files, both natively and with emscripten/node:
