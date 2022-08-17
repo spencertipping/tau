@@ -33,6 +33,26 @@ main()
 
   f1.resume();
 
+  cout << "first part is ok" << endl;
+
+
+  continuation *f2 = new continuation(callcc([&](continuation &&cc) {
+    cout << "entered f2" << endl;
+    cc = cc.resume();
+
+    cout << "resumed f2 once (ok)" << endl;
+    cc = cc.resume();
+
+    cout << "resumed f2 twice (this should not happen)" << endl;
+    return std::move(cc);
+  }));
+
+  cout << "main: resuming f2 once" << endl;
+  *f2 = f2->resume();
+  cout << "main: destroying f2" << endl;
+  delete f2;
+  cout << "main: destroyed f2" << endl;
+
   cout << "all done" << endl;
 
   return 0;

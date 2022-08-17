@@ -5,6 +5,7 @@
 #include <cmath>
 
 
+#include "../debug.hh"
 #include "../types.hh"
 #include "../utf9.hh"
 
@@ -18,8 +19,16 @@
 # define tau_debug_flux_Λ_randp tau_debug
 #endif
 
+#if !defined(tau_debug_flux_Λ_trace)
+# define tau_debug_flux_Λ_trace tau_debug
+#endif
+
 #if tau_debug_flux_Λ_randp
 # include <random>
+#endif
+
+#if tau_debug_flux_Λ_trace
+# include <iostream>
 #endif
 
 
@@ -74,10 +83,18 @@ struct Λ
   λs   si(λi i) const { return ls.at(i).s; }
   λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : NAN; }
 
+
+#if !tau_debug_flux_Λ_trace
   λi   c(λf &&f, f64 p = 0)            { let   i = ιi(ni, ls); ls[i] = Λλ(std::move(f)); r(i, p, λR);                      return  i; }
-  Λ   &r(λi i, f64 p = NAN, λs s = λR) { auto &l = ls.at(i); if (!std::isnan(p)) l.p = p; if ((l.s = s) == λR) rq.push(i); return *this; }
   Λ   &x(λi i)                         { assert(ri != i); assert(e(i));                   ls.erase(i);                     return *this; }
-  Λ   &y(λs s)                         {                                                  if (!z()) r(ri, NAN, s); λy();   return *this; }
+  Λ   &y(λs s)                         { assert(!z());                                    r(ri, NAN, s);             λy(); return *this; }
+#else
+  λi   c(λf &&f, f64 p = 0)            { let   i = ιi(ni, ls); ls[i] = Λλ(std::move(f)); r(i, p, λR);  std::cout << "Λ: λc = " << i << std::endl;      return  i; }
+  Λ   &x(λi i)                         { assert(ri != i); assert(e(i));  std::cout << "Λ: λx(" << i << ")... " << std::endl; ls.erase(i); std::cout << "...done" << std::endl; return *this; }
+  Λ   &y(λs s)                         { assert(!z());                                    r(ri, NAN, s); std::cout << "Λ: λy from " << ri << std::endl; λy(); std::cout << "Λ: λy resumed; ri = " << ri << std::endl;  return *this; }
+#endif
+
+  Λ   &r(λi i, f64 p = NAN, λs s = λR) { auto &l = ls.at(i); if (!std::isnan(p)) l.p = p; if ((l.s = s) == λR) rq.push(i); return *this; }
 
   bool wi(λi i) { return si(i) == λZ; }
   Λr   w (λi i)

@@ -26,12 +26,14 @@ void try_io()
 
   let a = q.ψc();
   let b = q.ψc();
+
   q.φc(a, b, 256);
 
   cout << "initial Ψ state:" << endl;
   cout << q << endl;
 
   let f = l.c([&]() {
+    q.ψφw(a);
     i64 t = 0;
     for (i64 i = 0; i < 10; ++i)
     {
@@ -58,6 +60,7 @@ void try_io()
   });
 
   let g = l.c([&]() {
+    q.ψφw(b);
     i64 t = 0;
     while (q.ψrw(b))
     {

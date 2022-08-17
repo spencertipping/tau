@@ -93,6 +93,7 @@ struct Ψ
   bool ψri(ψi i) { return φe(i) && ψrζ(i).ri(); }
   bool ψrw(ψi i)
     { assert(φe(i));
+      assert(!l.z());
       auto &z = ψrζ(i);
       let   n = ψn(i);  // for security
 
@@ -114,10 +115,11 @@ struct Ψ
   bool ψwi(ψi i) { return φe(i) && ψwζ(i).wi(); }
   bool ψww(ψi i)
     { assert(φe(i));
+      assert(!l.z());
       auto &z = ψwζ(i);
       let   n = ψn(i);
       while (!z.wi() && !z.xi())
-      { if (!l.z()) lw[i].emplace(l.i());
+      { lw[i].emplace(l.i());
         l.y(λO);
         if (!(ψe(i) && φe(i) && n == ψn(i))) return false; }
       return z.wi(); }
@@ -129,11 +131,13 @@ struct Ψ
 
   bool ψφw(ψi i)
     { assert(ψe(i));
+      assert(!l.z());
       while (ψe(i) && !φe(i)) { lφc[i].emplace(l.i()); l.y(λφc); }
       return ψe(i); }
 
   bool φxw(ψi i)
     { assert(ψe(i));
+      assert(!l.z());
       while (ψe(i) && φe(i)) { lφx[i].emplace(l.i()); l.y(λφx); }
       return ψe(i); }
 
@@ -172,7 +176,8 @@ struct Ψ
       return *this; }
 
   φi φc(ψi a, ψi b, uN c = 0)
-    { if (!φxw(a) || !φxw(b)) return 0;
+    { if      (l.z())              assert(!φe(a) && !φe(b));
+      else if (!φxw(a) || !φxw(b)) return 0;
       if (!c) c = ζc;
       auto &f = cs[qs[a] = qs[b] = ιi(ci, cs)] = {++ni, a, b, ζv(c), ζv(c)};
       f.ab.w(α, true);

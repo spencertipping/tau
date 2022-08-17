@@ -2,25 +2,14 @@
 #define tau_muon_h
 
 
-#include "muon/cat.hh"
-#include "muon/multiplex.hh"
-#include "muon/ostream.hh"
+#include "flux.hh"
 
-
-#include "module/begin.hh"
-
-namespace tau
-{
-
-
-using tau::muon::cat;
-using tau::muon::multiplex;
-using tau::muon::ostream;
-
-
-}
-
-#include "module/end.hh"
+#if tau_defines_flux
+# include "muon/cat.hh"
+# include "muon/iota.hh"
+# include "muon/multiplex.hh"
+# include "muon/ostream.hh"
+#endif
 
 
 #endif

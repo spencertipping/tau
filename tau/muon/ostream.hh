@@ -26,7 +26,7 @@ struct ostream
       g.ψw("in"y, α);
       g.λc("main"y, [&]() {
         if (!g.ψφw("in"y)) return 1;
-        while (g.ψrw("in"y)) s << g.ψr("in"y);
+        while (g.ψrw("in"y)) s << g.ψr("in"y) << std::endl;
         return 0;
       });
     }

@@ -34,6 +34,8 @@ struct sha256
 {
   u64 xs[4];
 
+  sha256() { xs[0] = xs[1] = xs[2] = xs[3] = 0; }
+
   sha256(u64 a, u64 b, u64 c, u64 d)
     { xs[0] = a;
       xs[1] = b;
@@ -70,6 +72,13 @@ struct sha256
 
   sha256 &operator++()
     { if (!++xs[3]) if (!++xs[2]) if (!++xs[1]) ++xs[0];
+      return *this; }
+
+  sha256 &operator=(sha256 const &s)
+    { xs[0] = s.xs[0];
+      xs[1] = s.xs[1];
+      xs[2] = s.xs[2];
+      xs[3] = s.xs[3];
       return *this; }
 
   operator nonce() const { return nonce{xs[2], xs[3]}; }

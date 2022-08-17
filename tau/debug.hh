@@ -22,13 +22,16 @@
 #endif
 
 
+#if tau_dangerous_disable_asserts
+
+# warning assertions are disabled
+# undef assert
 // NOTE: assert() may produce side-effects, so we need to keep those
 // even if not debugging
-#if defined(tau_debug_assert) ? tau_debug_assert : tau_debug
-# include <cassert>
-#else
-# undef assert
 # define assert(x) (x)
+
+#else
+# include <cassert>
 #endif
 
 

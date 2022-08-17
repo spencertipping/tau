@@ -16,8 +16,8 @@ namespace tau::muon
 
 struct multiplex
 {
-  M<u9, u9>  m;
-  γ         &g;
+  M<u9, sha256>  m;
+  γ             &g;
 
   // TODO: allow the user to specify which side(s) new mappings can come from
   multiplex(Γ &G) : g(G.γc())
@@ -35,8 +35,8 @@ struct multiplex
             g.φe("default"y) && g.ψww("default"y) && g.ψw("default"y, v);
           else
           {
-            let k = m.at(v[0]);
-            if (!g.φe(m.at(v[0])) || !g.ψww(k) || g.ψw(k, v[1]))
+            let k = u9(m.at(v[0]));
+            if (!g.φe(k) || !g.ψww(k) || g.ψw(k, v[1]))
               g.φe("default"y) && g.ψww("default"y) && g.ψw("default"y, v);
           }
         }
@@ -57,7 +57,7 @@ struct multiplex
             while (g.ψrw(s))
               if (g.ψww("io"y)) g.ψw("io"y, u9t() << k << g.ψr(s));
 
-            g.ψw(m.at(k), ω);
+            g.ψw(u9(m.at(k)), ω);
             m.erase(k);
             return 0;
           });

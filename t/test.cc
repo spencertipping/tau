@@ -17,6 +17,7 @@
 # include "coro-basics.hh"
 # include "psi-basics.hh"
 # include "gamma-basics.hh"
+# include "muon-basics.hh"
 #endif
 
 
@@ -39,6 +40,7 @@ int main(int argc, char **argv)
     t::coro_basics::main();
     t::psi_basics::main();
     t::gamma_basics::main();
+    t::muon_basics::main();
 #endif
   }
   else
@@ -53,6 +55,7 @@ int main(int argc, char **argv)
       else if (!strcmp("coro",  a)) fs.push_back(t::coro_basics::main);
       else if (!strcmp("psi",   a)) fs.push_back(t::psi_basics::main);
       else if (!strcmp("gamma", a)) fs.push_back(t::gamma_basics::main);
+      else if (!strcmp("muon",  a)) fs.push_back(t::muon_basics::main);
 #endif
       else
       {

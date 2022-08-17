@@ -7,6 +7,8 @@
 #if tau_arch == tau_arch_linux64 \
     || tau_arch == tau_arch_wasm32 \
     || tau_arch == tau_arch_wasm64
+
+
 # define tau_defines_flux 1
 
 # include "flux/types.hh"
@@ -19,32 +21,34 @@
 # include "flux/zeta.hh"
 # include "flux/Gamma.hh"
 # include "flux/gamma.hh"
+
+
+# include "module/begin.hh"
+
+  namespace tau
+  {
+
+
+  using tau::flux::ψi;
+  using tau::flux::λi;
+  using tau::flux::φi;
+
+  using tau::flux::ζc0;
+
+
+  using tau::flux::Γ;
+  using tau::flux::γ;
+
+
+  }
+
+# include "module/end.hh"
+
+
 #else
 # define tau_defines_flux 0
 # include "flux/types.hh"
 #endif
-
-
-#include "module/begin.hh"
-
-namespace tau
-{
-
-
-using tau::flux::ψi;
-using tau::flux::λi;
-using tau::flux::φi;
-
-using tau::flux::ζc0;
-
-
-using tau::flux::Γ;
-using tau::flux::γ;
-
-
-}
-
-#include "module/end.hh"
 
 
 #endif
