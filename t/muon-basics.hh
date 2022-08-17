@@ -30,6 +30,46 @@ void try_iota_cat()
 }
 
 
+int bench()
+{
+  struct sum : muon::base
+  {
+    sum(Γ &G_) : base(G_)
+      { g.ψw("in"_q, α);
+        g.ψw("out"_q, α);
+        g.λc("main"_l, [&]() {
+          u64 t = 0;
+          while (g.ψrw("in"_q))
+          {
+            let v = g.ψr("in"_q);
+            if (!v.is_greek()) t += Sc<u64>(v);
+          }
+          //g.ψw("in"_q, ω);
+          if (g.ψww("out"_q)) g.ψw("out"_q, u9(t));
+          //g.ψw("out"_q, ω);
+          return 0;
+        }); }
+  };
+
+
+  Γ g;
+  let i = muon::iota(g, QUICK ? 1ull << 16 : 1ull << 24);
+  let s = sum(g);
+  let o = muon::ostream(g, cout);
+
+  let p1 = muon::cat(g, i, "out"_q, s, "in"_q);
+  let p2 = muon::cat(g, s, "out"_q, o, "in"_q);
+
+  Θp t1 = now();
+  g.go();
+  Θp t2 = now();
+
+  cout << "sum " << i.n << " via muon: " << t2 - t1 << endl;
+
+  return 0;
+}
+
+
 int main()
 {
   cout << "try_iota_cat" << endl; try_iota_cat();

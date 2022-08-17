@@ -56,6 +56,7 @@ int main(int argc, char **argv)
       else if (!strcmp("psi",   a)) fs.push_back(t::psi_basics::main);
       else if (!strcmp("gamma", a)) fs.push_back(t::gamma_basics::main);
       else if (!strcmp("muon",  a)) fs.push_back(t::muon_basics::main);
+      else if (!strcmp("muonb", a)) fs.push_back(t::muon_basics::bench);
 #endif
       else
       {

@@ -187,7 +187,7 @@ struct Ψ
       return ci; }
 
   Ψ &φx(φi i)
-    { if (i)
+    { if (i && cs.contains(i))
       { let &c = cs.at(i);
         λws(lφx, c.a);
         λws(lφx, c.b);
