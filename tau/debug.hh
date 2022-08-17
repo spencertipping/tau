@@ -22,11 +22,13 @@
 #endif
 
 
+// NOTE: assert() may produce side-effects, so we need to keep those
+// even if not debugging
 #if defined(tau_debug_assert) ? tau_debug_assert : tau_debug
 # include <cassert>
 #else
 # undef assert
-# define assert(x) void(0)
+# define assert(x) (x)
 #endif
 
 

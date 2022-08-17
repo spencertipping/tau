@@ -8,6 +8,7 @@ Design:
   + [Θ](doc/theta.md)
   + [Ψ](doc/psi.md)
   + [Φ](doc/phi.md)
++ [muon](doc/muon.md)
 
 Technical notes:
 

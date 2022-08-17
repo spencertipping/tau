@@ -16,6 +16,10 @@ namespace tau
 {
 
 
+using tau::util::nonce;
+using tau::util::sha256;
+
+
 #if tau_debug_iostream || tau_debug_nop
 using tau::util::operator<<;
 #endif

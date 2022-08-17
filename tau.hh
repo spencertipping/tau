@@ -8,6 +8,7 @@
 #include "tau/utf9.hh"
 #include "tau/flux.hh"
 #include "tau/util.hh"
+#include "tau/muon.hh"
 
 
 #endif
