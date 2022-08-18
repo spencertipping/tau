@@ -24,6 +24,7 @@ struct ostream : base
       g.λc("main"_l, [&]() {
         if (!g.ψφw("in"_q)) return 1;
         while (g.ψrw("in"_q)) s << g.ψr("in"_q) << std::endl;
+        std::cout << "ostream done" << std::endl;
         return 0;
       });
     }

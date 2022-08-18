@@ -47,7 +47,8 @@ struct Θ
   // λ's yield timer is updated.
   bool y(λi i, f64 p = 0.9)
     { auto &l = ls.at(i); l.y.stop(); l.y.start();
-      return now() + l.y.p(p) >= Δ(); }
+      let   n = Δ();
+      return n != forever() && now() + l.y.p(p) >= n; }
 };
 
 

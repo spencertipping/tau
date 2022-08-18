@@ -40,13 +40,10 @@ int bench()
         g.λc("main"_l, [&]() {
           u64 t = 0;
           while (g.ψrw("in"_q))
-          {
-            let v = g.ψr("in"_q);
-            if (!v.is_greek()) t += Sc<u64>(v);
-          }
-          //g.ψw("in"_q, ω);
-          if (g.ψww("out"_q)) g.ψw("out"_q, u9(t));
-          //g.ψw("out"_q, ω);
+          { let v = g.ψr("in"_q);
+            if (!v.is_greek()) t += Sc<u64>(v); }
+          if (g.ψφw("out"_q) && g.ψww("out"_q)) g.ψw("out"_q, u9(t));
+          else                                  cout << "no out???" << endl;
           return 0;
         }); }
   };
@@ -65,6 +62,7 @@ int bench()
   Θp t2 = now();
 
   cout << "sum " << i.n << " via muon: " << t2 - t1 << endl;
+  cout << "  = " << (t2 - t1) / i.n << "/element" << endl;
 
   return 0;
 }
