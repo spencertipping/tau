@@ -88,8 +88,10 @@ case $cmd in
       wait
       ;;
 
-  b*) rm -f t/test
-      t g++ "${t_gcc_opts[@]}" t/test.cc -o t/test -lboost_context
+  b*) rm -f t/test t/test-quick
+      t g++ "${t_gcc_opts[@]}" -g t/test.cc -o t/test -lboost_context &
+      t g++ "${t_gcc_opts[@]}" -g -DQUICK=1 t/test.cc -o t/test-quick -lboost_context &
+      wait
       ;;
 
   t*) rm -f t/test t/test32 t/test.js
