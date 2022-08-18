@@ -1,0 +1,2 @@
+#!/bin/bash
+time NI_MONITOR=0 ni n=2**24 ,sr+1 | cat
