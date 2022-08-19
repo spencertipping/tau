@@ -5,11 +5,11 @@ if [[ "$USER" != spencertipping ]]; then
 fi
 
 cd "$(dirname "$0")"
+git push
+
 if [[ -f .git ]]; then
   cd `ni .git p'/(\S+)\/.git/'`
 fi
-
-git push
 
 points=( rorbot.35:tau/
          reichenbach.35:tau/
