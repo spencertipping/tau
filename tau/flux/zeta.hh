@@ -41,32 +41,47 @@ template<class T>
 struct ζr;
 
 
+struct ζb
+{
+  uNc  c;
+  u8  *xs = nullptr;
+  ζrc *rc = nullptr;
+  uN   ri = 0;
+  uN   wi = 0;
+  uN   oi = 0;
+
+  ζb(uN c_) : c(c_)
+    { xs = Rc<u8*>(std::malloc(c & ~(-1ull << ζpb)));
+      rc = Rc<u8*>(std::calloc(c >> ζpb, sizeof(u8))); }
+  ~ζb() { std::free(xs); std::free(rc); }
+};
+
+
 template<class T>
 struct ζ
 {
   Λ        &l;
   ζi const  i;
-  uN        c;
-  u8       *xs = nullptr;
-  ζrc      *rc = nullptr;
-  uN        ri = 0;
-  uN        wi = 0;
+  ζb        b;
 
-  ζ(Λ &l_, uN c_ = ζc0) : l(l_), i(ζni(c_, this)), c(c_)
-    { xs = Rc<u8*>(std::malloc(c_ & ~(-1ull << ζpb)));
-      rc = Rc<u8*>(std::calloc(c_ >> ζpb, sizeof(u8))); }
+  ζ(Λ &l_, uN c_ = ζc0) : l(l_), i(ζni(c_, this)), b(ζb(c_)) {}
 
-  ~ζ() { std::free(xs); std::free(rc); }
+  ζ &claim(uN a)
+    {
+    }
+
+  ζ &unclaim(uN a)
+    {
+    }
 };
 
 
 template<class T>
 struct ζr
 {
-  uN const i;
-  ζr(uN i_) : i(i_)
-    {
-    }
+  uNc i;
+  ζr(uN i_) : i(i_) { z().claim  (xi()); }
+  ~ζr()             { z().unclaim(xi()); }
 
 #if tau_wordsize == 32
   ζi zi() const {}
@@ -77,6 +92,10 @@ struct ζr
 #else
 # error invalid word size for ζr
 #endif
+
+  ζ<T> &z() const { return *Rc<ζ<T>*>(ζs[zi()]); }
+
+
 };
 
 
