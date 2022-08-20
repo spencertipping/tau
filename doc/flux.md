@@ -1,6 +1,8 @@
 # Flux
 Ways to move values around. Flux conduits (ζ) are unidirectional queues for values that can be serialized inline to byte buffers. The serialization API looks like this:
 
+**TODO:** condense this doc, refactor interfaces to "reader" and "writer" frontends
+
 ```cpp
 template<class T, class R = u64>
 struct ζ
