@@ -40,17 +40,12 @@ struct ζ
 {
   Λ        &l;
   ζi const  i;
-  ζb        b;
+  ζb<T>     b;
 
-  ζ(Λ &l_, uN c_ = ζc0) : l(l_), i(ζni(c_, this)), b(ζb(c_ * 2)) {}
+  ζ(Λ &l_, uN c_ = ζc0) : l(l_), i(ζni(c_, this)), b(c_ * 2) {}
 
-  ζ &claim(uN a)
-    {
-    }
-
-  ζ &unclaim(uN a)
-    {
-    }
+  ζ &claim  (uN a) { b.rc(a, b.rc(a) + 1); return *this; }
+  ζ &unclaim(uN a) { b.rc(a, b.rc(a) - 1); return *this; }
 };
 
 
