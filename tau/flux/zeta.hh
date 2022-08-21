@@ -2,11 +2,9 @@
 #define tau_flux_zeta_h
 
 
-#include <memory>
-
-
 #include "../types.hh"
 #include "Lambda.hh"
+#include "zetab.hh"
 
 
 #include "../module/begin.hh"
@@ -16,10 +14,7 @@ namespace tau::flux
 
 
 ζi const constexpr ζib = 16;     // maximum #bits to refer to ζ
-uN const constexpr ζpb = 10;     // refcount page bits
 uN const constexpr ζc0 = 65536;  // default capacity
-
-typedef u8 ζrc;                  // refcount container
 
 void* ζs[1 << ζib] = {0};
 
@@ -40,23 +35,6 @@ void* ζs[1 << ζib] = {0};
 template<class T>
 struct ζr;
 
-
-struct ζb
-{
-  uNc  c;
-  u8  *xs = nullptr;
-  ζrc *rc = nullptr;
-  uN   ri = 0;
-  uN   wi = 0;
-  uN   oi = 0;
-
-  ζb(uN c_) : c(c_)
-    { xs = Rc<u8*>(std::malloc(c & ~(-1ull << ζpb)));
-      rc = Rc<u8*>(std::calloc(c >> ζpb, sizeof(u8))); }
-  ~ζb() { std::free(xs); std::free(rc); }
-};
-
-
 template<class T>
 struct ζ
 {
@@ -64,7 +42,7 @@ struct ζ
   ζi const  i;
   ζb        b;
 
-  ζ(Λ &l_, uN c_ = ζc0) : l(l_), i(ζni(c_, this)), b(ζb(c_)) {}
+  ζ(Λ &l_, uN c_ = ζc0) : l(l_), i(ζni(c_, this)), b(ζb(c_ * 2)) {}
 
   ζ &claim(uN a)
     {

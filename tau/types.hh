@@ -32,27 +32,26 @@ namespace tau
 {
 
 
-typedef uint8_t  u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-typedef int8_t   i8;
-typedef int16_t  i16;
-typedef int32_t  i32;
-typedef int64_t  i64;
-typedef double   f64;
-typedef float    f32;
+typedef std::uint8_t  u8;   typedef u8  const u8c;
+typedef std::uint16_t u16;  typedef u16 const u16c;
+typedef std::uint32_t u32;  typedef u32 const u32c;
+typedef std::uint64_t u64;  typedef u64 const u64c;
+typedef std::int8_t   i8;   typedef i8  const i8c;
+typedef std::int16_t  i16;  typedef i16 const i16c;
+typedef std::int32_t  i32;  typedef i32 const i32c;
+typedef std::int64_t  i64;  typedef i64 const i64c;
 
-typedef u8  const u8c;
-typedef u16 const u16c;
-typedef u32 const u32c;
-typedef u64 const u64c;
-typedef i8  const i8c;
-typedef i16 const i16c;
-typedef i32 const i32c;
-typedef i64 const i64c;
-typedef f64 const f64c;
-typedef f32 const f32c;
+typedef std::uint_fast8_t  uf8;
+typedef std::uint_fast16_t uf16;
+typedef std::uint_fast32_t uf32;
+typedef std::uint_fast64_t uf64;
+typedef std::int_fast8_t   if8;
+typedef std::int_fast16_t  if16;
+typedef std::int_fast32_t  if32;
+typedef std::int_fast64_t  if64;
+
+typedef double f64;  typedef f64 const f64c;
+typedef float  f32;  typedef f32 const f32c;
 
 
 typedef size_t  uN;  // native int size
@@ -66,6 +65,11 @@ static_assert(sizeof(long long) == sizeof(u64));
 static_assert(sizeof(f64)       == sizeof(u64));
 static_assert(sizeof(f32)       == sizeof(u32));
 static_assert(sizeof(char)      == sizeof(u8));
+
+static_assert(sizeof(u8)  == 1);
+static_assert(sizeof(u16) == 2);
+static_assert(sizeof(u32) == 4);
+static_assert(sizeof(u64) == 8);
 
 #if tau_wordsize == 64
 static_assert(sizeof(void*) == sizeof(u64));
