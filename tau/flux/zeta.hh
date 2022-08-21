@@ -3,6 +3,7 @@
 
 
 #include "../types.hh"
+
 #include "Lambda.hh"
 #include "zetab.hh"
 
@@ -16,7 +17,7 @@ namespace tau::flux
 ζi const constexpr ζib = 16;     // maximum #bits to refer to ζ
 uN const constexpr ζc0 = 65536;  // default capacity
 
-void* ζs[1 << ζib] = {0};
+void* ζs[1 << ζib] = {nullptr};
 
 
 // TODO: reserve capacity blocks by c
@@ -35,17 +36,21 @@ void* ζs[1 << ζib] = {0};
 template<class T>
 struct ζr;
 
-template<class T>
+template<class T, class RC = u8>
 struct ζ
 {
   Λ        &l;
   ζi const  i;
-  ζb<T>     b;
+  ζb        b;
 
   ζ(Λ &l_, uN c_ = ζc0) : l(l_), i(ζni(c_, this)), b(c_ * 2) {}
+  ~ζ()                    { ζs[i] = nullptr; }
 
-  ζ &claim  (uN a) { b.rc(a, b.rc(a) + 1); return *this; }
-  ζ &unclaim(uN a) { b.rc(a, b.rc(a) - 1); return *this; }
+  RC   rc(uN a) const { return R<RC>(b, a); }
+  void rc(uN a, RC x) {        W<RC>(b, a, x); }
+
+  ζ &claim  (uN a) { rc(a, rc(a) + 1); return *this; }
+  ζ &unclaim(uN a) { rc(a, rc(a) - 1); return *this; }
 };
 
 
@@ -67,8 +72,6 @@ struct ζr
 #endif
 
   ζ<T> &z() const { return *Rc<ζ<T>*>(ζs[zi()]); }
-
-
 };
 
 

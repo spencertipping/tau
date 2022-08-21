@@ -5,7 +5,7 @@
 #include "arch.hh"
 
 #define tau_defines_flux                        \
-  (tau_arch == tau_arch_linux64                 \
+  (   tau_arch == tau_arch_linux64              \
    || tau_arch == tau_arch_wasm32               \
    || tau_arch == tau_arch_wasm64)
 
