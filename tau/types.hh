@@ -21,9 +21,11 @@
 #include "debug.hh"
 
 
-// enable this to prevent uint8_t, size_t etc from being used
-// within tau code
-#define TAU_ERASE_CSTDINT_TYPES 1
+// prevents uint8_t, size_t etc from being used within tau code
+// (but also, code that uses namespace tau)
+#ifndef TAU_ERASE_CSTDINT_TYPES
+# define TAU_ERASE_CSTDINT_TYPES 1
+#endif
 
 
 #include "module/begin.hh"
@@ -41,25 +43,25 @@ typedef std::int16_t  i16;  typedef i16 const i16c;
 typedef std::int32_t  i32;  typedef i32 const i32c;
 typedef std::int64_t  i64;  typedef i64 const i64c;
 
-typedef std::uint_fast8_t  uf8;
-typedef std::uint_fast16_t uf16;
-typedef std::uint_fast32_t uf32;
-typedef std::uint_fast64_t uf64;
-typedef std::int_fast8_t   if8;
-typedef std::int_fast16_t  if16;
-typedef std::int_fast32_t  if32;
-typedef std::int_fast64_t  if64;
+typedef std::uint_fast8_t  uf8;   typedef uf8  const uf8c;
+typedef std::uint_fast16_t uf16;  typedef uf16 const uf16c;
+typedef std::uint_fast32_t uf32;  typedef uf32 const uf32c;
+typedef std::uint_fast64_t uf64;  typedef uf64 const uf64c;
+typedef std::int_fast8_t   if8;   typedef if8  const if8c;
+typedef std::int_fast16_t  if16;  typedef if16 const if16c;
+typedef std::int_fast32_t  if32;  typedef if32 const if32c;
+typedef std::int_fast64_t  if64;  typedef if64 const if64c;
 
 typedef double f64;  typedef f64 const f64c;
 typedef float  f32;  typedef f32 const f32c;
 
 
-typedef size_t  uN;  // native int size
-typedef ssize_t iN;
+typedef size_t  uN;  typedef uN const uNc;
+typedef ssize_t iN;  typedef iN const iNc;
 
-typedef uN const uNc;
-typedef iN const iNc;
 
+static_assert(sizeof(void*) == sizeof(uN));
+static_assert(sizeof(void*) == sizeof(iN));
 
 static_assert(sizeof(long long) == sizeof(u64));
 static_assert(sizeof(f64)       == sizeof(u64));
@@ -72,12 +74,10 @@ static_assert(sizeof(u32) == 4);
 static_assert(sizeof(u64) == 8);
 
 #if tau_wordsize == 64
-static_assert(sizeof(void*) == sizeof(u64));
+  static_assert(sizeof(void*) == sizeof(u64));
 #elif tau_wordsize == 32
-static_assert(sizeof(void*) == sizeof(u32));
+  static_assert(sizeof(void*) == sizeof(u32));
 #endif
-
-static_assert(sizeof(void*) == sizeof(uN));
 
 
 template<class T>          using D  = std::deque<T>;

@@ -41,17 +41,17 @@ namespace tau::flux
 
 
 // ζ address bits for a given ζba-sized prefix
-inline u8 ζab(u8 a) { return tau_wordsize - ζba - ζzb[a]; }
+inline u8 ζab(uf8 a) { return tau_wordsize - ζba - ζzb[a]; }
 
 
 V<void*> ζs[1 << ζba];
 
 
-P<u8, ζi> ζni(u8 b, void *x)
+P<u8, ζi> ζni(uf8 b, void *x)
 {
   // Start with the |ζ|-smallest bin that can contain the ζ,
   // then work upwards
-  for (u8 i = 0; i < ζba; ++i)
+  for (uf8 i = 0; i < ζba; ++i)
   {
     if (b > ζzb[i]) continue;
     for (ζi j = 0; j < ζs[i].size(); ++j)
@@ -79,11 +79,11 @@ struct ζr;
 template<class T, class RC = u8>
 struct ζ
 {
-  Λ                &l;
-  P<u8c, ζi> const  i;
-  ζb                b;
+  Λ                 &l;
+  P<uf8c, ζi> const  i;
+  ζb                 b;
 
-  ζ(Λ &l_, u8 b_ = ζb0) : l(l_), i(ζni(b_, this)), b(b_) {}
+  ζ(Λ &l_, uf8 b_ = ζb0) : l(l_), i(ζni(b_, this)), b(b_) {}
   ~ζ() { ζs[std::get<0>(i)][std::get<1>(i)] = nullptr; }
 
   RC   rc(uN a) const { return R<RC>(b + a, 0); }
