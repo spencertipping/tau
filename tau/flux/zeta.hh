@@ -44,10 +44,10 @@ struct ζ
   ζb        b;
 
   ζ(Λ &l_, uN c_ = ζc0) : l(l_), i(ζni(c_, this)), b(c_ * 2) {}
-  ~ζ()                    { ζs[i] = nullptr; }
+  ~ζ() { ζs[i] = nullptr; }
 
-  RC   rc(uN a) const { return R<RC>(b, a); }
-  void rc(uN a, RC x) {        W<RC>(b, a, x); }
+  RC   rc(uN a) const { return R<RC>(b + a, 0); }
+  void rc(uN a, RC x) {        W<RC>(b + a, 0, x); }
 
   ζ &claim  (uN a) { rc(a, rc(a) + 1); return *this; }
   ζ &unclaim(uN a) { rc(a, rc(a) - 1); return *this; }

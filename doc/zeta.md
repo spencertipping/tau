@@ -61,6 +61,28 @@ I want `sizeof(R)` and `sizeof(const_iterator)` to both be `sizeof(void*)`, whic
 3. The offset (within the ζ) of the object being referred to
 
 
+### ζ indexes
+A `uN` covers the full address space available to a process, which means something interesting: we can split the bits between ζ and ζ-local addresses in any way we care to without losing any memory, _provided log₂|ζ| ∈ ℤ_. If |ζ| is not a power of two, then we lose the remainder.
+
+The only thing we have to do is accommodate varying sizes of ζ, which we can do by using the first few bits of the packed reference as a size designator. For example, let's suppose 2¹⁰ ≤ |ζ| ≤ 2²⁶. If we bin those into four size groups, |ζ| ≤ 2¹⁴, |ζ| ≤ 2¹⁸, |ζ| ≤ 2²², and |ζ| ≤ 2²⁶, then we have the following layout for 32-bit machines:
+
+```
+11 ZZZZ AA AAAAAAAA AAAAAAAA AAAAAAAA  <- 26 address bits
+10 ZZZZZZZZ AAAA AA AAAAAAAA AAAAAAAA  <- 22 address bits
+01 ZZZZZZZZ ZZZZ AA AAAAAAAA AAAAAAAA  <- 18 address bits
+00 ZZZZZZZZ ZZZZZZZZ  AAAAAA AAAAAAAA  <- 14 address bits
+```
+
+That's not bad: we can create 65536 14-bit ζs, 4096 18-bit ones, 256 22-bit ones, and 16 26-bit ones, ultimately jointly covering all of the 4GiB address space if we have exactly that allocation of ζs.
+
+In order to get full address-space efficiency, we need to make sure that we don't have too many spare entries in any of the size bins. We can do this in a couple of ways:
+
+1. Just have a few size bins, like above
+2. Try to do some auto-bin-sizing stuff
+
+(1) makes a lot more sense, so I'm going to run with that.
+
+
 ## GC
 ζs don't have GC proper, but they do collect memory as you free/destroy `R`s that are no longer in use. This happens by moving the "from pointer" forwards, decreasing the live-memory window.
 

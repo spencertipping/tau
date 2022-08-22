@@ -2,6 +2,7 @@
 #define tau_flux_zetab_h
 
 
+#include <algorithm>
 #include <memory>
 
 
@@ -18,44 +19,40 @@ namespace tau::flux
 
 struct ζb
 {
-  uNc  c;             // invariant: power of two
-  uNc  m;             // wrap mask
+  uNc  c;             // invariant: c is a power of 2
   u8  *xs = nullptr;  // invariant: xs[0..c-1] are valid
   uN   ri = 0;
   uN   wi = 0;
   uN   ci = 0;
 
-  ζb(uN c_) : c(c_), m(c_ - 1) { assert((c & m) == 0); xs = Rc<u8*>(std::calloc(c, 1)); }
-  ~ζb()                        { std::free(xs); }
+  ζb(u8 b_) : c(1 << b_) { xs = Rc<u8*>(std::calloc(c, 1)); }
+  ~ζb()                  { std::free(xs); }
+
+  u8 *operator+ (uN a) const { return xs + bp(a); }
+  u8 &operator[](uN a) const { return xs[bp(a)]; }
 
   bool wr()     const { return ri > wi; }
   uN   bp(uN a) const { return wr() && a > ci ? a - ci : a; }
   bool bc(uN a) const { return wr() ? a > ci ? a < wi : a >= ri : a >= ri && a < wi; }
+  uN   avail()  const { return wr() ? ri - wi : std::max(c - wi, ri); }
 
-  bool lt(uN a, uN b) const
-    { // TODO
+  void free(uN a)
+    { if (wr()) assert(a <= wi || a >= ri && a < ci);
+      else      assert(a <= wi && a >= ri);
+      ri = a; }
 
-    }
-
-  // TODO: this can probably be simplified
-  iN ma(uN s)
-    { if (s > c)                                            return -1;
-      if (wr()) { if (s + wi > ri)                          return -1;
-                  else               { let a = wi; wi += s; return  a; } }
-      else      { if (s + wi > c) { if (s > ri)             return -1;
-                                    else { ci = wi; wi = s; return  0; } }
-                  else               { let a = wi; wi += s; return  a; } } }
-
-  ζb &fr(uN a)  // free all memory up to specified address
-    {
-    }
+  iN alloc(uN s)
+    { if      (s > avail())                                return -1;
+      else if (!wr() && s + wi > c) {    ci = wi; wi  = s; return  0; }
+      else                          { let a = wi; wi += s; return  a; } }
 };
 
 
 #if tau_debug_iostream
 O &operator<<(O &s, ζb const &b)
 {
-  return s << "TODO: ζb";
+  return s << "ζb[c=" << b.c << " ri=" << b.ri
+           << " wi=" << b.wi << " ci=" << b.ci << "]";
 }
 #endif
 
