@@ -80,7 +80,7 @@ In order to get full address-space efficiency, we need to make sure that we don'
 1. Just have a few size bins, like above
 2. Try to do some auto-bin-sizing stuff
 
-(1) makes a lot more sense, so I'm going to run with that.
+(1) makes a lot more sense, so I'm going to run with that. (2) isn't easy at all because we can't change the bit allocation once we commit to a bin size, and it would result in a huge mess.
 
 
 ## GC
