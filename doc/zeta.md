@@ -15,70 +15,37 @@ There are two conceptual pieces: ζ, the queue, and ζb, the backing store for i
 We can work around this by reserving 200% of nominal capacity; that guarantees we'll have the full capacity available no matter where an object is pinned.
 
 
-**TODO:** condense this doc, refactor interfaces to "reader" and "writer" frontends
+### Allocation algorithm
+Allocation works a lot like a circular buffer, except that we sometimes decide to wrap early because the next object won't fit between the current write offset and end-of-buffer. So we have three variables:
 
-```cpp
-template<class T, class R = u64>
-struct ζ
-{
-  u16  id;    // how to refer back to this ζ
-  Λ   &l;     // for fiber control
-  ...
-  ζ &c(uN);   // reserve capacity
-  ζ &m(uN);   // mark completed object extending to specified offset
++ `ri`: read-index of pinned data (earliest live offset)
++ `wi`: next byte to be written (one byte beyond live region)
++ `ci`: clip index, to calculate moduli (the effective wrap length)
 
-  // write a full object at the current insertion point, then mark its
-  // upper size as the new insertion point
-  R operator<<(T const&);
 
-  // primitive serialization functions
-  ζ &U8 (uN, u8);
-  ζ &U16(uN, u16);
-  ζ &U32(uN, u32);
-  ζ &U64(uN, u64);
+## Cyclic buffer states
+```
+normal state:
+       ri                  wi          c
+  -----|===================|-----------|
+                           |---nc------|  <- space for next object
 
-  ζ &I8 (uN, i8);
-  ζ &I16(uN, i16);
-  ζ &I32(uN, i32);
-  ζ &I64(uN, i64);
-
-  ζ &F32(uN, f32);
-  ζ &F64(uN, f64);
-
-  ζ &a(uN, u8 const *, uN);
-  ζ &a(uN, Bs<u8>);
-  ζ &a(uN, Bsv<u8>);
-};
+wrapped state:
+       wi            ri           ci   c
+  =====|-------------|============|----|
+       |----nc-------|                    <- space for next object
+                                  |xxxx|  <- lost space (this cycle)
 ```
 
-Deserialization has a similar API.
+In the wrapped state, `wi = ri + ci`, not `ri + c`. As soon as `ri` also wraps around, we reset `ci = c` so the buffer is no longer truncated.
 
-```cpp
-template<class T, class R = u64>
-struct ζ
-{
-  u16  id;
-  Λ   &l;
-  ...
 
-  struct const_iterator {...};
-  const_iterator begin() const;
-  const_iterator end()   const;
+## External addressing and overflow
+External addresses (`x`) are large enough to store any number between `0` and `c-1` inclusive, but may easily overflow; for example, `ri`'s logical value will increase indefinitely.
 
-  T operator[](R);
+The obvious strategy is to keep a "basis offset" that increases over time, such that `x + bi >= ri && x + bi < wi` in the normal state. However, this means `bi` will need to change -- and when it does, it can't modify the meaning of any existing `x`s that have been issued. Equivalently, `Δbi % c == 0` -- implying `Δbi == c`. This works because we will never hold two references more than `c` bytes apart.
 
-  // primitive deserialization functions
-  u8 U8(uN);
-  u16 U16(uN);
-  ...
-  f32 F32(uN);
-  f64 F64(uN);
-
-  ζ &a(uN, u8 * d,   uN n);  // read n bytes into d
-  ζ &a(uN, Bs<u8>&,  uN n);
-  ζ &a(uN, Bsv<u8>&, uN n);
-};
-```
+So now let's revisit our model and make _everything_ overflow on the same modular basis. Now `ri <= wi` is not an invariant; `ri > wi` means we're in wrapped state. `x % ci` is the effective buffer position if wrapped, otherwise the position is used as-is.
 
 
 ## References
