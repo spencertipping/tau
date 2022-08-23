@@ -1,5 +1,5 @@
-#ifndef tau_flux_zeta_h
-#define tau_flux_zeta_h
+#ifndef tau_flux_ζ_h
+#define tau_flux_ζ_h
 
 
 #include "../types.hh"
@@ -41,7 +41,7 @@ namespace tau::flux
 
 
 // ζ address bits for a given ζba-sized prefix
-inline u8 ζab(uf8 a) { return tau_wordsize - ζba - ζzb[a]; }
+inline uf8 ζab(uf8 a) { return tau_wordsize - ζba - ζzb[a]; }
 
 
 V<void*> ζs[1 << ζba];
@@ -50,7 +50,7 @@ V<void*> ζs[1 << ζba];
 P<u8, ζi> ζni(uf8 b, void *x)
 {
   // Start with the |ζ|-smallest bin that can contain the ζ,
-  // then work upwards
+  // then work upwards looking for available entries
   for (uf8 i = 0; i < ζba; ++i)
   {
     if (b > ζzb[i]) continue;
@@ -73,6 +73,8 @@ P<u8, ζi> ζni(uf8 b, void *x)
 }
 
 
+// TODO: define serialization protocol used by T
+
 template<class T>
 struct ζr;
 
@@ -91,6 +93,8 @@ struct ζ
 
   ζ &claim  (uN a) { rc(a, rc(a) + 1); return *this; }
   ζ &unclaim(uN a) { rc(a, rc(a) - 1); return *this; }
+
+  uN start(uN a) const { return a + sizeof(RC); }
 };
 
 
@@ -101,12 +105,31 @@ struct ζr
   ζr(uN i_) : i(i_) { z().claim  (xi()); }
   ~ζr()             { z().unclaim(xi()); }
 
-  u8 bi() const { return i >> tau_wordsize - ζba; }
-  ζi zi() const { return i >> ζab(bi()) & (1 << ζzb[bi()]) - 1; }
-  uN xi() const { return i              & (1 << ζab(bi())) - 1; }
+  uf8 bi() const { return i >> tau_wordsize - ζba; }
+  ζi  zi() const { return i >> ζab(bi()) & (1 << ζzb[bi()]) - 1; }
+  uN  xi() const { return i              & (1 << ζab(bi())) - 1; }
 
   ζ<T> &z() const { return *Rc<ζ<T>*>(ζs[zi()]); }
+
+  operator T() const { let &z_ = z(); return T(z_, z_.start(xi())); }
 };
+
+
+#if tau_debug_iostream
+template<class T>
+O &operator<<(O &s, ζr<T> const &x)
+{
+  return s << "ζr[" << x.bi() << " " << x.zi() << " " << x.xi() << "]";
+}
+
+
+template<class T>
+O &operator<<(O &s, ζ<T> const &x)
+{
+  return s << "ζ" << std::get<0>(x.i) << ":" << std::get<1>(x.i)
+           << x.b;
+}
+#endif
 
 
 }

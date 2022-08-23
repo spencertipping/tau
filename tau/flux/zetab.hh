@@ -1,5 +1,5 @@
-#ifndef tau_flux_zetab_h
-#define tau_flux_zetab_h
+#ifndef tau_flux_ζb_h
+#define tau_flux_ζb_h
 
 
 #include <algorithm>
@@ -25,11 +25,10 @@ struct ζb
   uN   wi = 0;
   uN   ci = 0;
 
-  ζb(u8 b_) : c(1 << b_) { xs = Rc<u8*>(std::calloc(c, 1)); }
-  ~ζb()                  { std::free(xs); }
+  ζb(u8 b_) : c(1ull << b_) { xs = Rc<u8*>(std::calloc(c, 1)); }
+  ~ζb()                     { std::free(xs); }
 
-  u8 *operator+ (uN a) const { return xs + bp(a); }
-  u8 &operator[](uN a) const { return xs[bp(a)]; }
+  u8 *operator+(uN a) const { return xs + bp(a); }
 
   bool wr()     const { return ri > wi; }
   uN   bp(uN a) const { return wr() && a > ci ? a - ci : a; }

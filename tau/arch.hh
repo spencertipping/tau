@@ -9,6 +9,7 @@
 
 
 #include <cstdint>
+
 #if INTPTR_MAX == INT32_MAX
 # define tau_wordsize 32
 #elif INTPTR_MAX == INT64_MAX
@@ -16,6 +17,9 @@
 #else
 # error invalid word size
 #endif
+
+static_assert(sizeof(void*)       << 3 == tau_wordsize);
+static_assert(sizeof(std::size_t) << 3 == tau_wordsize);
 
 
 #if defined(__linux__)
