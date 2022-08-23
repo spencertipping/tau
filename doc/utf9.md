@@ -39,7 +39,8 @@ Broadly:
 | `010__`     | fixed-size, vectorizable floats and complex |
 | `011__`     | categorical data types                      |
 | `1000_`     | string-like data types                      |
-| `1001_`     | composite index                             |
+| `10010`     | single index                                |
+| `10011`     | composite index                             |
 | `101__`     | collections (tuples, maps, sets, tensors)   |
 | `110__`     | non-portable values (native-endian)         |
 | `111__`     | reserved                                    |
@@ -66,8 +67,8 @@ In detail:
 | `0 1111` | **reserved**              |
 | `1 0000` | bytes                     |
 | `1 0001` | utf8                      |
-| `1 0010` | composite index           |
-| `1 0011` | **reserved**              |
+| `1 0010` | single index              |
+| `1 0011` | composite index           |
 | `1 0100` | tuple                     |
 | `1 0101` | map                       |
 | `1 0110` | set                       |
@@ -130,5 +131,16 @@ set:   cb [sb] x1 x2 ... xn
 **TODO:** `tensor` spec
 
 
+### Symbols
+Symbols are just integers, but they exist within a separate namespace to prevent collisions. Their mapping to strings (or anything else) is not specified. They can be any length, e.g. `01101100 00100000 ...` would encode a 32-byte symbol that could hold a SHA256. This could also be represented with a vectorized int of any size, but symbol equivalence will be a single op, as opposed to the vectorized `==` for ints.
+
+
 ### Indexes
-Indexes make it easy to seek to specific positions within a nested data structure.
+Indexes make it easy to seek to specific positions within a nested data structure. There are two types:
+
+1. Single indexes, which cover the elements within a single data structure
+2. Composite indexes, which cover the elements within a data structure and its children/descendants
+
+Both types of indexes assume some ordering for the data; we interpolation-search the key table and find the nearest preceding offset within the data. Single indexes make this straightforward, composite indexes less so since not all of the keys are easy to describe.
+
+**TODO:** which operators would even use compound indexes?

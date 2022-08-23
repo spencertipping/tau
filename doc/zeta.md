@@ -12,7 +12,7 @@ There are two conceptual pieces: ζ, the queue, and ζb, the backing store for i
 
 (4) is a pretty big constraint because it interacts with the internal buffering structure. If, for example, we have a ζb whose nominal capacity is 65536B and a 1B object pinned at position 32768, then the largest object we can write is now 32768B -- despite having more nominal capacity available.
 
-We can work around this by reserving 200% of nominal capacity; that guarantees we'll have the full capacity available no matter where an object is pinned.
+We can work around this by reserving 200% of nominal capacity; that guarantees we'll have the full capacity available no matter where an object is pinned. Alternatively, we can just heap-allocate overflowed values and store tags to them. Then capacity serves its intended purpose, providing elasticity, rather than limiting the size of objects that can be enqueued.
 
 
 ### Allocation algorithm
