@@ -138,6 +138,10 @@ Symbols are just integers, but they exist within a separate namespace to prevent
 Semantically, the `0` symbol always means `null` or `nil`.
 
 
+### Stream state manipulators
+**TODO**
+
+
 ### Indexes
 Indexes provide `hash → offset` lookups (or, for tuples or `utf8`, `index → offset`) for the primary access method for a container or UTF8 string.
 
