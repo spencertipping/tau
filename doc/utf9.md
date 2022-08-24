@@ -39,8 +39,7 @@ Broadly:
 | `010__`     | fixed-size, vectorizable floats and complex |
 | `011__`     | categorical data types                      |
 | `1000_`     | string-like data types                      |
-| `10010`     | single index                                |
-| `10011`     | composite index                             |
+| `1001_`     | indexes                                     |
 | `101__`     | collections (tuples, maps, sets, tensors)   |
 | `110__`     | non-portable values (native-endian)         |
 | `111__`     | reserved                                    |
@@ -68,7 +67,7 @@ In detail:
 | `1 0000` | bytes                     |
 | `1 0001` | utf8                      |
 | `1 0010` | single index              |
-| `1 0011` | composite index           |
+| `1 0011` | **reserved**              |
 | `1 0100` | tuple                     |
 | `1 0101` | map                       |
 | `1 0110` | set                       |
@@ -126,7 +125,7 @@ set:   cb [sb] x1 x2 ... xn
                |----------|
 ```
 
-`map` and `set` are sorted by `hash(k)` and `hash(x)`, respectively. `tuple` has no ordering, which means unassisted lookups are _O(n)_.
+`map` and `set` are sorted by `hash(k)` and `hash(x)`, respectively. `tuple` has no ordering, which means unassisted lookups are _O(n)_. Indexed lookups are much faster; see [indexes](#indexes).
 
 **TODO:** `tensor` spec
 
@@ -136,19 +135,17 @@ Symbols are just integers, but they exist within a separate namespace to prevent
 
 
 ### Indexes
-Indexes make it easy to seek to specific positions within a nested data structure. There are two types:
+Indexes provide `hash → offset` lookups (or, for tuples or `utf8`, `index → offset`) for the primary access method for a container or UTF8 string.
 
-1. Single indexes, which cover the elements within a single data structure
-2. Composite indexes, which cover the elements within a data structure and its children/descendants
+Indexes are formatted like this:
 
-Both types of indexes assume some ordering for the data; we interpolation-search the key table and find the nearest preceding offset within the data. Single indexes make this straightforward, composite indexes less so since not all of the keys are easy to describe.
+```
+cb [sb] (container) k1 o1 k2 o2 ... kn on
+        |-------------------------------|  <- data size
+        |
+        |   <- offsets relative to beginning of container
+```
 
+**The container's size encoding matters,** as it specifies the width of `ki` and `oi`. For example, if the container's size is specified as `_____101 xx yy` (`u16` size), then each index entry will have a `u16 k` and `u16 o`.
 
-#### Pros and cons of composite indexes
-Which operators would even use compound indexes? Do we need them? Possibly so, if we're recursively searching for something. A lot like ni's `D:field` operator.
-
-The list of cons is nontrivial. First, nested composite indexes would be redundant, so we might want to emit only the topmost one. It would be generated while the value is being serialized.
-
-The real challenge, though, is that it's not straightforward to encode the key space. Hashes don't convey nesting, nor do they let us reconstruct the specific keys within parent containers. So if the goal is "find all things with _x_ hash" or "with _x_ key", the index doesn't help us.
-
-It doesn't seem like there's any point here.
+The container's type determines what `k` means. For tuples, `k` is a zero-based integer subscript; for sets or maps, `k` is the highest bits of the hash of the element in question (for maps, the key; for sets, the whole element). This means index keys will always be sorted and, with the possible exception of heterogeneous tuples, uniformly distributed; as such, the keyspace can be interpolation-searched.
