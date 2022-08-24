@@ -28,20 +28,24 @@ struct ζb
   ζb(u8 b_) : c(1ull << b_) { xs = Rc<u8*>(std::calloc(c, 1)); }
   ~ζb()                     { std::free(xs); }
 
-  u8 *operator+(uN a) const { return xs + bp(a); }
+  u8  *operator+ (uN a) const { return xs + bp(a); }
+  bool operator[](uN a) const { return wr() ? a < wi || a >= ri && a < ci
+                                            : a >= ri && a < wi;}
 
   bool wr()     const { return ri > wi; }
   uN   bp(uN a) const { return wr() && a > ci ? a - ci : a; }
   bool bc(uN a) const { return wr() ? a > ci ? a < wi : a >= ri : a >= ri && a < wi; }
-  uN   avail()  const { return wr() ? ri - wi : std::max(c - wi, ri); }
+  uN   wa()     const { return wr() ? ri - wi : std::max(c - wi, ri); }
+  uN   ra()     const { return wr() ? wi + (ci - ri) : wi - ri; }
 
   void free(uN a)
-    { if (wr()) assert(a <= wi || a >= ri && a < ci);
-      else      assert(a <= wi && a >= ri);
+    { if (!wr()) assert(a <= wi && a >= ri);
+      else     { assert(a <= wi || a >= ri && a <= ci);
+                 if (a == ci) a = 0; }
       ri = a; }
 
   iN alloc(uN s)
-    { if      (s > avail())                                return -1;
+    { if      (s > wa())                                   return -1;
       else if (!wr() && s + wi > c) {    ci = wi; wi  = s; return  0; }
       else                          { let a = wi; wi += s; return  a; } }
 };

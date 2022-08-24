@@ -15,11 +15,8 @@ namespace tau::flux
 {
 
 
-// TODO: define serialization protocol used by T
-// TODO: possibly redesign this setup: do we need a parameter at all?
+typedef uf8 ζTi;
 
-// TODO: have a static T::which member for RTTI/verification, since
-// we Rc<> to reconstruct ζ<T>
 
 template<class T>
 struct ζr;
@@ -27,12 +24,52 @@ struct ζr;
 template<class T>
 struct ζ
 {
+  ζTi         const  rtti;
   Λ                 &l;
   P<uf8c, ζi> const  i;
   ζb                 b;
+  S<λi>              rls;
+  S<λi>              wls;
+  bool               rc {false};
+  bool               wc {false};
 
-  ζ(Λ &l_, uf8 b_ = ζb0) : l(l_), i(ζni(b_, this)), b(b_) {}
+  ζ(Λ &l_, uf8 b_ = ζb0) : rtti(T::rtti()), l(l_), i(ζni(b_, this)), b(b_) {}
   ~ζ() { ζs[std::get<0>(i)][std::get<1>(i)] = nullptr; }
+
+  ζ &λw(S<λi> &ls) const
+    { for (let i : ls) l.r(i);
+      ls.clear();
+      return *this; }
+
+  bool operator<<(T const &x)
+    { assert(T::rtti() == rtti);
+      let s = x.size(b.c, b.wa());
+      iN  a = -1;
+      while ((a = b.alloc(s)) == -1)
+      { if (rc) return false;
+        rls.insert(l.i());
+        l.y(λO); }
+      x.write(b + a, s);
+      λw(rls);
+      return true; }
+
+  // FIXME: read-side operators should return ζr<T>
+  bool operator++()
+    { while (!b.ra())
+      { if (wc) return false;
+        wls.insert(l.i()), l.y(λI); }
+      T::free(b + b.ri);
+      b.free(b.ri + T::size_of(b + b.ri));
+      λw(wls);
+      return b.ra(); }
+
+  T operator* ()     const { return (*this)[0]; }
+  T operator[](uN a) const
+    { assert(T::rtti() == rtti);
+      assert(b[a]);
+      let s = T::size_of(b + a);
+      assert(b[a + s - 1]);
+      return T(b + a, s); }
 };
 
 
@@ -45,8 +82,9 @@ struct ζr
   uf8   bi() const { return ζbi(i); }
   ζi    zi() const { return ζzi(i); }
   uN    xi() const { return ζxi(i); }
-
   ζ<T> &z () const { return *Rc<ζ<T>*>(ζs[zi()]); }
+
+  T operator*() const { return z()[xi()]; }
 };
 
 
