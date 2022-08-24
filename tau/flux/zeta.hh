@@ -98,7 +98,24 @@ struct ζ
 };
 
 
-template<class T>
+template<class T>  // FIXME: this is probably not the right strategy
+struct ζ<T, void>  // TODO: do we need refcounting at all?
+{
+  Λ                 &l;
+  P<uf8c, ζi> const  i;
+  ζb                 b;
+
+  ζ(Λ &l_, uf8 b_ = ζb0) : l(l_), i(ζni(b_, this)), b(b_) {}
+  ~ζ() { ζs[std::get<0>(i)][std::get<1>(i)] = nullptr; }
+
+  ζ &claim  (uN a) { return *this; }
+  ζ &unclaim(uN a) { return *this; }
+
+  uN start(uN a) const { return a; }
+};
+
+
+template<class T>  // FIXME: need RC here too
 struct ζr
 {
   uNc i;

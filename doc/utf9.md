@@ -143,4 +143,12 @@ Indexes make it easy to seek to specific positions within a nested data structur
 
 Both types of indexes assume some ordering for the data; we interpolation-search the key table and find the nearest preceding offset within the data. Single indexes make this straightforward, composite indexes less so since not all of the keys are easy to describe.
 
-**TODO:** which operators would even use compound indexes?
+
+#### Pros and cons of composite indexes
+Which operators would even use compound indexes? Do we need them? Possibly so, if we're recursively searching for something. A lot like ni's `D:field` operator.
+
+The list of cons is nontrivial. First, nested composite indexes would be redundant, so we might want to emit only the topmost one. It would be generated while the value is being serialized.
+
+The real challenge, though, is that it's not straightforward to encode the key space. Hashes don't convey nesting, nor do they let us reconstruct the specific keys within parent containers. So if the goal is "find all things with _x_ hash" or "with _x_ key", the index doesn't help us.
+
+It doesn't seem like there's any point here.
