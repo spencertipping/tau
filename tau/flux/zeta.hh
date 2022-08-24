@@ -15,9 +15,6 @@ namespace tau::flux
 {
 
 
-typedef uf8 ζTi;
-
-
 template<class T>
 struct ζr;
 
@@ -44,7 +41,7 @@ struct ζ
   bool operator<<(T const &x)
     { assert(T::rtti() == rtti);
       let s = x.size(b.c, b.wa());
-      iN  a = -1;
+      uN  a = -1;
       while ((a = b.alloc(s)) == -1)
       { if (rc) return false;
         rls.insert(l.i());
@@ -53,23 +50,14 @@ struct ζ
       λw(rls);
       return true; }
 
-  // FIXME: read-side operators should return ζr<T>
-  bool operator++()
+  ζr<T> operator++()
     { while (!b.ra())
-      { if (wc) return false;
+      { if (wc) return -1;
         wls.insert(l.i()), l.y(λI); }
       T::free(b + b.ri);
       b.free(b.ri + T::size_of(b + b.ri));
       λw(wls);
-      return b.ra(); }
-
-  T operator* ()     const { return (*this)[0]; }
-  T operator[](uN a) const
-    { assert(T::rtti() == rtti);
-      assert(b[a]);
-      let s = T::size_of(b + a);
-      assert(b[a + s - 1]);
-      return T(b + a, s); }
+      return ζri(std::get<0>(i), std::get<1>(i), b.ri); }
 };
 
 
@@ -84,7 +72,13 @@ struct ζr
   uN    xi() const { return ζxi(i); }
   ζ<T> &z () const { return *Rc<ζ<T>*>(ζs[zi()]); }
 
-  T operator*() const { return z()[xi()]; }
+  operator bool() const { return i != -1; }
+
+  T operator*() const
+    { let &z_ = z();                   assert(T::rtti() == z_.rtti);
+      let a   = xi();                  assert(z_.b[a]);
+      let s   = T::size_of(z_.b + a);  assert(z_.b[a + s - 1]);
+      return T(z_.b + a, s); }
 };
 
 

@@ -39,6 +39,14 @@ inline uf8 ζbi(uN  a) { return a >> tau_wordsize - ζba; }
 inline ζi  ζzi(uN  a) { return a >> ζab(ζbi(a)) & (1 << ζzb[ζbi(a)]) - 1; }
 inline uN  ζxi(uN  a) { return a                & (1 << ζab(ζbi(a))) - 1; }
 
+inline uN ζri(uf8 b, uN z, uN a)
+{
+  assert(a >> ζab(b) == 0);
+  return Sc<uN>(b) << tau_wordsize - ζba
+       | z         << ζab(b)
+       | a;
+}
+
 
 // Global lookup tables for Ζ<T> buffers, by size group
 // T isn't specified here, so we use void* to store them and Rc<> into

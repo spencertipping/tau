@@ -76,3 +76,5 @@ The only thing we have to do is accommodate varying sizes of ζ, which we can do
 That's not bad: we can create 65536 14-bit ζs, 4096 18-bit ones, 256 22-bit ones, and 16 26-bit ones, ultimately jointly covering all of the 4GiB address space if we have exactly that allocation of ζs.
 
 (Note that we don't strictly need to cover the full address space -- it's fine to have boxed overflow values -- but it's good to approximate it to minimize the likelihood that we'll need those.)
+
+**NOTE:** `-1` (all bits set) is reserved to mean "invalid", which means whatever you're storing in ζ can't be just one byte long -- that is, you can't have a pointer to the final byte.

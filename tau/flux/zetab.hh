@@ -44,7 +44,7 @@ struct ζb
                  if (a == ci) a = 0; }
       ri = a; }
 
-  iN alloc(uN s)
+  uN alloc(uN s)
     { if      (s > wa())                                   return -1;
       else if (!wr() && s + wi > c) {    ci = wi; wi  = s; return  0; }
       else                          { let a = wi; wi += s; return  a; } }

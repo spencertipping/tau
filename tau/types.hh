@@ -116,6 +116,20 @@ enum λs  // lambda runnability state
 };
 
 
+enum ζTi // ζ<T> RTTI marker for type erasure safety
+{
+  ζTu9,  // UTF9, the default
+  ζTu16, // no u8 or i8; one-byte values are illegal (see ζ spec)
+  ζTu32,
+  ζTu64,
+  ζTi16,
+  ζTi32,
+  ζTi64,
+  ζTf32,
+  ζTf64,
+};
+
+
 template<class K, class V>
 inline K ιi(K &c, M<K, V> const &m)
 {
