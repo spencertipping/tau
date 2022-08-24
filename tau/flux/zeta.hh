@@ -16,6 +16,10 @@ namespace tau::flux
 
 
 // TODO: define serialization protocol used by T
+// TODO: possibly redesign this setup: do we need a parameter at all?
+
+// TODO: have a static T::which member for RTTI/verification, since
+// we Rc<> to reconstruct ζ<T>
 
 template<class T>
 struct ζr;
@@ -32,19 +36,17 @@ struct ζ
 };
 
 
-template<class T>  // FIXME: need RC here too
+template<class T>
 struct ζr
 {
   uNc i;
   ζr(uN i_) : i(i_) {}
 
-  uf8 bi() const { return ζbi(i); }
-  ζi  zi() const { return ζzi(i); }
-  uN  xi() const { return ζxi(i); }
+  uf8   bi() const { return ζbi(i); }
+  ζi    zi() const { return ζzi(i); }
+  uN    xi() const { return ζxi(i); }
 
-  ζ<T> &z() const { return *Rc<ζ<T>*>(ζs[zi()]); }
-
-  operator T() const { let &z_ = z(); return T(z_, z_.start(xi())); }
+  ζ<T> &z () const { return *Rc<ζ<T>*>(ζs[zi()]); }
 };
 
 

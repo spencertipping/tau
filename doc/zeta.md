@@ -75,15 +75,4 @@ The only thing we have to do is accommodate varying sizes of ζ, which we can do
 
 That's not bad: we can create 65536 14-bit ζs, 4096 18-bit ones, 256 22-bit ones, and 16 26-bit ones, ultimately jointly covering all of the 4GiB address space if we have exactly that allocation of ζs.
 
-In order to get full address-space efficiency, we need to make sure that we don't have too many spare entries in any of the size bins. We can do this in a couple of ways:
-
-1. Just have a few size bins, like above
-2. Try to do some auto-bin-sizing stuff
-
-(1) makes a lot more sense, so I'm going to run with that. (2) isn't easy at all because we can't change the bit allocation once we commit to a bin size, and it would result in a huge mess.
-
-
-## GC
-ζs don't have GC proper, but they do collect memory as you free/destroy `R`s that are no longer in use. This happens by moving the "from pointer" forwards, decreasing the live-memory window.
-
-It would be prohibitive to manage memory at the byte-level, so we manage pages instead. Each page (4KB) has a reference count that `R`s contribute to. Free pages are available for writing; pages with references are write-locked.
+(Note that we don't strictly need to cover the full address space -- it's fine to have boxed overflow values -- but it's good to approximate it to minimize the likelihood that we'll need those.)

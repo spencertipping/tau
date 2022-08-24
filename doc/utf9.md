@@ -135,6 +135,8 @@ set:   cb [sb] x1 x2 ... xn
 ### Symbols
 Symbols are just integers, but they exist within a separate namespace to prevent collisions. Their mapping to strings (or anything else) is not specified. They can be any length, e.g. `01101100 00100000 ...` would encode a 32-byte symbol that could hold a SHA256. This could also be represented with a vectorized int of any size, but symbol equivalence will be a single op, as opposed to the vectorized `==` for ints.
 
+Semantically, the `0` symbol always means `null` or `nil`.
+
 
 ### Indexes
 Indexes provide `hash → offset` lookups (or, for tuples or `utf8`, `index → offset`) for the primary access method for a container or UTF8 string.
@@ -153,3 +155,11 @@ cb [sb] (container) k1 o1 k2 o2 ... kn on
 The container's type determines what `k` means. For tuples, `k` is a zero-based integer subscript; for sets or maps, `k` is the highest bits of the hash of the element in question (for maps, the key; for sets, the whole element). This means index keys will always be sorted and, with the possible exception of heterogeneous tuples, uniformly distributed; as such, the keyspace can be interpolation-searched.
 
 UTF8 strings can be indexed; in that case, `(container)` is a `utf8` and the index keys are decoded character positions within the string.
+
+
+### Non-portable `(pid, fd)`
+It's sometimes useful to capture an FD from one process and send it to another; to do this, we can store a value inside a `pidfd` and serialize it across IPC lines, as long as the value never leaves the machine/container it's running on.
+
+
+### Non-portable heap refs
+Some UTF9 values will be too large for the ζ being used to carry them. Rather than expanding ζ or failing, we can "box" the value into a specially-allocated `u8[]`, then store a reference to that `u8[]` into ζ.
