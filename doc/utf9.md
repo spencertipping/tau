@@ -104,6 +104,8 @@ For example, `0x03` (8-byte `i8`) followed by `1122334455667788` will be interpr
 
 In contrast, `bytes` and `utf8` are always single, variable-size elements; the control-byte size determines how many bytes each contains.
 
+**NOTE:** it is illegal to specify a length that is not an even multiple of the thing being vectorized. This should fail to decode.
+
 
 ## Type-specific formats
 Most types are self-explanatory: the value, in big-endian where applicable, immediately follows the control byte and any size bytes.
@@ -149,3 +151,5 @@ cb [sb] (container) k1 o1 k2 o2 ... kn on
 **The container's size encoding matters,** as it specifies the width of `ki` and `oi`. For example, if the container's size is specified as `_____101 xx yy` (`u16` size), then each index entry will have a `u16 k` and `u16 o`.
 
 The container's type determines what `k` means. For tuples, `k` is a zero-based integer subscript; for sets or maps, `k` is the highest bits of the hash of the element in question (for maps, the key; for sets, the whole element). This means index keys will always be sorted and, with the possible exception of heterogeneous tuples, uniformly distributed; as such, the keyspace can be interpolation-searched.
+
+UTF8 strings can be indexed; in that case, `(container)` is a `utf8` and the index keys are decoded character positions within the string.
