@@ -35,8 +35,8 @@ struct ζb
   bool wr()     const { return ri > wi; }
   uN   bp(uN a) const { return wr() && a > ci ? a - ci : a; }
   bool bc(uN a) const { return wr() ? a > ci ? a < wi : a >= ri : a >= ri && a < wi; }
-  uN   wa()     const { return wr() ? ri - wi : std::max(c - wi, ri); }
   uN   ra()     const { return wr() ? wi + (ci - ri) : wi - ri; }
+  uN   wa()     const { return wr() ? ri - wi        : std::max(c - wi, ri); }
 
   void free(uN a)
     { if (!wr()) assert(a <= wi && a >= ri);

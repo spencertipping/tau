@@ -33,10 +33,10 @@ struct ζ
   ζ(Λ &l_, uf8 b_ = ζb0) : rtti(T::rtti()), l(l_), i(ζni(b_, this)), b(b_) {}
   ~ζ() { ζs[std::get<0>(i)][std::get<1>(i)] = nullptr; }
 
-  ζ &λw(S<λi> &ls) const
-    { for (let i : ls) l.r(i);
-      ls.clear();
-      return *this; }
+  ζ &λw(S<λi> &ls) const { for (let i : ls) l.r(i); ls.clear(); return *this; }
+
+  ζ &rω() { rc = true; λw(wls); return *this; }
+  ζ &wω() { wc = true; λw(rls); return *this; }
 
   bool operator<<(T const &x)
     { assert(T::rtti() == rtti);
@@ -50,14 +50,25 @@ struct ζ
       λw(rls);
       return true; }
 
+  ζr<T> ref(uN a) const { return ζri(std::get<0>(i), std::get<1>(i), a); }
+
+  T     operator*() const { return *ref(b.ri); }
   ζr<T> operator++()
     { while (!b.ra())
       { if (wc) return -1;
         wls.insert(l.i()), l.y(λI); }
+      let a = b.ri;
       T::free(b + b.ri);
       b.free(b.ri + T::size_of(b + b.ri));
       λw(wls);
-      return ζri(std::get<0>(i), std::get<1>(i), b.ri); }
+      return ref(a); }
+
+  ζ &begin() { return *this; }
+  ζ &end()   { return *this; }
+
+  // ζs are equal when both are closed; otherwise they are different
+  // (this is only for iteration)
+  bool operator==(ζ &x) const { return wc && !b.ra() && x.b.wc && !x.b.ra(); }
 };
 
 

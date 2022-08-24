@@ -139,7 +139,15 @@ Semantically, the `0` symbol always means `null` or `nil`.
 
 
 ### Stream state manipulators
-**TODO**
+```
+cb [sb] 01            ← ω
+cb [sb] 02            ← τ
+cb [sb] 03 [theta...] ← θ
+```
+
+Here, `theta..` is a big-endian unsigned integer (1, 2, 4, or 8 bytes) that represents the approximate stream angle -- that is, the estimated fraction of items seen so far until the next _τ_.
+
+_ω_ is equivalent to closing the stream: sending it will cause the stream to be closed from the sender's side. Receivers will never receive this value directly.
 
 
 ### Indexes
