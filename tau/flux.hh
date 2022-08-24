@@ -14,6 +14,7 @@
 # include "flux/lambda.hh"
 # include "flux/Lambda.hh"
 # include "flux/zetab.hh"
+# include "flux/zetabits.hh"
 # include "flux/zeta.hh"
 #endif
 
