@@ -41,8 +41,8 @@ struct o9n
 {
   T x;
 
-  uN   size (uN, uN)    const { return 1 + sizeof(T); }
-  void write(u8 *m, uN) const
+  uN   size (uN, uN)   const { return 1 + sizeof(T); }
+  void write(ζp m, uN) const
     { switch (sizeof(T))
       {
       case 1: W<u8>(m, 0, 0x20); break;

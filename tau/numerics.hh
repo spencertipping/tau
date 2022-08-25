@@ -81,21 +81,85 @@ template<> struct half<i32>  { typedef i16 type; };
 template<> struct half<i16>  { typedef i8  type; };
 
 
-template<class I, class T> inline constexpr typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 1, I>::type R(T xs, uN i) { return                                                                         Sc<I>(xs[i]); }
-template<class I, class T> inline constexpr typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 2, I>::type R(T xs, uN i) { return Sc<I>(R<typename half<I>::type>(xs, i)) << 8  | R<typename half<I>::type>(xs, i + 1); }
-template<class I, class T> inline constexpr typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 4, I>::type R(T xs, uN i) { return Sc<I>(R<typename half<I>::type>(xs, i)) << 16 | R<typename half<I>::type>(xs, i + 2); }
-template<class I, class T> inline constexpr typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 8, I>::type R(T xs, uN i) { return Sc<I>(R<typename half<I>::type>(xs, i)) << 32 | R<typename half<I>::type>(xs, i + 4); }
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 1, I>::type
+R(T xs, uN i)
+{ return Sc<I>(xs[i]); }
 
-template<class I, class T> inline constexpr typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 1, void>::type W(T xs, uN i, I x) { xs[i] = x; }
-template<class I, class T> inline constexpr typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 2, void>::type W(T xs, uN i, I x) { W<typename half<I>::type>(xs, i, x >> 8);  W<typename half<I>::type>(xs, i + 1, x & 0xff); }
-template<class I, class T> inline constexpr typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 4, void>::type W(T xs, uN i, I x) { W<typename half<I>::type>(xs, i, x >> 16); W<typename half<I>::type>(xs, i + 2, x & 0xffff); }
-template<class I, class T> inline constexpr typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 8, void>::type W(T xs, uN i, I x) { W<typename half<I>::type>(xs, i, x >> 32); W<typename half<I>::type>(xs, i + 4, x & 0xffffffff); }
+template<class I, class T> inline constexpr
+typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 2, I>::type
+R(T xs, uN i)
+{ return Sc<I>(R<typename half<I>::type>(xs, i)) << 8
+       |       R<typename half<I>::type>(xs, i + 1); }
 
-template<class I, class T> inline constexpr typename std::enable_if<std::is_same<I, f32>::value, f32>::type  R(T xs, uN i) { union {f32 f; i32 n;}; n = R<i32>(xs, i); return f; }
-template<class I, class T> inline constexpr typename std::enable_if<std::is_same<I, f64>::value, f64>::type  R(T xs, uN i) { union {f64 f; i64 n;}; n = R<i64>(xs, i); return f; }
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 4, I>::type
+R(T xs, uN i)
+{ return Sc<I>(R<typename half<I>::type>(xs, i)) << 16
+       |       R<typename half<I>::type>(xs, i + 2); }
 
-template<class I, class T> inline constexpr typename std::enable_if<std::is_same<I, f32>::value, void>::type W(T xs, uN i, f32 x) { union {f32 f; i32 n;}; f = x; I32(xs, i, n); }
-template<class I, class T> inline constexpr typename std::enable_if<std::is_same<I, f64>::value, void>::type W(T xs, uN i, f64 x) { union {f64 f; i64 n;}; f = x; I64(xs, i, n); }
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 8, I>::type
+R(T xs, uN i)
+{ return Sc<I>(R<typename half<I>::type>(xs, i)) << 32
+       |       R<typename half<I>::type>(xs, i + 4); }
+
+
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 1, void>::type
+W(T xs, uN i, I x)
+{ xs[i] = x; }
+
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 2, void>::type
+W(T xs, uN i, I x)
+{ W<typename half<I>::type>(xs, i, x >> 8);
+  W<typename half<I>::type>(xs, i + 1, x & 0xff); }
+
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 4, void>::type
+W(T xs, uN i, I x)
+{ W<typename half<I>::type>(xs, i, x >> 16);
+  W<typename half<I>::type>(xs, i + 2, x & 0xffff); }
+
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_integral<I>::value and sizeof(I) == 8, void>::type
+W(T xs, uN i, I x)
+{ W<typename half<I>::type>(xs, i, x >> 32);
+  W<typename half<I>::type>(xs, i + 4, x & 0xffffffff); }
+
+
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_same<I, f32>::value, f32>::type
+R(T xs, uN i)
+{ union {f32 f; i32 n;}; n = R<i32>(xs, i); return f; }
+
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_same<I, f64>::value, f64>::type
+R(T xs, uN i)
+{ union {f64 f; i64 n;}; n = R<i64>(xs, i); return f; }
+
+
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_same<I, f32>::value, void>::type
+W(T xs, uN i, f32 x)
+{ union {f32 f; i32 n;}; f = x; I32(xs, i, n); }
+
+template<class I, class T>
+inline constexpr
+typename std::enable_if<std::is_same<I, f64>::value, void>::type
+W(T xs, uN i, f64 x)
+{ union {f64 f; i64 n;}; f = x; I64(xs, i, n); }
 
 
 template<class T> inline constexpr u8 bu(T x) { return ou<u32>(x) ? 3 : ou<u16>(x) ? 2 : ou<u8>(x) ? 1 : 0; }
