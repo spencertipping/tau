@@ -15,98 +15,78 @@ namespace tau
 {
 
 
-template<class T>
-struct ζr;
-
-template<class T>
+template<class R, class W = R>
 struct ζ
 {
-  ζTi         const  rtti;
   Λ                 &l;
+  ζb                *b;
   P<uf8c, ζi> const  i;
-  ζb                 b;
   S<λi>              rls;
   S<λi>              wls;
   bool               rc {false};
   bool               wc {false};
 
-  ζ(Λ &l_, uf8 b_ = ζb0) : rtti(T::rtti()), l(l_), i(ζni(b_, this)), b(b_) {}
-  ~ζ() { ζs[std::get<0>(i)][std::get<1>(i)] = nullptr; }
+  ζ(Λ &l_, uf8 b_ = ζb0) : l(l_), b(new ζb(b_)), i(ζni(b_, this)) {}
+  ~ζ() { ζs[std::get<0>(i)][std::get<1>(i)] = nullptr;
+         delete b;}
 
-  ζ &λw(S<λi> &ls) const { for (let i : ls) l.r(i); ls.clear(); return *this; }
+  ζ &λw(S<λi> &ls) { for (let i : ls) l.r(i); ls.clear(); return *this; }
 
   ζ &rω() { rc = true; λw(wls); return *this; }
   ζ &wω() { wc = true; λw(rls); return *this; }
 
-  bool operator<<(T const &x)
-    { assert(T::rtti() == rtti);
-      let s = x.size(b.c, b.wa());
+  bool operator<<(W const &x)
+    { let s = x.size(b->c, b->wa());
       uN  a = -1;
-      while ((a = b.alloc(s)) == -1)
+      while ((a = b->alloc(s)) == Nl<uN>::max())
       { if (rc) return false;
         rls.insert(l.i());
         l.y(λO); }
-      x.write(b + a, s);
+      x.write(*b + a, s);
       λw(rls);
       return true; }
 
-  ζr<T> ref(uN a) const { return ζri(std::get<0>(i), std::get<1>(i), a); }
+  u8 *operator+(uN a) const { return *b + a; }
 
-  T     operator*() const { return *ref(b.ri); }
-  ζr<T> operator++()
-    { while (!b.ra())
-      { if (wc) return -1;
+  uN ref(uN a) const { return ζri(std::get<0>(i), std::get<1>(i), a); }
+
+
+  // FIXME: ζ should not be its own iterator, even though it kinda makes
+  // sense; we should delegate iteration to R
+  //
+  // (I believe this is causing double-free issues)
+  R  operator*() const { return ref(b->ri); }
+  ζ &operator++()
+    { while (!b->ra())
+      { if (wc) return *this;
         wls.insert(l.i()), l.y(λI); }
-      let a = b.ri;
-      T::free(b + b.ri);
-      b.free(b.ri + T::size_of(b + b.ri));
+      R::free(*b + b->ri);
+      b->free(b->ri + R::size_of(*b + b->ri));
+      std::cout << "just freed: " << b << std::endl;
       λw(wls);
-      return ref(a); }
+      return *this; }
 
+  // NOTE: .begin(), .end(), and iterator may be the three destructor
+  // calls -- although I'd expect for them to be aliased since they're
+  // references
   ζ &begin() { return *this; }
   ζ &end()   { return *this; }
 
   // ζs are equal when both are closed; otherwise they are different
   // (this is only for iteration)
-  bool operator==(ζ &x) const { return wc && !b.ra() && x.b.wc && !x.b.ra(); }
+  bool operator==(ζ &x) const { return wc && !b->ra() && x.wc && !x.b->ra(); }
 };
 
 
-// FIXME: this thing right here is actually the data type
-template<class T>
-struct ζr
-{
-  uNc i;
-  ζr(uN i_) : i(i_) {}
-
-  uf8   bi() const { return ζbi(i); }
-  ζi    zi() const { return ζzi(i); }
-  uN    xi() const { return ζxi(i); }
-  ζ<T> &z () const { return *Rc<ζ<T>*>(ζs[zi()]); }
-
-  operator bool() const { return i != -1; }
-
-  T operator*() const
-    { let &z_ = z();                   assert(T::rtti() == z_.rtti);
-      let a   = xi();                  assert(z_.b[a]);
-      let s   = T::size_of(z_.b + a);  assert(z_.b[a + s - 1]);
-      return T(z_.b + a, s); }
-};
+template<class R, class W = R> ζ<R, W> &rζ(uN r) { return *Rc<V<ζ<R, W>*>*>(ζs)[ζbi(r)][ζzi(r)]; }
 
 
 #if tau_debug_iostream
-template<class T>
-O &operator<<(O &s, ζr<T> const &x)
+template<class R, class W>
+O &operator<<(O &s, ζ<R, W> const &x)
 {
-  return s << "ζr" << x.bi() << ":" << x.zi() << ":" << x.xi();
-}
-
-
-template<class T>
-O &operator<<(O &s, ζ<T> const &x)
-{
-  return s << "ζ" << std::get<0>(x.i) << ":" << std::get<1>(x.i)
-           << x.b;
+  return s << "ζ" << Sc<uN>(std::get<0>(x.i)) << ":" << std::get<1>(x.i)
+           << " " << *x.b;
 }
 #endif
 

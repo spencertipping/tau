@@ -17,4 +17,7 @@
 #endif
 
 
+#include "tau/utf9.hh"
+
+
 #endif

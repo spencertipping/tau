@@ -69,7 +69,7 @@ P<u8, ζi> ζni(uf8 b, ζX x)  // allocate an index in the appropriate bin
         return std::make_pair(i, j);
       }
 
-    if (ζs[i].size() < 1 << ζzb[i])
+    if (ζs[i].size() < 1ull << ζzb[i])
     {
       ζs[i].push_back(x);
       return std::make_pair(i, ζs[i].size() - 1);

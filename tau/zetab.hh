@@ -20,13 +20,13 @@ namespace tau
 struct ζb
 {
   uNc  c;             // invariant: c is a power of 2
-  u8  *xs = nullptr;  // invariant: xs[0..c-1] are valid
+  u8  *xs = nullptr;  // invariant: xs[0..c-1] are allocated
   uN   ri = 0;
   uN   wi = 0;
   uN   ci = 0;
 
-  ζb(u8 b_) : c(1ull << b_) { xs = Rc<u8*>(std::calloc(c, 1)); }
-  ~ζb()                     { std::free(xs); }
+  ζb(uf8 b_) : c(1ull << b_) { xs = Rc<u8*>(std::calloc(c, 1)); }
+  ~ζb()                      { std::free(xs); }
 
   u8  *operator+ (uN a) const { return xs + bp(a); }
   bool operator[](uN a) const { return wr() ? a < wi || a >= ri && a < ci
@@ -39,7 +39,8 @@ struct ζb
   uN   wa()     const { return wr() ? ri - wi        : std::max(c - wi, ri); }
 
   void free(uN a)
-    { if (!wr()) assert(a <= wi && a >= ri);
+    { std::cout << "free " << a << std::endl;
+      if (!wr()) assert(a <= wi && a >= ri);
       else     { assert(a <= wi || a >= ri && a <= ci);
                  if (a == ci) a = 0; }
       ri = a; }
@@ -55,7 +56,8 @@ struct ζb
 O &operator<<(O &s, ζb const &b)
 {
   return s << "ζb[c=" << b.c << " ri=" << b.ri
-           << " wi=" << b.wi << " ci=" << b.ci << "]";
+           << " wi=" << b.wi << " ci=" << b.ci
+           << " ra=" << b.ra() << " wa=" << b.wa() << "]";
 }
 #endif
 
