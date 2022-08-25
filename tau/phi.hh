@@ -44,11 +44,11 @@ struct φ
   φ &wω() { assert(o); o->wω(); o = nullptr; if (!i) xg.w(); return *this; }
 
   operator bool() const { return ri() && wi(); }
-  bool ωi() const { return !i && !o; }
-  bool ri() const { return  i && i->ri(); }
-  bool wi() const { return  o && o->wi(); }
-  bool ra() const { return  i && i->ra(); }
-  bool wa() const { return  o && o->wa(); }
+  bool     ωi()   const { return !i && !o; }
+  bool     ri()   const { return  i && i->ri(); }
+  bool     wi()   const { return  o && o->wi(); }
+  bool     ra()   const { return  i && i->ra(); }
+  bool     wa()   const { return  o && o->wa(); }
 
 
   template<class X>

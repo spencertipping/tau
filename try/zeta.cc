@@ -30,14 +30,18 @@ int main()
         return 1;
       }
     }
-    a.ω();
+    a.wω();
+    for (i9 x : a) cout << "f1 received " << R<uN>(x.start(), 1) << endl;
     return 0;
   });
 
   let f2 = l.c([&]() {
     uN t = 0;
     for (i9 x : b) t += R<uN>(x.start(), 1);
-    cout << "f2 total: " << t << endl;
+    b.rω();
+    cout << "f2 sending " << t << endl;
+    b << o9n<uN>{t};
+    b.wω();
     return 0;
   });
 
