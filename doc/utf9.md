@@ -132,6 +132,12 @@ set:   cb [sb] x1 x2 ... xn
 **TODO:** `tensor` spec
 
 
+### Signed vs unsigned ints
+Signed ints are promoted to `i64` before doing arithmetic, unsigned ints are allowed to overflow within their declared size. Signed int overflow is undefined, just like in C/C++.
+
+As a rule, use unsigned if you want specific overflow semantics and signed if you want "an int that's big enough" and don't want to set an upper bound on its size.
+
+
 ### Symbols
 Symbols are just integers, but they exist within a separate namespace to prevent collisions. Their mapping to strings (or anything else) is not specified. They can be any length, e.g. `01101100 00100000 ...` would encode a 32-byte symbol that could hold a SHA256. This could also be represented with a vectorized int of any size, but symbol equivalence will be a single op, as opposed to the vectorized `==` for ints.
 
