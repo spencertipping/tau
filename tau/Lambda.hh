@@ -65,6 +65,7 @@ struct Λ
   λi          ni{0};  // next λi (always nonzero for managed λ)
   λi          ri{0};  // currently running λi (0 = main thread)
 
+  Λ(Λ &) = delete;
   Λ() : lp{*this}, rq(lp) {}
 
   bool e (λi i) const { return ls.contains(i); }

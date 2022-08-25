@@ -10,7 +10,7 @@
 #elif tau_arch == tau_arch_linux64
 # include "lambda-boost.hh"
 #else
-# error λ not supported on this architecture (trying to load tau::flux)
+# error λ not supported on this architecture
 #endif
 
 

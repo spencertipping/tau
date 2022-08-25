@@ -3,7 +3,6 @@
 
 
 #include <algorithm>
-#include <memory>
 
 
 #include "debug.hh"
@@ -25,8 +24,8 @@ struct ζb
   uN   wi = 0;
   uN   ci = 0;
 
-  ζb(uf8 b_) : c(1ull << b_) { xs = Rc<u8*>(std::calloc(c, 1)); }
-  ~ζb()                      { std::free(xs); }
+  ζb(uf8 b_) : c(1ull << b_) { xs = new u8[c]; }
+  ~ζb()                      { delete[] xs; }
 
   u8  *operator+ (uN a) const { return xs + bp(a); }
   bool operator[](uN a) const { return wr() ? a < wi || a >= ri && a < ci
@@ -34,9 +33,6 @@ struct ζb
 
   bool wr()     const { return ri > wi; }
   uN   bp(uN a) const { return wr() && a >= ci ? a - ci : a; }
-
-  // FIXME: bounds check logic may be wrong here
-  bool bc(uN a) const { return wr() ? a >= ci ? a < wi : a >= ri : a >= ri && a < wi; }
   uN   ra()     const { return wr() ? wi + (ci - ri) : wi - ri; }
   uN   wa()     const { return wr() ? ri - wi        : std::max(c - wi, ri); }
 

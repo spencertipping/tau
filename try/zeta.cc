@@ -15,38 +15,39 @@ using namespace std;
 int main()
 {
   Λ l;
-  ζ z(l);
+  ζ i(l);
+  ζ o(l);
+  φ<i9> a(l);
+  φ<i9> b(l);
 
   let f1 = l.c([&]() {
-    for (uN i = 0; i < 1 << 28; ++i)
+    for (uN i = 0; i < 1 << 24; ++i)
     {
-      if (!(z << o9n<uN>{i}))
+      if (!(a << o9n<uN>{i}))
       {
-        cout << "ζ rejected " << i << endl;
-        z.wω();
+        cout << "φ rejected " << i << endl;
+        a.ω();
         return 1;
       }
     }
-    cout << "wω ζ" << endl;
-    z.wω();
-    cout << z << endl;
+    a.ω();
     return 0;
   });
 
   let f2 = l.c([&]() {
     uN t = 0;
-
-    // FIXME: begin/end can't use templates
-    for (i9 x : z) t += R<uN>(x.start(), 1);
+    for (i9 x : b) t += R<uN>(x.start(), 1);
     cout << "f2 total: " << t << endl;
     return 0;
   });
 
-  cout << "initial ζ: " << z << endl;
-  Θp a = now();
+  a(i, o);
+  b(o, i);
+
+  Θp t1 = now();
   l.go();
-  Θp b = now();
-  cout << "summing ints: " << (b - a) / (1 << 4) << "/16M" << endl;
+  Θp t2 = now();
+  cout << "summing ints: " << t2 - t1 << "/16M" << endl;
 
   if (!l.wi(f1)) cout << "f1 is not yet done" << endl;
   if (!l.wi(f2)) cout << "f2 is not yet done" << endl;

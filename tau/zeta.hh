@@ -6,6 +6,7 @@
 #include "types.hh"
 
 #include "Lambda.hh"
+#include "gate.hh"
 #include "zetab.hh"
 
 
@@ -26,69 +27,46 @@ namespace tau
 
 struct ζ
 {
-  Λ     &l;
   ζb     b;
-  V<λi>  rls;
-  V<λi>  wls;
+  λg     rg;
+  λg     wg;
   bool   rc {false};
   bool   wc {false};
 
   ζ(ζ &x) = delete;
-  ζ(Λ &l_, uf8 b_ = ζb0) : l(l_), b(b_)
-    { rls.reserve(4);
-      wls.reserve(4); }
+  ζ(Λ &l, uf8 b_ = ζb0) : b(b_), rg{l}, wg{l} {}
 
 
-  ζ &λw(V<λi> &ls)
-    { for (let i : ls) l.r(i); if (!ls.empty()) ls.erase(ls.begin(), ls.end());
-      return *this; }
-
-  ζ &rω() { rc = true; λw(wls); return *this; }
-  ζ &wω() { wc = true; λw(rls); return *this; }
+  ζ &rω() { rc = true; wg.w(); return *this; }
+  ζ &wω() { wc = true; rg.w(); return *this; }
 
 
   u8 *operator+(uN a) const { return b + a; }
   uN          a()     const { return b.ri; }
   bool       ra()     const { return b.ra(); }
   bool       wa()     const { return b.wa(); }
+  bool       ri()     const { return !wc || ra(); }
+  bool       wi()     const { return !rc; }
+
+
+  template<class R>
+  u8 *r()
+    { while (!b.ra()) { if (wc) return Rc<u8*>(-1); rg.y(λI); }
+      let a = b + b.ri;
+      b.free(b.ri + R::size_of(a));
+      wg.w();
+      return a; }
 
 
   template<class W>
-  bool operator<<(W const &x)
+  bool w(W const &x)
     { let s = x.size(b.c, b.wa());
       uN  a = -1;
       while ((a = b.alloc(s)) == Nl<uN>::max())
-      { if (rc) return false;
-        wls.push_back(l.i());
-        l.y(λO); }
+      { if (rc) return false; wg.y(λO); }
       x.write(b + a, s);
-      λw(rls);
+      rg.w();
       return true; }
-
-
-  // TODO: convert this to a pair of methods, operator++ and operator*,
-  // to be used by φ
-
-  template<class R>
-  struct it
-  {
-    ζ &z;
-
-    it operator++()
-      { while (!z.b.ra())
-        { if (z.wc) return *this;
-          z.rls.push_back(z.l.i()), z.l.y(λI); }
-        R::free(z + z.a());
-        z.b.free(z.b.ri + R::size_of(z.b + z.b.ri));
-        z.λw(z.wls);
-        return *this; }
-
-    R    operator*()      const { return z.b + z.b.ri; }
-    bool operator==(it x) const { return z.wc && !z.b.ra(); }
-  };
-
-  template<class R> it<R> begin() { return it<R>{*this}; }
-  template<class R> it<R> end()   { return it<R>{*this}; }
 };
 
 
