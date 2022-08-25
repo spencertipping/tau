@@ -1,5 +1,9 @@
 # ζ
-There are two conceptual pieces: ζ, the queue, and ζb, the backing store for it.
+There are two conceptual pieces: ζ, the queue, and ζb, the backing store for it. ζ is higher-level and manages λ scheduling, whereas ζb is really just a bounded linear allocator.
+
+
+## ζ/λ
+ζ can track zero or more λs waiting for either end of the queue to become available. Not much to it, aside from noting that some ζ operations need to be atomic (like read-and-free), but this happens naturally.
 
 
 ## ζb
@@ -46,35 +50,3 @@ External addresses (`x`) are large enough to store any number between `0` and `c
 The obvious strategy is to keep a "basis offset" that increases over time, such that `x + bi >= ri && x + bi < wi` in the normal state. However, this means `bi` will need to change -- and when it does, it can't modify the meaning of any existing `x`s that have been issued. Equivalently, `Δbi % c == 0` -- implying `Δbi == c`. This works because we will never hold two references more than `c` bytes apart.
 
 So now let's revisit our model and make _everything_ overflow on the same modular basis. Now `ri <= wi` is not an invariant; `ri > wi` means we're in wrapped state. `x % ci` is the effective buffer position if wrapped, otherwise the position is used as-is.
-
-
-## References
-I want `sizeof(R)` and `sizeof(const_iterator)` to both be `sizeof(void*)`, which we can do in two ways:
-
-1. Point to the byte buffer directly (bad idea)
-2. Pack some bits to encode a relative offset
-
-(2) is preferable because it lets ζ move the byte buffer, which is sometimes required for contiguous object access. If we do this, we need to encode a few things:
-
-1. Which ζ contains the data
-2. What `T` is (for safety)
-3. The offset (within the ζ) of the object being referred to
-
-
-### ζ indexes
-A `uN` covers the full address space available to a process, which means something interesting: we can split the bits between ζ and ζ-local addresses in any way we care to without losing any memory, _provided log₂|ζ| ∈ ℤ_. If |ζ| is not a power of two, then we lose the remainder.
-
-The only thing we have to do is accommodate varying sizes of ζ, which we can do by using the first few bits of the packed reference as a size designator. For example, let's suppose 2¹⁰ ≤ |ζ| ≤ 2²⁶. If we bin those into four size groups, |ζ| ≤ 2¹⁴, |ζ| ≤ 2¹⁸, |ζ| ≤ 2²², and |ζ| ≤ 2²⁶, then we have the following layout for 32-bit machines:
-
-```
-11 ZZZZ AA AAAAAAAA AAAAAAAA AAAAAAAA  <- 26 address bits
-10 ZZZZZZZZ AAAA AA AAAAAAAA AAAAAAAA  <- 22 address bits
-01 ZZZZZZZZ ZZZZ AA AAAAAAAA AAAAAAAA  <- 18 address bits
-00 ZZZZZZZZ ZZZZZZZZ  AAAAAA AAAAAAAA  <- 14 address bits
-```
-
-That's not bad: we can create 65536 14-bit ζs, 4096 18-bit ones, 256 22-bit ones, and 16 26-bit ones, ultimately jointly covering all of the 4GiB address space if we have exactly that allocation of ζs.
-
-(Note that we don't strictly need to cover the full address space -- it's fine to have boxed overflow values -- but it's good to approximate it to minimize the likelihood that we'll need those.)
-
-**NOTE:** `-1` (all bits set) is reserved to mean "invalid", which means whatever you're storing in ζ can't be just one byte long -- that is, you can't have a pointer to the final byte.

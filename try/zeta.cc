@@ -46,7 +46,7 @@ int main()
   Θp a = now();
   l.go();
   Θp b = now();
-  cout << "summing ints: " << (b - a) / (1 << 18) << "/1024" << endl;
+  cout << "summing ints: " << (b - a) / (1 << 4) << "/16M" << endl;
 
   if (!l.wi(f1)) cout << "f1 is not yet done" << endl;
   if (!l.wi(f2)) cout << "f2 is not yet done" << endl;

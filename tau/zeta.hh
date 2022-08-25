@@ -24,26 +24,34 @@ namespace tau
 #endif
 
 
-// TODO: break this into a "write side" and a "read side", both
-// some type of φ rather than ζ
 struct ζ
 {
   Λ     &l;
   ζb     b;
-  S<λi>  rls;
-  S<λi>  wls;
+  V<λi>  rls;
+  V<λi>  wls;
   bool   rc {false};
   bool   wc {false};
 
-  ζ(Λ &l_, uf8 b_ = ζb0) : l(l_), b(b_) {}
   ζ(ζ &x) = delete;
+  ζ(Λ &l_, uf8 b_ = ζb0) : l(l_), b(b_)
+    { rls.reserve(4);
+      wls.reserve(4); }
 
-  ζ &λw(S<λi> &ls)
-    { if (!ls.empty()) { for (let i : ls) l.r(i); ls.clear(); }
+
+  ζ &λw(V<λi> &ls)
+    { for (let i : ls) l.r(i); if (!ls.empty()) ls.erase(ls.begin(), ls.end());
       return *this; }
 
   ζ &rω() { rc = true; λw(wls); return *this; }
   ζ &wω() { wc = true; λw(rls); return *this; }
+
+
+  u8 *operator+(uN a) const { return b + a; }
+  uN          a()     const { return b.ri; }
+  bool       ra()     const { return b.ra(); }
+  bool       wa()     const { return b.wa(); }
+
 
   template<class W>
   bool operator<<(W const &x)
@@ -51,13 +59,15 @@ struct ζ
       uN  a = -1;
       while ((a = b.alloc(s)) == Nl<uN>::max())
       { if (rc) return false;
-        wls.insert(l.i());
+        wls.push_back(l.i());
         l.y(λO); }
       x.write(b + a, s);
       λw(rls);
       return true; }
 
-  u8 *operator+(uN a) const { return b + a; }
+
+  // TODO: convert this to a pair of methods, operator++ and operator*,
+  // to be used by φ
 
   template<class R>
   struct it
@@ -67,8 +77,8 @@ struct ζ
     it operator++()
       { while (!z.b.ra())
         { if (z.wc) return *this;
-          z.rls.insert(z.l.i()), z.l.y(λI); }
-        R::free(z.b + z.b.ri);
+          z.rls.push_back(z.l.i()), z.l.y(λI); }
+        R::free(z + z.a());
         z.b.free(z.b.ri + R::size_of(z.b + z.b.ri));
         z.λw(z.wls);
         return *this; }
