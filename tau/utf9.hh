@@ -13,16 +13,14 @@ namespace tau
 
 struct i9
 {
-  u8 *zr;
-  i9(u8 *zr_) : zr(zr_) {}
+  ζp const a;
+  i9(ζp a_) : a(a_) {}
 
-  //bool  exists() const { return zr != Nl<uN>::max(); }
-  //u8   *start()  const { return rζ<i9>(zr) + ζxi(zr); }
-  bool exists() const { return Rc<uN>(zr) != -1; }
-  u8  *start()  const { return zr; }
+  bool exists() const { return a != ζωp; }
+  operator ζp() const { return a; }
 
-  static void free   (u8 *) {}
-  static uN   size_of(u8c *a)
+  static void free   (ζp) {}
+  static uN   size_of(ζp a)
     { switch (R<u8>(a, 0) & 7)
       {
       case 0: return 1 + 1;

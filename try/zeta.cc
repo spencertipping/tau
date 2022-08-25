@@ -31,13 +31,13 @@ int main()
       }
     }
     a.wω();
-    for (i9 x : a) cout << "f1 received " << R<uN>(x.start(), 1) << endl;
+    for (i9 x : a) cout << "f1 received " << R<uN>(Sc<ζp>(x), 1) << endl;
     return 0;
   });
 
   let f2 = l.c([&]() {
     uN t = 0;
-    for (i9 x : b) t += R<uN>(x.start(), 1);
+    for (i9 x : b) t += R<uN>(Sc<ζp>(x), 1);
     b.rω();
     cout << "f2 sending " << t << endl;
     b << o9n<uN>{t};

@@ -59,8 +59,8 @@ struct φ
 
   struct it
   {
-    ζ  *z;
-    u8 *a;
+    ζ *z;
+    ζp a;
 
     it   &operator++()                  { a = z->r<R>(); return *this; }
     R     operator* ()            const { return R(a); }
@@ -68,7 +68,7 @@ struct φ
   };
 
   it begin()       { while (!ri()) cg.y(λφc); return it{i, *i + i->a()}; }
-  it end()   const {                          return it{nullptr, Rc<u8*>(-1)}; }
+  it end()   const {                          return it{nullptr, ζωp}; }
 };
 
 

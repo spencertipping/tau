@@ -2,12 +2,15 @@
 #define tau_flux_ζ_h
 
 
+#include <algorithm>
+
+
 #include "arch.hh"
 #include "types.hh"
+#include "numerics.hh"
 
 #include "Lambda.hh"
 #include "gate.hh"
-#include "zetab.hh"
 
 
 #include "begin.hh"
@@ -23,6 +26,45 @@ namespace tau
 #else
 # error unsupported word size for ζ
 #endif
+
+
+typedef u8 *ζp;
+
+constexpr uNc       ζω  = Nl<uN>::max();
+constexpr ζp  const ζωp = Nl<ζp>::max();
+
+
+struct ζb
+{
+  uNc c;             // invariant: c is a power of 2
+  ζp  xs = nullptr;  // invariant: xs[0..c-1] are allocated
+  uN  ri = 0;
+  uN  wi = 0;
+  uN  ci = 0;
+
+  ζb(uf8 b_) : c(Sc<uN>(1) << b_) { xs = new u8[c]; }
+  ~ζb()                           { delete[] xs; }
+
+  ζp   operator+ (uN a) const { return xs + a; }
+  bool operator[](uN a) const { return wr() ? a < wi || a >= ri && a < ci
+                                            : a >= ri && a < wi;}
+
+  bool wr()     const { return ri > wi; }
+  uN   bp(uN a) const { return wr() && a >= ci ? a - ci : a; }
+  uN   ra()     const { return wr() ? wi + (ci - ri) : wi - ri; }
+  uN   wa()     const { return wr() ? ri - wi        : std::max(c - wi, ri); }
+
+  void free(uN a)
+    { if (!wr()) assert(a <= wi && a >= ri);
+      else     { assert(a <= wi || a >= ri && a <= ci);
+                 if (a == ci) a = 0; }
+      ri = a; }
+
+  uN alloc(uN s)
+    { if      (s > wa())                                                return ζω;
+      else if (!wr() && s + wi > c) {    ci = wi; wi  = s; ri = bp(ri); return  0; }
+      else                          { let a = wi; wi += s;              return  a; } }
+};
 
 
 struct ζ
@@ -41,17 +83,17 @@ struct ζ
   ζ &wω() { wc = true; rg.w(); return *this; }
 
 
-  u8 *operator+(uN a) const { return b + a; }
-  uN          a()     const { return b.ri; }
-  bool       ra()     const { return b.ra(); }
-  bool       wa()     const { return b.wa(); }
-  bool       ri()     const { return !wc || ra(); }
-  bool       wi()     const { return !rc; }
+  ζp operator+(uN a) const { return b + a; }
+  uN         a()     const { return b.ri; }
+  bool      ra()     const { return b.ra(); }
+  bool      wa()     const { return b.wa(); }
+  bool      ri()     const { return !wc || ra(); }
+  bool      wi()     const { return !rc; }
 
 
   template<class R>
-  u8 *r()
-    { while (!b.ra()) { if (wc) return Rc<u8*>(-1); rg.y(λI); }
+  ζp r()
+    { while (!b.ra()) { if (wc) return ζωp; rg.y(λI); }
       let a = b + b.ri;
       b.free(b.ri + R::size_of(a));
       wg.w();
@@ -61,9 +103,8 @@ struct ζ
   template<class W>
   bool w(W const &x)
     { let s = x.size(b.c, b.wa());
-      uN  a = -1;
-      while ((a = b.alloc(s)) == Nl<uN>::max())
-      { if (rc) return false; wg.y(λO); }
+      uN  a;
+      while ((a = b.alloc(s)) == ζω) { if (rc) return false; wg.y(λO); }
       x.write(b + a, s);
       rg.w();
       return true; }
@@ -71,6 +112,13 @@ struct ζ
 
 
 #if tau_debug_iostream
+O &operator<<(O &s, ζb const &b)
+{
+  return s << "ζb[c=" << b.c << " ri=" << b.ri
+           << " wi=" << b.wi << " ci=" << b.ci
+           << " ra=" << b.ra() << " wa=" << b.wa() << "]";
+}
+
 O &operator<<(O &s, ζ const &x)
 {
   return s << "ζ" << (x.rc ? "#" : "r") << (x.wc ? "#" : "w") << " " << x.b;
