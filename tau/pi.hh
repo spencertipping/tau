@@ -6,7 +6,7 @@
 #include "numerics.hh"
 
 
-#include "module/begin.hh"
+#include "begin.hh"
 
 namespace tau
 {
@@ -14,7 +14,7 @@ namespace tau
 
 struct πilog
 {
-  uN operator()(uN x) { return numerics::ilog(x); }
+  uN operator()(uN x) { return ilog(x); }
 };
 
 
@@ -57,14 +57,15 @@ typedef πι_<> πι;
 template<class F, class X, uN N, class π>
 O &operator<<(O &s, πι_<F, X, N, π> const &h)
 {
+  π   π_;
   F   m  = h.n[0]; for (uN i = 1; i < N; ++i) m = std::max(m, h.n[i]);
   uN  u  = N - 1;  while (u > 0 && !h.n[u]) --u;
-  let ml = numerics::ilog(m);
+  let ml = π_(m);
 
   u = std::min(N, u + 7 & ~7);
   if (ml)
     for (uN i = 0; i < u; ++i)
-      s << ".123456789abcdef|"[numerics::ilog(h.n[i]) * 16 / ml]
+      s << ".123456789abcdef|"[π_(h.n[i]) * 16 / ml]
         << (i + 1 & 7 ? "" : " ");
 
   return s;
@@ -77,7 +78,7 @@ O &operator<<(O &s, πι_<F, X, N, π> const &h) { return s; }
 
 }
 
-#include "module/end.hh"
+#include "end.hh"
 
 
 #endif

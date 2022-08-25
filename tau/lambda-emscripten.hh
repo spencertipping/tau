@@ -5,7 +5,7 @@
 #include <memory>
 
 
-#include "../types.hh"
+#include "types.hh"
 
 
 // For interactive development with clang/lsp; this is a nop in production
@@ -14,9 +14,9 @@
 #undef tau_assume_emscripten
 
 
-#include "../module/begin.hh"
+#include "begin.hh"
 
-namespace tau::flux
+namespace tau
 {
 
 
@@ -134,7 +134,7 @@ void λinit_()
 
 }
 
-#include "../module/end.hh"
+#include "end.hh"
 
 
 #endif

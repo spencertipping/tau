@@ -6,14 +6,14 @@
 #include <memory>
 
 
-#include "../debug.hh"
-#include "../types.hh"
-#include "../numerics.hh"
+#include "debug.hh"
+#include "types.hh"
+#include "numerics.hh"
 
 
-#include "../module/begin.hh"
+#include "begin.hh"
 
-namespace tau::flux
+namespace tau
 {
 
 
@@ -62,7 +62,7 @@ O &operator<<(O &s, ζb const &b)
 
 }
 
-#include "../module/end.hh"
+#include "end.hh"
 
 
 #endif

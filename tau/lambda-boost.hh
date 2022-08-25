@@ -2,13 +2,13 @@
 #define tau_flux_λ_boost_h
 
 
-#include "../types.hh"
+#include "types.hh"
 #include "lambda-class.hh"
 
 
-#include "../module/begin.hh"
+#include "begin.hh"
 
-namespace tau::flux
+namespace tau
 {
 
 namespace λbc = boost::context;
@@ -132,7 +132,7 @@ void λinit_()
 
 }
 
-#include "../module/end.hh"
+#include "end.hh"
 
 
 #endif

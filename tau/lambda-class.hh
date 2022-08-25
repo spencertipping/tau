@@ -2,8 +2,8 @@
 #define tau_flux_λ_class_h
 
 
-#include "../arch.hh"
-#include "../debug.hh"
+#include "arch.hh"
+#include "debug.hh"
 
 
 #if tau_arch == tau_arch_wasm64 || tau_arch == tau_arch_wasm32
@@ -24,12 +24,12 @@
 #endif
 
 
-#include "../types.hh"
+#include "types.hh"
 
 
-#include "../module/begin.hh"
+#include "begin.hh"
 
-namespace tau::flux
+namespace tau
 {
 
 
@@ -90,7 +90,7 @@ struct λ
 
 }
 
-#include "../module/end.hh"
+#include "end.hh"
 
 
 #endif

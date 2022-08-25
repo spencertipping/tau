@@ -28,7 +28,7 @@
 #endif
 
 
-#include "module/begin.hh"
+#include "begin.hh"
 
 namespace tau
 {
@@ -189,7 +189,7 @@ O &operator<<(O &s, λs t)
 
 }
 
-#include "module/end.hh"
+#include "end.hh"
 
 
 #endif

@@ -2,7 +2,7 @@
 #define tau_flux_λ_h
 
 
-#include "../arch.hh"
+#include "arch.hh"
 #include "lambda-class.hh"
 
 #if tau_arch == tau_arch_wasm32 || tau_arch == tau_arch_wasm64

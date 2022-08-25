@@ -2,16 +2,16 @@
 #define tau_flux_ζ_h
 
 
-#include "../types.hh"
+#include "types.hh"
 
 #include "Lambda.hh"
 #include "zetab.hh"
 #include "zetabits.hh"
 
 
-#include "../module/begin.hh"
+#include "begin.hh"
 
-namespace tau::flux
+namespace tau
 {
 
 
@@ -72,6 +72,7 @@ struct ζ
 };
 
 
+// FIXME: this thing right here is actually the data type
 template<class T>
 struct ζr
 {
@@ -112,7 +113,7 @@ O &operator<<(O &s, ζ<T> const &x)
 
 }
 
-#include "../module/end.hh"
+#include "end.hh"
 
 
 #endif

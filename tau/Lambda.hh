@@ -5,14 +5,14 @@
 #include <cmath>
 
 
-#include "../debug.hh"
-#include "../types.hh"
-#include "../shd.hh"
+#include "debug.hh"
+#include "types.hh"
+#include "shd.hh"
 
 #include "lambda.hh"
 
 
-#include "../module/begin.hh"
+#include "begin.hh"
 
 #if !defined(tau_debug_flux_Λ_randp)
 # define tau_debug_flux_Λ_randp tau_debug
@@ -23,7 +23,7 @@
 #endif
 
 
-namespace tau::flux
+namespace tau
 {
 
 
@@ -138,7 +138,7 @@ O &operator<<(O &s, Λ     const &l) { return s; }
 
 }
 
-#include "../module/end.hh"
+#include "end.hh"
 
 
 #endif

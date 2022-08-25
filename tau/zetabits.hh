@@ -2,13 +2,13 @@
 #define tau_flux_ζbits_h
 
 
-#include "../arch.hh"
-#include "../types.hh"
+#include "arch.hh"
+#include "types.hh"
 
 
-#include "../module/begin.hh"
+#include "begin.hh"
 
-namespace tau::flux
+namespace tau
 {
 
 
@@ -83,7 +83,7 @@ P<u8, ζi> ζni(uf8 b, ζX x)  // allocate an index in the appropriate bin
 
 }
 
-#include "../module/end.hh"
+#include "end.hh"
 
 
 #endif

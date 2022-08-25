@@ -9,9 +9,9 @@
 #include "types.hh"
 
 
-#include "module/begin.hh"
+#include "begin.hh"
 
-namespace tau::numerics
+namespace tau
 {
 
 
@@ -123,7 +123,7 @@ static_assert(ilog(8) == 3);
 
 }
 
-#include "module/end.hh"
+#include "end.hh"
 
 
 #endif
