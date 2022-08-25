@@ -1,9 +1,3 @@
 *.~undo-tree~
-t/test
-t/test-*
-t/test32
-t/test32-*
-t/*.js
-t/*.wasm
-t/*.log
-t/*.o
+try/*.o
+a.out

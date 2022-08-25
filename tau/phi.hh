@@ -58,14 +58,11 @@ struct φ
 
 
   struct it
-  {
-    ζ *z;
+  { ζ *z;
     ζp a;
-
     it   &operator++()                  { a = z->r<R>(); return *this; }
     R     operator* ()            const { return R(a); }
-    bool  operator==(it const &x) const { return a == x.a; }
-  };
+    bool  operator==(it const &x) const { return a == x.a; } };
 
   it begin()       { while (!ri()) cg.y(λφc); return it{i, *i + i->a()}; }
   it end()   const {                          return it{nullptr, ζωp}; }
