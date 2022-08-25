@@ -2,11 +2,11 @@
 #define tau_flux_ζ_h
 
 
+#include "arch.hh"
 #include "types.hh"
 
 #include "Lambda.hh"
 #include "zetab.hh"
-#include "zetabits.hh"
 
 
 #include "begin.hh"
@@ -15,22 +15,28 @@ namespace tau
 {
 
 
-template<class R, class W = R>
+#if tau_wordsize == 64
+  uf8c constexpr ζb0 = 16;
+#elif tau_wordsize == 32
+  ut8c constexpr ζb0 = 12;
+#else
+# error unsupported word size for ζ
+#endif
+
+
+// TODO: break this into a "write side" and a "read side", both
+// some type of φ rather than ζ
 struct ζ
 {
-  Λ                 &l;
-  ζb                 b;
-  P<uf8c, ζi> const  i;
-  S<λi>              rls;
-  S<λi>              wls;
-  bool               rc {false};
-  bool               wc {false};
+  Λ     &l;
+  ζb     b;
+  S<λi>  rls;
+  S<λi>  wls;
+  bool   rc {false};
+  bool   wc {false};
 
-  ζ(Λ &l_, uf8 b_ = ζb0) : l(l_), b(b_), i(ζni(b_, this)) {}
+  ζ(Λ &l_, uf8 b_ = ζb0) : l(l_), b(b_) {}
   ζ(ζ &x) = delete;
-
-  ~ζ() { ζs[std::get<0>(i)][std::get<1>(i)] = nullptr; }
-
 
   ζ &λw(S<λi> &ls)
     { if (!ls.empty()) { for (let i : ls) l.r(i); ls.clear(); }
@@ -39,6 +45,7 @@ struct ζ
   ζ &rω() { rc = true; λw(wls); return *this; }
   ζ &wω() { wc = true; λw(rls); return *this; }
 
+  template<class W>
   bool operator<<(W const &x)
     { let s = x.size(b.c, b.wa());
       uN  a = -1;
@@ -52,8 +59,7 @@ struct ζ
 
   u8 *operator+(uN a) const { return b + a; }
 
-  uN ref(uN a) const { return ζri(std::get<0>(i), std::get<1>(i), a); }
-
+  template<class R>
   struct it
   {
     ζ &z;
@@ -67,25 +73,19 @@ struct ζ
         z.λw(z.wls);
         return *this; }
 
-    //R    operator* ()     const { return z.ref(z.b.ri); }
     R    operator*()      const { return z.b + z.b.ri; }
     bool operator==(it x) const { return z.wc && !z.b.ra(); }
   };
 
-  it begin() { return it{*this}; }
-  it end()   { return it{*this}; }
+  template<class R> it<R> begin() { return it<R>{*this}; }
+  template<class R> it<R> end()   { return it<R>{*this}; }
 };
 
 
-template<class R, class W = R> ζ<R, W> &rζ(uN r) { return *Rc<V<ζ<R, W>*>*>(ζs)[ζbi(r)][ζzi(r)]; }
-
-
 #if tau_debug_iostream
-template<class R, class W>
-O &operator<<(O &s, ζ<R, W> const &x)
+O &operator<<(O &s, ζ const &x)
 {
-  return s << "ζ" << Sc<uN>(std::get<0>(x.i)) << ":" << std::get<1>(x.i)
-           << " " << x.b;
+  return s << "ζ" << (x.rc ? "#" : "r") << (x.wc ? "#" : "w") << " " << x.b;
 }
 #endif
 

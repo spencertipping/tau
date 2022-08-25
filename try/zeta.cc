@@ -15,7 +15,7 @@ using namespace std;
 int main()
 {
   Λ l;
-  ζ<i9, o9n<uN>> z(l);
+  ζ z(l);
 
   let f1 = l.c([&]() {
     for (uN i = 0; i < 1 << 28; ++i)
@@ -35,7 +35,9 @@ int main()
 
   let f2 = l.c([&]() {
     uN t = 0;
-    for (let &x : z) t += R<uN>(x.start(), 1);
+
+    // FIXME: begin/end can't use templates
+    for (i9 x : z) t += R<uN>(x.start(), 1);
     cout << "f2 total: " << t << endl;
     return 0;
   });
