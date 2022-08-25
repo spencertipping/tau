@@ -102,17 +102,17 @@ typedef uN      ζi;
 typedef f64     λp;
 typedef F<Λr()> λf;
 
-enum λs  // lambda runnability state
+enum class λs  // lambda runnability state
 {
-  λR,    // runnable
-  λS,    // stopped
-  λI,    // blocked on read from ζ
-  λO,    // blocked on write to ζ
-  λW,    // waiting for a λ
-  λΘ,    // waiting for a time
-  λφc,   // waiting for φc on a ψ
-  λφx,   // waiting for φx on a ψ
-  λZ,    // done (zombie)
+  R,           // runnable
+  S,           // stopped
+  I,           // blocked on read from ζ
+  O,           // blocked on write to ζ
+  W,           // waiting for a λ
+  Θ,           // waiting for a time
+  φc,          // waiting for φc on a ψ
+  φx,          // waiting for φx on a ψ
+  Z,           // done (zombie)
 };
 
 
@@ -124,8 +124,8 @@ inline K ιi(K &c, M<K, V> const &m)
 }
 
 
-typedef std::basic_string<uint8_t>      B;
-typedef std::basic_string_view<uint8_t> Bv;
+typedef std::basic_string<u8>      B;
+typedef std::basic_string_view<u8> Bv;
 
 
 template<class T, class U> inline constexpr T Rc(U x) { return reinterpret_cast<T>(x); }
@@ -133,9 +133,11 @@ template<class T, class U> inline constexpr T Sc(U x) { return      static_cast<
 template<class T, class U> inline constexpr T Cc(U x) { return       const_cast<T>(x); }
 
 
-template<class T> inline constexpr u64 Su(T x) { return Sc<u64>(x); }
-template<class T> inline constexpr i64 Si(T x) { return Sc<i64>(x); }
-template<class T> inline constexpr f64 Sf(T x) { return Sc<f64>(x); }
+template<class T> inline constexpr u64 Su (T x) { return Sc<u64>(x); }
+template<class T> inline constexpr i64 Si (T x) { return Sc<i64>(x); }
+template<class T> inline constexpr uN  Sun(T x) { return Sc<uN> (x); }
+template<class T> inline constexpr iN  Sin(T x) { return Sc<iN> (x); }
+template<class T> inline constexpr f64 Sf (T x) { return Sc<f64>(x); }
 
 
 #if TAU_ERASE_CSTDINT_TYPES
@@ -158,16 +160,16 @@ O &operator<<(O &s, λs t)
 {
   switch (t)
   {
-  case λR:  return s << "R";
-  case λS:  return s << "S";
-  case λI:  return s << "I";
-  case λO:  return s << "O";
-  case λW:  return s << "W";
-  case λΘ:  return s << "Θ";
-  case λφc: return s << "φc";
-  case λφx: return s << "φx";
-  case λZ:  return s << "Z";
-  default:  return s << "BOGUS " << Su(t);
+  case λs::R:  return s << "R";
+  case λs::S:  return s << "S";
+  case λs::I:  return s << "I";
+  case λs::O:  return s << "O";
+  case λs::W:  return s << "W";
+  case λs::Θ:  return s << "Θ";
+  case λs::φc: return s << "φc";
+  case λs::φx: return s << "φx";
+  case λs::Z:  return s << "Z";
+  default:     return s << "BOGUS " << Su(t);
   }
 }
 #endif

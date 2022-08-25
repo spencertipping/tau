@@ -28,10 +28,11 @@ namespace tau
 #endif
 
 
-typedef u8 *ζp;
+typedef u8      *ζp;
+typedef ζp const ζpc;
 
-constexpr uNc       ζω  = Nl<uN>::max();
-constexpr ζp  const ζωp = Nl<ζp>::max();
+constexpr uNc ζω  = Nl<uN>::max();
+constexpr ζpc ζωp = Nl<ζp>::max();
 
 
 struct ζb
@@ -55,8 +56,8 @@ struct ζb
   uN   wa()     const { return wr() ? ri - wi        : std::max(c - wi, ri); }
 
   void free(uN a)
-    { if (!wr()) assert(a <= wi && a >= ri);
-      else     { assert(a <= wi || a >= ri && a <= ci);
+    { if (!wr()) A(a <= wi && a >= ri,            "a = " << a << ", ri = " << ri << ", wi = " << wi);
+      else     { A(a <= wi || a >= ri && a <= ci, "a = " << a << ", ri = " << ri << ", wi = " << wi << ", ci = " << ci);
                  if (a == ci) a = 0; }
       ri = a; }
 
@@ -91,9 +92,13 @@ struct ζ
   bool      wi()     const { return !rc; }
 
 
+  bool wra()     { while (!b.ra())    { if (wc) return false; rg.y(λs::I); }; return true; }
+  bool wwa(uN s) { while (b.wa() < s) { if (rc) return false; wg.y(λs::O); }; return true; }
+
+
   template<class R>
   ζp r()
-    { while (!b.ra()) { if (wc) return ζωp; rg.y(λI); }
+    { if (!wra()) return ζωp;
       let a = b + b.ri;
       b.free(b.ri + R::size_of(a));
       wg.w();
@@ -104,7 +109,7 @@ struct ζ
   bool w(W const &x)
     { let s = x.size(b.c, b.wa());
       uN  a;
-      while ((a = b.alloc(s)) == ζω) { if (rc) return false; wg.y(λO); }
+      while ((a = b.alloc(s)) == ζω) { if (rc) return false; wg.y(λs::O); }
       x.write(b + a, s);
       rg.w();
       return true; }

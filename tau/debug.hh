@@ -7,11 +7,6 @@
 #endif
 
 
-#if !defined(tau_debug_nop)
-# define tau_debug_nop (!tau_debug)
-#endif
-
-
 #if tau_debug
 # include <iostream>
 #endif
@@ -22,16 +17,15 @@
 #endif
 
 
-#if tau_dangerous_disable_asserts
-
-# warning assertions are disabled
-# undef assert
-// NOTE: assert() may produce side-effects, so we need to keep those
-// even if not debugging
-# define assert(x) (x)
-
+#if tau_debug_iostream
+# define tau_assert_fail(x, f, l, m)                  \
+  ([&]() {                                            \
+    std::cerr << "FAIL: " << m << std::endl;          \
+    __assert_fail(x, f, l, __ASSERT_FUNCTION);        \
+  })()
 #else
-# include <cassert>
+# define tau_assert_fail(x, f, l, m)            \
+  __assert_fail(x, f, l, __ASSERT_FUNCTION)
 #endif
 
 

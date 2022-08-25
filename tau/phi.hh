@@ -50,11 +50,18 @@ struct φ
   bool     ra()   const { return  i && i->ra(); }
   bool     wa()   const { return  o && o->wa(); }
 
+  φ &wrca() { while (!ri()) cg.y(λs::φc); return *this; }
+  φ &wra()  { wrca(); i->wra();           return *this; }
+
 
   template<class X>
   bool operator<<(X const &x)
-    { while (!wi()) cg.y(λφc);
+    { while (!wi()) cg.y(λs::φc);
       return o->w(W::cast(x)); }
+
+
+  R operator*() const { wra();             return R(*i + i->a()); }
+  φ &operator++()     { wrca(); i->r<R>(); return *this; }
 
 
   struct it
@@ -64,8 +71,8 @@ struct φ
     R     operator* ()            const { return R(a); }
     bool  operator==(it const &x) const { return a == x.a; } };
 
-  it begin()       { while (!ri()) cg.y(λφc); return it{i, *i + i->a()}; }
-  it end()   const {                          return it{nullptr, ζωp}; }
+  it begin()       { wra(); return it{i, *i + i->a()}; }
+  it end()   const {        return it{nullptr, ζωp}; }
 };
 
 
