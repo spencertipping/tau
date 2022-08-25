@@ -33,22 +33,23 @@ struct ζb
                                             : a >= ri && a < wi;}
 
   bool wr()     const { return ri > wi; }
-  uN   bp(uN a) const { return wr() && a > ci ? a - ci : a; }
-  bool bc(uN a) const { return wr() ? a > ci ? a < wi : a >= ri : a >= ri && a < wi; }
+  uN   bp(uN a) const { return wr() && a >= ci ? a - ci : a; }
+
+  // FIXME: bounds check logic may be wrong here
+  bool bc(uN a) const { return wr() ? a >= ci ? a < wi : a >= ri : a >= ri && a < wi; }
   uN   ra()     const { return wr() ? wi + (ci - ri) : wi - ri; }
   uN   wa()     const { return wr() ? ri - wi        : std::max(c - wi, ri); }
 
   void free(uN a)
-    { std::cout << "free " << a << std::endl;
-      if (!wr()) assert(a <= wi && a >= ri);
+    { if (!wr()) assert(a <= wi && a >= ri);
       else     { assert(a <= wi || a >= ri && a <= ci);
                  if (a == ci) a = 0; }
       ri = a; }
 
   uN alloc(uN s)
-    { if      (s > wa())                                   return -1;
-      else if (!wr() && s + wi > c) {    ci = wi; wi  = s; return  0; }
-      else                          { let a = wi; wi += s; return  a; } }
+    { if      (s > wa())                                                return -1;
+      else if (!wr() && s + wi > c) {    ci = wi; wi  = s; ri = bp(ri); return  0; }
+      else                          { let a = wi; wi += s;              return  a; } }
 };
 
 

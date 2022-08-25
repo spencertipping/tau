@@ -18,6 +18,8 @@
 
 
 #include "tau/utf9.hh"
+#include "tau/numerics.hh"
+#include "tau/shd.hh"
 
 
 #endif

@@ -13,15 +13,17 @@ namespace tau
 
 struct i9
 {
-  uNc zr;
-  i9(uN zr_) : zr(zr_) {}
+  u8 *zr;
+  i9(u8 *zr_) : zr(zr_) {}
 
-  bool  exists() const { return zr != Nl<uN>::max(); }
-  u8   *start()  const { return rζ<i9>(zr) + ζxi(zr); }
+  //bool  exists() const { return zr != Nl<uN>::max(); }
+  //u8   *start()  const { return rζ<i9>(zr) + ζxi(zr); }
+  bool exists() const { return Rc<uN>(zr) != -1; }
+  u8  *start()  const { return zr; }
 
   static void free   (u8 *) {}
   static uN   size_of(u8c *a)
-    { switch (*a & 7)
+    { switch (R<u8>(a, 0) & 7)
       {
       case 0: return 1 + 1;
       case 1: return 1 + 2;
@@ -33,7 +35,6 @@ struct i9
       case 7: return 9 + R<u64>(a, 1);
       default: assert(0);
       } }
-
 };
 
 

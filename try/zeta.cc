@@ -18,16 +18,14 @@ int main()
   ζ<i9, o9n<uN>> z(l);
 
   let f1 = l.c([&]() {
-    for (uN i = 0; i < 10; ++i)
+    for (uN i = 0; i < 1 << 28; ++i)
     {
-      cout << "writing " << i << endl;
       if (!(z << o9n<uN>{i}))
       {
         cout << "ζ rejected " << i << endl;
         z.wω();
         return 1;
       }
-      cout << z << endl;
     }
     cout << "wω ζ" << endl;
     z.wω();
@@ -36,18 +34,17 @@ int main()
   });
 
   let f2 = l.c([&]() {
-    for (let &x : z)
-    {
-      cout << "received " << R<uN>(x.start(), 1) << endl;
-      cout << z << endl;
-    }
+    uN t = 0;
+    for (let &x : z) t += R<uN>(x.start(), 1);
+    cout << "f2 total: " << t << endl;
     return 0;
   });
 
   cout << "initial ζ: " << z << endl;
-
-  cout << "starting coroutines" << endl;
+  Θp a = now();
   l.go();
+  Θp b = now();
+  cout << "summing ints: " << (b - a) / (1 << 18) << "/1024" << endl;
 
   if (!l.wi(f1)) cout << "f1 is not yet done" << endl;
   if (!l.wi(f2)) cout << "f2 is not yet done" << endl;
