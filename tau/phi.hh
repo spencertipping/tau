@@ -71,8 +71,8 @@ struct φ
     R     operator* ()            const { return R(a); }
     bool  operator==(it const &x) const { return a == x.a; } };
 
-  it begin()       { wra(); return it{i, *i + i->a()}; }
-  it end()   const {        return it{nullptr, ζωp}; }
+  it begin()       { wrca(); return it{i,       i->r<R>()}; }
+  it end()   const {         return it{nullptr, ζωp}; }
 };
 
 
