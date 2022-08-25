@@ -19,7 +19,7 @@ template<class R, class W = R>
 struct ζ
 {
   Λ                 &l;
-  ζb                *b;
+  ζb                *b;  // TODO: convert back to direct
   P<uf8c, ζi> const  i;
   S<λi>              rls;
   S<λi>              wls;
