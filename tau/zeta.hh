@@ -96,6 +96,9 @@ struct ζ
   bool wwa(uN s) { while (b.wa() < s) { if (rc) return false; wg.y(λs::O); }; return true; }
 
 
+  // NOTE: from ζ's perspective, the value is free here; but we allow
+  // instances of R to finalize the value because the caller of r()
+  // borrows it for the duration of its atomic run
   template<class R>
   ζp r()
     { if (!wra()) return ζωp;
