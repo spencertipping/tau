@@ -52,8 +52,57 @@ enum class u9t
   tensor  = 23,
 
   pidfd   = 24,
-  heapref = 25
+  heapref = 25,
+
+  none    = 31,  // not a real type
 };
+
+
+struct u9_pidfd { u32 pid; u32 fd; };
+
+defR(u9_pidfd) { return u9_pidfd{R<u32>(xs, i), R<u32>(xs, i + 4)}; }
+defW(u9_pidfd) { W(xs, i, x.pid); W(xs, i, x.fd); }
+
+
+// TODO: convert to shared_ptr
+// (this has some complexity because we need to manage ctor/dtor
+//  calling when we read from i9 and write to o9)
+template<class T = void> struct u9_heapref { T* r; };
+
+
+template<class T> struct u9t_{ sletc t = u9t::none; };
+
+template<> struct u9t_<u8>   { sletc t = u9t::u8;  };
+template<> struct u9t_<u16>  { sletc t = u9t::u16; };
+template<> struct u9t_<u32>  { sletc t = u9t::u32; };
+template<> struct u9t_<u64>  { sletc t = u9t::u64; };
+
+template<> struct u9t_<i8>   { sletc t = u9t::i8;  };
+template<> struct u9t_<i16>  { sletc t = u9t::i16; };
+template<> struct u9t_<i32>  { sletc t = u9t::i32; };
+template<> struct u9t_<i64>  { sletc t = u9t::i64; };
+
+template<> struct u9t_<f32>  { sletc t = u9t::f32; };
+template<> struct u9t_<f64>  { sletc t = u9t::f64; };
+template<> struct u9t_<c32>  { sletc t = u9t::c32; };
+template<> struct u9t_<c64>  { sletc t = u9t::c64; };
+
+template<> struct u9t_<bool> { sletc t = u9t::b; };
+template<> struct u9t_<B>    { sletc t = u9t::bytes; };
+template<> struct u9t_<Bv>   { sletc t = u9t::bytes; };
+template<> struct u9t_<St>   { sletc t = u9t::utf8; };
+template<> struct u9t_<Stv>  { sletc t = u9t::utf8; };
+
+template<class U>          struct u9t_<V<U>>    { sletc t = u9t::tuple; };
+template<class K, class V> struct u9t_<M<K, V>> { sletc t = u9t::map; };
+template<class U>          struct u9t_<S<U>>    { sletc t = u9t::set; };
+
+template<>        struct u9t_<u9_pidfd>      { sletc t = u9t::pidfd; };
+template<class U> struct u9t_<u9_heapref<U>> { sletc t = u9t::heapref; };
+
+
+template<class T>
+concept u9t_hastype = u9t_<T>::t != u9t::none;
 
 
 enum class u9s
@@ -75,7 +124,7 @@ constexpr u9s u9ts_s   (uf8 x)        { return Sc<u9s>(x  & 7); }
 
 constexpr bool u9sv(u9s s) { return Sc<uN>(s) >= 4; }
 
-constexpr uN u9sb(u9s s)
+constexpr uN u9sb(u9s s)  // size of size+control bytes (i.e. prefix)
 {
   switch (s)
   {
@@ -97,6 +146,24 @@ constexpr u9s u9sq(uN s)
        : s == 2     ? u9s::f2
        : s == 1     ? u9s::f1
        :              u9s::v8;
+}
+
+
+template<class T>
+uN u9rs(T xs, uN i)
+{
+  switch (u9ts_s(R<u8>(xs, 0)))
+  {
+  case u9s::f1:  return 1 + 1;
+  case u9s::f2:  return 1 + 2;
+  case u9s::f4:  return 1 + 4;
+  case u9s::f8:  return 1 + 8;
+  case u9s::v8:  return 2 + R<u8> (xs, 1);
+  case u9s::v16: return 3 + R<u16>(xs, 1);
+  case u9s::v32: return 5 + R<u32>(xs, 1);
+  case u9s::v64: return 9 + R<u64>(xs, 1);
+    TA(0)
+  }
 }
 
 
@@ -139,18 +206,26 @@ struct u9tm
 };
 
 
-constexpr u9tm const u9unsigned{u9t::u8, u9t::u16, u9t::u32, u9t::u64};
-constexpr u9tm const u9signed  {u9t::i8, u9t::i16, u9t::i32, u9t::i64};
-constexpr u9tm const u9ints    = u9unsigned | u9signed;
-constexpr u9tm const u9reals   = u9ints  | u9tm{u9t::f32, u9t::f64};
-constexpr u9tm const u9numbers = u9reals | u9tm{u9t::c32, u9t::c64};
+letc u9unsigned = u9tm{u9t::u8, u9t::u16, u9t::u32, u9t::u64};
+letc u9signed   = u9tm{u9t::i8, u9t::i16, u9t::i32, u9t::i64};
+letc u9ints     = u9unsigned | u9signed;
+letc u9reals    = u9ints  | u9tm{u9t::f32, u9t::f64};
+letc u9numbers  = u9reals | u9tm{u9t::c32, u9t::c64};
 
-constexpr u9tm const u9strings {u9t::bytes, u9t::utf8};
-constexpr u9tm const u9coll    {u9t::index, u9t::map, u9t::set, u9t::tuple, u9t::tensor};
-constexpr u9tm const u9native  {u9t::pidfd, u9t::heapref};
+letc u9strings  = u9tm{u9t::bytes, u9t::utf8};
+letc u9coll     = u9tm{u9t::index, u9t::map, u9t::set, u9t::tuple, u9t::tensor};
+letc u9native   = u9tm{u9t::pidfd, u9t::heapref};
 
-constexpr u9tm const u9atomics = u9strings | u9numbers | u9tm{u9t::b, u9t::symbol};
-constexpr u9tm const u9vectors = u9numbers;
+letc u9fixed    = u9numbers | u9tm{u9t::b} | u9native;
+letc u9atomics  = u9strings | u9numbers | u9tm{u9t::b, u9t::symbol};
+letc u9vectors  = u9numbers;
+
+
+template<class T, u32 M>
+struct u9t_is { static constexpr bool const v = M & 1 << Sc<u8>(u9t_<T>::t); };
+
+static_assert( u9t_is<u64, u9unsigned.m>::v);
+static_assert(!u9t_is<i64, u9unsigned.m>::v);
 
 
 constexpr uN u9logsizeof(u9t t)

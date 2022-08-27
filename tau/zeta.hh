@@ -109,11 +109,11 @@ struct ζ
 
 
   template<class W>
-  bool w(W const &x)
-    { let s = x.size(b.c, b.wa());
+  bool w(W x)
+    { let s = x.size();
       uN  a;
       while ((a = b.alloc(s)) == ζω) { if (rc) return false; wg.y(λs::O); }
-      x.write(b + a, s);
+      x.write(b + a);
       rg.w();
       return true; }
 };

@@ -55,9 +55,7 @@ struct φ
 
 
   template<class X>
-  bool operator<<(X const &x)
-    { while (!wi()) cg.y(λs::φc);
-      return o->w(W::cast(x)); }
+  bool operator<<(X const &x) { while (!wi()) cg.y(λs::φc); return o->w(W::cast(x)); }
 
 
   R operator*() const { wra();             return R(*i + i->a()); }

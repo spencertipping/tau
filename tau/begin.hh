@@ -25,4 +25,32 @@
 #endif
 
 
-#define let auto const
+#define let   auto const
+#define letc  let constexpr
+#define slet  static let
+#define sletc static letc
+
+#define ic inline constexpr
+
+
+#define defR(I)                                                         \
+  template<class J, class T>                                            \
+  ic typename std::enable_if<std::is_same<I, J>::value, I>::type        \
+  R(T xs, uN i)
+
+#define defRI(s)                                                        \
+  template<class I, class T>                                            \
+  ic typename std::enable_if<std::is_integral<I>::value                 \
+                             and sizeof(I) == s, I>::type               \
+  R(T xs, uN i)
+
+#define defW(I)                                                         \
+  template<class J, class T>                                            \
+  ic typename std::enable_if<std::is_same<I, J>::value, void>::type     \
+  W(T xs, uN i, I x)
+
+#define defWI(s)                                                        \
+  template<class I, class T>                                            \
+  ic typename std::enable_if<std::is_integral<I>::value                 \
+                             and sizeof(I) == s, void>::type            \
+  W(T xs, uN i, I x)

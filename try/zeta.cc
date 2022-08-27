@@ -17,7 +17,7 @@ void try_small_ζ()
   // Small test
   ζ t(l);
   let s1 = l.c([&]() {
-    A(t.w(o9<uN>{17}), "ζ rejected 17");
+    A(t.w(o9<uN>(17)), "ζ rejected 17");
     t.wω();
     cout << "t write-closed" << endl;
     return 0;
@@ -36,7 +36,37 @@ void try_small_ζ()
 }
 
 
-int main()
+void try_tuple()
+{
+  Λ l;
+  ζ i(l);
+  ζ o(l);
+  φ<i9> a(l);
+  φ<i9> b(l);
+
+  let s1 = l.c([&]() {
+    V<uN> xs;
+    for (uN i = 0; i < 10; ++i)
+    {
+      xs.push_back(i);
+      a << o9v<uN>{xs};
+    }
+    a.wω();
+    return 0;
+  });
+
+  let s2 = l.c([&]() {
+    for (i9 x : b) cout << x << endl;
+    return 0;
+  });
+
+  a(i, o);
+  b(o, i);
+  l.go();
+}
+
+
+void bench()
 {
   Λ l;
   ζ i(l);
@@ -46,11 +76,8 @@ int main()
 
   uNc N = 1 << 28;
 
-  try_small_ζ();
-
-
   let f1 = l.c([&]() {
-    for (uN i = 0; i < N; ++i) A(a << o9<uN>{i}, "φ rejected " << i);
+    for (uN i = 0; i < N; ++i) A(a << o9(i), "φ rejected " << i);
     a.wω();
     for (i9 x : a) cout << "f1 received " << Sc<uN>(x) << endl;
     return 0;
@@ -63,7 +90,7 @@ int main()
     b.rω();
     A(n == N, "f2 got " << n << " (expected " << N << ")");
     cout << "f2 sending " << t << endl;
-    b << o9<uN>{t};
+    b << o9(t);
     b.wω();
     return 0;
   });
@@ -80,6 +107,14 @@ int main()
   if (!l.wi(f2)) cout << "f2 is not yet done" << endl;
   cout << "f1 returning " << l.w(f1) << endl;
   cout << "f2 returning " << l.w(f2) << endl;
+}
+
+
+int main()
+{
+  try_small_ζ();
+  try_tuple();
+  bench();
   return 0;
 }
 

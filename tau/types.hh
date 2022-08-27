@@ -2,6 +2,7 @@
 #define tau_types_h
 
 
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -55,6 +56,9 @@ typedef std::int_fast64_t  if64;  typedef if64 const if64c;
 typedef double f64;  typedef f64 const f64c;
 typedef float  f32;  typedef f32 const f32c;
 
+typedef std::complex<f32> c32;  typedef c32 const c32c;
+typedef std::complex<f64> c64;  typedef c64 const c64c;
+
 
 typedef size_t  uN;  typedef uN const uNc;
 typedef ssize_t iN;  typedef iN const iNc;
@@ -72,6 +76,9 @@ static_assert(sizeof(u8)  == 1);
 static_assert(sizeof(u16) == 2);
 static_assert(sizeof(u32) == 4);
 static_assert(sizeof(u64) == 8);
+
+static_assert(sizeof(c64) == sizeof(f64) * 2);
+static_assert(sizeof(c32) == sizeof(f32) * 2);
 
 #if tau_wordsize == 64
   static_assert(sizeof(void*) == sizeof(u64));
@@ -126,6 +133,8 @@ inline K ιi(K &c, M<K, V> const &m)
 
 typedef std::basic_string<u8>      B;
 typedef std::basic_string_view<u8> Bv;
+typedef std::string                St;
+typedef std::string_view           Stv;
 
 
 template<class T, class U> inline constexpr T Rc(U x) { return reinterpret_cast<T>(x); }
