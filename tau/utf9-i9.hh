@@ -34,11 +34,10 @@ struct i9
   u9s stype() const { return u9ts_s(code()); }
   u9t type()  const { return u9ts_t(code()); }
   ζp  begin() const { return a + u9sb(stype()); }
-  ζp  end()   const { return begin() + size(); }
+  ζp  end()   const { return a + size(); }
 
   ζp  data()  const { return begin(); }
   uN  size()  const { return u9rs(a, 0); }
-  uN  osize() const { return end() - a; }
 
 
   // NOTE: returns 0 if this type cannot be vectorized
@@ -95,7 +94,6 @@ O &operator<<(O &s, i9 const &x)
   case u9t::tuple:
   { let b = x.begin();
     let e = x.end();
-    s << "tuple[begin=" << b - x.a << " end=" << e - x.a << "]";
     s << "(";
     for (auto i = 0; b + i < e; i += i9::size_of(b + i))
     { if (i) s << ","; s << i9{b + i}; }
