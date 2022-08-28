@@ -66,31 +66,30 @@ template<class I, class T = uN> inline constexpr I coi(T x) { assert(!oi<I>(x));
 template<class T> struct twice;
 template<class T> struct half;
 
-template<> struct twice<u8>  { typedef u16 type; };
-template<> struct twice<u16> { typedef u32 type; };
-template<> struct twice<u32> { typedef u64 type; };
-template<> struct twice<i8>  { typedef i16 type; };
-template<> struct twice<i16> { typedef i32 type; };
-template<> struct twice<i32> { typedef i64 type; };
+template<> struct twice<u8>  { typedef u16 t; };
+template<> struct twice<u16> { typedef u32 t; };
+template<> struct twice<u32> { typedef u64 t; };
+template<> struct twice<i8>  { typedef i16 t; };
+template<> struct twice<i16> { typedef i32 t; };
+template<> struct twice<i32> { typedef i64 t; };
 
-template<> struct half<u64>  { typedef u32 type; };
-template<> struct half<u32>  { typedef u16 type; };
-template<> struct half<u16>  { typedef u8  type; };
-template<> struct half<i64>  { typedef i32 type; };
-template<> struct half<i32>  { typedef i16 type; };
-template<> struct half<i16>  { typedef i8  type; };
+template<> struct half<u64>  { typedef u32 t; };
+template<> struct half<u32>  { typedef u16 t; };
+template<> struct half<u16>  { typedef u8  t; };
+template<> struct half<i64>  { typedef i32 t; };
+template<> struct half<i32>  { typedef i16 t; };
+template<> struct half<i16>  { typedef i8  t; };
 
 
 defRI(1) { return Sc<I>(xs[i]); }
-defRI(2) { return Sc<I>(R<typename half<I>::type>(xs, i)) <<  8 | R<typename half<I>::type>(xs, i + 1); }
-defRI(4) { return Sc<I>(R<typename half<I>::type>(xs, i)) << 16 | R<typename half<I>::type>(xs, i + 2); }
-defRI(8) { return Sc<I>(R<typename half<I>::type>(xs, i)) << 32 | R<typename half<I>::type>(xs, i + 4); }
-
+defRI(2) { return Sc<I>(R<typename half<I>::t>(xs, i)) <<  8 | R<typename half<I>::t>(xs, i + 1); }
+defRI(4) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 16 | R<typename half<I>::t>(xs, i + 2); }
+defRI(8) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 32 | R<typename half<I>::t>(xs, i + 4); }
 
 defWI(1) { xs[i] = x; }
-defWI(2) { W<typename half<I>::type>(xs, i, x >> 8);  W<typename half<I>::type>(xs, i + 1, x & 0xff); }
-defWI(4) { W<typename half<I>::type>(xs, i, x >> 16); W<typename half<I>::type>(xs, i + 2, x & 0xffff); }
-defWI(8) { W<typename half<I>::type>(xs, i, x >> 32); W<typename half<I>::type>(xs, i + 4, x & 0xffffffff); }
+defWI(2) { W<typename half<I>::t>(xs, i, x >> 8);  W<typename half<I>::t>(xs, i + 1, x & 0xff); }
+defWI(4) { W<typename half<I>::t>(xs, i, x >> 16); W<typename half<I>::t>(xs, i + 2, x & 0xffff); }
+defWI(8) { W<typename half<I>::t>(xs, i, x >> 32); W<typename half<I>::t>(xs, i + 4, x & 0xffffffff); }
 
 
 defR(f32) { union {f32 f; i32 n;}; n = R<i32>(xs, i); return f; }

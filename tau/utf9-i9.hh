@@ -17,6 +17,7 @@ namespace tau
 struct i9
 {
   static uN size_of(ζp a) { return u9rs(a, 0); }
+  static i9 cast   (ζp a) { return i9{a}; }
 
   struct it
   {

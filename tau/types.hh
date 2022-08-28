@@ -64,8 +64,15 @@ typedef char ch;         // that's right, "char" is just too damn long
 typedef char const chc;
 
 
-typedef size_t  uN;  typedef uN const uNc;
-typedef ssize_t iN;  typedef iN const iNc;
+#if tau_wordsize == 64
+  typedef u64 uN;  typedef uN const uNc;
+  typedef i64 iN;  typedef iN const iNc;
+#elif tau_wordsize == 32
+  typedef u32 uN;  typedef uN const uNc;
+  typedef i32 iN;  typedef iN const iNc;
+#else
+# error unsupported word size
+#endif
 
 
 static_assert(sizeof(void*) == sizeof(uN));
@@ -74,6 +81,7 @@ static_assert(sizeof(void*) == sizeof(iN));
 static_assert(sizeof(long long) == sizeof(u64));
 static_assert(sizeof(f64)       == sizeof(u64));
 static_assert(sizeof(f32)       == sizeof(u32));
+static_assert(sizeof(c32)       == sizeof(f64));
 static_assert(sizeof(char)      == sizeof(u8));
 
 static_assert(sizeof(u8)  == 1);

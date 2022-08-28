@@ -28,9 +28,6 @@ template<class T> concept o9string = u9t_is<T, u9strings.m>::v;
 template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 
 
-static_assert(o9mapped<unsigned long>);
-
-
 template<o9fixed T>
 struct o9f
 {
@@ -53,13 +50,13 @@ struct o9b
 
 
 template<class T, template<typename...> class C, class... Ts> struct o9v;
-template<o9mapped K, o9mapped V, class... Ts>                    struct o9m;
+template<o9mapped K, o9mapped V, class... Ts>                 struct o9m;
 
 template<o9fixed  T> ic o9f<T> o9(T x) { return o9f<T>{x}; }
 template<o9string T> ic o9f<T> o9(T x) { return o9b<T>{x}; }
 
-template<o9mapped T, class... Ts> ic o9v<T, V> o9(V<T, Ts...> const&);
-template<o9mapped T, class... Ts> ic o9v<T, S> o9(S<T, Ts...> const&);
+template<o9mapped T, class... Ts> ic o9v<T, V, Ts...> o9(V<T, Ts...> const&);
+template<o9mapped T, class... Ts> ic o9v<T, S, Ts...> o9(S<T, Ts...> const&);
 
 template<o9mapped K, o9mapped V, class... Ts>
 ic o9m<K, V> o9(M<K, V, Ts...> const&);
@@ -103,13 +100,13 @@ struct o9m  // unindexed, unordered k/v map
 
 // TODO: generate indexes if these collections are very large
 template<o9mapped T, class... Ts>
-ic o9v<T, V, Ts...> o9(V<T, Ts...> const &xs) { return o9v{xs}; }
+ic o9v<T, V, Ts...> o9(V<T, Ts...> const &xs) { return o9v<T, V, Ts...>{xs}; }
 
 template<o9mapped T, class... Ts>
-ic o9v<T, S, Ts...> o9(S<T, Ts...> const &xs) { return o9v{xs}; }
+ic o9v<T, S, Ts...> o9(S<T, Ts...> const &xs) { return o9v<T, S, Ts...>{xs}; }
 
 template<o9mapped K, o9mapped V, class... Ts>
-ic o9m<K, V, Ts...> o9(M<K, V, Ts...> const &xs) { return o9m{xs}; }
+ic o9m<K, V, Ts...> o9(M<K, V, Ts...> const &xs) { return o9m<K, V, Ts...>{xs}; }
 
 
 }
