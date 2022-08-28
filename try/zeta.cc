@@ -74,7 +74,7 @@ void bench()
   φ<i9> a(l);
   φ<i9> b(l);
 
-  uNc N = 1 << 28;
+  uNc N = 1 << 20;
 
   let f1 = l.c([&]() {
     for (uN i = 0; i < N; ++i) A(a << o9(i), "φ rejected " << i);
@@ -101,7 +101,9 @@ void bench()
   Θp t1 = now();
   l.go();
   Θp t2 = now();
-  cout << "summing ints: " << (t2 - t1) / (N / (1 << 24)) << "/16M" << endl;
+
+  if (N >= 1 << 24)
+    cout << "summing ints: " << (t2 - t1) / (N / (1 << 24)) << "/16M" << endl;
 
   if (!l.wi(f1)) cout << "f1 is not yet done" << endl;
   if (!l.wi(f2)) cout << "f2 is not yet done" << endl;

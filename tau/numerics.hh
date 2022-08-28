@@ -65,6 +65,7 @@ template<class I, class T = uN> inline constexpr I coi(T x) { assert(!oi<I>(x));
 // big-endian numeric IO
 template<class T> struct twice;
 template<class T> struct half;
+template<class T> struct uns;
 
 template<> struct twice<u8>  { typedef u16 t; };
 template<> struct twice<u16> { typedef u32 t; };
@@ -80,11 +81,20 @@ template<> struct half<i64>  { typedef i32 t; };
 template<> struct half<i32>  { typedef i16 t; };
 template<> struct half<i16>  { typedef i8  t; };
 
+template<> struct uns<u64> { typedef u64 t; };
+template<> struct uns<u32> { typedef u32 t; };
+template<> struct uns<u16> { typedef u16 t; };
+template<> struct uns<u8>  { typedef u8 t; };
+template<> struct uns<i64> { typedef u64 t; };
+template<> struct uns<i32> { typedef u32 t; };
+template<> struct uns<i16> { typedef u16 t; };
+template<> struct uns<i8>  { typedef u8 t; };
+
 
 defRI(1) { return Sc<I>(xs[i]); }
-defRI(2) { return Sc<I>(R<typename half<I>::t>(xs, i)) <<  8 | R<typename half<I>::t>(xs, i + 1); }
-defRI(4) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 16 | R<typename half<I>::t>(xs, i + 2); }
-defRI(8) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 32 | R<typename half<I>::t>(xs, i + 4); }
+defRI(2) { return Sc<I>(R<typename half<I>::t>(xs, i)) <<  8 | R<typename uns<typename half<I>::t>::t>(xs, i + 1); }
+defRI(4) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 16 | R<typename uns<typename half<I>::t>::t>(xs, i + 2); }
+defRI(8) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 32 | R<typename uns<typename half<I>::t>::t>(xs, i + 4); }
 
 defWI(1) { xs[i] = x; }
 defWI(2) { W<typename half<I>::t>(xs, i, x >> 8);  W<typename half<I>::t>(xs, i + 1, x & 0xff); }
