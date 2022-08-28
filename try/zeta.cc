@@ -1,4 +1,5 @@
 #define tau_debug 1
+//#define tau_debug_i9st 1
 #include "../tau.hh"
 #include "../tau/debug.hh"
 
@@ -14,18 +15,28 @@ void try_small_ζ()
 {
   Λ l;
 
+  uN xs[] = {1, 2, 3, 5, 8, 13, 21, 34};
+  let ys = o9t("foo", 1, 2.0 + 3.0i, 3, 4.5,
+               "bar", 6.7f, "abc",
+               5.0 + 8.9i, "bif");
+
   // Small test
   ζ t(l);
   let s1 = l.c([&]() {
-    A(t.w(o9(17)), "ζ rejected 17");
+    A(t.w(o9(xs, 8)), "ζ rejected xs");
+    A(t.w(o9("foo")), "ζ rejected foo");
+    A(t.w(ys), "ζ rejected ys");
     t.wω();
     cout << "t write-closed" << endl;
     return 0;
   });
 
   let s2 = l.c([&]() {
-    let x = i9{t.r<i9>()}; A(Sc<iN>(x) == 17, "got a mystery value: " << x);
-    let y = t.r<i9>();     A(y == ζωp, "y should be ζωp, got " << y);
+    cout << "received " << i9{t.r<i9>()} << endl;
+    cout << "received " << i9{t.r<i9>()} << endl;
+    cout << "received " << i9{t.r<i9>()} << endl;
+    let z = t.r<i9>();
+    A(z == ζωp, "z should be ζωp, got " << z);
     cout << "t is all good" << endl;
     return 0;
   });
@@ -74,7 +85,7 @@ void bench()
   φ<i9> a(l);
   φ<i9> b(l);
 
-  uNc N = 1 << 20;
+  uNc N = 1 << 28;
 
   let f1 = l.c([&]() {
     for (uN i = 0; i < N; ++i) A(a << o9(i), "φ rejected " << i);

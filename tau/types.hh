@@ -13,6 +13,7 @@
 #include <queue>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <variant>
@@ -111,6 +112,7 @@ typedef             std::ostream O;
 template<class... T>       using Q  = std::queue<T...>;
 template<class... K>       using S  = std::unordered_set<K...>;
 template<class... T>       using SP = std::shared_ptr<T...>;
+template<class... X>       using T  = std::tuple<X...>;
 template<class... T>       using V  = std::vector<T...>;
 template<class... T>       using Va = std::variant<T...>;
 template<class... T>       using Vi = typename V<T...>::const_iterator;

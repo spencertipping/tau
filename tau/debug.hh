@@ -20,6 +20,11 @@
 #endif
 
 
+#if !defined tau_debug_i9st
+# define tau_debug_i9st 0
+#endif
+
+
 #if tau_has_assert_fail
 # if tau_debug_iostream
 #   define tau_assert_fail(x, f, l, m)                      \

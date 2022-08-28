@@ -94,6 +94,7 @@ template<> struct u9t_<B>    { sletc t = u9t::bytes; };
 template<> struct u9t_<Bv>   { sletc t = u9t::bytes; };
 template<> struct u9t_<St>   { sletc t = u9t::utf8; };
 template<> struct u9t_<Stv>  { sletc t = u9t::utf8; };
+template<> struct u9t_<chc*> { sletc t = u9t::utf8; };
 
 template<class U>          struct u9t_<V<U>>    { sletc t = u9t::tuple; };
 template<class K, class V> struct u9t_<M<K, V>> { sletc t = u9t::map; };

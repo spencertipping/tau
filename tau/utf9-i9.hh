@@ -72,7 +72,6 @@ struct i9
   i9 operator[](uN i) const
     { switch (type())
       {
-        // TODO: vectorized types
         // TODO: tuple indexes
       case u9t::tuple: { ζp b = begin(); while (i--) b += size_of(b); return b; }
       default: A(0, "i9[uN] requires index or tuple, not " << type()); return 0;
@@ -94,32 +93,43 @@ static_assert(sizeof(i9) == sizeof(uN));
 #if tau_debug_iostream
 O &operator<<(O &s, i9 const &x)
 {
+  if (tau_debug_i9st)
+    s << "i9@" << Sc<void*>(x.a) << ":" << x.type() << ":" << x.size() << " ";
+
   switch (x.type())
   {
 
-    // TODO: handle implicit vectors
-  case u9t::i8:
-  case u9t::i16:
-  case u9t::i32:
-  case u9t::i64: return s << Sc<i64>(x);
+#define vec(rt, ct, t)                                                  \
+    case rt:                                                            \
+      s << Sc<ct>(x);                                                   \
+      for (uN i = 1; i < x.vn(); ++i)                                   \
+        s << " " << Sc<ct>(R<t>(x.begin(), i * u9sizeof(rt)));          \
+      return s;
 
-  case u9t::u8:  return s << Sc<uN>(Sc<u8>(x));
-  case u9t::u16: return s << Sc<u16>(x);
-  case u9t::u32: return s << Sc<u32>(x);
-  case u9t::u64: return s << Sc<u64>(x);
+  vec(u9t::i8,  i64, i8)
+  vec(u9t::i16, i64, i16)
+  vec(u9t::i32, i64, i32)
+  vec(u9t::i64, i64, i64)
 
-  case u9t::f32: return s << Sc<f32>(x);
-  case u9t::f64: return s << Sc<f64>(x);
-  case u9t::c32: return s << Sc<c32>(x);
-  case u9t::c64: return s << Sc<c64>(x);
+  vec(u9t::u8,  i64, u8)
+  vec(u9t::u16, i64, u16)
+  vec(u9t::u32, i64, u32)
+  vec(u9t::u64, u64, u64)
+
+  vec(u9t::f32, f32, f32)
+  vec(u9t::f64, f64, f64)
+  vec(u9t::c32, c32, c32)
+  vec(u9t::c64, c64, c64)
+
+#undef vec
 
   case u9t::b:      return s << (R<u8>(x.begin(), 0) ? "t" : "f");
   case u9t::symbol: return s << "TODO: i9 symbol";
   case u9t::stream: return s << "TODO: i9 stream";
 
-  case u9t::bytes: return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
-  case u9t::utf8:  return s << "u\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
-  case u9t::index: return s << "i" << i9{x.begin()};
+  case u9t::bytes:  return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
+  case u9t::utf8:   return s << "u\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
+  case u9t::index:  return s << "i" << i9{x.begin()};
 
   case u9t::tuple:
   { let b = x.begin();
