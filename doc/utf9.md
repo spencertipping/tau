@@ -97,16 +97,6 @@ Size bytes, when indicated, immediately follow the control byte -- that is, they
 | `111` | `u64 n`         | `n` bytes |
 
 
-### Implicit vectorization
-Implicit vectorization happens with any type that has an opinion about its size.
-
-For example, `0x03` (8-byte `i8`) followed by `1122334455667788` will be interpreted as `i8[8]`, and any math will be broadcast accordingly. Implicit vectors have no specified direction; they can be used as row or column vectors in any matrix context.
-
-In contrast, `bytes` and `utf8` are always single, variable-size elements; the control-byte size determines how many bytes each contains.
-
-**NOTE:** it is illegal to specify a length that is not an even multiple of the thing being vectorized. This should fail to decode.
-
-
 ## Type-specific formats
 Most types are self-explanatory: the value, in big-endian where applicable, immediately follows the control byte and any size bytes.
 
@@ -129,7 +119,18 @@ set:   cb [sb] x1 x2 ... xn
 
 `map` and `set` are sorted by `hash(k)` and `hash(x)`, respectively. `tuple` has no ordering, which means unassisted lookups are _O(n)_. Indexed lookups are much faster; see [indexes](#indexes).
 
-**TODO:** `tensor` spec
+
+### Tensors
+_n_-dimensional packed arrays of some numeric type. Tensors are formatted like this:
+
+```
+cb [sb] dim_cb  [dim_sb]  d1 d2 ... dk
+        data_cb [data_sb] x1 x2 ... xn
+```
+
+`dim` is an unsigned integral type, e.g. `u32`, whose size covers one or more such numbers that define the tensor's size along each dimension.
+
+`data` is a numeric type, e.g. `cf64`, whose size covers the tensor data itself. The first dimension varies last, so `dim` is a radix encoding vector.
 
 
 ### Signed vs unsigned ints
@@ -178,6 +179,12 @@ UTF8 strings can be indexed; in that case, `(container)` is a `utf8` and the ind
 ### Non-portable `(pid, fd)`
 It's sometimes useful to capture an FD from one process and send it to another; to do this, we can store a value inside a `pidfd` and serialize it across IPC lines, as long as the value never leaves the machine/container it's running on.
 
+Note that τ doesn't promise to stop you from sending pid/fds elsewhere, they just won't work outside of their original context.
+
+Also note that pid/fds may create race conditions, since the other process can close a file before you have accessed it.
+
 
 ### Non-portable heap refs
 Some UTF9 values will be too large for the ζ being used to carry them. Rather than expanding ζ or failing, we can "box" the value into a specially-allocated `u8[]`, then store a reference to that `u8[]` into ζ.
+
+**NOTE:** non-portable refs cannot be embedded into other data structures, even for local transit. τ data structures don't internally hold references to anything or support tracing GC, so it would defeat automatic memory allocation if these structures could be serialized into anything besides the toplevel.

@@ -45,14 +45,17 @@ struct o9b
 };
 
 
-
 template<o9mapped T, template<typename> class C = V> struct o9v;
 template<o9mapped K, o9mapped V>                     struct o9m;
 
 template<o9fixed  T> ic o9f<T> o9(T x) { return o9f<T>{x}; }
 template<o9string T> ic o9f<T> o9(T x) { return o9b<T>{x}; }
-template<o9coll T, template<typename> class C = V> ic o9v<T, C> o9(T const&);
-template<o9mapped K, o9mapped V> ic o9m<K, V> o9(M<K, V> const&);
+
+template<o9coll T, template<typename> class C = V>
+ic o9v<T, C> o9(T const&);
+
+template<o9mapped K, o9mapped V>
+ic o9m<K, V> o9(M<K, V> const&);
 
 
 template<o9mapped T, template<typename> class C>
@@ -63,7 +66,7 @@ struct o9v
 
   uN size() { return isize() + u9sb(u9sq(isize())); }
   uN isize()
-    { if (!s) { uN is = 0; for (let &x : xs) is += o9(x).size(); s = is; }
+    { if (!s) for (let &x : xs) s += o9(x).size();
       return s; }
 
   void write(ζp m)
@@ -80,7 +83,7 @@ struct o9m
 
   uN size() { return isize() + u9sb(u9sq(isize())); }
   uN isize()
-    { if (!s) { uN is = 0; for (let &[k, v] : xs) is += o9(k).size() + o9(v).size(); s = is; }
+    { if (!s) for (let &[k, v] : xs) s += o9(k).size() + o9(v).size();
       return s; }
 
   void write(ζp m)

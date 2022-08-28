@@ -2,9 +2,6 @@
 #define tau_utf9_i9_h
 
 
-#include <complex>
-
-
 #include "debug.hh"
 #include "types.hh"
 #include "zeta.hh"
@@ -21,6 +18,14 @@ struct i9
 {
   static uN size_of(ζp a) { return u9rs(a, 0); }
 
+  struct it
+  {
+    ζp a;
+    operator ζp() const { return a; }
+    i9 operator*() const { return i9{a}; }
+    it operator++() { a += i9{a}.size(); return *this; }
+  };
+
 
   ζpc a;
   i9(ζp a_) : a(a_) {}
@@ -33,11 +38,11 @@ struct i9
 
   u9s stype() const { return u9ts_s(code()); }
   u9t type()  const { return u9ts_t(code()); }
-  ζp  begin() const { return a + u9sb(stype()); }
-  ζp  end()   const { return a + size(); }
+  it  begin() const { return it{a + u9sb(stype())}; }
+  it  end()   const { return it{a + u9rs(a, 0)}; }
 
   ζp  data()  const { return begin(); }
-  uN  size()  const { return u9rs(a, 0); }
+  uN  size()  const { return end() - begin(); }
 
 
   // NOTE: returns 0 if this type cannot be vectorized
@@ -51,6 +56,10 @@ struct i9
       case u9t::i16: return R<i16>(begin(), 0);
       case u9t::i32: return R<i32>(begin(), 0);
       case u9t::i64: return R<i64>(begin(), 0);
+      case u9t::u8:  return R<u8> (begin(), 0);
+      case u9t::u16: return R<u16>(begin(), 0);
+      case u9t::u32: return R<u32>(begin(), 0);
+      case u9t::u64: return R<u64>(begin(), 0);
         TA(0)
       } }
 
@@ -76,6 +85,8 @@ O &operator<<(O &s, i9 const &x)
 {
   switch (x.type())
   {
+
+    // TODO: handle implicit vectors
   case u9t::i8:
   case u9t::i16:
   case u9t::i32:
@@ -91,6 +102,14 @@ O &operator<<(O &s, i9 const &x)
   case u9t::c32: return s << Sc<c32>(x);
   case u9t::c64: return s << Sc<c64>(x);
 
+  case u9t::b:      return s << (R<u8>(x.begin(), 0) ? "t" : "f");
+  case u9t::symbol: return s << "TODO: i9 symbol";
+  case u9t::stream: return s << "TODO: i9 stream";
+
+  case u9t::bytes: return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
+  case u9t::utf8:  return s << "u\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
+  case u9t::index: return s << "i" << i9{x.begin()};
+
   case u9t::tuple:
   { let b = x.begin();
     let e = x.end();
@@ -98,6 +117,32 @@ O &operator<<(O &s, i9 const &x)
     for (auto i = 0; b + i < e; i += i9::size_of(b + i))
     { if (i) s << ","; s << i9{b + i}; }
     return s << ")"; }
+
+  case u9t::set:
+  { let b = x.begin();
+    let e = x.end();
+    s << "{";
+    for (auto i = 0; b + i < e; i += i9::size_of(b + i))
+    { if (i) s << ","; s << i9{b + i}; }
+    return s << "}"; }
+
+  case u9t::map:
+  { let b = x.begin();
+    let e = x.end();
+    s << "{";
+    for (auto i = 0; b + i < e;)
+    { if (i) s << ", ";
+      let k = i9{b + i}; s << k << ":"; i += k.size();
+      let v = i9{b + i}; s << v; i += v.size(); }
+    return s << "}"; }
+
+  case u9t::tensor:
+  { let d  = i9{x.begin()};
+    let xs = i9{d}.end();
+    let e  = x.end();
+    uN ds[d.vn()]; uN di = 0; for (let x : d) ds[di++] = Sc<i64>(x);
+    uN is[d.vn()];            for (uN i = 0; i < d.vn(); ++i) is[i] = 0;
+  }
 
   default:
     return s << "i9[" << x.type() << ":" << x.size() << "]";
