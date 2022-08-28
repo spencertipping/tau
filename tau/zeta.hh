@@ -22,7 +22,7 @@ namespace tau
 #if tau_wordsize == 64
   uf8c constexpr ζb0 = 16;
 #elif tau_wordsize == 32
-  ut8c constexpr ζb0 = 12;
+  uf8c constexpr ζb0 = 14;
 #else
 # error unsupported word size for ζ
 #endif

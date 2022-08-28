@@ -16,12 +16,19 @@ namespace tau
 {
 
 
-// FIXME: we'll add to this once we have an o9 variant
+// TODO: add autoboxing for off-heap references
+// TODO: o9 variant type
+
+
+// TODO: we'll add to this once we have an o9 variant
 template<class T> concept o9mapped = u9t_hastype<T>;
 
 template<class T> concept o9fixed  = u9t_is<T, u9fixed.m>::v;
 template<class T> concept o9string = u9t_is<T, u9strings.m>::v;
 template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
+
+
+static_assert(o9mapped<unsigned long>);
 
 
 template<o9fixed T>
@@ -45,24 +52,24 @@ struct o9b
 };
 
 
-template<o9mapped T, template<typename> class C = V> struct o9v;
-template<o9mapped K, o9mapped V>                     struct o9m;
+template<class T, template<typename...> class C, class... Ts> struct o9v;
+template<o9mapped K, o9mapped V, class... Ts>                    struct o9m;
 
 template<o9fixed  T> ic o9f<T> o9(T x) { return o9f<T>{x}; }
 template<o9string T> ic o9f<T> o9(T x) { return o9b<T>{x}; }
 
-template<o9coll T, template<typename> class C = V>
-ic o9v<T, C> o9(T const&);
+template<o9mapped T, class... Ts> ic o9v<T, V> o9(V<T, Ts...> const&);
+template<o9mapped T, class... Ts> ic o9v<T, S> o9(S<T, Ts...> const&);
 
-template<o9mapped K, o9mapped V>
-ic o9m<K, V> o9(M<K, V> const&);
+template<o9mapped K, o9mapped V, class... Ts>
+ic o9m<K, V> o9(M<K, V, Ts...> const&);
 
 
-template<o9mapped T, template<typename> class C>
-struct o9v
+template<class T, template<typename...> class C, class... Ts>
+struct o9v  // unindexed, unordered tuple/set
 {
-  C<T> const &xs;
-  uN          s = 0;
+  C<T, Ts...> const &xs;
+  uN                 s = 0;
 
   uN size() { return isize() + u9sb(u9sq(isize())); }
   uN isize()
@@ -71,15 +78,15 @@ struct o9v
 
   void write(ζp m)
     { uN i = u9ws(m, 0, u9t::tuple, isize());
-      for (let &x : xs) { let o = o9(x); o.write(m + i); i += o.size(); } }
+      for (let &x : xs) { auto o = o9(x); o.write(m + i); i += o.size(); } }
 };
 
 
-template<o9mapped K, o9mapped V>
-struct o9m
+template<o9mapped K, o9mapped V, class... Ts>
+struct o9m  // unindexed, unordered k/v map
 {
-  M<K, V> const &xs;
-  uN             s = 0;
+  M<K, V, Ts...> const &xs;
+  uN                    s = 0;
 
   uN size() { return isize() + u9sb(u9sq(isize())); }
   uN isize()
@@ -88,18 +95,21 @@ struct o9m
 
   void write(ζp m)
     { uN i = u9ws(m, 0, u9t::map, isize());
-      // TODO: verify/ensure key ordering
       for (let &[k, v] : xs)
       { let ok = o9(k); ok.write(m + i); i += ok.size();
         let ov = o9(v); ov.write(m + i); i += ov.size(); } }
 };
 
 
-template<o9coll T, template<typename> class C>
-ic o9v<T, C> o9(T const &xs) { return o9v{xs}; }
+// TODO: generate indexes if these collections are very large
+template<o9mapped T, class... Ts>
+ic o9v<T, V, Ts...> o9(V<T, Ts...> const &xs) { return o9v{xs}; }
 
-template<o9mapped K, o9mapped V>
-ic o9m<K, V> o9(M<K, V> const &xs) { return o9m{xs}; }
+template<o9mapped T, class... Ts>
+ic o9v<T, S, Ts...> o9(S<T, Ts...> const &xs) { return o9v{xs}; }
+
+template<o9mapped K, o9mapped V, class... Ts>
+ic o9m<K, V, Ts...> o9(M<K, V, Ts...> const &xs) { return o9m{xs}; }
 
 
 }

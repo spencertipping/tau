@@ -2,6 +2,9 @@
 #define tau_debug_h
 
 
+#include "arch.hh"
+
+
 #if !defined(tau_debug)
 # define tau_debug 1
 #endif
@@ -17,15 +20,17 @@
 #endif
 
 
-#if tau_debug_iostream
-# define tau_assert_fail(x, f, l, m)                  \
-  ([&]() {                                            \
-    std::cerr << "FAIL: " << m << std::endl;          \
-    __assert_fail(x, f, l, __ASSERT_FUNCTION);        \
-  })()
-#else
-# define tau_assert_fail(x, f, l, m)            \
-  __assert_fail(x, f, l, __ASSERT_FUNCTION)
+#if tau_has_assert_fail
+# if tau_debug_iostream
+#   define tau_assert_fail(x, f, l, m)                      \
+      ([&]() {                                              \
+        std::cerr << "FAIL: " << m << std::endl;            \
+        __assert_fail(x, f, l, __ASSERT_FUNCTION);          \
+      })()
+# else
+#   define tau_assert_fail(x, f, l, m)            \
+      __assert_fail(x, f, l, __ASSERT_FUNCTION)
+# endif
 #endif
 
 

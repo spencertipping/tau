@@ -117,7 +117,19 @@ set:   cb [sb] x1 x2 ... xn
                |----------|
 ```
 
-`map` and `set` are sorted by `hash(k)` and `hash(x)`, respectively. `tuple` has no ordering, which means unassisted lookups are _O(n)_. Indexed lookups are much faster; see [indexes](#indexes).
+Unindexed collections have no constraints on element ordering.
+
+Indexed `map` and `set` are sorted by `hash(k)` and `hash(x)`, respectively. `tuple` has no ordering, which means unassisted lookups are _O(n)_. Indexed lookups are much faster; see [indexes](#indexes).
+
+
+### Implicit vectorization
+Implicit vectorization happens with fixed-size primitives: `iN`, `uN`, `fN`, `cN`, and, in the future, `b`.
+
+For example, `0x03` (8-byte `i8`) followed by `1122334455667788` will be interpreted as `i8[8]`, and any math will be broadcast accordingly. Implicit vectors have no specified direction; they can be used as row or column vectors in any matrix context.
+
+In contrast, `bytes` and `utf8` are always single, variable-size elements; the control-byte size determines how many bytes each contains.
+
+**NOTE:** it is illegal to specify a length that is not an even multiple of the thing being vectorized. The value will not corrupt the rest of the datastream, but will be interpreted in an undefined way if you do this.
 
 
 ### Tensors

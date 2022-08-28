@@ -17,14 +17,14 @@ void try_small_ζ()
   // Small test
   ζ t(l);
   let s1 = l.c([&]() {
-    A(t.w(o9<uN>(17)), "ζ rejected 17");
+    A(t.w(o9(17)), "ζ rejected 17");
     t.wω();
     cout << "t write-closed" << endl;
     return 0;
   });
 
   let s2 = l.c([&]() {
-    let x = i9{t.r<i9>()}; A(Sc<uN>(x) == 17, "got a mystery value: " << x);
+    let x = i9{t.r<i9>()}; A(Sc<iN>(x) == 17, "got a mystery value: " << x);
     let y = t.r<i9>();     A(y == ζωp, "y should be ζωp, got " << y);
     cout << "t is all good" << endl;
     return 0;
@@ -49,7 +49,7 @@ void try_tuple()
     for (uN i = 0; i < 10; ++i)
     {
       xs.push_back(i);
-      a << o9v<uN>{xs};
+      a << o9(xs);
     }
     a.wω();
     return 0;
@@ -79,14 +79,14 @@ void bench()
   let f1 = l.c([&]() {
     for (uN i = 0; i < N; ++i) A(a << o9(i), "φ rejected " << i);
     a.wω();
-    for (i9 x : a) cout << "f1 received " << Sc<uN>(x) << endl;
+    for (i9 x : a) cout << "f1 received " << x << endl;
     return 0;
   });
 
   let f2 = l.c([&]() {
-    uN t = 0;
-    uN n = 0;
-    for (i9 x : b) t += Sc<uN>(x), ++n;
+    i64 t = 0;
+    uN  n = 0;
+    for (i9 x : b) t += Sc<iN>(x), ++n;
     b.rω();
     A(n == N, "f2 got " << n << " (expected " << N << ")");
     cout << "f2 sending " << t << endl;

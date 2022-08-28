@@ -70,6 +70,8 @@ defW(u9_pidfd) { W(xs, i, x.pid); W(xs, i, x.fd); }
 template<class T = void> struct u9_heapref { T* r; };
 
 
+// TODO: some compilers require uN defined separately?
+
 template<class T> struct u9t_{ sletc t = u9t::none; };
 
 template<> struct u9t_<u8>   { sletc t = u9t::u8;  };
@@ -103,6 +105,10 @@ template<class U> struct u9t_<u9_heapref<U>> { sletc t = u9t::heapref; };
 
 template<class T>
 concept u9t_hastype = u9t_<T>::t != u9t::none;
+
+
+static_assert(u9t_hastype<uN>);
+static_assert(u9t_hastype<iN>);
 
 
 enum class u9s
@@ -218,7 +224,7 @@ letc u9native   = u9tm{u9t::pidfd, u9t::heapref};
 
 letc u9fixed    = u9numbers | u9tm{u9t::b} | u9native;
 letc u9atomics  = u9strings | u9numbers | u9tm{u9t::b, u9t::symbol};
-letc u9vectors  = u9numbers;
+letc u9vectors  = u9numbers;  // TODO: add bools
 
 
 template<class T, u32 M>

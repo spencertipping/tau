@@ -8,6 +8,7 @@
 #define tau_arch_wasm32  4
 
 
+#include <cstddef>
 #include <cstdint>
 
 #if INTPTR_MAX == INT32_MAX
@@ -23,12 +24,14 @@ static_assert(sizeof(std::size_t) << 3 == tau_wordsize);
 
 
 #if defined(__linux__)
+# define tau_has_assert_fail 1
 # if tau_wordsize == 64
 #  define tau_arch tau_arch_linux64
 # elif defined(__LP32__)
 #  define tau_arch tau_arch_linux32
 # endif
 #elif defined(__EMSCRIPTEN__)
+# define tau_has_assert_fail 0
 # if tau_wordsize == 64
 #  define tau_arch tau_arch_wasm64
 # else

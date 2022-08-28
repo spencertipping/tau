@@ -28,7 +28,7 @@ struct i9
 
 
   ζpc a;
-  i9(ζp a_) : a(a_) {}
+  i9(ζp a_) : a(a_) {}  // TODO: dereference heaprefs
 
   bool exists() const { return a != ζωp; }
   operator ζp() const { return a; }
@@ -49,7 +49,7 @@ struct i9
   uN  vn()    const { return size() >> u9logsizeof(type()); }
 
   operator i64() const
-    { u9signed(type());
+    { u9ints(type());
       switch (type())
       {
       case u9t::i8:  return R<i8> (begin(), 0);
@@ -71,9 +71,19 @@ struct i9
   i9 operator[](uN i) const
     { switch (type())
       {
+        // TODO: vectorized types
+        // TODO: tuple indexes
       case u9t::tuple: { ζp b = begin(); while (i--) b += size_of(b); return b; }
       default: A(0, "i9[uN] requires index or tuple, not " << type()); return 0;
       } }
+
+  i9 operator[](i9 i) const
+    {
+      // TODO: indexes
+      // TODO: sets
+      // TODO: maps
+      return *this;
+    }
 };
 
 
@@ -138,8 +148,12 @@ O &operator<<(O &s, i9 const &x)
 
   case u9t::tensor:
   { let d  = i9{x.begin()};
-    let xs = i9{d}.end();
+    ζp  xs = i9{d}.end();
     let e  = x.end();
+
+    return s << "TODO: i9 tensor";
+
+    // FIXME: these are vectorized, not sequential tuples
     uN ds[d.vn()]; uN di = 0; for (let x : d) ds[di++] = Sc<i64>(x);
     uN is[d.vn()];            for (uN i = 0; i < d.vn(); ++i) is[i] = 0;
   }

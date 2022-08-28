@@ -15,6 +15,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 #include <vector>
 
 
@@ -90,20 +91,21 @@ static_assert(sizeof(c32) == sizeof(f32) * 2);
 #endif
 
 
-template<class T>          using D  = std::deque<T>;
-template<class T>          using F  = std::function<T>;
-template<class T>          using Il = std::initializer_list<T>;
+template<class... T>       using D  = std::deque<T...>;
+template<class... T>       using F  = std::function<T...>;
+template<class... T>       using Il = std::initializer_list<T...>;
 template<class T>          using H  = std::hash<T>;
-template<class K, class V> using M  = std::unordered_map<K, V>;
+template<class... T>       using M  = std::unordered_map<T...>;
 template<class T>          using Nl = std::numeric_limits<T>;
 template<class T, class U> using P  = std::pair<T, U>;
 template<class T, class C> using PQ = std::priority_queue<T, std::vector<T>, C>;
 typedef             std::ostream O;
-template<class T>          using Q  = std::queue<T>;
-template<class K>          using S  = std::unordered_set<K>;
-template<class T>          using SP = std::shared_ptr<T>;
-template<class T>          using V  = std::vector<T>;
-template<class T>          using Vi = typename std::vector<T>::const_iterator;
+template<class... T>       using Q  = std::queue<T...>;
+template<class... K>       using S  = std::unordered_set<K...>;
+template<class... T>       using SP = std::shared_ptr<T...>;
+template<class... T>       using V  = std::vector<T...>;
+template<class... T>       using Va = std::variant<T...>;
+template<class... T>       using Vi = typename V<T...>::const_iterator;
 
 
 typedef uN      Λr;

@@ -17,10 +17,15 @@
 
 #else
 # include <cassert>
-# define A(x, m)                                        \
-  (static_cast<bool>(x)                                 \
-   ? void(0)                                            \
-   : tau_assert_fail(#x, __FILE__, __LINE__, m))
+# if tau_has_assert_fail
+#   define A(x, m)                                          \
+      (static_cast<bool>(x)                                 \
+       ? void(0)                                            \
+       : tau_assert_fail(#x, __FILE__, __LINE__, m))
+# else
+#   define A(x, m) assert(x)
+# endif
+
 # define TA(r) default: A(0, "unreachable case"); return r;
 #endif
 
