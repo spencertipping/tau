@@ -59,7 +59,9 @@ struct φ
 
   φ(φ &) = delete;
   φ(Λ &l_, uf8 b = ζb0) : l{l_}, b{b}, cg{l}, xg{l} {}
-  ~φ() { rx(); }
+  ~φ()
+    { rx();
+      if (c) c->c = nullptr; }
 
 
   φ &operator()(ζ &i_, ζ &o_)
@@ -83,7 +85,8 @@ struct φ
   φ &wω() { assert(o); o->wω(); o = nullptr; if (!i) xg.w(); return *this; }
 
   φ &rx()
-    { if (i && c) { if (c->o) c->wω(); delete i; }
+    { if (i && c && c->o) c->wω();
+      delete i;
       i = nullptr;
       return *this; }
 

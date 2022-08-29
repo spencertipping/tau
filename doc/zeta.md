@@ -10,9 +10,8 @@ There are two conceptual pieces: ζ, the queue, and ζb, the backing store for i
 ζb is defined with a few invariants:
 
 1. Byte offsets appear to strictly increase, modulo some unsigned number
-2. Reference counts apply to 1KiB pages
-3. Allocation is allowed only when the total live window is within the capacity
-4. Every allocation unit is contiguous
+2. Allocation is allowed only when the total live window is within the capacity
+3. Every allocation unit is contiguous
 
 (4) is a pretty big constraint because it interacts with the internal buffering structure. If, for example, we have a ζb whose nominal capacity is 65536B and a 1B object pinned at position 32768, then the largest object we can write is now 32768B -- despite having more nominal capacity available.
 
