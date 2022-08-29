@@ -110,7 +110,7 @@ struct ζ
 
   template<class W>
   bool w(W x)
-    { let s = x.size();
+    { let s = x.size(); A(s <= b.c, s << "[s] > " << b.c << "[ζb.c]");
       uN  a;
       while ((a = b.alloc(s)) == ζω) { if (rc) return false; wg.y(λs::O); }
       x.write(b + a);

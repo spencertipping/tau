@@ -5,6 +5,8 @@
 #include "gate.hh"
 #include "types.hh"
 #include "zeta.hh"
+#include "pi.hh"
+#include "shd.hh"
 
 #include "begin.hh"
 
@@ -12,15 +14,27 @@ namespace tau
 {
 
 
-struct φany
+struct φi  // identity filter
 {
-  template<class W> static W cast(W x, ζ&) { return x; }
+  template<class R> ic R r(R x, ζ&) { return x; }
+  template<class W> ic W w(W x, ζ&) { return x; }
 };
 
 
-template<class R, class W = φany>
+struct φπ  // profiling+timing filter
+{
+  ΣΘΔ i,  o;
+  πι  is, os;
+  φπ() { i.start(); o.start(); }
+  template<class R> R r(R x, ζ&) { i.stop(); i.start(); is << x.size(); return x; }
+  template<class W> W w(W x, ζ&) { o.stop(); o.start(); os << x.size(); return x; }
+};
+
+
+template<class R, class F = φi>
 struct φ
 {
+  F  f;
   ζ *i {nullptr};
   ζ *o {nullptr};
   λg cg;
@@ -55,22 +69,23 @@ struct φ
 
 
   template<class X>
-  bool operator<<(X const &x) { while (!wi()) cg.y(λs::φc); return o->w(W::cast(x, *o)); }
+  bool operator<<(X const &x) { while (!wi()) cg.y(λs::φc); return o->w(f.w(x, *o)); }
 
 
-  R operator*() const { wra();             return R(*i + i->a()); }
+  R operator*() const { wra();             return f.r(R(*i + i->a()), *i); }
   φ &operator++()     { wrca(); i->r<R>(); return *this; }
 
 
   struct it
-  { ζ *z;
+  { F &f;
+    ζ *z;
     ζp a;
     it   &operator++()                  { a = z->r<R>(); return *this; }
-    R     operator* ()            const { return R(a); }
+    R     operator* ()            const { return f.r(R(a), *z); }
     bool  operator==(it const &x) const { return a == x.a; } };
 
-  it begin()       { wrca(); return it{i,       i->r<R>()}; }
-  it end()   const {         return it{nullptr, ζωp}; }
+  it begin() { wrca(); return it{f, i,       i->r<R>()}; }
+  it end()   {         return it{f, nullptr, ζωp}; }
 };
 
 

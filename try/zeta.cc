@@ -86,15 +86,16 @@ void try_tuple()
 }
 
 
+template<class F = φi>
 void bench()
 {
   Λ l;
   ζ i(l);
   ζ o(l);
-  φ<i9> a(l);
-  φ<i9> b(l);
+  φ<i9, F> a(l);
+  φ<i9, F> b(l);
 
-  uNc N = 1 << 28;
+  uNc N = std::is_same<F, φi>::value ? 1 << 28 : 1 << 24;
 
   let f1 = l.c([&]() {
     for (uN i = 0; i < N; ++i) A(a << o9(i), "φ rejected " << i);
@@ -136,7 +137,8 @@ int main()
 {
   try_small_ζ();
   try_tuple();
-  bench();
+  cout << "identity bench" << endl; bench<φi>();
+  cout << "measured bench" << endl; bench<φπ>();
   return 0;
 }
 
