@@ -1,5 +1,5 @@
 #define tau_debug 1
-#define tau_debug_i9st 1
+//#define tau_debug_i9st 1
 #include "../tau.hh"
 #include "../tau/debug.hh"
 
@@ -27,13 +27,15 @@ void try_small_ζ()
     A(t.w(o9(xs, 8)), "ζ rejected xs");
     A(t.w(o9("foo")), "ζ rejected foo");
     A(t.w(ys), "ζ rejected ys");
-    A(t.w(o9box(ys)), "ζ rejected box ys");
+    A(t.w(ys), "ζ rejected second ys");
+    A(t.w(o9box(ys)), "ζ rejected boxed ys");
     t.wω();
     cout << "t write-closed" << endl;
     return 0;
   });
 
   let s2 = l.c([&]() {
+    cout << "received " << i9{t.r<i9>()} << endl;
     cout << "received " << i9{t.r<i9>()} << endl;
     cout << "received " << i9{t.r<i9>()} << endl;
     cout << "received " << i9{t.r<i9>()} << endl;

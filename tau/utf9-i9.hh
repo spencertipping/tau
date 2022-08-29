@@ -86,7 +86,7 @@ struct i9
     { u9tm{u9t::heapref}(type());
       return i9{Rc<ζp>(R<u9_heapref>(begin(), 0).r)}; };
 
-  void free() { std::free((*this).a); a = nullptr; }
+  void free() { std::free((**this).a); a = nullptr; }
 
 
   i9 operator[](uN i) const

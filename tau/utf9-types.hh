@@ -83,8 +83,8 @@ ic u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64
 
 
 struct u9_heapref { void* r; };
-defR(u9_heapref) { return u9_heapref{Rc<void*>(R<uN>(xs, 0))}; }
-defW(u9_heapref) { W<uN>(xs, 0, Rc<uN>(x.r)); }
+defR(u9_heapref) { return u9_heapref{Rc<void*>(R<uN>(xs, i))}; }
+defW(u9_heapref) { W<uN>(xs, i, Rc<uN>(x.r)); }
 
 
 template<class T> struct u9t_{ sletc t = u9t::none; };

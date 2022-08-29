@@ -119,7 +119,7 @@ ic o9m<K, V> o9(M<K, V, Ts...> const&);
 
 
 template<o9fixed T>
-struct o9a
+struct o9a  // vector of fixed
 {
   T const *xs;
   uNc      n;
