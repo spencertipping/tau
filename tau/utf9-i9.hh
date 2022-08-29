@@ -2,6 +2,9 @@
 #define tau_utf9_i9_h
 
 
+#include <memory>
+
+
 #include "debug.hh"
 #include "types.hh"
 #include "zeta.hh"
@@ -28,7 +31,7 @@ struct i9
   };
 
 
-  ζpc a;
+  ζp a;
   i9(ζp a_) : a(a_) {}
 
   bool exists() const { return a != ζωp; }
@@ -38,21 +41,17 @@ struct i9
   uf8 code()  const { return R<u8>(a, 0); }
 
   u9s stype() const { return u9ts_s(code()); }
-  u9t type()  const { return u9ts_t(code()); }
+  u9t type()  const { return a ? u9ts_t(code()) : u9t::none; }
   it  begin() const { return it{a + u9sb(stype())}; }
   it  end()   const { return it{a + u9rs(a, 0)}; }
 
+  // NOTE: inner, "logical" size, not outer size
   ζp  data()  const { return begin(); }
   uN  size()  const { return end() - begin(); }
 
 
   // NOTE: returns 0 if this type cannot be vectorized
   uN  vn()    const { return size() >> u9logsizeof(type()); }
-
-
-  u64 θ() const
-    { u9tm{u9t::stream}(type());
-      return Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
 
 
   template<class T>
@@ -78,6 +77,17 @@ struct i9
     { u9tm{u9t::stream}(type());
       return Sc<u9st>(R<u8>(begin(), 0)); }
 
+  u64 θ() const
+    { u9tm{u9t::stream}(type());
+      return Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
+
+
+  i9 operator*() const
+    { u9tm{u9t::heapref}(type());
+      return i9{Rc<ζp>(R<u9_heapref>(begin(), 0).r)}; };
+
+  void free() { std::free((*this).a); a = nullptr; }
+
 
   i9 operator[](uN i) const
     { switch (type())
@@ -88,10 +98,10 @@ struct i9
       } }
 
   i9 operator[](i9 i) const
-    {
-      // TODO: indexes
+    { // TODO: indexes
       // TODO: sets
       // TODO: maps
+      A(0, "TODO i9[]");
       return *this;
     }
 };
@@ -180,6 +190,8 @@ O &operator<<(O &s, i9 const &x)
     uN ds[d.vn()]; uN di = 0; for (let x : d) ds[di++] = Sc<i64>(x);
     uN is[d.vn()];            for (uN i = 0; i < d.vn(); ++i) is[i] = 0;
   }
+
+  case u9t::heapref: return s << "heap@" << Rc<void*>((*x).a);
 
   default:
     return s << "i9[" << x.type() << ":" << x.size() << "]";

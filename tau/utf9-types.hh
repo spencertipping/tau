@@ -16,7 +16,7 @@ namespace tau
   enum class u9t;
   enum class u9s;
   enum class u9st;
-  struct u9tm;
+  struct     u9tm;
 
   O &operator<<(O &s, u9t);
   O &operator<<(O &s, u9s);
@@ -82,10 +82,9 @@ ic u9_stream u9θ(u64 x) { return u9_stream{u9st::θ, x}; }
 ic u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
 
 
-// TODO: convert to shared_ptr
-// (this has some complexity because we need to manage ctor/dtor
-//  calling when we read from i9 and write to o9)
-template<class T = void> struct u9_heapref { T* r; };
+struct u9_heapref { void* r; };
+defR(u9_heapref) { return u9_heapref{Rc<void*>(R<uN>(xs, 0))}; }
+defW(u9_heapref) { W<uN>(xs, 0, Rc<uN>(x.r)); }
 
 
 template<class T> struct u9t_{ sletc t = u9t::none; };
@@ -116,9 +115,9 @@ template<class U>          struct u9t_<V<U>>    { sletc t = u9t::tuple; };
 template<class K, class V> struct u9t_<M<K, V>> { sletc t = u9t::map; };
 template<class U>          struct u9t_<S<U>>    { sletc t = u9t::set; };
 
-template<>        struct u9t_<u9_pidfd>      { sletc t = u9t::pidfd; };
-template<>        struct u9t_<u9_stream>     { sletc t = u9t::stream; };
-template<class U> struct u9t_<u9_heapref<U>> { sletc t = u9t::heapref; };
+template<> struct u9t_<u9_pidfd>   { sletc t = u9t::pidfd; };
+template<> struct u9t_<u9_stream>  { sletc t = u9t::stream; };
+template<> struct u9t_<u9_heapref> { sletc t = u9t::heapref; };
 
 
 template<class T>

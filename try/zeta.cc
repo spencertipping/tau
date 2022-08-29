@@ -1,5 +1,5 @@
 #define tau_debug 1
-//#define tau_debug_i9st 1
+#define tau_debug_i9st 1
 #include "../tau.hh"
 #include "../tau/debug.hh"
 
@@ -16,10 +16,10 @@ void try_small_ζ()
   Λ l;
 
   uN xs[] = {1, 2, 3, 5, 8, 13, 21, 34};
-  let ys = o9t("foo", 1, 2.0 + 3.0i, 3, 4.5,
-               "bar", 6.7f, "abc",
-               u9ω, u9τ, u9θ(0.5),
-               5.0 + 8.9i, "bif");
+  auto ys = o9t("foo", 1, 2.0 + 3.0i, 3, 4.5,
+                "bar", 6.7f, "abc",
+                u9ω, u9τ, u9θ(0.5),
+                5.0 + 8.9i, "bif");
 
   // Small test
   ζ t(l);
@@ -27,6 +27,7 @@ void try_small_ζ()
     A(t.w(o9(xs, 8)), "ζ rejected xs");
     A(t.w(o9("foo")), "ζ rejected foo");
     A(t.w(ys), "ζ rejected ys");
+    A(t.w(o9box(ys)), "ζ rejected box ys");
     t.wω();
     cout << "t write-closed" << endl;
     return 0;
@@ -36,6 +37,11 @@ void try_small_ζ()
     cout << "received " << i9{t.r<i9>()} << endl;
     cout << "received " << i9{t.r<i9>()} << endl;
     cout << "received " << i9{t.r<i9>()} << endl;
+
+    i9 b = t.r<i9>();
+    cout << "received " << b << " = " << *b << endl;
+    b.free();
+
     let z = t.r<i9>();
     A(z == ζωp, "z should be ζωp, got " << z);
     cout << "t is all good" << endl;

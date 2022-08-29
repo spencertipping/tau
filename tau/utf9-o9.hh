@@ -3,12 +3,15 @@
 
 
 #include <cstring>
+#include <memory>
+
 
 #include "debug.hh"
 #include "types.hh"
 #include "zeta.hh"
 
 #include "utf9-types.hh"
+#include "utf9-i9.hh"
 
 #include "begin.hh"
 
@@ -16,16 +19,21 @@ namespace tau
 {
 
 
-// TODO: add autoboxing for off-heap references
-// TODO: o9 variant type
-
-
-// TODO: we'll add to this once we have an o9 variant
-template<class T> concept o9mapped = u9t_hastype<T>;
+template<class T> concept o9mapped = u9t_hastype<T> || std::is_same_v<T, i9>;
 
 template<class T> concept o9fixed  = u9t_is<T, u9fixed.m>::v;
 template<class T> concept o9string = u9t_is<T, u9strings.m>::v;
 template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
+
+
+struct o9i9
+{
+  i9 const a;
+  uN   size ()     const { let s = a.size(); return s + u9sb(u9sq(s)); }
+  void write(ζp m) const { std::memcpy(m, a.a, size()); }
+};
+
+inline o9i9 o9(i9 i) { return o9i9{i}; }
 
 
 template<o9fixed T>
@@ -35,6 +43,15 @@ struct o9f
   uN   size ()     const { return sizeof(T) + u9sb(u9sq(sizeof(T))); }
   void write(ζp m) const { W<T>(m, u9ws(m, 0, u9t_<T>::t, sizeof(T)), x); }
 };
+
+
+template<class T>
+o9f<u9_heapref> o9box(T &x)
+{
+  let r = std::malloc(x.size());
+  x.write(Sc<ζp>(r));
+  return o9f<u9_heapref>{u9_heapref{r}};
+}
 
 
 template<o9string T>
