@@ -195,7 +195,7 @@ struct o9t
   typename std::enable_if<i < sizeof...(X), void>::type
   write(ζp m)
     { if (!i) m += u9ws(m, 0, u9t::tuple, isize<0>());
-      let o = o9(std::get<i>(xs));
+      auto o = o9(std::get<i>(xs));
       o.write(m);
       write<i + 1>(m + o.size()); }
 };
