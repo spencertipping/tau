@@ -121,6 +121,7 @@ template<class... T>       using Vi = typename V<T...>::const_iterator;
 typedef uN      Λr;
 typedef uN      λi;
 typedef uN      ζi;
+typedef uN      φi;
 typedef f64     λp;
 typedef F<Λr()> λf;
 

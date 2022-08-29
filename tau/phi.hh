@@ -14,7 +14,7 @@ namespace tau
 {
 
 
-struct φi  // identity filter
+struct φι  // identity filter
 {
   template<class R> ic R r(R x, ζ&) { return x; }
   template<class W> ic W w(W x, ζ&) { return x; }
@@ -44,7 +44,7 @@ struct φπ  // profiling+timing filter
 };
 
 
-template<class R, class F = φi>
+template<class R, class F = φι>
 struct φ
 {
   F  f;

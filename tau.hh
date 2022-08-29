@@ -15,6 +15,7 @@
 # include "tau/Lambda.hh"
 # include "tau/zeta.hh"
 # include "tau/phi.hh"
+# include "tau/gamma.hh"
 #endif
 
 

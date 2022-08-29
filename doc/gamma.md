@@ -18,17 +18,17 @@ term -> |  f  | -> |  g  | -> |  h  | -> term
 Let's use the diagram above to define the basic "operator shape":
 
 ```
-             control
-               ^ |
-               | |
-               | V
-          +----------+
-input <-> | operator | <-> output
-          +----------+
-               ^ |
-               | |
-               | V
-        diagnostics/debug
+                    control (fd 2)
+                      ^ |
+                      | |
+                      | V
+                 +----------+
+input (fd 0) <-> | operator | <-> output (fd 1)
+                 +----------+
+                      ^ |
+                      | |
+                      | V
+               diagnostics/debug (fd 3)
 ```
 
 `input` and `output` are bidirectional; data normally moves from left to right, but sometimes the reverse happens. Most operators splice the reverse direction, since they modify only forward-moving data.
@@ -64,7 +64,7 @@ Just as with `bash`, there's a question about how we handle `ξ` and `δ`. In th
     +------------------------+
     |      |                 |
     |      |  +----+         |
-    |      +--|    |---+     |
+    |      +--| c  |---+     |
     |         |    |-+ |     |
     |         +----+ | |     |
     |                | |     |
