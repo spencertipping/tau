@@ -98,16 +98,16 @@ void bench()
   uNc N = std::is_same<F, φi>::value ? 1 << 28 : 1 << 24;
 
   let f1 = l.c([&]() {
-    for (uN i = 0; i < N; ++i) A(a << o9(i), "φ rejected " << i);
+    for (u32 i = 0; i < N; ++i) A(a << o9(i), "φ rejected " << i);
     a.wω();
     for (i9 x : a) cout << "f1 received " << x << endl;
     return 0;
   });
 
   let f2 = l.c([&]() {
-    i64 t = 0;
+    u64 t = 0;
     uN  n = 0;
-    for (i9 x : b) t += Sc<iN>(x), ++n;
+    for (i9 x : b) t += Sc<u32>(x), ++n;
     b.rω();
     A(n == N, "f2 got " << n << " (expected " << N << ")");
     cout << "f2 sending " << t << endl;

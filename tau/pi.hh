@@ -29,7 +29,7 @@ struct πι_
 
   πι_ &operator<<(X x) { ++n[π_(x)]; return *this; }
 
-  int icdf(double p) const
+  uN icdf(double p) const
     { let t = total();
       if (!t) return 0;
       F c  = 0;
