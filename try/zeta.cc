@@ -52,8 +52,8 @@ void try_small_ζ()
   });
 
   l.go();
-  A(l.w(s1) == 0, "");
-  A(l.w(s2) == 0, "");
+  A(l.w(s1) == 0, "nonzero return from s1");
+  A(l.w(s2) == 0, "nonzero return from s2");
 }
 
 
@@ -82,6 +82,8 @@ void try_tuple()
   a(b);
 
   l.go();
+  A(!l.w(s1), "nonzero return from s1");
+  A(!l.w(s2), "nonzero return from s2");
 }
 
 
