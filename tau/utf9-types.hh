@@ -78,8 +78,8 @@ defW(u9_pidfd) { W(xs, i, x.pid); W(xs, i, x.fd); }
 sletc u9ω = u9_stream{u9st::ω, 0};
 sletc u9τ = u9_stream{u9st::τ, 0};
 
-inline constexpr u9_stream u9θ(u64 x) { return u9_stream{u9st::θ, x}; }
-inline constexpr u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
+ic u9_stream u9θ(u64 x) { return u9_stream{u9st::θ, x}; }
+ic u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
 
 
 // TODO: convert to shared_ptr
@@ -142,13 +142,13 @@ enum class u9s
 };
 
 
-constexpr uf8 operator|(u9t t, u9s s) { return Sc<uf8>(t) << 3 | Sc<uf8>(s); }
-constexpr u9t u9ts_t   (uf8 x)        { return Sc<u9t>(x >> 3); }
-constexpr u9s u9ts_s   (uf8 x)        { return Sc<u9s>(x  & 7); }
+ic uf8 operator|(u9t t, u9s s) { return Sc<uf8>(t) << 3 | Sc<uf8>(s); }
+ic u9t u9ts_t   (uf8 x)        { return Sc<u9t>(x >> 3); }
+ic u9s u9ts_s   (uf8 x)        { return Sc<u9s>(x  & 7); }
 
-constexpr bool u9sv(u9s s) { return Sc<uN>(s) >= 4; }
+ic bool u9sv(u9s s) { return Sc<uN>(s) >= 4; }
 
-constexpr uN u9sb(u9s s)  // size of size+control bytes (i.e. prefix)
+ic uN u9sb(u9s s)  // size of size+control bytes (i.e. prefix)
 {
   switch (s)
   {
@@ -160,7 +160,7 @@ constexpr uN u9sb(u9s s)  // size of size+control bytes (i.e. prefix)
   }
 }
 
-constexpr u9s u9sq(uN s)
+ic u9s u9sq(uN s)
 {
   return ou<u32>(s) ? u9s::v64
        : ou<u16>(s) ? u9s::v32
@@ -174,7 +174,7 @@ constexpr u9s u9sq(uN s)
 
 
 template<class T>
-uN u9rs(T xs, uN i)
+ic uN u9rs(T xs, uN i)
 {
   switch (u9ts_s(R<u8>(xs, 0)))
   {
@@ -192,7 +192,7 @@ uN u9rs(T xs, uN i)
 
 
 template<class T>
-uN u9ws(T xs, uN i, u9t t, uN s)
+ic uN u9ws(T xs, uN i, u9t t, uN s)
 {
   let q = u9sq(s);
   W<u8>(xs, i, t | q);
@@ -252,7 +252,7 @@ static_assert( u9t_is<u64, u9unsigned.m>::v);
 static_assert(!u9t_is<i64, u9unsigned.m>::v);
 
 
-constexpr uN u9logsizeof(u9t t)
+ic uN u9logsizeof(u9t t)
 {
   switch (t)
   {
@@ -265,7 +265,7 @@ constexpr uN u9logsizeof(u9t t)
   }
 }
 
-constexpr uN u9sizeof(u9t t) { return 1 << u9logsizeof(t); }
+ic uN u9sizeof(u9t t) { return 1 << u9logsizeof(t); }
 
 
 #if tau_debug_iostream

@@ -29,7 +29,7 @@ struct i9
 
 
   ζpc a;
-  i9(ζp a_) : a(a_) {}  // TODO: dereference heaprefs
+  i9(ζp a_) : a(a_) {}
 
   bool exists() const { return a != ζωp; }
   operator ζp() const { return a; }
