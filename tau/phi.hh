@@ -47,15 +47,19 @@ struct φπ  // profiling+timing filter
 template<class R, class F = φι>
 struct φ
 {
-  F  f;
-  ζ *i {nullptr};
-  ζ *o {nullptr};
-  λg cg;
-  λg xg;
+  Λ       &l;
+  φ<R, F> *c {nullptr};  // NOTE: template args may vary; ptr type is a lie
+  uf8c     b;
+  ζ       *i {nullptr};
+  ζ       *o {nullptr};
+  λg       cg;
+  λg       xg;
+  F        f;
 
 
   φ(φ &) = delete;
-  φ(Λ &l) : cg{l}, xg{l} {}
+  φ(Λ &l_, uf8 b = ζb0) : l{l_}, b{b}, cg{l}, xg{l} {}
+  ~φ() { rx(); }
 
 
   φ &operator()(ζ &i_, ζ &o_)
@@ -65,10 +69,23 @@ struct φ
       cg.w();
       return *this; }
 
+  template<class R2, class F2>
+  φ &operator()(φ<R2, F2> &f)
+    { let i  = new ζ(l, f.b);
+      let o  = new ζ(l, b);
+      (*(c    = &f))  (*o, *i);
+      (*(c->c = this))(*i, *o);
+      return *this; }
+
 
   φ &ω()  { if (i) rω(); if (o) wω();                        return *this; }
-  φ &rω() { assert(i); i->rω(); i = nullptr; if (!o) xg.w(); return *this; }
+  φ &rω() { assert(i); i->rω(); rx();        if (!o) xg.w(); return *this; }
   φ &wω() { assert(o); o->wω(); o = nullptr; if (!i) xg.w(); return *this; }
+
+  φ &rx()
+    { if (i && c) { if (c->o) c->wω(); delete i; }
+      i = nullptr;
+      return *this; }
 
   operator bool() const { return ri() && wi(); }
   bool     ωi()   const { return !i && !o; }

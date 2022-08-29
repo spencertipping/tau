@@ -14,6 +14,7 @@ using namespace std;
 void try_small_ζ()
 {
   Λ l;
+  γ g(l);  // just so we have one
 
   uN xs[] = {1, 2, 3, 5, 8, 13, 21, 34};
   auto ys = o9t("foo", 1, 2.0 + 3.0i, 3, 4.5,
@@ -59,8 +60,6 @@ void try_small_ζ()
 void try_tuple()
 {
   Λ l;
-  ζ i(l);
-  ζ o(l);
   φ<i9> a(l);
   φ<i9> b(l);
 
@@ -80,22 +79,22 @@ void try_tuple()
     return 0;
   });
 
-  a(i, o);
-  b(o, i);
+  a(b);
+
   l.go();
 }
 
 
 template<class F>
-void bench()
+void bench(int argc)
 {
   Λ l;
-  ζ i(l);
-  ζ o(l);
   φ<i9, F> a(l);
   φ<i9, F> b(l);
 
-  uNc N = std::is_same<F, φι>::value ? 1 << 28 : 1 << 24;
+  uNc N = argc == 1
+    ? std::is_same<F, φι>::value ? 1 << 28 : 1 << 24
+    : 1 << 16;
 
   let f1 = l.c([&]() {
     for (u32 i = 0; i < N; ++i) A(a << o9(i), "φ rejected " << i);
@@ -116,8 +115,7 @@ void bench()
     return 0;
   });
 
-  a(i, o);
-  b(o, i);
+  a(b);
 
   Θp t1 = now();
   l.go();
@@ -139,13 +137,13 @@ void bench()
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
   try_small_ζ();
   try_tuple();
-  cout << "identity bench" << endl; bench<φι>();
-  cout << "checked  bench" << endl; bench<φc>();
-  cout << "measured bench" << endl; bench<φπ>();
+  cout << "identity bench" << endl; bench<φι>(argc);
+  cout << "checked  bench" << endl; bench<φc>(argc);
+  cout << "measured bench" << endl; bench<φπ>(argc);
   return 0;
 }
 

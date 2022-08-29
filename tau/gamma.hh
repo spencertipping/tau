@@ -48,14 +48,14 @@ struct γ
   Λr    λw(λi i)   { ls.erase(i); return l.w(i); }
 
   φi    φc(uf8 b = ζb0)
-    { let f = new φ<i9, F>(b);
+    { let f = new φ<i9, F>(l);
       for (φi i = 0; i < fs.size(); ++i)
         if (!fs[i]) { fs[i] = f; return i; }
       fs.push_back(f);
       return fs.size() - 1; }
 
   γ<F> &φx(φi i)
-    { if (fs[i]) { fs[i].ω(); delete fs[i]; }
+    { if (fs[i]) { fs[i]->ω(); delete fs[i]; fs[i] = nullptr; }
       return *this; }
 };
 
