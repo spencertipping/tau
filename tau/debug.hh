@@ -29,7 +29,12 @@
 # if tau_debug_iostream
 #   define tau_assert_fail(x, f, l, m)                      \
       ([&]() {                                              \
-        std::cerr << "FAIL: " << m << std::endl;            \
+        static bool tau_debugging = false;                  \
+        if (!tau_debugging)                                 \
+        {                                                   \
+          tau_debugging = true;                             \
+          std::cerr << "FAIL: " << m << std::endl;          \
+        }                                                   \
         __assert_fail(x, f, l, __ASSERT_FUNCTION);          \
       })()
 # else

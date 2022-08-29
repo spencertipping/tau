@@ -14,7 +14,7 @@ namespace tau
 
 struct φany
 {
-  template<class W> static W cast(W x) { return x; }
+  template<class W> static W cast(W x, ζ&) { return x; }
 };
 
 
@@ -55,7 +55,7 @@ struct φ
 
 
   template<class X>
-  bool operator<<(X const &x) { while (!wi()) cg.y(λs::φc); return o->w(W::cast(x)); }
+  bool operator<<(X const &x) { while (!wi()) cg.y(λs::φc); return o->w(W::cast(x, *o)); }
 
 
   R operator*() const { wra();             return R(*i + i->a()); }

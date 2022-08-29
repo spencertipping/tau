@@ -22,9 +22,9 @@ struct i9
   struct it
   {
     ζp a;
-    operator ζp() const { return a; }
-    i9 operator*() const { return i9{a}; }
-    it operator++() { a += i9{a}.size(); return *this; }
+    operator   ζp() const { return a; }
+    i9 operator* () const { return i9{a}; }
+    it operator++()       { a += i9{a}.size(); return *this; }
   };
 
 
@@ -49,6 +49,16 @@ struct i9
   // NOTE: returns 0 if this type cannot be vectorized
   uN  vn()    const { return size() >> u9logsizeof(type()); }
 
+
+  u64 θ() const
+    { u9tm{u9t::stream}(type());
+      return Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
+
+
+  template<class T>
+  requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v && (!u9t_is<T, u9signed.m>::v)
+    operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(begin(), 0); }
+
   operator i64() const
     { u9ints(type());
       switch (type())
@@ -61,12 +71,12 @@ struct i9
       case u9t::u16: return R<u16>(begin(), 0);
       case u9t::u32: return R<u32>(begin(), 0);
       case u9t::u64: return R<u64>(begin(), 0);
-        TA(0)
+        TA(0, type())
       } }
 
-  template<class T>
-  requires u9t_hastype<T> && (!u9t_is<T, u9signed.m>::v)
-  operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(begin(), 0); }
+  operator u9st() const
+    { u9tm{u9t::stream}(type());
+      return Sc<u9st>(R<u8>(begin(), 0)); }
 
 
   i9 operator[](uN i) const
@@ -74,7 +84,7 @@ struct i9
       {
         // TODO: tuple indexes
       case u9t::tuple: { ζp b = begin(); while (i--) b += size_of(b); return b; }
-      default: A(0, "i9[uN] requires index or tuple, not " << type()); return 0;
+        TA(0, "i9[uN] requires index or tuple, not " << type())
       } }
 
   i9 operator[](i9 i) const
@@ -125,7 +135,7 @@ O &operator<<(O &s, i9 const &x)
 
   case u9t::b:      return s << (R<u8>(x.begin(), 0) ? "t" : "f");
   case u9t::symbol: return s << "TODO: i9 symbol";
-  case u9t::stream: return s << "TODO: i9 stream";
+  case u9t::stream: return s << Sc<u9st>(x);
 
   case u9t::bytes:  return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
   case u9t::utf8:   return s << "u\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";

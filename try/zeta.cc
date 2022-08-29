@@ -18,6 +18,7 @@ void try_small_ζ()
   uN xs[] = {1, 2, 3, 5, 8, 13, 21, 34};
   let ys = o9t("foo", 1, 2.0 + 3.0i, 3, 4.5,
                "bar", 6.7f, "abc",
+               u9ω, u9τ, u9θ(0.5),
                5.0 + 8.9i, "bif");
 
   // Small test

@@ -58,10 +58,26 @@ enum class u9t
 };
 
 
+enum class u9st
+{
+  ω = 1,
+  τ = 2,
+  θ = 3,
+};
+
+
 struct u9_pidfd { u32 pid; u32 fd; };
+struct u9_stream { u9st t; u64 n; };
 
 defR(u9_pidfd) { return u9_pidfd{R<u32>(xs, i), R<u32>(xs, i + 4)}; }
 defW(u9_pidfd) { W(xs, i, x.pid); W(xs, i, x.fd); }
+
+
+sletc u9ω = u9_stream{u9st::ω, 0};
+sletc u9τ = u9_stream{u9st::τ, 0};
+
+inline constexpr u9_stream u9θ(u64 x) { return u9_stream{u9st::θ, x}; }
+inline constexpr u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
 
 
 // TODO: convert to shared_ptr
@@ -69,8 +85,6 @@ defW(u9_pidfd) { W(xs, i, x.pid); W(xs, i, x.fd); }
 //  calling when we read from i9 and write to o9)
 template<class T = void> struct u9_heapref { T* r; };
 
-
-// TODO: some compilers require uN defined separately?
 
 template<class T> struct u9t_{ sletc t = u9t::none; };
 
@@ -101,6 +115,7 @@ template<class K, class V> struct u9t_<M<K, V>> { sletc t = u9t::map; };
 template<class U>          struct u9t_<S<U>>    { sletc t = u9t::set; };
 
 template<>        struct u9t_<u9_pidfd>      { sletc t = u9t::pidfd; };
+template<>        struct u9t_<u9_stream>     { sletc t = u9t::stream; };
 template<class U> struct u9t_<u9_heapref<U>> { sletc t = u9t::heapref; };
 
 
@@ -169,7 +184,7 @@ uN u9rs(T xs, uN i)
   case u9s::v16: return 3 + R<u16>(xs, 1);
   case u9s::v32: return 5 + R<u32>(xs, 1);
   case u9s::v64: return 9 + R<u64>(xs, 1);
-    TA(0)
+    TA(0, "control byte = " << R<u8>(xs, 0))
   }
 }
 
@@ -318,6 +333,17 @@ O &operator<<(O &s, u9tm x)
     }
   }
   return s << "}";
+}
+
+O &operator<<(O &s, u9st x)
+{
+  switch (x)
+  {
+  case u9st::ω: return s << "ω";
+  case u9st::τ: return s << "τ";
+  case u9st::θ: return s << "θ";
+    TA(s, Sc<uN>(x))
+  }
 }
 #endif
 

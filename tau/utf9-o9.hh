@@ -49,6 +49,29 @@ struct o9b
 };
 
 
+struct o9st
+{
+  u9_stream s;
+
+  uN isize() const
+    { switch (s.t)
+      {
+      case u9st::ω: return 1;
+      case u9st::τ: return 1;
+      case u9st::θ: return 9;
+        TA(0, Sc<uN>(s.t))
+      } }
+
+  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  void write(ζp m) const
+    { uN i = u9ws(m, 0, u9t::stream, isize());
+      W(m, i, Sc<u8>(s.t));
+      if (s.t == u9st::θ) W<u64>(m, i + 1, s.n); }
+};
+
+ic o9st o9(u9_stream s) { return o9st{s}; }
+
+
 struct o9c
 {
   u9t const  t;

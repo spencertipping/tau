@@ -13,7 +13,7 @@
 // even if not debugging
 # define assert(x) (x)
 # define A(x, m) assert(x)
-# define TA(x)
+# define TA(x, m)
 
 #else
 # include <cassert>
@@ -26,7 +26,7 @@
 #   define A(x, m) assert(x)
 # endif
 
-# define TA(r) default: A(0, "unreachable case"); return r;
+# define TA(r, m) default: A(0, m); return r;
 #endif
 
 
