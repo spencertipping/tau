@@ -13,13 +13,15 @@ namespace tau
 
 
 #if tau_debug_iostream
-enum class u9t;
-enum class u9s;
-struct u9tm;
+  enum class u9t;
+  enum class u9s;
+  enum class u9st;
+  struct u9tm;
 
-O &operator<<(O &s, u9t);
-O &operator<<(O &s, u9s);
-O &operator<<(O &s, u9tm);
+  O &operator<<(O &s, u9t);
+  O &operator<<(O &s, u9s);
+  O &operator<<(O &s, u9st);
+  O &operator<<(O &s, u9tm);
 #endif
 
 
@@ -271,36 +273,36 @@ O &operator<<(O &s, u9t t)
 {
   switch (t)
   {
-  case u9t::i8:  return s << "i8";
-  case u9t::i16: return s << "i16";
-  case u9t::i32: return s << "i32";
-  case u9t::i64: return s << "i64";
-  case u9t::u8:  return s << "u8";
-  case u9t::u16: return s << "u16";
-  case u9t::u32: return s << "u32";
-  case u9t::u64: return s << "u64";
+  case u9t::i8:      return s << "i8";
+  case u9t::i16:     return s << "i16";
+  case u9t::i32:     return s << "i32";
+  case u9t::i64:     return s << "i64";
+  case u9t::u8:      return s << "u8";
+  case u9t::u16:     return s << "u16";
+  case u9t::u32:     return s << "u32";
+  case u9t::u64:     return s << "u64";
 
-  case u9t::f32:    return s << "f32";
-  case u9t::f64:    return s << "f64";
-  case u9t::c32:    return s << "c32";
-  case u9t::c64:    return s << "c64";
-  case u9t::b:      return s << "b";
-  case u9t::symbol: return s << "symbol";
-  case u9t::stream: return s << "stream";
+  case u9t::f32:     return s << "f32";
+  case u9t::f64:     return s << "f64";
+  case u9t::c32:     return s << "c32";
+  case u9t::c64:     return s << "c64";
+  case u9t::b:       return s << "b";
+  case u9t::symbol:  return s << "symbol";
+  case u9t::stream:  return s << "stream";
 
-  case u9t::bytes: return s << "bytes";
-  case u9t::utf8:  return s << "utf8";
-  case u9t::index: return s << "index";
+  case u9t::bytes:   return s << "bytes";
+  case u9t::utf8:    return s << "utf8";
+  case u9t::index:   return s << "index";
 
-  case u9t::tuple:  return s << "tuple";
-  case u9t::map:    return s << "map";
-  case u9t::set:    return s << "set";
-  case u9t::tensor: return s << "tensor";
+  case u9t::tuple:   return s << "tuple";
+  case u9t::map:     return s << "map";
+  case u9t::set:     return s << "set";
+  case u9t::tensor:  return s << "tensor";
 
   case u9t::pidfd:   return s << "pidfd";
   case u9t::heapref: return s << "heapref";
 
-  default: return s << "reserved/invalid:" << Sc<uN>(t);
+    TA(s, Sc<uN>(t))
   }
 }
 
@@ -316,7 +318,7 @@ O &operator<<(O &s, u9s x)
   case u9s::v16: return s << "v16";
   case u9s::v32: return s << "v32";
   case u9s::v64: return s << "v64";
-  default:       return s << "invalid:" << Sc<uN>(x);
+    TA(s, Sc<uN>(x))
   }
 }
 
