@@ -21,6 +21,19 @@ struct φi  // identity filter
 };
 
 
+struct φc  // capacity check filter
+{
+  u64 om  = 0;
+  u64 ohc = 0;
+
+  template<class R> ic R r(R x, ζ&) { return x; }
+  template<class W> ic W w(W x, ζ& z)
+    { if (x.size() >= z.b.c >> 1) ohc++;
+      om++;
+      return x; }
+};
+
+
 struct φπ  // profiling+timing filter
 {
   ΣΘΔ i,  o;
