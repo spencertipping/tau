@@ -78,7 +78,8 @@ Just as with `bash`, there's a question about how we handle `ξ` and `δ`. In th
     +------------------------+
 ```
 
-The same is true for `δ`. This strategy scales because we can multiplex indefinitely.
+The same is true for `δ`. This strategy scales because we can multiplex indefinitely, although many Γs will present themselves as atomic components and won't provide introspection.
 
 
-## ξ and δ protocols
+## Debugging and profiling
+Any ζ can be multiplexed, which means we can transform any Γ's internal routing to provide debugging information. We do this by multiplexing the ξ and δ ports with topological tags that identify the target γ.

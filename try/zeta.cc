@@ -126,6 +126,12 @@ void bench()
   if (N >= 1 << 24)
     cout << "summing ints: " << (t2 - t1) / (N / (1 << 24)) << "/16M" << endl;
 
+  if constexpr (std::is_same<F, φc>::value)
+  {
+    cout << "ao total: " << a.f.om << ", ohc = " << a.f.ohc << endl;
+    cout << "bo total: " << b.f.om << ", ohc = " << b.f.ohc << endl;
+  }
+
   if (!l.wi(f1)) cout << "f1 is not yet done" << endl;
   if (!l.wi(f2)) cout << "f2 is not yet done" << endl;
   cout << "f1 returning " << l.w(f1) << endl;
@@ -138,6 +144,7 @@ int main()
   try_small_ζ();
   try_tuple();
   cout << "identity bench" << endl; bench<φi>();
+  cout << "checked  bench" << endl; bench<φc>();
   cout << "measured bench" << endl; bench<φπ>();
   return 0;
 }
