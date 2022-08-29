@@ -57,6 +57,9 @@ struct γ
   γ<F> &φx(φi i)
     { if (fs[i]) { fs[i]->ω(); delete fs[i]; fs[i] = nullptr; }
       return *this; }
+
+
+  γ &operator|(γ &x) { ο()(x.ι()); return x; }
 };
 
 

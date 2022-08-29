@@ -75,10 +75,16 @@ struct Λ
   λs   si(λi i) const { return ls.at(i).s; }
   λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : NAN; }
 
-  λi   c(λf &&f, f64 p = 0)               { let   i = ιi(ni, ls); ls[i] = Λλ(std::move(f)); r(i, p, λs::R);                      return  i; }
-  Λ   &x(λi i)                            { assert(ri != i); assert(e(i));                   ls.erase(i);                        return *this; }
-  Λ   &y(λs s)                            { assert(!z());                                    r(ri, NAN, s);                λy(); return *this; }
-  Λ   &r(λi i, f64 p = NAN, λs s = λs::R) { auto &l = ls.at(i); if (!std::isnan(p)) l.p = p; if ((l.s = s) == λs::R) rq.push(i); return *this; }
+  λi   c(λf &&f, f64 p = 0) { let   i = ιi(ni, ls); ls[i] = Λλ(std::move(f)); r(i, p, λs::R);       return  i; }
+  Λ   &x(λi i)              { assert(ri != i); assert(e(i));                  ls.erase(i);          return *this; }
+  Λ   &y(λs s)              { assert(!z());                                   r(ri, NAN, s); λy();  return *this; }
+
+  Λ   &r(λi i, f64 p = NAN, λs s = λs::R)
+    { if (!e(i)) return *this;
+      auto &l = ls.at(i);
+      if (!std::isnan(p)) l.p = p;
+      if ((l.s = s) == λs::R) rq.push(i);
+      return *this; }
 
   bool wi(λi i) { return si(i) == λs::Z; }
   Λr   w (λi i)

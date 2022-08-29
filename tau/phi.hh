@@ -73,8 +73,8 @@ struct φ
 
   template<class R2, class F2>
   φ &operator()(φ<R2, F2> &f)
-    { let i  = new ζ(l, f.b);
-      let o  = new ζ(l, b);
+    { let i = new ζ(l, f.b);
+      let o = new ζ(l, b);
       (*(c    = &f))  (*o, *i);
       (*(c->c = this))(*i, *o);
       return *this; }
@@ -105,8 +105,8 @@ struct φ
   bool operator<<(X const &x) { while (!wi()) cg.y(λs::φc); return o->w(f.w(x, *o)); }
 
 
-  R operator*() const { wra();             return f.r(R(*i + i->a()), *i); }
-  φ &operator++()     { wrca(); i->r<R>(); return *this; }
+  R  operator* () const { wra();             return f.r(R(*i + i->a()), *i); }
+  φ &operator++()       { wrca(); i->r<R>(); return *this; }
 
 
   struct it

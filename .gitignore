@@ -1,5 +1,6 @@
 *.~undo-tree~
 try/zeta
+try/gamma
 try/*.o
 try/*.js
 try/*.wasm
