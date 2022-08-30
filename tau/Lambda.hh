@@ -23,10 +23,6 @@
 #endif
 
 
-#if tau_trace_Λ_switches
-# include <iostream>
-#endif
-
 #if tau_debug_Λ_randp
 # include <random>
 #endif
