@@ -65,6 +65,8 @@ enum class u9st
   ω = 1,
   τ = 2,
   θ = 3,
+  ι = 4,
+  κ = 5,
 };
 
 
@@ -77,9 +79,11 @@ defW(u9_pidfd) { W(xs, i, x.pid); W(xs, i, x.fd); }
 
 sletc u9ω = u9_stream{u9st::ω, 0};
 sletc u9τ = u9_stream{u9st::τ, 0};
+sletc u9κ = u9_stream{u9st::κ, 0};
 
 ic u9_stream u9θ(u64 x) { return u9_stream{u9st::θ, x}; }
 ic u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
+ic u9_stream u9ι(u64 x) { return u9_stream{u9st::ι, x}; }
 
 
 struct u9_heapref { void* r; };
@@ -343,6 +347,8 @@ O &operator<<(O &s, u9st x)
   case u9st::ω: return s << "ω";
   case u9st::τ: return s << "τ";
   case u9st::θ: return s << "θ";
+  case u9st::ι: return s << "ι";
+  case u9st::κ: return s << "κ";
     TA(s, Sc<uN>(x))
   }
 }

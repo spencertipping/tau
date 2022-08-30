@@ -11,30 +11,28 @@ using namespace std;
 #include "../tau/begin.hh"
 
 
-typedef γ<> G;
-
-
-G &γn(G &g, uN l)
+γ &γn(γ &g, uN l)
 {
   g.λc([&]() {
-    for (uN i = 0; i < l; ++i) if (!(g.ο() << o9(i))) return 1;
+    for (uN i = 0; i < l; ++i) if (!(g.ο() << i)) return 1;
     return 0;
   });
   return g;
 }
 
 
-G &γi(G &g)
+γ &γi(γ &g)
 {
   g.λc([&]() {
-    for (let i : g.ι()) if (!(g.ο() << o9(Sc<uN>(i) + 1))) return 1;
+    for (let i : g.ι())
+      if (!(g.ο() << o9t(Sc<uN>(i) + 1, "foo"))) return 1;
     return 0;
   });
   return g;
 }
 
 
-G &γo(G &g)
+γ &γo(γ &g)
 {
   g.λc([&]() {
     for (let i : g.ι()) cout << i << endl;
@@ -47,9 +45,9 @@ G &γo(G &g)
 void try_simple()
 {
   Λ l;
-  G f(l);
-  G g(l);
-  G h(l);
+  γ f(l);
+  γ g(l);
+  γ h(l);
 
   γn(f, 100) | γi(g) | γo(h);
   l.go();

@@ -15,46 +15,67 @@ namespace tau
 {
 
 
-template<class F = φι>
+struct φ9
+{
+  u64 om  = 0;
+  u64 ohc = 0;
+
+  ic void s(uN s, uN zs)
+    { if (s >= zs >> 1) ohc++;
+      om++; }
+
+  template<class R> ic R r(R x, ζ&) { return x; }
+  template<class W> ic auto w(W x, ζ& z)
+    { if constexpr (o9_<W>::v) { s(x.size(), z.b.c); return x; }
+      else
+      { let o = o9(x);
+        s(o.size(), z.b.c);
+        return o; } }
+};
+
+
+typedef φ<i9, φ9> γφ;
+
+
 struct γ
 {
   Λ &l;
 
-  S<λi>        ls;
-  V<φ<i9, F>*> fs;
+  S<λi>  ls;
+  V<γφ*> fs;
 
   γ(γ &) = delete;
   γ(Λ &l_, uf8 ιb = ζb0, uf8 οb = ζb0, uf8 ξb = ζb0, uf8 δb = ζb0)
     : l(l_)
-    { fs.push_back(new φ<i9, F>(l, ιb));
-      fs.push_back(new φ<i9, F>(l, οb));
-      fs.push_back(new φ<i9, F>(l, ξb));
-      fs.push_back(new φ<i9, F>(l, δb)); }
+    { fs.push_back(new γφ(l, ιb));
+      fs.push_back(new γφ(l, οb));
+      fs.push_back(new γφ(l, ξb));
+      fs.push_back(new γφ(l, δb)); }
 
   ~γ()
     { for (let i : ls) l.x(i);
       for (uN i = 0; i < fs.size(); ++i) φx(i); }
 
 
-  φ<i9, F> &operator[](φi i) const { return *fs.at(i); }
+  γφ &operator[](φi i) const { return *fs.at(i); }
 
-  φ<i9, F> &ι() const { return *fs[0]; }
-  φ<i9, F> &ο() const { return *fs[1]; }
-  φ<i9, F> &ξ() const { return *fs[2]; }
-  φ<i9, F> &δ() const { return *fs[3]; }
+  γφ &ι() const { return *fs[0]; }
+  γφ &ο() const { return *fs[1]; }
+  γφ &ξ() const { return *fs[2]; }
+  γφ &δ() const { return *fs[3]; }
 
-  λi    λc(λf &&f) { let i = l.c(std::move(f)); ls.insert(i); return i; }
-  γ<F> &λx(λi i)   { l.x(i); ls.erase(i); return *this; }
-  Λr    λw(λi i)   { ls.erase(i); return l.w(i); }
+  λi  λc(λf &&f) { let i = l.c(std::move(f)); ls.insert(i); return i; }
+  γ  &λx(λi i)   { l.x(i); ls.erase(i); return *this; }
+  Λr  λw(λi i)   { ls.erase(i); return l.w(i); }
 
-  φi    φc(uf8 b = ζb0)
-    { let f = new φ<i9, F>(l);
+  φi φc(uf8 b = ζb0)
+    { let f = new γφ(l);
       for (φi i = 0; i < fs.size(); ++i)
         if (!fs[i]) { fs[i] = f; return i; }
       fs.push_back(f);
       return fs.size() - 1; }
 
-  γ<F> &φx(φi i)
+  γ &φx(φi i)
     { if (fs[i]) { fs[i]->ω(); delete fs[i]; fs[i] = nullptr; }
       return *this; }
 

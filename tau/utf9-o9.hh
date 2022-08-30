@@ -218,6 +218,18 @@ template<o9fixed T>
 ic o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
 
 
+template<class T>    struct o9_            { sletc v = false; };
+template<>           struct o9_<o9i9>      { sletc v = true; };
+template<class T>    struct o9_<o9f<T>>    { sletc v = true; };
+template<class T>    struct o9_<o9b<T>>    { sletc v = true; };
+template<>           struct o9_<o9st>      { sletc v = true; };
+template<>           struct o9_<o9c>       { sletc v = true; };
+template<class T>    struct o9_<o9a<T>>    { sletc v = true; };
+template<class... T> struct o9_<o9v<T...>> { sletc v = true; };
+template<class... T> struct o9_<o9m<T...>> { sletc v = true; };
+template<class... T> struct o9_<o9t<T...>> { sletc v = true; };
+
+
 }
 
 #include "end.hh"

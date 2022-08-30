@@ -77,9 +77,8 @@ struct i9
     { u9tm{u9t::stream}(type());
       return Sc<u9st>(R<u8>(begin(), 0)); }
 
-  u64 θ() const
-    { u9tm{u9t::stream}(type());
-      return Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
+  u64 θ() const { u9tm{u9t::stream}(type()); return Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
+  u64 ι() const { u9tm{u9t::stream}(type()); return Sc<u9st>(*this) == u9st::ι ? R<u64>(begin(), 1) : 0; }
 
 
   i9 operator*() const
@@ -149,7 +148,9 @@ O &operator<<(O &s, i9 const &x)
   case u9t::symbol: return s << "TODO: i9 symbol";
   case u9t::stream:
     s << Sc<u9st>(x);
-    return x.θ() ? s << Sc<f64>(x.θ()) / Sc<f64>(Nl<u64>::max()) : s;
+    return x.θ() ? s << Sc<f64>(x.θ()) / Sc<f64>(Nl<u64>::max())
+         : x.ι() ? s << x.ι()
+         : s;
 
   case u9t::bytes:  return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
   case u9t::utf8:   return s << "u\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
