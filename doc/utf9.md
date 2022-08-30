@@ -132,6 +132,10 @@ In contrast, `bytes` and `utf8` are always single, variable-size elements; the c
 **NOTE:** it is illegal to specify a length that is not an even multiple of the thing being vectorized. The value will not corrupt the rest of the datastream, but will be interpreted in an undefined way if you do this.
 
 
+### Booleans
+`0` for false, `1` for true. Booleans can be vectorized into bitsets; in that case, `b[i] = xs[i >> 3] >> (i & 7) & 1`; that is, the least-significant bit of the first byte has index `0`.
+
+
 ### Tensors
 _n_-dimensional packed arrays of some numeric type. Tensors are formatted like this:
 
