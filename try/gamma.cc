@@ -13,8 +13,10 @@ using namespace std;
 
 γ &γn(γ &g, uN l)
 {
-  g.λc([&]() {
-    for (uN i = 0; i < l; ++i) if (!(g.ο() << i)) return 1;
+  g.λc([&, l]() {
+    for (uN i = 0; i < l; ++i)
+      A(g.ο() << i, "n rejected " << i);
+    g.ο().ω();
     return 0;
   });
   return g;
@@ -24,8 +26,32 @@ using namespace std;
 γ &γi(γ &g)
 {
   g.λc([&]() {
+    u64 t = 0;
+    uN  n = 0;
     for (let i : g.ι())
-      if (!(g.ο() << o9t(Sc<uN>(i) + 1, "foo"))) return 1;
+    {
+      let x = Sc<uN>(i);
+      t += x;
+      A(g.ο() << o9t(x + 1, t), "i rejected " << x);
+      if (!(++n % 100000))
+        g.δ() << o9t("total", t);
+    }
+    g.ο().ω();
+    g.δ().ω();
+    return 0;
+  });
+  return g;
+}
+
+
+γ &γf(γ &g, uN e)
+{
+  g.λc([&, e]() {
+    uN i = 0;
+    for (let x : g.ι())
+      if (!(++i % e))
+        A(g.ο() << x, "f rejected " << x);
+    g.ο().ω();
     return 0;
   });
   return g;
@@ -45,12 +71,21 @@ using namespace std;
 void try_simple()
 {
   Λ l;
-  γ f(l);
-  γ g(l);
-  γ h(l);
+  γ a(l);
+  γ b(l);
+  γ c(l);
+  γ d(l);
+  γ e(l);
 
-  γn(f, 100) | γi(g) | γo(h);
+  γn(a, 1000000) | γi(b) | γf(c, 50000) | γo(d);
+  b & γo(e);
   l.go();
+
+  cout << "a IOE = " << a.ι().f.im << " " << a.ο().f.om << " " << a.δ().f.om << endl;
+  cout << "b IOE = " << b.ι().f.im << " " << b.ο().f.om << " " << b.δ().f.om << endl;
+  cout << "c IOE = " << c.ι().f.im << " " << c.ο().f.om << " " << c.δ().f.om << endl;
+  cout << "d IOE = " << d.ι().f.im << " " << d.ο().f.om << " " << d.δ().f.om << endl;
+  cout << "e IOE = " << e.ι().f.im << " " << e.ο().f.om << " " << e.δ().f.om << endl;
 }
 
 

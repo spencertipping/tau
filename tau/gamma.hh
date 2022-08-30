@@ -17,6 +17,7 @@ namespace tau
 
 struct φ9
 {
+  u64 im  = 0;
   u64 om  = 0;
   u64 ohc = 0;
 
@@ -24,7 +25,8 @@ struct φ9
     { if (s >= zs >> 1) ohc++;
       om++; }
 
-  template<class R> ic R r(R x, ζ&) { return x; }
+  template<class R> ic R r(R x, ζ&) { ++im; return x; }
+
   template<class W> ic auto w(W x, ζ& z)
     { if constexpr (o9_<W>::v) { s(x.size(), z.b.c); return x; }
       else
@@ -53,7 +55,7 @@ struct γ
       fs.push_back(new γφ(l, δb)); }
 
   ~γ()
-    { for (let i : ls) l.x(i);
+    { for (let i : ls) l.w(i);
       for (uN i = 0; i < fs.size(); ++i) φx(i); }
 
 
@@ -80,7 +82,9 @@ struct γ
       return *this; }
 
 
+  γ &operator^(γ &x) { ξ()(x.ο()); return x; }
   γ &operator|(γ &x) { ο()(x.ι()); return x; }
+  γ &operator&(γ &x) { δ()(x.ι()); return x; }
 };
 
 

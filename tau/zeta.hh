@@ -48,12 +48,12 @@ struct ζb
 
   ζp   operator+ (uN a) const { return xs + a; }
   bool operator[](uN a) const { return wr() ? a < wi || a >= ri && a < ci
-                                            : a >= ri && a < wi;}
+                                            : a >= ri && a < wi; }
 
   bool wr()     const { return ri > wi; }
   uN   bp(uN a) const { return wr() && a >= ci ? a - ci : a; }
   uN   ra()     const { return wr() ? wi + (ci - ri) : wi - ri; }
-  uN   wa()     const { return wr() ? ri - wi        : std::max(c - wi, ri); }
+  uN   wa()     const { return wr() ? ri - wi - 1    : std::max(c - wi, ri); }
 
   void free(uN a)
     { if (!wr()) A(a <= wi && a >= ri,            "a = " << a << ", ri = " << ri << ", wi = " << wi);
@@ -110,7 +110,11 @@ struct ζ
 
   template<class W>
   bool w(W x)
-    { let s = x.size(); A(s <= b.c, s << "[s] > " << b.c << "[ζb.c]");
+    { let s = x.size();
+
+      // NOTE: <, not <=, because ζb reserves one byte when wrapped to mark it
+      // wrapped state (see ζb::wa).
+      A(s < b.c, s << "[s] ≥ " << b.c << "[ζb.c]");
       uN  a;
       while ((a = b.alloc(s)) == ζω) { if (rc) return false; wg.y(λs::O); }
       x.write(b + a);
