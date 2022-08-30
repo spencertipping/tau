@@ -1,5 +1,5 @@
-#ifndef tau_flux_Λ_h
-#define tau_flux_Λ_h
+#ifndef tau_Λ_h
+#define tau_Λ_h
 
 
 #include <cmath>
@@ -14,11 +14,20 @@
 
 #include "begin.hh"
 
-#if !defined(tau_debug_flux_Λ_randp)
-# define tau_debug_flux_Λ_randp tau_debug
+#if !defined(tau_debug_Λ_randp)
+# define tau_debug_Λ_randp tau_debug
 #endif
 
-#if tau_debug_flux_Λ_randp
+#if !defined(tau_trace_Λ_switches)
+# define tau_trace_Λ_switches 0
+#endif
+
+
+#if tau_trace_Λ_switches
+# include <iostream>
+#endif
+
+#if tau_debug_Λ_randp
 # include <random>
 #endif
 
@@ -27,26 +36,36 @@ namespace tau
 {
 
 
+struct Λ;
+struct Λλ;
+
+O &operator<<(O &s, Λ const &l);
+O &operator<<(O &s, Λλ const &l);
+
+
+// TODO: convert assert() in this module
+
+struct Λλ
+{
+  λ<Λr> l;
+  λs    s;
+  λp    p;
+
+  Λλ() {}
+  Λλ(λf &&f) : l(λ<Λr>(std::move(f))), s(λs::S), p(0) {}
+
+  Λλ &operator=(Λλ &&x)
+    { l = std::move(x.l);
+      s = x.s;
+      p = x.p;
+      return *this; }
+};
+
+
 // NOTE: managed λs should yield out with Λ.y
 struct Λ
 {
-  struct Λλ
-  {
-    λ<Λr> l;
-    λs    s;
-    λp    p;
-
-    Λλ() {}
-    Λλ(λf &&f) : l(λ<Λr>(std::move(f))), s(λs::S), p(0) {}
-
-    Λλ &operator=(Λλ &&x)
-      { l = std::move(x.l);
-        s = x.s;
-        p = x.p;
-        return *this; }
-  };
-
-#if tau_debug_flux_Λ_randp
+#if tau_debug_Λ_randp
   struct λip
   { Λ &l;
     std::default_random_engine  g{Sc<uN>(now().time_since_epoch().count())};
@@ -57,6 +76,9 @@ struct Λ
   { Λ &l;
     bool operator()(λi a, λi b) const { return l.pi(a) < l.pi(b); } };
 #endif
+
+  // TODO: fair queueing -- right now the priority queue starves
+  // some λs
 
   λip         lp;
   M<λi, Λλ>   ls;     // all λs
@@ -75,9 +97,9 @@ struct Λ
   λs   si(λi i) const { return ls.at(i).s; }
   λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : NAN; }
 
-  λi   c(λf &&f, f64 p = 0) { let   i = ιi(ni, ls); ls[i] = Λλ(std::move(f)); r(i, p, λs::R);       return  i; }
-  Λ   &x(λi i)              { assert(ri != i); assert(e(i));                  ls.erase(i);          return *this; }
-  Λ   &y(λs s)              { assert(!z());                                   r(ri, NAN, s); λy();  return *this; }
+  λi   c(λf &&f, f64 p = 0) { let i = ιi(ni, ls); ls[i] = Λλ(std::move(f)); r(i, p, λs::R);       return  i; }
+  Λ   &x(λi i)              { assert(ri != i); assert(e(i));                ls.erase(i);          return *this; }
+  Λ   &y(λs s)              { assert(!z());                                 r(ri, NAN, s); λy();  return *this; }
 
   Λ   &r(λi i, f64 p = NAN, λs s = λs::R)
     { if (!e(i)) return *this;
@@ -101,7 +123,9 @@ struct Λ
 
   Λ &operator<<(λi i)
     { assert(z());
+      if constexpr (tau_trace_Λ_switches) std::cout << "Λ << " << i << std::endl;
       auto &l = ls.at(ri = i); l.l(); ri = 0;
+      if constexpr (tau_trace_Λ_switches) std::cout << *this << std::endl;
       if (l.l.done())
       { l.s = λs::Z;
         if (lz.contains(i)) r(lz[i], NAN, λs::R); }
@@ -122,7 +146,7 @@ struct Λ
 
 
 #if tau_debug_iostream
-O &operator<<(O &s, Λ::Λλ const &l)
+O &operator<<(O &s, Λλ const &l)
 {
   assert((l.s == λs::Z) == l.l.done());
   s << "λ" << l.s;
@@ -137,9 +161,6 @@ O &operator<<(O &s, Λ const &l)
   for (let &[k, v] : l.ls) s << "  " << k << "\t" << v << std::endl;
   return s;
 }
-#elif tau_debug_nop
-O &operator<<(O &s, Λ::Λλ const &l) { return s; }
-O &operator<<(O &s, Λ     const &l) { return s; }
 #endif
 
 

@@ -5,6 +5,9 @@
 #include <cstring>
 #include <memory>
 
+#include <errno.h>
+#include <unistd.h>
+
 
 #include "debug.hh"
 #include "types.hh"
@@ -29,8 +32,8 @@ template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 struct o9i9
 {
   i9 const a;
-  uN   size ()     const { let s = a.size(); return s + u9sb(u9sq(s)); }
-  void write(ζp m) const { std::memcpy(m, a.a, size()); }
+  uN size ()     const { let s = a.size(); return s + u9sb(u9sq(s)); }
+  uN write(ζp m) const { std::memcpy(m, a.a, size()); return 0; }
 };
 
 inline o9i9 o9(i9 i) { return o9i9{i}; }
@@ -40,8 +43,8 @@ template<o9fixed T>
 struct o9f
 {
   T x;
-  uN   size ()     const { return sizeof(T) + u9sb(u9sq(sizeof(T))); }
-  void write(ζp m) const { W<T>(m, u9ws(m, 0, u9t_<T>::t, sizeof(T)), x); }
+  uN size ()     const { return sizeof(T) + u9sb(u9sq(sizeof(T))); }
+  uN write(ζp m) const { W<T>(m, u9ws(m, 0, u9t_<T>::t, sizeof(T)), x); return 0; }
 };
 
 
@@ -60,9 +63,10 @@ struct o9b
   T const &x;
 
   uN size() const { return x.size() + u9sb(u9sq(x.size())); }
-  void write(ζp m) const
+  uN write(ζp m) const
     { uN i = u9ws(m, 0, u9t_<T>::t, size());
-      std::memcpy(m + i, x.data(), x.size()); }
+      std::memcpy(m + i, x.data(), x.size());
+      return 0; }
 };
 
 
@@ -80,10 +84,11 @@ struct o9st
       } }
 
   uN size() const { return isize() + u9sb(u9sq(isize())); }
-  void write(ζp m) const
+  uN write(ζp m) const
     { uN i = u9ws(m, 0, u9t::stream, isize());
       W(m, i, Sc<u8>(s.t));
-      if (s.t == u9st::θ) W<u64>(m, i + 1, s.n); }
+      if (s.t == u9st::θ) W<u64>(m, i + 1, s.n);
+      return 0; }
 };
 
 ic o9st o9(u9_stream s) { return o9st{s}; }
@@ -96,9 +101,10 @@ struct o9c
   uNc        n;
 
   uN size() const { return n + u9sb(u9sq(n)); }
-  void write(ζp m) const
+  uN write(ζp m) const
     { uN i = u9ws(m, 0, t, n);
-      std::memcpy(m + i, xs, n); }
+      std::memcpy(m + i, xs, n);
+      return 0; }
 };
 
 inline o9c o9(chc *xs, uN n, u9t t = u9t::utf8) { return o9c{t, xs, n}; }
@@ -126,10 +132,11 @@ struct o9a  // vector of fixed
 
   uN size()  const { return isize() + u9sb(u9sq(isize())); }
   uN isize() const { return u9sizeof(u9t_<T>::t) * n; }
-  void write(ζp m) const
+  uN write(ζp m) const
     { uN b = u9ws(m, 0, u9t_<T>::t, isize());
       for (uN i = 0; i < n; ++i)
-        W(m + b, i * u9sizeof(u9t_<T>::t), xs[i]); }
+        W(m + b, i * u9sizeof(u9t_<T>::t), xs[i]);
+      return 0; }
 };
 
 
@@ -144,9 +151,10 @@ struct o9v  // unindexed, unordered tuple/set
     { if (!s) for (let &x : xs) s += o9(x).size();
       return s; }
 
-  void write(ζp m)
+  uN write(ζp m)
     { uN i = u9ws(m, 0, u9t::tuple, isize());
-      for (let &x : xs) { auto o = o9(x); o.write(m + i); i += o.size(); } }
+      for (let &x : xs) { auto o = o9(x); o.write(m + i); i += o.size(); }
+      return 0; }
 };
 
 
@@ -161,11 +169,12 @@ struct o9m  // unindexed, unordered k/v map
     { if (!s) for (let &[k, v] : xs) s += o9(k).size() + o9(v).size();
       return s; }
 
-  void write(ζp m)
+  uN write(ζp m)
     { uN i = u9ws(m, 0, u9t::map, isize());
       for (let &[k, v] : xs)
       { let ok = o9(k); ok.write(m + i); i += ok.size();
-        let ov = o9(v); ov.write(m + i); i += ov.size(); } }
+        let ov = o9(v); ov.write(m + i); i += ov.size(); }
+      return 0; }
 };
 
 
@@ -188,16 +197,36 @@ struct o9t
       return n + u9sb(u9sq(n)); }
 
   template<uN i = 0>
-  typename std::enable_if<i == sizeof...(X), void>::type
-  write(ζp m) {}
+  typename std::enable_if<i == sizeof...(X), uN>::type
+  write(ζp m) { return 0; }
 
   template<uN i = 0>
-  typename std::enable_if<i < sizeof...(X), void>::type
+  typename std::enable_if<i < sizeof...(X), uN>::type
   write(ζp m)
     { if (!i) m += u9ws(m, 0, u9t::tuple, isize<0>());
       auto o = o9(std::get<i>(xs));
       o.write(m);
-      write<i + 1>(m + o.size()); }
+      write<i + 1>(m + o.size());
+      return 0; }
+};
+
+
+struct o9fdr  // zero-copy read from FD
+{
+  sletc sb = u9sb(u9s::v64);
+  uNc fd;
+  iN &n;
+  iN &e;
+  uNc s = 1 << ζb0 - 1;
+
+  uN size() { return s + sb; }
+  uN write(ζp m)
+    { n = read(fd, m + sb, s);
+      if (n <= 0) { e = errno; return ζω; }
+      e = 0;
+      W<u8>(m, 0, u9t::bytes | u9s::v64);
+      W<u64>(m, 1, n);
+      return n + sb; }
 };
 
 
@@ -220,6 +249,7 @@ ic o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
 
 template<class T>    struct o9_            { sletc v = false; };
 template<>           struct o9_<o9i9>      { sletc v = true; };
+template<>           struct o9_<o9fdr>     { sletc v = true; };
 template<class T>    struct o9_<o9f<T>>    { sletc v = true; };
 template<class T>    struct o9_<o9b<T>>    { sletc v = true; };
 template<>           struct o9_<o9st>      { sletc v = true; };

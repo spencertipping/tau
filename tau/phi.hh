@@ -104,6 +104,9 @@ struct φ
   template<class X>
   bool operator<<(X const &x) { while (!wi()) cg.y(λs::φc); return o->w(f.w(x, *o)); }
 
+  template<class X>
+  bool operator<<=(X const &x) { return wi() && o->w(f.w(x, *o)); }
+
 
   R  operator* () const { wra();             return f.r(R(*i + i->a()), *i); }
   φ &operator++()       { wrca(); i->r<R>(); return *this; }

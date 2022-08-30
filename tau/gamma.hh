@@ -22,8 +22,8 @@ struct φ9
   {
     Va<T, o9f<u9_heapref>> x;
 
-    uN   size ()     { return x.index() ? std::get<1>(x).size()   : std::get<0>(x).size(); }
-    void write(ζp m) {        x.index() ? std::get<1>(x).write(m) : std::get<0>(x).write(m); }
+    uN size ()     { return x.index() ? std::get<1>(x).size()   : std::get<0>(x).size(); }
+    uN write(ζp m) { return x.index() ? std::get<1>(x).write(m) : std::get<0>(x).write(m); }
   };
 
 
@@ -33,9 +33,13 @@ struct φ9
   u64 ov  = 0;  // messages that overflowed (and were boxed)
 
   // Most recently-received heap-allocated message, which remains live
-  // until (1) it is pinned, (2) you read another message, (3) you destroy
-  // this φ9, or (4) you explicitly call .free()
+  // until (1) it is taken (then you free it manually), (2) you read
+  // another message, (3) you destroy this φ9, or (4) you explicitly
+  // call .free().
   ζp b = nullptr;
+
+  ~φ9() { free(); }
+
 
   ic bool os(uN s, uN zs)
     { ++om;
@@ -44,12 +48,19 @@ struct φ9
       if (v) ++ov;
       return v; }
 
-  // TODO: why is this templated? should always be i9
-  template<class R> ic R r(R x, ζ&) { ++im; return x; }
 
-  template<class W, class T> ic φo<T> w(W x, ζ& z)
-    { if constexpr (o9_<W>::v) { os(x.size(), z.b.c); return x; }
-      else      { let o = o9(x); os(o.size(), z.b.c); return o; } }
+  i9   take() { let r = b; b = nullptr; return r; }
+  void free() { if (b) { std::free(b); b = nullptr; } }
+
+  i9 r(i9 x, ζ&)
+    { ++im;
+      free();
+      if (x.type() == u9t::heapref) b = x = *x;
+      return x; }
+
+  template<class W> ic auto w(W x, ζ &z)
+    { if constexpr (o9_<W>::v) { return os(x.size(), z.b.c) ? φo<decltype(x)>{o9box(x)} : φo<decltype(x)>{x}; }
+      else      { let o = o9(x); return os(o.size(), z.b.c) ? φo<decltype(o)>{o9box(o)} : φo<decltype(o)>{o}; } }
 };
 
 
@@ -84,8 +95,9 @@ struct γ
   γφ &δ() const { return *fs[3]; }
 
   λi  λc(λf &&f) { let i = l.c(std::move(f)); ls.insert(i); return i; }
-  γ  &λx(λi i)   { l.x(i); ls.erase(i); return *this; }
-  Λr  λw(λi i)   { ls.erase(i); return l.w(i); }
+  γ  &λx(λi i)   {         l.x(i);            ls.erase(i);  return *this; }
+  Λr  λw(λi i)   {                            ls.erase(i);  return l.w(i); }
+  γ  &λy()       {         l.y(λs::R);                      return *this; }
 
   φi φc(uf8 b = ζb0)
     { let f = new γφ(l);

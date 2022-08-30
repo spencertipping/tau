@@ -65,6 +65,8 @@ struct ζb
     { if      (s > wa())                                                return ζω;
       else if (!wr() && s + wi > c) {    ci = wi; wi  = s; ri = bp(ri); return  0; }
       else                          { let a = wi; wi += s;              return  a; } }
+
+  void rewind(uN a) { wi -= a; }
 };
 
 
@@ -115,9 +117,14 @@ struct ζ
       // NOTE: <, not <=, because ζb reserves one byte when wrapped to mark it
       // wrapped state (see ζb::wa).
       A(s < b.c, s << "[s] ≥ " << b.c << "[ζb.c]");
-      uN  a;
+      uN a;
       while ((a = b.alloc(s)) == ζω) { if (rc) return false; wg.y(λs::O); }
-      x.write(b + a);
+
+      // write() returns the _actual_ size written, or 0 if it's the same
+      // as .size(), or ζω if nothing was written.
+      if (let w = x.write(b + a))
+      { if (w == ζω) { b.rewind(s); return false; }
+        b.rewind(s - w); }
       rg.w();
       return true; }
 };

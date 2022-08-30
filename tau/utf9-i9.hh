@@ -34,7 +34,7 @@ struct i9
   ζp a;
   i9(ζp a_) : a(a_) {}
 
-  bool exists() const { return a != ζωp; }
+  bool exists() const { return a && a != ζωp; }
   operator ζp() const { return a; }
 
 
