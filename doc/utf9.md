@@ -100,6 +100,8 @@ Size bytes, when indicated, immediately follow the control byte -- that is, they
 ## Type-specific formats
 Most types are self-explanatory: the value, in big-endian where applicable, immediately follows the control byte and any size bytes.
 
+
+### Collections
 Collections don't contain indexing data inline. Here's what each one looks like:
 
 ```

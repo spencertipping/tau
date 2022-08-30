@@ -17,22 +17,39 @@ namespace tau
 
 struct φ9
 {
-  u64 im  = 0;
-  u64 om  = 0;
-  u64 ohc = 0;
+  template<class T>
+  struct φo
+  {
+    Va<T, o9f<u9_heapref>> x;
 
-  ic void s(uN s, uN zs)
-    { if (s >= zs >> 1) ohc++;
-      om++; }
+    uN   size ()     { return x.index() ? std::get<1>(x).size()   : std::get<0>(x).size(); }
+    void write(ζp m) {        x.index() ? std::get<1>(x).write(m) : std::get<0>(x).write(m); }
+  };
 
+
+  u64 im  = 0;  // total inbound messages
+  u64 om  = 0;  // total outbound messages
+  u64 ohc = 0;  // messages over half-ζ-capacity
+  u64 ov  = 0;  // messages that overflowed (and were boxed)
+
+  // Most recently-received heap-allocated message, which remains live
+  // until (1) it is pinned, (2) you read another message, (3) you destroy
+  // this φ9, or (4) you explicitly call .free()
+  ζp b = nullptr;
+
+  ic bool os(uN s, uN zs)
+    { ++om;
+      if (s >= zs >> 1) ++ohc;
+      let v = s >= zs - 1;
+      if (v) ++ov;
+      return v; }
+
+  // TODO: why is this templated? should always be i9
   template<class R> ic R r(R x, ζ&) { ++im; return x; }
 
-  template<class W> ic auto w(W x, ζ& z)
-    { if constexpr (o9_<W>::v) { s(x.size(), z.b.c); return x; }
-      else
-      { let o = o9(x);
-        s(o.size(), z.b.c);
-        return o; } }
+  template<class W, class T> ic φo<T> w(W x, ζ& z)
+    { if constexpr (o9_<W>::v) { os(x.size(), z.b.c); return x; }
+      else      { let o = o9(x); os(o.size(), z.b.c); return o; } }
 };
 
 
@@ -49,10 +66,10 @@ struct γ
   γ(γ &) = delete;
   γ(Λ &l_, uf8 ιb = ζb0, uf8 οb = ζb0, uf8 ξb = ζb0, uf8 δb = ζb0)
     : l(l_)
-    { fs.push_back(new γφ(l, ιb));
-      fs.push_back(new γφ(l, οb));
-      fs.push_back(new γφ(l, ξb));
-      fs.push_back(new γφ(l, δb)); }
+    { fs.push_back(ιb ? new γφ(l, ιb) : nullptr);
+      fs.push_back(οb ? new γφ(l, οb) : nullptr);
+      fs.push_back(ξb ? new γφ(l, ξb) : nullptr);
+      fs.push_back(δb ? new γφ(l, δb) : nullptr); }
 
   ~γ()
     { for (let i : ls) l.w(i);
