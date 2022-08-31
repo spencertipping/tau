@@ -21,6 +21,10 @@ namespace tau
 sletc Φen = 64;     // number of events per epoll_wait call
 
 
+// TODO: this object model is totally wrong; we need persistent
+// file-manipulation objects that un-epoll themselves on destruct
+
+
 struct Φ
 {
   Λ           &l;
