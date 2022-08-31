@@ -34,10 +34,11 @@ struct φc  // capacity check filter
 };
 
 
+template<class Θ>
 struct φπ  // profiling+timing filter
 {
-  ΣΘΔ i,  o;
-  πι  is, os;
+  Θ  i,  o;
+  πι is, os;
   φπ() { i.start(); o.start(); }
   template<class R> R r(R x, ζ&) { i.stop(); i.start(); is << x.size(); return x; }
   template<class W> W w(W x, ζ&) { o.stop(); o.start(); os << x.size(); return x; }

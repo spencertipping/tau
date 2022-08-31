@@ -15,7 +15,7 @@
 #include "begin.hh"
 
 #if !defined(tau_debug_Λ_randp)
-# define tau_debug_Λ_randp tau_debug
+# define tau_debug_Λ_randp 0
 #endif
 
 #if !defined(tau_trace_Λ_switches)
@@ -39,13 +39,12 @@ O &operator<<(O &s, Λ const &l);
 O &operator<<(O &s, Λλ const &l);
 
 
-// TODO: convert assert() in this module
-
 struct Λλ
 {
   λ<Λr> l;
   λs    s;
   λp    p;
+  ΣΘΔ   w;  // for profiling
 
   Λλ() {}
   Λλ(λf &&f) : l(λ<Λr>(std::move(f))), s(λs::S), p(0) {}
@@ -54,8 +53,15 @@ struct Λλ
     { l = std::move(x.l);
       s = x.s;
       p = x.p;
+      w = x.w;
       return *this; }
 };
+
+
+sletc λpn = NAN;
+ic bool λpm(λp x) { return !std::isnan(x); }
+
+static_assert(!λpm(λpn));
 
 
 // NOTE: managed λs should yield out with Λ.y
@@ -83,6 +89,8 @@ struct Λ
   λi          ni{0};  // next λi (always nonzero for managed λ)
   λi          ri{0};  // currently running λi (0 = main thread)
 
+  bool        prof = false;
+
   Λ(Λ &) = delete;
   Λ() : lp{*this}, rq(lp) {}
 
@@ -91,25 +99,25 @@ struct Λ
   λi   i ()     const { return ri; }
   bool z ()     const { return !ri; }
   λs   si(λi i) const { return ls.at(i).s; }
-  λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : NAN; }
+  λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : λpn; }
 
   λi   c(λf &&f, f64 p = 0) { let i = ιi(ni, ls); ls[i] = Λλ(std::move(f)); r(i, p, λs::R);       return  i; }
-  Λ   &x(λi i)              { assert(ri != i); assert(e(i));                ls.erase(i);          return *this; }
-  Λ   &y(λs s)              { assert(!z());                                 r(ri, NAN, s); λy();  return *this; }
+  Λ   &x(λi i)              { A(ri != i, "self wait"); A(e(i), "await !e"); ls.erase(i);          return *this; }
+  Λ   &y(λs s)              { A(!z(), "root yield");                        r(ri, NAN, s); λy();  return *this; }
 
-  Λ   &r(λi i, f64 p = NAN, λs s = λs::R)
+  Λ   &r(λi i, λp p = λpn, λs s = λs::R)
     { if (!e(i)) return *this;
       auto &l = ls.at(i);
-      if (!std::isnan(p)) l.p = p;
+      if (λpm(p))             l.p = p;
       if ((l.s = s) == λs::R) rq.push(i);
       return *this; }
 
   bool wi(λi i) { return si(i) == λs::Z; }
   Λr   w (λi i)
-    { assert(ri != i);  // λ cannot await itself
-      assert(!z() || wi(i));
+    { A(ri != i,       "λw self");
+      A(!z() || wi(i), "root λw non-Z");
       while (!wi(i))
-      { assert(!lz.contains(i));
+      { A(!lz.contains(i), "multiple co-awaiting " << i);
         lz[i] = ri;
         y(λs::W); }
       lz.erase(ri);
@@ -118,9 +126,13 @@ struct Λ
       return r; }
 
   Λ &operator<<(λi i)
-    { assert(z());
+    { A(z(), "non-root Λ<<");
       if constexpr (tau_trace_Λ_switches) std::cout << "Λ << " << i << std::endl;
-      auto &l = ls.at(ri = i); l.l(); ri = 0;
+      auto &l = ls.at(ri = i);
+      if (prof) l.w.start();
+      l.l();
+      if (prof) l.w.stop();
+      ri = 0;
       if constexpr (tau_trace_Λ_switches) std::cout << *this << std::endl;
       if (l.l.done())
       { l.s = λs::Z;
@@ -144,7 +156,7 @@ struct Λ
 #if tau_debug_iostream
 O &operator<<(O &s, Λλ const &l)
 {
-  assert((l.s == λs::Z) == l.l.done());
+  A((l.s == λs::Z) == l.l.done(), "λ/Λ done() desync");
   s << "λ" << l.s;
   return l.s == λs::Z ? s << "=" << l.l.result()
                       : s << ":" << l.p;

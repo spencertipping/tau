@@ -5,7 +5,7 @@
 #include "arch.hh"
 #include "lambda-class.hh"
 
-#if tau_arch == tau_arch_wasm32 || tau_arch == tau_arch_wasm64
+#if tau_platform == tau_platform_wasm
 # include "lambda-emscripten.hh"
 #elif tau_arch == tau_arch_linux64
 # include "lambda-boost.hh"

@@ -143,9 +143,10 @@ int main(int argc, char **argv)
 {
   try_small_ζ();
   try_tuple();
-  cout << "identity bench" << endl; bench<φι>(argc);
-  cout << "checked  bench" << endl; bench<φc>(argc);
-  cout << "measured bench" << endl; bench<φπ>(argc);
+  cout << "identity bench"      << endl; bench<φι>(argc);
+  cout << "checked  bench"      << endl; bench<φc>(argc);
+  cout << "measured bench (-H)" << endl; bench<φπ<ΘΔ>> (argc);
+  cout << "measured bench (+H)" << endl; bench<φπ<ΣΘΔ>>(argc);
   return 0;
 }
 

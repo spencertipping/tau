@@ -53,6 +53,17 @@ struct πι_
 typedef πι_<> πι;
 
 
+struct π0
+{
+  template<class X>
+  π0 &operator<<(X)             { return *this; }
+
+  uN  icdf      (double)  const { return 0; }
+  u64 total     (uN = 64) const { return 0; }
+  π0 &operator+=(π0)            { return *this; }
+};
+
+
 #if tau_debug_iostream
 template<class F, class X, uN N, class π>
 O &operator<<(O &s, πι_<F, X, N, π> const &h)
@@ -70,9 +81,6 @@ O &operator<<(O &s, πι_<F, X, N, π> const &h)
 
   return s;
 }
-#elif tau_debug_nop
-template<class F, class X, uN N, class π>
-O &operator<<(O &s, πι_<F, X, N, π> const &h) { return s; }
 #endif
 
 
