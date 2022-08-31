@@ -12,4 +12,4 @@ Broadly, I think it's fine to aim for uniformity of _L / μ_: more expensive λs
 
 
 ## Priority adjustment
-We should be able to nudge the _L_ sensitivity of any given λ by an exponential factor -- if we call that _n_, then we want _exp(n) · L / μ_ to be uniform. _n < 0_ is high-priority, _n > 0_ low-priority, just like `nice` values in Linux.
+We should be able to nudge the _L_ sensitivity of any given λ by an exponential factor -- if we call that _p_, then we want _exp(p) · L / μ_ to be uniform. Larger _p_ = higher priority.

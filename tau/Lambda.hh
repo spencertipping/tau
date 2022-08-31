@@ -5,6 +5,7 @@
 #include <cmath>
 
 
+#include "arch.hh"
 #include "debug.hh"
 #include "types.hh"
 #include "shd.hh"
@@ -43,16 +44,20 @@ struct Λλ
 {
   λ<Λr> l;
   λs    s;
-  λp    p;
-  ΣΘΔ   w;  // for profiling
+  λp    p;  // = n, niceness (but an exponential)
+  Θp    y;  // last yield time
+  ΔΘ    μ;  // mean quantum duration
+  ΣΘΔ   w;  // for profiling (if enabled in Λ)
 
   Λλ() {}
-  Λλ(λf &&f) : l(λ<Λr>(std::move(f))), s(λs::S), p(0) {}
+  Λλ(λf &&f) : l(λ<Λr>(std::move(f))), s(λs::S), p(0), y(now()), μ(0) {}
 
   Λλ &operator=(Λλ &&x)
     { l = std::move(x.l);
       s = x.s;
       p = x.p;
+      y = x.y;
+      μ = x.μ;
       w = x.w;
       return *this; }
 };
@@ -61,7 +66,9 @@ struct Λλ
 sletc λpn = NAN;
 ic bool λpm(λp x) { return !std::isnan(x); }
 
-static_assert(!λpm(λpn));
+#if tau_platform != tau_platform_wasm
+  static_assert(!λpm(λpn));
+#endif
 
 
 // NOTE: managed λs should yield out with Λ.y
@@ -76,11 +83,15 @@ struct Λ
 #else
   struct λip
   { Λ &l;
-    bool operator()(λi a, λi b) const { return l.pi(a) < l.pi(b); } };
+    bool operator()(λi a, λi b) const
+      { let  t  = now();
+        let &la = l.ls.at(a);
+        let &lb = l.ls.at(b);
+        let  ra = exp(la.p) * (t - la.y) / la.μ;
+        let  rb = exp(lb.p) * (t - lb.y) / lb.μ;
+        return ra > rb; }
+  };
 #endif
-
-  // TODO: fair queueing -- right now the priority queue starves
-  // some λs
 
   λip         lp;
   M<λi, Λλ>   ls;     // all λs
@@ -88,6 +99,7 @@ struct Λ
   PQ<λi, λip> rq;     // prioritized schedule
   λi          ni{0};  // next λi (always nonzero for managed λ)
   λi          ri{0};  // currently running λi (0 = main thread)
+  ΣΘΔ         q;      // quantum time measurement
 
   bool        prof = false;
 
@@ -129,9 +141,9 @@ struct Λ
     { A(z(), "non-root Λ<<");
       if constexpr (tau_trace_Λ_switches) std::cout << "Λ << " << i << std::endl;
       auto &l = ls.at(ri = i);
-      if (prof) l.w.start();
+      q.start(); l.w.start();
       l.l();
-      if (prof) l.w.stop();
+      l.w.stop(); l.μ = l.w.μ(); l.y = now(); q.stop();
       ri = 0;
       if constexpr (tau_trace_Λ_switches) std::cout << *this << std::endl;
       if (l.l.done())
