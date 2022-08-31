@@ -10,11 +10,11 @@ int cat(int argc, char **argv)
 {
   Λ          l;
   fd_in      i{l, 0};
-  stream_out o{l, cout};
+  fd_out     o{l, 1};
   stream_out e{l, cerr};
 
   i.g | o.g;
-  i.g & e.g;
+  //i.g & e.g;
   l.go();
   return 0;
 }
