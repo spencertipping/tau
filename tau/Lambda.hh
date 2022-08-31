@@ -14,16 +14,12 @@
 #include "lambda.hh"
 
 
-#include "begin.hh"
-
 #if !defined(tau_debug_Λ_randp)
 # define tau_debug_Λ_randp 0
 #endif
 
-#if !defined(tau_trace_Λ_switches)
-# define tau_trace_Λ_switches 0
-#endif
 
+#include "begin.hh"
 
 namespace tau
 {
@@ -46,7 +42,7 @@ struct Λλ
   ΣΘΔ   w;  // for profiling (if enabled in Λ)
 
   Λλ() {}
-  Λλ(λf &&f) : l(λ<Λr>(std::move(f))), s(λs::S), p(0), y(now()), μ(0) {}
+  Λλ(λf &&f) : l(λ<Λr>(std::move(f))), s(λs::S), p(0), y(now()), μ(1ns) {}
 
   Λλ &operator=(Λλ &&x)
     { l = std::move(x.l);
@@ -59,38 +55,12 @@ struct Λλ
 };
 
 
-template<class λip>
-Λλ &li(Λ_<λip> &, λi);
-
-
 sletc λpn = NAN;
 ic bool λpm(λp x) { return !std::isnan(x); }
 
-#if tau_platform != tau_platform_wasm
+#if tau_compiler != tau_compiler_clang
   static_assert(!λpm(λpn));
 #endif
-
-
-struct λipr
-{
-  Λ_<λipr> &l;
-  std::default_random_engine  g{Sc<uN>(now().time_since_epoch().count())};
-  std::bernoulli_distribution d{0.5};
-  bool operator()(λi a, λi b) { return d(g); }
-};
-
-
-struct λipf
-{
-  Λ_<λipf> &l;
-  bool operator()(λi a, λi b) const
-    { let  t  = now();
-      let &la = li(l, a);
-      let &lb = li(l, b);
-      let  ra = exp(la.p) * (t - la.y) / la.μ;
-      let  rb = exp(lb.p) * (t - lb.y) / lb.μ;
-      return ra > rb; }
-};
 
 
 // NOTE: managed λs should yield out with Λ.y
@@ -105,8 +75,6 @@ struct Λ_
   λi          ni{0};  // next λi (always nonzero for managed λ)
   λi          ri{0};  // currently running λi (0 = main thread)
   ΣΘΔ         q;      // quantum time measurement
-
-  bool        prof = false;
 
   Λ_(Λ_ &) = delete;
   Λ_() : lp{*this}, rq(lp) {}
@@ -148,13 +116,11 @@ struct Λ_
 
   Λ_ &operator<<(λi i)
     { A(z(), "non-root Λ<<");
-      if constexpr (tau_trace_Λ_switches) std::cout << "Λ << " << i << std::endl;
       auto &l = ls.at(ri = i);
       q.start(); l.w.start();
       l.l();
       l.w.stop(); l.μ = l.w.μ(); l.y = now(); q.stop();
       ri = 0;
-      if constexpr (tau_trace_Λ_switches) std::cout << *this << std::endl;
       if (l.l.done())
       { l.s = λs::Z;
         if (lz.contains(i)) r(lz[i], NAN, λs::R); }
@@ -175,11 +141,27 @@ struct Λ_
 };
 
 
-template<class λip>
-Λλ &li(Λ_<λip> &l, λi i)
+struct λipr
 {
-  return l.ls.at(i);
-}
+  Λ_<λipr> &l;
+  std::default_random_engine  g{Sc<uN>(now().time_since_epoch().count())};
+  std::bernoulli_distribution d{0.5};
+  bool operator()(λi a, λi b) { return d(g); }
+};
+
+
+struct λipf
+{
+  Λ_<λipf> &l;
+  bool operator()(λi a, λi b) const
+    { let  t  = now();
+      let &la = l.ls.at(a);
+      let &lb = l.ls.at(b);
+      let  ra = exp(la.p) * (t - la.y) / la.μ;
+      let  rb = exp(lb.p) * (t - lb.y) / lb.μ;
+      return ra < rb; }
+};
+
 
 typedef Λ_<λipf> Λ;
 

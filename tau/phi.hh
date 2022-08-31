@@ -102,11 +102,14 @@ struct φ
   φ &wra()  { wrca(); i->wra();           return *this; }
 
 
-  template<class X>
+  template<class X>  // blocking write
   bool operator<<(X const &x) { while (!wi()) cg.y(λs::φc); return o->w(f.w(x, *o)); }
 
-  template<class X>
-  bool operator<<=(X const &x) { return wi() && o->w(f.w(x, *o)); }
+  template<class X>  // non-blocking write
+  bool operator<<=(X const &x)
+    { if (!wi() || !wa()) return false;
+      auto y = f.w(x, *o);
+      return y.size() <= o->b.wa() && o->w(y); }
 
 
   R  operator* () const { wra();             return f.r(R(*i + i->a()), *i); }

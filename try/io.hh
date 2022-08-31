@@ -37,28 +37,21 @@ struct fd_in
             tv.tv_sec  = 1;
             tv.tv_usec = 0;
 
-            cout << "about to select" << endl;
-            g.δ() << "about to select"; g.λy();
+            g.λy();
             if (select(1, &rfds, nullptr, nullptr, &tv))
               break;
-            cout << "select returned" << endl;
-            g.δ() << o9t("select returned", 0); g.λy();
           }
 
-          cout << "exited select loop" << endl;
-          g.δ() << "exited select loop"; g.λy();
           if (go)
           {
             if (!(g.ο() << o9fdr{fd, n, e}))
             {
-              cout << "write failed, errno = " << e << endl;
-              g.δ() << o9t("write failed, errno", e); g.λy();
+              g.δ() <<= o9t("write failed, errno", e); g.λy();
               g.ο().ω();
               g.δ().ω();
               return 1;
             }
-            cout << "wrote a value of " << n << " bytes" << endl;
-            g.δ() << o9t("wrote a value of ", n, " bytes");
+            g.δ() <<= o9t("wrote a value of ", n, " bytes");
             g.λy();
           }
         }
@@ -83,11 +76,7 @@ struct fd_out
   fd_out(Λ &l, uN fd_) : g(l), fd(fd_)
     {
       g.λc([&]() {
-        for (let x : g.ι())
-        {
-          cout << "fd_out(" << fd << ") got a value" << endl;
-          write(fd, x.begin(), x.size());
-        }
+        for (let x : g.ι()) write(fd, x.begin(), x.size());
         return 0;
       });
     }
@@ -102,11 +91,7 @@ struct stream_out
   stream_out(Λ &l, O &s_ = std::cout) : g(l), s(s_)
     {
       g.λc([&]() {
-        for (let x : g.ι())
-        {
-          cout << "stream_out got a value" << endl;
-          s << x << std::endl;
-        }
+        for (let x : g.ι()) s << x << std::endl;
         return 0;
       });
     }
