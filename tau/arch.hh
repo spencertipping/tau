@@ -40,20 +40,29 @@ static_assert(sizeof(std::size_t) << 3 == tau_wordsize);
 
 #if defined(__linux__)
 # define tau_has_assert_fail 1
-# define tau_platform tau_platform_linux
+# define tau_has_epoll       1
+# define tau_platform        tau_platform_linux
+
 # if tau_wordsize == 64
-#  define tau_arch tau_arch_linux64
+#  define tau_arch              tau_arch_linux64
+#  define tau_has_boost_context 1
 # elif defined(__LP32__)
-#  define tau_arch tau_arch_linux32
+#  define tau_arch              tau_arch_linux32
+#  define tau_has_boost_context 0
 # endif
+
 #elif defined(__EMSCRIPTEN__)
-# define tau_has_assert_fail 0
-# define tau_platform tau_platform_wasm
+# define tau_has_assert_fail      0
+# define tau_has_epoll            0
+# define tau_platform             tau_platform_wasm
+# define tau_has_emscripten_fiber 1
+
 # if tau_wordsize == 64
 #  define tau_arch tau_arch_wasm64
 # else
 #  define tau_arch tau_arch_wasm32
 # endif
+
 #else
 # error unsupported platform
 #endif

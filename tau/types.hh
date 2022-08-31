@@ -24,13 +24,6 @@
 #include "debug.hh"
 
 
-// prevents uint8_t, size_t etc from being used within tau code
-// (but also, code that uses namespace tau)
-#ifndef TAU_ERASE_CSTDINT_TYPES
-# define TAU_ERASE_CSTDINT_TYPES 1
-#endif
-
-
 #include "begin.hh"
 
 namespace tau
@@ -132,8 +125,10 @@ enum class λs  // lambda runnability state
   O,           // blocked on write to ζ
   W,           // waiting for a λ
   Θ,           // waiting for a time
-  φc,          // waiting for φc on a ψ
-  φx,          // waiting for φx on a ψ
+  ΦI,          // blocked on read from fd
+  ΦO,          // blocked on write to fd
+  φc,          // waiting for φc on a φ
+  φx,          // waiting for φx on a φ
   Z,           // done (zombie)
 };
 
@@ -164,21 +159,6 @@ template<class T> inline constexpr iN  Sin(T x) { return Sc<iN> (x); }
 template<class T> inline constexpr f64 Sf (T x) { return Sc<f64>(x); }
 
 
-#if TAU_ERASE_CSTDINT_TYPES
-  typedef void uint8_t;
-  typedef void uint16_t;
-  typedef void uint32_t;
-  typedef void uint64_t;
-  typedef void int8_t;
-  typedef void int16_t;
-  typedef void int32_t;
-  typedef void int64_t;
-
-  typedef void size_t;
-  typedef void ssize_t;
-#endif
-
-
 #if tau_debug_iostream
 O &operator<<(O &s, λs t)
 {
@@ -190,6 +170,8 @@ O &operator<<(O &s, λs t)
   case λs::O:  return s << "O";
   case λs::W:  return s << "W";
   case λs::Θ:  return s << "Θ";
+  case λs::ΦI: return s << "ΦI";
+  case λs::ΦO: return s << "ΦO";
   case λs::φc: return s << "φc";
   case λs::φx: return s << "φx";
   case λs::Z:  return s << "Z";
