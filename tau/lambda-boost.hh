@@ -1,5 +1,5 @@
-#ifndef tau_flux_λ_boost_h
-#define tau_flux_λ_boost_h
+#ifndef tau_λ_boost_h
+#define tau_λ_boost_h
 
 
 #include "types.hh"

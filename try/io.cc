@@ -1,6 +1,5 @@
 #include <cstring>
 
-#define tau_trace_Λ_switches 1
 #include "io.hh"
 
 #include "../tau/begin.hh"

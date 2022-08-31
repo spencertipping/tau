@@ -1,5 +1,5 @@
-#ifndef tau_flux_ζ_h
-#define tau_flux_ζ_h
+#ifndef tau_ζ_h
+#define tau_ζ_h
 
 
 #include <algorithm>

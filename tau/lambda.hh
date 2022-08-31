@@ -1,5 +1,5 @@
-#ifndef tau_flux_λ_h
-#define tau_flux_λ_h
+#ifndef tau_λ_h
+#define tau_λ_h
 
 
 #include "arch.hh"

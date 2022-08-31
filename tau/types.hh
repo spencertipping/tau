@@ -122,7 +122,6 @@ typedef uN      Λr;
 typedef uN      λi;
 typedef uN      ζi;
 typedef uN      φi;
-typedef f64     λp;
 typedef F<Λr()> λf;
 
 enum class λs  // lambda runnability state

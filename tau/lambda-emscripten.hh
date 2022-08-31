@@ -1,5 +1,5 @@
-#ifndef tau_flux_λ_emscripten_h
-#define tau_flux_λ_emscripten_h
+#ifndef tau_λ_emscripten_h
+#define tau_λ_emscripten_h
 
 
 #include <memory>
