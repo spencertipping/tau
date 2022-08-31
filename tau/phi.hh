@@ -130,9 +130,10 @@ struct φ
 template<class R, class W>
 O &operator<<(O &s, φ<R, W> const &f)
 {
-  return s << "φ["
-           << (f.i ? *f.i : "∅") << " "
-           << (f.o ? *f.o : "∅") << "]";
+  s << "φ[";
+  if (f.i) s << *f.i << " "; else s << "∅";
+  if (f.o) s << *f.o;        else s << "∅";
+  return s << "]";
 }
 #endif
 

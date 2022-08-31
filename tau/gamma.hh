@@ -117,6 +117,27 @@ struct γ
 };
 
 
+#if tau_debug_iostream
+O &operator<<(O &s, φ9 const &f)
+{
+  return s << "φ9[" << f.im << " " << f.om << "+" << f.ohc
+           << "^" << f.ov << (f.b ? " H" : "") << "]";
+}
+
+O &operator<<(O &s, γ const &g)
+{
+  s << "γ λs=";
+  for (let i : g.ls) s << i << " ";
+  s << std::endl;
+
+  for (uN i = 0; i < g.fs.size(); ++i)
+    if (let f = g.fs[i])
+      s << "  " << i << " " << f->f << " " << *f << std::endl;
+  return s;
+}
+#endif
+
+
 }
 
 #include "end.hh"

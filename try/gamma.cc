@@ -81,11 +81,19 @@ void try_simple()
   b & γo(e);
   l.go();
 
+  cout << a << endl;
+  cout << b << endl;
+  cout << c << endl;
+  cout << d << endl;
+  cout << e << endl;
+
+  /*
   cout << "a IOE = " << a.ι().f.im << " " << a.ο().f.om << " " << a.δ().f.om << endl;
   cout << "b IOE = " << b.ι().f.im << " " << b.ο().f.om << " " << b.δ().f.om << endl;
   cout << "c IOE = " << c.ι().f.im << " " << c.ο().f.om << " " << c.δ().f.om << endl;
   cout << "d IOE = " << d.ι().f.im << " " << d.ο().f.om << " " << d.δ().f.om << endl;
   cout << "e IOE = " << e.ι().f.im << " " << e.ο().f.om << " " << e.δ().f.om << endl;
+  */
 }
 
 

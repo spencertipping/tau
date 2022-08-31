@@ -10,6 +10,9 @@
 #define tau_platform_linux 1
 #define tau_platform_wasm  2
 
+#define tau_compiler_gcc 1
+#define tau_compiler_clang 2
+
 
 #include <cstddef>
 #include <cstdint>
@@ -24,6 +27,15 @@
 
 static_assert(sizeof(void*)       << 3 == tau_wordsize);
 static_assert(sizeof(std::size_t) << 3 == tau_wordsize);
+
+
+#if defined(__clang__)
+# define tau_compiler tau_compiler_clang
+#elif defined(__GNUG__)
+# define tau_compiler tau_compiler_gcc
+#else
+# warning tau builds have not been tested on this compiler, YMMV
+#endif
 
 
 #if defined(__linux__)

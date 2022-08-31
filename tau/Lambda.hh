@@ -3,6 +3,7 @@
 
 
 #include <cmath>
+#include <random>
 
 
 #include "arch.hh"
@@ -24,19 +25,14 @@
 #endif
 
 
-#if tau_debug_Λ_randp
-# include <random>
-#endif
-
-
 namespace tau
 {
 
 
-struct Λ;
+template<class λip> struct Λ_;
 struct Λλ;
 
-O &operator<<(O &s, Λ const &l);
+template<class λip> O &operator<<(O &s, Λ_<λip> &l);
 O &operator<<(O &s, Λλ const &l);
 
 
@@ -44,7 +40,7 @@ struct Λλ
 {
   λ<Λr> l;
   λs    s;
-  λp    p;  // = n, niceness (but an exponential)
+  λp    p;
   Θp    y;  // last yield time
   ΔΘ    μ;  // mean quantum duration
   ΣΘΔ   w;  // for profiling (if enabled in Λ)
@@ -63,6 +59,10 @@ struct Λλ
 };
 
 
+template<class λip>
+Λλ &li(Λ_<λip> &, λi);
+
+
 sletc λpn = NAN;
 ic bool λpm(λp x) { return !std::isnan(x); }
 
@@ -71,40 +71,45 @@ ic bool λpm(λp x) { return !std::isnan(x); }
 #endif
 
 
-// NOTE: managed λs should yield out with Λ.y
-struct Λ
+struct λipr
 {
-#if tau_debug_Λ_randp
-  struct λip
-  { Λ &l;
-    std::default_random_engine  g{Sc<uN>(now().time_since_epoch().count())};
-    std::bernoulli_distribution d{0.5};
-    bool operator()(λi a, λi b) { return d(g); } };
-#else
-  struct λip
-  { Λ &l;
-    bool operator()(λi a, λi b) const
-      { let  t  = now();
-        let &la = l.ls.at(a);
-        let &lb = l.ls.at(b);
-        let  ra = exp(la.p) * (t - la.y) / la.μ;
-        let  rb = exp(lb.p) * (t - lb.y) / lb.μ;
-        return ra > rb; }
-  };
-#endif
+  Λ_<λipr> &l;
+  std::default_random_engine  g{Sc<uN>(now().time_since_epoch().count())};
+  std::bernoulli_distribution d{0.5};
+  bool operator()(λi a, λi b) { return d(g); }
+};
 
+
+struct λipf
+{
+  Λ_<λipf> &l;
+  bool operator()(λi a, λi b) const
+    { let  t  = now();
+      let &la = li(l, a);
+      let &lb = li(l, b);
+      let  ra = exp(la.p) * (t - la.y) / la.μ;
+      let  rb = exp(lb.p) * (t - lb.y) / lb.μ;
+      return ra > rb; }
+};
+
+
+// NOTE: managed λs should yield out with Λ.y
+template<class λip>
+struct Λ_
+{
   λip         lp;
   M<λi, Λλ>   ls;     // all λs
   M<λi, λi>   lz;     // λs awaiting each thing
   PQ<λi, λip> rq;     // prioritized schedule
+  S<λi>       srq;    // set of scheduled λis
   λi          ni{0};  // next λi (always nonzero for managed λ)
   λi          ri{0};  // currently running λi (0 = main thread)
   ΣΘΔ         q;      // quantum time measurement
 
   bool        prof = false;
 
-  Λ(Λ &) = delete;
-  Λ() : lp{*this}, rq(lp) {}
+  Λ_(Λ_ &) = delete;
+  Λ_() : lp{*this}, rq(lp) {}
 
   bool e (λi i) const { return ls.contains(i); }
   uN   n ()     const { return ls.size(); }
@@ -114,14 +119,18 @@ struct Λ
   λp   pi(λi i = 0)   { if (!i) i = (*this)(); return i ? ls.at(i).p : λpn; }
 
   λi   c(λf &&f, f64 p = 0) { let i = ιi(ni, ls); ls[i] = Λλ(std::move(f)); r(i, p, λs::R);       return  i; }
-  Λ   &x(λi i)              { A(ri != i, "self wait"); A(e(i), "await !e"); ls.erase(i);          return *this; }
-  Λ   &y(λs s)              { A(!z(), "root yield");                        r(ri, NAN, s); λy();  return *this; }
+  Λ_  &x(λi i)              { A(ri != i, "self wait"); A(e(i), "await !e"); ls.erase(i);          return *this; }
+  Λ_  &y(λs s)              { A(!z(), "root yield");                        r(ri, NAN, s); λy();  return *this; }
 
-  Λ   &r(λi i, λp p = λpn, λs s = λs::R)
+  Λ_  &req(λi i)
+    { if (!srq.contains(i)) { rq.push(i); srq.insert(i); }
+      return *this; }
+
+  Λ_  &r(λi i, λp p = λpn, λs s = λs::R)
     { if (!e(i)) return *this;
       auto &l = ls.at(i);
       if (λpm(p))             l.p = p;
-      if ((l.s = s) == λs::R) rq.push(i);
+      if ((l.s = s) == λs::R) req(i);
       return *this; }
 
   bool wi(λi i) { return si(i) == λs::Z; }
@@ -137,7 +146,7 @@ struct Λ
       ls.erase(i);
       return r; }
 
-  Λ &operator<<(λi i)
+  Λ_ &operator<<(λi i)
     { A(z(), "non-root Λ<<");
       if constexpr (tau_trace_Λ_switches) std::cout << "Λ << " << i << std::endl;
       auto &l = ls.at(ri = i);
@@ -154,15 +163,25 @@ struct Λ
   λi operator()()
     { while (!rq.empty())
       { let i = rq.top();
-        if (e(i) && si(i) == λs::R) return i;
-        else                        rq.pop(); }
+        srq.erase(i);
+        rq.pop();
+        if (e(i) && si(i) == λs::R) return i; }
       return 0; }
 
-  Λ &go(F<bool(Λ&, λi)> const &f = [](Λ&, λi){ return true; })
+  Λ_ &go(F<bool(Λ_&, λi)> const &f = [](Λ_&, λi){ return true; })
     { for (λi t; (t = (*this)()) && f(*this, t); *this << t);
       f(*this, 0);
       return *this; }
 };
+
+
+template<class λip>
+Λλ &li(Λ_<λip> &l, λi i)
+{
+  return l.ls.at(i);
+}
+
+typedef Λ_<λipf> Λ;
 
 
 #if tau_debug_iostream
@@ -174,10 +193,23 @@ O &operator<<(O &s, Λλ const &l)
                       : s << ":" << l.p;
 }
 
-
-O &operator<<(O &s, Λ const &l)
+template<class λip>
+O &operator<<(O &s, Λ_<λip> &l)
 {
-  s << "Λ i=" << l.ri << " q=" << l.rq.size() << std::endl;
+  V<λi> q;
+  s << "Λ i=" << l.ri << " rq=";
+
+  while (!l.rq.empty())
+  {
+    s << l.rq.top() << " ";
+    q.push_back(l.rq.top());
+    l.rq.pop();
+  }
+  s << std::endl;
+
+  // Reconstruct the run queue
+  for (let i : q) l.rq.push(i);
+
   for (let &[k, v] : l.ls) s << "  " << k << "\t" << v << std::endl;
   return s;
 }

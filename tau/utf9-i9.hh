@@ -183,16 +183,17 @@ O &operator<<(O &s, i9 const &x)
     return s << "}"; }
 
   case u9t::tensor:
+    return s << "TODO: i9 tensor";
+    /*
   { let d  = i9{x.begin()};
     ζp  xs = i9{d}.end();
     let e  = x.end();
 
-    return s << "TODO: i9 tensor";
 
     // FIXME: these are vectorized, not sequential tuples
     uN ds[d.vn()]; uN di = 0; for (let x : d) ds[di++] = Sc<i64>(x);
     uN is[d.vn()];            for (uN i = 0; i < d.vn(); ++i) is[i] = 0;
-  }
+    }*/
 
   case u9t::heapref: return s << "heap@" << Rc<void*>((*x).a);
 
