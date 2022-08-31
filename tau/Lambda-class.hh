@@ -10,11 +10,6 @@
 #include "lambda.hh"
 
 
-#if !defined(tau_debug_Λ_randp)
-# define tau_debug_Λ_randp 0
-#endif
-
-
 #include "begin.hh"
 
 namespace tau
