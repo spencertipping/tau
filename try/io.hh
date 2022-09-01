@@ -17,11 +17,11 @@ using namespace std;
 struct fd_in
 {
   γ  g;
-  Φf i;
 
-  fd_in(Φ &f_, uN fd_) : g(f_), i(f_, fd_)
+  fd_in(Φ &f_, uN fd) : g(f_)
     {
       g.λc([&]() {
+        Φf i{g.f, fd};
         cerr << "starting input loop" << endl;
         while (g.ο() << i)
           cerr << "fd_in iteration" << endl;
@@ -32,6 +32,7 @@ struct fd_in
         cerr << "  i.rx() = " << i.rx() << endl;
 
         cerr << "fd_in output was rejected, returning" << endl;
+        g.ο().ω();
 
         return 0;
       });
@@ -42,11 +43,11 @@ struct fd_in
 struct fd_out
 {
   γ  g;
-  Φf o;
 
-  fd_out(Φ &f_, uN fd_) : g(f_), o(f_, fd_)
+  fd_out(Φ &f_, uN fd) : g(f_)
     {
       g.λc([&]() {
+        Φf o{g.f, fd};
         for (let x : g.ι())
           if (!(x >> o))
           {
