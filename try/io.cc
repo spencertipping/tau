@@ -24,9 +24,32 @@ int cat(int argc, char **argv)
 }
 
 
+int par(int argc, char **argv)
+{
+  Λ l;
+  Φ f{l};
+
+  fd_in  i{f, 0};
+  fd_out o{f, 1};
+  i.g | o.g;
+
+  iota       n{f};
+  delay      d{f, 500ms};
+  stream_out o2{f, std::cerr};
+
+  n.g | d.g | o2.g;
+  f.go([&](Φ &f) {
+    //std::cerr << f << std::endl;
+    return true;
+  });
+  return 0;
+}
+
+
 int main(int argc, char **argv)
 {
   if (!strcmp(argv[1], "cat")) return cat(argc - 2, argv + 2);
+  if (!strcmp(argv[1], "par")) return par(argc - 2, argv + 2);
   return 0;
 }
 

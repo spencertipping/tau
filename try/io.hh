@@ -8,10 +8,41 @@
 
 
 using namespace tau;
-using namespace std;
 
 
 #include "../tau/begin.hh"
+
+
+struct iota
+{
+  γ  g;
+  uN n;
+
+  iota(Φ &f, uN n_ = -1) : g(f), n(n_)
+    {
+      g.λc([&]() {
+        for (uN i = 0; i < n; ++i)
+          g.ο() << i;
+        return 0;
+      });
+    }
+};
+
+
+struct delay
+{
+  γ  g;
+  ΔΘ dt;
+
+  delay(Φ &f, ΔΘ dt_) : g(f), dt(dt_)
+    {
+      g.λc([&]() {
+        auto &i = g.ι();
+        while (i.ri()) g.Θ(dt).ο() << *i, ++i;
+        return 0;
+      });
+    }
+};
 
 
 struct fd_in
@@ -46,15 +77,10 @@ struct fd_out
         while (i.ri())
         {
           auto x = *i;
-          if (!(x >> o))
-          {
-            cerr << "fd_out write failed, returning 1" << endl;
-            return 1;
-          }
+          if (!(x >> o)) return 1;
           x.free();
           ++i;
         }
-        cerr << "end of input, fd_out returning 0" << endl;
         i.ω();
         return 0;
       });

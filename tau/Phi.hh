@@ -62,17 +62,19 @@ struct ΦΘ
 {
   Θp h;
   λi l;
-  bool operator<(ΦΘ const &x) const { return h < x.h; }
+
+  // TODO: why do we need to invert this ordering?
+  bool operator<(ΦΘ const &x) const { return h > x.h; }
 };
 
 
 struct Φ
 {
-  sletc        Φen = 64;  // number of events per epoll_wait call
+  sletc        Φen = 256;  // number of events per epoll_wait call
   Λ           &l;
-  iNc          fd;        // epoll control FD
-  uN           fds = 0;   // number of managed FDs
-  epoll_event  ev[Φen];   // inbound epoll event buffer
+  iNc          fd;         // epoll control FD
+  uN           fds = 0;    // number of managed FDs
+  epoll_event  ev[Φen];    // inbound epoll event buffer
   PQ<ΦΘ>       h;
 
 
@@ -89,12 +91,10 @@ struct Φ
       ++fds;
       return epoll_ctl(fd, EPOLL_CTL_ADD, f.fd(), &ev) != -1; }
 
-  Φ &x(Φf &f)
-    { if (f.ep)
-        A(epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1,
-          "epoll del failed " << errno);
-      --fds;
-      return *this; }
+  bool x(Φf &f)
+    { --fds;
+      return !f.ep
+          || epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1; }
 
 
   Φ &Θ(Θp t)
@@ -109,8 +109,7 @@ struct Φ
       let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
       A(n != -1, "epoll_wait error " << errno);
       for (iN i = 0; i < n; ++i) Rc<Φf*>(ev[i].data.ptr)->reset().w.w();
-      let t = now();
-      while (hn() <= t) l.r(h.top().l), h.pop();
+      while (now() >= hn()) l.r(h.top().l), h.pop();
       return n; }
 
   Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return f.fds || f.hn() != forever(); })
@@ -153,6 +152,30 @@ bool operator>>(i9 v, Φf &w)
   }
   return true;
 }
+
+
+#ifdef tau_debug_iostream
+O &operator<<(O &s, ΦΘ const &h)
+{
+  return s << "ΦΘ:" << h.h << ":" << h.l;
+}
+
+O &operator<<(O &s, Φf const &f)
+{
+  return s << "<<Φf TODO";
+}
+
+O &operator<<(O &s, Φ &f)
+{
+  V<ΦΘ> hs;
+  while (!f.h.empty()) hs.push_back(f.h.top()), f.h.pop();
+  for (auto &h : hs) f.h.push(h);
+  s << "Φ fd=" << f.fd << " fds=" << f.fds << " Θ=";
+  for (auto &h : hs) s << h << " ";
+  s << std::endl;
+  return s << f.l << std::endl;
+}
+#endif
 
 
 }
