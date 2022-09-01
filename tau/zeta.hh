@@ -28,6 +28,14 @@ namespace tau
 #endif
 
 
+#if tau_debug_iostream
+  struct ζb;
+  struct ζ;
+  O &operator<<(O &s, ζb const &b);
+  O &operator<<(O &s, ζ const &x);
+#endif
+
+
 typedef u8      *ζp;
 typedef ζp const ζpc;
 
@@ -53,13 +61,14 @@ struct ζb
   bool wr()     const { return ri > wi; }
   uN   bp(uN a) const { return wr() && a >= ci ? a - ci : a; }
   uN   ra()     const { return wr() ? wi + (ci - ri) : wi - ri; }
-  uN   wa()     const { return wr() ? ri - wi - 1    : std::max(c - wi, ri); }
+  uN   wa()     const { return wr() ? ri - wi - 1    : ri ? std::max(c - wi, ri - 1) : c - wi; }
 
   void free(uN a)
     { if (!wr()) A(a <= wi && a >= ri,            "a = " << a << ", ri = " << ri << ", wi = " << wi);
       else     { A(a <= wi || a >= ri && a <= ci, "a = " << a << ", ri = " << ri << ", wi = " << wi << ", ci = " << ci);
                  if (a == ci) a = 0; }
-      ri = a; }
+      ri = a;
+      if (ri == wi) ri = wi = 0; }
 
   uN alloc(uN s)
     { if      (s > wa())                                                return ζω;
@@ -125,6 +134,7 @@ struct ζ
       if (let w = x.write(b + a))
       { if (w == ζω) { b.rewind(s); return false; }
         b.rewind(s - w); }
+
       rg.w();
       return true; }
 };

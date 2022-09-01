@@ -112,8 +112,8 @@ struct φ
       return y.size() <= o->b.wa() && o->w(y); }
 
 
-  R  operator* () const { wra();             return f.r(R(*i + i->a()), *i); }
-  φ &operator++()       { wrca(); i->r<R>(); return *this; }
+  R  operator* () { wra();             return f.r(R(*i + i->a()), *i); }
+  φ &operator++() { wrca(); i->r<R>(); return *this; }
 
 
   struct it

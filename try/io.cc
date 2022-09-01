@@ -22,13 +22,11 @@ int cat(int argc, char **argv)
   //i.g & e.g;
   while (1)
   {
+    //cerr << "main loop iteration" << endl;
+    //cerr << l << endl;
+    //cerr << *i.g.ο().o << endl;
     f();
     l.go();
-    /*
-    cerr << "loop: i = " << i.g << endl;
-    cerr << "loop: o = " << o.g << endl;
-    cerr << l << endl;
-    */
   }
   return 0;
 }

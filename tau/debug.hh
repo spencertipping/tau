@@ -26,6 +26,7 @@
 
 
 #if tau_has_assert_fail
+# include <errno.h>
 # if tau_debug_iostream
 #   define tau_assert_fail(x, f, l, m)                      \
       ([&]() {                                              \
@@ -33,6 +34,7 @@
         if (!tau_debugging)                                 \
         {                                                   \
           tau_debugging = true;                             \
+          perror("assertion failure errno (if any)");       \
           std::cerr << "FAIL: " << m << std::endl;          \
         }                                                   \
         __assert_fail(x, f, l, __ASSERT_FUNCTION);          \

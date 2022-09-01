@@ -16,25 +16,17 @@ using namespace std;
 
 struct fd_in
 {
-  γ  g;
+  γ   g;
+  uNc fd;
 
-  fd_in(Φ &f_, uN fd) : g(f_)
+  fd_in(Φ &f_, uN fd_) : g(f_), fd(fd_)
     {
       g.λc([&]() {
         Φf i{g.f, fd};
-        cerr << "starting input loop" << endl;
-        while (g.ο() << i)
-          cerr << "fd_in iteration" << endl;
-
-        cerr << "return case" << endl;
-        cerr << "  i.o.n = " << i.o.n << endl;
-        cerr << "  i.o.e = " << i.o.e << endl;
-        cerr << "  i.rx() = " << i.rx() << endl;
-
-        cerr << "fd_in output was rejected, returning" << endl;
-        g.ο().ω();
-
-        return 0;
+        auto &o = g.ο();
+        while (o << i);
+        o.ω();
+        return i.rx();
       });
     }
 };
@@ -42,21 +34,26 @@ struct fd_in
 
 struct fd_out
 {
-  γ  g;
+  γ   g;
+  uNc fd;
 
-  fd_out(Φ &f_, uN fd) : g(f_)
+  fd_out(Φ &f_, uN fd_) : g(f_), fd(fd_)
     {
       g.λc([&]() {
         Φf o{g.f, fd};
-        for (let x : g.ι())
+        auto &i = g.ι();
+        while (i.ri())
+        {
+          auto x = *i;
           if (!(x >> o))
           {
-            cerr << "write failed, early return" << endl;
+            cerr << "fd_out write failed, returning 1" << endl;
             return 1;
           }
-          else
-            cerr << "fd_out iteration" << endl;
-        cerr << "fd_out returning; end of input" << endl;
+          x.free();
+          ++i;
+        }
+        cerr << "end of input, fd_out returning 0" << endl;
         return 0;
       });
     }

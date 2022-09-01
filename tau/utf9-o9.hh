@@ -214,14 +214,16 @@ struct o9t
 struct o9fdr  // zero-copy read from FD
 {
   sletc sb = u9sb(u9s::v64);
-  uNc fd;
-  iN &n;
-  iN &e;
-  uNc s = 1 << ζb0 - 1;
+  static_assert(sb == 9);
 
-  uN size() { return s + sb; }
+  uNc  fd;
+  uNc  s;
+  iN  &n;
+  iN  &e;
+
+  uN size() { return s; }
   uN write(ζp m)
-    { n = read(fd, m + sb, s);
+    { n = read(fd, m + sb, s - sb);
       if (n <= 0) { e = errno; return ζω; }
       e = 0;
       W<u8>(m, 0, u9t::bytes | u9s::v64);

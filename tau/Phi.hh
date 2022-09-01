@@ -40,8 +40,10 @@ struct Φf
 
   uN     wo = 0;  // write offset, to handle partial writes
 
+  bool   ep = false;
+
   Φf(Φf &) = delete;
-  Φf(Φ &f_, uN fd);
+  Φf(Φ &f_, uN fd, uN s = 1 << ζb0 - 1);
   ~Φf();
 
   uN   fd()  const { return o.fd; }
@@ -68,40 +70,33 @@ struct Φ
   ~Φ() { A(!close(fd), "~Φ close failed (fd leak) " << errno); }
 
 
-  Φ &operator<<(Φf &f)
+  bool operator<<(Φf &f)
     { epoll_event ev;
       ev.events   = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
       ev.data.ptr = &f;
-      A(epoll_ctl(fd, EPOLL_CTL_ADD, f.fd(), &ev) != -1,
-        "epoll add failed " << errno);
-      std::cerr << "added " << f.fd() << std::endl;
-      return *this; }
+      return epoll_ctl(fd, EPOLL_CTL_ADD, f.fd(), &ev) != -1; }
 
   Φ &x(Φf &f)
-    { A(epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1,
-        "epoll del failed " << errno);
-      std::cerr << "removed " << f.fd() << std::endl;
+    { if (f.ep)
+        A(epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1,
+          "epoll del failed " << errno);
       return *this; }
 
 
   uN operator()()
-    { std::cerr << "epoll_wait" << std::endl;
-      let n = epoll_wait(fd, ev, Φen, 1000);
+    { let n = epoll_wait(fd, ev, Φen, 1);
       A(n != -1, "epoll_wait error " << errno);
-      std::cerr << "epoll_wait returned " << n << std::endl;
-
       for (iN i = 0; i < n; ++i)
       { let f = Rc<Φf*>(ev[i].data.ptr);
-        std::cerr << "waking up " << f->fd() << std::endl;
         f->rn = f->wn = 1;
         f->w.w(); }
-
       return n; }
 };
 
 
-inline Φf::Φf(Φ &f_, uN fd) : f(f_), w{f.l}, o{fd, rn, re}
-{ Φnb(fd); f << *this; }
+inline Φf::Φf(Φ &f_, uN fd, uN s)
+  : f(f_), w{f.l}, o{fd, s, rn, re}
+{ Φnb(fd); ep = f << *this; }
 
 inline Φf::~Φf()
 { f.x(*this); }
@@ -112,9 +107,9 @@ bool operator<<(φ<R, F> &f, Φf &r)
 {
   while (1)
   {
-    if      (f << r.o) return true;
-    else if (!r.ra())  r.w.y(λs::ΦI);
-    else               return false;
+    if      (f << r.o)        return true;
+    else if (r.ep && !r.ra()) r.w.y(λs::ΦI);
+    else                      return false;
   }
 }
 
@@ -124,7 +119,7 @@ bool operator>>(i9 v, Φf &w)
   w.wo = 0;
   while (w.wo < v.size())
   {
-    while (!w.wa()) w.w.y(λs::ΦO);
+    if (w.ep) while (!w.wa()) w.w.y(λs::ΦO);
     if ((w.wn = write(w.fd(), v.begin() + w.wo, v.size() - w.wo)) == -1)
     { if ((w.we = errno) != EAGAIN)
         return false; }
