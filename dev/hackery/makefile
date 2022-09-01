@@ -9,6 +9,9 @@ clean:
 x%: x%.cc
 	g++ -O3 -o $@ $< -lxcb -lX11 -lGL -lX11-xcb -lpthread
 
+epoll: epoll.cc
+	g++ -O3 -g $@ $<
+
 msgpack: msgpack.cc
 	g++ -O3 -o msgpack msgpack.cc
 

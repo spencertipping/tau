@@ -68,10 +68,9 @@ struct Φ
   ~Φ() { A(!close(fd), "~Φ close failed (fd leak) " << errno); }
 
 
-  // TODO: why does this result in wakeups on every loop?
   Φ &operator<<(Φf &f)
     { epoll_event ev;
-      ev.events   = EPOLLIN | EPOLLOUT | EPOLLET;
+      ev.events   = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
       ev.data.ptr = &f;
       A(epoll_ctl(fd, EPOLL_CTL_ADD, f.fd(), &ev) != -1,
         "epoll add failed " << errno);
@@ -79,10 +78,7 @@ struct Φ
       return *this; }
 
   Φ &x(Φf &f)
-    { epoll_event ev;
-      ev.events   = EPOLLIN | EPOLLOUT | EPOLLET;
-      ev.data.ptr = &f;
-      A(epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), &ev) != -1,
+    { A(epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1,
         "epoll del failed " << errno);
       std::cerr << "removed " << f.fd() << std::endl;
       return *this; }
@@ -107,14 +103,19 @@ struct Φ
 inline Φf::Φf(Φ &f_, uN fd) : f(f_), w{f.l}, o{fd, rn, re}
 { Φnb(fd); f << *this; }
 
-inline Φf::~Φf() { f.x(*this); }
+inline Φf::~Φf()
+{ f.x(*this); }
 
 
 template<class R, class F>
 bool operator<<(φ<R, F> &f, Φf &r)
 {
-  while (!r.ra()) r.w.y(λs::ΦI);
-  return f << r.o;
+  while (1)
+  {
+    if      (f << r.o) return true;
+    else if (!r.ra())  r.w.y(λs::ΦI);
+    else               return false;
+  }
 }
 
 

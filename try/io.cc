@@ -24,9 +24,11 @@ int cat(int argc, char **argv)
   {
     f();
     l.go();
+    /*
     cerr << "loop: i = " << i.g << endl;
     cerr << "loop: o = " << o.g << endl;
     cerr << l << endl;
+    */
   }
   return 0;
 }

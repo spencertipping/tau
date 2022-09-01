@@ -22,8 +22,17 @@ struct fd_in
   fd_in(Φ &f_, uN fd_) : g(f_), i(f_, fd_)
     {
       g.λc([&]() {
+        cerr << "starting input loop" << endl;
         while (g.ο() << i)
-          cout << "fd_in iteration" << endl;
+          cerr << "fd_in iteration" << endl;
+
+        cerr << "return case" << endl;
+        cerr << "  i.o.n = " << i.o.n << endl;
+        cerr << "  i.o.e = " << i.o.e << endl;
+        cerr << "  i.rx() = " << i.rx() << endl;
+
+        cerr << "fd_in output was rejected, returning" << endl;
+
         return 0;
       });
     }
@@ -40,9 +49,13 @@ struct fd_out
       g.λc([&]() {
         for (let x : g.ι())
           if (!(x >> o))
+          {
+            cerr << "write failed, early return" << endl;
             return 1;
+          }
           else
-            cout << "fd_out iteration" << endl;
+            cerr << "fd_out iteration" << endl;
+        cerr << "fd_out returning; end of input" << endl;
         return 0;
       });
     }
