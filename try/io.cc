@@ -1,3 +1,8 @@
+#include "../tau.hh"
+
+#if tau_defines_γ
+
+
 #include <cstring>
 
 #include "io.hh"
@@ -8,13 +13,21 @@
 int cat(int argc, char **argv)
 {
   Λ          l;
-  fd_in      i{l, 0};
-  fd_out     o{l, 1};
-  stream_out e{l, cerr};
+  Φ          f{l};
+  fd_in      i{f, 0};
+  fd_out     o{f, 1};
+  stream_out e{f, cerr};
 
   i.g | o.g;
   //i.g & e.g;
-  l.go();
+  while (1)
+  {
+    f();
+    l.go();
+    cerr << "loop: i = " << i.g << endl;
+    cerr << "loop: o = " << o.g << endl;
+    cerr << l << endl;
+  }
   return 0;
 }
 
@@ -27,3 +40,14 @@ int main(int argc, char **argv)
 
 
 #include "../tau/end.hh"
+
+
+#else
+
+int main()
+{
+  std::cerr << "γ not defined" << std::endl;
+  return 1;
+}
+
+#endif

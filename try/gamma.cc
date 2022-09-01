@@ -8,6 +8,9 @@ using namespace tau;
 using namespace std;
 
 
+#if tau_defines_γ
+
+
 #include "../tau/begin.hh"
 
 
@@ -71,15 +74,16 @@ using namespace std;
 void try_simple()
 {
   Λ l;
-  γ a(l);
-  γ b(l);
-  γ c(l);
-  γ d(l);
-  γ e(l);
+  Φ f(l);
+  γ a(f);
+  γ b(f);
+  γ c(f);
+  γ d(f);
+  γ e(f);
 
   γn(a, 1000000) | γi(b) | γf(c, 50000) | γo(d);
   b & γo(e);
-  l.go();
+  f.l.go();
 
   cout << a << endl;
   cout << b << endl;
@@ -104,3 +108,14 @@ int main(int argc, char **argv)
 }
 
 #include "../tau/end.hh"
+
+
+#else
+
+int main()
+{
+  cout << "no γ support on this platform" << endl;
+  return 1;
+}
+
+#endif

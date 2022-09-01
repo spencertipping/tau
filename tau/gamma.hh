@@ -5,6 +5,7 @@
 #include "types.hh"
 #include "Lambda.hh"
 #include "phi.hh"
+#include "Phi.hh"
 #include "utf9-i9.hh"
 #include "utf9-o9.hh"
 
@@ -69,21 +70,21 @@ typedef φ<i9, φ9> γφ;
 
 struct γ
 {
-  Λ &l;
+  Φ &f;
 
   S<λi>  ls;
   V<γφ*> fs;
 
   γ(γ &) = delete;
-  γ(Λ &l_, uf8 ιb = ζb0, uf8 οb = ζb0, uf8 ξb = ζb0, uf8 δb = ζb0)
-    : l(l_)
-    { fs.push_back(ιb ? new γφ(l, ιb) : nullptr);
-      fs.push_back(οb ? new γφ(l, οb) : nullptr);
-      fs.push_back(ξb ? new γφ(l, ξb) : nullptr);
-      fs.push_back(δb ? new γφ(l, δb) : nullptr); }
+  γ(Φ &f_, uf8 ιb = ζb0, uf8 οb = ζb0, uf8 ξb = ζb0, uf8 δb = ζb0)
+    : f(f_)
+    { fs.push_back(ιb ? new γφ(f.l, ιb) : nullptr);
+      fs.push_back(οb ? new γφ(f.l, οb) : nullptr);
+      fs.push_back(ξb ? new γφ(f.l, ξb) : nullptr);
+      fs.push_back(δb ? new γφ(f.l, δb) : nullptr); }
 
   ~γ()
-    { for (let i : ls) l.w(i);
+    { for (let i : ls) f.l.w(i);
       for (uN i = 0; i < fs.size(); ++i) φx(i); }
 
 
@@ -94,16 +95,16 @@ struct γ
   γφ &ξ() const { return *fs[2]; }
   γφ &δ() const { return *fs[3]; }
 
-  λi  λc(λf &&f) { let i = l.c(std::move(f)); ls.insert(i); return i; }
-  γ  &λx(λi i)   {         l.x(i);            ls.erase(i);  return *this; }
-  Λr  λw(λi i)   {                            ls.erase(i);  return l.w(i); }
-  γ  &λy()       {         l.y(λs::R);                      return *this; }
+  λi  λc(λf &&f_) { let i = f.l.c(std::move(f_)); ls.insert(i); return i; }
+  γ  &λx(λi i)    {         f.l.x(i);             ls.erase(i);  return *this; }
+  Λr  λw(λi i)    {                               ls.erase(i);  return f.l.w(i); }
+  γ  &λy()        {         f.l.y(λs::R);                       return *this; }
 
   φi φc(uf8 b = ζb0)
-    { let f = new γφ(l);
+    { let x = new γφ(f.l);
       for (φi i = 0; i < fs.size(); ++i)
-        if (!fs[i]) { fs[i] = f; return i; }
-      fs.push_back(f);
+        if (!fs[i]) { fs[i] = x; return i; }
+      fs.push_back(x);
       return fs.size() - 1; }
 
   γ &φx(φi i)

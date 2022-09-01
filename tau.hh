@@ -8,7 +8,7 @@
 
 #define tau_defines_λ (tau_has_boost_context || tau_has_emscripten_fiber)
 #define tau_defines_Φ (tau_defines_λ && tau_has_epoll)
-#define tau_defines_γ (tau_defines_λ)
+#define tau_defines_γ (tau_defines_Φ)
 
 
 #include "tau/numerics.hh"
