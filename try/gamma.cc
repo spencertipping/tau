@@ -83,13 +83,14 @@ void try_simple()
 
   γn(a, 1000000) | γi(b) | γf(c, 50000) | γo(d);
   b & γo(e);
-  f.l.go();
+  f.go();
 
   cout << a << endl;
   cout << b << endl;
   cout << c << endl;
   cout << d << endl;
   cout << e << endl;
+  cout << f << endl;
 
   /*
   cout << "a IOE = " << a.ι().f.im << " " << a.ο().f.om << " " << a.δ().f.om << endl;

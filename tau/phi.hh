@@ -99,33 +99,36 @@ struct φ
   bool     ra()   const { return    i && i->ra(); }
   bool     wa()   const { return    o && o->wa(); }
 
+  // TODO: rename these
   φ &wrca() { while (!ri()) cg.y(λs::φc); return *this; }
   φ &wra()  { wrca(); i->wra();           return *this; }
 
 
   template<class X>  // blocking write
-  bool operator<<(X const &x) { while (!wi()) cg.y(λs::φc); return *o << f.w(x, *o); }
+  bool operator<<(X const &x)
+    { while (!wi()) cg.y(λs::φc);
+      return *o << f.w(x, *o); }
 
   template<class X>  // non-blocking write
   bool operator<<=(X const &x)
     { if (!wi() || !wa()) return false;
       auto y = f.w(x, *o);
-      return y.size() <= o->b.wa() && o->w(y); }
+      return y.size() <= o->b.wa() && *o << y; }
 
 
-  R  operator*()  { wrca(); return f.r(R(**i), *i); }
   φ &operator++() { ++*i;   return *this; }
+  R  operator* () { wrca(); return f.r(R(**i), *i); }
 
 
   struct it
   { φ    &f;
     bool  eof;
-    it   &operator++()                  { eof = !++f; return *this; }
     R     operator* ()            const { return *f; }
-    bool  operator==(it const &x) const { return eof == x.eof; } };
+    bool  operator==(it const &x) const { return eof == x.eof; }
+    it   &operator++() { ++f; f.i->wra(); eof = !f.ri(); return *this; } };
 
-  it begin() { wrca(); return it{*this, !ra()}; }
-  it end()   {         return it{*this, true}; }
+  it begin() { wra(); return it{*this, !ra()}; }
+  it end()   {        return it{*this, true}; }
 };
 
 

@@ -34,7 +34,8 @@
         if (!tau_debugging)                                 \
         {                                                   \
           tau_debugging = true;                             \
-          perror("assertion failure errno (if any)");       \
+          if (errno)                                        \
+            perror("assertion failure errno (if any)");     \
           std::cerr << "FAIL: " << m << std::endl;          \
         }                                                   \
         __assert_fail(x, f, l, __ASSERT_FUNCTION);          \
