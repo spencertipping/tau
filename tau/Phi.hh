@@ -42,7 +42,6 @@ struct Φf
   uN     wo = 0;  // write offset, to handle partial writes
   bool   ep = false;
 
-  Φf(Φf &) = delete;
   Φf(Φ &f_, uN fd, u32 s = 1 << ζb0 - 1);
   ~Φf();
 
@@ -124,8 +123,8 @@ inline Φf::~Φf()
 { f.x(*this); }
 
 
-template<class R, class F>
-bool operator<<(φ<R, F> &f, Φf &r)
+template<class R, class W, class F>
+bool operator<<(φ<R, W, F> &f, Φf &r)
 {
   while (1)
   {

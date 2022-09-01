@@ -99,9 +99,8 @@ struct φ
   bool     ra()   const { return    i && i->ra(); }
   bool     wa()   const { return    o && o->wa(); }
 
-  // TODO: rename these
-  φ &wrca() { while (!ri()) cg.y(λs::φc); return *this; }
-  φ &wra()  { wrca(); i->wra();           return *this; }
+  φ &wrc() { while (!ri()) cg.y(λs::φc); return *this; }
+  φ &wra() { wrc(); i->wra();            return *this; }
 
 
   template<class X>  // blocking write
@@ -116,8 +115,8 @@ struct φ
       return y.size() <= o->b.wa() && *o << y; }
 
 
-  φ &operator++() { ++*i;   return *this; }
-  R  operator* () { wrca(); return f.r(R(**i), *i); }
+  φ &operator++() { ++*i;  return *this; }
+  R  operator* () { wra(); return f.r(R(**i), *i); }
 
 
   struct it

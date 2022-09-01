@@ -19,11 +19,9 @@ namespace tau
 
 struct i9
 {
-  static uN   size_of(ζp a) { return u9rs(a, 0); }
-  static i9   cast   (ζp a) { return i9{a}; }
-  static void free   (ζp a)
-    { i9 i{a};
-      if (i.type() == u9t::heapref) i.free(); }
+  static inline uN   size_of(ζp a) { return u9rs(a, 0); }
+  static inline i9   cast   (ζp a) { return i9{a}; }
+  static inline void free   (ζp a) { i9 i{a}; if (i.type() == u9t::heapref) i.free(); }
 
 
   struct it
@@ -90,7 +88,7 @@ struct i9
       return i9{Rc<ζp>(R<u9_heapref>(begin(), 0).r)}; };
 
   i9 &free()
-    { if (type() == u9t::heapref) std::free((**this).a);
+    { if (type() == u9t::heapref || type() == u9t::heappin) std::free((**this).a);
       return *this;}
 
   i9 &pin()
