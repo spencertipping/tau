@@ -62,8 +62,6 @@ struct ΦΘ
 {
   Θp h;
   λi l;
-
-  // TODO: why do we need to invert this ordering?
   bool operator<(ΦΘ const &x) const { return h > x.h; }
 };
 

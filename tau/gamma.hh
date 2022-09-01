@@ -115,6 +115,10 @@ struct γ
   γ &Θ(ΔΘ dt) { f.Θ(now() + dt); return *this; }
 
 
+  template<class T>
+  bool operator<<(T x) { return ο() << x; }
+
+
   γ &operator^(γ &x) { ξ()(x.ο()); return x; }
   γ &operator|(γ &x) { ο()(x.ι()); return x; }
   γ &operator&(γ &x) { δ()(x.ι()); return x; }

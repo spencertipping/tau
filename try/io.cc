@@ -38,10 +38,7 @@ int par(int argc, char **argv)
   stream_out o2{f, std::cerr};
 
   n.g | d.g | o2.g;
-  f.go([&](Φ &f) {
-    //std::cerr << f << std::endl;
-    return true;
-  });
+  f.go();
   return 0;
 }
 

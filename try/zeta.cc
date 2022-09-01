@@ -14,7 +14,6 @@ using namespace std;
 void try_small_ζ()
 {
   Λ l;
-  γ g(l);  // just so we have one
 
   uN xs[] = {1, 2, 3, 5, 8, 13, 21, 34};
   auto ys = o9t("foo", 1, 2.0 + 3.0i, 3, 4.5,
