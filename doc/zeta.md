@@ -9,13 +9,9 @@ There are two conceptual pieces: ζ, the queue, and ζb, the backing store for i
 ## ζb
 ζb is defined with a few invariants:
 
-1. Byte offsets appear to strictly increase, modulo some unsigned number
-2. Allocation is allowed only when the total live window is within the capacity
-3. Every allocation unit is contiguous
-
-(4) is a pretty big constraint because it interacts with the internal buffering structure. If, for example, we have a ζb whose nominal capacity is 65536B and a 1B object pinned at position 32768, then the largest object we can write is now 32768B -- despite having more nominal capacity available.
-
-We can work around this by reserving 200% of nominal capacity; that guarantees we'll have the full capacity available no matter where an object is pinned. Alternatively, we can just heap-allocate overflowed values and store tags to them. Then capacity serves its intended purpose, providing elasticity, rather than limiting the size of objects that can be enqueued.
+1. Allocation is allowed only when the total live window is within the capacity
+2. Every allocation unit is contiguous
+3. Values are "read" and then "freed", two distinct phases
 
 
 ### Allocation algorithm
@@ -41,11 +37,3 @@ wrapped state:
 ```
 
 In the wrapped state, `wi = ri + ci`, not `ri + c`. As soon as `ri` also wraps around, we reset `ci = c` so the buffer is no longer truncated.
-
-
-### External addressing and overflow
-External addresses (`x`) are large enough to store any number between `0` and `c-1` inclusive, but may easily overflow; for example, `ri`'s logical value will increase indefinitely.
-
-The obvious strategy is to keep a "basis offset" that increases over time, such that `x + bi >= ri && x + bi < wi` in the normal state. However, this means `bi` will need to change -- and when it does, it can't modify the meaning of any existing `x`s that have been issued. Equivalently, `Δbi % c == 0` -- implying `Δbi == c`. This works because we will never hold two references more than `c` bytes apart.
-
-So now let's revisit our model and make _everything_ overflow on the same modular basis. Now `ri <= wi` is not an invariant; `ri > wi` means we're in wrapped state. `x % ci` is the effective buffer position if wrapped, otherwise the position is used as-is.

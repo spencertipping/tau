@@ -19,8 +19,12 @@ namespace tau
 
 struct i9
 {
-  static uN size_of(ζp a) { return u9rs(a, 0); }
-  static i9 cast   (ζp a) { return i9{a}; }
+  static uN   size_of(ζp a) { return u9rs(a, 0); }
+  static i9   cast   (ζp a) { return i9{a}; }
+  static void free   (ζp a)
+    { i9 i{a};
+      if (i.type() == u9t::heapref) i.free(); }
+
 
   struct it
   {
@@ -82,12 +86,16 @@ struct i9
 
 
   i9 operator*() const
-    { u9tm{u9t::heapref}(type());
+    { u9tm{u9t::heapref, u9t::heappin}(type());
       return i9{Rc<ζp>(R<u9_heapref>(begin(), 0).r)}; };
 
   i9 &free()
     { if (type() == u9t::heapref) std::free((**this).a);
       return *this;}
+
+  i9 &pin()
+    { if (type() == u9t::heapref) W<u8>(a, 0, u9t::heappin | stype());
+      return *this; }
 
 
   i9 operator[](uN i) const
@@ -196,6 +204,7 @@ O &operator<<(O &s, i9 const &x)
     }*/
 
   case u9t::heapref: return s << "heap@" << Rc<void*>((*x).a);
+  case u9t::heappin: return s << "hpin@" << Rc<void*>((*x).a);
 
   default:
     return s << "i9[" << x.type() << ":" << x.size() << "]";

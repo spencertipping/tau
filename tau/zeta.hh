@@ -30,9 +30,9 @@ namespace tau
 
 #if tau_debug_iostream
   struct ζb;
-  struct ζ;
+  template<class R> struct ζ;
   O &operator<<(O &s, ζb const &b);
-  O &operator<<(O &s, ζ const &x);
+  template<class R> O &operator<<(O &s, ζ<R> const &x);
 #endif
 
 
@@ -79,6 +79,7 @@ struct ζb
 };
 
 
+template<class R = void>
 struct ζ
 {
   ζb     b;
@@ -107,20 +108,17 @@ struct ζ
   bool wwa(uN s) { while (b.wa() < s) { if (rc) return false; wg.y(λs::O); }; return true; }
 
 
-  // NOTE: from ζ's perspective, the value is free here; but we allow
-  // instances of R to finalize the value because the caller of r()
-  // borrows it for the duration of its atomic run
-  template<class R>
-  ζp r()
-    { if (!wra()) return ζωp;
-      let a = b + b.ri;
-      b.free(b.ri + R::size_of(a));
+  ζp   operator*() { return wra() ? b + b.ri : ζωp; }
+  bool operator++()
+    { if (!ra()) return false;
+      R::free(b + b.ri);
+      b.free(b.ri + R::size_of(b + b.ri));
       wg.w();
-      return a; }
+      return true; }
 
 
   template<class W>
-  bool w(W x)
+  bool operator<<(W x)
     { let s = x.size();
 
       // NOTE: <, not <=, because ζb reserves one byte when wrapped to mark it
@@ -148,7 +146,8 @@ O &operator<<(O &s, ζb const &b)
            << " ra=" << b.ra() << " wa=" << b.wa() << "]";
 }
 
-O &operator<<(O &s, ζ const &x)
+template<class R>
+O &operator<<(O &s, ζ<R> const &x)
 {
   return s << "ζ" << (x.rc ? "#" : "r") << (x.wc ? "#" : "w") << " " << x.b;
 }

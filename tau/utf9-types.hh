@@ -54,7 +54,8 @@ enum class u9t
   tensor  = 23,
 
   pidfd   = 24,
-  heapref = 25,
+  heapref = 25,  // heapref that will be freed automatically
+  heappin = 26,  // pinned heapref (not freed automatically)
 
   none    = 31,  // not a real type
 };
@@ -304,6 +305,7 @@ O &operator<<(O &s, u9t t)
 
   case u9t::pidfd:   return s << "pidfd";
   case u9t::heapref: return s << "heapref";
+  case u9t::heappin: return s << "heappin";
 
     TA(s, Sc<uN>(t))
   }

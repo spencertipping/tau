@@ -53,19 +53,20 @@ struct φ9
   i9   take() { let r = b; b = nullptr; return r; }
   void free() { if (b) { std::free(b); b = nullptr; } }
 
-  i9 r(i9 x, ζ&)
+  template<class R>
+  i9 r(i9 x, ζ<R>&)
     { ++im;
       free();
       if (x.type() == u9t::heapref) b = x = *x;
       return x; }
 
-  template<class W> ic auto w(W x, ζ &z)
+  template<class W, class Z> ic auto w(W x, ζ<Z> &z)
     { if constexpr (o9_<W>::v) { return os(x.size(), z.b.c) ? φo<decltype(x)>{o9box(x)} : φo<decltype(x)>{x}; }
       else      { let o = o9(x); return os(o.size(), z.b.c) ? φo<decltype(o)>{o9box(o)} : φo<decltype(o)>{o}; } }
 };
 
 
-typedef φ<i9, φ9> γφ;
+typedef φ<i9, i9, φ9> γφ;
 
 
 struct γ

@@ -22,30 +22,31 @@ void try_small_ζ()
                 5.0 + 8.9i, "bif");
 
   // Small test
-  ζ t(l);
+  ζ<i9> t(l);
   let s1 = l.c([&]() {
-    A(t.w(o9(xs, 8)), "ζ rejected xs");
-    A(t.w(o9("foo")), "ζ rejected foo");
-    A(t.w(ys), "ζ rejected ys");
-    A(t.w(ys), "ζ rejected second ys");
-    A(t.w(o9box(ys)), "ζ rejected boxed ys");
+    A(t << o9(xs, 8), "ζ rejected xs");
+    A(t << o9("foo"), "ζ rejected foo");
+    A(t << ys, "ζ rejected ys");
+    A(t << ys, "ζ rejected second ys");
+    A(t << o9box(ys), "ζ rejected boxed ys");
     t.wω();
     cout << "t write-closed" << endl;
     return 0;
   });
 
   let s2 = l.c([&]() {
-    cout << "received " << i9{t.r<i9>()} << endl;
-    cout << "received " << i9{t.r<i9>()} << endl;
-    cout << "received " << i9{t.r<i9>()} << endl;
-    cout << "received " << i9{t.r<i9>()} << endl;
+    cout << "received " << i9{*t} << endl; ++t;
+    cout << "received " << i9{*t} << endl; ++t;
+    cout << "received " << i9{*t} << endl; ++t;
+    cout << "received " << i9{*t} << endl; ++t;
 
-    i9 b = t.r<i9>();
+    i9 b = *t;
     cout << "received " << b << " = " << *b << endl;
-    b.free();
+    ++t;  // NOTE: this should free b
 
-    let z = t.r<i9>();
+    let z = *t;
     A(z == ζωp, "z should be ζωp, got " << z);
+    ++t;
     cout << "t is all good" << endl;
     return 0;
   });
@@ -90,8 +91,8 @@ template<class F>
 void bench(int argc)
 {
   Λ l;
-  φ<i9, F> a(l);
-  φ<i9, F> b(l);
+  φ<i9, i9, F> a(l);
+  φ<i9, i9, F> b(l);
 
   uNc N = argc == 1
     ? std::is_same<F, φι>::value ? 1 << 28 : 1 << 24
