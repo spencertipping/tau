@@ -111,6 +111,9 @@ struct γ
     { if (fs[i]) { fs[i]->ω(); delete fs[i]; fs[i] = nullptr; }
       return *this; }
 
+  γ &Θ(Θp t)  { f.Θ(t);          return *this; }
+  γ &Θ(ΔΘ dt) { f.Θ(now() + dt); return *this; }
+
 
   γ &operator^(γ &x) { ξ()(x.ο()); return x; }
   γ &operator|(γ &x) { ο()(x.ι()); return x; }

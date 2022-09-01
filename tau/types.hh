@@ -100,7 +100,6 @@ template<class T>          using H  = std::hash<T>;
 template<class... T>       using M  = std::unordered_map<T...>;
 template<class T>          using Nl = std::numeric_limits<T>;
 template<class T, class U> using P  = std::pair<T, U>;
-template<class T, class C> using PQ = std::priority_queue<T, std::vector<T>, C>;
 typedef             std::ostream O;
 template<class... T>       using Q  = std::queue<T...>;
 template<class... K>       using S  = std::unordered_set<K...>;
@@ -109,6 +108,8 @@ template<class... X>       using T  = std::tuple<X...>;
 template<class... T>       using V  = std::vector<T...>;
 template<class... T>       using Va = std::variant<T...>;
 template<class... T>       using Vi = typename V<T...>::const_iterator;
+
+template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std::vector<T>, C>;
 
 
 typedef uN      Λr;

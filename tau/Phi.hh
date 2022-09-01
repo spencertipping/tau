@@ -2,6 +2,8 @@
 #define tau_Φ_h
 
 
+#include <algorithm>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/epoll.h>
@@ -33,17 +35,15 @@ struct Φf
   Φ     &f;
   λg     w;
   o9fdr  o;
-  iN     we = 0;
-  iN     wn = 1;  // NOTE: not always a real IO value; 1 means "not EOF, not error"
+  iN     rn = 1;  // NOTE: not always a real IO value; 1 means "not EOF, not error"
   iN     re = 0;
-  iN     rn = 1;
-
+  iN     wn = 1;
+  iN     we = 0;
   uN     wo = 0;  // write offset, to handle partial writes
-
   bool   ep = false;
 
   Φf(Φf &) = delete;
-  Φf(Φ &f_, uN fd, uN s = 1 << ζb0 - 1);
+  Φf(Φ &f_, uN fd, u32 s = 1 << ζb0 - 1);
   ~Φf();
 
   uN   fd()  const { return o.fd; }
@@ -51,8 +51,18 @@ struct Φf
   bool ra()  const { return !(rn == -1 && re == EAGAIN); }
   bool wa()  const { return !(wn == -1 && we == EAGAIN); }
 
+  Φf &reset() { rn = wn = 1; return *this; }
+
   iN   rx()  const { return rn == -1 ? re : 0; }
   iN   wx()  const { return wn == -1 ? we : 0; }
+};
+
+
+struct ΦΘ
+{
+  Θp h;
+  λi l;
+  bool operator<(ΦΘ const &x) const { return h < x.h; }
 };
 
 
@@ -61,7 +71,9 @@ struct Φ
   sletc        Φen = 64;  // number of events per epoll_wait call
   Λ           &l;
   iNc          fd;        // epoll control FD
+  uN           fds = 0;   // number of managed FDs
   epoll_event  ev[Φen];   // inbound epoll event buffer
+  PQ<ΦΘ>       h;
 
 
   Φ(Λ &l_) : l(l_), fd(epoll_create1(0))
@@ -74,28 +86,41 @@ struct Φ
     { epoll_event ev;
       ev.events   = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
       ev.data.ptr = &f;
+      ++fds;
       return epoll_ctl(fd, EPOLL_CTL_ADD, f.fd(), &ev) != -1; }
 
   Φ &x(Φf &f)
     { if (f.ep)
         A(epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1,
           "epoll del failed " << errno);
+      --fds;
       return *this; }
 
 
+  Φ &Θ(Θp t)
+    { while (now() < t) { h.push(ΦΘ{t, l.i()}); l.y(λs::Θ); }
+      return *this; }
+
+  Θp hn() const { return h.empty() ? forever() : h.top().h; }
+
+
   uN operator()()
-    { let n = epoll_wait(fd, ev, Φen, 1);
+    { let dt = (hn() - now()) / 1ms;
+      let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
       A(n != -1, "epoll_wait error " << errno);
-      for (iN i = 0; i < n; ++i)
-      { let f = Rc<Φf*>(ev[i].data.ptr);
-        f->rn = f->wn = 1;
-        f->w.w(); }
+      for (iN i = 0; i < n; ++i) Rc<Φf*>(ev[i].data.ptr)->reset().w.w();
+      let t = now();
+      while (hn() <= t) l.r(h.top().l), h.pop();
       return n; }
+
+  Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return f.fds || f.hn() != forever(); })
+    { l.go();
+      while (f(*this)) (*this)(), l.go();
+      return *this; }
 };
 
 
-inline Φf::Φf(Φ &f_, uN fd, uN s)
-  : f(f_), w{f.l}, o{fd, s, rn, re}
+inline Φf::Φf(Φ &f_, uN fd, u32 s) : f(f_), w{f.l}, o{fd, rn, re, s}
 { Φnb(fd); ep = f << *this; }
 
 inline Φf::~Φf()

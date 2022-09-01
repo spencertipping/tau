@@ -213,21 +213,23 @@ struct o9t
 
 struct o9fdr  // zero-copy read from FD
 {
-  sletc sb = u9sb(u9s::v64);
-  static_assert(sb == 9);
+  sletc sb = u9sb(u9s::v32);  static_assert(sb == 5);
+  uNc   fd;
+  iN   &n;    // NOTE: must be external to this o9, since o9 objects
+  iN   &e;    // are assumed to be trivially copyable/destructible
+  u32c  s;
 
-  uNc  fd;
-  uNc  s;
-  iN  &n;
-  iN  &e;
+  o9fdr(uN fd_, iN &n_, iN &e_, u32 s_ = 1 << ζb0 - 1)
+    : fd(fd_), n(n_), e(e_), s(s_ - sb)
+    { A(s_ > sb, "o9fdr " << s_ << "(s_) ≤ " << sb << "(sb)"); }
 
-  uN size() { return s; }
+  uN size() { return s + sb; }
   uN write(ζp m)
-    { n = read(fd, m + sb, s - sb);
-      if (n <= 0) { e = errno; return ζω; }
+    { n = read(fd, m + sb, s);
+      if (n <= 0) { if (n == -1) e = errno; return ζω; }
       e = 0;
-      W<u8>(m, 0, u9t::bytes | u9s::v64);
-      W<u64>(m, 1, n);
+      W<u8>(m, 0, u9t::bytes | u9s::v32);
+      W<u32>(m, 1, n);
       return n + sb; }
 };
 

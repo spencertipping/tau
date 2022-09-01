@@ -22,9 +22,10 @@ struct fd_in
   fd_in(Φ &f_, uN fd_) : g(f_), fd(fd_)
     {
       g.λc([&]() {
-        Φf i{g.f, fd};
+        Φf i{g.f, fd, 6};
         auto &o = g.ο();
-        while (o << i);
+        while (o << i)
+          g.Θ(10ms);
         o.ω();
         return i.rx();
       });
@@ -54,6 +55,7 @@ struct fd_out
           ++i;
         }
         cerr << "end of input, fd_out returning 0" << endl;
+        i.ω();
         return 0;
       });
     }

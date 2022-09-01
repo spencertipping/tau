@@ -12,22 +12,14 @@
 
 int cat(int argc, char **argv)
 {
-  Λ          l;
-  Φ          f{l};
-  fd_in      i{f, 0};
-  fd_out     o{f, 1};
-  stream_out e{f, cerr};
+  Λ      l;
+  Φ      f{l};
+  fd_in  i{f, 0};
+  fd_out o{f, 1};
 
   i.g | o.g;
-  //i.g & e.g;
-  while (1)
-  {
-    //cerr << "main loop iteration" << endl;
-    //cerr << l << endl;
-    //cerr << *i.g.ο().o << endl;
-    f();
-    l.go();
-  }
+  f.go();
+
   return 0;
 }
 
