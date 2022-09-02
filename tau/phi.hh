@@ -124,7 +124,7 @@ struct φ
     bool  eof;
     R     operator* ()            const { return *f; }
     bool  operator==(it const &x) const { return eof == x.eof; }
-    it   &operator++() { ++f; f.i->wra(); eof = !f.ri(); return *this; } };
+    it   &operator++() { ++f; eof = !f.i->wra(); return *this; } };
 
   it begin() { wra(); return it{*this, !ra()}; }
   it end()   {        return it{*this, true}; }

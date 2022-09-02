@@ -54,8 +54,7 @@ struct fd_in
       g.λc([&]() {
         Φf i{g.f, fd, 6};
         auto &o = g.ο();
-        while (o << i)
-          g.Θ(10ms);
+        while (o << i);
         o.ω();
         return i.rx();
       });
@@ -72,15 +71,7 @@ struct fd_out
     {
       g.λc([&]() {
         Φf o{g.f, fd};
-        auto &i = g.ι();
-        while (i.ri())
-        {
-          auto x = *i;
-          if (!(x >> o)) return 1;
-          x.free();
-          ++i;
-        }
-        i.ω();
+        for (let x : g.ι()) if (!(x >> o)) return 1;
         return 0;
       });
     }
@@ -95,7 +86,9 @@ struct stream_out
   stream_out(Φ &f, O &s_ = std::cout) : g(f), s(s_)
     {
       g.λc([&]() {
-        for (let x : g.ι()) s << x << std::endl;
+        for (let x : g.ι())
+          //s << "\033[s\033[40G" << x << "\033[r" << std::flush;
+          s << std::endl << x << std::endl;
         return 0;
       });
     }

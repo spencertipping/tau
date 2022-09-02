@@ -32,7 +32,7 @@ template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 struct o9i9
 {
   i9 const a;
-  uN size ()     const { let s = a.size(); return s + u9sb(u9sq(s)); }
+  uN size ()     const { let s = a.size(); return s + u9sb(a.stype()); }
   uN write(ζp m) const { std::memcpy(m, a.a, size()); return 0; }
 };
 

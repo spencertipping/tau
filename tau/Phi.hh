@@ -53,7 +53,7 @@ struct Φf
   bool ra()  const { return !(rn == -1 && re == EAGAIN); }
   bool wa()  const { return !(wn == -1 && we == EAGAIN); }
 
-  Φf &reset() { rn = wn = 1; return *this; }
+  Φf &reset()      { rn = wn = 1; return *this; }
 
   iN   rx()  const { return rn == -1 ? re : 0; }
   iN   wx()  const { return wn == -1 ? we : 0; }
@@ -104,13 +104,15 @@ struct Φ
   Θp hn() const { return h.empty() ? forever() : h.top().h; }
 
 
-  uN operator()()
-    { let dt = (hn() - now()) / 1ms;
-      let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
-      A(n != -1, "epoll_wait error " << errno);
-      for (iN i = 0; i < n; ++i) Rc<Φf*>(ev[i].data.ptr)->reset().w.w();
+  Φ &operator()()
+    { let t = now();
+      if (t < hn())
+      { let dt = (hn() - t) / 1ms;
+        let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
+        A(n != -1, "epoll_wait error " << errno);
+        for (iN i = 0; i < n; ++i) Rc<Φf*>(ev[i].data.ptr)->reset().w.w(); }
       while (now() >= hn()) l.r(h.top().l), h.pop();
-      return n; }
+      return *this; }
 
   Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return f.fds || f.hn() != forever(); })
     { l.go();

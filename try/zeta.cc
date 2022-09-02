@@ -70,7 +70,7 @@ void try_tuple()
       xs.push_back(i);
       a << o9(xs);
     }
-    a.wω();
+    a.ω();
     return 0;
   });
 

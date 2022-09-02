@@ -127,6 +127,15 @@ struct γ
 
 
 #if tau_debug_iostream
+template<class T>
+O &operator<<(O &s, φ9::φo<T> const &o)
+{
+  return s << "φo ";
+  if (o.x.index() == 0) s << std::get<0>(o.x);
+  else                  s << std::get<1>(o.x);
+  return s;
+}
+
 O &operator<<(O &s, φ9 const &f)
 {
   return s << "φ9[" << f.im << " " << f.om << "+" << f.ohc

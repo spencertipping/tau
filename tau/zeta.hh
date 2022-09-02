@@ -63,7 +63,7 @@ struct ζb
   uN   ra()     const { return wr() ? wi + (ci - ri) : wi - ri; }
   uN   wa()     const { return wr() ? ri - wi - 1    : ri ? std::max(c - wi, ri - 1) : c - wi; }
 
-  void free(uN a)
+  void free(uN a)  // free all memory up to specified address
     { if (!wr()) A(a <= wi && a >= ri,            "a = " << a << ", ri = " << ri << ", wi = " << wi);
       else     { A(a <= wi || a >= ri && a <= ci, "a = " << a << ", ri = " << ri << ", wi = " << wi << ", ci = " << ci);
                  if (a == ci) a = 0; }

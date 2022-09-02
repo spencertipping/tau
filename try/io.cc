@@ -30,14 +30,15 @@ int par(int argc, char **argv)
   Φ f{l};
 
   fd_in  i{f, 0};
+  delay  d{f, 100us};
   fd_out o{f, 1};
-  i.g | o.g;
+  i.g | d.g | o.g;
 
   iota       n{f};
-  delay      d{f, 500ms};
+  delay      d2{f, 10ms};
   stream_out o2{f, std::cerr};
+  n.g | d2.g | o2.g;
 
-  n.g | d.g | o2.g;
   f.go();
   return 0;
 }
