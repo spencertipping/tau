@@ -2,6 +2,9 @@
 #define tau_Φ_h
 
 
+// TODO: have a separate version for emscripten
+
+
 #include <algorithm>
 
 #include <errno.h>

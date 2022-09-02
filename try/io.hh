@@ -37,8 +37,7 @@ struct delay
   delay(Φ &f, ΔΘ dt_) : g(f), dt(dt_)
     {
       g.λc([&]() {
-        auto &i = g.ι();
-        while (i.ri()) g.Θ(dt).ο() << *i, ++i;
+        for (let x : g.ι()) g.Θ(dt).ο() << x;
         return 0;
       });
     }
