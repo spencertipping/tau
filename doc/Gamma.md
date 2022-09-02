@@ -57,8 +57,8 @@ Also worth considering: we may want some type of unified structure to initialize
 
 ```cpp
 Γ(iota,
-  uN n = Ξ(n, -1);
+  uN n = Ξ("n", -1);
   for (uN i = 0; i < n; ++i) o << i; )
 ```
 
-The main λ can create others with `g.λc()`, and it can manage memory and create any local heaps that might be needed. `Ξ` is a preprocessor macro that expands to code that accesses specific configuration options. If the main λ exits, then the γ is automatically destroyed.
+The main λ can create others with `g.λc()`, and it can manage memory and create any local heaps that might be needed. `Ξ` accesses individual config options. If the main λ exits, then the γ is automatically destroyed.
