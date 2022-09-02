@@ -23,6 +23,7 @@ struct iota
       g.λc([&]() {
         for (uN i = 0; i < n; ++i)
           g.ο() << i;
+        g.ο().ω();
         return 0;
       });
     }
@@ -38,6 +39,7 @@ struct delay
     {
       g.λc([&]() {
         for (let x : g.ι()) g.Θ(dt).ο() << x;
+        g.ο().ω();
         return 0;
       });
     }
@@ -53,9 +55,8 @@ struct fd_in
     {
       g.λc([&]() {
         Φf i{g.f, fd, 6};
-        auto &o = g.ο();
-        while (o << i);
-        o.ω();
+        while (g.ο() << i);
+        g.ο().ω();
         return i.rx();
       });
     }
