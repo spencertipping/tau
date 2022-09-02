@@ -84,6 +84,8 @@ struct γ
       fs.push_back(ξb ? new γφ(f.l, ξb) : nullptr);
       fs.push_back(δb ? new γφ(f.l, δb) : nullptr); }
 
+  // TODO: in the future, no destructor required; γ should manage its own
+  // lifecycle
   ~γ()
     { for (let i : ls) f.l.w(i);
       for (uN i = 0; i < fs.size(); ++i) φx(i); }

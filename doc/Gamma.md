@@ -53,4 +53,12 @@ Each operator has very little going on; it should be possible to do something li
 + Init args, copied in by value
 + Runtime storage shared across λs
 
-**TODO:** figure out what kind of DSL makes sense here
+Also worth considering: we may want some type of unified structure to initialize, rather than having open-ended C++. For example, we might insist on `i9`. We also want to store these things in a dispatch table rather than defining C++ symbols directly.
+
+```cpp
+Γ(iota,
+  uN n = Ξ(n, -1);
+  for (uN i = 0; i < n; ++i) o << i; )
+```
+
+The main λ can create others with `g.λc()`, and it can manage memory and create any local heaps that might be needed. `Ξ` is a preprocessor macro that expands to code that accesses specific configuration options. If the main λ exits, then the γ is automatically destroyed.
