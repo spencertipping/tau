@@ -75,4 +75,9 @@ The main λ can create others with `g.λc()`, and it can manage memory and creat
 3. If we have compound/nested γs, who manages the compound linkages?
 4. For γs that have multiple φs, how are those φs declared before Γ creates the ζ linkages?
 
-**TODO:** let's walk through an example of (1) asking Γ to create some stuff; (2) using that stuff; and (3) awaiting its teardown. This will define not only how Γ should work, but also how the "main" γ should be structured.
+
+## Γ construction
+First, each τ program has a bootup γ that accepts further UTF9-encoded instructions to create γs and connect them. Each connection request consists of two pieces:
+
+1. A map of `addr (name config-map)` defining the γs we intend to create
+2. A list of `(addr1, φ1, addr2, φ2)` tuples defining the space of ζs
