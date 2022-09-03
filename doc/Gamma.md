@@ -68,4 +68,9 @@ The main λ can create others with `g.λc()`, and it can manage memory and creat
 
 Γ also converts the `return n` interface to a more UNIX-like exit-from-anywhere setup. Any of the participating λs can invoke `g.x()` to implode the γ, cleaning up all resources and (**TBD**) setting the final state of the γ, which can be observed by whoever created it.
 
-**TODO:** how is that better than writing stuff to δ?
+
+## γ interfacing
+1. How are γs created and later identified?
+2. How does a γ exit normally vs abnormally, if at all?
+3. If we have compound/nested γs, who manages the compound linkages?
+4. For γs that have multiple φs, how are those φs declared before Γ creates the ζ linkages?
