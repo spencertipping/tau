@@ -47,18 +47,25 @@ Each operator has very little going on; it should be possible to do something li
   }); }
 ```
 
+It's probably worth some iteration to figure this out.
+
 
 ## Structure
 + One or more λs
-+ Init args, copied in by value
++ Init arg, copied in by value (toplevel k/v structure)
 + Runtime storage shared across λs
 
 Also worth considering: we may want some type of unified structure to initialize, rather than having open-ended C++. For example, we might insist on `i9`. We also want to store these things in a dispatch table rather than defining C++ symbols directly.
 
 ```cpp
-Γ(iota,
+Γ(iota) {
   uN n = Ξ("n", -1);
-  for (uN i = 0; i < n; ++i) o << i; )
+  for (uN i = 0; i < n; ++i) o << i;
+};
 ```
 
-The main λ can create others with `g.λc()`, and it can manage memory and create any local heaps that might be needed. `Ξ` accesses individual config options. If the main λ exits, then the γ is automatically destroyed.
+The main λ can create others with `g.λc()`, and it can manage memory and create any local heaps that might be needed. `Ξ` accesses individual config options. If the main λ exits, then the γ is automatically destroyed (which closes its φs).
+
+Γ also converts the `return n` interface to a more UNIX-like exit-from-anywhere setup. Any of the participating λs can invoke `g.x()` to implode the γ, cleaning up all resources and (**TBD**) setting the final state of the γ, which can be observed by whoever created it.
+
+**TODO:** how is that better than writing stuff to δ?
