@@ -12,7 +12,7 @@ struct iota
   uN n;
   iota(Φ &f, uN n_ = -1) : g(f), n(n_)
     { g.λc([&]() {
-        for (uN i = 0; i < n; ++i)
+        for (let i : ι(n))
           g.ο() << i;
         g.ο().ω();  // very important (though it shouldn't be)
         return 0;
@@ -37,7 +37,7 @@ Each operator has very little going on; it should be possible to do something li
 ```cpp
 γ &iota(uN n)
 { return Γ([n](γ &g, γφ, γφ o) {
-    for (uN i = 0; i < n; ++i) o << i;
+    for (let i : ι(n)) o << i;
     // all ports auto-closed when this λ returns
   }); }
 
@@ -56,16 +56,16 @@ It's probably worth some iteration to figure this out.
 + Runtime storage shared across λs
 + **TODO later:** specify a micro-heap for each γ, to avoid `new`/`delete` overhead
 
+See [Ξ](Xi.md) for details about how that abstraction works; it's more involved than this section can cover.
+
 ```cpp
-defγ(iota) {
+γd(iota) {
   uN n = Ξ("n", -1);
-  for (uN i = 0; i < n; ++i) ο << i;
+
+  // TODO later: can we just write ο < ι(n)?
+  for (let i : ι(n)) ο << i;
 };
 ```
-
-**TODO:** declare Ξ interfacing in a way that informs its τ-source DSL integration -- more general than parser combinators, but more specific than "here's an option with no further context"
-
-**TODO:** Ξ should use an enum or other hard type, not strings, to select data entries
 
 The main λ can create others with `g.λc()`, and it can manage memory and create any local heaps that might be needed. `Ξ` accesses individual config options. If the main λ exits, then the γ is automatically destroyed (which closes its φs).
 

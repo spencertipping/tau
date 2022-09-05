@@ -42,6 +42,8 @@ Operators can have multiple input and output channels, and can create/destroy ch
 + `control`: externally-initiated requests to the operator to do something out of band, i.e. not steady-state (like UNIX signals and/or `stderr`)
 + `diagnostics/debug`: operator-initiated information about its operation (like `stderr`)
 
+**TODO:** reassign greeks
+
 Mnemonically, we can say we have four aspects: `i`, `o`, `c`, and `d` -- because we're doing Greek for abstractions, `ι`, `ο`, `ξ`, and `δ`.
 
 

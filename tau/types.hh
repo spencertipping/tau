@@ -160,6 +160,27 @@ template<class T> inline constexpr iN  Sin(T x) { return Sc<iN> (x); }
 template<class T> inline constexpr f64 Sf (T x) { return Sc<f64>(x); }
 
 
+struct ι
+{
+  uNc l;
+  uNc h;
+
+  ι(uN h_)        : l(0),  h(h_) {}
+  ι(uN l_, uN h_) : l(l_), h(h_) {}
+
+  struct it
+  {
+    uN x;
+    uN   operator* ()            const { return x; }
+    it  &operator++()                  { ++x; return *this; }
+    bool operator==(it const &y) const { return x == y.x; }
+  };
+
+  it begin() const { return it{l}; }
+  it end  () const { return it{h}; }
+};
+
+
 #if tau_debug_iostream
 O &operator<<(O &s, λs t)
 {

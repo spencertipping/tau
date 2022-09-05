@@ -21,7 +21,7 @@ struct iota
   iota(Φ &f, uN n_ = -1) : g(f), n(n_)
     {
       g.λc([&]() {
-        for (uN i = 0; i < n; ++i)
+        for (uN i : ι(n))
           g.ο() << i;
         g.ο().ω();
         return 0;
