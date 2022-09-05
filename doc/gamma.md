@@ -5,3 +5,5 @@ The boot γ within each [Φ](Phi.md), γ₀, accepts commands to construct γ co
 
 + [γ component design](gamma-design.md)
 + [γ component authoring](gamma-authoring.md)
+
+[Γ](Gamma.md) unifies all Φs.

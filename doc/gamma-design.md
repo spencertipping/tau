@@ -42,9 +42,7 @@ Operators can have multiple input and output channels, and can create/destroy ch
 + `control`: externally-initiated requests to the operator to do something out of band, i.e. not steady-state (like UNIX signals and/or `stderr`)
 + `diagnostics/debug`: operator-initiated information about its operation (like `stderr`)
 
-**TODO:** reassign greeks
-
-Mnemonically, we can say we have four aspects: `i`, `o`, `c`, and `d` -- because we're doing Greek for abstractions, `ι`, `ο`, `ξ`, and `δ`.
+Because I like to use short metasyntactic names for these things, let's go with _α_, _β_, _δ_, and _ε_ for `input`, `output`, `control`, and `debug` respectively.
 
 
 ## Composition
@@ -60,28 +58,29 @@ We want to be able to build larger γ structures out of smaller γ pieces. When 
     +------------------------+
 ```
 
-Just as with `bash`, there's a question about how we handle `ξ` and `δ`. In this case we leave it up to the ⌈γ, which can route the channels through the IO ports of normal components (an important use case for bidirectional IO):
+Just as with `bash`, there's a question about how we handle `δ` and `ε`. In this case we leave it up to the ⌈γ, which can route the channels through the IO ports of normal components (an important use case for bidirectional IO):
 
 ```
-    +------------------------+
-    |      | +-----+         |
-    |      | |     |         |
-    |      +-|  c  |---+     |
-    |        |     |-+ |     |
-    |        +-----+ | |     |
-    |                | |     |
-    |      +---------+ |     |
-    |      |           |     |
-    |      V           V     |
-    |   +-----+    +-----+   |
---> |---|  f  |----|  g  |---| -->
-    |   +-----+    +-----+   |
-    |                        |
-    +------------------------+
+             δ
+      +------------------------+
+      |      | +-----+         |
+      |      | |     |         |
+      |      +-|  c  |---+     |
+      |        |     |-+ |     |
+      |        +-----+ | |     |
+      |                | |     |
+      |      +---------+ |     |
+      |      |           |     |
+      |      V           V     |
+      |   +-----+    +-----+   |
+α --> |---|  f  |----|  g  |---| --> β
+      |   +-----+    +-----+   |
+      |                        |
+      +------------------------+
 ```
 
-The same is true for `δ`. This strategy scales because we can multiplex indefinitely, although many ⌈γs will present themselves as atomic components and won't provide introspection. That is, writing a ⌈γ doesn't necessarily entail defining a concrete API to transform its internal connections.
+The same principle applies to `ε`. This strategy scales because we can multiplex indefinitely, although many ⌈γs will present themselves as atomic components and won't provide introspection. That is, writing a ⌈γ doesn't necessarily entail defining a concrete API to transform its internal connections.
 
 
 ## Debugging and profiling
-Any ζ can be multiplexed, which means we can transform any ⌈γ's internal routing to provide debugging information. We do this by multiplexing the ξ and δ ports with topological tags that identify the target ⌊γ.
+Any ζ can be multiplexed, which means we can transform any ⌈γ's internal routing to provide debugging information. We do this by multiplexing the δ and ε ports with topological tags that identify the target ⌊γ.
