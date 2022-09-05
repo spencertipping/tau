@@ -2,6 +2,7 @@
 #define tau_utf9_i9_h
 
 
+#include <cstring>
 #include <memory>
 
 
@@ -111,6 +112,10 @@ struct i9
       A(0, "TODO i9[]");
       return *this;
     }
+
+  bool operator==(uN x)        const { return u9unsigned[type()] && Sc<uN> (*this) == x; }
+  bool operator==(i64 x)       const { return u9signed[type()]   && Sc<i64>(*this) == x; }
+  bool operator==(St const &x) const { return u9strings[type()]  && size() == x.size() && !std::memcmp(begin(), x.data(), x.size()); }
 };
 
 
@@ -159,7 +164,7 @@ O &operator<<(O &s, i9 const &x)
          : s;
 
   case u9t::bytes:  return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
-  case u9t::utf8:   return s << "u\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
+  case u9t::utf8:   return s << "\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
   case u9t::index:  return s << "i" << i9{x.begin()};
 
   case u9t::tuple:

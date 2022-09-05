@@ -79,5 +79,7 @@ The main λ can create others with `g.λc()`, and it can manage memory and creat
 ## Γ construction
 First, each τ program has a bootup γ that accepts further UTF9-encoded instructions to create γs and connect them. Each connection request consists of two pieces:
 
-1. A map of `addr (name config-map)` defining the γs we intend to create
-2. A list of `(addr1, φ1, addr2, φ2)` tuples defining the space of ζs
+1. A map of `γid → (name config-map)` defining the γs we intend to create
+2. A list of `(γid1, φ1, γid2, φ2)` tuples defining the space of ζs
+
+Addresses are unique to a specific connection request. The bootup γ will reply with another mapping of `γid → Γid` that anchors each request-local γ ID to a permanent one.
