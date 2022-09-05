@@ -2,6 +2,8 @@
 + [ζ](doc/zeta.md)
 + [φ](doc/phi.md) and [Φ](doc/Phi.md)
 + [γ](doc/gamma.md) and [Γ](doc/Gamma.md)
+  + [γ design](doc/gamma-design.md)
+  + [γ authoring](doc/gamma-authoring.md)
 + [λ](doc/lambda.md)
 + [utf9](doc/utf9.md)
 + [security](doc/security.md)
