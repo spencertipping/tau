@@ -8,62 +8,13 @@
 #include "Phi.hh"
 #include "utf9-i9.hh"
 #include "utf9-o9.hh"
+#include "phi9.hh"
 
 
 #include "begin.hh"
 
 namespace tau
 {
-
-
-struct φ9
-{
-  template<class T>
-  struct φo
-  {
-    Va<T, o9f<u9_heapref>> x;
-
-    uN size ()     { return x.index() ? std::get<1>(x).size()   : std::get<0>(x).size(); }
-    uN write(ζp m) { return x.index() ? std::get<1>(x).write(m) : std::get<0>(x).write(m); }
-  };
-
-
-  u64 im  = 0;  // total inbound messages
-  u64 om  = 0;  // total outbound messages
-  u64 ohc = 0;  // messages over half-ζ-capacity
-  u64 ov  = 0;  // messages that overflowed (and were boxed)
-
-  // Most recently-received heap-allocated message, which remains live
-  // until (1) it is taken (then you free it manually), (2) you read
-  // another message, (3) you destroy this φ9, or (4) you explicitly
-  // call .free().
-  ζp b = nullptr;
-
-  ~φ9() { free(); }
-
-
-  ic bool os(uN s, uN zs)
-    { ++om;
-      if (s >= zs >> 1) ++ohc;
-      let v = s >= zs - 1;
-      if (v) ++ov;
-      return v; }
-
-
-  i9   take() { let r = b; b = nullptr; return r; }
-  void free() { if (b) { std::free(b); b = nullptr; } }
-
-  template<class R>
-  i9 r(i9 x, ζ<R>&)
-    { ++im;
-      free();
-      if (x.type() == u9t::heapref) b = x = *x;
-      return x; }
-
-  template<class W, class Z> ic auto w(W x, ζ<Z> &z)
-    { if constexpr (o9_<W>::v) { return os(x.size(), z.b.c) ? φo<decltype(x)>{o9box(x)} : φo<decltype(x)>{x}; }
-      else      { let o = o9(x); return os(o.size(), z.b.c) ? φo<decltype(o)>{o9box(o)} : φo<decltype(o)>{o}; } }
-};
 
 
 typedef φ<i9, i9, φ9> γφ;
@@ -77,12 +28,12 @@ struct γ
   V<γφ*> fs;
 
   γ(γ &) = delete;
-  γ(Φ &f_, uf8 ιb = ζb0, uf8 οb = ζb0, uf8 ξb = ζb0, uf8 δb = ζb0)
+  γ(Φ &f_, uf8 ιb = ζb0, uf8 οb = ζb0, uf8 δb = ζb0, uf8 εb = ζb0)
     : f(f_)
     { fs.push_back(ιb ? new γφ(f.l, ιb) : nullptr);
       fs.push_back(οb ? new γφ(f.l, οb) : nullptr);
-      fs.push_back(ξb ? new γφ(f.l, ξb) : nullptr);
-      fs.push_back(δb ? new γφ(f.l, δb) : nullptr); }
+      fs.push_back(δb ? new γφ(f.l, δb) : nullptr);
+      fs.push_back(εb ? new γφ(f.l, εb) : nullptr); }
 
   // TODO: in the future, no destructor required; γ should manage its own
   // lifecycle
@@ -95,8 +46,8 @@ struct γ
 
   γφ &ι() const { return *fs[0]; }
   γφ &ο() const { return *fs[1]; }
-  γφ &ξ() const { return *fs[2]; }
-  γφ &δ() const { return *fs[3]; }
+  γφ &δ() const { return *fs[2]; }
+  γφ &ε() const { return *fs[3]; }
 
   λi  λc(λf &&f_) { let i = f.l.c(std::move(f_)); ls.insert(i); return i; }
   γ  &λx(λi i)    {         f.l.x(i);             ls.erase(i);  return *this; }
@@ -122,9 +73,9 @@ struct γ
   bool operator<<(T x) { return ο() << x; }
 
 
-  γ &operator^(γ &x) { ξ()(x.ο()); return x; }
+  γ &operator^(γ &x) { δ()(x.ο()); return x; }
   γ &operator|(γ &x) { ο()(x.ι()); return x; }
-  γ &operator&(γ &x) { δ()(x.ι()); return x; }
+  γ &operator&(γ &x) { ε()(x.ι()); return x; }
 };
 
 

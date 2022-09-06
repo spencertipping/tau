@@ -5,7 +5,7 @@
   + [Ξ](doc/Xi.md)
   + [γ design](doc/gamma-design.md)
   + [γ authoring](doc/gamma-authoring.md)
-+ [λ](doc/lambda.md)
++ [Λ](doc/Lambda.md)
 + [utf9](doc/utf9.md)
 + [security](doc/security.md)
 
@@ -24,3 +24,5 @@ $ sudo apt install -y \
        libc6-dbg{,:i386} \
        libstdc++6-12-dbg{,:i386}
 ```
+
+**TODO:** dockerize build process

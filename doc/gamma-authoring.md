@@ -61,22 +61,13 @@ See [Ξ](Xi.md) for details about how that abstraction works; it's more involved
 ```cpp
 γd(iota) {
   uN n = Ξ("n", -1);
-
-  // TODO later: can we just write ο < ι(n)?
-  for (let i : ι(n)) ο << i;
+  ο < ι(n);
 };
 ```
 
 The main λ can create others with `g.λc()`, and it can manage memory and create any local heaps that might be needed. `Ξ` accesses individual config options. If the main λ exits, then the γ is automatically destroyed (which closes its φs).
 
-γ also converts the `return n` interface to a more UNIX-like exit-from-anywhere setup. Any of the participating λs can invoke `g.x()` to implode the γ, cleaning up all resources and (**TBD**) setting the final state of the γ, which can be observed by whoever created it.
-
-
-## γ interfacing
-1. How are γs created and later identified?
-2. How does a γ exit normally vs abnormally, if at all?
-3. If we have compound/nested γs, who manages the compound linkages?
-4. For γs that have multiple φs, how are those φs declared before γ₀ creates the ζ linkages?
+γ also converts the `return n` interface to a more UNIX-like exit-from-anywhere setup. Any of the participating λs can invoke `g.x()` to implode the γ, cleaning up all resources and (**TBD**) setting the final state of the γ, which can be observed by whoever created it -- or anyone else, for that matter.
 
 
 ## γ₀
@@ -86,3 +77,12 @@ First, each τ program has a bootup γ, γ₀, that accepts further UTF9-encoded
 2. A list of `(γid1, φ1, γid2, φ2)` tuples defining the space of ζs
 
 Addresses are unique to a specific connection request. The γ₀ will reply with another mapping of `γid → (Γid = (Φid, Φγid))` that anchors each request-local γ ID to a permanent and globally unique one.
+
+Φ provides a `γw` function that allows anyone to wait for a γ to be destroyed.
+
+
+## γ interfacing
+1. How are γs created and later identified?
+2. How does a γ exit normally vs abnormally, if at all?
+3. If we have compound/nested γs, who manages the compound linkages?
+4. For γs that have multiple φs, how are those φs declared before γ₀ creates the ζ linkages?

@@ -114,6 +114,11 @@ struct φ
       auto y = f.w(x, *o);
       return y.size() <= o->b.wa() && *o << y; }
 
+  template<class X>  // multiple write
+  bool operator<(X &x)
+    { for (let y : x) if (!(*this << y)) return false;
+      return true; }
+
 
   φ &operator++() { ++*i;  return *this; }
   R  operator* () { wra(); return f.r(R(**i), *i); }
