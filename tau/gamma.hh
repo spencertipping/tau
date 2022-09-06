@@ -24,30 +24,37 @@ struct γ
 {
   Φ &f;
 
+  bool   f0;  // true iff we accept server connections on φ₀
   S<λi>  ls;
   V<γφ*> fs;
 
   γ(γ &) = delete;
-  γ(Φ &f_, uf8 ιb = ζb0, uf8 οb = ζb0, uf8 δb = ζb0, uf8 εb = ζb0)
-    : f(f_)
-    { fs.push_back(ιb ? new γφ(f.l, ιb) : nullptr);
-      fs.push_back(οb ? new γφ(f.l, οb) : nullptr);
+  γ(Φ &f_,
+    bool f0_ = false,
+    uf8 αb = ζb0, uf8 βb = ζb0, uf8 δb = ζb0, uf8 εb = ζb0)
+    : f(f_), f0(f0_)
+    { fs.push_back(nullptr);
+      fs.push_back(αb ? new γφ(f.l, αb) : nullptr);
+      fs.push_back(βb ? new γφ(f.l, βb) : nullptr);
       fs.push_back(δb ? new γφ(f.l, δb) : nullptr);
       fs.push_back(εb ? new γφ(f.l, εb) : nullptr); }
 
-  // TODO: in the future, no destructor required; γ should manage its own
-  // lifecycle
   ~γ()
-    { for (let i : ls) f.l.w(i);
-      for (uN i = 0; i < fs.size(); ++i) φx(i); }
+    { ω();
+      for (let i : ls) f.l.w(i); }
+
+
+  γ &ω()
+    { for (uN i = 0; i < fs.size(); ++i) φx(i);
+      return *this; }
 
 
   γφ &operator[](φi i) const { return *fs.at(i); }
 
-  γφ &ι() const { return *fs[0]; }
-  γφ &ο() const { return *fs[1]; }
-  γφ &δ() const { return *fs[2]; }
-  γφ &ε() const { return *fs[3]; }
+  γφ &α() const { return *fs[1]; }
+  γφ &β() const { return *fs[2]; }
+  γφ &δ() const { return *fs[3]; }
+  γφ &ε() const { return *fs[4]; }
 
   λi  λc(λf &&f_) { let i = f.l.c(std::move(f_)); ls.insert(i); return i; }
   γ  &λx(λi i)    {         f.l.x(i);             ls.erase(i);  return *this; }
@@ -56,7 +63,7 @@ struct γ
 
   φi φc(uf8 b = ζb0)
     { let x = new γφ(f.l);
-      for (φi i = 0; i < fs.size(); ++i)
+      for (φi i = 1; i < fs.size(); ++i)
         if (!fs[i]) { fs[i] = x; return i; }
       fs.push_back(x);
       return fs.size() - 1; }
@@ -70,12 +77,16 @@ struct γ
 
 
   template<class T>
-  bool operator<<(T x) { return ο() << x; }
+  bool operator<<(T x) { return β() << x; }
 
 
-  γ &operator^(γ &x) { δ()(x.ο()); return x; }
-  γ &operator|(γ &x) { ο()(x.ι()); return x; }
-  γ &operator&(γ &x) { ε()(x.ι()); return x; }
+  γφ::it begin() const { return α().begin(); }
+  γφ::it end()   const { return α().end(); }
+
+
+  γ &operator^(γ &x) { δ()(x.β()); return x; }
+  γ &operator|(γ &x) { β()(x.α()); return x; }
+  γ &operator&(γ &x) { ε()(x.α()); return x; }
 };
 
 

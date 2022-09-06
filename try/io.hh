@@ -21,9 +21,8 @@ struct iota
   iota(Φ &f, uN n_ = -1) : g(f), n(n_)
     {
       g.λc([&]() {
-        for (uN i : ι(n))
-          g.ο() << i;
-        g.ο().ω();
+        ι(n) | g.β();
+        g.β().ω();
         return 0;
       });
     }
@@ -38,8 +37,8 @@ struct delay
   delay(Φ &f, ΔΘ dt_) : g(f), dt(dt_)
     {
       g.λc([&]() {
-        for (let x : g.ι()) g.Θ(dt).ο() << x;
-        g.ο().ω();
+        for (let x : g) g.Θ(dt) << x;
+        g.ω();
         return 0;
       });
     }
@@ -55,8 +54,8 @@ struct fd_in
     {
       g.λc([&]() {
         Φf i{g.f, fd, 6};
-        while (g.ο() << i);
-        g.ο().ω();
+        while (g.β() << i);
+        g.ω();
         return i.rx();
       });
     }
@@ -72,7 +71,7 @@ struct fd_out
     {
       g.λc([&]() {
         Φf o{g.f, fd};
-        for (let x : g.ι()) if (!(x >> o)) return 1;
+        for (let x : g) if (!(x >> o)) return 1;
         return 0;
       });
     }
@@ -87,7 +86,7 @@ struct stream_out
   stream_out(Φ &f, O &s_ = std::cout) : g(f), s(s_)
     {
       g.λc([&]() {
-        for (let x : g.ι())
+        for (let x : g)
           //s << "\033[s\033[40G" << x << "\033[r" << std::flush;
           s << std::endl << x << std::endl;
         return 0;

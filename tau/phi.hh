@@ -114,11 +114,6 @@ struct φ
       auto y = f.w(x, *o);
       return y.size() <= o->b.wa() && *o << y; }
 
-  template<class X>  // multiple write
-  bool operator<(X &x)
-    { for (let y : x) if (!(*this << y)) return false;
-      return true; }
-
 
   φ &operator++() { ++*i;  return *this; }
   R  operator* () { wra(); return f.r(R(**i), *i); }
@@ -134,6 +129,12 @@ struct φ
   it begin() { wra(); return it{*this, !ra()}; }
   it end()   {        return it{*this, true}; }
 };
+
+
+template<class X, class R, class W, class F>
+bool operator|(X x, φ<R, W, F> &f)
+{ for (let y : x) if (!(f << y)) return false;
+  return true; }
 
 
 #if tau_debug_iostream

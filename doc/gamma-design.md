@@ -15,20 +15,20 @@ term -> |  f  | -> |  g  | -> |  h  | -> term
            +----------+----------+-----> term
 ```
 
-Let's use the diagram above to define the basic "operator shape":
+Let's use the diagram above to define the basic "operator shape", translating FDs into φ indexes:
 
 ```
-                    control (fd 2)
-                      ^ |
-                      | |
-                      | V
-                 +----------+
-input (fd 0) <-> | operator | <-> output (fd 1)
-                 +----------+
-                      ^ |
-                      | |
-                      | V
-               diagnostics/debug (fd 3)
+                  control (φ₃)
+                    ^ |
+                    | |
+                    | V
+               +----------+
+input (φ₁) <-> | operator | <-> output (φ₂)
+               +----------+
+                    ^ |
+                    | |
+                    | V
+             diagnostics/debug (φ₄)
 ```
 
 `input` and `output` are bidirectional; data normally moves from left to right, but sometimes the reverse happens. Most operators splice the reverse direction, since they modify only forward-moving data.
