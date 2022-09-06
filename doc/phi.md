@@ -7,4 +7,4 @@ All established connections are ζs, which are created by linking two φs to one
 
 
 ## Server φs
-φ objects are never servers, unlike UNIX FDs which can be. Instead, servers are implemented at the γ level by marking FDs as "redirect on connection". These server connections are handled by [γ₀](gamma0.md).
+φ objects are never servers, unlike UNIX FDs which can be. Instead, servers are implemented at the γ level by reserving Φ ID 0 to be the "omni-connect" port. If γ indicates that it is active, then those connections will be assigned to new φs and the φ₀ listener will receive those assignments on a custom ζ.

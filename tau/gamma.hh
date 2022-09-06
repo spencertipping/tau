@@ -79,10 +79,8 @@ struct γ
   template<class T>
   bool operator<<(T x) { return β() << x; }
 
-
   γφ::it begin() const { return α().begin(); }
   γφ::it end()   const { return α().end(); }
-
 
   γ &operator^(γ &x) { δ()(x.β()); return x; }
   γ &operator|(γ &x) { β()(x.α()); return x; }

@@ -27,4 +27,4 @@ Handled by [γ₀](gamma0.md), the initial native within each Φ.
 3. The new γ object runs its "pre-init" against Ξ, initializing all φ
 4. Once all new γ have been initialized this way, connections are read from [ξ](xi.md) and ζs created to connect φs
 
-Step (4) happens atomically from the perspective of all γs within the same Φ.
+This whole process is Φ-atomic; and because IDs are guaranteed to be unique, it is in practice Γ-atomic (up to RPC connection ordering).
