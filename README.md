@@ -30,7 +30,8 @@ $ sudo apt install -y \
 
 ## Next steps
 1. Server connections for γ
-2. γ₀ → γ UTF9 API
-3. Φ trunk multiplexing
-4. γ₀ ED25519 + AES secure channels
-5. Γ routing
+2. γ definition DSL (C++ side)
+3. γ₀ → γ UTF9 API
+4. Φ trunk multiplexing
+5. γ₀ ED25519 + AES secure channels
+6. Γ routing
