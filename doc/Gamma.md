@@ -9,7 +9,7 @@ There is currently no plan for Γ to manage Φ₀ migration for failover, althou
 
 
 ## Multi-Φ Γ abstraction
-The primary goal here is to unify all {γ : Φ} into a single addressible space with appropriate allowances for temporary connection drops and unsecured linkages. The end result is that you don't need to think about Φ boundaries at all; γs can communicate freely across an apparently uniform address space.
+The primary goal here is to unify all {γ : Φ} into a single addressible space with appropriate allowances for temporary connection drops and unsecured linkages. The end result is that you don't need to think about Φ boundaries at all; γs can communicate freely across an apparently uniform address space. (See below for security-related exceptions.)
 
 This involves four parts in practice:
 
@@ -17,6 +17,14 @@ This involves four parts in practice:
 2. L2-switched traffic across connected Φ, with customizable route blocking
 3. Latency-controlled boundary multiplexing
 4. Reconnection handling with session persistence
+
+
+### Γ security
+Not all Φs are equally trusted; for example, if I run a job from my computer (m₁) and distribute some work to a machine I don't fully control (m₂), m₂ shouldn't be able to access my γ₀ directly -- nor should it be able to access most of the γs on m₁.
+
+The reverse is not true: I should be able to access and debug all γs on m₂. This asymmetry is implemented by γ₀, which keeps track of which Φs are trusted (with respect to the Φ running the γ₀) and which ones aren't. γ₀ will drop Γ-fabric requests from untrusted clients.
+
+This is easy to implement with public-key cryptography: any Γ-fabric requests must originate from a trusted private key. And this means every Φ has a private key that is never shared, but is used to prove its identity.
 
 
 ##  γ initialization
