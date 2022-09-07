@@ -26,3 +26,11 @@ $ sudo apt install -y \
 ```
 
 **TODO:** dockerize build process
+
+
+## Next steps
+1. Server connections for γ
+2. γ₀ → γ UTF9 API
+3. Φ trunk multiplexing
+4. γ₀ ED25519 + AES secure channels
+5. Γ routing

@@ -22,26 +22,22 @@ typedef φ<i9, i9, φ9> γφ;
 
 struct γ
 {
-  Φ &f;
-
-  bool   f0;  // true iff we accept server connections on φ₀
+  Φ     &f;
   S<λi>  ls;
   V<γφ*> fs;
 
   γ(γ &) = delete;
   γ(Φ &f_,
-    bool f0_ = false,
+    uf8 φb = ζb0,
     uf8 αb = ζb0, uf8 βb = ζb0, uf8 δb = ζb0, uf8 εb = ζb0)
-    : f(f_), f0(f0_)
-    { fs.push_back(nullptr);
+    : f(f_)
+    { fs.push_back(φb ? new γφ(f.l, φb) : nullptr);
       fs.push_back(αb ? new γφ(f.l, αb) : nullptr);
       fs.push_back(βb ? new γφ(f.l, βb) : nullptr);
       fs.push_back(δb ? new γφ(f.l, δb) : nullptr);
       fs.push_back(εb ? new γφ(f.l, εb) : nullptr); }
 
-  ~γ()
-    { ω();
-      for (let i : ls) f.l.w(i); }
+  ~γ() { ω(); for (let i : ls) f.l.w(i); }
 
 
   γ &ω()
@@ -51,6 +47,7 @@ struct γ
 
   γφ &operator[](φi i) const { return *fs.at(i); }
 
+  γφ &φ() const { return *fs[0]; }
   γφ &α() const { return *fs[1]; }
   γφ &β() const { return *fs[2]; }
   γφ &δ() const { return *fs[3]; }
