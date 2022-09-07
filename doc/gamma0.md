@@ -1,4 +1,10 @@
 # γ₀
-τ boots up into a single [Φ](Phi.md), abstracted as a [Γ](Gamma.md). This Γ constructs the "boot native", which we call γ₀. (This is not a hard requirement, it just happens if no [Ξ](Xi.md) overrides the default Γ behavior.)
+γ₀ is the "root γ" within each [Φ](Phi.md); it's responsible for allocating and connecting other γs in response to [Ξ](Xi.md)/[ξ](xi.md) requests. It also holds the Φ's private key and is the sole demultiplexer for incoming trunk messages (although the messages themselves can come from other γs). Here's a full list of γ₀'s responsibilities:
 
-γ₀ is responsible for defining the set of boundary operations available to all γs within a Φ. For example, γ₀ can service "create γs" and "create a Φ" requests. You can think of γ₀ as τ's standard library.
+1. Generate Φ's initial private key
+2. Accept UTF9-encoded requests to create and connect new γs (Ξ/ξ)
+3. Negotiate symmetric keys with any other Φ
+4. Multiplex + encrypt outbound traffic for a Φ
+5. Decrypt + verify + demultiplex inbound traffic from a Φ
+6. Maintain the trunk gateway routing table
+7. Destroy the Φ
