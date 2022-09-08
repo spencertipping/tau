@@ -48,6 +48,40 @@ struct delay
 };
 
 
+struct splitter
+{
+  γ  g;
+  uN a = 0;
+  splitter(Φ &f) : g(f)
+    {
+      g.λc([&]() {
+        ++a;
+        for (let x : g)
+        {
+          std::cout << "splitter < " << x << std::endl;
+          if (!(g.δ() << x)) break;
+        }
+        std::cout << "splitter read loop done" << std::endl;
+        if (!--a) g.ω();
+        return 0;
+      });
+
+      g.λc([&]() {
+        ++a;
+        for (let x : g.δ())
+        {
+          std::cout << "splitter > " << x << std::endl;
+          if (!(g << x)) break;
+        }
+        std::cout << "splitter write loop done" << std::endl;
+        g.δ().rω();
+        if (!--a) g.ω();
+        return 0;
+      });
+    }
+};
+
+
 struct broadcast
 {
   γ     g;
@@ -59,16 +93,20 @@ struct broadcast
       p = g.φc(ζb0, true);
       g.λc([&]() {
         for (let q : g[p])
+        {
+          std::cout << "broadcast conn; φ = " << q << std::endl;
           g.λc([&, q]() {
             ps.emplace(q);
             for (let x : g[q])
               for (let p2 : ps)
-                if (p2 != q)
-                  g[p2] << x;
+                g[p2] << x;
             ps.erase(q);
             g[q].ω();
             return 0;
           });
+        }
+        g.ω();
+        std::cout << "broadcast done listening" << std::endl;
         return 0;
       });
     }
@@ -108,7 +146,7 @@ struct tcp_server
       sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
       sa.sin_port = htons(port);
       A(!bind(sfd, (sockaddr*)&sa, sizeof(sa)), "bind()");
-      A(!listen(sfd, 5), "listen()");
+      A(!listen(sfd, 16), "listen()");
 
       g.λc([&, sfd]() {
         Φf<o9acc> i{g.f, Sc<uN>(sfd)};

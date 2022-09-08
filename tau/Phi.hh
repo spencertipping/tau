@@ -49,6 +49,8 @@ struct Φf
   bool  ep = false;
   O     o;       // important: must be final field
 
+  Φf(Φf const&) = delete;
+  Φf(Φf&&)      = delete;
   Φf(Φ &f_, uN fd, u32 s = 1 << ζb0 - 1);
   ~Φf();
 
@@ -82,6 +84,9 @@ struct Φ
   PQ<ΦΘ>       h;
 
 
+  Φ(Φ const&) = delete;
+  Φ(Φ&&)      = delete;
+
   Φ(Λ &l_) : l(l_), fd(epoll_create1(0))
     { A(fd != -1, "epoll_create1 failure " << errno); }
 
@@ -94,6 +99,7 @@ struct Φ
       ev.events   = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
       ev.data.ptr = &f;
       ++fds;
+      std::cout << "adding FD " << f.fd() << std::endl;
       return epoll_ctl(fd, EPOLL_CTL_ADD, f.fd(), &ev) != -1; }
 
   template<class O>
@@ -114,6 +120,7 @@ struct Φ
     { let t = now();
       if (t < hn())
       { let dt = (hn() - t) / 1ms;
+        std::cout << "listening for " << fds << " fd(s)" << std::endl;
         let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
         A(n != -1, "epoll_wait error " << errno);
         for (iN i = 0; i < n; ++i)
@@ -179,7 +186,9 @@ O &operator<<(O &s, ΦΘ const &h)
 template<class fO>
 O &operator<<(O &s, Φf<fO> const &f)
 {
-  return s << "<<Φf TODO";
+  return s << "Φf[" << (f.ep ? "E" : "-") << f.o.fd
+           << " r=" << f.rn << " " << f.re
+           << " w=" << f.wn << " " << f.we << "]";
 }
 
 O &operator<<(O &s, Φ &f)

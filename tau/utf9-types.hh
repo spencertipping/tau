@@ -71,11 +71,14 @@ enum class u9st
 };
 
 
+static_assert(sizeof(pid_t) <= sizeof(u32));
+static_assert(sizeof(int)   <= sizeof(u32));
+
 struct u9_pidfd { u32 pid; u32 fd; };
 struct u9_stream { u9st t; u64 n; };
 
 defR(u9_pidfd) { return u9_pidfd{R<u32>(xs, i), R<u32>(xs, i + 4)}; }
-defW(u9_pidfd) { W(xs, i, x.pid); W(xs, i, x.fd); }
+defW(u9_pidfd) { W(xs, i, x.pid); W(xs, i + 4, x.fd); }
 
 
 sletc u9ω = u9_stream{u9st::ω, 0};

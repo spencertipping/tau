@@ -87,6 +87,34 @@ void try_tuple()
 }
 
 
+void try_bytes()
+{
+  Λ l;
+  φ<i9> a(l);
+  φ<i9> b(l);
+
+  let s1 = l.c([&]() {
+    u8 bs[] = {1, 2, 3, 4, 5, 6, 7, 8};
+    a << o9t(u9_pidfd{17, 31}, Bv{bs, sizeof(bs)});
+    a << o9t(u9_pidfd{19, 43}, Bv{bs, 5});
+    a << o9t(u9_pidfd{1,  2},  Bv{bs, 1});
+    a.ω();
+    return 0;
+  });
+
+  let s2 = l.c([&]() {
+    for (i9 x : b) cout << x << endl;
+    return 0;
+  });
+
+  a(b);
+
+  l.go();
+  A(!l.w(s1), "nonzero return from s1");
+  A(!l.w(s2), "nonzero return from s2");
+}
+
+
 template<class F>
 void bench(int argc)
 {
@@ -143,6 +171,7 @@ int main(int argc, char **argv)
 {
   try_small_ζ();
   try_tuple();
+  try_bytes();
   cout << "identity bench"      << endl; bench<φι>(argc);
   cout << "checked  bench"      << endl; bench<φc>(argc);
   cout << "measured bench (-H)" << endl; bench<φπ<ΘΔ>> (argc);

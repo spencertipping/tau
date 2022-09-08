@@ -155,6 +155,8 @@ O &operator<<(O &s, i9 const &x)
 
 #undef vec
 
+  case u9t::pidfd:  return s << "pidfd(" << Sc<u9_pidfd>(x).pid << "," << Sc<u9_pidfd>(x).fd << ")";
+
   case u9t::b:      return s << (R<u8>(x.begin(), 0) ? "t" : "f");
   case u9t::symbol: return s << "TODO: i9 symbol";
   case u9t::stream:

@@ -62,10 +62,10 @@ o9f<u9_heapref> o9box(T &x)
 }
 
 
-template<o9string T>
+template<class T>
 struct o9b
 {
-  T const &x;
+  T x;
 
   uN size() const { return x.size() + u9sb(u9sq(x.size())); }
   uN write(ζp m) const
@@ -119,8 +119,12 @@ inline o9c o9(chc *xs)                          { return o9(xs, std::strlen(xs),
 template<o9mapped T, template<typename...> class C, class... Ts> struct o9v;
 template<o9mapped K, o9mapped V, class... Ts>                    struct o9m;
 
-template<o9fixed  T> ic o9f<T> o9(T x) { return o9f<T>{x}; }
-template<o9string T> ic o9b<T> o9(T x) { return o9b<T>{x}; }
+template<o9fixed T> ic o9f<T> o9(T x) { return o9f<T>{x}; }
+
+ic o9b<B const&>  o9(B  const &x) { return o9b<B const&> {x}; }
+ic o9b<Bv>        o9(Bv        x) { return o9b<Bv>       {x}; }
+ic o9b<St const&> o9(St const &x) { return o9b<St const&>{x}; }
+ic o9b<Stv>       o9(Stv       x) { return o9b<Stv>      {x}; }
 
 template<o9mapped T, class... Ts> ic o9v<T, V, Ts...> o9(V<T, Ts...> const&);
 template<o9mapped T, class... Ts> ic o9v<T, S, Ts...> o9(S<T, Ts...> const&);
@@ -247,18 +251,21 @@ struct o9acc  // accept socket connection from server FD
 
   o9acc(uN fd_, iN &n_, iN &e_) : fd(fd_), n(n_), e(e_) {}
 
-  // NOTE: upper bound on size
-  uN size() { return sizeof(sockaddr) + sizeof(uN) + 16; }
+  uN size() { return sizeof(sockaddr) + 256; }
   uN write(ζp m)
     { sockaddr  sa;
       socklen_t l;
       bzero(&sa, sizeof(sa));
-      let c = accept(fd, &sa, &l);
-      if (c == -1) { e = errno; n = e != EINVAL; return ζω; }
-      n = 1;
+      if ((n = accept(fd, &sa, &l)) == -1) { e = errno; return ζω; }
       e = 0;
-      return o9t(u9_pidfd{Sc<u32>(getpid()), Sc<u32>(c)},
-                 Bv{Rc<u8*>(&sa), l}).write(m); }
+
+      // important: o9t.write() returns 0, because it fills its size;
+      // we, however, requested a different size because we don't know
+      // how big l will be. So we need to calculate the return ourselves.
+      auto t = o9t(u9_pidfd{Sc<u32>(getpid()), Sc<u32>(n)},
+                   Bv{Rc<u8*>(&sa), l});
+      t.write(m);
+      return t.size(); }
 };
 
 

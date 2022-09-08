@@ -82,13 +82,13 @@ struct γ
 
 
   γ &operator()(φi i, γ &g, φi gi)
-    { if (φsi(i)) { let f = φc((*this)[i].b); (*this)[i] << f; g(gi, *this, f); return *this; }
+    { if (φsi(i)) { let f = φc((*this)[i].b); *ss.at(i) << f; g(gi, *this, f); return *this; }
       (*this)[i](g[gi]);
       return *this; }
 
 
   template<class T>
-  bool operator<<(T x) { return β() << x; }
+  bool operator<<(T &x) { return β() << x; }
 
   γφ::it begin() const { return α().begin(); }
   γφ::it end()   const { return α().end(); }
@@ -103,7 +103,7 @@ struct γ
 template<class T>
 O &operator<<(O &s, φ9::φo<T> const &o)
 {
-  return s << "φo ";
+  s << "φo ";
   if (o.x.index() == 0) s << std::get<0>(o.x);
   else                  s << std::get<1>(o.x);
   return s;
