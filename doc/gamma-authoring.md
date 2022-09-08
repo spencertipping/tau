@@ -19,4 +19,4 @@ Externally, γs are created by `γfs[Ξ[0]](Ξ[1])`; internally, that call does 
 
 
 ## Idioms
-Many γs are just passthrough UTF9 transforms. These examine just one input at a time and maintain no state. We should have a way to write these with no loops, just a single UTF9→UTF9 C++ lambda.
+Many γs are just passthrough UTF9 transforms. These examine just one input at a time and maintain no state. We should have a way to write these with no loops, just a single UTF9→UTF9 C++ lambda. Any stream-state markers are passed through verbatim from input to output.
