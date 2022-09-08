@@ -18,17 +18,17 @@ term -> |  f  | -> |  g  | -> |  h  | -> term
 Let's use the diagram above to define the basic "operator shape", translating FDs into φ indexes:
 
 ```
-                  control (φ₃)
+                  control (φ₂)
                     ^ |
                     | |
                     | V
                +----------+
-input (φ₁) <-> | operator | <-> output (φ₂)
+input (φ₀) <-> | operator | <-> output (φ₁)
                +----------+
                     ^ |
                     | |
                     | V
-             diagnostics/debug (φ₄)
+             diagnostics/debug (φ₃)
 ```
 
 `input` and `output` are bidirectional; data normally moves from left to right, but sometimes the reverse happens. Most operators splice the reverse direction, since they modify only forward-moving data.
@@ -84,3 +84,9 @@ The same principle applies to `ε`. This strategy scales because we can multiple
 
 ## Debugging and profiling
 Any ζ can be multiplexed, which means we can transform any ⌈γ's internal routing to provide debugging information. We do this by multiplexing the δ and ε ports with topological tags that identify the target ⌊γ.
+
+
+## Server connections
+Any φ can be marked as a "server", which means that connection requests to that φ will be redirected to a different one, whose ID will be provided on the ζ connected to the server φ. It's roughly the same type of `listen`/`accept` machinery provided by Berkeley sockets, but `accept` happens automatically and no endpoint information is provided.
+
+λs reading server φ events are not guaranteed to be scheduled in any particular order, so it isn't possible to have a server act as a reliable semaphore/mutex. (You could _ω_ all but one of the accepted connections after the fact, however.)
