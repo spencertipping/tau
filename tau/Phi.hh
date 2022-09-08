@@ -36,19 +36,18 @@ void Φnb(uN fd)
 struct Φ;
 
 
-// FIXME: this needs to handle sockets and other non-file things
-// with different read() behaviors
+template<class O>
 struct Φf
 {
-  Φ     &f;
-  λg     w;
-  o9fdr  o;
-  iN     rn = 1;  // NOTE: not always a real IO value; 1 means "not EOF, not error"
-  iN     re = 0;
-  iN     wn = 1;
-  iN     we = 0;
-  uN     wo = 0;  // write offset, to handle partial writes
-  bool   ep = false;
+  Φ    &f;
+  λg    w;
+  iN    rn = 1;  // NOTE: not always a real IO value; 1 means "not EOF, not error"
+  iN    re = 0;
+  iN    wn = 1;
+  iN    we = 0;
+  uN    wo = 0;  // write offset, to handle partial writes
+  bool  ep = false;
+  O     o;       // important: must be final field
 
   Φf(Φ &f_, uN fd, u32 s = 1 << ζb0 - 1);
   ~Φf();
@@ -89,14 +88,16 @@ struct Φ
   ~Φ() { A(!close(fd), "~Φ close failed (fd leak) " << errno); }
 
 
-  bool operator<<(Φf &f)
+  template<class O>
+  bool operator<<(Φf<O> &f)
     { epoll_event ev;
       ev.events   = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
       ev.data.ptr = &f;
       ++fds;
       return epoll_ctl(fd, EPOLL_CTL_ADD, f.fd(), &ev) != -1; }
 
-  bool x(Φf &f)
+  template<class O>
+  bool x(Φf<O> &f)
     { --fds;
       return !f.ep
           || epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1; }
@@ -115,7 +116,9 @@ struct Φ
       { let dt = (hn() - t) / 1ms;
         let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
         A(n != -1, "epoll_wait error " << errno);
-        for (iN i = 0; i < n; ++i) Rc<Φf*>(ev[i].data.ptr)->reset().w.w(); }
+        for (iN i = 0; i < n; ++i)
+          // NOTE: mistyping here is OK, as we just want to issue wakeups
+          Rc<Φf<o9fdr>*>(ev[i].data.ptr)->reset().w.w(); }
       while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
@@ -126,15 +129,21 @@ struct Φ
 };
 
 
-inline Φf::Φf(Φ &f_, uN fd, u32 s) : f(f_), w{f.l}, o{fd, rn, re, s}
+template<>
+inline Φf<o9fdr>::Φf(Φ &f_, uN fd, u32 s) : f(f_), w{f.l}, o{fd, rn, re, s}
 { Φnb(fd); ep = f << *this; }
 
-inline Φf::~Φf()
+template<>
+inline Φf<o9acc>::Φf(Φ &f_, uN fd, u32 s) : f(f_), w{f.l}, o{fd, rn, re}
+{ Φnb(fd); ep = f << *this; }
+
+template<class O>
+inline Φf<O>::~Φf()
 { f.x(*this); }
 
 
-template<class R, class W, class F>
-bool operator<<(φ<R, W, F> &f, Φf &r)
+template<class R, class W, class F, class O>
+bool operator<<(φ<R, W, F> &f, Φf<O> &r)
 {
   while (1)
   {
@@ -145,7 +154,7 @@ bool operator<<(φ<R, W, F> &f, Φf &r)
 }
 
 
-bool operator>>(i9 v, Φf &w)
+bool operator>>(i9 v, Φf<o9fdr> &w)
 {
   w.wo = 0;
   while (w.wo < v.size())
@@ -167,7 +176,8 @@ O &operator<<(O &s, ΦΘ const &h)
   return s << "ΦΘ:" << h.h << ":" << h.l;
 }
 
-O &operator<<(O &s, Φf const &f)
+template<class fO>
+O &operator<<(O &s, Φf<fO> const &f)
 {
   return s << "<<Φf TODO";
 }

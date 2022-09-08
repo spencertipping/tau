@@ -242,9 +242,10 @@ struct o9fdr  // zero-copy read from FD
 struct o9acc  // accept socket connection from server FD
 {
   uNc  fd;
+  iN  &n;
   iN  &e;
 
-  o9acc(uN fd_, iN &e_) : fd(fd_), e(e_) {}
+  o9acc(uN fd_, iN &n_, iN &e_) : fd(fd_), n(n_), e(e_) {}
 
   // NOTE: upper bound on size
   uN size() { return sizeof(sockaddr) + sizeof(uN) + 16; }
@@ -253,7 +254,8 @@ struct o9acc  // accept socket connection from server FD
       socklen_t l;
       bzero(&sa, sizeof(sa));
       let c = accept(fd, &sa, &l);
-      if (c == -1) { e = errno; return ζω; }
+      if (c == -1) { e = errno; n = e != EINVAL; return ζω; }
+      n = 1;
       e = 0;
       return o9t(u9_pidfd{Sc<u32>(getpid()), Sc<u32>(c)},
                  Bv{Rc<u8*>(&sa), l}).write(m); }

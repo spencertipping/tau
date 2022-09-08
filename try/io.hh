@@ -111,8 +111,9 @@ struct tcp_server
       A(!listen(sfd, 5), "listen()");
 
       g.λc([&, sfd]() {
-
-
+        Φf<o9acc> i{g.f, Sc<uN>(sfd)};
+        while (g << i);
+        g.ω();
         return 0;
       });
     }
@@ -127,7 +128,7 @@ struct fd_in
   fd_in(Φ &f_, uN fd_) : g(f_), fd(fd_)
     {
       g.λc([&]() {
-        Φf i{g.f, fd, 6};
+        Φf<o9fdr> i{g.f, fd, 6};
         while (g.β() << i);
         g.ω();
         return i.rx();
@@ -144,7 +145,7 @@ struct fd_out
   fd_out(Φ &f_, uN fd_) : g(f_), fd(fd_)
     {
       g.λc([&]() {
-        Φf o{g.f, fd};
+        Φf<o9fdr> o{g.f, fd};
         for (let x : g) if (!(x >> o)) return 1;
         return 0;
       });
