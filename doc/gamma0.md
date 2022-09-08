@@ -8,3 +8,9 @@
 5. Decrypt + verify + demultiplex inbound traffic from a Φ
 6. Maintain the trunk gateway routing table
 7. Destroy the Φ
+
+
+## Bootup
+γ₀ owns `argv` on native Φ builds and can read UTF9 topologies from files, stdin, or command-line arguments. The initial topology is instantiated as if by γ request.
+
+Connections to γ₀, which amount to `eval`, are specified by the initial ξ as part of the program. That is, the resulting γs will connect to γ₀'s fabric server to be able to issue modifications. γs that don't have this connection won't be able to modify the topology, beyond deconstructing themselves.
