@@ -5,6 +5,7 @@
 
 #include <cstring>
 
+
 #include "io.hh"
 
 #include "../tau/begin.hh"
@@ -40,6 +41,18 @@ int par(int argc, char **argv)
   n.g | d2.g | o2.g;
 
   f.go();
+  return 0;
+}
+
+
+int chat(int argc, char **argv)
+{
+  Λ l;
+  Φ f{l};
+
+  broadcast b{f};
+  fd_in i{f, 0};
+
   return 0;
 }
 

@@ -255,6 +255,8 @@ struct u9t_is { static constexpr bool const v = M & 1 << Sc<u8>(u9t_<T>::t); };
 static_assert( u9t_is<u64, u9unsigned.m>::v);
 static_assert(!u9t_is<i64, u9unsigned.m>::v);
 
+static_assert(u9t_is<u9_pidfd, u9fixed.m>::v);
+
 
 ic uN u9logsizeof(u9t t)
 {

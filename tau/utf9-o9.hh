@@ -6,6 +6,8 @@
 #include <memory>
 
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 
@@ -31,6 +33,9 @@ template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 
 struct o9i9
 {
+  // NOTE: the i9 may not be encoded with an optimal size, so copy verbatim
+  // even if we could compact the size by a bit. The invariant here is that
+  // output == input, down to the byte level.
   i9 const a;
   uN size ()     const { let s = a.size(); return s + u9sb(a.stype()); }
   uN write(ζp m) const { std::memcpy(m, a.a, size()); return 0; }
@@ -115,7 +120,7 @@ template<o9mapped T, template<typename...> class C, class... Ts> struct o9v;
 template<o9mapped K, o9mapped V, class... Ts>                    struct o9m;
 
 template<o9fixed  T> ic o9f<T> o9(T x) { return o9f<T>{x}; }
-template<o9string T> ic o9f<T> o9(T x) { return o9b<T>{x}; }
+template<o9string T> ic o9b<T> o9(T x) { return o9b<T>{x}; }
 
 template<o9mapped T, class... Ts> ic o9v<T, V, Ts...> o9(V<T, Ts...> const&);
 template<o9mapped T, class... Ts> ic o9v<T, S, Ts...> o9(S<T, Ts...> const&);
@@ -234,6 +239,27 @@ struct o9fdr  // zero-copy read from FD
 };
 
 
+struct o9acc  // accept socket connection from server FD
+{
+  uNc  fd;
+  iN  &e;
+
+  o9acc(uN fd_, iN &e_) : fd(fd_), e(e_) {}
+
+  // NOTE: upper bound on size
+  uN size() { return sizeof(sockaddr) + sizeof(uN) + 16; }
+  uN write(ζp m)
+    { sockaddr  sa;
+      socklen_t l;
+      bzero(&sa, sizeof(sa));
+      let c = accept(fd, &sa, &l);
+      if (c == -1) { e = errno; return ζω; }
+      e = 0;
+      return o9t(u9_pidfd{Sc<u32>(getpid()), Sc<u32>(c)},
+                 Bv{Rc<u8*>(&sa), l}).write(m); }
+};
+
+
 // TODO: generate indexes if these collections are very large
 template<o9mapped T, class... Ts>
 ic o9v<T, V, Ts...> o9(V<T, Ts...> const &xs) { return o9v<T, V, Ts...>{xs}; }
@@ -254,6 +280,7 @@ ic o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
 template<class T>    struct o9_            { sletc v = false; };
 template<>           struct o9_<o9i9>      { sletc v = true; };
 template<>           struct o9_<o9fdr>     { sletc v = true; };
+template<>           struct o9_<o9acc>     { sletc v = true; };
 template<class T>    struct o9_<o9f<T>>    { sletc v = true; };
 template<class T>    struct o9_<o9b<T>>    { sletc v = true; };
 template<>           struct o9_<o9st>      { sletc v = true; };

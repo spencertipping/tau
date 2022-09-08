@@ -9,6 +9,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <strings.h>
 #include <sys/epoll.h>
 #include <unistd.h>
 
@@ -33,6 +34,10 @@ void Φnb(uN fd)
 
 
 struct Φ;
+
+
+// FIXME: this needs to handle sockets and other non-file things
+// with different read() behaviors
 struct Φf
 {
   Φ     &f;
@@ -53,7 +58,7 @@ struct Φf
   bool ra()  const { return !(rn == -1 && re == EAGAIN); }
   bool wa()  const { return !(wn == -1 && we == EAGAIN); }
 
-  Φf &reset()      { rn = wn = 1; return *this; }
+  Φf  &reset()     { rn = wn = 1; return *this; }
 
   iN   rx()  const { return rn == -1 ? re : 0; }
   iN   wx()  const { return wn == -1 ? we : 0; }
