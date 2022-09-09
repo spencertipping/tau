@@ -9,6 +9,7 @@ I will probably never have time to document this properly.
   + [Ξ](doc/Xi.md)
   + [γ design](doc/gamma-design.md)
   + [γ authoring](doc/gamma-authoring.md)
+  + [γ topologies](doc/gamma-topologies.md)
 + [Λ](doc/Lambda.md)
 + [utf9](doc/utf9.md)
 + [security](doc/security.md)

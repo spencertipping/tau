@@ -9,10 +9,10 @@ Because Ξ is fixed at construction-time, we should assume that any template-sty
 
 
 ## γ lifecycle
-Externally, γs are created by `γfs[Ξ[0]](Ξ[1])`; internally, that call does this:
+Externally, γs are created by calling a dispatch function from `γfs`; internally, that call does this:
 
 1. Constructs a new γ
-2. Calls the `pre_init` function registered for the γ variant, passing in the γ and `Ξ[1]`
+2. Calls the `pre_init` function registered for the γ variant (specified as `Ξ[0]`), passing in the γ and `Ξ[1]`
 3. Once all other γs have been initialized, connects the φs according to ξ
 4. Calls the `init` function registered for the γ variant, passing in the γ and `Ξ[1]`; this creates the main λ for the γ
 5. The γ's main λ is scheduled and, when it returns, destroys the γ
