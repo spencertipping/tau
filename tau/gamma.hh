@@ -29,27 +29,12 @@ struct γ
 
 
   γ(γ &) = delete;
-  γ(Φ &f_, uf8 αb = ζb0, uf8 βb = ζb0, uf8 δb = ζb0, uf8 εb = ζb0)
-    : f(f_)
-    { fs.push_back(αb ? new γφ(f.l, αb) : nullptr);
-      fs.push_back(βb ? new γφ(f.l, βb) : nullptr);
-      fs.push_back(δb ? new γφ(f.l, δb) : nullptr);
-      fs.push_back(εb ? new γφ(f.l, εb) : nullptr); }
-
-  ~γ() { ω(); for (let i : ls) f.l.w(i); }
-
-
-  γ &ω()
-    { for (uN i = 0; i < fs.size(); ++i) φx(i);
-      return *this; }
+  γ(γ&&) = delete;
+  γ(Φ &f_) : f(f_) {}
+  ~γ() { φω(); for (let i : ls) f.l.w(i); }
 
 
   γφ &operator[](φi i) const { return *fs.at(i); }
-
-  γφ &α() const { return (*this)[0]; }
-  γφ &β() const { return (*this)[1]; }
-  γφ &δ() const { return (*this)[2]; }
-  γφ &ε() const { return (*this)[3]; }
 
   λi  λc(λf &&f_) { let i = f.l.c(std::move(f_)); ls.insert(i); return i; }
   γ  &λx(λi i)    {         f.l.x(i);             ls.erase(i);  return *this; }
@@ -69,9 +54,11 @@ struct γ
       return fs.size() - 1; }
 
   γ &φx(φi i)
-    { if (fs[i]) { fs[i]->ω(); delete fs[i]; fs[i] = nullptr; }
-      if (ss.contains(i)) { delete ss[i]; ss.erase(i); }
+    { if (fs[i])          { fs[i]->ω(); delete fs[i]; fs[i] = nullptr; }
+      if (ss.contains(i)) { ss[i]->ω(); delete ss[i]; ss.erase(i); }
       return *this; }
+
+  γ &φω() { for (uN i = 0; i < fs.size(); ++i) φx(i); return *this; }
 
   γφ *φsi(φi i) const { return ss.contains(i) ? ss.at(i) : nullptr; }
   γ   &φs(φi i, bool s)
@@ -82,20 +69,10 @@ struct γ
 
 
   γ &operator()(φi i, γ &g, φi gi)
-    { if (φsi(i)) { let f = φc((*this)[i].b); *ss.at(i) << f; g(gi, *this, f); return *this; }
+    { if (  φsi(i))  { let f = φc((*this)[i].b); *ss.at(i) << f; i = f; }
+      if (g.φsi(gi)) { g(gi, *this, i); return *this; }
       (*this)[i](g[gi]);
       return *this; }
-
-
-  template<class T>
-  bool operator<<(T &x) { return β() << x; }
-
-  γφ::it begin() const { return α().begin(); }
-  γφ::it end()   const { return α().end(); }
-
-  γ &operator^(γ &x) { δ()(x.β()); return x; }
-  γ &operator|(γ &x) { β()(x.α()); return x; }
-  γ &operator&(γ &x) { ε()(x.α()); return x; }
 };
 
 

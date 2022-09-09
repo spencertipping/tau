@@ -36,6 +36,7 @@
 
 #if tau_defines_γ
 # include "tau/gamma.hh"
+# include "tau/digamma.hh"
 # include "tau/Gamma.hh"
 #endif
 

@@ -1,4 +1,8 @@
 # Tau
+APL + Erlang + bash + Joy: a Laplace transform for control flow, where most code is data.
+
+I will probably never have time to document this properly.
+
 + [ζ](doc/zeta.md)
 + [φ](doc/phi.md) and [Φ](doc/Phi.md)
 + [γ](doc/gamma.md) and [Γ](doc/Gamma.md)
@@ -25,14 +29,14 @@ $ sudo apt install -y \
        libstdc++6-12-dbg{,:i386}
 ```
 
+This repo cannot be cloned on case-insensitive filesystems.
+
 **TODO:** dockerize build process
 
 
 ## Next steps
-1. Server connections for γ
-2. TCP listener
-3. γ definition DSL (C++ side)
-4. γ₀ → γ UTF9 API
-5. Φ trunk multiplexing
-6. γ₀ ED25519 + AES secure channels
-7. Γ routing
+1. γ definition DSL (C++ side)
+2. γ₀ → γ UTF9 API
+3. Φ trunk multiplexing
+4. γ₀ ED25519 + AES secure channels
+5. Γ routing

@@ -2,7 +2,33 @@
 A discussion informing the basic principles of γ components at the API level.
 
 
-## Connection topology
+## γ API
+γ is just a container for λs and φs. Its job is to manage all of the resources associated with these objects -- it's a lifecycle container.
+
+γs don't have any intrinsic preference about how their λ or φs are used.
+
+
+### φ allocation
+Most of the topologies below have some fixed φs. These tend to be allocated first and into specific indexes: α = 0, β = 1, δ = 2, ε = 3, etc. τ always uses numeric offsets to refer to φs, just like FDs and TCP ports are numeric in UNIX.
+
+Server φs use any unused φ index when connecting new clients.
+
+
+## Connection topologies
+τ is much more open-ended than `bash` or `ni` because components are meant to be arbitrarily stateful, and Φ/Γ allow dynamic re-routing.
+
+Although γs can have any topologies at all, many systems will conform to a handful of common patterns.
+
+
+### Server connections
+To get a quick constraint out of the way.
+
+Most φs are FIFOs, like bash pipes, but any φ can be marked as a "server", which means that connection requests to that φ will be redirected to a different one, whose ID will be provided on the ζ connected to the server φ. It's roughly the same type of `listen`/`accept` machinery provided by Berkeley sockets, but `accept` happens automatically and no endpoint information is provided.
+
+λs reading server φ events are not guaranteed to be scheduled in any particular order, so it isn't possible to have a server act as a reliable semaphore/mutex. (You could _ω_ all but one of the accepted connections after the fact, however.)
+
+
+### FIFO pipelines
 `bash` uses a unidirectional `f | g | h` compositional pipeline, where `stderr` is untagged-unioned across each command. If we treat `stderr` as read/write (which it is), then we get this:
 
 ```
@@ -18,75 +44,129 @@ term -> |  f  | -> |  g  | -> |  h  | -> term
 Let's use the diagram above to define the basic "operator shape", translating FDs into φ indexes:
 
 ```
-                  control (φ₂)
-                    ^ |
-                    | |
-                    | V
-               +----------+
-input (φ₀) <-> | operator | <-> output (φ₁)
-               +----------+
-                    ^ |
-                    | |
-                    | V
-             diagnostics/debug (φ₃)
+                 control (δ)
+                   ^ |
+                   | |
+                   | V
+              +----------+
+input (α) --> | operator | --> output (β)
+              +----------+
+                   ^ |
+                   | |
+                   | V
+            diagnostics/debug (ε)
 ```
 
-`input` and `output` are bidirectional; data normally moves from left to right, but sometimes the reverse happens. Most operators splice the reverse direction, since they modify only forward-moving data.
+α and β are technically bidirectional but practically one-way; data normally moves from left to right. Operators are not required to do anything with reverse data, nor even to have ζs allocated for it.
 
-Operators can have multiple input and output channels, and can create/destroy channels at runtime (e.g. in response to control messages).
-
-
-## Operator interfacing
-+ `input`: externally-initiated data to be processed (like `stdin`)
-+ `output`: operator-initiated results (like `stdout`)
-+ `control`: externally-initiated requests to the operator to do something out of band, i.e. not steady-state (like UNIX signals and/or `stderr`)
-+ `diagnostics/debug`: operator-initiated information about its operation (like `stderr`)
-
-Because I like to use short metasyntactic names for these things, let's go with _α_, _β_, _δ_, and _ε_ for `input`, `output`, `control`, and `debug` respectively.
+δ and ε need not be defined for every component.
 
 
-## Composition
-We want to be able to build larger γ structures out of smaller γ pieces. When we do, the larger structure can be written as ⌈γ and the smaller as ⌊γ.
+### Bidirectional operators
+Just like above, but α and β can move data in both directions. These are commonly used adjacent to boundaries or multiplexers; for example, encryption/decryption with key negotiation, adaptive compression/decompression, or time synchronization.
 
+
+### Φ boundary components
 ```
-    +------------------------+
-    |                        |
-    |   +-----+    +-----+   |
---> |---|  f  |----|  g  |---| -->
-    |   +-----+    +-----+   |
-    |                        |
-    +------------------------+
+      +-----+
+α <-> | phi |
+      +-----+
 ```
 
-Just as with `bash`, there's a question about how we handle `δ` and `ε`. In this case we leave it up to the ⌈γ, which can route the channels through the IO ports of normal components (an important use case for bidirectional IO):
+These may define δ and/or ε, but usually don't. Files and sockets are some examples of boundary components. It's common to use them with [loops](#loops) when defining pipelines.
 
+
+### Multiplexers
 ```
-             δ
-      +------------------------+
-      |      | +-----+         |
-      |      | |     |         |
-      |      +-|  c  |---+     |
-      |        |     |-+ |     |
-      |        +-----+ | |     |
-      |                | |     |
-      |      +---------+ |     |
-      |      |           |     |
-      |      V           V     |
-      |   +-----+    +-----+   |
-α --> |---|  f  |----|  g  |---| --> β
-      |   +-----+    +-----+   |
-      |                        |
-      +------------------------+
+        new (β)
+         |
+         V
+      +-----+
+      |     | <-> β₁
+α <-> | mux | <-> β₂
+      |     | <-> β₃
+      +-----+ ...
+         |
+         V
+        oob (ε)
 ```
 
-The same principle applies to `ε`. This strategy scales because we can multiplex indefinitely, although many ⌈γs will present themselves as atomic components and won't provide introspection. That is, writing a ⌈γ doesn't necessarily entail defining a concrete API to transform its internal connections.
+Here α is used as the compound channel, β as the demultiplexed side, and ε for out-of-band values arriving on α. α and β are both bidirectional, and β is a server φ.
 
 
-## Debugging and profiling
-Any ζ can be multiplexed, which means we can transform any ⌈γ's internal routing to provide debugging information. We do this by multiplexing the δ and ε ports with topological tags that identify the target ⌊γ.
+### Loops
+A way to mix unidirectional and bidirectional operators. For example, if we wanted to multiplex a pipeline in both directions, we'd need a loop to connect the pipeline's α and β to the same bidirectional φ for the multiplexer.
+
+```
+      +------+
+      |      | --> δ
+α <-> | loop |
+      |      | <-- ε
+      +------+
+```
+
+You'd use it like this:
+
+```
+     +-----+       +------+
+     |     |       |      |δ --> op1 --> op2 --> op3 --+
+<-> α| mux |β <-> α| loop |                            |
+     |     |       |      |ε <-------------------------+
+     +-----+       +------+
+```
 
 
-## Server connections
-Any φ can be marked as a "server", which means that connection requests to that φ will be redirected to a different one, whose ID will be provided on the ζ connected to the server φ. It's roughly the same type of `listen`/`accept` machinery provided by Berkeley sockets, but `accept` happens automatically and no endpoint information is provided.
+### Rooms
+These broadcast every message to every connection.
 
-λs reading server φ events are not guaranteed to be scheduled in any particular order, so it isn't possible to have a server act as a reliable semaphore/mutex. (You could _ω_ all but one of the accepted connections after the fact, however.)
+```
+   new (β)
+    |
+    V
++------+
+|      | <-> β₁
+| room | <-> β₂
+|      | <-> β₃
++------+ ...
+    |
+    V
+  state (ε)
+```
+
+ε is a stream of join/leave notifications.
+
+
+### Flow modifiers
+For example, registers, rate-limiters, and other things that are value-agnostic but modify the flow of a ζ.
+
+```
+       ctrl (δ)
+         |
+         V
+      +-----+
+α --> | mod | <-> β
+      +-----+
+         |
+         V
+       state (ε)
+```
+
+β is bidirectional so it can respond to ι and κ requests.
+
+
+### Taps and unions
+Similar to rooms, but only α can broadcast to all β. Each β unidirectionally routes to α for inbound traffic.
+
+```
+        new (β)
+         |
+         V
+      +-----+
+      |     | <-> β₁
+α <-> | tap | <-> β₂
+      |     | <-> β₃
+      +-----+ ...
+         |
+         V
+       state (ε)
+```

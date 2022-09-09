@@ -92,7 +92,7 @@ struct broadcast
     {
       p = g.φc(ζb0, true);
       g.λc([&]() {
-        for (let q : g[p])
+        for (φi q : g[p])
         {
           std::cout << "broadcast conn; φ = " << q << std::endl;
           g.λc([&, q]() {
