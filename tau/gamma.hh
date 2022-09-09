@@ -49,8 +49,7 @@ struct γ
 
   φi φc(uf8 b = ζb0, bool s = false)
     { let x = new γφ(f.l, b);
-      for (φi i = 0; i < fs.size(); ++i)
-        if (!fs[i]) { fs[i] = x; return i; }
+      for (φi i = 0; i < fs.size(); ++i) if (!fs[i]) { fs[i] = x; return i; }
       fs.push_back(x);
       φs(fs.size() - 1, s);
       return fs.size() - 1; }
