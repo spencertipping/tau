@@ -10,6 +10,11 @@ namespace tau
 {
 
 
+// definition DSL for γs
+
+// TODO: one lambda per input φ, give or take
+
+
 struct ϝ
 {
   γ &g;
