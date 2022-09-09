@@ -27,6 +27,8 @@ struct γ
   V<γφ*>      fs;
   M<φi, γφ*>  ss;  // server sockets (used internally)
 
+  // TODO: add splices
+
 
   γ(γ &) = delete;
   γ(γ&&) = delete;

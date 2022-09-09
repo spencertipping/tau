@@ -8,6 +8,18 @@ The γ initialization section of [Γ](Gamma.md) specifies a "pre-init" function 
 Because Ξ is fixed at construction-time, we should assume that any template-style unknowns have been resolved before [γ₀](gamma0.md) receives it. That is, γ doesn't participate in Ξ modification nor invariant propagation.
 
 
+## φ splicing
+Each γ contains a "splice map" that defines passthrough connections. These are ζs whose values will not be inspected or blocked in any way by the γ; that is, splicing is exactly like doing this, but without any copying overhead or ζ allocation:
+
+```cpp
+λc([&]() { φ1 | φ2; });
+```
+
+Spliced φs are also not broken if the γ is deallocated. This may or may not be useful.
+
+Splices are unidirectional, in that one side of a φ may be spliced while the other is not. A φ can also be comprised of two separate splices, one in each direction.
+
+
 ## γ lifecycle
 Externally, γs are created by calling a dispatch function from `γfs`; internally, that call does this:
 

@@ -110,16 +110,14 @@ struct φ
   φ &wra() { wrc(); i->wra();            return *this; }
 
 
-  template<class X>  // blocking write
+  template<class X>  // write, wait for ζ if necessary
   bool operator<<(X const &x)
     { while (!wi()) cg.y(λs::φc);
       return *o << f.w(x, *o); }
 
-  template<class X>  // non-blocking write
-  bool operator<<=(X const &x)
-    { if (!wi() || !wa()) return false;
-      auto y = f.w(x, *o);
-      return y.size() <= o->b.wa() && *o << y; }
+
+  template<class X>  // write but don't wait for ζ
+  bool operator<<=(X const &x) { return wi() && *this << x; }
 
 
   φ &operator++() { ++*i;  return *this; }
