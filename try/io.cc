@@ -12,14 +12,45 @@
 
 #include "../tau/begin.hh"
 
+using namespace std;
 
-int main(int argc, char **argv)
+
+int nop_seq(int argc, char **argv)
+{
+  Λ l;
+  Φ f{l};
+  for (let x : ι(atoi(argv[0]))) cout << f.dt() << ": " << x << endl;
+  return 0;
+}
+
+
+int tau_seq(int argc, char **argv)
 {
   Λ l;
   Φ f{l};
 
-  iota(f, 20) | delay(f, 50ms) | stream_out(f, std::cout);
+  iota(f, atoi(argv[0])) | delay(f, 50ms) | stream_out(f, std::cout);
   f.go();
+  return 0;
+}
+
+
+int tau_fseq(int argc, char **argv)
+{
+  Λ l;
+  Φ f{l};
+
+  iota(f, atoi(argv[0])) | stream_out(f, std::cout);
+  f.go();
+  return 0;
+}
+
+
+int main(int argc, char **argv)
+{
+  if (!strcmp(argv[1], "nseq"))  return nop_seq (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "tseq"))  return tau_seq (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "fseq"))  return tau_fseq(argc - 2, argv + 2);
   return 0;
 }
 
