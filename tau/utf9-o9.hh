@@ -254,7 +254,7 @@ struct o9acc  // accept socket connection from server FD
   uN size() const { return sizeof(sockaddr) + 256; }
   uN write(ζp m) const
     { sockaddr  sa;
-      socklen_t l;
+      socklen_t l = 0;
       bzero(&sa, sizeof(sa));
       if ((n = accept(fd, &sa, &l)) == -1) { e = errno; return ζω; }
       e = 0;

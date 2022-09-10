@@ -9,6 +9,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <strings.h>
 #include <sys/epoll.h>
 #include <unistd.h>
@@ -39,15 +40,15 @@ struct Φ;
 template<class O>
 struct Φf
 {
-  Φ    &f;
-  λg    w;
-  iN    rn = 1;  // NOTE: not always a real IO value; 1 means "not EOF, not error"
-  iN    re = 0;
-  iN    wn = 1;
-  iN    we = 0;
-  uN    wo = 0;  // write offset, to handle partial writes
-  bool  ep = false;
-  O     o;       // important: must be final field
+  Φ  &f;
+  λg  w;
+  iN  rn = 1;  // NOTE: not always a real IO value; 1 means "not EOF, not error"
+  iN  re = 0;
+  iN  wn = 1;
+  iN  we = 0;
+  uN  wo = 0;  // write offset, to handle partial writes
+  uN  ep = 0;  // errno from epoll_ctl add, if any
+  O   o;       // important: must be final field
 
   Φf(Φf const&) = delete;
   Φf(Φf&&)      = delete;
@@ -76,19 +77,21 @@ struct ΦΘ
 
 struct Φ
 {
-  sletc        Φen = 256;  // number of events per epoll_wait call
-  Λ            l;
-  iNc          fd;         // epoll control FD
-  uN           fds = 0;    // number of managed FDs
-  epoll_event  ev[Φen];    // inbound epoll event buffer
-  PQ<ΦΘ>       h;
-  Θp           t0 = now();
+  sletc Φen = 256;  // number of events per epoll_wait call
+
+  Λ               l;
+  iNc             fd;         // epoll control FD
+  M<uN, S<void*>> fs;         // who's listening for each FD
+  epoll_event     ev[Φen];    // inbound epoll event buffer
+  PQ<ΦΘ>          h;          // upcoming timed λs
+  Θp              t0 = now();
 
 
   Φ(Φ&)  = delete;
   Φ(Φ&&) = delete;
   Φ() : fd(epoll_create1(0))
-    { A(fd != -1, "epoll_create1 failure " << errno); }
+    { signal(SIGPIPE, SIG_IGN);
+      A(fd != -1, "epoll_create1 failure " << errno); }
 
   ~Φ() { A(!close(fd), "~Φ close failed (fd leak) " << errno); }
 
@@ -96,17 +99,18 @@ struct Φ
   template<class O>
   bool operator<<(Φf<O> &f)
     { epoll_event ev;
-      ev.events   = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
-      ev.data.ptr = &f;
-      ++fds;
-      std::cout << "adding FD " << f.fd() << std::endl;
-      return epoll_ctl(fd, EPOLL_CTL_ADD, f.fd(), &ev) != -1; }
+      ev.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
+      let c = ev.data.fd = f.fd();
+      let r = fs.contains(c) || epoll_ctl(fd, EPOLL_CTL_ADD, c, &ev) != -1;
+      if (r) fs[c].emplace(&f);
+      return r; }
 
   template<class O>
   bool x(Φf<O> &f)
-    { --fds;
-      return !f.ep
-          || epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1; }
+    { if (f.ep) return true;
+      auto &s = fs.at(f.fd());
+      s.erase(&f);
+      return !s.empty() || epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1; }
 
 
   Φ &Θ(Θp t)
@@ -125,12 +129,13 @@ struct Φ
         let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
         A(n != -1, "epoll_wait error " << errno);
         for (iN i = 0; i < n; ++i)
-          // NOTE: mistyping here is OK, as we just want to issue wakeups
-          Rc<Φf<o9fdr>*>(ev[i].data.ptr)->reset().w.w(); }
+          for (let f : fs.at(ev[i].data.fd))
+            // NOTE: mistyping here is OK, as we just want to issue wakeups
+            Rc<Φf<o9fdr>*>(f)->reset().w.w(); }
       while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
-  Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return f.fds || f.hn() != forever(); })
+  Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return !f.fs.empty() || f.hn() != forever(); })
     { l.go();
       while (f(*this)) (*this)(), l.go();
       return *this; }
@@ -139,11 +144,11 @@ struct Φ
 
 template<>
 inline Φf<o9fdr>::Φf(Φ &f_, uN fd, u32 s) : f(f_), w{f.l}, o{fd, rn, re, s}
-{ Φnb(fd); ep = f << *this; }
+{ Φnb(fd); ep = f << *this ? 0 : errno; }
 
 template<>
 inline Φf<o9acc>::Φf(Φ &f_, uN fd, u32 s) : f(f_), w{f.l}, o{fd, rn, re}
-{ Φnb(fd); ep = f << *this; }
+{ Φnb(fd); ep = f << *this ? 0 : errno; }
 
 template<class O>
 inline Φf<O>::~Φf()
@@ -155,9 +160,9 @@ bool operator<<(φ<R, W, F> &f, Φf<O> &r)
 {
   while (1)
   {
-    if      (f << r.o)        return true;
-    else if (r.ep && !r.ra()) r.w.y(λs::ΦI);
-    else                      return false;
+    if      (f << r.o)         return true;
+    else if (!r.ep && !r.ra()) r.w.y(λs::ΦI);
+    else                       return false;
   }
 }
 
@@ -167,7 +172,7 @@ bool operator>>(i9 v, Φf<o9fdr> &w)
   w.wo = 0;
   while (w.wo < v.size())
   {
-    if (w.ep) while (!w.wa()) w.w.y(λs::ΦO);
+    if (!w.ep) while (!w.wa()) w.w.y(λs::ΦO);
     if ((w.wn = write(w.fd(), v.begin() + w.wo, v.size() - w.wo)) == -1)
     { if ((w.we = errno) != EAGAIN)
         return false; }
@@ -187,7 +192,7 @@ O &operator<<(O &s, ΦΘ const &h)
 template<class fO>
 O &operator<<(O &s, Φf<fO> const &f)
 {
-  return s << "Φf[" << (f.ep ? "E" : "-") << f.o.fd
+  return s << "Φf[" << f.o.fd << ":" << f.ep
            << " r=" << f.rn << " " << f.re
            << " w=" << f.wn << " " << f.we << "]";
 }
@@ -197,8 +202,10 @@ O &operator<<(O &s, Φ &f)
   V<ΦΘ> hs;
   while (!f.h.empty()) hs.push_back(f.h.top()), f.h.pop();
   for (auto &h : hs) f.h.push(h);
-  s << "Φ fd=" << f.fd << " fds=" << f.fds << " Θ=";
+  s << "Φ fd=" << f.fd << " Θ=";
   for (auto &h : hs) s << h << " ";
+  s << "; fds=";
+  for (let &[fd, _] : f.fs) s << fd << " ";
   s << std::endl;
   return s << f.l << std::endl;
 }

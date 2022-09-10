@@ -90,9 +90,7 @@ template<class I = i9, class O>
 
 ϝ &fd_in(Φ &f, uN fd)
 {
-  return *new ϝ(f, ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
-    { Φf<o9fdr> i{g.f, fd};
-      while (f << i); });
+  return *new ϝ(f, ϝ::ξΦ, [&, fd](ϝ &f, γ &g) { Φf<o9fdr> i{g.f, fd}; while (f << i); });
 }
 
 

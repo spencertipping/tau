@@ -51,7 +51,7 @@ int chat(int argc, char **argv)
         b | fd_io(f, fd); return fd; })
     | stream_out(f, cout);
 
-  stream_out(f, cout) < b.ε();
+  //stream_out(f, cout) < b.ε();
 
   f.go();
   return 0;
