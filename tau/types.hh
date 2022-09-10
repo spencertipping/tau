@@ -10,6 +10,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <queue>
 #include <string>
 #include <string_view>
@@ -101,7 +102,9 @@ template<class... T>       using M  = std::unordered_map<T...>;
 template<class T>          using Nl = std::numeric_limits<T>;
 template<class T, class U> using P  = std::pair<T, U>;
 typedef             std::ostream O;
+template<class T>          using Op = std::optional<T>;
 template<class... T>       using Q  = std::queue<T...>;
+template<class T>          using Rw = std::reference_wrapper<T>;
 template<class... K>       using S  = std::unordered_set<K...>;
 template<class... T>       using SP = std::shared_ptr<T...>;
 template<class... X>       using T  = std::tuple<X...>;

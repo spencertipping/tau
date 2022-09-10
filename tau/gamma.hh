@@ -47,12 +47,15 @@ struct γ
   γ &Θ(ΔΘ dt) { f.Θ(now() + dt); return *this; }
 
 
-  φi φc(uf8 b = ζb0, bool s = false)
-    { let x = new γφ(f.l, b);
-      for (φi i = 0; i < fs.size(); ++i) if (!fs[i]) { fs[i] = x; return i; }
-      fs.push_back(x);
+  φi φc(γφ *f, bool s = false)
+    { for (φi i = 0; i < fs.size(); ++i)
+        if (!fs[i]) { fs[i] = f; φs(i, s); return i; }
+      fs.push_back(f);
       φs(fs.size() - 1, s);
       return fs.size() - 1; }
+
+  φi φc(uf8 b = ζb0, bool s = false, bool nr = false, bool nw = false)
+    { return φc(new γφ(f.l, b, nr, nw), s); }
 
   γ &φx(φi i)
     { if (fs[i])          { fs[i]->ω(); delete fs[i]; fs[i] = nullptr; }
