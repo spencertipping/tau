@@ -33,7 +33,7 @@ struct γ
   γ(γ &) = delete;
   γ(γ&&) = delete;
   γ(Φ &f_) : f(f_) {}
-  ~γ() { φω(); for (let i : ls) f.l.w(i); }
+  ~γ() { φω(); for (let i : ls) if (i != f.l.i()) f.l.w(i); }
 
 
   γφ &operator[](φi i) const { return *fs.at(i); }

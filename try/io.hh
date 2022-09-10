@@ -1,3 +1,4 @@
+#include <iostream>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <sys/select.h>
@@ -16,38 +17,34 @@ using namespace tau;
 #include "../tau/begin.hh"
 
 
-struct iota
+ϝ &iota(Φ &f, uN n = -1)
 {
-  γ  g;
-  uN n;
-
-  iota(Φ &f, uN n_ = -1) : g(f), n(n_)
-    {
-      g.λc([&]() {
-        ι(n) | g.β();
-        g.β().ω();
-        return 0;
-      });
-    }
-};
+  return *new ϝ(f, ϝ::ξι, [&, n](ϝ &f) { f < ι(n); });
+}
 
 
-struct delay
+ϝ &delay(Φ &f, ΔΘ dt)
 {
-  γ  g;
-  ΔΘ dt;
-
-  delay(Φ &f, ΔΘ dt_) : g(f), dt(dt_)
-    {
-      g.λc([&]() {
-        for (let x : g) g.Θ(dt) << x;
-        g.ω();
-        return 0;
-      });
-    }
-};
+  return *new ϝ(f, ϝ::ξι, [&, dt](ϝ &f)
+    { for (let x : f) if (!(f.Θ(dt) << x)) break; });
+}
 
 
+ϝ &splitter(Φ &f)
+{
+  return *new ϝ(f, ϝ::ξτ,
+                [&](ϝ &f) { for (let x : f.α()) if (!(f.δ() << x)) break; },
+                [&](ϝ &f) { for (let x : f.ε()) if (!(f.α() << x)) break; });
+}
+
+
+ϝ &stream_out(Φ &f, O &s)
+{
+  return *new ϝ(f, ϝ::ξΦ, [&](ϝ &f) { for (let x : f) s << f.g.f.dt() << ": " << x << std::endl; });
+}
+
+
+/*
 struct splitter
 {
   γ  g;
@@ -206,6 +203,7 @@ struct stream_out
       });
     }
 };
+*/
 
 
 #include "../tau/end.hh"

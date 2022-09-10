@@ -12,7 +12,9 @@ Because Ξ is fixed at construction-time, we should assume that any template-sty
 Each γ contains a "splice map" that defines passthrough connections. These are ζs whose values will not be inspected or blocked in any way by the γ; that is, splicing is exactly like doing this, but without any copying overhead or ζ allocation:
 
 ```cpp
-λc([&]() { φ1 | φ2; });
+λc([&]() { for (let x : φ1)
+             if (!(φ2 << x)) return 1;
+           return 0; });
 ```
 
 Spliced φs are also not broken if the γ is deallocated. This may or may not be useful.

@@ -136,21 +136,3 @@ For example, registers, rate-limiters, and other things that are value-agnostic 
 ```
 
 β is bidirectional so it can respond to ι and κ requests.
-
-
-## ϝξ
-Similar to rooms, but only α can broadcast to all β. Each β unidirectionally routes to α for inbound traffic.
-
-```
-        new (β)
-         |
-         V
-      +-----+
-      |     | <-> β₁
-α <-> | tap | <-> β₂
-      |     | <-> β₃
-      +-----+ ...
-         |
-         V
-       state (ε)
-```

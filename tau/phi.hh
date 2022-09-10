@@ -136,12 +136,6 @@ struct φ
 };
 
 
-template<class X, class R, class W, class F>
-bool operator|(X x, φ<R, W, F> &f)
-{ for (let y : x) if (!(f << y)) return false;
-  return true; }
-
-
 #if tau_debug_iostream
 template<class R, class W, class F>
 O &operator<<(O &s, φ<R, W, F> const &f)

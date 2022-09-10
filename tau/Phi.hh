@@ -82,6 +82,7 @@ struct Φ
   uN           fds = 0;    // number of managed FDs
   epoll_event  ev[Φen];    // inbound epoll event buffer
   PQ<ΦΘ>       h;
+  Θp           t0 = now();
 
 
   Φ(Φ const&) = delete;
@@ -115,12 +116,13 @@ struct Φ
 
   Θp hn() const { return h.empty() ? forever() : h.top().h; }
 
+  ΔΘ dt() const { return now() - t0; }
+
 
   Φ &operator()()
     { let t = now();
       if (t < hn())
       { let dt = (hn() - t) / 1ms;
-        std::cout << "listening for " << fds << " fd(s)" << std::endl;
         let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
         A(n != -1, "epoll_wait error " << errno);
         for (iN i = 0; i < n; ++i)

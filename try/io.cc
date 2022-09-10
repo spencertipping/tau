@@ -1,4 +1,4 @@
-#define tau_debug_i9st 1
+//#define tau_debug_i9st 1
 
 #include "../tau.hh"
 
@@ -13,6 +13,18 @@
 #include "../tau/begin.hh"
 
 
+int main(int argc, char **argv)
+{
+  Λ l;
+  Φ f{l};
+
+  iota(f, 20) | delay(f, 50ms) | stream_out(f, std::cout);
+  f.go();
+  return 0;
+}
+
+
+/*
 int cat(int argc, char **argv)
 {
   Λ      l;
@@ -87,6 +99,7 @@ int main(int argc, char **argv)
   if (!strcmp(argv[1], "chat")) return chat(argc - 2, argv + 2);
   return 0;
 }
+*/
 
 
 #include "../tau/end.hh"

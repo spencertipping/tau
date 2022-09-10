@@ -14,58 +14,96 @@ namespace tau
 {
 
 
-struct ϝι;
-struct ϝϊ;
-struct ϝΦ;
-struct ϝβ;
-struct ϝτ;
-struct ϝγ;
-struct ϝδ;
-struct ϝξ;
+// Hex-packed ϝ configuration; each four-bit digit configures a φ.
+// Bit layout looks like this:
+//
+// 0x εδβα οι  <- four φs, two IO specifiers
+//
+// Each digit specifies the state of the φ along three dimensions:
+//
+// _4__  <- if set, the φ will be a server
+// __2_  <- if set, the φ will be read-only (not writable)
+// ___1  <- if set, the φ will be write-only (not readable)
+//
+// ι and ο specify which φ is used for default reading and default
+// writing, respectively. Each of these is a number from 0 to 3, inclusive,
+// where 0 = α and 3 = ε.
 
-typedef F<void(ϝι&)> ϝιf;
-typedef F<void(ϝϊ&)> ϝϊf;
-typedef F<void(ϝΦ&)> ϝΦf;
-typedef F<void(ϝβ&)> ϝβf;
-typedef F<void(ϝτ&)> ϝτf;
-typedef F<void(ϝγ&)> ϝγf;
-typedef F<void(ϝδ&)> ϝδf;
-typedef F<void(ϝξ&)> ϝξf;
+typedef u32 ϝξ;
 
 
-template<class Ϝ>
-struct ϝfr
+struct ϝ
 {
-  F<void(Ϝ&)> f;
-  template<class... X> int operator()(X... xs) { f(xs...); return 0; }
+  sletc ξι = 0x001210;
+  sletc ξϊ = 0x000010;
+  sletc ξΦ = 0x003000;
+  sletc ξβ = 0x004010;
+  sletc ξτ = 0x213000;
+  sletc ξγ = 0x004311;
+  sletc ξδ = 0x000110;
+
+  γ        g;
+  ϝξ const c;
+  uN       r{0};
+
+  template<class... Fs>
+  ϝ(Φ &f_, ϝξ c_, Fs... fs) : g{f_}, c(c_)
+    { φc(c >> 8);
+      φc(c >> 12);
+      φc(c >> 16);
+      φc(c >> 20);
+      λcs(fs...); }
+
+  void ϝx() { delete this; }
+
+
+  template<class F, class... Fs>
+  void λcs(F f, Fs... fs) { λc(f); λcs(fs...); }
+  void λcs() {}
+
+
+  λi λc(F<void(ϝ&)> &&f)
+    { return g.λc([&, f = std::move(f)]()
+      { ++r;
+        f(*this);
+        if (!--r) delete this;
+        return 0; }); }
+
+  λi λc(F<void(ϝ&, γ&)> &&f)
+    { return g.λc([&, f = std::move(f)]()
+      { ++r;
+        f(*this, g);
+        if (!--r) delete this;
+        return 0; }); }
+
+  φi φc(ϝξ x)    { return g.φc(ζb0, x & 4, x & 1, x & 2); }
+
+  φi ιi()  const { return c & 3; }
+  φi οi()  const { return c >> 4 & 3; }
+
+  γφ &φι() const { return g[ιi()]; }
+  γφ &φο() const { return g[οi()]; }
+  γφ &α()  const { return g[0]; }
+  γφ &β()  const { return g[1]; }
+  γφ &δ()  const { return g[2]; }
+  γφ &ε()  const { return g[3]; }
+
+  template<class T> ϝ &Θ(T t) { g.Θ(t); return *this; }
+
+  γφ::it begin() const { return φι().begin(); }
+  γφ::it end()   const { return φι().end(); }
+
+  template<class T> bool operator<< (T &x) { return φο() <<  x; }
+  template<class T> bool operator<<=(T &x) { return φο() <<= x; }
+
+  ϝ &operator|(ϝ &x) { g(οi(), x.g, x.ιi()); return x; }
+
+  template<class T>
+  ϝ &operator<(T const &x) { for (let y : x) if (!(*this << y)) break; return *this; }
 };
 
 
-struct ϝι
-{
-  γ  &g;
-  γφ &α, &β, &δ, &ε;
-
-  ϝι(γ &g_, ϝιf &&i, Op<ϝιf> d = std::nullopt)
-    : g(g_),
-      α(*new γφ(g.f.l, ζb0, false, true)),
-      β(*new γφ(g.f.l, ζb0, true, false)),
-      δ(*new γφ(g.f.l, ζb0, false, false)),
-      ε(*new γφ(g.f.l, ζb0, false, false))
-    { g.φc(&α);
-      g.φc(&β);
-      g.φc(&δ);
-      g.φc(&ε);
-      g.λc(ϝfr<ϝι>{std::bind(std::move(i), *this)});
-      if (d) g.λc(ϝfr<ϝι>{std::bind(std::move(*d), *this)}); }
-
-  γφ::it begin() const { return α.begin(); }
-  γφ::it end()   const { return α.end(); }
-
-  template<class T> bool operator<<(T &x) { return β << x; }
-
-  template<class T> T &operator|(T &x) { β(x.α); return x; }
-};
+// TODO: copy-into function
 
 
 }
