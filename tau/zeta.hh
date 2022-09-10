@@ -118,7 +118,7 @@ struct ζ
 
 
   template<class W>
-  bool operator<<(W x)
+  bool operator<<(W const &x)
     { let s = x.size();
 
       // NOTE: <, not <=, because ζb reserves one byte when wrapped to mark it

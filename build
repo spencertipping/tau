@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 
 which=${1:-zeta}
 
-g++ -Wall -Wno-parentheses -Wno-misleading-indentation \
+g++ -Wall -Wno-parentheses -Wno-unused-value -Wno-misleading-indentation \
   -std=c++20 -O3 -g try/$which.cc -o try/$which -lboost_context &
 
 dev/emsdk em++ -Wno-parentheses -Wno-shift-count-overflow \

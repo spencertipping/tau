@@ -47,7 +47,8 @@ struct Λ_
   λi            ri{0};  // currently running λi (0 = main thread)
   ΣΘΔ           qΘ;     // quantum time measurement
 
-  Λ_(Λ_ &) = delete;
+  Λ_(Λ_ &)  = delete;
+  Λ_(Λ_ &&) = delete;
   Λ_() : rq{*this} {}
 
   bool e (λi i) const { return ls.contains(i); }

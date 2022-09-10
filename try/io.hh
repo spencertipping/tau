@@ -17,9 +17,17 @@ using namespace tau;
 #include "../tau/begin.hh"
 
 
+template<class I = i9, class O>
+ϝ &io(Φ &f, F<O(I)> &&l)
+{
+  return *new ϝ(f, ϝ::ξι, [&, l = std::move(l)](ϝ &f)
+    { for (let x : f) if (!(f << o9(l(x)))) break; });
+}
+
+
 ϝ &iota(Φ &f, uN n = -1)
 {
-  return *new ϝ(f, ϝ::ξι, [&, n](ϝ &f) { f < ι(n); });
+  return *new ϝ(f, ϝ::ξι, [&, n](ϝ &f) { ι(n) > f.α(); });
 }
 
 
@@ -33,14 +41,74 @@ using namespace tau;
 ϝ &splitter(Φ &f)
 {
   return *new ϝ(f, ϝ::ξτ,
-                [&](ϝ &f) { for (let x : f.α()) if (!(f.δ() << x)) break; },
-                [&](ϝ &f) { for (let x : f.ε()) if (!(f.α() << x)) break; });
+                [&](ϝ &f) { f.α() > f.δ(); },
+                [&](ϝ &f) { f.ε() > f.α(); });
 }
 
 
 ϝ &stream_out(Φ &f, O &s)
 {
-  return *new ϝ(f, ϝ::ξΦ, [&](ϝ &f) { for (let x : f) s << f.g.f.dt() << ": " << x << std::endl; });
+  return *new ϝ(f, ϝ::ξΦ, [&](ϝ &f)
+    { for (let x : f) s << f.g.f.dt() << ": " << x << std::endl; });
+}
+
+
+ϝ &broadcast(Φ &f)
+{
+  return *new ϝ(f, ϝ::ξγ, [&](ϝ &f)
+    { S<φi> ps;
+      for (let c : f)
+      { f.ε() <<= o9t(c, true);
+        f.λc([&, c](ϝ &f) {
+          ps.emplace(c);
+          for (let x : f[c])
+            for (let q : ps) f[q] << x;
+          ps.erase(c);
+          f.ε() <<= o9t(c, false);
+        }); }});
+}
+
+
+ϝ &tcp_server(Φ &f, uN port, u32 listen_addr = INADDR_LOOPBACK)
+{
+  iN sfd;
+  sockaddr_in sa;
+
+  A((sfd = socket(AF_INET, SOCK_STREAM, 0)) != -1, "socket()");
+  bzero(&sa, sizeof(sa));
+  sa.sin_family = AF_INET;
+  sa.sin_addr.s_addr = htonl(listen_addr);
+  sa.sin_port = htons(port);
+  A(!bind(sfd, (sockaddr*)&sa, sizeof(sa)), "bind()");
+  A(!listen(sfd, 16), "listen()");
+
+  return *new ϝ(f, ϝ::ξΦ, [&, sfd](ϝ &f, γ &g)
+    { Φf<o9acc> i{g.f, Sc<uN>(sfd)};
+      while (f << i); });
+}
+
+
+ϝ &fd_in(Φ &f, uN fd)
+{
+  return *new ϝ(f, ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
+    { Φf<o9fdr> i{g.f, fd};
+      while (f << i); });
+}
+
+
+ϝ &fd_out(Φ &f, uN fd)
+{
+  return *new ϝ(f, ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
+    { Φf<o9fdr> o{g.f, fd};
+      for (let x : f) if (!(x >> o)) break; });
+}
+
+
+ϝ &fd_io(Φ &f, uN fd)
+{
+  return *new ϝ(f, ϝ::ξΦ,
+                [&, fd](ϝ &f, γ &g) { Φf<o9fdr> o{g.f, fd}; for (let x : f) if (!(x >> o)) break; },
+                [&, fd](ϝ &f, γ &g) { Φf<o9fdr> i{g.f, fd}; while (f << i); });
 }
 
 

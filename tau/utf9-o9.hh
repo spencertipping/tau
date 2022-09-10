@@ -153,14 +153,14 @@ template<o9mapped T, template<typename...> class C, class... Ts>
 struct o9v  // unindexed, unordered tuple/set
 {
   C<T, Ts...> const &xs;
-  uN                 s = 0;
+  uN mutable         s = 0;
 
-  uN size() { return isize() + u9sb(u9sq(isize())); }
-  uN isize()
+  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN isize() const
     { if (!s) for (let &x : xs) s += o9(x).size();
       return s; }
 
-  uN write(ζp m)
+  uN write(ζp m) const
     { uN i = u9ws(m, 0, u9t::tuple, isize());
       for (let &x : xs) { auto o = o9(x); o.write(m + i); i += o.size(); }
       return 0; }
@@ -171,14 +171,14 @@ template<o9mapped K, o9mapped V, class... Ts>
 struct o9m  // unindexed, unordered k/v map
 {
   M<K, V, Ts...> const &xs;
-  uN                    s = 0;
+  uN mutable            s = 0;
 
-  uN size() { return isize() + u9sb(u9sq(isize())); }
-  uN isize()
+  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN isize() const
     { if (!s) for (let &[k, v] : xs) s += o9(k).size() + o9(v).size();
       return s; }
 
-  uN write(ζp m)
+  uN write(ζp m) const
     { uN i = u9ws(m, 0, u9t::map, isize());
       for (let &[k, v] : xs)
       { let ok = o9(k); ok.write(m + i); i += ok.size();
@@ -195,23 +195,23 @@ struct o9t
 
   template<uN i = 0>
   typename std::enable_if<i == sizeof...(X), uN>::type
-  isize() { return 0; }
+  isize() const { return 0; }
 
   template<uN i = 0>
   typename std::enable_if<i < sizeof...(X), uN>::type
-  isize() { return o9(std::get<i>(xs)).size() + isize<i + 1>(); }
+  isize() const { return o9(std::get<i>(xs)).size() + isize<i + 1>(); }
 
-  uN size()
+  uN size() const
     { let n = isize<0>();
       return n + u9sb(u9sq(n)); }
 
   template<uN i = 0>
   typename std::enable_if<i == sizeof...(X), uN>::type
-  write(ζp m) { return 0; }
+  write(ζp m) const { return 0; }
 
   template<uN i = 0>
   typename std::enable_if<i < sizeof...(X), uN>::type
-  write(ζp m)
+  write(ζp m) const
     { if (!i) m += u9ws(m, 0, u9t::tuple, isize<0>());
       auto o = o9(std::get<i>(xs));
       o.write(m);
@@ -232,8 +232,8 @@ struct o9fdr  // zero-copy read from FD
     : fd(fd_), n(n_), e(e_), s(s_ - sb)
     { A(s_ > sb, "o9fdr " << s_ << "(s_) ≤ " << sb << "(sb)"); }
 
-  uN size() { return s + sb; }
-  uN write(ζp m)
+  uN size() const { return s + sb; }
+  uN write(ζp m) const
     { n = read(fd, m + sb, s);
       if (n <= 0) { if (n == -1) e = errno; return ζω; }
       e = 0;
@@ -251,8 +251,8 @@ struct o9acc  // accept socket connection from server FD
 
   o9acc(uN fd_, iN &n_, iN &e_) : fd(fd_), n(n_), e(e_) {}
 
-  uN size() { return sizeof(sockaddr) + 256; }
-  uN write(ζp m)
+  uN size() const { return sizeof(sockaddr) + 256; }
+  uN write(ζp m) const
     { sockaddr  sa;
       socklen_t l;
       bzero(&sa, sizeof(sa));

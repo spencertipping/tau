@@ -88,22 +88,34 @@ struct ϝ
   γφ &δ()  const { return g[2]; }
   γφ &ε()  const { return g[3]; }
 
+  γφ &operator[](φi i) const { return g[i]; }
+
   template<class T> ϝ &Θ(T t) { g.Θ(t); return *this; }
 
   γφ::it begin() const { return φι().begin(); }
   γφ::it end()   const { return φι().end(); }
 
-  template<class T> bool operator<< (T &x) { return φο() <<  x; }
-  template<class T> bool operator<<=(T &x) { return φο() <<= x; }
+  template<class T> bool operator<< (T const &x) { return φο() <<  x; }
+  template<class T> bool operator<<=(T const &x) { return φο() <<= x; }
 
   ϝ &operator|(ϝ &x) { g(οi(), x.g, x.ιi()); return x; }
-
-  template<class T>
-  ϝ &operator<(T const &x) { for (let y : x) if (!(*this << y)) break; return *this; }
 };
 
 
+template<class T, class = void> struct iti : std::false_type {};
+template<class T> struct iti
+<T, std::void_t<decltype(std::begin(std::declval<T>())),
+                decltype(std::end  (std::declval<T>()))>>
+  : std::true_type {};
 
+
+template<class T>
+typename std::enable_if<iti<T>::value, bool>::type
+operator>(T const &x, γφ &y)
+{
+  for (auto a : x) if (!(y << a)) return false;
+  return true;
+}
 
 
 }

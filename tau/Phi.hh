@@ -77,7 +77,7 @@ struct ΦΘ
 struct Φ
 {
   sletc        Φen = 256;  // number of events per epoll_wait call
-  Λ           &l;
+  Λ            l;
   iNc          fd;         // epoll control FD
   uN           fds = 0;    // number of managed FDs
   epoll_event  ev[Φen];    // inbound epoll event buffer
@@ -85,10 +85,9 @@ struct Φ
   Θp           t0 = now();
 
 
-  Φ(Φ const&) = delete;
-  Φ(Φ&&)      = delete;
-
-  Φ(Λ &l_) : l(l_), fd(epoll_create1(0))
+  Φ(Φ&)  = delete;
+  Φ(Φ&&) = delete;
+  Φ() : fd(epoll_create1(0))
     { A(fd != -1, "epoll_create1 failure " << errno); }
 
   ~Φ() { A(!close(fd), "~Φ close failed (fd leak) " << errno); }
