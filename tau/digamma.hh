@@ -10,17 +10,8 @@ namespace tau
 {
 
 
-// definition DSL for γs
-
 // TODO: one lambda per input φ, give or take
 
-
-struct ϝ
-{
-  γ &g;
-
-  ϝ(γ &g_) : g(g_) { while (g.fs.size() < 4) g.φc(); }
-};
 
 
 }
