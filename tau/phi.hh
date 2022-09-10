@@ -58,8 +58,8 @@ struct φ
   uf8c        b;            // 64 and 128 are no-read and no-write flags
   ζ<R>       *i {nullptr};
   ζ<W>       *o {nullptr};
-  λg          cg;
-  λg          xg;
+  λg mutable  cg;
+  λg mutable  xg;
   F           f;
 
 

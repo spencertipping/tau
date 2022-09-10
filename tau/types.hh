@@ -115,6 +115,26 @@ template<class... T>       using Vi = typename V<T...>::const_iterator;
 template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std::vector<T>, C>;
 
 
+template<class T, class = void> struct iti_static : std::false_type {};
+template<class T> struct iti_static
+<T, std::void_t<decltype(std::begin(std::declval<T>())),
+                decltype(std::end  (std::declval<T>()))>>
+  : std::true_type {};
+
+template<class T, class = void> struct iti_method : std::false_type {};
+template<class T> struct iti_method
+<T, std::void_t<decltype(std::declval<T>().begin()),
+                decltype(std::declval<T>().end())>>
+  : std::true_type {};
+
+template<class T>
+struct iti
+{
+  sletc v = iti_static<T>::value | iti_method<T>::value;
+};
+
+
+
 typedef uN      Λr;
 typedef uN      λi;
 typedef uN      ζi;

@@ -98,24 +98,17 @@ struct ϝ
   template<class T> bool operator<< (T const &x) { return φο() <<  x; }
   template<class T> bool operator<<=(T const &x) { return φο() <<= x; }
 
+  template<class T>
+  typename std::enable_if<iti<T>::v, bool>::type
+  operator<(T const &x) { return x > φο(); }
+
   ϝ &operator|(ϝ &x) { g(οi(), x.g, x.ιi()); return x; }
 };
 
 
-template<class T, class = void> struct iti : std::false_type {};
-template<class T> struct iti
-<T, std::void_t<decltype(std::begin(std::declval<T>())),
-                decltype(std::end  (std::declval<T>()))>>
-  : std::true_type {};
-
-
-template<class T>
-typename std::enable_if<iti<T>::value, bool>::type
-operator>(T const &x, γφ &y)
-{
-  for (auto a : x) if (!(y << a)) return false;
-  return true;
-}
+// important: prevents attempted coercion of Φf into an o9
+template<class O>
+ic bool operator<<(ϝ &f, Φf<O> &x) { return f.φο() << x; }
 
 
 }

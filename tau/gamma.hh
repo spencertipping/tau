@@ -80,6 +80,15 @@ struct γ
 };
 
 
+template<class T>
+typename std::enable_if<iti<T>::v, bool>::type
+operator>(T &x, γφ &y)
+{
+  for (let a : x) if (!(y << a)) return false;
+  return true;
+}
+
+
 #if tau_debug_iostream
 template<class T>
 O &operator<<(O &s, φ9::φo<T> const &o)

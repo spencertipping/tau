@@ -20,8 +20,8 @@ struct φ9
   {
     Va<T, o9f<u9_heapref>> x;
 
-    uN size ()     { return x.index() ? std::get<1>(x).size()   : std::get<0>(x).size(); }
-    uN write(ζp m) { return x.index() ? std::get<1>(x).write(m) : std::get<0>(x).write(m); }
+    uN size ()     const { return x.index() ? std::get<1>(x).size()   : std::get<0>(x).size(); }
+    uN write(ζp m) const { return x.index() ? std::get<1>(x).write(m) : std::get<0>(x).write(m); }
   };
 
 
@@ -57,8 +57,8 @@ struct φ9
       if (x.type() == u9t::heapref) b = x = *x;
       return x; }
 
-  template<class W, class Z> ic auto w(W x, ζ<Z> &z)
-    { if constexpr (o9_<W>::v) { return os(x.size(), z.b.c) ? φo<decltype(x)>{o9box(x)} : φo<decltype(x)>{x}; }
+  template<class W, class Z> ic auto w(W const &x, ζ<Z> &z)
+    { if constexpr (o9_<W>::v) { return os(x.size(), z.b.c) ? φo<W>          {o9box(x)} : φo<W>          {x}; }
       else      { let o = o9(x); return os(o.size(), z.b.c) ? φo<decltype(o)>{o9box(o)} : φo<decltype(o)>{o}; } }
 };
 
