@@ -58,8 +58,8 @@ struct φ
   uf8c        b;            // 64 and 128 are no-read and no-write flags
   ζ<R>       *i {nullptr};
   ζ<W>       *o {nullptr};
-  λg mutable  cg;
-  λg mutable  xg;
+  λg          cg;
+  λg          xg;
   F           f;
 
 
@@ -83,7 +83,7 @@ struct φ
   φ &operator()(φ<W, R, F2> &f)
     { let p = Rc<φ<W, R, F>*>(&f);
       let i = !(b & nr) && !(p->b & nw) && p->b ? new ζ<R>(l, p->b & ζbm) : nullptr;
-      let o = !(b & nw) && !(p->b & nr) && b    ? new ζ<W>(l, b & ζbm)    : nullptr;
+      let o = !(b & nw) && !(p->b & nr) && b    ? new ζ<W>(l, b    & ζbm) : nullptr;
       (*(c    = p))   (*o, *i);
       (*(c->c = this))(*i, *o);
       return *this; }

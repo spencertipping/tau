@@ -71,7 +71,7 @@ template<class I = i9, class O>
 
 ϝ &tcp_server(Φ &f, uN port, u32 listen_addr = INADDR_LOOPBACK)
 {
-  iN sfd;
+  iN          sfd;
   sockaddr_in sa;
 
   A((sfd = socket(AF_INET, SOCK_STREAM, 0)) != -1, "socket()");
@@ -90,7 +90,8 @@ template<class I = i9, class O>
 
 ϝ &fd_in(Φ &f, uN fd)
 {
-  return *new ϝ(f, ϝ::ξΦ, [&, fd](ϝ &f, γ &g) { Φf<o9fdr> i{g.f, fd}; while (f << i); });
+  return *new ϝ(f, ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
+    { Φf<o9fdr> i{g.f, fd}; while (f << i); });
 }
 
 

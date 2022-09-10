@@ -108,9 +108,12 @@ struct Φ
   template<class O>
   bool x(Φf<O> &f)
     { if (f.ep) return true;
-      auto &s = fs.at(f.fd());
+      let c = f.fd();
+      auto &s = fs.at(c);
       s.erase(&f);
-      return !s.empty() || epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1; }
+      if (!s.empty()) return true;
+      close(c);
+      return epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1; }
 
 
   Φ &Θ(Θp t)

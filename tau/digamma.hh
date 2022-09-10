@@ -54,8 +54,6 @@ struct ϝ
       φc(c >> 20);
       λcs(fs...); }
 
-  void ϝx() { delete this; }
-
 
   template<class F, class... Fs>
   void λcs(F f, Fs... fs) { λc(f); λcs(fs...); }
