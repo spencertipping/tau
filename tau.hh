@@ -38,6 +38,7 @@
 # include "tau/gamma.hh"
 # include "tau/digamma.hh"
 # include "tau/Gamma.hh"
+# include "tau/Xi.hh"
 #endif
 
 
