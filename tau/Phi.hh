@@ -132,7 +132,7 @@ struct Φ
 
   Φ &operator()()
     { let t = now();
-      std::cout << "Φ(): " << *this << std::endl;
+      //std::cout << "Φ(): " << *this << std::endl;
       if (t < hn())
       { let dt = (hn() - t) / 1ms;
         let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
@@ -152,16 +152,18 @@ struct Φ
 
 
 template<>
-inline Φf<o9fdr>::Φf(Φ &f_, uN fd, u32 s) : f(f_), w{f.l}, o{fd, rn, re, s}
-{ Φnb(fd); ep = f << *this ? 0 : errno; }
+inline Φf<o9fdr>::Φf(Φ &f_, uN fd_, u32 s) : f(f_), w{f.l}, o{fd_, rn, re, s}
+{ std::cout << "Φf(" << fd() << ")" << std::endl;
+  Φnb(fd_); ep = f << *this ? 0 : errno; }
 
 template<>
-inline Φf<o9acc>::Φf(Φ &f_, uN fd, u32 s) : f(f_), w{f.l}, o{fd, rn, re}
-{ Φnb(fd); ep = f << *this ? 0 : errno; }
+inline Φf<o9acc>::Φf(Φ &f_, uN fd_, u32 s) : f(f_), w{f.l}, o{fd_, rn, re}
+{ Φnb(fd_); ep = f << *this ? 0 : errno; }
 
 template<class O>
 inline Φf<O>::~Φf()
-{ f.x(*this); }
+{ std::cout << "~Φf(" << fd() << ")" << std::endl;
+  f.x(*this); }
 
 
 template<class R, class W, class F, class O>
