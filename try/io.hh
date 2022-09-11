@@ -60,12 +60,12 @@ template<class I = i9, class O>
     { S<φi> ps;
       for (let c : f)
       { let i = Sc<φi>(c);  // important: i9s are mutable
-        f.ε() <<= o9t(true, i);
+        f.ε() <<= o9t(i, true);
         f.λc([&, i](ϝ &f) {
           ps.emplace(i);
           for (let x : f[i]) for (let q : ps) f[q] <<= x;
           ps.erase(i);
-          f.ε() <<= o9t(false, i);
+          f.ε() <<= o9t(i, false);
         }); }});
 }
 

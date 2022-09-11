@@ -52,9 +52,9 @@ int chat(int argc, char **argv)
         return fd; })
     | stream_out(f, cout);
 
-  // TODO: why does this drop the final write?
-  // TODO: why does this drop tuples?
-  stream_out(f, cout) < b.ε();
+  // NOTE: can't stream_out(f, cout) < b.ε() here
+  // because that's a blocking command and nothing
+  // is running yet
 
   f.go();
   return 0;
