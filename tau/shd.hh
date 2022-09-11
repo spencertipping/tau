@@ -65,11 +65,12 @@ typedef ΣΘΔ_<π0>  ΘΔ;
 #if tau_debug_iostream
 O &operator<<(O &s, ΔΘ const &t)
 {
-  if      (t <= 100us) return s << t.count() << "ns";
-  else if (t <= 100ms) return s << t / 1us   << "μs";
-  else if (t <= 100s)  return s << t / 1ms   << "ms";
-  else if (t <= 1h)    return s << t / 1s    << "s";
-  else if (t <= 10h)   return s << t / 1min  << "m";
+  let a = abs(t);
+  if      (a <= 100us) return s << t.count() << "ns";
+  else if (a <= 100ms) return s << t / 1us   << "μs";
+  else if (a <= 100s)  return s << t / 1ms   << "ms";
+  else if (a <= 1h)    return s << t / 1s    << "s";
+  else if (a <= 10h)   return s << t / 1min  << "m";
   else                 return s << t / 1h    << "h";
   return s;
 }

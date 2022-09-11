@@ -48,10 +48,11 @@ int chat(int argc, char **argv)
   tcp_server(f, argc ? atoi(argv[0]) : 3000)
     | io<i9, uN>(f, [&](i9 x)
       { let fd = Sc<u9_pidfd>(x[0]).fd;
-        b | fd_io(f, fd); return fd; })
+        b | fd_io(f, fd);
+        return fd; })
     | stream_out(f, cout);
 
-  //stream_out(f, cout) < b.ε();
+  stream_out(f, cout) < b.ε();
 
   f.go();
   return 0;

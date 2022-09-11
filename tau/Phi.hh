@@ -85,7 +85,7 @@ struct Φ
   sletc Φen = 256;  // number of events per epoll_wait call
 
   Λ               l;
-  iNc             fd;         // epoll control FD
+  iNc             efd;        // epoll control FD
   M<uN, S<void*>> fs;         // who's listening for each FD
   epoll_event     ev[Φen];    // inbound epoll event buffer
   PQ<ΦΘ>          h;          // upcoming timed λs
@@ -94,11 +94,11 @@ struct Φ
 
   Φ(Φ&)  = delete;
   Φ(Φ&&) = delete;
-  Φ() : fd(epoll_create1(0))
+  Φ() : efd(epoll_create1(0))
     { signal(SIGPIPE, SIG_IGN);
-      A(fd != -1, "epoll_create1 failure " << errno); }
+      A(efd != -1, "epoll_create1 failure " << errno); }
 
-  ~Φ() { A(!close(fd), "~Φ close failed (fd leak) " << errno); }
+  ~Φ() { A(!close(efd), "~Φ close failed (fd leak) " << errno); }
 
 
   template<class O>
@@ -106,7 +106,7 @@ struct Φ
     { epoll_event ev;
       ev.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
       let c = ev.data.fd = f.fd();
-      let r = fs.contains(c) || epoll_ctl(fd, EPOLL_CTL_ADD, c, &ev) != -1;
+      let r = fs.contains(c) || epoll_ctl(efd, EPOLL_CTL_ADD, c, &ev) != -1;
       if (r) fs[c].emplace(&f);
       return r; }
 
@@ -117,8 +117,8 @@ struct Φ
       auto &s = fs.at(c);
       s.erase(&f);
       if (!s.empty()) return true;
-      close(c);
-      return epoll_ctl(fd, EPOLL_CTL_DEL, f.fd(), nullptr) != -1; }
+      fs.erase(c);
+      return !close(c); }
 
 
   Φ &Θ(Θp t)
@@ -132,10 +132,10 @@ struct Φ
 
   Φ &operator()()
     { let t = now();
-      //std::cout << "Φ(): " << *this << std::endl;
+      std::cout << "Φ(): " << *this << std::endl;
       if (t < hn())
       { let dt = (hn() - t) / 1ms;
-        let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
+        let n  = epoll_wait(efd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
         A(n != -1, "epoll_wait error " << errno);
         for (iN i = 0; i < n; ++i)
           for (let f : fs.at(ev[i].data.fd))
@@ -214,13 +214,12 @@ O &operator<<(O &s, Φ &f)
 {
   V<ΦΘ> hs;
   while (!f.h.empty()) hs.push_back(f.h.top()), f.h.pop();
-  for (auto &h : hs) f.h.push(h);
-  s << "Φ fd=" << f.fd << " Θ=";
-  for (auto &h : hs) s << h << " ";
+  for (let &h : hs) f.h.push(h);
+  s << "Φ efd=" << f.efd << " Θ=";
+  for (let &h : hs) s << h << " ";
   s << "; fds=";
-  for (let &[fd, _] : f.fs) s << fd << " ";
-  s << std::endl;
-  return s << f.l << std::endl;
+  for (let &[fd, l] : f.fs) s << fd << ":" << l.size() << " ";
+  return s << std::endl << f.l << std::endl;
 }
 #endif
 

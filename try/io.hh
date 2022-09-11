@@ -62,12 +62,11 @@ template<class I = i9, class O>
       { f.ε() <<= o9t(c, true);
         f.λc([&, c](ϝ &f) {
           ps.emplace(c);
-          for (let x : f[c])
-          {
+          for (let x : f[c]){
             std::cout << "ps = ";
             for (let q : ps) std::cout << q << " ";
             std::cout << std::endl;
-            for (let q : ps) f[q] << x;
+            for (let q : ps) f[q] <<= x;
           }
           ps.erase(c);
           f.ε() <<= o9t(c, false);

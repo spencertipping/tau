@@ -23,15 +23,17 @@ struct Λt
   λs              s;
   typename Λp::p  p;   // priority
   typename Λp::ps ps;  // priority state
+  λt              t;   // tag (for debugging/tracking)
 
   Λt() {}
-  Λt(λf &&f) : l(λ<Λr>(std::move(f))), s(λs::S) {}
+  Λt(λf &&f, λt t_ = 0) : l(λ<Λr>(std::move(f))), s(λs::S), t(t_) {}
 
   Λt &operator=(Λt &&x)
     { l  = std::move(x.l);
       s  = x.s;
       p  = x.p;
       ps = x.ps;
+      t  = x.t;
       return *this; }
 };
 
@@ -57,9 +59,22 @@ struct Λ_
   λi   i ()     const { return ri; }
   bool z ()     const { return !ri; }
 
-  λi   c(λf &&f, f64 p = 0) { let i = ιi(ni, ls); ls[i] = Λt<Λp>(std::move(f)); r(i, p, λs::R);       return  i; }
-  Λ_  &x(λi i)              { A(ri != i, "self wait"); A(e(i), "await !e");     ls.erase(i);          return *this; }
-  Λ_  &y(λs s)              { A(!z(), "root yield");                            r(ri, NAN, s); λy();  return *this; }
+  λi   c(λf &&f, λt t = 0, f64 p = 0)
+    { let i = ιi(ni, ls);
+      ls[i] = Λt<Λp>(std::move(f), t);
+      r(i, p, λs::R);
+      return  i; }
+
+  Λ_  &x(λi i)
+    { A(ri != i, "self wait"); A(e(i), "await !e");
+      ls.erase(i);
+      return *this; }
+
+  Λ_  &y(λs s)
+    { A(!z(), "root yield");
+      r(ri, NAN, s);
+      λy();
+      return *this; }
 
   Λ_  &r(λi i, typename Λp::p p = Λp::λpn, λs s = λs::R)
     { if (!e(i)) return *this;
@@ -112,9 +127,7 @@ struct Λ_
 template<class Λp>
 O &operator<<(O &s, Λt<Λp> const &l)
 {
-  // NOTE: we can probably drop this assertion
-  A((l.s == λs::Z) == l.l.done(), "λ/Λ done() desync");
-  s << "λ" << l.s;
+  s << "λ" << l.s << "@" << l.t;
   return l.s == λs::Z ? s << "=" << l.l.result()
                       : s << ":" << l.p << " " << l.ps;
 }

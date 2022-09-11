@@ -137,8 +137,10 @@ struct iti
 
 typedef uN      Λr;
 typedef uN      λi;
+typedef uN      λt;
 typedef uN      ζi;
 typedef uN      φi;
+typedef uN      γi;
 typedef F<Λr()> λf;
 
 enum class λs  // lambda runnability state

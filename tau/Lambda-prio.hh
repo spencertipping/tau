@@ -20,7 +20,7 @@ namespace tau
 {
 
 
-struct Λpf
+struct Λpf            // fair priority scheduler
 {
   struct ps
   {
@@ -70,7 +70,7 @@ struct Λpf
 #if tau_debug_iostream
 O &operator<<(O &s, Λpf::ps const &p)
 {
-  return s << "TODO: <<Λpf::ps";
+  return s << "Λpf::ps μ=" << p.μ << " y=" << p.y;
 }
 
 O &operator<<(O &s, Λpf &q)
