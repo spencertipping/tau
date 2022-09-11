@@ -59,17 +59,13 @@ template<class I = i9, class O>
   return *new ϝ(f, ϝ::ξγ, [&](ϝ &f)
     { S<φi> ps;
       for (let c : f)
-      { f.ε() <<= o9t(c, true);
-        f.λc([&, c](ϝ &f) {
-          ps.emplace(c);
-          for (let x : f[c]){
-            std::cout << "ps = ";
-            for (let q : ps) std::cout << q << " ";
-            std::cout << std::endl;
-            for (let q : ps) f[q] <<= x;
-          }
-          ps.erase(c);
-          f.ε() <<= o9t(c, false);
+      { let i = Sc<φi>(c);
+        f.ε() <<= o9t(i, true);
+        f.λc([&, i](ϝ &f) {
+          ps.emplace(i);
+          for (let x : f[i]) for (let q : ps) f[q] <<= x;
+          ps.erase(i);
+          f.ε() <<= o9t(i, false);
         }); }});
 }
 

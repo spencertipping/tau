@@ -16,6 +16,10 @@ namespace tau
 {
 
 
+// TODO: remove zombie state; if nobody is waiting on a λ, then
+// it automatically gets removed and its result is unavailable
+
+
 template<class Λp>
 struct Λt
 {
