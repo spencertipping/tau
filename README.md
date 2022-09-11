@@ -37,8 +37,7 @@ This repo cannot be cloned on case-insensitive filesystems.
 
 
 ## Next steps
-1. γ definition DSL (C++ side)
-2. γ₀ → γ UTF9 API
-3. Φ trunk multiplexing
-4. γ₀ ED25519 + AES secure channels
-5. Γ routing
+1. γ₀ → γ UTF9 API
+2. Φ trunk multiplexing
+3. γ₀ ED25519 + AES secure channels
+4. Γ routing
