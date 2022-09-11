@@ -86,6 +86,7 @@ template<class T>
 typename std::enable_if<iti<T>::v, bool>::type
 operator>(T &x, γφ &y)
 {
+  A(y.l.i(), "root iti>φ");
   for (let a : x) if (!(y << a)) return false;
   return true;
 }

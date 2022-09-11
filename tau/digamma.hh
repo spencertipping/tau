@@ -101,6 +101,8 @@ struct ϝ
   operator<(T const &x) { return x > φο(); }
 
   ϝ &operator|(ϝ &x) { g(οi(), x.g, x.ιi()); return x; }
+  ϝ &operator&(ϝ &x) { g(3,    x.g, x.ιi()); return x; }
+  ϝ &operator^(ϝ &x) { g(οi(), x.g, 2);      return x; }
 };
 
 
