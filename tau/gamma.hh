@@ -27,7 +27,6 @@ struct γ
 {
   Φ          &f;
   γi          t;
-  S<λi>       ls;
   V<γφ*>      fs;
   M<φi, γφ*>  ss;  // server sockets (used internally)
 
@@ -37,14 +36,14 @@ struct γ
   γ(γ &) = delete;
   γ(γ&&) = delete;
   γ(Φ &f_) : f(f_), t(++γnt) {}
-  ~γ() { φω(); for (let i : ls) if (i != f.l.i()) f.l.x(i); }
+  ~γ() { φω(); }
 
 
   γφ &operator[](φi i) const { return *fs.at(i); }
 
-  λi  λc(λf &&f_) { let i = f.l.c(std::move(f_), t); ls.insert(i); return i; }
-  γ  &λx(λi i)    {         f.l.x(i);                ls.erase(i);  return *this; }
-  γ  &λy()        {         f.l.y(λs::R);                          return *this; }
+  λi  λc(λf &&f_) { let i = f.l.c(std::move(f_), t); return i; }
+  γ  &λx(λi i)    {         f.l.x(i);                return *this; }
+  γ  &λy()        {         f.l.y(λs::R);            return *this; }
 
   γ &Θ(Θp t)  { f.Θ(t);          return *this; }
   γ &Θ(ΔΘ dt) { f.Θ(now() + dt); return *this; }
@@ -110,10 +109,7 @@ O &operator<<(O &s, φ9 const &f)
 
 O &operator<<(O &s, γ const &g)
 {
-  s << "γ" << g.t << " λs=";
-  for (let i : g.ls) s << i << " ";
-  s << std::endl;
-
+  s << "γ" << g.t << std::endl;
   for (uN i = 0; i < g.fs.size(); ++i)
     if (let f = g.fs[i])
       s << "  " << i << (g.φsi(i) ? "S" : "-") << " "
