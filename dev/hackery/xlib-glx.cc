@@ -86,24 +86,19 @@ draw_texture (int width,
               unsigned int texture_id)
 {
   /* Render a texture in immediate mode. */
-  glMatrixMode (GL_MODELVIEW);
-  glLoadIdentity ();
-  glPushMatrix ();
   glBindTexture (GL_TEXTURE_2D, texture_id);
-  glColor3f (1.f, 1.f, 1.f);
+  glColor4f (1.f, 1.f, 1.f, 1.f);
 
   glBegin (GL_QUADS);
   glTexCoord2f (0.0f, 0.0f);
-  glVertex2f (0.0f, 0.0f);
+  glVertex2f (0.0f, h * 0.5);
   glTexCoord2f (1.0f, 0.0f);
-  glVertex2f (width, 0.0f);
+  glVertex2f (width, h * 0.5);
   glTexCoord2f (1.0f, 1.0f);
-  glVertex2f (width , height);
+  glVertex2f (width , h * 0.5 + height);
   glTexCoord2f (0.0f, 1.0f);
-  glVertex2f (0.0f, height);
+  glVertex2f (0.0f, h * 0.5 + height);
   glEnd ();
-
-  glPopMatrix ();
 }
 
 
@@ -156,7 +151,7 @@ render_text (const char   *text,
   pango_layout_set_text (layout, text, -1);
 
   /* Load the font */
-  desc = pango_font_description_from_string ("Ubuntu Sans 48");
+  desc = pango_font_description_from_string ("Gentium Italic 48");
   pango_layout_set_font_description (layout, desc);
   pango_font_description_free (desc);
 
@@ -169,7 +164,7 @@ render_text (const char   *text,
                                          &surface_data);
 
   /* Render */
-  cairo_set_source_rgba (render_context, 1, 1, 1, 1);
+  cairo_set_source_rgba (render_context, 0.9, 0.9, 1, 1);
   pango_cairo_show_layout (render_context, layout);
   *texture_id = create_texture(*text_width, *text_height, surface_data);
 
@@ -242,6 +237,7 @@ void draw(Display     *const display,
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glEnable(GL_MULTISAMPLE);
+  glDisable(GL_TEXTURE_2D);
 
   // TODO: vector of things to draw
   for (int r = 0; r < (w - 20) / 50; ++r)
@@ -249,6 +245,9 @@ void draw(Display     *const display,
          10 + 51*r, h / 2. + h/4. * sin(ms / 1000.0 + r / 4.),
          2 + cos(ms / 800.0 + r/3.),
          0xe0e0f0ff);
+
+  //glClearDepth(1.0f);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -265,7 +264,11 @@ void draw_loop(Display     *const display,
 {
   using namespace std::chrono;
 
-  render_text("hello world Σ", &text_width, &text_height, &texture_id);
+  render_text("ΣΦ/ϊϝ :: x² ← ∫y ∂τ", &text_width, &text_height, &texture_id);
+
+  std::cout << "text width = " << text_width
+            << ", text height = " << text_height
+            << ", texture_id = " << texture_id << std::endl;
 
   while (!all_done)
   {
