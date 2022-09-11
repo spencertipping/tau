@@ -7,7 +7,16 @@ clean:
 	rm -f $(programs)
 
 x%: x%.cc
-	g++ -O3 -o $@ $< -lxcb -lX11 -lGL -lX11-xcb -lpthread
+	g++ -O3 -o $@ $< -lxcb -lX11 -lGL -lX11-xcb -lpthread \
+	    -pthread -I/usr/include/pango-1.0 -I/usr/include/harfbuzz \
+	    -I/usr/include/pango-1.0 -I/usr/include/libmount \
+	    -I/usr/include/blkid -I/usr/include/fribidi \
+	    -I/usr/include/harfbuzz -I/usr/include/cairo \
+	    -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include \
+	    -I/usr/include/pixman-1 -I/usr/include/uuid \
+	    -I/usr/include/freetype2 -I/usr/include/libpng16 \
+            -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 \
+	    -lglib-2.0 -lharfbuzz -lcairo
 
 epoll: epoll.cc
 	g++ -O3 -g $@ $<

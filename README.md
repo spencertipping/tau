@@ -27,7 +27,8 @@ $ sudo apt install -y \
        libxcb-xinput-dev \
        g++-multilib-i686-linux-gnu \
        libc6-dbg{,:i386} \
-       libstdc++6-12-dbg{,:i386}
+       libstdc++6-12-dbg{,:i386} \
+       libpango1.0-dev libcairo2-dev
 ```
 
 This repo cannot be cloned on case-insensitive filesystems.
