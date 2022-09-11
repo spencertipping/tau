@@ -19,6 +19,78 @@
 #define let auto const
 
 
+// https://stackoverflow.com/questions/61124564/convert-scancodes-to-ascii
+char kbd_US [128] =
+{
+    0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
+  '\t', /* <-- Tab */
+  'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
+    0, /* <-- control key */
+  'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`',  0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/',   0,
+  '*',
+    0,  /* Alt */
+  ' ',  /* Space bar */
+    0,  /* Caps lock */
+    0,  /* 59 - F1 key ... > */
+    0,   0,   0,   0,   0,   0,   0,   0,
+    0,  /* < ... F10 */
+    0,  /* 69 - Num lock*/
+    0,  /* Scroll Lock */
+    0,  /* Home key */
+    0,  /* Up Arrow */
+    0,  /* Page Up */
+  '-',
+    0,  /* Left Arrow */
+    0,
+    0,  /* Right Arrow */
+  '+',
+    0,  /* 79 - End key*/
+    0,  /* Down Arrow */
+    0,  /* Page Down */
+    0,  /* Insert Key */
+    0,  /* Delete Key */
+    0,   0,   0,
+    0,  /* F11 Key */
+    0,  /* F12 Key */
+    0,  /* All other keys are undefined */
+};
+
+char kbd_US_shift [128] =
+{
+  0,  27, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\b',
+  '\t', /* <-- Tab */
+  'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n',
+  0, /* <-- control key */
+  'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~',  0, '|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?',   0,
+  '*',
+  0,  /* Alt */
+  ' ',  /* Space bar */
+  0,  /* Caps lock */
+  0,  /* 59 - F1 key ... > */
+  0,   0,   0,   0,   0,   0,   0,   0,
+  0,  /* < ... F10 */
+  0,  /* 69 - Num lock*/
+  0,  /* Scroll Lock */
+  0,  /* Home key */
+  0,  /* Up Arrow */
+  0,  /* Page Up */
+  '-',
+  0,  /* Left Arrow */
+  0,
+  0,  /* Right Arrow */
+  '+',
+  0,  /* 79 - End key*/
+  0,  /* Down Arrow */
+  0,  /* Page Down */
+  0,  /* Insert Key */
+  0,  /* Delete Key */
+  0,   0,   0,
+  0,  /* F11 Key */
+  0,  /* F12 Key */
+  0,  /* All other keys are undefined */
+};
+
+
 // TODO: make a library out of this file so we can include custom render/interaction
 // logic and skip most of the boilerplate
 
@@ -28,14 +100,16 @@ static uint32_t w = 600;
 static uint32_t h = 600;
 
 
-static bool active   = true;
-static bool redraw   = true;
-static bool all_done = false;
+static bool active      = true;
+static bool redraw      = true;
+static bool redraw_text = true;
+static bool all_done    = false;
 
 
-static unsigned int texture_id;
+static unsigned int texture_id = 0;
 static int          text_width;
 static int          text_height;
+static std::string  text = "ΣΦ/ϊϝ :: x² ← ∫y ∂τ";
 
 
 typedef uint32_t rgba;
@@ -144,6 +218,8 @@ render_text (const char   *text,
   PangoFontDescription *desc;
   PangoLayout *layout;
 
+  if (*texture_id) glDeleteTextures(1, texture_id);
+
   layout_context = create_layout_context ();
 
   /* Create a PangoLayout, set the font and text */
@@ -167,6 +243,8 @@ render_text (const char   *text,
   cairo_set_source_rgba (render_context, 0.9, 0.9, 1, 1);
   pango_cairo_show_layout (render_context, layout);
   *texture_id = create_texture(*text_width, *text_height, surface_data);
+
+  std::cout << "rendered; new texture_id = " << *texture_id << std::endl;
 
   /* Clean up */
   free (surface_data);
@@ -237,6 +315,7 @@ void draw(Display     *const display,
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glEnable(GL_MULTISAMPLE);
+  glDisable(GL_BLEND);
   glDisable(GL_TEXTURE_2D);
 
   // TODO: vector of things to draw
@@ -264,7 +343,6 @@ void draw_loop(Display     *const display,
 {
   using namespace std::chrono;
 
-  render_text("ΣΦ/ϊϝ :: x² ← ∫y ∂τ", &text_width, &text_height, &texture_id);
 
   std::cout << "text width = " << text_width
             << ", text height = " << text_height
@@ -275,7 +353,15 @@ void draw_loop(Display     *const display,
     let start = steady_clock::now();
     let next_frame = start + 42ms;
 
-    if (redraw) draw(display, drawable);
+    if (redraw)
+    {
+      if (redraw_text)
+      {
+        render_text(text.c_str(), &text_width, &text_height, &texture_id);
+        redraw_text = false;
+      }
+      draw(display, drawable);
+    }
 
     let micros = duration_cast<microseconds>(next_frame - steady_clock::now()).count();
     if (micros > 0) usleep(micros);
@@ -309,6 +395,32 @@ int main_loop(Display          *const display,
       active = false;
       redraw = true;
       break;
+
+    case XCB_KEY_PRESS: {
+      let ke = reinterpret_cast<xcb_key_press_event_t*>(e);
+      let k  = ke->state & XCB_MOD_MASK_SHIFT
+        ? kbd_US_shift[ke->detail - 8]
+        : kbd_US      [ke->detail - 8];
+
+      if (k == 8)
+      {
+        if (!text.empty())
+        {
+          while (!text.empty() && (text[text.size() - 1] & 0xc0) == 0x80)
+            text.pop_back();
+          text.pop_back();
+        }
+      }
+      else if (k)
+        text.push_back(k);
+
+      redraw = true;
+      redraw_text = true;
+
+      std::cout << "rendered text: " << text << std::endl;
+
+      break;
+    }
 
       /*
     case XCB_BUTTON_PRESS: {

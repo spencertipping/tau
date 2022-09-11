@@ -134,7 +134,6 @@ struct iti
 };
 
 
-
 typedef uN      Λr;  // NOTE: this value is never used
 typedef uN      λi;
 typedef uN      λt;
