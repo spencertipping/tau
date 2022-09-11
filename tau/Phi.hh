@@ -132,7 +132,6 @@ struct Φ
 
   Φ &operator()()
     { let t = now();
-      std::cout << "Φ(): " << *this << std::endl;
       if (t < hn())
       { let dt = (hn() - t) / 1ms;
         let n  = epoll_wait(efd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
@@ -153,8 +152,7 @@ struct Φ
 
 template<>
 inline Φf<o9fdr>::Φf(Φ &f_, uN fd_, u32 s) : f(f_), w{f.l}, o{fd_, rn, re, s}
-{ std::cout << "Φf(" << fd() << ")" << std::endl;
-  Φnb(fd_); ep = f << *this ? 0 : errno; }
+{ Φnb(fd_); ep = f << *this ? 0 : errno; }
 
 template<>
 inline Φf<o9acc>::Φf(Φ &f_, uN fd_, u32 s) : f(f_), w{f.l}, o{fd_, rn, re}
@@ -162,14 +160,12 @@ inline Φf<o9acc>::Φf(Φ &f_, uN fd_, u32 s) : f(f_), w{f.l}, o{fd_, rn, re}
 
 template<class O>
 inline Φf<O>::~Φf()
-{ std::cout << "~Φf(" << fd() << ")" << std::endl;
-  f.x(*this); }
+{ f.x(*this); }
 
 
 template<class R, class W, class F, class O>
 bool operator<<(φ<R, W, F> &f, Φf<O> &r)
 {
-  std::cout << "reading from " << Rc<void*>(&r) << std::endl;
   while (1)
   {
     if      (f << r.o)         return true;
@@ -181,7 +177,6 @@ bool operator<<(φ<R, W, F> &f, Φf<O> &r)
 
 bool operator>>(i9 v, Φf<o9fdr> &w)
 {
-  std::cout << "writing to " << Rc<void*>(&w) << std::endl;
   w.wo = 0;
   while (w.wo < v.size())
   {
