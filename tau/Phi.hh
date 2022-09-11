@@ -37,6 +37,11 @@ void Φnb(uN fd)
 struct Φ;
 
 
+#if tau_debug_iostream
+O &operator<<(O&, Φ&);
+#endif
+
+
 template<class O>
 struct Φf
 {
@@ -127,6 +132,7 @@ struct Φ
 
   Φ &operator()()
     { let t = now();
+      std::cout << "Φ(): " << *this << std::endl;
       if (t < hn())
       { let dt = (hn() - t) / 1ms;
         let n  = epoll_wait(fd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
@@ -161,6 +167,7 @@ inline Φf<O>::~Φf()
 template<class R, class W, class F, class O>
 bool operator<<(φ<R, W, F> &f, Φf<O> &r)
 {
+  std::cout << "reading from " << Rc<void*>(&r) << std::endl;
   while (1)
   {
     if      (f << r.o)         return true;
@@ -172,6 +179,7 @@ bool operator<<(φ<R, W, F> &f, Φf<O> &r)
 
 bool operator>>(i9 v, Φf<o9fdr> &w)
 {
+  std::cout << "writing to " << Rc<void*>(&w) << std::endl;
   w.wo = 0;
   while (w.wo < v.size())
   {
