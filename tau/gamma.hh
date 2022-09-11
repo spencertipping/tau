@@ -26,7 +26,7 @@ static γi γnt{0};
 struct γ
 {
   Φ          &f;
-  γi          t;
+  γi          t;   // identification tag for debugging/λ tracking
   V<γφ*>      fs;
   M<φi, γφ*>  ss;  // server sockets (used internally)
 

@@ -76,7 +76,7 @@ struct ϝ
 
   φi φc(ϝξ x)    { return g.φc(ζb0, x & 4, x & 1, x & 2); }
 
-  φi ιi()  const { return c & 3; }
+  φi ιi()  const { return c      & 3; }
   φi οi()  const { return c >> 4 & 3; }
 
   γφ &φι() const { return g[ιi()]; }
