@@ -52,6 +52,8 @@ int chat(int argc, char **argv)
         return fd; })
     | stream_out(f, cout);
 
+  // TODO: why does this drop the final write?
+  // TODO: why does this drop tuples?
   stream_out(f, cout) < b.ε();
 
   f.go();

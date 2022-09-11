@@ -16,10 +16,6 @@ namespace tau
 {
 
 
-// TODO: remove zombie state; if nobody is waiting on a λ, then
-// it automatically gets removed and its result is unavailable
-
-
 template<class Λp>
 struct Λt
 {
@@ -47,7 +43,6 @@ template<class Λp>
 struct Λ_
 {
   M<λi, Λt<Λp>> ls;     // all λs
-  M<λi, λi>     lz;     // λs awaiting each thing
   Λp            rq;
   λi            ni{0};  // next λi (always nonzero for managed λ)
   λi            ri{0};  // currently running λi (0 = main thread)
@@ -70,7 +65,7 @@ struct Λ_
       return  i; }
 
   Λ_  &x(λi i)
-    { A(ri != i, "self wait"); A(e(i), "await !e");
+    { A(ri != i, "self λx"); A(e(i), "λx !e");
       ls.erase(i);
       return *this; }
 
@@ -87,19 +82,6 @@ struct Λ_
       if ((l.s = s) == λs::R) rq << i;
       return *this; }
 
-  bool wi(λi i) { return si(i) == λs::Z; }
-  Λr   w (λi i)
-    { A(ri != i,       "λw self");
-      A(!z() || wi(i), "root λw non-Z");
-      while (!wi(i))
-      { A(!lz.contains(i), "multiple co-awaiting " << i);
-        lz[i] = ri;
-        y(λs::W); }
-      lz.erase(ri);
-      let r = ls.at(i).l.result();
-      ls.erase(i);
-      return r; }
-
   Λ_ &operator<<(λi i)
     { A(z(), "non-root Λ<<");
       auto &l = ls.at(ri = i);
@@ -108,9 +90,7 @@ struct Λ_
       l.l();
       l.ps.stop();
       ri = 0;
-      if (l.l.done())
-      { l.s = λs::Z;
-        if (lz.contains(i)) r(lz[i], NAN, λs::R); }
+      if (l.l.done()) ls.erase(i);
       qΘ.stop();
       return *this; }
 
@@ -131,9 +111,7 @@ struct Λ_
 template<class Λp>
 O &operator<<(O &s, Λt<Λp> const &l)
 {
-  s << "λ" << l.s << "@" << l.t;
-  return l.s == λs::Z ? s << "=" << l.l.result()
-                      : s << ":" << l.p << " " << l.ps;
+  return s << "λ" << l.s << "@" << l.t << ":" << l.p << " " << l.ps;
 }
 
 template<class Λp>

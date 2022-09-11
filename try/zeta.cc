@@ -52,8 +52,9 @@ void try_small_ζ()
   });
 
   l.go();
-  A(l.w(s1) == 0, "nonzero return from s1");
-  A(l.w(s2) == 0, "nonzero return from s2");
+
+  A(!l.e(s1), "s1 still exists");
+  A(!l.e(s2), "s2 still exists");
 }
 
 
@@ -82,8 +83,8 @@ void try_tuple()
   a(b);
 
   l.go();
-  A(!l.w(s1), "nonzero return from s1");
-  A(!l.w(s2), "nonzero return from s2");
+  A(!l.e(s1), "s1 still exists");
+  A(!l.e(s2), "s2 still exists");
 }
 
 
@@ -110,8 +111,8 @@ void try_bytes()
   a(b);
 
   l.go();
-  A(!l.w(s1), "nonzero return from s1");
-  A(!l.w(s2), "nonzero return from s2");
+  A(!l.e(s1), "s1 still exists");
+  A(!l.e(s2), "s2 still exists");
 }
 
 
@@ -160,10 +161,8 @@ void bench(int argc)
     cout << "bo total: " << b.f.om << ", ohc = " << b.f.ohc << endl;
   }
 
-  if (!l.wi(f1)) cout << "f1 is not yet done" << endl;
-  if (!l.wi(f2)) cout << "f2 is not yet done" << endl;
-  cout << "f1 returning " << l.w(f1) << endl;
-  cout << "f2 returning " << l.w(f2) << endl;
+  A(!l.e(f1), "f1 still exists");
+  A(!l.e(f2), "f2 still exists");
 }
 
 

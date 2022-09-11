@@ -37,14 +37,13 @@ struct γ
   γ(γ &) = delete;
   γ(γ&&) = delete;
   γ(Φ &f_) : f(f_), t(++γnt) {}
-  ~γ() { φω(); for (let i : ls) if (i != f.l.i()) f.l.w(i); }
+  ~γ() { φω(); for (let i : ls) if (i != f.l.i()) f.l.x(i); }
 
 
   γφ &operator[](φi i) const { return *fs.at(i); }
 
   λi  λc(λf &&f_) { let i = f.l.c(std::move(f_), t); ls.insert(i); return i; }
   γ  &λx(λi i)    {         f.l.x(i);                ls.erase(i);  return *this; }
-  Λr  λw(λi i)    {                                  ls.erase(i);  return f.l.w(i); }
   γ  &λy()        {         f.l.y(λs::R);                          return *this; }
 
   γ &Θ(Θp t)  { f.Θ(t);          return *this; }

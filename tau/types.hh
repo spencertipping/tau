@@ -135,7 +135,7 @@ struct iti
 
 
 
-typedef uN      Λr;
+typedef uN      Λr;  // NOTE: this value is never used
 typedef uN      λi;
 typedef uN      λt;
 typedef uN      ζi;
@@ -155,7 +155,6 @@ enum class λs  // lambda runnability state
   ΦO,          // blocked on write to fd
   φc,          // waiting for φc on a φ
   φx,          // waiting for φx on a φ
-  Z,           // done (zombie)
 };
 
 
@@ -221,7 +220,6 @@ O &operator<<(O &s, λs t)
   case λs::ΦO: return s << "ΦO";
   case λs::φc: return s << "φc";
   case λs::φx: return s << "φx";
-  case λs::Z:  return s << "Z";
   default:     return s << "BOGUS " << Su(t);
   }
 }
