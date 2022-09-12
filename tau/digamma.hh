@@ -38,6 +38,10 @@ typedef uf32     ϝξ;
 typedef ϝξ const ϝξc;
 
 
+struct ϝ;
+typedef F<void(ϝ&)> ϝxf;
+
+
 struct ϝ
 {
   sletc ξι  = 0x001210;
@@ -49,9 +53,10 @@ struct ϝ
   sletc ξγ  = 0x004311;
   sletc ξδ  = 0x000110;
 
-  γ   g;
-  ϝξc c;
-  uN  r{0};
+  γ      g;
+  ϝξc    c;
+  uN     r{0};
+  V<ϝxf> xfs;
 
   template<class... Fs>
   ϝ(Φ &f_, ϝξ c_, Fs... fs) : g{f_}, c(c_)
@@ -60,6 +65,10 @@ struct ϝ
       φc(c >> 16);
       φc(c >> 20);
       λcs(fs...); }
+
+  ~ϝ() { for (let &f : xfs) f(*this); }
+
+  ϝ &xf(ϝxf &&f) { xfs.push_back(std::move(f)); return *this; }
 
 
   template<class F, class... Fs>
