@@ -74,10 +74,9 @@ struct x11gl
   uN                h;
 
   x11gl(uN w_, uN h_, uN x_ = 0, uN y_ = 0,
-        chc *dp_       = nullptr,
-        rgba bg_       = 0x102030f0,
-        u32 evs        = evs0,
-        int const *vas = vas0) : w(w_), h(h_), bg(bg_)
+        chc       *dp_ = nullptr,
+        u32        evs = evs0,
+        int const *vas = vas0) : w(w_), h(h_)
 
     { dp = XOpenDisplay(dp_);
       si = DefaultScreen(dp);
