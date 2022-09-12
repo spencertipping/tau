@@ -70,7 +70,11 @@ struct gl_text
   void x() { glDeleteTextures(1, &tid); }
 
   void r(f32 x, f32 y, f32 sw = 1.f, f32 sh = 1.f) const
-    { glBindTexture(GL_TEXTURE_2D, tid);
+    { glEnable(GL_BLEND);
+      glEnable(GL_TEXTURE_2D);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+      glBindTexture(GL_TEXTURE_2D, tid);
       glColor4f(1.f, 1.f, 1.f, 1.f);
       glBegin(GL_QUADS);
       glTexCoord2f(0.f, 0.f); glVertex2f(x,        y);

@@ -2,11 +2,10 @@
 #define τξlinux_xframe_h
 
 
-#include <X11/Xlib.h>
-#include <X11/Xlib-xcb.h>
-
 #include <GL/gl.h>
 #include <GL/glx.h>
+#include <X11/Xlib-xcb.h>
+#include <X11/Xlib.h>
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 
@@ -22,9 +21,8 @@ namespace τ::ξ
 
 struct xframe
 {
-
-  sletc fa = 0x1;        // flag: frame is active
-  sletc fr = 0x2;        // flag: frame needs to be redrawn
+  sletc fa = 0x1;     // flag: frame is active
+  sletc fr = 0x2;     // flag: frame needs to be redrawn
 
   uN   w  = 0;
   uN   h  = 0;
