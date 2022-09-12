@@ -11,8 +11,8 @@ namespace τ::ξ
 ϝ &splitter(Φ &f)
 {
   return *new ϝ(f, ϝ::ξτ,
-                [&](ϝ &f) { f.α() > f.δ(); },
-                [&](ϝ &f) { f.ε() > f.α(); });
+                [&](ϝ &f) { f.α() > f.ε(); },
+                [&](ϝ &f) { f.δ() > f.α(); });
 }
 
 
@@ -25,7 +25,7 @@ namespace τ::ξ
                   { V<φi> c;
                     for (let x : f.α())
                     { for (let p : *ps)
-                        if (!(g[p] <<= x)) c.push_back(p);
+                        if (!(f[p] <<= x)) c.push_back(p);
                       for (let p : c) { g.φx(p); ps->erase(p); }
                       c.clear(); }}))
     ->xf([ps](ϝ&) { delete ps; });

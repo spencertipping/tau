@@ -13,8 +13,8 @@
 #include "xi/tcp.hh"
 
 
-#if τarch == τarch_linux
-# include "linux/xframe.hh"
+#if τplatform == τplatform_linux
+# include "xi/linux/xframe.hh"
 #endif
 
 

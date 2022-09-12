@@ -50,7 +50,7 @@ struct ϝ
   sletc ξΦ  = 0x003000;
   sletc ξΦl = 0x003c00;  // threadsafe variant of ξΦ
   sletc ξβ  = 0x004010;
-  sletc ξτ  = 0x213000;
+  sletc ξτ  = 0x123000;
   sletc ξγ  = 0x004311;
   sletc ξδ  = 0x000110;
 

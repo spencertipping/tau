@@ -68,6 +68,27 @@ int cat(int argc, char **argv)
 }
 
 
+int x11(int argc, char **argv)
+{
+  Φ f;
+  auto &s = xframe(f) | splitter(f);
+  auto &r = θr(f, 100ms) | each<i9>(f, [](i9, γφ &p) {
+    p << o9t((uN) xrop_text, "Ubuntu Sans 48",
+             "hello world",
+             0xe0e0f0f0, 100.f, 100.f);
+    p << u9τ;
+  }) | tee(f);
+
+  r ^ s;
+  s & stream_out(f, cout);
+
+  cout << s.g << endl;
+
+  f.go();
+  return 0;
+}
+
+
 int main(int argc, char **argv)
 {
   if (!strcmp(argv[1], "nseq")) return nop_seq (argc - 2, argv + 2);
@@ -75,6 +96,7 @@ int main(int argc, char **argv)
   if (!strcmp(argv[1], "fseq")) return tau_fseq(argc - 2, argv + 2);
   if (!strcmp(argv[1], "chat")) return chat    (argc - 2, argv + 2);
   if (!strcmp(argv[1], "cat"))  return cat     (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "x11"))  return x11     (argc - 2, argv + 2);
   return 0;
 }
 

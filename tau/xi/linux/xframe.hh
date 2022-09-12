@@ -49,14 +49,17 @@ struct xframe_
   rgba      bgu;           // background when unfocused
 
   xframe_(Φ   &f_,
-          uf8  b_  = 20,
-          chc *dp_ = nullptr,
-          uN   w_  = Sc<uN>(720 * nφ),
-          uN   h_  = 720)
+          uf8  b_   = 20,
+          chc *dp_  = nullptr,
+          uN   w_   = Sc<uN>(720 * nφ),
+          uN   h_   = 720,
+          rgba bgf_ = 0x102030f0,
+          rgba bgu_ = 0x102030c0)
     : f(f_), b(b_),
       rb{new ζ<i9>(f.l, b_)},
       ob{new ζ<i9>(f.l, b_)},
-      gl{w_, h_, 0, 0, dp_} {}
+      gl{w_, h_, 0, 0, dp_},
+      bgf{bgf_}, bgu{bgu_} {}
 
   xframe_ &render_one(i9 x)
     { switch (Sc<uN>(x[0]))
@@ -71,12 +74,13 @@ struct xframe_
     { gl.clear(fs & fa ? bgf : bgu);
       for (uN i = 0; i < rb->b.ra(); i += i9::size_of(*rb + i))
         render_one(*rb + i);
+      gl.swap();
       return *this; }
 
   xframe_ &operator<<(i9 x)
     { if (x.type() == u9t::stream && Sc<u9st>(x) == u9st::τ)
       { let z = rb; rb = ob; (ob = z)->b.reset(); render(); }
-      else A(*ob << x, "xframe_ << overflow; received " << x);
+      else A(*ob << o9(x), "xframe_ << overflow; received " << x);
       return *this; }
 };
 
@@ -104,8 +108,8 @@ struct xframe_
         }}});
 
   return e ^ (new ϝ(f, ϝ::ξΦ,
-                   [&, x](ϝ &f) { for (let y : f) *x << y; },
-                   [&]   (ϝ &f) { f < f.δ(); }))
+                    [&, x](ϝ &f) { for (let a : f) *x << a; },
+                    [&]   (ϝ &f) { f < f.δ(); }))
     ->xf([x](ϝ&) { delete x; });
 }
 

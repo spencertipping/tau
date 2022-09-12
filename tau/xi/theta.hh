@@ -9,6 +9,13 @@ namespace τ::ξ
 {
 
 
+ϝ &θr(Φ &f, ΔΘ dt)
+{
+  return *new ϝ(f, ϝ::ξι, [&, dt](ϝ &f)
+    { while (f.Θ(dt) << u9τ); });
+}
+
+
 ϝ &Δθ(Φ &f, ΔΘ dt)
 {
   return *new ϝ(f, ϝ::ξι, [&, dt](ϝ &f)

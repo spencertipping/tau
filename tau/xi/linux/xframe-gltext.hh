@@ -11,6 +11,7 @@
 #include <pango/pango-layout.h>
 
 
+#define XXH_INLINE_ALL
 #include "../../../dep/xxhash.h"
 
 #include "xframe-glprim.hh"
@@ -46,10 +47,10 @@ struct gl_text
 
     let pl = pango_cairo_create_layout(cl);
     let pd = pango_font_description_from_string(f.c_str());
+    pango_layout_set_text(pl, t.data(), t.size());
     pango_layout_set_font_description(pl, pd);
-    pango_font_description_free(pd);
-
     pango_layout_get_size(pl, &w, &h);
+    pango_font_description_free(pd);
     w /= PANGO_SCALE;
     h /= PANGO_SCALE;
 
@@ -68,6 +69,8 @@ struct gl_text
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, b);
+
+    std::cout << "creating texture for text " << t << " and font " << f << ", w = " << w << ", h = " << h << std::endl;
 
     free(b);
     g_object_unref(pl);

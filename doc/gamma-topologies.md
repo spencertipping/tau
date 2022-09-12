@@ -87,9 +87,9 @@ A way to mix unidirectional and bidirectional operators. For example, if we want
 
 ```
       +------+
-      |      | --> δ
+      |      | --> ε
 α <-> | loop |
-      |      | <-- ε
+      |      | <-- δ
       +------+
 ```
 
@@ -97,9 +97,9 @@ You'd use it like this:
 
 ```
      +-----+       +------+
-     |     |       |      |δ --> op1 --> op2 --> op3 --+
+     |     |       |      |ε --> op1 --> op2 --> op3 --+
 <-> α| mux |β <-> α| loop |                            |
-     |     |       |      |ε <-------------------------+
+     |     |       |      |δ <-------------------------+
      +-----+       +------+
 ```
 

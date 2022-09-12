@@ -32,6 +32,21 @@ template<class I = i9>
 }
 
 
+ϝ &once(Φ &f, F<void(γφ&)> &&l)
+{
+  return *new ϝ(f, ϝ::ξι, [&, l = std::move(l)](ϝ &f)
+    { l(f.β()); });
+}
+
+
+template<class I = i9>
+ϝ &each(Φ &f, F<void(I, γφ&)> &&l)
+{
+  return *new ϝ(f, ϝ::ξι, [&, l = std::move(l)](ϝ &f)
+    { for (let x : f) l(x, f.β()); });
+}
+
+
 }
 
 #include "end.hh"
