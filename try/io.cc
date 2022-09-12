@@ -84,7 +84,7 @@ int x11(int argc, char **argv)
       p << o9t((uN) xrop_line,
                x,                                                           y - dy,
                x + 500.f + 100.f * sinf(f.dt() / 1ms / 1000.f + dy / 40.f), y - dy,
-               1.f, 0xe0e0f0ff);
+               1.f, 0xe0e0f080);
     p << o9t((uN) xrop_text, "Gentium 48",
              "τ« //ξ", 0xe0e0f0ff, x, y);
     p << u9τ; })) ^ s;
