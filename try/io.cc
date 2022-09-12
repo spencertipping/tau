@@ -77,7 +77,7 @@ int x11(int argc, char **argv)
 
   auto &s = xframe(f) | splitter(f);
 
-  (θr(f, 30ms) | each<i9>(f, [&, cx, cy](i9, γφ &p) {
+  auto &e = θr(f, 30ms) | each<i9>(f, [&, cx, cy](i9, γφ &p) {
     let x  = *cx + 40;
     let y  = *cy;
     for (uN dy = 1; dy <= 100; dy += 5)
@@ -87,7 +87,10 @@ int x11(int argc, char **argv)
                1.f, 0xe0e0f080);
     p << o9t((uN) xrop_text, "Gentium 48",
              "τ« //ξ", 0xe0e0f0ff, x, y);
-    p << u9τ; })) ^ s;
+    p << u9τ; }) | tee(f);
+
+  e ^ s;
+  e | xframe(f);  // bogus on the X11 side, but tau works fine
 
   s & sink<i9>(f, [cx, cy](i9 a) {
     if (a.type() != u9t::nstruct) return;

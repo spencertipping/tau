@@ -96,6 +96,9 @@ struct xframe_
   let   x = new xframe_(f);
   auto &e = xcb_events(f, x->gl.c) | tee(f);
 
+  // TODO: demultiplex events by which window they belong to
+  // otherwise we can't create multiple frames
+
   e | sink<i9>(f, [&, x](i9 y)
     { if (y.type() == u9t::nstruct)
       { let e = Rc<xcb_generic_event_t*>(y.data());
