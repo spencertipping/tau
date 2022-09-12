@@ -142,7 +142,7 @@ struct Φ
         for (iN i = 0; i < n; ++i)
           for (let f : fs.at(ev[i].data.fd))
             // NOTE: mistyping here is OK, as we just want to issue wakeups
-            Rc<Φf<o9fdr>*>(f)->reset().w.w(); }
+            Rc<Φf<void*>*>(f)->reset().w.w(); }
       while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
@@ -152,14 +152,6 @@ struct Φ
       return *this; }
 };
 
-
-template<>
-inline Φf<o9fdr>::Φf(Φ &f_, uN fd_, u32 s) : f(f_), w{f.l}, o{fd_, rn, re, s}
-{ Φnb(fd_); ep = f << *this ? 0 : errno; }
-
-template<>
-inline Φf<o9acc>::Φf(Φ &f_, uN fd_, u32 s) : f(f_), w{f.l}, o{fd_, rn, re}
-{ Φnb(fd_); ep = f << *this ? 0 : errno; }
 
 template<class O>
 inline Φf<O>::~Φf()
@@ -175,22 +167,6 @@ bool operator<<(φ<R, W, F> &f, Φf<O> &r)
     else if (!r.ep && !r.ra()) r.w.y(λs::ΦI);
     else                       return false;
   }
-}
-
-
-bool operator>>(i9 v, Φf<o9fdr> &w)
-{
-  w.wo = 0;
-  while (w.wo < v.size())
-  {
-    if (!w.ep) while (!w.wa()) w.w.y(λs::ΦO);
-    if ((w.wn = write(w.fd(), v.begin() + w.wo, v.size() - w.wo)) == -1)
-    { if ((w.we = errno) != EAGAIN)
-        return false; }
-    else
-      w.wo += w.wn;
-  }
-  return true;
 }
 
 

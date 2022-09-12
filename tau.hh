@@ -9,6 +9,7 @@
 #define τdefines_λ (τhas_boost_context || τhas_emscripten_fiber)
 #define τdefines_Φ (τdefines_λ && τhas_epoll)
 #define τdefines_γ (τdefines_Φ)
+#define τdefines_ξ (τdefines_γ)
 
 
 #include "tau/numerics.hh"
@@ -39,6 +40,11 @@
 # include "tau/digamma.hh"
 # include "tau/Gamma.hh"
 # include "tau/Xi.hh"
+#endif
+
+
+#if τdefines_ξ
+# include "tau/xi.hh"
 #endif
 
 

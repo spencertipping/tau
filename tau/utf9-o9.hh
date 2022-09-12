@@ -220,55 +220,6 @@ struct o9t
 };
 
 
-struct o9fdr  // zero-copy read from FD
-{
-  sletc sb = u9sb(u9s::v32);  static_assert(sb == 5);
-  uNc   fd;
-  iN   &n;    // NOTE: must be external to this o9, since o9 objects
-  iN   &e;    // are assumed to be trivially copyable/destructible
-  u32c  s;
-
-  o9fdr(uN fd_, iN &n_, iN &e_, u32 s_ = 1 << ζb0 - 1)
-    : fd(fd_), n(n_), e(e_), s(s_ - sb)
-    { A(s_ > sb, "o9fdr " << s_ << "(s_) ≤ " << sb << "(sb)"); }
-
-  uN size() const { return s + sb; }
-  uN write(ζp m) const
-    { n = read(fd, m + sb, s);
-      if (n <= 0) { if (n == -1) e = errno; return ζω; }
-      e = 0;
-      W<u8>(m, 0, u9t::bytes | u9s::v32);
-      W<u32>(m, 1, n);
-      return n + sb; }
-};
-
-
-struct o9acc  // accept socket connection from server FD
-{
-  uNc  fd;
-  iN  &n;
-  iN  &e;
-
-  o9acc(uN fd_, iN &n_, iN &e_) : fd(fd_), n(n_), e(e_) {}
-
-  uN size() const { return sizeof(sockaddr) + 256; }
-  uN write(ζp m) const
-    { sockaddr  sa;
-      socklen_t l = 0;
-      bzero(&sa, sizeof(sa));
-      if ((n = accept(fd, &sa, &l)) == -1) { e = errno; return ζω; }
-      e = 0;
-
-      // important: o9t.write() returns 0, because it fills its size;
-      // we, however, requested a different size because we don't know
-      // how big l will be. So we need to calculate the return ourselves.
-      auto t = o9t(u9_pidfd{Sc<u32>(getpid()), Sc<u32>(n)},
-                   Bv{Rc<u8*>(&sa), l});
-      t.write(m);
-      return t.size(); }
-};
-
-
 // TODO: generate indexes if these collections are very large
 template<o9mapped T, class... Ts>
 ic o9v<T, V, Ts...> o9(V<T, Ts...> const &xs) { return o9v<T, V, Ts...>{xs}; }
@@ -288,8 +239,6 @@ ic o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
 
 template<class T>    struct o9_            { sletc v = false; };
 template<>           struct o9_<o9i9>      { sletc v = true; };
-template<>           struct o9_<o9fdr>     { sletc v = true; };
-template<>           struct o9_<o9acc>     { sletc v = true; };
 template<class T>    struct o9_<o9f<T>>    { sletc v = true; };
 template<class T>    struct o9_<o9b<T>>    { sletc v = true; };
 template<>           struct o9_<o9st>      { sletc v = true; };

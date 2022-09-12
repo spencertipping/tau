@@ -8,11 +8,11 @@
 #include <cstring>
 
 
-#include "io.hh"
-
 #include "../tau/begin.hh"
 
 using namespace std;
+using namespace τ;
+using namespace τ::ξ;
 
 
 int nop_seq(int argc, char **argv)
@@ -26,7 +26,7 @@ int nop_seq(int argc, char **argv)
 int tau_seq(int argc, char **argv)
 {
   Φ f;
-  iota(f, atoi(argv[0])) | delay(f, 50ms) | stream_out(f, std::cout);
+  iota(f, atoi(argv[0])) | Δθ(f, 50ms) | stream_out(f, std::cout);
   f.go();
   return 0;
 }
