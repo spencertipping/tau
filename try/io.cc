@@ -71,18 +71,25 @@ int cat(int argc, char **argv)
 int x11(int argc, char **argv)
 {
   Φ f;
+  let t0 = now();
+
   auto &s = xframe(f) | splitter(f);
-  auto &r = θr(f, 100ms) | each<i9>(f, [](i9, γφ &p) {
-    p << o9t((uN) xrop_text, "Ubuntu Sans 48",
-             "hello world",
-             0xe0e0f0f0, 100.f, 100.f);
+  auto &r = θr(f, 30ms) | each<i9>(f, [t0](i9, γφ &p) {
+    let x = 100.f + (now() - t0) / 10ms % 500;
+    let y = 50.f;
+
+    for (uN dy = 1; dy <= 16; dy += 5)
+      p << o9t((uN) xrop_line, x,
+               y - dy, x + 500 - 10*dy, y - dy, 1.f, 0xe0e0f0ff);
+
+    p << o9t((uN) xrop_text, "Gentium 48",
+             "τ« //ξ", 0xe0e0f0ff, x, 50.f);
+
     p << u9τ;
-  }) | tee(f);
+  });
 
   r ^ s;
   s & stream_out(f, cout);
-
-  cout << s.g << endl;
 
   f.go();
   return 0;

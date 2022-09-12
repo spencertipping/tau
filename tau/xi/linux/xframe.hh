@@ -37,8 +37,7 @@ struct xframe_
   sletc fa = 0x1;          // flag: frame is active
 
   Φ        &f;
-  uN        w  = 0;
-  uN        h  = 0;
+  ΣΘΔ       rh;
   uf8       fs = 0;
   uf8       b;             // number of bits for rb and ob
   ζ<i9>    *rb;            // render buffer
@@ -53,8 +52,8 @@ struct xframe_
           chc *dp_  = nullptr,
           uN   w_   = Sc<uN>(720 * nφ),
           uN   h_   = 720,
-          rgba bgf_ = 0x102030f0,
-          rgba bgu_ = 0x102030c0)
+          rgba bgf_ = 0x020407e0,
+          rgba bgu_ = 0x02040780)
     : f(f_), b(b_),
       rb{new ζ<i9>(f.l, b_)},
       ob{new ζ<i9>(f.l, b_)},
@@ -70,11 +69,18 @@ struct xframe_
       }
       return *this; }
 
+  xframe_ &resize(uN w, uN h)
+    { glViewport(0, 0, gl.w = w, gl.h = h);
+      return render(); }
+
   xframe_ &render()
-    { gl.clear(fs & fa ? bgf : bgu);
+    { rh.start();
+      gl.clear(fs & fa ? bgf : bgu);
       for (uN i = 0; i < rb->b.ra(); i += i9::size_of(*rb + i))
         render_one(*rb + i);
       gl.swap();
+      tc.gc();
+      rh.stop();
       return *this; }
 
   xframe_ &operator<<(i9 x)
@@ -100,10 +106,7 @@ struct xframe_
         case XCB_FOCUS_OUT: x->fs &= ~xframe_::fa; x->render(); break;
         case XCB_CONFIGURE_NOTIFY:
         { let ne = Rc<xcb_configure_notify_event_t*>(e);
-          if (ne->width > 0 && ne->height > 0)
-          { x->w = ne->width;
-            x->h = ne->height;
-            x->render(); }
+          if (ne->width > 0 && ne->height > 0) x->resize(ne->width, ne->height);
           break; }
         }}});
 

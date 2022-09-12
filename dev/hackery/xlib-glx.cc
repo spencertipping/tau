@@ -309,7 +309,8 @@ void draw(Display     *const display,
 
   let ms = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
 
-  if (last_w != w || last_h != h) glViewport(0, 0, last_w = w, last_h = h);
+  if (last_w != w || last_h != h)
+    glViewport(0, 0, last_w = w, last_h = h);
 
   glLoadIdentity();
   glOrtho(0, w, h, 0, 0.0f, 100.0f);

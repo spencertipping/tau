@@ -4,7 +4,6 @@
 
 #include "begin.hh"
 
-
 namespace τ::ξ
 {
 
@@ -23,8 +22,17 @@ namespace τ::ξ
 }
 
 
+ϝ &ΣθΔ(Φ &f)
+{
+  let s = new ΣΘΔ;
+  return (new ϝ(f, ϝ::ξι, [&, s](ϝ &f)
+    { s->start();
+      for (let x : f) { s->stop(); f.ε() << s->μ() / 1ns; s->start(); f << x; }
+      s->stop(); }))->xf([s](ϝ&) { delete s; });
 }
 
+
+}
 
 #include "end.hh"
 

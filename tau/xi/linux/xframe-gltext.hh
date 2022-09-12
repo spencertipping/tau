@@ -70,8 +70,6 @@ struct gl_text
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, b);
 
-    std::cout << "creating texture for text " << t << " and font " << f << ", w = " << w << ", h = " << h << std::endl;
-
     free(b);
     g_object_unref(pl);
     cairo_destroy(cl);
@@ -118,7 +116,9 @@ struct gl_texts
       return *this; }
 
   gl_texts &gc()
-    { for (let &[k, t] : ts) if (!(t.fs & fm)) dc.push_back(k);
+    { for (auto &[k, t] : ts)
+      { if (!(t.fs & fm)) dc.push_back(k);
+        t.fs &= ~fm; }
       for (let k : dc) { ts[k].x(); ts.erase(k); }
       dc.clear();
       return *this; }
