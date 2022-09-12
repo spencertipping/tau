@@ -1,14 +1,14 @@
-#ifndef tau_flux_λ_class_h
-#define tau_flux_λ_class_h
+#ifndef τflux_λ_class_h
+#define τflux_λ_class_h
 
 
 #include "arch.hh"
 #include "debug.hh"
 
 
-#if tau_arch == tau_arch_wasm64 || tau_arch == tau_arch_wasm32
+#if τarch == τarch_wasm64 || τarch == τarch_wasm32
 # include <emscripten/fiber.h>
-#elif tau_assume_emscripten
+#elif τassume_emscripten
   // Enough definitions to enable clang/LSP to understand the emscripten
   // bindings
 # include <cstddef>
@@ -29,13 +29,13 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 
-#if tau_arch == tau_arch_wasm64                   \
-    || tau_arch == tau_arch_wasm32                \
-    || tau_assume_emscripten
+#if τarch == τarch_wasm64                   \
+    || τarch == τarch_wasm32                \
+    || τassume_emscripten
   struct λk
   {
     emscripten_fiber_t  k;

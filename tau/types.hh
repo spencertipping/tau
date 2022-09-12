@@ -1,5 +1,5 @@
-#ifndef tau_types_h
-#define tau_types_h
+#ifndef τtypes_h
+#define τtypes_h
 
 
 #include <complex>
@@ -29,7 +29,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 
@@ -61,10 +61,10 @@ typedef char ch;         // that's right, "char" is just too damn long
 typedef char const chc;
 
 
-#if tau_wordsize == 64
+#if τwordsize == 64
   typedef u64 uN;  typedef uN const uNc;
   typedef i64 iN;  typedef iN const iNc;
-#elif tau_wordsize == 32
+#elif τwordsize == 32
   typedef u32 uN;  typedef uN const uNc;
   typedef i32 iN;  typedef iN const iNc;
 #else
@@ -89,9 +89,9 @@ static_assert(sizeof(u64) == 8);
 static_assert(sizeof(c64) == sizeof(f64) * 2);
 static_assert(sizeof(c32) == sizeof(f32) * 2);
 
-#if tau_wordsize == 64
+#if τwordsize == 64
   static_assert(sizeof(void*) == sizeof(u64));
-#elif tau_wordsize == 32
+#elif τwordsize == 32
   static_assert(sizeof(void*) == sizeof(u32));
 #endif
 
@@ -209,7 +209,7 @@ struct ι
 };
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 O &operator<<(O &s, λs t)
 {
   switch (t)

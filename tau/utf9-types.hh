@@ -1,5 +1,5 @@
-#ifndef tau_utf9_types_h
-#define tau_utf9_types_h
+#ifndef τutf9_types_h
+#define τutf9_types_h
 
 
 #include "debug.hh"
@@ -8,11 +8,11 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
   enum class u9t;
   enum class u9s;
   enum class u9st;
@@ -286,7 +286,7 @@ ic uN u9logsizeof(u9t t)
 ic uN u9sizeof(u9t t) { return 1 << u9logsizeof(t); }
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 O &operator<<(O &s, u9t t)
 {
   switch (t)

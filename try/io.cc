@@ -2,7 +2,7 @@
 
 #include "../tau.hh"
 
-#if tau_defines_γ
+#if τdefines_γ
 
 
 #include <cstring>

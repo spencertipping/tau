@@ -1,10 +1,10 @@
-#ifndef tau_Ξ_h
-#define tau_Ξ_h
+#ifndef τΞ_h
+#define τΞ_h
 
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 

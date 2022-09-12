@@ -1,5 +1,5 @@
-#ifndef tau_ζ_h
-#define tau_ζ_h
+#ifndef τζ_h
+#define τζ_h
 
 
 #include <algorithm>
@@ -15,20 +15,20 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 
-#if tau_wordsize == 64
+#if τwordsize == 64
   uf8c constexpr ζb0 = 16;
-#elif tau_wordsize == 32
+#elif τwordsize == 32
   uf8c constexpr ζb0 = 14;
 #else
 # error unsupported word size for ζ
 #endif
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
   struct ζb;
   template<class R> struct ζ;
   O &operator<<(O &s, ζb const &b);
@@ -149,7 +149,7 @@ struct ζ
 };
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 O &operator<<(O &s, ζb const &b)
 {
   return s << "ζb[c=" << b.c << " ri=" << b.ri

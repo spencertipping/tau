@@ -1,4 +1,4 @@
-#ifndef tau_begin_h
+#ifndef τbegin_h
 # error not inside module
 #endif
 
@@ -19,4 +19,4 @@
 #undef defWI
 
 
-#undef tau_begin_h
+#undef τbegin_h

@@ -1,11 +1,11 @@
-#ifdef tau_begin_h
+#ifdef τbegin_h
 # error already inside a module
 #endif
 
-#define tau_begin_h
+#define τbegin_h
 
 
-#if tau_dangerous_disable_asserts
+#if τdangerous_disable_asserts
 
 # warning assertions are disabled
 # undef assert
@@ -17,11 +17,11 @@
 
 #else
 # include <cassert>
-# if tau_has_assert_fail
+# if τhas_assert_fail
 #   define A(x, m)                                          \
       (static_cast<bool>(x)                                 \
        ? void(0)                                            \
-       : tau_assert_fail(#x, __FILE__, __LINE__, m))
+       : τassert_fail(#x, __FILE__, __LINE__, m))
 # else
 #   define A(x, m) assert(x)
 # endif

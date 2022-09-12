@@ -1,5 +1,5 @@
-#ifndef tau_γ_h
-#define tau_γ_h
+#ifndef τγ_h
+#define τγ_h
 
 
 #include "types.hh"
@@ -13,7 +13,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 
@@ -92,7 +92,7 @@ operator>(T &x, γφ &y)
 }
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 template<class T>
 O &operator<<(O &s, φ9::φo<T> const &o)
 {

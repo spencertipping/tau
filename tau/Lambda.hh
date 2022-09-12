@@ -1,5 +1,5 @@
-#ifndef tau_Λ_h
-#define tau_Λ_h
+#ifndef τΛ_h
+#define τΛ_h
 
 
 #include "Lambda-class.hh"
@@ -8,7 +8,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 

@@ -1,5 +1,5 @@
-#ifndef tau_φ_h
-#define tau_φ_h
+#ifndef τφ_h
+#define τφ_h
 
 
 #include "gate.hh"
@@ -10,7 +10,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 
@@ -139,7 +139,7 @@ struct φ
 };
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 template<class R, class W, class F>
 O &operator<<(O &s, φ<R, W, F> const &f)
 {

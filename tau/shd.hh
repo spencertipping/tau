@@ -1,5 +1,5 @@
-#ifndef tau_shd_h
-#define tau_shd_h
+#ifndef τshd_h
+#define τshd_h
 
 
 #include <chrono>
@@ -15,7 +15,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 using namespace std::literals;
@@ -62,7 +62,7 @@ typedef ΣΘΔ_<πι> ΣΘΔ;
 typedef ΣΘΔ_<π0>  ΘΔ;
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 O &operator<<(O &s, ΔΘ const &t)
 {
   let a = abs(t);

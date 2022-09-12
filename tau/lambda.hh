@@ -1,21 +1,21 @@
-#ifndef tau_λ_h
-#define tau_λ_h
+#ifndef τλ_h
+#define τλ_h
 
 
 #include "arch.hh"
 #include "lambda-class.hh"
 
-#if tau_platform == tau_platform_wasm
+#if τplatform == τplatform_wasm
 # include "lambda-emscripten.hh"
-#elif tau_arch == tau_arch_linux64
+#elif τarch == τarch_linux64
 # include "lambda-boost.hh"
 #else
 # error λ not supported on this architecture
 #endif
 
 
-#ifdef tau_assume_emscripten
-# error tau_assume_emscripten is not intended for production
+#ifdef τassume_emscripten
+# error τassume_emscripten is not intended for production
 #endif
 
 

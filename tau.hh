@@ -1,14 +1,14 @@
-#ifndef tau_h
-#define tau_h
+#ifndef τ_h
+#define τ_h
 
 
 #include "tau/debug.hh"
 #include "tau/arch.hh"
 
 
-#define tau_defines_λ (tau_has_boost_context || tau_has_emscripten_fiber)
-#define tau_defines_Φ (tau_defines_λ && tau_has_epoll)
-#define tau_defines_γ (tau_defines_Φ)
+#define τdefines_λ (τhas_boost_context || τhas_emscripten_fiber)
+#define τdefines_Φ (τdefines_λ && τhas_epoll)
+#define τdefines_γ (τdefines_Φ)
 
 
 #include "tau/numerics.hh"
@@ -18,7 +18,7 @@
 // TODO: unify all of these things down to just λ once we have
 // epoll -> emscripten portability (via Φ alternatives)
 
-#if tau_defines_λ
+#if τdefines_λ
 # include "tau/lambda.hh"
 # include "tau/Lambda.hh"
 # include "tau/zeta.hh"
@@ -29,12 +29,12 @@
 #endif
 
 
-#if tau_defines_Φ
+#if τdefines_Φ
 # include "tau/Phi.hh"
 #endif
 
 
-#if tau_defines_γ
+#if τdefines_γ
 # include "tau/gamma.hh"
 # include "tau/digamma.hh"
 # include "tau/Gamma.hh"

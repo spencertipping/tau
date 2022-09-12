@@ -1,5 +1,5 @@
-#ifndef tau_utf9_o9_h
-#define tau_utf9_o9_h
+#ifndef τutf9_o9_h
+#define τutf9_o9_h
 
 
 #include <cstring>
@@ -20,7 +20,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 

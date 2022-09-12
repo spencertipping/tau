@@ -1,5 +1,5 @@
-#ifndef tau_pi_h
-#define tau_pi_h
+#ifndef τpi_h
+#define τpi_h
 
 
 #include "types.hh"
@@ -8,7 +8,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 
@@ -64,7 +64,7 @@ struct π0
 };
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 template<class F, class X, uN N, class π>
 O &operator<<(O &s, πι_<F, X, N, π> const &h)
 {

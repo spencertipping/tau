@@ -1,5 +1,5 @@
-#ifndef tau_utf9_i9_h
-#define tau_utf9_i9_h
+#ifndef τutf9_i9_h
+#define τutf9_i9_h
 
 
 #include <cstring>
@@ -14,7 +14,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 
@@ -129,10 +129,10 @@ struct i9
 static_assert(sizeof(i9) == sizeof(uN));
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 O &operator<<(O &s, i9 const &x)
 {
-  if (tau_debug_i9st)
+  if (τdebug_i9st)
     s << "i9@" << Sc<void*>(x.a) << ":" << x.type() << ":" << x.size() << " ";
 
   switch (x.type())

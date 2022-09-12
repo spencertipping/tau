@@ -1,5 +1,5 @@
-#ifndef tau_numerics_h
-#define tau_numerics_h
+#ifndef τnumerics_h
+#define τnumerics_h
 
 
 #include <bit>
@@ -11,7 +11,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 

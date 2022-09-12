@@ -1,5 +1,5 @@
-#ifndef tau_gate_h
-#define tau_gate_h
+#ifndef τgate_h
+#define τgate_h
 
 
 #include "types.hh"
@@ -7,7 +7,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 

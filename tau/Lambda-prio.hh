@@ -1,5 +1,5 @@
-#ifndef tau_Λ_prio_h
-#define tau_Λ_prio_h
+#ifndef τΛ_prio_h
+#define τΛ_prio_h
 
 
 #include <cmath>
@@ -16,7 +16,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 

@@ -1,5 +1,5 @@
-#ifndef tau_λ_boost_h
-#define tau_λ_boost_h
+#ifndef τλ_boost_h
+#define τλ_boost_h
 
 
 #include "types.hh"
@@ -8,7 +8,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 namespace λbc = boost::context;

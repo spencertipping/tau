@@ -1,5 +1,5 @@
-#ifndef tau_Φ_h
-#define tau_Φ_h
+#ifndef τΦ_h
+#define τΦ_h
 
 
 // TODO: have a separate version for emscripten
@@ -27,7 +27,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 

@@ -1,48 +1,48 @@
-#ifndef tau_debug_h
-#define tau_debug_h
+#ifndef τdebug_h
+#define τdebug_h
 
 
 #include "arch.hh"
 
 
-#if !defined(tau_debug)
-# define tau_debug 1
+#if !defined(τdebug)
+# define τdebug 1
 #endif
 
 
-#if tau_debug
+#if τdebug
 # include <iostream>
 #endif
 
 
-#if !defined(tau_debug_iostream)
-# define tau_debug_iostream tau_debug
+#if !defined(τdebug_iostream)
+# define τdebug_iostream τdebug
 #endif
 
 
-#if !defined tau_debug_i9st
-# define tau_debug_i9st 0
+#if !defined τdebug_i9st
+# define τdebug_i9st 0
 #endif
 
 
-#if tau_has_assert_fail
+#if τhas_assert_fail
 # include <errno.h>
-# if tau_debug_iostream
-#   define tau_assert_fail(x, f, l, m)                      \
-      ([&]() {                                              \
-        static bool tau_debugging = false;                  \
-        if (!tau_debugging)                                 \
-        {                                                   \
-          tau_debugging = true;                             \
-          if (errno)                                        \
-            perror("assertion failure errno (if any)");     \
-          std::cerr << "FAIL: " << m << std::endl;          \
-        }                                                   \
-        __assert_fail(x, f, l, __ASSERT_FUNCTION);          \
-      })()
+# if τdebug_iostream
+#   define τassert_fail(x, f, l, m)                         \
+  ([&]() {                                                  \
+    static bool τdebugging = false;                         \
+    if (!τdebugging)                                        \
+    {                                                       \
+      τdebugging = true;                                    \
+      if (errno)                                            \
+        perror("assertion failure errno (if any)");         \
+      std::cerr << "FAIL: " << m << std::endl;              \
+    }                                                       \
+    __assert_fail(x, f, l, __ASSERT_FUNCTION);              \
+  })()
 # else
-#   define tau_assert_fail(x, f, l, m)            \
-      __assert_fail(x, f, l, __ASSERT_FUNCTION)
+#   define τassert_fail(x, f, l, m)             \
+  __assert_fail(x, f, l, __ASSERT_FUNCTION)
 # endif
 #endif
 

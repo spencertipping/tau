@@ -1,5 +1,5 @@
-#ifndef tau_Λ_class_h
-#define tau_Λ_class_h
+#ifndef τΛ_class_h
+#define τΛ_class_h
 
 
 #include "arch.hh"
@@ -12,7 +12,7 @@
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 

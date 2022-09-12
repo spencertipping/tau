@@ -12,7 +12,7 @@
 #include "../tau/debug.hh"
 
 
-using namespace tau;
+using namespace τ;
 
 
 #include "../tau/begin.hh"

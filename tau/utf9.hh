@@ -1,5 +1,5 @@
-#ifndef tau_utf9_h
-#define tau_utf9_h
+#ifndef τutf9_h
+#define τutf9_h
 
 
 #include "utf9-types.hh"

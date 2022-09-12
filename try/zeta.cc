@@ -4,7 +4,7 @@
 #include "../tau/debug.hh"
 
 
-using namespace tau;
+using namespace τ;
 using namespace std;
 
 

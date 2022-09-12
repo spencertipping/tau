@@ -1,5 +1,5 @@
-#ifndef tau_λ_emscripten_h
-#define tau_λ_emscripten_h
+#ifndef τλ_emscripten_h
+#define τλ_emscripten_h
 
 
 #include <memory>
@@ -9,14 +9,14 @@
 
 
 // For interactive development with clang/lsp; this is a nop in production
-#define tau_assume_emscripten 1
+#define τassume_emscripten 1
 # include "lambda-class.hh"
-#undef tau_assume_emscripten
+#undef τassume_emscripten
 
 
 #include "begin.hh"
 
-namespace tau
+namespace τ
 {
 
 
