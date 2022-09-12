@@ -56,8 +56,10 @@ typedef float  f32;  typedef f32 const f32c;
 typedef std::complex<f32> c32;  typedef c32 const c32c;
 typedef std::complex<f64> c64;  typedef c64 const c64c;
 
-typedef char ch;         // that's right, "char" is just too damn long
-typedef char const chc;
+typedef char                ch;  // that's right, "char" is just too damn long
+typedef char const          chc;
+typedef unsigned char       uch;
+typedef unsigned char const uchc;
 
 
 #if τwordsize == 64

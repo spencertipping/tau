@@ -10,8 +10,9 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 
-#include <pango/pangocairo.h>
 
+#include "xframe-keymap.hh"
+#include "xframe-gltext.hh"
 
 #include "../begin.hh"
 
@@ -19,8 +20,22 @@ namespace τ::ξ
 {
 
 
-// NOTE: https://stackoverflow.com/questions/18689863/obtain-keyboard-layout-and-keysyms-with-xcb
-// less good: https://stackoverflow.com/questions/34582279/linux-c-keymapping-keycodes
+struct xframe
+{
+
+  sletc fa = 0x1;        // flag: frame is active
+  sletc fr = 0x2;        // flag: frame needs to be redrawn
+
+  uN   w  = 0;
+  uN   h  = 0;
+  uf8  fs = 0;
+  uf8  b  = 20;
+  u8  *rb = nullptr;  // render buffer (of i9 render commands)
+  u8  *ob = nullptr;  // offscreen buffer (of inbound i9s)
+
+
+};
+
 
 }
 
