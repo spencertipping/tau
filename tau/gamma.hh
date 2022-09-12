@@ -92,6 +92,21 @@ operator>(T &x, γφ &y)
 }
 
 
+template<class T>
+typename std::enable_if<iti<T>::v, bool>::type
+operator<(γφ &y, T &x)
+{
+  return x > y;
+}
+
+template<class T>
+typename std::enable_if<iti<T>::v, bool>::type
+operator<(γφ &y, T &&x)
+{
+  return x > y;
+}
+
+
 #if τdebug_iostream
 template<class T>
 O &operator<<(O &s, φ9::φo<T> const &o)

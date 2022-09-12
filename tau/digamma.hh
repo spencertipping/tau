@@ -67,7 +67,9 @@ struct ϝ
       φc(c >> 20);
       λcs(fs...); }
 
-  ~ϝ() { for (let &f : xfs) f(*this); }
+  ~ϝ() {
+    std::cout << "destroying ϝ " << g.t << std::endl;
+    for (let &f : xfs) f(*this); }
 
   ϝ &xf(ϝxf &&f) { xfs.push_back(std::move(f)); return *this; }
 
@@ -116,10 +118,6 @@ struct ϝ
 
   template<class T> bool operator<< (T const &x) { return φο() <<  x; }
   template<class T> bool operator<<=(T const &x) { return φο() <<= x; }
-
-  template<class T>
-  typename std::enable_if<iti<T>::v, bool>::type
-  operator<(T const &x) { return x > φο(); }
 
   ϝ &operator|(ϝ &x) { g(οi(), x.g, x.ιi()); return x; }
   ϝ &operator&(ϝ &x) { g(3,    x.g, x.ιi()); return x; }

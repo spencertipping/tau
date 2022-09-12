@@ -110,9 +110,9 @@ struct xframe_
           break; }
         }}});
 
-  return e ^ (new ϝ(f, ϝ::ξΦ,
+  return e ^ (new ϝ(f, ϝ::ξΦ | 0x020000,
                     [&, x](ϝ &f) { for (let a : f) *x << a; },
-                    [&]   (ϝ &f) { f < f.δ(); }))
+                    [&]   (ϝ &f) { f.α() < f.δ(); }))
     ->xf([x](ϝ&) { delete x; });
 }
 

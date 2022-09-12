@@ -20,7 +20,7 @@ template<class I = i9, class O>
 ϝ &iota(Φ &f, uN n = -1)
 {
   return *new ϝ(f, ϝ::ξι, [&, n](ϝ &f)
-    { f.ε() <<= f < ι(n); });
+    { f.ε() <<= f.β() < ι(n); });
 }
 
 

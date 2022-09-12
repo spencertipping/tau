@@ -6,6 +6,7 @@
 
 
 #include <cstring>
+#include <xcb/xproto.h>
 
 
 #include "../tau/begin.hh"
@@ -71,25 +72,30 @@ int cat(int argc, char **argv)
 int x11(int argc, char **argv)
 {
   Φ f;
-  let t0 = now();
+  let cx = new f32{0};
+  let cy = new f32{0};
 
   auto &s = xframe(f) | splitter(f);
-  auto &r = θr(f, 30ms) | each<i9>(f, [t0](i9, γφ &p) {
-    let x = 100.f + (now() - t0) / 10ms % 500;
-    let y = 50.f;
 
-    for (uN dy = 1; dy <= 16; dy += 5)
-      p << o9t((uN) xrop_line, x,
-               y - dy, x + 500 - 10*dy, y - dy, 1.f, 0xe0e0f0ff);
-
+  (θr(f, 30ms) | each<i9>(f, [&, cx, cy](i9, γφ &p) {
+    let x  = *cx + 40;
+    let y  = *cy;
+    for (uN dy = 1; dy <= 100; dy += 5)
+      p << o9t((uN) xrop_line,
+               x,                                                           y - dy,
+               x + 500.f + 100.f * sinf(f.dt() / 1ms / 1000.f + dy / 40.f), y - dy,
+               1.f, 0xe0e0f0ff);
     p << o9t((uN) xrop_text, "Gentium 48",
-             "τ« //ξ", 0xe0e0f0ff, x, 50.f);
+             "τ« //ξ", 0xe0e0f0ff, x, y);
+    p << u9τ; })) ^ s;
 
-    p << u9τ;
-  });
-
-  r ^ s;
-  s & stream_out(f, cout);
+  s & sink<i9>(f, [cx, cy](i9 a) {
+    if (a.type() != u9t::nstruct) return;
+    let e = Rc<xcb_generic_event_t*>(a.data());
+    if ((e->response_type & ~0x80) == XCB_MOTION_NOTIFY)
+    { let me = Rc<xcb_motion_notify_event_t*>(e);
+      *cx = me->event_x;
+      *cy = me->event_y; }});
 
   f.go();
   return 0;
