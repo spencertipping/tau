@@ -83,6 +83,8 @@ struct i9
       A(sizeof(T) <= size(), "i9 T* overflows bounds; |T|=" << sizeof(T) << ", size()=" << size());
       return Rc<T const*>(begin()); }
 
+  operator St() const { return St{Rc<ch*>(data()), size()}; }
+
   operator u9st() const
     { u9tm{u9t::stream}(type());
       return Sc<u9st>(R<u8>(begin(), 0)); }

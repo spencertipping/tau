@@ -25,6 +25,13 @@ namespace τ::ξ
 {
 
 
+enum xframe_rop
+{
+  xrop_text,
+  xrop_line,
+};
+
+
 struct xframe_
 {
   sletc fa = 0x1;          // flag: frame is active
@@ -49,13 +56,28 @@ struct xframe_
     : f(f_), b(b_),
       rb{new ζ<i9>(f.l, b_)},
       ob{new ζ<i9>(f.l, b_)},
-      gl{w_, h_, 0, 0, dp_}
-    {}
+      gl{w_, h_, 0, 0, dp_} {}
+
+  xframe_ &render_one(i9 x)
+    { switch (Sc<uN>(x[0]))
+      {
+      case xrop_text: tc.r(x[1], x[2], x[3], x[4], x[5]);          break;
+      case xrop_line: gl_line(x[1], x[2], x[3], x[4], x[5], x[6]); break;
+      default: A(0, "unsupported rop " << x);
+      }
+      return *this; }
 
   xframe_ &render()
     { gl.clear(fs & fa ? bgf : bgu);
+      for (uN i = 0; i < rb->b.ra(); i += i9::size_of(*rb + i))
+        render_one(*rb + i);
+      return *this; }
 
-    }
+  xframe_ &operator<<(i9 x)
+    { if (x.type() == u9t::stream && Sc<u9st>(x) == u9st::τ)
+      { let z = rb; rb = ob; (ob = z)->b.reset(); render(); }
+      else A(*ob << x, "xframe_ << overflow; received " << x);
+      return *this; }
 };
 
 
@@ -81,13 +103,10 @@ struct xframe_
           break; }
         }}});
 
-  // TODO: how to turn e into ϝ's output? maybe just copy through
-
-  auto u = [&, x](ϝ &f) {};
-
-  auto &r = (new ϝ(f, ϝ::ξΦ, u))->xf([x](ϝ&) { delete x; });
-
-  return r;
+  return e ^ (new ϝ(f, ϝ::ξΦ,
+                   [&, x](ϝ &f) { for (let y : f) *x << y; },
+                   [&]   (ϝ &f) { f < f.δ(); }))
+    ->xf([x](ϝ&) { delete x; });
 }
 
 
