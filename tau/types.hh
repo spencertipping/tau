@@ -10,10 +10,12 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <queue>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
@@ -98,16 +100,19 @@ template<class... T>       using D  = std::deque<T...>;
 template<class... T>       using F  = std::function<T...>;
 template<class... T>       using Il = std::initializer_list<T...>;
 template<class T>          using H  = std::hash<T>;
+template<class T>          using Lg = std::lock_guard<T>;
 template<class... T>       using M  = std::unordered_map<T...>;
+typedef               std::mutex Mu;
 template<class T>          using Nl = std::numeric_limits<T>;
-template<class T, class U> using P  = std::pair<T, U>;
 typedef             std::ostream O;
 template<class T>          using Op = std::optional<T>;
+template<class T, class U> using P  = std::pair<T, U>;
 template<class... T>       using Q  = std::queue<T...>;
 template<class T>          using Rw = std::reference_wrapper<T>;
 template<class... K>       using S  = std::unordered_set<K...>;
 template<class... T>       using SP = std::shared_ptr<T...>;
 template<class... X>       using T  = std::tuple<X...>;
+typedef              std::thread Th;
 template<class... T>       using V  = std::vector<T...>;
 template<class... T>       using Va = std::variant<T...>;
 template<class... T>       using Vi = typename V<T...>::const_iterator;

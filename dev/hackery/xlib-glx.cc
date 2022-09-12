@@ -19,6 +19,9 @@
 #define let auto const
 
 
+// TODO: nonblocking xcb https://xcb.freedesktop.org/tutorial/events/
+
+
 // https://stackoverflow.com/questions/61124564/convert-scancodes-to-ascii
 char kbd_US [128] =
 {

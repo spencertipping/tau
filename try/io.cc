@@ -59,12 +59,22 @@ int chat(int argc, char **argv)
 }
 
 
+int cat(int argc, char **argv)
+{
+  Φ f;
+  fd_in(f, 0) | fd_out(f, 1);
+  f.go();
+  return 0;
+}
+
+
 int main(int argc, char **argv)
 {
   if (!strcmp(argv[1], "nseq")) return nop_seq (argc - 2, argv + 2);
   if (!strcmp(argv[1], "tseq")) return tau_seq (argc - 2, argv + 2);
   if (!strcmp(argv[1], "fseq")) return tau_fseq(argc - 2, argv + 2);
   if (!strcmp(argv[1], "chat")) return chat    (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "cat"))  return cat     (argc - 2, argv + 2);
   return 0;
 }
 

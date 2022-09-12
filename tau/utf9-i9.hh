@@ -48,7 +48,8 @@ struct i9
   it  begin() const { return it{a + u9sb(stype())}; }
   it  end()   const { return it{a + u9rs(a, 0)}; }
 
-  // NOTE: inner, "logical" size, not outer size
+  // NOTE: inner, "logical" size, not outer size; that way these methods
+  // have STL-style meanings
   ζp  data()  const { return begin(); }
   uN  size()  const { return end() - begin(); }
 
@@ -75,6 +76,12 @@ struct i9
       case u9t::u64: return R<u64>(begin(), 0);
         TA(0, type())
       } }
+
+  template<class T>
+  T const* operator*() const
+    { u9tm{u9t::nstruct}(type());
+      A(sizeof(T) <= size(), "i9 T* overflows bounds; |T|=" << sizeof(T) << ", size()=" << size());
+      return Rc<T const*>(begin()); }
 
   operator u9st() const
     { u9tm{u9t::stream}(type());

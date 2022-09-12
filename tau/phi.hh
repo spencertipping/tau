@@ -48,14 +48,15 @@ struct φπ  // profiling+timing filter
 template<class R, class W = R, class F = φι>
 struct φ
 {
-  sletc nr  = 64;
-  sletc nw  = 128;
-  sletc ζbm = 63;
-
+  sletc fnr = 0x1;
+  sletc fnw = 0x2;
+  sletc fli = 0x4;
+  sletc flo = 0x8;
 
   Λ          &l;
   φ<W, R, F> *c {nullptr};  // NOTE: template args may vary; ptr type is a lie
-  uf8c        b;            // 64 and 128 are no-read and no-write flags
+  u8c         b;
+  u8c         fs;
   ζ<R>       *i {nullptr};
   ζ<W>       *o {nullptr};
   λg          cg;
@@ -65,9 +66,7 @@ struct φ
 
   φ(φ &) = delete;
   φ(φ&&) = delete;
-  φ(Λ &l_, uf8 b = ζb0, bool nr_ = false, bool nw_ = false)
-    : l{l_}, b{Sc<uf8>(b | (nr_ ? nr : 0) | (nw_ ? nw : 0))},
-      cg{l}, xg{l} {}
+  φ(Λ &l_, uf8 b_ = ζb0, u8 fs_ = 0) : l{l_}, b{b_}, fs{fs_}, cg{l}, xg{l} {}
 
   ~φ() { rx(); if (c) c->c = nullptr; }
 
@@ -82,8 +81,12 @@ struct φ
   template<class F2>
   φ &operator()(φ<W, R, F2> &f)
     { let p = Rc<φ<W, R, F>*>(&f);
-      let i = !(b & nr) && !(p->b & nw) && p->b ? new ζ<R>(l, p->b & ζbm) : nullptr;
-      let o = !(b & nw) && !(p->b & nr) && b    ? new ζ<W>(l, b    & ζbm) : nullptr;
+      let i = !(fs & fnr) && !(p->fs & fnw) && p->b
+        ? new ζ<R>(l, p->b, fs & fli || p->fs & flo ? ζ<R>::fl : 0)
+        : nullptr;
+      let o = !(fs & fnw) && !(p->fs & fnr) && b
+        ? new ζ<W>(l, b,    fs & flo || p->fs & fli ? ζ<W>::fl : 0)
+        : nullptr;
       (*(c    = p))   (*o, *i);
       (*(c->c = this))(*i, *o);
       return *this; }

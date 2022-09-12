@@ -75,7 +75,7 @@ In detail:
 | `1 1000` | `pid, fd` (non-portable)  |
 | `1 1001` | `heap ref` (non-portable) |
 | `1 1010` | `heap pin` (non-portable) |
-| `1 1011` | **reserved**              |
+| `1 1011` | `struct` (non-portable)   |
 | `1 1100` | **reserved**              |
 | `1 1101` | **reserved**              |
 | `1 1110` | **reserved**              |
@@ -212,3 +212,9 @@ Some UTF9 values will be too large for the ζ being used to carry them. Rather t
 Heap references can be pinned, which modifies their typecode in place. This is an implementation detail that prevents the heap object from being freed automatically when the ζ containing the heap ref is advanced.
 
 **NOTE:** non-portable refs cannot be embedded into other data structures, even for local transit. τ data structures don't internally hold references to anything or support tracing GC, so it would defeat automatic memory allocation if these structures could be serialized into anything besides the toplevel.
+
+
+### Non-portable `struct`
+This is a way to pass around `struct` instances that are encoded with native-endianness and alignment. You can `Sc<type*>(i9)` to decode them.
+
+`struct`s in UTF9 have no type tagging; it's assumed that all participants know which C++ type they map to. This means they have minimal overhead, just the control-byte + size prefix.

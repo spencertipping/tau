@@ -49,9 +49,9 @@ struct ζb
   ζp  xs = nullptr;  // invariant: xs[0..c-1] are allocated
   uN  ri = 0;
   uN  wi = 0;
-  uN  ci = 0;
+  uN  ci = 0;        // TODO: use this to indicate wrap so we get full c
 
-  ζb(uf8 b_) : c(Sc<uN>(1) << b_) { xs = new u8[c]; }
+  ζb(uf8 b_) : c(Sc<uN>(1) << b_) { A(c, "ζb uN overflow, b = " << b_); xs = new u8[c]; }
   ~ζb()                           { delete[] xs; }
 
   ζp   operator+ (uN a) const { return xs + a; }
@@ -82,37 +82,46 @@ struct ζb
 template<class R = void>
 struct ζ
 {
-  ζb     b;
-  λg     rg;
-  λg     wg;
-  bool   rc {false};
-  bool   wc {false};
+  sletc frc = 0x1;
+  sletc fwc = 0x2;
+  sletc fl  = 0x4;
+
+  ζb  b;
+  uf8 fs;
+  λg  rg;
+  λg  wg;
+  Mu  l;
 
   ζ(ζ &x) = delete;
-  ζ(Λ &l, uf8 b_ = ζb0) : b(b_), rg{l}, wg{l} {}
+  ζ(Λ &l, uf8 b_ = ζb0, uf8 fs_ = 0) : b(b_), fs(fs_), rg{l}, wg{l} {}
 
 
-  ζ &rω() { rc = true; wg.w(); return *this; }
-  ζ &wω() { wc = true; rg.w(); return *this; }
+  ζ &rω() { fs |= frc; wg.w(); return *this; }
+  ζ &wω() { fs |= fwc; rg.w(); return *this; }
 
 
   ζp operator+(uN a) const { return b + a; }
   uN         a()     const { return b.ri; }
   bool      ra()     const { return b.ra(); }
   bool      wa()     const { return b.wa(); }
-  bool      ri()     const { return !wc || ra(); }
-  bool      wi()     const { return !rc; }
+  bool      ri()     const { return !wc() || ra(); }
+  bool      wi()     const { return !rc(); }
+  bool      rc()     const { return fs & frc; }
+  bool      wc()     const { return fs & fwc; }
+  bool      li()     const { return fs & fl; }
 
 
-  bool wra()     { while (!b.ra())    { if (wc) return false; rg.y(λs::I); }; return true; }
-  bool wwa(uN s) { while (b.wa() < s) { if (rc) return false; wg.y(λs::O); }; return true; }
+  bool wra()     { while (!b.ra())    { if (wc()) return false; rg.y(λs::I); }; return true; }
+  bool wwa(uN s) { while (b.wa() < s) { if (rc()) return false; wg.y(λs::O); }; return true; }
 
 
   ζp   operator*() { return wra() ? b + b.ri : ζωp; }
   bool operator++()
     { if (!ra()) return false;
+      if (li()) l.lock();
       R::free(b + b.ri);
       b.free(b.ri + R::size_of(b + b.ri));
+      if (li()) l.unlock();
       wg.w();
       return true; }
 
@@ -121,17 +130,19 @@ struct ζ
   bool operator<<(W const &x)
     { let s = x.size();
 
-      // NOTE: <, not <=, because ζb reserves one byte when wrapped to mark it
-      // wrapped state (see ζb::wa).
-      A(s < b.c, s << "[s] ≥ " << b.c << "[ζb.c]");
-      uN a;
-      while ((a = b.alloc(s)) == ζω) { if (rc) return false; wg.y(λs::O); }
+      // NOTE: ζb reserves one byte when wrapped to mark it wrapped state (see ζb::wa).
+      A(s <= b.c - 1, s << "[s] ≥ " << b.c << "[ζb.c]");
+      while (s > b.wa()) { if (rc()) return false; wg.y(λs::O); }
+
+      if (li()) l.lock();
+      uNc a = b.alloc(s);
 
       // write() returns the _actual_ size written, or 0 if it's the same
       // as .size(), or ζω if nothing was written.
       if (let w = x.write(b + a))
-      { if (w == ζω) { b.rewind(s); return false; }
+      { if (w == ζω) { b.rewind(s); if (li()) l.unlock(); return false; }
         b.rewind(s - w); }
+      if (li()) l.unlock();
 
       rg.w();
       return true; }
@@ -149,7 +160,7 @@ O &operator<<(O &s, ζb const &b)
 template<class R>
 O &operator<<(O &s, ζ<R> const &x)
 {
-  return s << "ζ" << (x.rc ? "#" : "r") << (x.wc ? "#" : "w") << " " << x.b;
+  return s << "ζ" << (x.li() ? "L" : "") << (x.rc() ? "#" : "r") << (x.wc() ? "#" : "w") << " " << x.b;
 }
 #endif
 

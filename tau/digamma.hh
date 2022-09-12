@@ -19,32 +19,39 @@ namespace tau
 //
 // 0x εδβα οι  <- four φs, two IO specifiers
 //
-// Each digit specifies the state of the φ along three dimensions:
+// Each digit specifies the state of the φ along four dimensions:
 //
-// _4__  <- if set, the φ will be a server
+// 8___  <- if set, the φ will use threadsafe reads
+// _4__  <- if 8 is set and this is set, the φ will use threadsafe writes
+// _4__  <- if 8 is not set and this is set, the φ will be a server
 // __2_  <- if set, the φ will be read-only (not writable)
 // ___1  <- if set, the φ will be write-only (not readable)
+//
+// Note the dual context of the _4__ bit. Server φs never need to be threadsafe
+// because all ζ connections happen from the main thread.
 //
 // ι and ο specify which φ is used for default reading and default
 // writing, respectively. Each of these is a number from 0 to 3, inclusive,
 // where 0 = α and 3 = ε.
 
-typedef u32 ϝξ;
+typedef uf32     ϝξ;
+typedef ϝξ const ϝξc;
 
 
 struct ϝ
 {
-  sletc ξι = 0x001210;
-  sletc ξϊ = 0x000010;
-  sletc ξΦ = 0x003000;
-  sletc ξβ = 0x004010;
-  sletc ξτ = 0x213000;
-  sletc ξγ = 0x004311;
-  sletc ξδ = 0x000110;
+  sletc ξι  = 0x001210;
+  sletc ξϊ  = 0x000010;
+  sletc ξΦ  = 0x003000;
+  sletc ξΦl = 0x003c00;  // threadsafe variant of ξΦ
+  sletc ξβ  = 0x004010;
+  sletc ξτ  = 0x213000;
+  sletc ξγ  = 0x004311;
+  sletc ξδ  = 0x000110;
 
-  γ        g;
-  ϝξ const c;
-  uN       r{0};
+  γ   g;
+  ϝξc c;
+  uN  r{0};
 
   template<class... Fs>
   ϝ(Φ &f_, ϝξ c_, Fs... fs) : g{f_}, c(c_)
@@ -74,7 +81,11 @@ struct ϝ
         if (!--r) delete this;
         return 0; }); }
 
-  φi φc(ϝξ x)    { return g.φc(ζb0, x & 4, x & 1, x & 2); }
+  φi φc(ϝξ x)
+    { return g.φc(ζb0, !(x & 8) && x & 4,
+                  (x & 8 ? γφ::fli | (x & 4 ? γφ::flo : 0) : 0)
+                  | (x & 2 ? γφ::fnw : 0)
+                  | (x & 1 ? γφ::fnr : 0)); }
 
   φi ιi()  const { return c      & 3; }
   φi οi()  const { return c >> 4 & 3; }

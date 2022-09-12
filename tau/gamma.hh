@@ -56,8 +56,8 @@ struct γ
       φs(fs.size() - 1, s);
       return fs.size() - 1; }
 
-  φi φc(uf8 b = ζb0, bool s = false, bool nr = false, bool nw = false)
-    { return φc(new γφ(f.l, b, nr, nw), s); }
+  φi φc(u8 b = ζb0, bool s = false, uf8 fs = 0)
+    { return φc(new γφ(f.l, b, fs), s); }
 
   γ &φx(φi i)
     { if (fs[i])          { fs[i]->ω(); delete fs[i]; fs[i] = nullptr; }

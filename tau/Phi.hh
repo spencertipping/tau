@@ -4,6 +4,9 @@
 
 // TODO: have a separate version for emscripten
 
+// TODO: cap the wait-time for files and other non-epollables
+// so we revisit and awaken them
+
 
 #include <algorithm>
 

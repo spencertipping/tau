@@ -56,6 +56,7 @@ enum class u9t
   pidfd   = 24,
   heapref = 25,  // heapref that will be freed automatically
   heappin = 26,  // pinned heapref (not freed automatically)
+  nstruct = 27,  // native-encoded struct
 
   none    = 31,  // not a real type
 };
@@ -95,6 +96,10 @@ defR(u9_heapref) { return u9_heapref{Rc<void*>(R<uN>(xs, i))}; }
 defW(u9_heapref) { W<uN>(xs, i, Rc<uN>(x.r)); }
 
 
+template<class T>
+struct u9_struct { T x; };
+
+
 template<class T> struct u9t_{ sletc t = u9t::none; };
 
 template<> struct u9t_<u8>   { sletc t = u9t::u8;  };
@@ -123,15 +128,19 @@ template<class U>          struct u9t_<V<U>>    { sletc t = u9t::tuple; };
 template<class K, class V> struct u9t_<M<K, V>> { sletc t = u9t::map; };
 template<class U>          struct u9t_<S<U>>    { sletc t = u9t::set; };
 
-template<> struct u9t_<u9_pidfd>   { sletc t = u9t::pidfd; };
-template<> struct u9t_<u9_stream>  { sletc t = u9t::stream; };
-template<> struct u9t_<u9_heapref> { sletc t = u9t::heapref; };
+template<>        struct u9t_<u9_pidfd>     { sletc t = u9t::pidfd; };
+template<>        struct u9t_<u9_stream>    { sletc t = u9t::stream; };
+template<>        struct u9t_<u9_heapref>   { sletc t = u9t::heapref; };
+template<class U> struct u9t_<u9_struct<U>> { sletc t = u9t::nstruct; };
 
 
 template<class T>
 concept u9t_hastype = u9t_<T>::t != u9t::none;
 
 
+// NOTE: some compilers define native-width ints in such a way that this
+// is not trivially true -- i.e. although they are the same size, the
+// template args fail to match.
 static_assert(u9t_hastype<uN>);
 static_assert(u9t_hastype<iN>);
 
@@ -311,6 +320,7 @@ O &operator<<(O &s, u9t t)
   case u9t::pidfd:   return s << "pidfd";
   case u9t::heapref: return s << "heapref";
   case u9t::heappin: return s << "heappin";
+  case u9t::nstruct: return s << "struct";
 
     TA(s, Sc<uN>(t))
   }

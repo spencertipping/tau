@@ -38,7 +38,7 @@ struct Λt
 };
 
 
-// NOTE: managed λs should yield out with Λ.y
+// NOTE: managed λs should yield out with Λ.y, not λy() defined by lambda.hh
 template<class Λp>
 struct Λ_
 {
