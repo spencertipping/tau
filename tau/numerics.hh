@@ -15,6 +15,10 @@ namespace τ
 {
 
 
+let nτ = 6.28318530717959;
+let nφ = 0.5 + sqrt(5) / 2;
+
+
 let constexpr LE = std::endian::native == std::endian::little;
 let constexpr BE = std::endian::native == std::endian::big;
 

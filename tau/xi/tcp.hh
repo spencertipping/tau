@@ -16,11 +16,9 @@ namespace τ
 
 struct o9acc  // accept socket connection from server FD
 {
-  uNc  fd;
   iN  &n;
   iN  &e;
-
-  o9acc(uN fd_, iN &n_, iN &e_) : fd(fd_), n(n_), e(e_) {}
+  uNc  fd;
 
   uN size() const { return sizeof(sockaddr) + 256; }
   uN write(ζp m) const
@@ -43,8 +41,17 @@ template<> struct o9_<o9acc> { sletc v = true; };
 
 
 template<>
-inline Φf<o9acc>::Φf(Φ &f_, uN fd_, u32 s) : f(f_), w{f.l}, o{fd_, rn, re}
-{ Φnb(fd_); ep = f << *this ? 0 : errno; }
+inline void Φf<o9acc>::init()
+{
+  Φnb(o.fd);
+  ep = f << *this ? 0 : errno;
+}
+
+template<>
+inline Φf<o9acc>::~Φf()
+{
+  f.x(*this);
+}
 
 
 namespace ξ

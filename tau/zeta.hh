@@ -76,6 +76,7 @@ struct ζb
       else                          { let a = wi; wi += s;              return  a; } }
 
   void rewind(uN a) { wi -= a; }
+  void reset ()     { ri = wi = ci = 0; }
 };
 
 

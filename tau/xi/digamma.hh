@@ -16,6 +16,22 @@ namespace τ::ξ
 }
 
 
+ϝ &tee(Φ &f)
+{
+  let ps = new S<φi>;
+  return (new ϝ(f, ϝ::ξβ,
+                [&, ps](ϝ &f) { for (let x : f.β()) ps->emplace(x); },
+                [&, ps](ϝ &f, γ &g)
+                  { V<φi> c;
+                    for (let x : f.α())
+                    { for (let p : *ps)
+                        if (!(g[p] <<= x)) c.push_back(p);
+                      for (let p : c) { g.φx(p); ps->erase(p); }
+                      c.clear(); }}))
+    ->xf([ps](ϝ&) { delete ps; });
+}
+
+
 ϝ &broadcast(Φ &f)
 {
   return *new ϝ(f, ϝ::ξγ, [&](ϝ &f)

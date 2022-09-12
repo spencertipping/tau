@@ -145,6 +145,9 @@ typedef std::basic_string_view<u8> Bv;
 typedef std::string                St;
 typedef std::string_view           Stv;
 
+typedef B  const Bc;
+typedef St const Stc;
+
 
 template<class T, class U> inline constexpr T Rc(U x) { return reinterpret_cast<T>(x); }
 template<class T, class U> inline constexpr T Sc(U x) { return      static_cast<T>(x); }

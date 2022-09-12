@@ -60,6 +60,10 @@ Just like above, but α and β can move data in both directions. These are commo
 These may define δ and/or ε, but usually don't. Files and sockets are some examples of boundary components. It's common to use them with [ϝτ](#ϝτ) when defining pipelines.
 
 
+## ϝα
+A special case of ϝΦ that is input-only.
+
+
 ## ϝβ
 ```
         new (β)

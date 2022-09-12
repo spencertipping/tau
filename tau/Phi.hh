@@ -60,8 +60,11 @@ struct Φf
 
   Φf(Φf const&) = delete;
   Φf(Φf&&)      = delete;
-  Φf(Φ &f_, uN fd, u32 s = 1 << ζb0 - 1);
+
+  template<class... T> Φf(Φ &f_, T...);
   ~Φf();
+
+  void init();
 
   uN   fd()  const { return o.fd; }
   bool eof() const { return !rn; }
@@ -154,8 +157,11 @@ struct Φ
 
 
 template<class O>
-inline Φf<O>::~Φf()
-{ f.x(*this); }
+template<class... T>
+inline Φf<O>::Φf(Φ &f_, T... xs) : f(f_), w{f.l}, o{rn, re, xs...}
+{
+  init();
+}
 
 
 template<class R, class W, class F, class O>

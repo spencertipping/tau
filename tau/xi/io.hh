@@ -12,13 +12,13 @@ namespace τ
 struct o9fdr  // zero-copy read from FD
 {
   sletc sb = u9sb(u9s::v32);  static_assert(sb == 5);
-  uNc   fd;
   iN   &n;    // NOTE: must be external to this o9, since o9 objects
   iN   &e;    // are assumed to be trivially copyable/destructible
+  uNc   fd;
   u32c  s;
 
-  o9fdr(uN fd_, iN &n_, iN &e_, u32 s_ = 1 << ζb0 - 1)
-    : fd(fd_), n(n_), e(e_), s(s_ - sb)
+  o9fdr(iN &n_, iN &e_, uN fd_, u32 s_ = 1 << ζb0 - 1)
+    :  n(n_), e(e_), fd(fd_), s(s_ - sb)
     { A(s_ > sb, "o9fdr " << s_ << "(s_) ≤ " << sb << "(sb)"); }
 
   uN size() const { return s + sb; }
@@ -35,8 +35,17 @@ template<> struct o9_<o9fdr> { sletc v = true; };
 
 
 template<>
-inline Φf<o9fdr>::Φf(Φ &f_, uN fd_, u32 s) : f(f_), w{f.l}, o{fd_, rn, re, s}
-{ Φnb(fd_); ep = f << *this ? 0 : errno; }
+inline void Φf<o9fdr>::init()
+{
+  Φnb(o.fd);
+  ep = f << *this ? 0 : errno;
+}
+
+template<>
+inline Φf<o9fdr>::~Φf()
+{
+  f.x(*this);
+}
 
 
 bool operator>>(i9 v, Φf<o9fdr> &w)

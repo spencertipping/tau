@@ -24,6 +24,14 @@ template<class I = i9, class O>
 }
 
 
+template<class I = i9>
+ϝ &sink(Φ &f, F<void(I)> &&l)
+{
+  return *new ϝ(f, ϝ::ξα, [&, l = std::move(l)](ϝ &f)
+    { for (let x : f) l(x); });
+}
+
+
 }
 
 #include "end.hh"

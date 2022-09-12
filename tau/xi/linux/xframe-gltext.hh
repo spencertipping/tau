@@ -11,14 +11,21 @@
 #include <pango/pango-layout.h>
 
 
+#include "../../../dep/xxhash.h"
+
+#include "xframe-glprim.hh"
+
+
 #include "../begin.hh"
 
 namespace τ::ξ
 {
 
 
-typedef u32        rgba;
-typedef rgba const rgbac;
+inline u64 gl_text_key(Stc &f, Stc &t, rgba c)
+{
+  return XXH64(f.data(), f.size(), XXH64(t.data(), t.size(), c));
+}
 
 
 struct gl_text
@@ -29,6 +36,7 @@ struct gl_text
   GLuint tid;
   int    w;
   int    h;
+  uf8    fs;  // flags for GC purposes
 
   gl_text() {}
   gl_text(St f_, St t_, rgba c_) : f(f_), t(t_), c(c_)
@@ -67,9 +75,10 @@ struct gl_text
     cairo_destroy(cr);
     cairo_surface_destroy(cs); }
 
-  void x() { glDeleteTextures(1, &tid); }
+  gl_text &x()       { glDeleteTextures(1, &tid); tid = 0; return *this; }
+  u64      k() const { return gl_text_key(f, t, c); }
 
-  void r(f32 x, f32 y, f32 sw = 1.f, f32 sh = 1.f) const
+  gl_text &r(f32 x, f32 y, f32 sw = 1.f, f32 sh = 1.f)
     { glEnable(GL_BLEND);
       glEnable(GL_TEXTURE_2D);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -81,9 +90,40 @@ struct gl_text
       glTexCoord2f(1.f, 0.f); glVertex2f(x + sw*w, y);
       glTexCoord2f(1.f, 1.f); glVertex2f(x + sw*w, y + sh*h);
       glTexCoord2f(0.f, 1.f); glVertex2f(x,        y + sh*h);
-      glEnd(); }
+      glEnd();
+      return *this; }
 
   uN size() const { return w * h * 4; }
+};
+
+
+// A GL-texture text cache, so you can just render stuff without
+// worrying about storage
+struct gl_texts
+{
+  sletc fm = 0x1;  // a gl_text is marked as being in-use
+
+  M<u64, gl_text> ts;
+  V<u64>          dc;  // deletion list
+
+  ~gl_texts() { for (auto &[_, t] : ts) t.x(); }
+
+  gl_texts &r(Stc &f, Stc &t, rgba c, f32 x, f32 y, f32 sw = 1.f, f32 sh = 1.f)
+    { let k = gl_text_key(f, t, c);
+      if (!ts.contains(k)) ts[k] = gl_text(f, t, c);
+      ts[k].r(x, y, sw, sh).fs |= fm;
+      return *this; }
+
+  gl_texts &gc()
+    { for (let &[k, t] : ts) if (!(t.fs & fm)) dc.push_back(k);
+      for (let k : dc) { ts[k].x(); ts.erase(k); }
+      dc.clear();
+      return *this; }
+
+  uN size() const
+    { uN r = 0;
+      for (let &[_, t] : ts) r += t.size();
+      return r; }
 };
 
 
