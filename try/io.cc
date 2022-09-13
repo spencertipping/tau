@@ -170,7 +170,7 @@ int editor(int argc, char **argv)
         p << o9t((uN) xrop_line,
                  ox + tx + ex * lx, oy + ey       * ly * lh, 1.f,
                  ox + tx + ex * lx, oy + (ey + 1) * ly * lh, 1.f,
-                 2.f, 0xffffffffu);
+                 2.f, 0xf0a040ffu);
 
         for (let &k : kw)
           for (int i = 0; i < d.size(); ++i)
@@ -188,7 +188,7 @@ int editor(int argc, char **argv)
                ox, y,      1.f,
                ox, y + ly, 1.f, 1.f, 0x808080f0u);
       p << o9t((uN) xrop_text, l[0], l[1], 0xf0f0f0f0u, ox + tx, y, 1.f);
-      p << o9t((uN) xrop_text, "Gentium Bold 24", to_string(n), n == ey + 1 ? 0xf0a040ff : 0x606060ff, ox - 50.f, y + 12.f, 1.f);
+      p << o9t((uN) xrop_text, "Gentium Bold 30", to_string(n), n == ey + 1 ? 0xf0a040ff : 0x606060ff, ox - 50.f, y + 8.f, 1.f);
       y += ly * lh;
     }) | tee(f);
 
