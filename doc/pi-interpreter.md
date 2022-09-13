@@ -13,7 +13,10 @@ This means π needs a robust definition of algebraic identity that acts as a sho
 
 
 ## Local ξ
-
+Streaming and stateful compute don't mix well due to a nondeterministic execution-order dependency for any state variables.
 
 
 ## Control flow
+Tuples are programs that are executed by advancing through them, much like a FORTH or Joy interpreter might do. We maintain a stack of return addresses, the top of which is always the next instruction.
+
+Operands are stored in registers.
