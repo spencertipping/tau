@@ -3,16 +3,18 @@ APL + Erlang + bash + Joy: a Laplace transform for control flow, where most code
 
 I will probably never have time to document this properly.
 
-+ [ζ](doc/zeta.md)
 + [φ](doc/phi.md) and [Φ](doc/Phi.md)
-+ [γ](doc/gamma.md) and [Γ](doc/Gamma.md)
-  + [Ξ](doc/Xi.md)
+  + [ζ](doc/zeta.md)
+  + [Λ](doc/Lambda.md)
+  + [utf9](doc/utf9.md)
++ [γ](doc/gamma.md)
   + [γ design](doc/gamma-design.md)
   + [γ authoring](doc/gamma-authoring.md)
   + [γ topologies](doc/gamma-topologies.md)
-+ [Λ](doc/Lambda.md)
-+ [utf9](doc/utf9.md)
-+ [security](doc/security.md)
++ [γ₀](doc/gamma0.md) and [Γ](doc/Gamma.md)
+  + [Ξ](doc/Xi.md)
+  + [π](doc/pi.md)
+  + [security](doc/security.md)
 
 
 ## Development setup

@@ -63,7 +63,7 @@ struct xframe_
   xframe_ &render_one(i9 x)
     { switch (Sc<uN>(x[0]))
       {
-      case xrop_text: tc.r(x[1], x[2], x[3], x[4], x[5]);          break;
+      case xrop_text: tc.r   (x[1], x[2], x[3], x[4], x[5]);       break;
       case xrop_line: gl_line(x[1], x[2], x[3], x[4], x[5], x[6]); break;
       default: A(0, "unsupported rop " << x);
       }
