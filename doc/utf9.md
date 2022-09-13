@@ -79,7 +79,7 @@ In detail:
 | `1 1100` | **reserved**              |
 | `1 1101` | **reserved**              |
 | `1 1110` | **reserved**              |
-| `1 1111` | **reserved**              |
+| `1 1111` | `frame`                   |
 
 
 ### Size codes
@@ -218,3 +218,9 @@ Heap references can be pinned, which modifies their typecode in place. This is a
 This is a way to pass around `struct` instances that are encoded with native-endianness and alignment. You can `Sc<type*>(i9)` to decode them.
 
 `struct`s in UTF9 have no type tagging; it's assumed that all participants know which C++ type they map to. This means they have minimal overhead, just the control-byte + size prefix.
+
+
+### Frames
+If you're storing a UTF9 datastream someplace where its type is not known by default, it should begin with a frame. Because the frame byte always takes the form `11111___`, it is illegal in UTF-8 -- which quickly marks the data as binary.
+
+**TODO:** frame spec

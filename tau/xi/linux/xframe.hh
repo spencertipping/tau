@@ -27,8 +27,8 @@ namespace τ::ξ
 
 enum xframe_rop
 {
-  xrop_text,
-  xrop_line,
+  xrop_text,  // (font, text, c, x, y)
+  xrop_line,  // (x1, y1, z1, x2, y2, z2, z, w, c)
 };
 
 
@@ -37,6 +37,7 @@ struct xframe_
   sletc fa = 0x1;          // flag: frame is active
 
   Φ        &f;
+  Display  *dp;
   ΣΘΔ       rh;
   uf8       fs = 0;
   uf8       b;             // number of bits for rb and ob
@@ -47,24 +48,24 @@ struct xframe_
   rgba      bgf;           // background when focused
   rgba      bgu;           // background when unfocused
 
-  xframe_(Φ   &f_,
-          uf8  b_   = 20,
-          chc *dp_  = nullptr,
-          uN   w_   = Sc<uN>(720 * nφ),
-          uN   h_   = 720,
-          rgba bgf_ = 0x020407e0,
-          rgba bgu_ = 0x02040780)
-    : f(f_), b(b_),
+  xframe_(Φ       &f_,
+          Display *d_,
+          uf8      b_   = 20,
+          uN       w_   = Sc<uN>(720 * nφ),
+          uN       h_   = 720,
+          rgba     bgf_ = 0x020407e0,
+          rgba     bgu_ = 0x02040780)
+    : f(f_), dp(d_), b(b_),
       rb{new ζ<i9>(f.l, b_)},
       ob{new ζ<i9>(f.l, b_)},
-      gl{w_, h_, 0, 0, dp_},
+      gl{d_, w_, h_, 0, 0},
       bgf{bgf_}, bgu{bgu_} {}
 
   xframe_ &render_one(i9 x)
     { switch (Sc<uN>(x[0]))
       {
-      case xrop_text: tc.r   (x[1], x[2], x[3], x[4], x[5]);       break;
-      case xrop_line: gl_line(x[1], x[2], x[3], x[4], x[5], x[6]); break;
+      case xrop_text: tc.r   (x[1], x[2], x[3], x[4], x[5], x[6]);             break;
+      case xrop_line: gl_line(x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8]); break;
       default: A(0, "unsupported rop " << x);
       }
       return *this; }
@@ -75,10 +76,11 @@ struct xframe_
 
   xframe_ &render()
     { rh.start();
+      gl.begin();
       gl.clear(fs & fa ? bgf : bgu);
       for (uN i = 0; i < rb->b.ra(); i += i9::size_of(*rb + i))
         render_one(*rb + i);
-      gl.swap();
+      gl.end();
       tc.gc();
       rh.stop();
       return *this; }
@@ -88,13 +90,16 @@ struct xframe_
       { let z = rb; rb = ob; (ob = z)->b.reset(); render(); }
       else A(*ob << o9(x), "xframe_ << overflow; received " << x);
       return *this; }
+
+  xcb_connection_t *c() const { return gl.c; }
 };
 
 
 ϝ &xframe(Φ &f)
 {
-  let   x = new xframe_(f);
-  auto &e = xcb_events(f, x->gl.c) | tee(f);
+  let   d = XOpenDisplay(nullptr);
+  let   x = new xframe_(f, d);
+  auto &e = xcb_events(f, x->c()) | tee(f);
 
   // TODO: demultiplex events by which window they belong to
   // otherwise we can't create multiple frames

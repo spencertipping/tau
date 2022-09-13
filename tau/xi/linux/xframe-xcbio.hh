@@ -16,6 +16,10 @@ namespace τ
 {
 
 
+// TODO: event → window demultiplexer
+// (probably a component for an XCB connection)
+
+
 struct o9xcbe
 {
   sletc             sb = u9sb(u9sq(sizeof(xcb_generic_event_t)));

@@ -65,7 +65,7 @@ This is a typical simple `ni` workflow: each record is processed independently, 
       ë[wget -c]
 ```
 
-Note that function composition is implied here: `↓2↑5` is an anonymous function.
+Note that function composition is implied here: `↓2↑5` would be an anonymous function since the rightmost operator is underapplied.
 
 **TODO:** figure out how we delineate operands; the above `[]` is serviceable, but kinda clunky
 
@@ -83,7 +83,7 @@ Note that function composition is implied here: `↓2↑5` is an anonymous funct
 + `ë[...]` = `e[xargs ...]`, borrowing the `¨` notation from APL
 
 
-### Regex/reduce disambiguation
+### Syntactic disambiguation
 `+` and `*` are conveniently illegal at the beginning of a regex, so we can always assume that `/+` is a reduction whereas `/f` begins a regex. More generally, I think we can attempt the functional parse first, then fall back to regex interpretation if that fails.
 
 I should also note that π source isn't strictly text, so we probably have some options. We may be able to fuse `/+` together into a sort of ligature, for example. Same for `/<`, which might check for total ordering but which is also something you might write as a regex. The [compiler](pi-compiler.md) may be able to choose the right alternative in realtime by looking at the type of data being transformed.

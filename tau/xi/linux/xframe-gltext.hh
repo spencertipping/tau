@@ -79,7 +79,7 @@ struct gl_text
   gl_text &x()       { glDeleteTextures(1, &tid); tid = 0; return *this; }
   u64      k() const { return gl_text_key(f, t, c); }
 
-  gl_text &r(f32 x, f32 y, f32 sw = 1.f, f32 sh = 1.f)
+  gl_text &r(f32 x, f32 y, f32 z = 1.f, f32 sw = 1.f, f32 sh = 1.f)
     { glEnable(GL_BLEND);
       glEnable(GL_TEXTURE_2D);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -87,10 +87,10 @@ struct gl_text
       glBindTexture(GL_TEXTURE_2D, tid);
       glColor4f(1.f, 1.f, 1.f, 1.f);
       glBegin(GL_QUADS);
-      glTexCoord2f(0.f, 0.f); glVertex2f(x,        y);
-      glTexCoord2f(1.f, 0.f); glVertex2f(x + sw*w, y);
-      glTexCoord2f(1.f, 1.f); glVertex2f(x + sw*w, y + sh*h);
-      glTexCoord2f(0.f, 1.f); glVertex2f(x,        y + sh*h);
+      glTexCoord2f(0.f, 0.f); glVertex3f(x,        y,        -z);
+      glTexCoord2f(1.f, 0.f); glVertex3f(x + sw*w, y,        -z);
+      glTexCoord2f(1.f, 1.f); glVertex3f(x + sw*w, y + sh*h, -z);
+      glTexCoord2f(0.f, 1.f); glVertex3f(x,        y + sh*h, -z);
       glEnd();
       return *this; }
 
@@ -109,10 +109,10 @@ struct gl_texts
 
   ~gl_texts() { for (auto &[_, t] : ts) t.x(); }
 
-  gl_texts &r(Stc &f, Stc &t, rgba c, f32 x, f32 y, f32 sw = 1.f, f32 sh = 1.f)
+  gl_texts &r(Stc &f, Stc &t, rgba c, f32 x, f32 y, f32 z = 1.f, f32 sw = 1.f, f32 sh = 1.f)
     { let k = gl_text_key(f, t, c);
       if (!ts.contains(k)) ts[k] = gl_text(f, t, c);
-      ts[k].r(x, y, sw, sh).fs |= fm;
+      ts[k].r(x, y, z, sw, sh).fs |= fm;
       return *this; }
 
   gl_texts &gc()

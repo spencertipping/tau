@@ -24,8 +24,8 @@ inline f32 rgba_b(rgba x) { return (x >>  8 & 0xff) / 255.f; }
 inline f32 rgba_a(rgba x) { return (x       & 0xff) / 255.f; }
 
 
-void gl_line(f32c x1, f32c y1,
-             f32c x2, f32c y2, f32c w, rgbac c)
+void gl_line(f32c x1, f32c y1, f32c z1,
+             f32c x2, f32c y2, f32c z2, f32c w, rgbac c)
 {
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_BLEND);
@@ -41,10 +41,10 @@ void gl_line(f32c x1, f32c y1,
   u *= ρ;
   v *= ρ;
 
-  glVertex2f(x1-u, y1-v);
-  glVertex2f(x1+u, y1+v);
-  glVertex2f(x2+u, y2+v);
-  glVertex2f(x2-u, y2-v);
+  glVertex3f(x1-u, y1-v, -z1);
+  glVertex3f(x1+u, y1+v, -z1);
+  glVertex3f(x2+u, y2+v, -z2);
+  glVertex3f(x2-u, y2-v, -z2);
   glEnd();
 }
 

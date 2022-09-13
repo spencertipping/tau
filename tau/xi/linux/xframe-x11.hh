@@ -73,13 +73,12 @@ struct x11gl
   uN                w;
   uN                h;
 
-  x11gl(uN w_, uN h_, uN x_ = 0, uN y_ = 0,
-        chc       *dp_ = nullptr,
+  x11gl(Display *dp_,
+        uN w_, uN h_, uN x_ = 0, uN y_ = 0,
         u32        evs = evs0,
-        int const *vas = vas0) : w(w_), h(h_)
+        int const *vas = vas0) : dp(dp_), w(w_), h(h_)
 
-    { dp = XOpenDisplay(dp_);
-      si = DefaultScreen(dp);
+    { si = DefaultScreen(dp);
       c  = XGetXCBConnection(dp);
       XSetEventQueueOwner(dp, XCBOwnsEventQueue);
 
@@ -108,25 +107,27 @@ struct x11gl
 
       // NOTE: window must be mapped before glXMakeContextCurrent
       xcb_map_window(c, wid);
-
-      glw = glXCreateWindow(dp, fbc, wid, 0);
-      glXMakeContextCurrent(dp, glw, glw, glc); }
+      glw = glXCreateWindow(dp, fbc, wid, 0); }
 
   ~x11gl()
     { glXDestroyWindow(dp, glw);
       xcb_destroy_window(c, wid);
-      glXDestroyContext(dp, glc);
-      XCloseDisplay(dp); }
+      glXDestroyContext(dp, glc); }
+
+  x11gl &begin() { glXMakeContextCurrent(dp, glw, glw, glc); return *this; }
+  x11gl &end()   { glXSwapBuffers(dp, glw);                  return *this; }
 
   x11gl &clear(rgba bg)
-    { glLoadIdentity();
-      glOrtho(0, w, h, 0, 0.0f, 100.0f);
+    { glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      glFrustum(w * -0.5, w * 0.5, h * 0.5, h * -0.5, 1., 100.);
+      //glOrtho(0, w, h, 0, 0.0, 100.0);
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
       glClearColor(rgba_r(bg), rgba_g(bg), rgba_b(bg), rgba_a(bg));
       glClearDepth(1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       return *this; }
-
-  x11gl &swap() { glXSwapBuffers(dp, glw); return *this; }
 };
 
 
