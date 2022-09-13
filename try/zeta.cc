@@ -16,7 +16,7 @@ void try_small_ζ()
   Λ l;
 
   uN xs[] = {1, 2, 3, 5, 8, 13, 21, 34};
-  auto ys = o9t("foo", 1, 2.0 + 3.0i, 3, 4.5,
+  auto ys = o9t("foo", "bar", "bif", 1, 2.0 + 3.0i, 3, 4.5,
                 "bar", 6.7f, "abc",
                 u9ω, u9τ, u9θ(0.5),
                 5.0 + 8.9i, "bif");
@@ -29,6 +29,7 @@ void try_small_ζ()
     A(t << ys, "ζ rejected ys");
     A(t << ys, "ζ rejected second ys");
     A(t << o9box(ys), "ζ rejected boxed ys");
+    A(t << o9t("foo", std::string("bar")), "ζ rejected thing");
     t.wω();
     cout << "t write-closed" << endl;
     return 0;
@@ -44,9 +45,12 @@ void try_small_ζ()
     cout << "received " << b << " = " << *b << endl;
     ++t;  // NOTE: this should free b
 
+    cout << "received " << i9{*t} << endl; ++t;
+
     let z = *t;
     A(z == ζωp, "z should be ζωp, got " << z);
     ++t;
+
     cout << "t is all good" << endl;
     return 0;
   });

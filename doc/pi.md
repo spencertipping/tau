@@ -3,6 +3,7 @@ We need a native way to transform UTF9 values that doesn't result in tons of cus
 
 + [π ideas](pi-ideas.md)
   + [π ← `ni`](pi-ni.md)
+  + [π editor in π](pi-editor.md)
 + [π structure](pi-structure.md)
   + [π history](pi-history.md)
   + [π compiler](pi-compiler.md)

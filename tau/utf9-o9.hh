@@ -66,10 +66,9 @@ template<class T>
 struct o9b
 {
   T x;
-
   uN size() const { return x.size() + u9sb(u9sq(x.size())); }
   uN write(ζp m) const
-    { uN i = u9ws(m, 0, u9t_<T>::t, size());
+    { uN i = u9ws(m, 0, u9t_<T>::t, x.size());
       std::memcpy(m + i, x.data(), x.size());
       return 0; }
 };
@@ -215,8 +214,7 @@ struct o9t
     { if (!i) m += u9ws(m, 0, u9t::tuple, isize<0>());
       auto o = o9(std::get<i>(xs));
       o.write(m);
-      write<i + 1>(m + o.size());
-      return 0; }
+      return write<i + 1>(m + o.size()); }
 };
 
 

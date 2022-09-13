@@ -77,6 +77,9 @@ struct i9
         TA(0, type())
       } }
 
+  // true if the value is not a stream manipulator
+  operator bool() const { return exists() && type() != u9t::stream; }
+
   template<class T>
   T const* operator*() const
     { u9tm{u9t::nstruct}(type());
@@ -91,6 +94,9 @@ struct i9
 
   u64 θ() const { u9tm{u9t::stream}(type()); return Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
   u64 ι() const { u9tm{u9t::stream}(type()); return Sc<u9st>(*this) == u9st::ι ? R<u64>(begin(), 1) : 0; }
+
+
+  bool τ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::τ; }
 
 
   i9 operator*() const

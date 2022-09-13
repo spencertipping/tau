@@ -13,6 +13,9 @@
 #include "../basics.hh"
 #include "../digamma.hh"
 
+#include "cairo.h"
+#include "pango/pango-font.h"
+#include "pango/pangocairo.h"
 #include "xframe-glprim.hh"
 #include "xframe-gltext.hh"
 #include "xframe-keymap.hh"
@@ -27,7 +30,7 @@ namespace τ::ξ
 
 enum xframe_rop
 {
-  xrop_text,  // (font, text, c, x, y)
+  xrop_text,  // (font, text, c, x, y, z)
   xrop_line,  // (x1, y1, z1, x2, y2, z2, z, w, c)
 };
 
@@ -95,6 +98,34 @@ struct xframe_
 };
 
 
+// (font, text) -> (font, text, w, h), where (w, h) are pixel values
+// TODO: standardize the behavior of functional operators like this
+// -- for example, does it make sense to allow other args for keying?
+// should the caller zip the output?
+ϝ &text_size(Φ &f)
+{
+  return *new ϝ(f, ϝ::ξι, [](ϝ &f)
+    {
+      int w, h;
+      let cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
+      let cl = cairo_create(cs);
+      cairo_surface_destroy(cs);
+      for (let x : f.α())
+        if (x.type() != u9t::tuple) f.β() << x;
+        else
+        { let pl = pango_cairo_create_layout(cl);
+          let pd = pango_font_description_from_string(Sc<St>(x[0]).c_str());
+          pango_layout_set_font_description(pl, pd);
+          pango_layout_set_text(pl, Rc<chc*>(x[1].data()), x[1].size());
+          pango_layout_get_size(pl, &w, &h);
+          pango_font_description_free(pd);
+          g_object_unref(pl);
+          if (!(f.β() << o9t(x[0], x[1], Sc<f32>(w) / PANGO_SCALE, Sc<f32>(h) / PANGO_SCALE)))
+            break; }
+      cairo_destroy(cl); });
+}
+
+
 ϝ &xframe(Φ &f)
 {
   let   d = XOpenDisplay(nullptr);
@@ -104,7 +135,7 @@ struct xframe_
   // TODO: demultiplex events by which window they belong to
   // otherwise we can't create multiple frames
 
-  e | sink<i9>(f, [&, x](i9 y)
+  e | sink<i9>(f, [x](i9 y)
     { if (y.type() == u9t::nstruct)
       { let e = Rc<xcb_generic_event_t*>(y.data());
         switch (e->response_type & ~0x80)

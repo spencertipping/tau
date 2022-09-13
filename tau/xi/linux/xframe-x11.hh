@@ -121,6 +121,7 @@ struct x11gl
     { glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
       glFrustum(w * -0.5, w * 0.5, h * 0.5, h * -0.5, 1., 100.);
+      //glFrustum(w * -1., w, h, h * -1., 1., 100.);
       //glOrtho(0, w, h, 0, 0.0, 100.0);
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();

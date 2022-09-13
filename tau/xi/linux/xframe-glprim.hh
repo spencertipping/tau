@@ -28,8 +28,7 @@ void gl_line(f32c x1, f32c y1, f32c z1,
              f32c x2, f32c y2, f32c z2, f32c w, rgbac c)
 {
   glEnable(GL_MULTISAMPLE);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glDisable(GL_BLEND);
   glDisable(GL_TEXTURE_2D);
 
   glBegin(GL_TRIANGLE_FAN);

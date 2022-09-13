@@ -117,12 +117,14 @@ template<> struct u9t_<f64>  { sletc t = u9t::f64; };
 template<> struct u9t_<c32>  { sletc t = u9t::c32; };
 template<> struct u9t_<c64>  { sletc t = u9t::c64; };
 
-template<> struct u9t_<bool> { sletc t = u9t::b; };
-template<> struct u9t_<B>    { sletc t = u9t::bytes; };
-template<> struct u9t_<Bv>   { sletc t = u9t::bytes; };
-template<> struct u9t_<St>   { sletc t = u9t::utf8; };
-template<> struct u9t_<Stv>  { sletc t = u9t::utf8; };
-template<> struct u9t_<chc*> { sletc t = u9t::utf8; };
+template<> struct u9t_<bool>      { sletc t = u9t::b; };
+template<> struct u9t_<B>         { sletc t = u9t::bytes; };
+template<> struct u9t_<B const&>  { sletc t = u9t::bytes; };
+template<> struct u9t_<Bv>        { sletc t = u9t::bytes; };
+template<> struct u9t_<St>        { sletc t = u9t::utf8; };
+template<> struct u9t_<St const&> { sletc t = u9t::utf8; };
+template<> struct u9t_<Stv>       { sletc t = u9t::utf8; };
+template<> struct u9t_<chc*>      { sletc t = u9t::utf8; };
 
 template<class U>          struct u9t_<V<U>>    { sletc t = u9t::tuple; };
 template<class K, class V> struct u9t_<M<K, V>> { sletc t = u9t::map; };
@@ -321,6 +323,8 @@ O &operator<<(O &s, u9t t)
   case u9t::heapref: return s << "heapref";
   case u9t::heappin: return s << "heappin";
   case u9t::nstruct: return s << "struct";
+
+  case u9t::none:    return s << "none";
 
     TA(s, Sc<uN>(t))
   }

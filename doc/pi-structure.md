@@ -1,14 +1,8 @@
 # π structure
 + Version control built into the language
-  + `stream > obj` edit-fusion structure
-  + Log keystrokes: that's history
-  + Keystrokes → parser combinator type things, which form actions
-    + Just a prefix tree, right?
-  + Snapshot `obj` sometimes
-  + Easy diff view: how do we do this? Union/intersection in tree space?
-  + Reconstruct history → `reflog` with full history
 + Trees with full linearity and interval selection
   + Must be able to continuously move, esp along grid coordinates: that is, a single Cartesian direction should rarely have a stop point
+  + Use nonlinearity sparingly
 
 
 ## Mechanics
