@@ -162,14 +162,15 @@ int editor(int argc, char **argv)
 
       let ox = -cw / 2 + 80.f + 100.f * sinf(t);
       let oy = -ch / 2        + 100.f * cosf(t);
+      let oz = 1.1f + 0.1f * sinf(t / 2);
       let tx = 8.f;
 
       static uN  n = 0;
       if (!l)
       { n = 0;
         p << o9t((uN) xrop_line,
-                 ox + tx + ex * lx, oy + (ey % 16)     * ly * lh, 1.f + ((ey >> 4) + 1)*.3f,
-                 ox + tx + ex * lx, oy + (ey % 16 + 1) * ly * lh, 1.f + ((ey >> 4) + 1)*.3f,
+                 ox + tx + ex * lx, oy + (ey % 16)     * ly * lh, oz + ((ey >> 4) + 1)*.3f,
+                 ox + tx + ex * lx, oy + (ey % 16 + 1) * ly * lh, oz + ((ey >> 4) + 1)*.3f,
                  2.f, 0xf0a040ffu);
 
         for (let &k : kw)
@@ -177,8 +178,8 @@ int editor(int argc, char **argv)
             for (uN s = 0; (s = d[i].find(k, s)) != string::npos; ++s)
             { let w = k.size();
               p << o9t((uN) xrop_line,
-                       ox + tx + lx * s,       oy + (i % 16 + 1) * ly * lh, 1.f + ((i >> 4) + 1) * .3f,
-                       ox + tx + lx * (s + w), oy + (i % 16 + 1) * ly * lh, 1.f + ((i >> 4) + 1) * .3f,
+                       ox + tx + lx * s,       oy + (i % 16 + 1) * ly * lh, oz + ((i >> 4) + 1) * .3f,
+                       ox + tx + lx * (s + w), oy + (i % 16 + 1) * ly * lh, oz + ((i >> 4) + 1) * .3f,
                        1.f, 0xe0e0e0ffu); }
 
         p << l;
@@ -186,10 +187,10 @@ int editor(int argc, char **argv)
       let y = oy + (n % 16) * ly * lh;
       ++n;
       p << o9t((uN) xrop_line,
-               ox, y,      1.f + ((n >> 4) + 1)*0.3f,
-               ox, y + ly, 1.f + ((n >> 4) + 1)*0.3f, 1.f, 0x808080f0u);
-      p << o9t((uN) xrop_text, l[0], l[1], 0xf0f0f0f0u, ox + tx, y, 1.f + ((n >> 4) + 1) * 0.3f);
-      p << o9t((uN) xrop_text, "Gentium Bold 30", to_string(n), n == ey + 1 ? 0xf0a040ff : 0x606060ff, ox - 50.f, y + 8.f, 1.f + ((n >> 4) + 1) * 0.3f);
+               ox, y,      oz + ((n >> 4) + 1)*0.3f,
+               ox, y + ly, oz + ((n >> 4) + 1)*0.3f, 1.f, 0x808080f0u);
+      p << o9t((uN) xrop_text, l[0], l[1], 0xf0f0f0f0u, ox + tx, y, oz + ((n >> 4) + 1) * 0.3f);
+      p << o9t((uN) xrop_text, "Gentium Bold 30", to_string(n), n == ey + 1 ? 0xf0a040ff : 0x606060ff, ox - 50.f, y + 8.f, oz + ((n >> 4) + 1) * 0.3f);
     }) | tee(f);
 
   e ^ s;

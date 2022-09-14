@@ -28,7 +28,8 @@ void gl_line(f32c x1, f32c y1, f32c z1,
              f32c x2, f32c y2, f32c z2, f32c w, rgbac c)
 {
   glEnable(GL_MULTISAMPLE);
-  glDisable(GL_BLEND);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_ALPHA_TEST);
   glDisable(GL_TEXTURE_2D);
 
   glBegin(GL_TRIANGLE_FAN);
