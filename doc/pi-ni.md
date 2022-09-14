@@ -60,8 +60,8 @@ This is a typical simple `ni` workflow: each record is processed independently, 
 
 ### Independent streaming in π
 ```
-*.xml ^[k↓2↑!/_files.xml/ /"([^"]+(?:\.tar|\.zip))"/<]
-      ¨/+["https://archive.org/download" a '/ b]
+*.xml ^[k↓2↑!/_files.xml/ /"([^"]+(?:\.tar|\.zip))"/<] \
+      ¨/+["https://archive.org/download" a '/ b] \
       ë[wget -c]
 ```
 

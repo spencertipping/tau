@@ -40,6 +40,27 @@ This repo cannot be cloned on case-insensitive filesystems.
 
 ## Next steps
 1. γ₀ → γ UTF9 API
-2. Φ trunk multiplexing
-3. γ₀ ED25519 + AES secure channels
-4. Γ routing
+2. [π](doc.pi.md)
+3. Φ trunk multiplexing
+4. γ₀ ED25519 + AES secure channels
+5. Γ routing
+
+
+### GL
++ Arc rendering with fragment shaders
++ Proper blending, also with shaders
+
+
+### Data processing components
++ File reader with θ progress output
++ File writer
++ `zstd` compress/decompress
++ Shell command filter
++ JSON → UTF9 converter
++ Sort
++ APL-style operators
+
+
+### Reactive components
++ Union
++ Gated register
