@@ -16,7 +16,11 @@ namespace τ
 {
 
 
-typedef uN πr;
+struct πi;
+
+typedef uN             πr;   // zero for success
+typedef F<πr(πi&, ζp)> πF;   // function, referenced by number
+typedef V<πF>          πFs;  // function resolution table
 
 
 struct πh
@@ -49,34 +53,29 @@ struct πh
       delete oh;
       return *this; }
 
-  uN operator<<(i9 v)
-    { let s = i9::size_of(v); if (s > wa()) gc(s);
-      let r = h->b.wi;        A(*h << o9(v), "GC internal error");
-      a += s;
-      return r; }
-
   πh &operator()(πr k, i9 v) { d[k] = *this << v; return *this; }
   i9  operator[](πr k) const { return i9{*h + d[k]}; }
+  uN  operator<<(i9 v)
+    { let s = i9::size_of(v); if (s > wa()) gc(s);
+      let r = h->b.wi;        A(*h << o9(v), "πh<<");
+      a += s;
+      return r; }
 };
 
 
 struct πi
 {
-  Φ      &f;
-  πh      h;
-  Sk<ζp>  r;   // return stack
+  Φ         &f;
+  πFs const &fs;
+  πh         h;  // heap + registers
+  Sk<ζp>     r;  // return stack
 
-  πi(Φ &f_, ζp r_) : f(f_), h(f.l) { r.push(r_); }
+  πi(Φ &f_, πFs const &fs_, ζp r_) : f(f_), fs(fs_), h(f.l) { r.push(r_); }
 
   operator bool() const { return !r.empty(); }
+  πr operator()()       { let i = i9{r.top()}; return fs[Sc<uN>(i[0])](*this, i); }
+  πr go        ()       { while (*this) if (let r = (*this)()) return r; return 0; }
 };
-
-
-typedef uN         πr;  // zero for success
-typedef F<πr(πi&)> πF;
-
-
-
 
 
 }
