@@ -46,10 +46,18 @@ Notice that inserting constants into the output is done as a last resort; these 
 It's fine for π to try lots of different permutations; the most important thing is that it follows the entropy gradient closely.
 
 
+### π type system IO
+π's type system is a γ that takes UTF9 and produces incremental UTF9s. The output is a tuple that can be executed: it's a complete π procedure of fully-bound symbols with any required arguments.
+
+The input is a query whose form is TBD.
+
+
 ## Type structure
 Unlike in most languages, π types don't describe value representation in any way. Instead, values are untyped UTF9 streams and types are contracts between functions that operate on them. In this sense, all types are fully abstract -- which means we can open up the language quite a lot.
 
 Structurally, a type is a UTF9 value made of tuples, symbols, and integers. Symbols are knowns, integers are compactly-indexed unknowns. π's goal is to assign symbols to the unknowns.
+
+**TODO:** can [η](eta.md) define type symbols for functions to derive ways of stringing them together?
 
 
 ## Function metadata

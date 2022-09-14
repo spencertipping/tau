@@ -12,11 +12,20 @@ Unstructured data processing often involves situations where I've asserted the t
 This means π needs a robust definition of algebraic identity that acts as a short-circuit passthrough; nothing about the operand is inspected when identity-transforming it.
 
 
-## Local ξ
-Streaming and stateful compute don't mix well due to a nondeterministic execution-order dependency for any state variables.
-
-
-## Control flow
+## Interpreter state
 Tuples are programs that are executed by advancing through them, much like a FORTH or Joy interpreter might do. We maintain a stack of return addresses, the top of which is always the next instruction.
 
-Operands are stored in registers.
+Time-domain values are stored in compactly-numbered registers. This copies the value into a local [ζ](zeta.md) heap and sets a register-bank pointer, which will be updated automatically if ζ is GC'd.
+
+Registers are never shared between λs; values are copied across λ boundaries, either with φ or ξ.
+
+```cpp
+struct interpreter
+{
+  ζ     *h;   // heap
+  V<i9>  d;   // data registers
+  Sk<i9> rs;  // return stack
+};
+```
+
+`rs.top()` is the next UTF9 instruction to be executed.

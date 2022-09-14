@@ -1,9 +1,13 @@
-#ifndef τpi_h
-#define τpi_h
+#ifndef τπ_h
+#define τπ_h
 
 
 #include "types.hh"
 #include "numerics.hh"
+#include "Phi.hh"
+#include "Lambda.hh"
+#include "zeta.hh"
+#include "utf9.hh"
 
 
 #include "begin.hh"
@@ -12,76 +16,67 @@ namespace τ
 {
 
 
-struct πilog
+typedef uN πr;
+
+
+struct πh
 {
-  uN operator()(uN x) { return ilog(x); }
-};
+  Λ     &l;
+  ζ<i9> *h;
+  V<uN>  d;  // data registers: offsets into *h
+  u64    a;  // total allocations
+
+  πh(Λ &l_) : l(l_), h(new ζ<i9>(l, ζb0)), a(0) {}
 
 
-template<class F = u64,    // frequency of observation
-         class X = u64,    // thing being observed
-         uN    N = 64,     // number of bins
-         class π = πilog>  // observation → bin
-struct πι_
-{
-  π π_;
-  F n[N]{0};
+  uN c()  const { return h->b.c; }
+  uN wa() const { return h->b.wa(); }
+  uN ra() const { return h->b.ra(); }
 
-  πι_ &operator<<(X x) { ++n[π_(x)]; return *this; }
 
-  uN icdf(double p) const
-    { let t = total();
-      if (!t) return 0;
-      F c  = 0;
-      F tc = static_cast<F>(t * p);
-      for (uN i = 0; i < N; ++i)
-        if ((c += n[i]) > tc)
-          return i;
-      return N; }
+  uN hs(uN l) const  // live set size → new heap size
+    { return l * 2 > c() ? l * 2
+           : l * 8 < c() ? std::max(Sc<uN>(1) << ζb0, c() >> 2)
+           :               c(); }
 
-  F total(uN n_ = N) const
-    { F t = 0;
-      for (uN i = 0; i < n_; ++i) t += n[i];
-      return t; }
 
-  πι_ &operator+=(πι_ const &x)
-    { for (uN i = 0; i < N; ++i) n[i] += x.n[i];
+  πh &gc(uN s)
+    { uN n = s;  // total live-set size after this allocation
+      for (let x : d) n += i9::size_of(*h + x);
+      let oh = h;
+      h = new ζ<i9>(l, ilog(hs(n)) + 1);
+      for (auto &x : d) x = *this << i9{*oh + x};
+      delete oh;
       return *this; }
+
+  uN operator<<(i9 v)
+    { let s = i9::size_of(v); if (s > wa()) gc(s);
+      let r = h->b.wi;        A(*h << o9(v), "GC internal error");
+      a += s;
+      return r; }
+
+  πh &operator()(πr k, i9 v) { d[k] = *this << v; return *this; }
+  i9  operator[](πr k) const { return i9{*h + d[k]}; }
 };
 
 
-typedef πι_<> πι;
-
-
-struct π0
+struct πi
 {
-  template<class X>
-  π0 &operator<<(X)             { return *this; }
+  Φ      &f;
+  πh      h;
+  Sk<ζp>  r;   // return stack
 
-  uN  icdf      (double)  const { return 0; }
-  u64 total     (uN = 64) const { return 0; }
-  π0 &operator+=(π0)            { return *this; }
+  πi(Φ &f_, ζp r_) : f(f_), h(f.l) { r.push(r_); }
+
+  operator bool() const { return !r.empty(); }
 };
 
 
-#if τdebug_iostream
-template<class F, class X, uN N, class π>
-O &operator<<(O &s, πι_<F, X, N, π> const &h)
-{
-  π   π_;
-  F   m  = h.n[0]; for (uN i = 1; i < N; ++i) m = std::max(m, h.n[i]);
-  uN  u  = N - 1;  while (u > 0 && !h.n[u]) --u;
-  let ml = π_(m);
+typedef uN         πr;  // zero for success
+typedef F<πr(πi&)> πF;
 
-  u = std::min(N, u + 7 & ~7);
-  if (ml)
-    for (uN i = 0; i < u; ++i)
-      s << ".123456789abcdef|"[π_(h.n[i]) * 16 / ml]
-        << (i + 1 & 7 ? "" : " ");
 
-  return s;
-}
-#endif
+
 
 
 }

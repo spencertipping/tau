@@ -10,7 +10,7 @@
 #include "debug.hh"
 #include "types.hh"
 
-#include "pi.hh"
+#include "Sigma.hh"
 
 
 #include "begin.hh"
@@ -58,8 +58,8 @@ struct ΣΘΔ_
 };
 
 
-typedef ΣΘΔ_<πι> ΣΘΔ;
-typedef ΣΘΔ_<π0>  ΘΔ;
+typedef ΣΘΔ_<Σι> ΣΘΔ;
+typedef ΣΘΔ_<Σ0>  ΘΔ;
 
 
 #if τdebug_iostream

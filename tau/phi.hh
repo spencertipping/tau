@@ -5,7 +5,7 @@
 #include "gate.hh"
 #include "types.hh"
 #include "zeta.hh"
-#include "pi.hh"
+#include "Sigma.hh"
 #include "shd.hh"
 
 #include "begin.hh"
@@ -38,7 +38,7 @@ template<class Θ>
 struct φπ  // profiling+timing filter
 {
   Θ  i,  o;
-  πι is, os;
+  Σι is, os;
   φπ() { i.start(); o.start(); }
   template<class R> R          r(R x, ζ<R>&) { i.stop(); i.start(); is << x.size(); return x; }
   template<class W, class Z> W w(W x, ζ<Z>&) { o.stop(); o.start(); os << x.size(); return x; }
