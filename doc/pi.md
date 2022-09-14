@@ -7,4 +7,5 @@ We need a native way to transform UTF9 values that doesn't result in tons of cus
 + [π structure](pi-structure.md)
   + [π history](pi-history.md)
   + [π compiler](pi-compiler.md)
+  + [π types](pi-types.md)
   + [π interpreter](pi-interpreter.md)
