@@ -247,6 +247,10 @@ template<class... T> struct o9_<o9m<T...>> { sletc v = true; };
 template<class... T> struct o9_<o9t<T...>> { sletc v = true; };
 
 
+template<class T> concept o9__ =  o9_<T>::v;
+template<class T> concept o9n_ = !o9_<T>::v;
+
+
 }
 
 #include "end.hh"

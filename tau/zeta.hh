@@ -37,6 +37,7 @@ namespace τ
 
 
 typedef u8      *ζp;
+typedef u8c     *ζcp;
 typedef ζp const ζpc;
 
 constexpr uNc ζω  = Nl<uN>::max();

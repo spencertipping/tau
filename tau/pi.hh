@@ -17,10 +17,22 @@ namespace τ
 
 
 struct πi;
+struct πF;
 
-typedef uN             πr;   // zero for success
-typedef F<πr(πi&, ζp)> πF;   // function, referenced by number
-typedef V<πF>          πFs;  // function resolution table
+typedef uN    πr;    // zero for success
+typedef V<πF> πFs;   // function resolution table
+typedef m9    πt;    // utf9-encoded type
+
+
+struct πF
+{
+  πt             q;  // query terms (a set)
+  πt             t;  // function type
+  F<πr(πi&, i9)> f;
+  f64            η0;
+
+  πr operator()(πi &i, i9 a) const { return f(i, a); }
+};
 
 
 struct πh
