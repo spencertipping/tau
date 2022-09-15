@@ -4,6 +4,12 @@
 Everything about a function, from its name to its argument types, is a search term used to select an implementation and, in some cases, argument/return coercions. π programs are generally underconstrained, which means the compiler can use discretion and choose function variants to optimize: for debuggability, space complexity, or time complexity, for instance.
 
 
+## Heterogeneous operators
+Unstructured data processing often involves situations where I've asserted the type of only one of several fields, say in a tuple. I'll sometimes want to operate on the tuple in some way without full destructuring. Ideally this can be done (1) atomically, and (2) with a homogeneous vector some of whose entries are zero (or semantic equivalent).
+
+This means π needs a robust definition of algebraic identity that acts as a short-circuit passthrough; nothing about the operand is inspected when identity-transforming it.
+
+
 ## Specifying programs
 Let's say that _a program is fully specified when a compiler can infer any ambiguities in the way you would have wanted it to._ This places a dual obligation on the programmer and the compiler: the programmer must fully understand how the compiler will interpret constraints, and the compiler must, within its degrees of freedom, fully understand what the programmer wants. Taking the programmer's side as a given, let's circumscribe what the compiler might reasonably be able to understand:
 
