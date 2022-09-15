@@ -112,7 +112,7 @@ template<class T, class U> using P  = std::pair<T, U>;
 template<class... T>       using Q  = std::queue<T...>;
 template<class T>          using Rw = std::reference_wrapper<T>;
 template<class... K>       using S  = std::unordered_set<K...>;
-template<class T>          using Sk = std::stack<T>;
+template<class... T>       using Sk = std::stack<T...>;
 template<class... T>       using SP = std::shared_ptr<T...>;
 template<class... X>       using T  = std::tuple<X...>;
 typedef              std::thread Th;
