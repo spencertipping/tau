@@ -19,19 +19,18 @@ namespace τ
 struct πi;
 struct πF;
 
-typedef uN    πr;    // zero for success
-typedef V<πF> πFs;   // function resolution table
-typedef m9    πt;    // utf9-encoded type
+typedef uN    πr;     // zero for success
+typedef V<πF> πFs;    // function resolution table
+typedef m9    πt;     // utf9-encoded type
 
 
 struct πF
 {
-  πt             q;  // query terms (a set)
-  πt             t;  // function type
-  F<πr(πi&, i9)> f;
-  f64            η0;
-
-  πr operator()(πi &i, i9 a) const { return f(i, a); }
+  πt   q;   // query terms (a set)
+  πt   t;   // function type
+  f64  η0;  // prior entropy
+  πr (*f)(πi&, i9);
+  πr operator()(πi &i, i9 a) const { return (*f)(i, a); }
 };
 
 
@@ -88,6 +87,30 @@ struct πi
   πr operator()()       { let i = i9{r.top()}; return fs[Sc<uN>(i[0])](*this, i); }
   πr go        ()       { while (*this) if (let r = (*this)()) return r; return 0; }
 };
+
+
+#if τdebug_iostream
+O &operator<<(O &s, πF const &f)
+{
+  return s << f.q << "[" << f.η0 << "] ∷ " << f.t;
+}
+
+O &operator<<(O &s, πh const &h)
+{
+  s << "πh c=" << h.c() << " wa=" << h.wa() << std::endl;
+  for (uN i = 0; i < h.d.size(); ++i)
+    s << "  r" << i << "\t" << h.d[i] << std::endl;
+  return s;
+}
+
+O &operator<<(O &s, πi const &i)
+{
+  s << "πi nfs=" << i.fs.size() << " r=";
+  if (i) s << i9{i.r.top()};
+  else   s << "ω";
+  return s << std::endl << i.h;
+}
+#endif
 
 
 }
