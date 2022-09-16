@@ -32,6 +32,7 @@
 
 #if τdefines_Φ
 # include "tau/Phi.hh"
+# include "tau/pi.hh"
 #endif
 
 
@@ -40,7 +41,6 @@
 # include "tau/digamma.hh"
 # include "tau/Gamma.hh"
 # include "tau/Xi.hh"
-# include "tau/pi.hh"
 #endif
 
 

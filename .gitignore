@@ -2,6 +2,7 @@
 try/io
 try/zeta
 try/gamma
+try/pi
 try/*.o
 try/*.js
 try/*.wasm

@@ -109,10 +109,7 @@ struct u9_symbol
 
   static u9_symbol gensym()
     { static B g;
-      if (g.empty()) { g.resize(32); for (auto &c : g) c = 0; }
-      let r = sha(g);
-      g = r.x;
-      return r; }
+      return u9_symbol{g = sha(g).x.substr(0, 16)}; }
 
   template<class T>
   static u9_symbol sha(T const &s)
@@ -128,7 +125,7 @@ struct u9_symbol
   u8c *data() const { return x.data(); }
   uN   size() const { return x.size(); }
 
-  bool operator==(u9_symbol const &s) const { return x == s.x; }
+  bool operator==(u9_symbol const &s) const { return h == s.h && x == s.x; }
 
   bool printable() const
     { for (let c : x) if (c < 32 || c >= 127) return false;

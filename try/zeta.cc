@@ -11,17 +11,6 @@ using namespace std;
 #include "../tau/begin.hh"
 
 
-void try_symbols()
-{
-  let s1 = u9_symbol::gensym();
-  let s2 = u9_symbol::gensym();
-  let s3 = u9_symbol::gensym();
-  cout << s1 << endl;
-  cout << s2 << endl;
-  cout << s3 << endl;
-}
-
-
 void try_small_ζ()
 {
   Λ l;
@@ -183,7 +172,6 @@ void bench(int argc)
 
 int main(int argc, char **argv)
 {
-  try_symbols();
   try_small_ζ();
   try_tuple();
   try_bytes();
