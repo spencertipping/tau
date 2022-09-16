@@ -24,6 +24,10 @@
 #include <vector>
 
 
+#define XXH_INLINE_ALL
+#include "../dep/xxhash.h"
+
+
 #include "arch.hh"
 
 
@@ -164,6 +168,14 @@ template<class T> inline constexpr f64 Sf (T x) { return Sc<f64>(x); }
 
 
 }
+
+
+template<> struct std::hash<τ::B>
+{
+  inline size_t operator()(τ::B const &x) const
+    { return XXH64(x.data(), x.size(), 0); }
+};
+
 
 #include "end.hh"
 

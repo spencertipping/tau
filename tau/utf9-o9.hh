@@ -120,10 +120,11 @@ template<o9mapped K, o9mapped V, class... Ts>                    struct o9m;
 
 template<o9fixed T> ic o9f<T> o9(T x) { return o9f<T>{x}; }
 
-ic o9b<B const&>  o9(B  const &x) { return o9b<B const&> {x}; }
-ic o9b<Bv>        o9(Bv        x) { return o9b<Bv>       {x}; }
-ic o9b<St const&> o9(St const &x) { return o9b<St const&>{x}; }
-ic o9b<Stv>       o9(Stv       x) { return o9b<Stv>      {x}; }
+ic o9b<B const&>         o9(B         const &x) { return o9b<B const&>        {x}; }
+ic o9b<Bv>               o9(Bv               x) { return o9b<Bv>              {x}; }
+ic o9b<St const&>        o9(St        const &x) { return o9b<St const&>       {x}; }
+ic o9b<Stv>              o9(Stv              x) { return o9b<Stv>             {x}; }
+ic o9b<u9_symbol const&> o9(u9_symbol const &s) { return o9b<u9_symbol const&>{s}; }
 
 template<o9mapped T, class... Ts> ic o9v<T, V, Ts...> o9(V<T, Ts...> const&);
 template<o9mapped T, class... Ts> ic o9v<T, S, Ts...> o9(S<T, Ts...> const&);

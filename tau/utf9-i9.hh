@@ -87,6 +87,7 @@ struct i9
       return Rc<T const*>(begin()); }
 
   operator St() const { return St{Rc<ch*>(data()), size()}; }
+  operator u9_symbol() const { u9tm{u9t::symbol}(type()); return u9_symbol{B(data(), size())}; }
 
   operator u9st() const
     { u9tm{u9t::stream}(type());
@@ -171,9 +172,8 @@ O &operator<<(O &s, i9 const &x)
 #undef vec
 
   case u9t::pidfd:  return s << "pidfd(" << Sc<u9_pidfd>(x).pid << "," << Sc<u9_pidfd>(x).fd << ")";
-
   case u9t::b:      return s << (R<u8>(x.begin(), 0) ? "t" : "f");
-  case u9t::symbol: return s << "TODO: i9 symbol";
+  case u9t::symbol: return s << Sc<u9_symbol>(x);
   case u9t::stream:
     s << Sc<u9st>(x);
     return x.θ() ? s << Sc<f64>(x.θ()) / Sc<f64>(Nl<u64>::max())

@@ -2,6 +2,9 @@
 #define τutf9_types_h
 
 
+#include "../dep/picosha2.h"
+
+
 #include "debug.hh"
 #include "numerics.hh"
 #include "types.hh"
@@ -96,11 +99,52 @@ defR(u9_heapref) { return u9_heapref{Rc<void*>(R<uN>(xs, i))}; }
 defW(u9_heapref) { W<uN>(xs, i, Rc<uN>(x.r)); }
 
 
+struct u9_symbol
+{
+  uN h;
+  Bc x;
+
+  u9_symbol(B &&x_) : h(std::hash<B>{}(x_)), x(std::move(x_)) {}
+  u9_symbol(B &x_)  : h(std::hash<B>{}(x_)), x(x_) {}
+
+  static u9_symbol gensym()
+    { static B g;
+      if (g.empty()) { g.resize(32); for (auto &c : g) c = 0; }
+      let r = sha(g);
+      g = r.x;
+      return r; }
+
+  template<class T>
+  static u9_symbol sha(T const &s)
+    { B b;
+      b.resize(picosha2::k_digest_size);
+      picosha2::hash256(s, b);
+      return u9_symbol{std::move(b)}; }
+
+  template<class T>
+  static u9_symbol str(T const &s)
+    { return u9_symbol{B(s.data(), s.size())}; }
+
+  u8c *data() const { return x.data(); }
+  uN   size() const { return x.size(); }
+
+  bool operator==(u9_symbol const &s) const { return x == s.x; }
+
+  bool printable() const
+    { for (let c : x) if (c < 32 || c >= 127) return false;
+      return true; }
+};
+
+
 template<class T>
 struct u9_struct { T x; };
 
 
 template<class T> struct u9t_{ sletc t = u9t::none; };
+
+template<class T> struct u9t_<T&>       { sletc t = u9t_<T>::t; };
+template<class T> struct u9t_<T const>  { sletc t = u9t_<T>::t; };
+template<class T> struct u9t_<T const&> { sletc t = u9t_<T>::t; };
 
 template<> struct u9t_<u8>   { sletc t = u9t::u8;  };
 template<> struct u9t_<u16>  { sletc t = u9t::u16; };
@@ -117,12 +161,15 @@ template<> struct u9t_<f64>  { sletc t = u9t::f64; };
 template<> struct u9t_<c32>  { sletc t = u9t::c32; };
 template<> struct u9t_<c64>  { sletc t = u9t::c64; };
 
-template<> struct u9t_<bool>      { sletc t = u9t::b; };
+template<> struct u9t_<bool>             { sletc t = u9t::b; };
+template<> struct u9t_<u9_symbol>        { sletc t = u9t::symbol; };
+//template<> struct u9t_<u9_symbol const&> { sletc t = u9t::symbol; };
+
 template<> struct u9t_<B>         { sletc t = u9t::bytes; };
-template<> struct u9t_<B const&>  { sletc t = u9t::bytes; };
+//template<> struct u9t_<B const&>  { sletc t = u9t::bytes; };
 template<> struct u9t_<Bv>        { sletc t = u9t::bytes; };
 template<> struct u9t_<St>        { sletc t = u9t::utf8; };
-template<> struct u9t_<St const&> { sletc t = u9t::utf8; };
+//template<> struct u9t_<St const&> { sletc t = u9t::utf8; };
 template<> struct u9t_<Stv>       { sletc t = u9t::utf8; };
 template<> struct u9t_<chc*>      { sletc t = u9t::utf8; };
 
@@ -373,10 +420,25 @@ O &operator<<(O &s, u9st x)
     TA(s, Sc<uN>(x))
   }
 }
+
+O &operator<<(O &s, u9_symbol const &y)
+{
+  s << "sym[";
+  if (y.printable()) return s << Stv(Rc<chc*>(y.x.data()), y.x.size()) << "]";
+  for (let c : y.x)
+    s << "0123456789abcdef"[c >> 4]
+      << "0123456789abcdef"[c & 15];
+  return s << "]";
+}
 #endif
 
 
 }
+
+
+template<> struct std::hash<τ::u9_symbol>
+{ inline τ::uN operator()(τ::u9_symbol const &s) const { return s.h; } };
+
 
 #include "end.hh"
 
