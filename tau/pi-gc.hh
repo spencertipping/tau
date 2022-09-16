@@ -10,33 +10,24 @@ namespace τ
 {
 
 
-struct πs       // stack allocator
+struct πs   // stack allocator
 {
-  B     h;      // linear memory
-  V<iN> d;      // stack registers: offsets into h
-  u64   a = 0;  // total allocated bytes
+  B     a;          // alternating stacks
+  B     b;
+  bool  c = false;  // alternation flag
+  V<uN> d;          // stack registers: offsets into h
 
 
   template<class T>
-  iN operator<<(T x)
-    { let o = o9(x);
-      let s = o.size();
-      let c = h.size();
-      h.resize(c + s);
-      if (let n = o.write(h.data() + c))
-      { A(n != ζω, "πs allocation failed");
-        h.resize(h.size() - s + n); }
-      a += h.size() - c;
-      d.push_back(c);
-      return c; }
+  πs &operator<<(T x) { d.push_back(h << o9(x)); return *this; }
 
   πs &pop(uN n = 1)
-    { h.resize(d[d.size() - n + 1]);
+    { A(d.size() >= n, "πs pop(" << n << "), s=" << d.size());
+      h.resize(d[d.size() - n + 1]);
       d.resize(d.size() - n);
       return *this; }
 
-  i9 operator[](iN x)
-    { return i9{h.data() + (x < 0 ? d[d.size() + x] : d[x])}; }
+  i9 operator[](uN x) { return i9{h.data() + d[d.size() - x]}; }
 };
 
 
@@ -85,11 +76,8 @@ struct πh       // random-access heap (no rewinding)
       clear(r);
       if (h.size() + s > h.capacity() && z > h.capacity() >> 2) gc();
       let c = h.size();
-      h.resize(c + s);
-      if (let n = o.write(h.data() + c))
-      { A(n != ζω, "πh allocation failed");
-        h.resize(h.size() - s + n); }
-      d[r] = c;
+      d[r] = h << o;
+      a += h.size() - c;
       return *this; }
 };
 
@@ -98,9 +86,9 @@ struct πh       // random-access heap (no rewinding)
 O &operator<<(O &s, πs const &h)
 {
   auto &hm = const_cast<πs&>(h);
-  s << "πs n=" << h.d.size() << ", a=" << h.a << std::endl;
-  for (uN i = 1; i <= h.d.size(); ++i)
-    s << "  " << i - 1 << "\t" << hm[-i] << std::endl;
+  s << "πs n=" << h.d.size() << std::endl;
+  for (uN i = 0; i < h.d.size(); ++i)
+    s << "  " << i << "\t" << hm[i] << std::endl;
   return s;
 }
 

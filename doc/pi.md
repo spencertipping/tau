@@ -15,3 +15,4 @@ So, succinctly: **π defines a single λ's worth of processing** and can shell o
   + [π compiler](pi-compiler.md)
   + [π types](pi-types.md)
   + [π interpreter](pi-interpreter.md)
+  + [π gc](pi-gc.md)

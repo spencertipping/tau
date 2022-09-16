@@ -237,19 +237,32 @@ ic o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
 
 
 template<class T>    struct o9_            { sletc v = false; };
-template<>           struct o9_<o9i9>      { sletc v = true; };
-template<class T>    struct o9_<o9f<T>>    { sletc v = true; };
-template<class T>    struct o9_<o9b<T>>    { sletc v = true; };
-template<>           struct o9_<o9st>      { sletc v = true; };
-template<>           struct o9_<o9c>       { sletc v = true; };
-template<class T>    struct o9_<o9a<T>>    { sletc v = true; };
-template<class... T> struct o9_<o9v<T...>> { sletc v = true; };
-template<class... T> struct o9_<o9m<T...>> { sletc v = true; };
-template<class... T> struct o9_<o9t<T...>> { sletc v = true; };
+template<>           struct o9_<o9i9>      { sletc v =  true; };
+template<class T>    struct o9_<o9f<T>>    { sletc v =  true; };
+template<class T>    struct o9_<o9b<T>>    { sletc v =  true; };
+template<>           struct o9_<o9st>      { sletc v =  true; };
+template<>           struct o9_<o9c>       { sletc v =  true; };
+template<class T>    struct o9_<o9a<T>>    { sletc v =  true; };
+template<class... T> struct o9_<o9v<T...>> { sletc v =  true; };
+template<class... T> struct o9_<o9m<T...>> { sletc v =  true; };
+template<class... T> struct o9_<o9t<T...>> { sletc v =  true; };
 
 
 template<class T> concept o9__ =  o9_<T>::v;
 template<class T> concept o9n_ = !o9_<T>::v;
+
+
+template<o9__ T>
+uN operator<<(B &i, T const &x)
+{
+  let s = x.size();
+  let c = i.size();
+  i.resize(c + s);
+  if (let n = x.write(x.data() + c))
+  { A(n != ζω, "B<< failed");
+    i.resize(i.size() - s + n); }
+  return c;
+}
 
 
 }

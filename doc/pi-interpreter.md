@@ -12,6 +12,8 @@ A UTF9 tree structure that refers to concrete functions by index, but allows sub
 + `(offsetof x)`: refer to the bytecode offset of a label
 + `(global x)`: translate `x` (a symbol) into a global register index
 
+Everything else is a function call that refers to one of the native functions in the interpreter's lookup table.
+
 
 ## Interpreter structure
 π programs have four elements:
