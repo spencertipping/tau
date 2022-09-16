@@ -63,7 +63,7 @@ Unlike in most languages, π types don't describe value representation in any wa
 
 Structurally, a type is a UTF9 value made of tuples, symbols, and integers. Symbols are knowns, integers are compactly-indexed unknowns. π's goal is to assign symbols to the unknowns.
 
-**TODO:** can [η](eta.md) define type symbols for functions to derive ways of stringing them together?
+**Q:** can [η](eta.md) define type symbols for functions to derive ways of stringing them together? Not directly, but it may be able to rate the efficacy of a proposed basis.
 
 
 ## Function metadata

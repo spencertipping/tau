@@ -24,6 +24,8 @@ typedef V<πF> πFs;    // function resolution table
 typedef m9    πt;     // utf9-encoded type
 
 
+// TODO: use F<> rather than function pointer, so we can define πFs
+// using i9 → o9 lambdas
 struct πF
 {
   πt   q;   // query terms (a set)

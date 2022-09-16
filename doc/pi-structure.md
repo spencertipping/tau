@@ -44,23 +44,25 @@ We'd encode this as a Ξ, which internally uses [γ₀](gamma0.md):
 
 ```
 (Ξ,
-  ((wildcard, "*.xml"),  ← "wildcard" is a utf9 symbol
-   (^, (...)),           ← ^ is also a symbol
-   (¨/+, (...)),
-   (ë, ("wget", "-c")),
-   (fd_out, 1)),         ← implied, probably?
+  (tuple,
+    (wildcard, "*.xml"),  ← "wildcard" is a utf9 symbol
+    (^, (...)),           ← ^ is also a symbol
+    (¨/+, (...)),
+    (ë, ("wget", "-c")),
+    (fd_out, 1)),         ← implied, probably?
 
-  ((0, 1, 1, 0),         ← ξ connection list
-   (1, 1, 2, 0),           (γ₁, φ₁, γ₂, φ₂)
-   (2, 1, 3, 0),
-   (3, 1, 4, 0)))
+  (tuple,
+    (0, 1, 1, 0),         ← ξ connection graph
+    (1, 1, 2, 0),           (γ₁, φ₁, γ₂, φ₂)
+    (2, 1, 3, 0),
+    (3, 1, 4, 0)))
 ```
 
 We probably leave it up to the runtime to connect any not-yet-connected ε streams, e.g. for debugging. ϝs should adhere to a standard debug/metadata protocol, kind of like logging, so we get reasonable status updates in whichever UI we're using to drive the pipeline.
 
 OK, so what's in the `(...)` tuples? A π expression in each case. `[...]` becomes `(tuple, ...)`; `^` and `¨/+` each evaluate their arguments, but `[]` produces a quoted tuple.
 
-See [π types](pi-types.md) for the mechanics of how each function is parsed and encoded.
+See [π types](pi-types.md) for the mechanics of how each function is parsed and specialized.
 
 
 ### ETL example

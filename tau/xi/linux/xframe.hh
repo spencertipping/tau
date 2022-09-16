@@ -128,7 +128,7 @@ struct xframe_
 
 ϝ &xframe(Φ &f)
 {
-  let   d = XOpenDisplay(nullptr);
+  let   d = XOpenDisplay(nullptr);  // TODO: reuse this?
   let   x = new xframe_(f, d);
   auto &e = xcb_events(f, x->c()) | tee(f);
 
