@@ -17,8 +17,8 @@ struct m9  // memory-resident immediate UTF9 value
 {
   ζp b;
 
-  template<o9__ T> explicit m9(T x) {                b = std::malloc(x.size()); x.write(b); }
-  template<o9n_ T> explicit m9(T x) { let o = o9(x); b = std::malloc(o.size()); o.write(b); }
+  template<o9__ T> explicit m9(T x) {                b = Rc<ζp>(std::malloc(x.size())); x.write(b); }
+  template<o9n_ T> explicit m9(T x) { let o = o9(x); b = Rc<ζp>(std::malloc(o.size())); o.write(b); }
   ~m9() { std::free(b); }
 
   operator i9() { return i9{b}; }

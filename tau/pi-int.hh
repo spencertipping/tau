@@ -21,17 +21,20 @@ namespace τ
 
 struct πi
 {
+  static constexpr uN ni = -1;
+
   Φ         &f;
   πp  const  p;  // bytecode program
   πh         g;  // global registers
   πs         d;  // data stack
   V<uN>      r;  // return stack
+  uN         n;  // next instruction, or ni if none
 
   πi(Φ &f_, πfs const &fs_, πp p_)
-    : f(f_), p(p_), g(p.ng) { r.push_back(p.p0); }
+    : f(f_), p(p_), g(p.ng) { n = p.p0; }
 
-  operator bool() const { return !r.empty(); }
-  πr operator()()       { return p(*this, r.back()); }
+  operator bool() const { return n != ni && !r.empty(); }
+  πr operator()()       { return p(*this, n); }
   πr go        ()       { while (*this) if (let r = (*this)()) return r; return 0; }
 };
 

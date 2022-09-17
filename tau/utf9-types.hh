@@ -120,7 +120,7 @@ struct u9_symbol
 
   template<class T>
   static u9_symbol str(T const &s)
-    { return u9_symbol{B(s.data(), s.size())}; }
+    { return u9_symbol{B(Rc<u8c*>(s.data()), s.size())}; }
 
   u8c *data() const { return x.data(); }
   uN   size() const { return x.size(); }
