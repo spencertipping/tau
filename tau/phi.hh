@@ -68,9 +68,15 @@ struct φ
 
   φ(φ &) = delete;
   φ(φ&&) = delete;
-  φ(Λ &l_, uf8 b_ = ζb0, u8 fs_ = 0) : l{l_}, b{b_}, fs{fs_}, cg{l}, xg{l} {}
+  φ(Λ &l_, uf8 b_ = ζb0, u8 fs_ = 0)
+    : l{l_}, b{b_}, fs{fs_}, cg{l}, xg{l} {}
 
-  ~φ() { fs |= foe | fie; rx(); if (c) c->c = nullptr; }
+  ~φ()
+    { ω();
+      if (c) c->c = nullptr;
+      else
+      { if (i) delete i;
+        if (o) delete o; } }
 
 
   φ &operator()(ζ<R> &i_, ζ<W> &o_)
@@ -94,22 +100,20 @@ struct φ
       return *this; }
 
 
-  φ &ω()  { if (i) rω(); if (o) wω();                  fs |= fie | foe; return *this; }
-  φ &rω() { assert(i); i->rω(); rx();        if (!o) xg.w(); fs |= fie; return *this; }
-  φ &wω() { assert(o); o->wω(); o = nullptr; if (!i) xg.w(); fs |= foe; return *this; }
+  φ &ω()  { rω(); wω();                               fs |= fie | foe; return *this; }
+  φ &rω() { if (i) { i->rω(); rx(); if (!o) xg.w(); } fs |= fie;       return *this; }
+  φ &wω() { if (o) { o->wω();       if (!i) xg.w(); } fs |= foe;       return *this; }
 
   φ &rx()
-    { if (i && c && c->o) c->wω();
-      delete i;
-      i = nullptr;
+    { if (i) { if (c) c->wω(); i->wω().rω(); }
       return *this; }
 
   operator bool() const { return ri() && wi(); }
   bool     ωi()   const { return   !i && !o; }
-  bool     ri()   const { return    i && i->ri(); }
-  bool     wi()   const { return    o && o->wi(); }
-  bool     ra()   const { return    i && i->ra(); }
-  bool     wa()   const { return    o && o->wa(); }
+  bool     ri()   const { return !(fs & fie) && i && i->ri(); }
+  bool     wi()   const { return !(fs & foe) && o && o->wi(); }
+  bool     ra()   const { return !(fs & fie) && i && i->ra(); }
+  bool     wa()   const { return !(fs & foe) && o && o->wa(); }
 
   φ &wrc() { while (!ri()) cg.y(λs::φc); return *this; }
   φ &wra() { wrc(); i->wra();            return *this; }
