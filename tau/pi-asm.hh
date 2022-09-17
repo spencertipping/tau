@@ -18,7 +18,7 @@ namespace τ
 
 struct πa
 {
-  static M<u9_symbol, πF*> fs;
+  static M<u9_symbol, πF*> defs;
 };
 
 

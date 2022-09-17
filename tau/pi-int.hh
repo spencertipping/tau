@@ -30,7 +30,7 @@ struct πi
   V<uN>      r;  // return stack
   uN         n;  // next instruction, or ni if none
 
-  πi(Φ &f_, πfs const &fs_, πp p_)
+  πi(Φ &f_, πp p_)
     : f(f_), p(p_), g(p.ng) { n = p.p0; }
 
   operator bool() const { return n != ni && !r.empty(); }

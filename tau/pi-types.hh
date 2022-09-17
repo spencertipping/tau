@@ -18,11 +18,14 @@ struct πh;
 struct πs;
 struct πp;
 
-typedef uN             πr;   // zero for success
-typedef F<πr(πi&, uN)> πf;   // instruction function
-typedef V<πF*>         πfs;  // function resolution table
-typedef m9             πt;   // utf9-encoded type
-typedef u32            πb;   // bytecode instruction
+typedef uN  πr;            // zero for success
+typedef πr(*πf)(πi&, uN);  // instruction function
+typedef m9  πt;            // utf9-encoded type
+typedef u32 πb;            // bytecode instruction
+
+
+V<πf>  πfs;
+V<πF*> πFs;
 
 
 struct πF
@@ -56,7 +59,7 @@ struct πp
   uN    p0;  // initial instruction (as index into b)
 
   πb operator[](uN n)        const { return b[n]; }
-  πr operator()(πi &i, uN n) const { return (*fs[n])(i, n); }
+  πr operator()(πi &i, uN n) const { return (*πfs[n])(i, n); }
 };
 
 
@@ -70,7 +73,7 @@ O &operator<<(O &s, πp const &p)
 {
   s << "πp ng=" << p.ng << ", p₀=" << p.p0 << std::endl;
   for (uN i = 0; i < p.b.size();)
-  { let &f = *p.fs[p[i]];
+  { let &f = *πFs[p[i]];
     s << "  " << i << "\t" << f << "\t";
     for (uN j = 0; j < f.a; ++j) s << p[i + j] << " ";
     s << std::endl;
