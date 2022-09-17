@@ -7,3 +7,6 @@
 [submodule "c/PicoSHA2"]
 	path = dep/PicoSHA2
 	url = https://github.com/okdshin/PicoSHA2
+[submodule "dep/rapidjson"]
+	path = dep/rapidjson
+	url = https://github.com/Tencent/rapidjson

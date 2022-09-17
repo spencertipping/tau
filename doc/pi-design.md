@@ -29,18 +29,18 @@ $ ni /data/reddit-{comments,submissions}{,-queue} \
      \<rE6\>/tmp/1m-jsons
 
 $ time ni /tmp/1m-jsons D:id,:author rp'b ne "[deleted]"' zn
-real    0m10.790s
-user    0m13.664s
-sys     0m5.220s
+real    0m3.293s
+user    0m3.743s
+sys	    0m0.923s
 
 $ ni /tmp/1m-jsons D:id,:author \>/tmp/1m-extracted
 $ time ni /tmp/1m-extracted rp'b ne "[deleted]"' zn
-real    0m4.994s
-user    0m3.666s
-sys     0m0.792s
+real    0m1.604s
+user    0m0.865s
+sys	    0m0.190s
 ```
 
-13.6s/1M items = 1360ns/item = 73529items/sec. The second command is a bit faster: 366ns/item = 273k items/sec. The second loop is more representative of a typical `ni` setup: the data is already de-bulked and we want to do a dense computation on a bunch of rows.
+If we just look at user time, we have a total of 4.608s for 1M items, which comes to 461ns/item and 217k items/second.
 
 
 #### π bytecode analysis
@@ -65,3 +65,45 @@ while α
 ```
 
 We want `v{"id"}` and `v{"author"}` to happen in the same γ so we don't double-copy entries from _α_. Let's prototype this with an infeed γ that splits on newlines; then we can see how fast we are.
+
+I wrote a short test function in C++ to see what the performance limit would be, assuming no interpreter overhead. Here's the code:
+
+```cpp
+#include "../dep/rapidjson-h/document.h"
+// ...
+fd_in(f, open("/tmp/1m-jsons", O_RDONLY))
+  | split_chr(f, '\n')
+  | *new ϝ(f, "json", ϝ::ξι, [](ϝ &f)
+    { Document d;
+      for (let x : f)
+      { d.Parse(Rc<chc*>(x.data()), x.size());
+        if (!(f.β() << o9t(d["id"].GetString(),
+                           d["author"].GetString())))
+          break; }})
+  | *new ϝ(f, "filter", ϝ::ξι, [](ϝ &f)
+    { for (let x : f)
+        if (x[1] != "[deleted]")
+          if (!(f.β() << x)) break; })
+  | stream_out(f, cout);
+```
+
+That produces:
+
+```
+$ time try/pi-design > /dev/null
+real    0m2.680s
+user    0m2.396s
+sys     0m0.284s
+```
+
+This means we're about twice as fast as `ni`, yielding 239ns/item, or 417k items/second. That's not bad at all. Just out of curiosity, how does `jq` stack up?
+
+```sh
+$ time ni /tmp/1m-jsons e[jq -c -r '[.id, .author] | @tsv'] \
+          rp'b ne "[deleted]"' zn
+real    0m9.205s
+user    0m8.820s
+sys	    0m1.252s
+```
+
+Oof, not well.
