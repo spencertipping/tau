@@ -64,11 +64,30 @@ void try_gc_stack()
 }
 
 
+void gc_stack_bench()
+{
+  πs s;
+  let t1 = now();
+  for (uN i = 0; i < 1l << 24; ++i)
+  { s << i;
+    while (s.depth() > 1)
+    { let a = s[0];
+      let b = s[1];
+      s.pop(2);
+      s << Sc<i64>(a) + Sc<i64>(b); }}
+  let t2 = now();
+
+  cout << "16M numbers added via stack in "
+       << t2 - t1 << endl;
+}
+
+
 int main(int argc, char **argv)
 {
   try_symbols();
   try_gc_heap();
   try_gc_stack();
+  gc_stack_bench();
   return 0;
 }
 
