@@ -46,6 +46,9 @@ struct πF
 };
 
 
+// FIXME: fs should be global; if it's specific to a program, then we
+// lose bytecode portability
+
 struct πp
 {
   πfs   fs;

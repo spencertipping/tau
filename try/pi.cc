@@ -31,7 +31,7 @@ void try_gc_heap()
   h.set(3, "D");
 
   cout << h << endl;
-  for (uN i = 0; i < 10000; ++i)
+  for (uN i = 0; i < 100000; ++i)
     h.set(3, i);
   h.clear(1);
   cout << h << endl;
@@ -54,7 +54,7 @@ void try_gc_stack()
   A(Sc<i64>(s[0]) == 9, "bogus stack sum: " << s[0] << " != 9");
   s.pop();
 
-  for (uN i = 0; i < 10000; ++i) s << i;
+  for (uN i = 0; i < 100000; ++i) s << i;
   while (s.depth() > 1)
   { let a = s[0];
     let b = s[1];
