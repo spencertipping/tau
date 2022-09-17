@@ -77,7 +77,7 @@ struct πh       // random-access heap (no rewinding)
         if (d[i] != np) s += i9::size_of(h.data() + d[i]);
       B h_;
       h.swap(h_);
-      h.reserve(s);  // guarantees no recursive gc
+      h.reserve(s * 2);
       let a_ = a;
       for (uN i = 0; i < d.size(); ++i)
         if (d[i] != np) set(i, i9{h_.data() + d[i]});

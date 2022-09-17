@@ -21,16 +21,17 @@ namespace τ
 
 struct πi
 {
-  Φ             &f;
-  πfs const     &fs;
-  πh             g;  // global registers
-  πs             d;  // data stack
-  Sk<ζp, V<ζp>>  r;  // return stack
+  Φ         &f;
+  πp  const  p;  // bytecode program
+  πh         g;  // global registers
+  πs         d;  // data stack
+  V<uN>      r;  // return stack
 
-  πi(Φ &f_, πfs const &fs_, uN ng, ζp r_) : f(f_), fs(fs_), g(ng) { r.push(r_); }
+  πi(Φ &f_, πfs const &fs_, πp p_)
+    : f(f_), p(p_), g(p.ng) { r.push_back(p.p0); }
 
   operator bool() const { return !r.empty(); }
-  πr operator()()       { let i = i9{r.top()}; return fs[Sc<uN>(i[0])](*this, i); }
+  πr operator()()       { return p(*this, r.back()); }
   πr go        ()       { while (*this) if (let r = (*this)()) return r; return 0; }
 };
 
@@ -38,10 +39,13 @@ struct πi
 #if τdebug_iostream
 O &operator<<(O &s, πi const &i)
 {
-  s << "πi nfs=" << i.fs.size() << " r=";
-  if (i) s << i9{i.r.top()};
+  s << "πi r=";
+  if (i) s << i.r.back();
   else   s << "ω";
-  return s << std::endl << i.g;
+  return s << std::endl
+           << " p=" << i.p
+           << " d=" << i.d
+           << " g=" << i.g;
 }
 #endif
 
