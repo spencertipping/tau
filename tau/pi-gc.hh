@@ -96,7 +96,7 @@ struct πh       // random-access heap (no rewinding)
       return *this; }
 
   template<class T>
-  πh &set(uN r, T v)
+  πh &set(uN r, T const &v)
     { let o = o9(v);
       let s = o.size();
       clear(r);
@@ -104,6 +104,20 @@ struct πh       // random-access heap (no rewinding)
       let c = h.size();
       d[r] = h << o;
       a += h.size() - c;
+      return *this; }
+
+  // NOTE: below methods are unsafe for mixed push/pop scenarios
+  // (for safety, use πs)
+
+  template<class T>
+  uN operator<<(T const &v)
+    { let r = d.size();
+      d.push_back(np);
+      set(r, v);
+      return r; }
+
+  πh &pop(uN n = 1)
+    { d.resize(d.size() - n);
       return *this; }
 };
 

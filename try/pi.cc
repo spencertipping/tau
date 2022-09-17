@@ -82,12 +82,31 @@ void gc_stack_bench()
 }
 
 
+void gc_heap_bench()
+{
+  πh h(8);
+  let t1 = now();
+
+  for (iN i = 0; i < 8; ++i)
+    h.set(i, i);
+
+  for (uN i = 0; i < 1l << 24; ++i)
+  { let s = Sc<i64>(h[0]) + Sc<i64>(h[1]);
+    h.set(0, s); }
+  let t2 = now();
+
+  cout << "16M numbers added via heap in "
+       << t2 - t1 << endl;
+}
+
+
 int main(int argc, char **argv)
 {
   try_symbols();
   try_gc_heap();
   try_gc_stack();
   gc_stack_bench();
+  gc_heap_bench();
   return 0;
 }
 
