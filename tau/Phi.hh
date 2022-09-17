@@ -40,11 +40,6 @@ void Φnb(uN fd)
 struct Φ;
 
 
-#if tau_debug_iostream
-O &operator<<(O&, Φ&);
-#endif
-
-
 template<class O>
 struct Φf
 {
@@ -78,6 +73,14 @@ struct Φf
 };
 
 
+#if τdebug_iostream
+O &operator<<(O&, Φ&);
+
+template<class fO>
+O &operator<<(O&, Φf<fO> const&);
+#endif
+
+
 struct ΦΘ
 {
   Θp h;
@@ -93,6 +96,7 @@ struct Φ
   Λ               l;
   iNc             efd;        // epoll control FD
   M<uN, S<void*>> fs;         // who's listening for each FD
+  S<void*>        nfs;        // non-monitored files
   epoll_event     ev[Φen];    // inbound epoll event buffer
   PQ<ΦΘ>          h;          // upcoming timed λs
   Θp              t0 = now();
@@ -114,16 +118,18 @@ struct Φ
       let c = ev.data.fd = f.fd();
       let r = fs.contains(c) || epoll_ctl(efd, EPOLL_CTL_ADD, c, &ev) != -1;
       if (r) fs[c].emplace(&f);
+      else   nfs.emplace(&f);
       return r; }
 
   template<class O>
   bool x(Φf<O> &f)
-    { if (f.ep) return true;
+    { nfs.erase(&f);
       let c = f.fd();
-      auto &s = fs.at(c);
-      s.erase(&f);
-      if (!s.empty()) return true;
-      fs.erase(c);
+      if (fs.contains(c))
+      { auto &s = fs.at(c);
+        s.erase(&f);
+        if (!s.empty()) return true;
+        fs.erase(c); }
       return !close(c); }
 
 
@@ -138,7 +144,7 @@ struct Φ
 
   Φ &operator()()
     { let t = now();
-      if (t < hn())
+      if (t < hn() && (!fs.empty() || hn() < forever()))
       { let dt = (hn() - t) / 1ms;
         let n  = epoll_wait(efd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
         A(n != -1, "epoll_wait error " << errno);
@@ -149,7 +155,10 @@ struct Φ
       while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
-  Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return !f.fs.empty() || f.hn() != forever(); })
+  operator bool() const
+    { return !fs.empty() || !nfs.empty() || hn() != forever(); }
+
+  Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return static_cast<bool>(f); })
     { l.go();
       while (f(*this)) (*this)(), l.go();
       return *this; }
@@ -176,7 +185,7 @@ bool operator<<(φ<R, W, F> &f, Φf<O> &r)
 }
 
 
-#ifdef tau_debug_iostream
+#ifdef τdebug_iostream
 O &operator<<(O &s, ΦΘ const &h)
 {
   return s << "ΦΘ:" << h.h << ":" << h.l;
@@ -199,6 +208,7 @@ O &operator<<(O &s, Φ &f)
   for (let &h : hs) s << h << " ";
   s << "; fds=";
   for (let &[fd, l] : f.fs) s << fd << ":" << l.size() << " ";
+  s << "; nfs=" << f.nfs.size();
   return s << std::endl << f.l << std::endl;
 }
 #endif

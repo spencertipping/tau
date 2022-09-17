@@ -107,7 +107,7 @@ struct Λ_
 };
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 template<class Λp>
 O &operator<<(O &s, Λt<Λp> const &l)
 {

@@ -18,7 +18,7 @@ struct o9fdr  // zero-copy read from FD
   u32c  s;
 
   o9fdr(iN &n_, iN &e_, uN fd_, u32 s_ = 1 << ζb0 - 1)
-    :  n(n_), e(e_), fd(fd_), s(s_ - sb)
+    : n(n_), e(e_), fd(fd_), s(s_ - sb)
     { A(s_ > sb, "o9fdr " << s_ << "(s_) ≤ " << sb << "(sb)"); }
 
   uN size() const { return s + sb; }
@@ -37,8 +37,8 @@ template<> struct o9_<o9fdr> { sletc v = true; };
 template<>
 inline void Φf<o9fdr>::init()
 {
-  Φnb(o.fd);
-  ep = f << *this ? 0 : errno;
+  // must use blocking IO if the FD is unable to be epolled
+  if (!(ep = f << *this ? 0 : errno)) Φnb(o.fd);
 }
 
 template<>
@@ -70,14 +70,14 @@ namespace ξ
 
 ϝ &fd_in(Φ &f, uN fd)
 {
-  return *new ϝ(f, ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
+  return *new ϝ(f, "fd_in", ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
     { Φf<o9fdr> i{g.f, fd}; while (f << i); });
 }
 
 
 ϝ &fd_out(Φ &f, uN fd)
 {
-  return *new ϝ(f, ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
+  return *new ϝ(f, "fd_out", ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
     { Φf<o9fdr> o{g.f, fd};
       for (let x : f) if (!(x >> o)) break; });
 }
@@ -85,7 +85,7 @@ namespace ξ
 
 ϝ &fd_io(Φ &f, uN fd)
 {
-  return *new ϝ(f, ϝ::ξΦ,
+  return *new ϝ(f, "fd_io", ϝ::ξΦ,
                 [&, fd](ϝ &f, γ &g) { Φf<o9fdr> o{g.f, fd}; for (let x : f) if (!(x >> o)) break; },
                 [&, fd](ϝ &f, γ &g) { Φf<o9fdr> i{g.f, fd}; while (f << i); });
 }

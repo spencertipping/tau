@@ -65,7 +65,7 @@ namespace ξ
 
 ϝ &xcb_events(Φ &f, xcb_connection_t *c)
 {
-  return *new ϝ(f, ϝ::ξΦ, [&, c](ϝ &f, γ &g)
+  return *new ϝ(f, "xcb_events", ϝ::ξΦ, [&, c](ϝ &f, γ &g)
     { Φf<o9xcbe> i{g.f, c}; while (f << i); });
 }
 

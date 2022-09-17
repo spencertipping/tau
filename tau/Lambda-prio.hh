@@ -67,7 +67,7 @@ struct Λpf            // fair priority scheduler
 };
 
 
-#if tau_debug_iostream
+#if τdebug_iostream
 O &operator<<(O &s, Λpf::ps const &p)
 {
   return s << "Λpf::ps μ=" << p.μ << " y=" << p.y;

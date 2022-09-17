@@ -10,7 +10,7 @@ namespace τ::ξ
 
 ϝ &splitter(Φ &f)
 {
-  return *new ϝ(f, ϝ::ξτ,
+  return *new ϝ(f, "splitter", ϝ::ξτ,
                 [&](ϝ &f) { f.α() > f.ε(); },
                 [&](ϝ &f) { f.α() < f.δ(); });
 }
@@ -19,7 +19,7 @@ namespace τ::ξ
 ϝ &tee(Φ &f)
 {
   let ps = new S<φi>;
-  return (new ϝ(f, ϝ::ξβ,
+  return (new ϝ(f, "tee", ϝ::ξβ,
                 [&, ps](ϝ &f) { for (let x : f.β()) ps->emplace(x); },
                 [&, ps](ϝ &f, γ &g)
                   { V<φi> c;
@@ -34,7 +34,7 @@ namespace τ::ξ
 
 ϝ &broadcast(Φ &f)
 {
-  return *new ϝ(f, ϝ::ξγ, [&](ϝ &f)
+  return *new ϝ(f, "broadcast", ϝ::ξγ, [&](ϝ &f)
     { S<φi> ps;
       for (let c : f)
       { let i = Sc<φi>(c);  // important: i9s are mutable

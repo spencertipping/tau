@@ -71,7 +71,7 @@ namespace ξ
   A(!bind(sfd, (sockaddr*)&sa, sizeof(sa)), "bind()");
   A(!listen(sfd, 16), "listen()");
 
-  return *new ϝ(f, ϝ::ξΦ, [&, sfd](ϝ &f, γ &g)
+  return *new ϝ(f, "tcp_server", ϝ::ξΦ, [&, sfd](ϝ &f, γ &g)
     { Φf<o9acc> i{g.f, Sc<uN>(sfd)};
       while (f << i); });
 }

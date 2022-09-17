@@ -58,18 +58,17 @@ struct ϝ
   ϝξc    c;
   uN     r{0};
   V<ϝxf> xfs;
+  Stc    name;
 
   template<class... Fs>
-  ϝ(Φ &f_, ϝξ c_, Fs... fs) : g{f_}, c(c_)
+  ϝ(Φ &f_, Stc &n_, ϝξ c_, Fs... fs) : g{f_}, c(c_), name(n_)
     { φc(c >> 8);
       φc(c >> 12);
       φc(c >> 16);
       φc(c >> 20);
       λcs(fs...); }
 
-  ~ϝ() {
-    std::cout << "destroying ϝ " << g.t << std::endl;
-    for (let &f : xfs) f(*this); }
+  ~ϝ() { for (let &f : xfs) f(*this); }
 
   ϝ &xf(ϝxf &&f) { xfs.push_back(std::move(f)); return *this; }
 

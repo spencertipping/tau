@@ -4,12 +4,15 @@ cd "$(dirname "$0")"
 
 which=${1:-zeta}
 
-g++ $(<compile_flags.txt) -g try/$which.cc -o try/$which \
-  -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lharfbuzz -lcairo \
-  -lxcb -lX11 -lGL -lX11-xcb \
-  -lboost_context &
+exec \
+  g++ $(<compile_flags.txt) -g try/$which.cc -o try/$which \
+      -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lharfbuzz -lcairo \
+      -lxcb -lX11 -lGL -lX11-xcb \
+      -lboost_context
 
-dev/emsdk em++ -Wno-parentheses -Wno-shift-count-overflow \
-  -std=c++20 -O3 -sASYNCIFY try/$which.cc -o try/$which.js &
+# TODO: re-enable emsdk builds as below
 
-wait
+#dev/emsdk em++ -Wno-parentheses -Wno-shift-count-overflow \
+#  -std=c++20 -O3 -sASYNCIFY try/$which.cc -o try/$which.js &
+
+#wait

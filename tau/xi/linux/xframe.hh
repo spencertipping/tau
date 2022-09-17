@@ -104,7 +104,7 @@ struct xframe_
 // should the caller zip the output?
 ϝ &text_size(Φ &f)
 {
-  return *new ϝ(f, ϝ::ξι, [](ϝ &f)
+  return *new ϝ(f, "text_size", ϝ::ξι, [](ϝ &f)
     {
       int w, h;
       let cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
@@ -149,7 +149,7 @@ struct xframe_
           break; }
         }}});
 
-  return e ^ (new ϝ(f, ϝ::ξΦ | 0x020000,
+  return e ^ (new ϝ(f, "xframe", ϝ::ξΦ | 0x020000,
                     [&, x](ϝ &f) { for (let a : f) *x << a; },
                     [&]   (ϝ &f) { f.α() < f.δ(); }))
     ->xf([x](ϝ&) { delete x; });

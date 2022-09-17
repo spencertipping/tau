@@ -48,15 +48,17 @@ struct φπ  // profiling+timing filter
 template<class R, class W = R, class F = φι>
 struct φ
 {
-  sletc fnr = 0x1;
-  sletc fnw = 0x2;
-  sletc fli = 0x4;
-  sletc flo = 0x8;
+  sletc fnr = 0x1;   // no read-side
+  sletc fnw = 0x2;   // no write-side
+  sletc fli = 0x4;   // lock when reading
+  sletc flo = 0x8;   // lock when writing
+  sletc fie = 0x10;  // input is ended (closed permanently)
+  sletc foe = 0x20;  // output is ended
 
   Λ          &l;
   φ<W, R, F> *c {nullptr};  // NOTE: template args may vary; ptr type is a lie
   u8c         b;
-  u8c         fs;
+  u8          fs;
   ζ<R>       *i {nullptr};
   ζ<W>       *o {nullptr};
   λg          cg;
@@ -68,7 +70,7 @@ struct φ
   φ(φ&&) = delete;
   φ(Λ &l_, uf8 b_ = ζb0, u8 fs_ = 0) : l{l_}, b{b_}, fs{fs_}, cg{l}, xg{l} {}
 
-  ~φ() { rx(); if (c) c->c = nullptr; }
+  ~φ() { fs |= foe | fie; rx(); if (c) c->c = nullptr; }
 
 
   φ &operator()(ζ<R> &i_, ζ<W> &o_)
@@ -92,9 +94,9 @@ struct φ
       return *this; }
 
 
-  φ &ω()  { if (i) rω(); if (o) wω();                        return *this; }
-  φ &rω() { assert(i); i->rω(); rx();        if (!o) xg.w(); return *this; }
-  φ &wω() { assert(o); o->wω(); o = nullptr; if (!i) xg.w(); return *this; }
+  φ &ω()  { if (i) rω(); if (o) wω();                  fs |= fie | foe; return *this; }
+  φ &rω() { assert(i); i->rω(); rx();        if (!o) xg.w(); fs |= fie; return *this; }
+  φ &wω() { assert(o); o->wω(); o = nullptr; if (!i) xg.w(); fs |= foe; return *this; }
 
   φ &rx()
     { if (i && c && c->o) c->wω();
@@ -115,8 +117,8 @@ struct φ
 
   template<class X>  // write, wait for ζ if necessary
   bool operator<<(X const &x)
-    { while (!wi()) cg.y(λs::φc);
-      return *o << f.w(x, *o); }
+    { while (!(fs & foe) && !wi()) cg.y(λs::φc);
+      return fs & foe ? false : *o << f.w(x, *o); }
 
 
   template<class X>  // write but don't wait for ζ

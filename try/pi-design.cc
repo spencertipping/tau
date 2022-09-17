@@ -21,7 +21,8 @@ void try_split()
   fd_in(f, open("/tmp/1m-jsons", O_RDONLY))
     | split_chr(f, '\n')
     | take(f, 100)
-    | stream_out(f, cout);
+    | fd_out(f, 1);
+    //| stream_out(f, cout);
   f.go();
 }
 
