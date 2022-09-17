@@ -18,10 +18,9 @@ struct πh;
 struct πs;
 struct πp;
 
-typedef uN  πr;            // zero for success
-typedef πr(*πf)(πi&, uN);  // instruction function
-typedef m9  πt;            // utf9-encoded type
-typedef u32 πb;            // bytecode instruction
+typedef void(*πf)(πi&, uN);  // instruction function
+typedef m9  πt;              // utf9-encoded type
+typedef u32 πb;              // bytecode instruction
 
 
 V<πf>  πfs;
@@ -49,7 +48,7 @@ struct πF
                      q(m9("TODO")), t(m9("TODO")),
                      a(a_), f(f_) {}
 
-  πr operator()(πi& i, uN o) const { return f(i, o); }
+  void operator()(πi& i, uN o) const { f(i, o); }
 };
 
 
@@ -59,8 +58,8 @@ struct πp
   uN    ng;  // number of globals
   uN    p0;  // initial instruction (as index into b)
 
-  πb operator[](uN n)        const { return b[n]; }
-  πr operator()(πi &i, uN n) const { return (*πfs[b[n]])(i, n); }
+  πb   operator[](uN n)        const { return b[n]; }
+  void operator()(πi &i, uN n) const { (*πfs[b[n]])(i, n); }
 };
 
 

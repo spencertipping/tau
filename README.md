@@ -22,8 +22,10 @@ I will probably never have time to document this properly.
 On Ubuntu 22.04:
 
 ```sh
+$ sudo dpkg --add-architecture i386
+$ sudo apt update
+$ sudo apt install -y docker.io  # for emsdk builds
 $ sudo apt install -y \
-       docker.io \
        build-essential \
        libboost-fiber-dev libboost-context-dev libmsgpack-dev \
        libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev \

@@ -24,6 +24,14 @@ template<class I = i9, class O>
 }
 
 
+ϝ &take(Φ &f, u64 n)
+{
+  return *new ϝ(f, ϝ::ξι, [&, n](ϝ &f)
+    { u64 i = 0;
+      for (let x : f) { if (++i > n) break; f << x; } });
+}
+
+
 template<class I = i9>
 ϝ &sink(Φ &f, F<void(I)> &&l)
 {

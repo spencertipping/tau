@@ -116,38 +116,33 @@ void int_bench()
   πFs.clear();
   πfs.clear();
 
-  πFs.push_back(new πF("i32", 1, [](πi &i, uN o) -> πr {
+  πFs.push_back(new πF("i32", 1, [](πi &i, uN o) {
     i.d << Sc<i32>(i.p.b[o + 1]);
     i.n = o + 2;
-    return 0;
   }));
 
-  πFs.push_back(new πF("i32+", 0, [](πi &i, uN o) -> πr {
+  πFs.push_back(new πF("i32+", 0, [](πi &i, uN o) {
     i64 a = i.d[0];
     i64 b = i.d[1];
     i.d.pop(2);
     i.d << a + b;
     i.n = o + 1;
-    return 0;
   }));
 
-  πFs.push_back(new πF("get", 1, [](πi &i, uN o) -> πr {
+  πFs.push_back(new πF("get", 1, [](πi &i, uN o) {
     i.d << i.d[i.p.b[o + 1]];
     i.n = o + 2;
-    return 0;
   }));
 
-  πFs.push_back(new πF("j<", 1, [](πi &i, uN o) -> πr {
+  πFs.push_back(new πF("j<", 1, [](πi &i, uN o) {
     i64 a = i.d[0];
     i64 b = i.d[1];
     i.d.pop(2);
     i.n = a < b ? i.p.b[o + 1] : o + 2;
-    return 0;
   }));
 
-  πFs.push_back(new πF("jmp", 1, [](πi &i, uN o) -> πr {
+  πFs.push_back(new πF("jmp", 1, [](πi &i, uN o) {
     i.n = i.p.b[o + 1];
-    return 0;
   }));
 
   for (let f : πFs) πfs.push_back(f->f);

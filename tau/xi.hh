@@ -10,6 +10,7 @@
 #include "xi/digamma.hh"
 #include "xi/debug.hh"
 #include "xi/io.hh"
+#include "xi/textio.hh"
 #include "xi/tcp.hh"
 
 

@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+from time import time
+
+
+start = time()
+t = 0
+for x in range(1 << 24): t += x
+end = time()
+print(f"total = {t}, duration = {end - start}s")

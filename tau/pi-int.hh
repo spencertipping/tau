@@ -32,9 +32,10 @@ struct πi
 
   πi(Φ &f_, πp p_) : f(f_), p(p_), g(p.ng) { n = p.p0; }
 
-  operator bool() const { return n != ni || !r.empty(); }
-  πr operator()()       { return p(*this, n); }
-  πr go        ()       { while (*this) if (let r = (*this)()) return r; return 0; }
+  πb operator [](uN i) const { return p.b[i]; }
+  operator  bool()     const { return n != ni || !r.empty(); }
+  πi &operator()()           { p(*this, n);             return *this; }
+  πi &go        ()           { while (*this) (*this)(); return *this; }
 };
 
 

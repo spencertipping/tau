@@ -43,3 +43,35 @@ Not much, just a small UTF9 structure that defines a few things:
 Bytecode is simple: an immutable list of `u32`s in native-endian encoding, packed as a flat array. Instructions are therefore always four-byte aligned. Each instruction is an offset into the π native table, and has a fixed size. This means bytecode can easily be scanned without executing it.
 
 To satisfy the fixed-arity requirement, forms like `(tuple, ...)` end up compiling to bytecodes specialized to the number of elements being stored -- e.g. `tuple4 1 2 3 4`. Dynamically-sized or large tuples can be created by instructions like `tuple-append`.
+
+
+## Bytecode structure
+Python uses a simple bytecode to represent its functions:
+
+```
+>>> import dis
+>>> def sum16M():
+...     t = 0
+...     for i in range(1 << 24): t += i
+...     return t
+>>> dis.dis(sum16M)
+  2           0 LOAD_CONST               1 (0)
+              2 STORE_FAST               0 (t)
+
+  3           4 LOAD_GLOBAL              0 (range)
+              6 LOAD_CONST               2 (16777216)
+              8 CALL_FUNCTION            1
+             10 GET_ITER
+        >>   12 FOR_ITER                 6 (to 26)
+             14 STORE_FAST               1 (i)
+             16 LOAD_FAST                0 (t)
+             18 LOAD_FAST                1 (i)
+             20 INPLACE_ADD
+             22 STORE_FAST               0 (t)
+             24 JUMP_ABSOLUTE            6 (to 12)
+
+  4     >>   26 LOAD_FAST                0 (t)
+             28 RETURN_VALUE
+```
+
+Python 3.10.4 runs this in 1250ms for a total of ~75ns per item, or 13.4M items per second.
