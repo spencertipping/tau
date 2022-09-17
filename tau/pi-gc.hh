@@ -12,22 +12,43 @@ namespace τ
 
 struct πs   // stack allocator
 {
-  B     a;          // alternating stacks
-  B     b;
-  bool  c = false;  // alternation flag
-  V<uN> d;          // stack registers: offsets into h
+  static constexpr uN np = -1;
+
+  B     a;  // alternating stacks; a's tag is 0
+  B     b;  //              ...and b's tag is 1
+  bool  c = false;
+  V<uN> d;  // stack registers: tagged offsets
+
+
+  uN last(bool tag) const
+    { for (auto it = d.rbegin(); it != d.rend(); ++it)
+        if ((*it & 1) == tag)
+          return *it >> 1;
+      return np; }
+
+  uN size () const { return a.size() + b.size(); }
+  uN depth() const { return d.size(); }
+
+  B &h() { return c ? b : a; }
+  B &o() { return c ? a : b; }
 
 
   template<class T>
-  πs &operator<<(T x) { d.push_back(h << o9(x)); return *this; }
+  πs &operator<<(T x)
+    { c = !c;
+      d.push_back(h() << o9(x) << 1 | c);
+      let l = last(!c);
+      if (l != np) o().resize(l + i9::size_of(o().data() + l));
+      return *this; }
 
   πs &pop(uN n = 1)
     { A(d.size() >= n, "πs pop(" << n << "), s=" << d.size());
-      h.resize(d[d.size() - n + 1]);
       d.resize(d.size() - n);
       return *this; }
 
-  i9 operator[](uN x) { return i9{h.data() + d[d.size() - x]}; }
+  i9 operator[](uN x)
+    { let n = d[d.size() - x - 1];
+      return i9{(n & 1 ? b : a).data() + (n >> 1)}; }
 };
 
 
@@ -39,6 +60,7 @@ struct πh       // random-access heap (no rewinding)
   B     h;
   V<uN> d;      // data registers: offsets into h
   uN    z = 0;  // available heap space
+  uN    g = 0;  // generations
   u64   a = 0;  // total allocated bytes
 
   πh(uN n)
@@ -46,6 +68,8 @@ struct πh       // random-access heap (no rewinding)
       d.reserve(n);
       for (uN i = 0; i < n; ++i) d.push_back(np); }
 
+
+  uN size() const { return h.size(); }
 
   πh &gc()
     { uN s = 0;
@@ -58,6 +82,8 @@ struct πh       // random-access heap (no rewinding)
       for (uN i = 0; i < d.size(); ++i)
         if (d[i] != np) set(i, i9{h_.data() + d[i]});
       a = a_;
+      ++g;
+      z = 0;
       return *this; }
 
 
@@ -86,16 +112,20 @@ struct πh       // random-access heap (no rewinding)
 O &operator<<(O &s, πs const &h)
 {
   auto &hm = const_cast<πs&>(h);
-  s << "πs n=" << h.d.size() << std::endl;
+  s << "πs s=" << h.size() << " n=" << h.d.size() << std::endl;
   for (uN i = 0; i < h.d.size(); ++i)
-    s << "  " << i << "\t" << hm[i] << std::endl;
+    s << "  s" << i << "\t" << h.d[h.d.size() - i - 1] << "\t" << hm[i] << std::endl;
   return s;
 }
 
 O &operator<<(O &s, πh const &h)
 {
   auto &hm = const_cast<πh&>(h);
-  s << "πh c=" << h.h.capacity() << " wa=" << h.h.capacity() - h.h.size() << ", a=" << h.a << std::endl;
+  s << "πh c=" << h.h.capacity()
+    << " wa="  << h.h.capacity() - h.h.size()
+    << " a="   << h.a
+    << " z="   << h.z
+    << " g="   << h.g << std::endl;
   for (uN i = 0; i < h.d.size(); ++i)
     s << "  r" << i << "\t" << hm[i] << std::endl;
   return s;

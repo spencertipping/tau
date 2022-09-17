@@ -258,7 +258,7 @@ uN operator<<(B &i, T const &x)
   let s = x.size();
   let c = i.size();
   i.resize(c + s);
-  if (let n = x.write(x.data() + c))
+  if (let n = x.write(i.data() + c))
   { A(n != ζω, "B<< failed");
     i.resize(i.size() - s + n); }
   return c;

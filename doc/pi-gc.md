@@ -18,3 +18,5 @@ b d _  →  b ∅ de  →  b _      →  ∅ bcde
 The basic idea is that each value is pushed onto an alternating stack, allowing the other to be rewound _after_ the push is complete (at which point all data is safely written).
 
 There will be unused memory, marked here with _∅_, but it is reclaimed incrementally as each stack is popped.
+
+This works as long as nobody holds a reference to any stack item across the `push()`, which is illegal anyway as the underlying containers may need to be resized.
