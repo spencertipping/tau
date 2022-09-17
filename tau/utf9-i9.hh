@@ -106,7 +106,7 @@ struct i9
 
   i9 &free()
     { if (type() == u9t::heapref || type() == u9t::heappin) std::free((**this).a);
-      return *this;}
+      return *this; }
 
   i9 &pin()
     { if (type() == u9t::heapref) W<u8>(a, 0, u9t::heappin | stype());
