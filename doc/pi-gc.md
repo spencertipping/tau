@@ -19,4 +19,8 @@ The basic idea is that each value is pushed onto an alternating stack, allowing 
 
 There will be unused memory, marked here with _∅_, but it is reclaimed incrementally as each stack is popped.
 
-This works as long as nobody holds a reference to any stack item across the `push()`, which is illegal anyway as the underlying containers may need to be resized.
+This works as long as nobody holds a reference to any stack item across the `push()`, which is illegal anyway as the underlying containers may need to be resized, moving the UTF9 values.
+
+
+## Local `i9` refs
+UTF9 is compact as formats go, but it's still worth having ways not to copy values unless we need to. Hence `i9` refs, which refer to a specific offset within another UTF9 value and turn into those `i9`s when garbage-collected. This provides lazy slicing without incurring the space or GC-time overhead normally associated with that approach.

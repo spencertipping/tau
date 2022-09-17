@@ -37,6 +37,10 @@ struct πF
   f64       η0;  // prior entropy
   πf        f;
 
+  πF(Stc &s, uN a_, πf f_) : n(u9_symbol::str(s)),
+                             q(m9("TODO")), t(m9("TODO")),
+                             a(a_), f(f_) {}
+
   πF(u9_symbol s, uN a_, πf f_) : n(s),
                                   q(m9("TODO")), t(m9("TODO")),
                                   a(a_), f(f_) {}
@@ -56,7 +60,7 @@ struct πp
   uN    p0;  // initial instruction (as index into b)
 
   πb operator[](uN n)        const { return b[n]; }
-  πr operator()(πi &i, uN n) const { return (*πfs[n])(i, n); }
+  πr operator()(πi &i, uN n) const { return (*πfs[b[n]])(i, n); }
 };
 
 
@@ -72,9 +76,9 @@ O &operator<<(O &s, πp const &p)
   for (uN i = 0; i < p.b.size();)
   { let &f = *πFs[p[i]];
     s << "  " << i << "\t" << f << "\t";
-    for (uN j = 0; j < f.a; ++j) s << p[i + j] << " ";
+    for (uN j = 1; j <= f.a; ++j) s << p[i + j] << " ";
     s << std::endl;
-    i += f.a; }
+    i += f.a + 1; }
   return s;
 }
 #endif

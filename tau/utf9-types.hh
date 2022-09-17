@@ -420,12 +420,12 @@ O &operator<<(O &s, u9st x)
 
 O &operator<<(O &s, u9_symbol const &y)
 {
-  s << "sym[";
-  if (y.printable()) return s << Stv(Rc<chc*>(y.x.data()), y.x.size()) << "]";
+  s << "'";
+  if (y.printable()) return s << Stv(Rc<chc*>(y.x.data()), y.x.size());
   for (let c : y.x)
     s << "0123456789abcdef"[c >> 4]
       << "0123456789abcdef"[c & 15];
-  return s << "]";
+  return s;
 }
 #endif
 

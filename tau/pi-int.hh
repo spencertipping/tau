@@ -21,19 +21,18 @@ namespace τ
 
 struct πi
 {
-  static constexpr uN ni = -1;
+  static constexpr u32 ni = -1;
 
-  Φ         &f;
-  πp  const  p;  // bytecode program
-  πh         g;  // global registers
-  πs         d;  // data stack
-  V<uN>      r;  // return stack
-  uN         n;  // next instruction, or ni if none
+  Φ        &f;
+  πp const  p;  // bytecode program
+  πh        g;  // global registers
+  πs        d;  // data stack
+  V<u32>    r;  // return stack
+  u32       n;  // next instruction, or ni if none
 
-  πi(Φ &f_, πp p_)
-    : f(f_), p(p_), g(p.ng) { n = p.p0; }
+  πi(Φ &f_, πp p_) : f(f_), p(p_), g(p.ng) { n = p.p0; }
 
-  operator bool() const { return n != ni && !r.empty(); }
+  operator bool() const { return n != ni || !r.empty(); }
   πr operator()()       { return p(*this, n); }
   πr go        ()       { while (*this) if (let r = (*this)()) return r; return 0; }
 };
@@ -42,8 +41,8 @@ struct πi
 #if τdebug_iostream
 O &operator<<(O &s, πi const &i)
 {
-  s << "πi r=";
-  if (i) s << i.r.back();
+  s << "πi n=";
+  if (i) s << i.n;
   else   s << "ω";
   return s << std::endl
            << " p=" << i.p

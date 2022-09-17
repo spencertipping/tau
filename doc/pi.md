@@ -10,6 +10,7 @@ So, succinctly: **π defines a single λ's worth of processing** and can shell o
 + [π ideas](pi-ideas.md)
   + [π ← `ni`](pi-ni.md)
   + [π editor in π](pi-editor.md)
++ [π design](pi-design.md)
 + [π structure](pi-structure.md)
   + [π history](pi-history.md)
   + [π compiler](pi-compiler.md)
