@@ -51,7 +51,6 @@ struct πF
 
 struct πp
 {
-  πfs   fs;
   V<πb> b;   // bytecodes
   uN    ng;  // number of globals
   uN    p0;  // initial instruction (as index into b)
