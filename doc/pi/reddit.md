@@ -2,7 +2,7 @@
 I recently ran a full-scale analysis to observe user and influence drift on the platform. Let's walk through all the stages.
 
 
-## Step 1: ETL
+## Step 1a: ETL
 ```sh
 $ ni /data/reddit-{comments,submissions}{,-queue} rp'r -s, a' OfB \
      fx64[%f : i%f \<D:id,:author rp'b ne "[deleted]"' zz\>] \
@@ -32,7 +32,7 @@ user    0m0.865s
 sys	    0m0.190s
 ```
 
-If we just look at user time, we have a total of 4.608s for 1M items, which comes to 461ns/item and 217k items/second.
+If we just look at user time, we have a total of 3.743s for 1M items, which comes to 374ns/item and 267k items/second.
 
 
 ### π bytecode analysis
@@ -98,4 +98,40 @@ user    0m8.820s
 sys	    0m1.252s
 ```
 
-Oof, not well. Unsurprising given that `ni` cheats a lot in its JSON parsing, and we're using a performance-tuned library.
+Not well. Unsurprising given that `ni` cheats a lot in its JSON parsing, and we're using a performance-tuned library. This means τ is likely to be ~4x faster than existing JSON-parsing workflows.
+
+
+### π code design
+`ni` is pretty compact: the first part of the data workflow above amounts to `D:id,:author rp'b ne "[deleted]"'`. `D` and `rp` are both stream operators, so in π terms they'd have type `φ a → φ b`. `D` is a little more specific, in that it's `φ JSON → φ a`.
+
+π programs can be data-_hinted_ but they can't use runtime data to inform compile-time type inference. (It's fine for a program to quote some development data into the code and infer from there.) If we quote a few inputs, we can abbreviate key names and infer the input type; then our π code might look like this:
+
+```
+(.id,.au) %B!/^\[/
+```
+
+The function must take the form `φ (json {'id: 'int, 'author: 'utf8, ...}) → a`; parsing is driven by the left type here.
+
++ `(.id,.au) ∷ φ (json {'id: 'int, 'author: 'utf8, ...}) → φ ('int, 'utf8)`
+  + `(f, g) ∷ m a → m (f a, g a)`
+  + `.id ∷ m (json {'id*: 'int,  ...}) → m 'int`
+  + `.au ∷ m (json {'au*: 'utf8, ...}) → m 'utf8`
+
+Now the left type is `φ ('int, 'utf8)`, which drives the parse further. `φ a` provides `% ∷ φ a → (m a → m 'bool) → φ a`:
+
++ `(.id,.au) %B!/^\[/ ∷ φ ('int, 'utf8)`
+  + `B :: m (a, b, ...) → m b`
+  + `! :: m a → (m a → m 'bool) → m 'bool`
+  + `/^\[/ :: m 'utf8 → m 'bool`
+
+Note that `!` and `/^\[/` both have polymorphic return types. Also note that at parse-time, `a` has already been unified to `'utf8` -- which is why `/` is interpreted as a regex rather than a vector reduction.
+
+
+## Step 1b: distributed work
+Some of the ETL in step 1a is better understood on its own:
+
+```
+fx64[%f : i%f \< ... zz\>] \<\# gzz
+```
+
+This is clumsy and basic map/reduce machinery. I like the fact that it's manually specified in `ni`; it means we aren't framework-bound. The downside is that some amount of map/reduce complexity is worth having: multi-machine workflows and data locality for example.

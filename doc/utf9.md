@@ -76,7 +76,7 @@ In detail:
 | `1 1001` | `heap ref` (non-portable) |
 | `1 1010` | `heap pin` (non-portable) |
 | `1 1011` | `struct` (non-portable)   |
-| `1 1100` | **reserved**              |
+| `1 1100` | π internal                |
 | `1 1101` | **reserved**              |
 | `1 1110` | **reserved**              |
 | `1 1111` | `frame`                   |
@@ -218,6 +218,10 @@ Heap references can be pinned, which modifies their typecode in place. This is a
 This is a way to pass around `struct` instances that are encoded with native-endianness and alignment. You can `Sc<type*>(i9)` to decode them.
 
 `struct`s in UTF9 have no type tagging; it's assumed that all participants know which C++ type they map to. This means they have minimal overhead, just the control-byte + size prefix.
+
+
+### π internals
+These are values reserved for [π](pi.md), in particular its memory allocation mechanics. They are assumed to be opaque. See [π GC](pi-gc.md) for details.
 
 
 ### Frames
