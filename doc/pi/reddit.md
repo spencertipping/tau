@@ -135,3 +135,9 @@ fx64[%f : i%f \< ... zz\>] \<\# gzz
 ```
 
 This is clumsy and basic map/reduce machinery. I like the fact that it's manually specified in `ni`; it means we aren't framework-bound. The downside is that some amount of map/reduce complexity is worth having: multi-machine workflows and data locality for example.
+
+
+### π and distributed streams
+If `φ` is a single stream, then `φs` can be multiple streams, e.g. in a map/reduce context.
+
+**TODO:** define what "multiple streams" means here -- they can just be plural, or they can carry information about how they were sharded
