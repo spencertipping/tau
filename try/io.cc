@@ -42,6 +42,24 @@ int tau_fseq(int argc, char **argv)
 }
 
 
+int u9dasm_seq(int argc, char **argv)
+{
+  Φ f;
+  iota(f, atoi(argv[0])) | utf9_dasm(f) | fd_out(f, 1);
+  f.go();
+  return 0;
+}
+
+
+int u9asm(int argc, char **argv)
+{
+  Φ f;
+  fd_in(f, 0) | utf9_asm(f) | stream_out(f, std::cout);
+  f.go();
+  return 0;
+}
+
+
 int chat(int argc, char **argv)
 {
   Φ f;
@@ -264,14 +282,18 @@ int editor(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-  if (!strcmp(argv[1], "nseq"))   return nop_seq (argc - 2, argv + 2);
-  if (!strcmp(argv[1], "tseq"))   return tau_seq (argc - 2, argv + 2);
-  if (!strcmp(argv[1], "fseq"))   return tau_fseq(argc - 2, argv + 2);
-  if (!strcmp(argv[1], "chat"))   return chat    (argc - 2, argv + 2);
-  if (!strcmp(argv[1], "cat"))    return cat     (argc - 2, argv + 2);
-  if (!strcmp(argv[1], "x11"))    return x11     (argc - 2, argv + 2);
-  if (!strcmp(argv[1], "editor")) return editor  (argc - 2, argv + 2);
-  return 0;
+  if (!strcmp(argv[1], "nseq"))   return nop_seq   (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "tseq"))   return tau_seq   (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "fseq"))   return tau_fseq  (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "useq"))   return u9dasm_seq(argc - 2, argv + 2);
+  if (!strcmp(argv[1], "uasm"))   return u9asm     (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "chat"))   return chat      (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "cat"))    return cat       (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "x11"))    return x11       (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "editor")) return editor    (argc - 2, argv + 2);
+
+  cerr << "unknown command " << argv[1] << endl;
+  return 1;
 }
 
 

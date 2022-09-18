@@ -87,6 +87,7 @@ struct i9
       return Rc<T const*>(begin()); }
 
   operator St       () const { return St{Rc<ch*>(data()), size()}; }
+  operator Bv       () const { return Bv{data(), size()}; }
   operator u9_symbol() const { u9tm{u9t::symbol}(type()); return u9_symbol{B(data(), size())}; }
 
   operator u9st() const
