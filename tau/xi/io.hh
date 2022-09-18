@@ -106,31 +106,25 @@ namespace ξ
 
 ϝ &utf9_dasm(Φ &f, uN c = 0)
 {
-  return *new ϝ(f, "utf9_dasm", ϝ::ξι, [c](ϝ &f)
-    { B b; b.reserve(1l << ζb0);
+  // NOTE: c = 0 means zero-copy and no chunking
+  return !c
+    ? *new ϝ(f, "utf9_dasm", ϝ::ξι, [](ϝ &f)
+      { for (let x : f) { if (!(f.β() << o9q{x})) break; }})
 
-      if (!c)            // no chunking
-        for (let x : f)  // NOTE: this includes stream markers
-        { let o = o9(x);
-          let s = o.size();
-          b.resize(s);
-          if (let n = o.write(b.data()))
-          { A(n != ζω, "utf9_dasm write failure");
-            b.resize(b.size() + n - s); }
-          if (!(f.β() << b)) break; }
-      else               // chunkify up to the specified size
-      { for (let x : f)
-        { let o = o9(x);
-          let s = o.size();
-          let i = b.size();
-          b.resize(i + s);
-          if (let n = o.write(b.data() + i))
-          { A(n != ζω, "utf9_dasm write failure");
-            b.resize(b.size() + n - s); }
-          if (b.size() >= c)
-          { if (!(f.β() << b)) break;
-            b.clear(); } }
-        if (!b.empty()) f.β() << b; }});
+    : *new ϝ(f, "utf9_dasm", ϝ::ξι, [c](ϝ &f)
+      { B b; b.reserve(1l << ζb0);
+        { for (let x : f)
+          { let o = o9(x);
+            let s = o.size();
+            let i = b.size();
+            b.resize(i + s);
+            if (let n = o.write(b.data() + i))
+            { A(n != ζω, "utf9_dasm write failure");
+              b.resize(b.size() + n - s); }
+            if (b.size() >= c)
+            { if (!(f.β() << b)) break;
+              b.clear(); } }
+          if (!b.empty()) f.β() << b; }});
 }
 
 

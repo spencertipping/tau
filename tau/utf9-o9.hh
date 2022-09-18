@@ -37,11 +37,23 @@ struct o9i9
   // even if we could compact the size by a bit. The invariant here is that
   // output == input, down to the byte level.
   i9 const a;
-  uN size ()     const { let s = a.size(); return s + u9sb(a.stype()); }
+  uN size ()     const { return a.size() + u9sb(a.stype()); }
   uN write(ζp m) const { std::memcpy(m, a.a, size()); return 0; }
 };
 
 inline o9i9 o9(i9 i) { return o9i9{i}; }
+
+
+struct o9q  // byte-quoted i9 serialization
+{
+  i9 const x;
+  uN size ()     const { let s = i9::size_of(x.a); return s + u9sb(u9sq(s)); }
+  uN write(ζp m) const
+    { let o = o9i9{x};
+      let i = u9ws(m, 0, u9t::bytes, o.size());
+      A(!o.write(m + i), "o9q internal error");
+      return 0; }
+};
 
 
 template<o9fixed T>
@@ -238,6 +250,7 @@ ic o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
 
 template<class T>    struct o9_            { sletc v = false; };
 template<>           struct o9_<o9i9>      { sletc v =  true; };
+template<>           struct o9_<o9q>       { sletc v =  true; };
 template<class T>    struct o9_<o9f<T>>    { sletc v =  true; };
 template<class T>    struct o9_<o9b<T>>    { sletc v =  true; };
 template<>           struct o9_<o9st>      { sletc v =  true; };
