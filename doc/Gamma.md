@@ -1,5 +1,5 @@
 # Γ
-It's possible to write operators just in terms of φ, λ, and ζ, but γ is preferable because it reorients those abstractions to focus on a single task. Similarly, it's possible to code distributed systems directly against Φ, but Γ ties it together by adding routing and RPCs. Γ is like a Φ that is aware of γ and provides distributed computing with no cognitive overhead by using multiplexed, encrypted trunk connections.
+It's possible to write operators just in terms of [φ](phi.md), λ, and [ζ](zeta.md), but [γ](gamma.md) is preferable because it reorients those abstractions to focus on a single task. Similarly, it's possible to code distributed systems directly against [Φ](Phi.md), but Γ ties it together by adding routing and RPCs. Γ is like a Φ that is aware of γ and provides distributed computing with no cognitive overhead by using multiplexed, encrypted trunk connections.
 
 
 ##  γ initialization

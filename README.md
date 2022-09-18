@@ -13,6 +13,7 @@ I will probably never have time to document this properly.
   + [γ topologies](doc/gamma-topologies.md)
 + [γ₀](doc/gamma0.md) and [Γ](doc/Gamma.md)
   + [Ξ](doc/Xi.md)
+  + [ξ](doc/xi.md)
   + [π](doc/pi.md)
   + [η](doc/eta.md)
   + [security](doc/security.md)

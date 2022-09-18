@@ -1,6 +1,8 @@
 # Ξ
 Declarative configuration for γs, like a starting point for the ξ control channel. Ξ is input to γ₀: it ultimately converts from user-provided τ source to the Ξ `i9` objects provided as initializers to the resulting γs.
 
+See [ξ](xi.md) for a discussion of the γs you would create with Ξ.
+
 
 ## γ side
 γ perceives Ξ to be an `i9` value that can be addressed to provide configuration options.

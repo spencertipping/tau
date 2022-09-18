@@ -37,8 +37,10 @@ struct i9
   ζp a;
   i9(ζp a_) : a(a_) {}
 
-  bool exists() const { return a && a != ζωp; }
-  operator ζp() const { return a; }
+  // true if the value is not a stream manipulator
+  operator bool() const { return exists() && type() != u9t::stream; }
+  bool exists  () const { return a && a != ζωp; }
+  operator   ζp() const { return a; }
 
 
   uf8 code()  const { return R<u8>(a, 0); }
@@ -77,8 +79,6 @@ struct i9
         TA(0, type())
       } }
 
-  // true if the value is not a stream manipulator
-  operator bool() const { return exists() && type() != u9t::stream; }
 
   template<class T>
   T const* operator*() const
@@ -86,17 +86,15 @@ struct i9
       A(sizeof(T) <= size(), "i9 T* overflows bounds; |T|=" << sizeof(T) << ", size()=" << size());
       return Rc<T const*>(begin()); }
 
-  operator St() const { return St{Rc<ch*>(data()), size()}; }
+  operator St       () const { return St{Rc<ch*>(data()), size()}; }
   operator u9_symbol() const { u9tm{u9t::symbol}(type()); return u9_symbol{B(data(), size())}; }
 
   operator u9st() const
     { u9tm{u9t::stream}(type());
       return Sc<u9st>(R<u8>(begin(), 0)); }
 
-  u64 θ() const { u9tm{u9t::stream}(type()); return Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
-  u64 ι() const { u9tm{u9t::stream}(type()); return Sc<u9st>(*this) == u9st::ι ? R<u64>(begin(), 1) : 0; }
-
-
+  u64  θ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
+  u64  ι() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::ι ? R<u64>(begin(), 1) : 0; }
   bool τ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::τ; }
 
 
@@ -116,6 +114,7 @@ struct i9
   i9 operator[](uN i) const
     { switch (type())
       {
+        // TODO: vectors
         // TODO: tuple indexes
       case u9t::tuple: { ζp b = begin(); while (i--) b += size_of(b); return b; }
         TA(0, "i9[uN] requires index or tuple, not " << type())
