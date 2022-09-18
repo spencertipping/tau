@@ -87,6 +87,15 @@ int cat(int argc, char **argv)
 }
 
 
+int acat(int argc, char **argv)
+{
+  Φ f;
+  fd_in(f, 0) | utf9_dasm(f) | utf9_asm(f) | fd_out(f, 1);
+  f.go();
+  return 0;
+}
+
+
 int x11(int argc, char **argv)
 {
   Φ f;
@@ -289,6 +298,7 @@ int main(int argc, char **argv)
   if (!strcmp(argv[1], "uasm"))   return u9asm     (argc - 2, argv + 2);
   if (!strcmp(argv[1], "chat"))   return chat      (argc - 2, argv + 2);
   if (!strcmp(argv[1], "cat"))    return cat       (argc - 2, argv + 2);
+  if (!strcmp(argv[1], "acat"))   return acat      (argc - 2, argv + 2);
   if (!strcmp(argv[1], "x11"))    return x11       (argc - 2, argv + 2);
   if (!strcmp(argv[1], "editor")) return editor    (argc - 2, argv + 2);
 
