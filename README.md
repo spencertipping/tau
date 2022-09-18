@@ -57,6 +57,7 @@ This repo cannot be cloned on case-insensitive filesystems.
 ### Data processing components
 + File reader with θ progress output
 + File writer
+  + Frame format with boundary markers/SHAs
 + `zstd` compress/decompress
 + Shell command filter
 + JSON → UTF9 converter
