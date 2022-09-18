@@ -45,7 +45,7 @@ int tau_fseq(int argc, char **argv)
 int u9dasm_seq(int argc, char **argv)
 {
   Φ f;
-  iota(f, atoi(argv[0])) | utf9_dasm(f) | fd_out(f, 1);
+  iota(f, atoi(argv[0])) | utf9_dasm(f, 32768) | fd_out(f, 1);
   f.go();
   return 0;
 }
