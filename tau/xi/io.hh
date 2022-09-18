@@ -104,18 +104,33 @@ namespace ξ
 }
 
 
-ϝ &utf9_dasm(Φ &f)
+ϝ &utf9_dasm(Φ &f, uN c = 0)
 {
-  return *new ϝ(f, "utf9_dasm", ϝ::ξι, [](ϝ &f)
+  return *new ϝ(f, "utf9_dasm", ϝ::ξι, [c](ϝ &f)
     { B b; b.reserve(1l << ζb0);
-      for (let x : f)  // NOTE: this includes τ markers
-      { let o = o9(x);
-        let s = o.size();
-        b.resize(s);
-        if (let n = o.write(b.data()))
-        { A(n != ζω, "utf9_dasm write failure");
-          b.resize(b.size() + n - s); }
-        if (!(f.β() << b)) break; }});
+
+      if (!c)            // no chunking
+        for (let x : f)  // NOTE: this includes stream markers
+        { let o = o9(x);
+          let s = o.size();
+          b.resize(s);
+          if (let n = o.write(b.data()))
+          { A(n != ζω, "utf9_dasm write failure");
+            b.resize(b.size() + n - s); }
+          if (!(f.β() << b)) break; }
+      else               // chunkify up to the specified size
+      { for (let x : f)
+        { let o = o9(x);
+          let s = o.size();
+          let i = b.size();
+          b.resize(i + s);
+          if (let n = o.write(b.data() + i))
+          { A(n != ζω, "utf9_dasm write failure");
+            b.resize(b.size() + n - s); }
+          if (b.size() >= c)
+          { if (!(f.β() << b)) break;
+            b.clear(); } }
+        if (!b.empty()) f.β() << b; }});
 }
 
 

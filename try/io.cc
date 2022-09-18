@@ -51,6 +51,19 @@ int u9dasm_seq(int argc, char **argv)
 }
 
 
+int u9dasm(int argc, char **argv)
+{
+  Φ f;
+  fd_in(f, 0)
+    | utf9_asm(f)
+    | utf9_dasm(f, argc ? atoi(argv[0]) : 0)
+    | utf9_dasm(f)
+    | stream_out(f, std::cout);
+  f.go();
+  return 0;
+}
+
+
 int u9asm(int argc, char **argv)
 {
   Φ f;
@@ -295,6 +308,7 @@ int main(int argc, char **argv)
   if (!strcmp(argv[1], "tseq"))   return tau_seq   (argc - 2, argv + 2);
   if (!strcmp(argv[1], "fseq"))   return tau_fseq  (argc - 2, argv + 2);
   if (!strcmp(argv[1], "useq"))   return u9dasm_seq(argc - 2, argv + 2);
+  if (!strcmp(argv[1], "udasm"))  return u9dasm    (argc - 2, argv + 2);
   if (!strcmp(argv[1], "uasm"))   return u9asm     (argc - 2, argv + 2);
   if (!strcmp(argv[1], "chat"))   return chat      (argc - 2, argv + 2);
   if (!strcmp(argv[1], "cat"))    return cat       (argc - 2, argv + 2);
