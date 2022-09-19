@@ -112,10 +112,19 @@ struct i9
       return *this; }
 
 
+  template<class T>
+  T at(uN i) const
+    { u9vectors(type());
+      A((i + 1) * sizeof(T) <= size(),
+        "i9at OOB, i = " << i << ", w = " << sizeof(T) << ", sz = " << size());
+      return R<T>(begin(), i * sizeof(T)); }
+
+
+  // NOTE: can't do vectors here because we don't have enough space
+  // to return type information alongside the value
   i9 operator[](uN i) const
     { switch (type())
       {
-        // TODO: vectors
         // TODO: tuple indexes
       case u9t::tuple: { ζp b = begin(); while (i--) b += size_of(b); return b; }
         TA(0, "i9[uN] requires index or tuple, not " << type())
@@ -151,7 +160,7 @@ O &operator<<(O &s, i9 const &x)
     case rt:                                                            \
       s << Sc<ct>(x);                                                   \
       for (uN i = 1; i < x.vn(); ++i)                                   \
-        s << " " << Sc<ct>(R<t>(x.begin(), i * u9sizeof(rt)));          \
+        s << " " << Sc<ct>(x.at<t>(i));                                 \
       return s;
 
   vec(u9t::i8,  i64, i8)
@@ -211,17 +220,9 @@ O &operator<<(O &s, i9 const &x)
     return s << "}"; }
 
   case u9t::tensor:
-    return s << "TODO: i9 tensor";
-    /*
   { let d  = i9{x.begin()};
-    ζp  xs = i9{d}.end();
-    let e  = x.end();
-
-
-    // FIXME: these are vectorized, not sequential tuples
-    uN ds[d.vn()]; uN di = 0; for (let x : d) ds[di++] = Sc<i64>(x);
-    uN is[d.vn()];            for (uN i = 0; i < d.vn(); ++i) is[i] = 0;
-    }*/
+    let xs = i9{d.end()};
+    return s << xs.type() << "[" << d << "]"; }
 
   case u9t::heapref: return s << "heap@" << Rc<void*>((*x).a);
   case u9t::heappin: return s << "hpin@" << Rc<void*>((*x).a);

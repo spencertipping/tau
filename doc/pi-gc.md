@@ -24,11 +24,7 @@ This works as long as nobody holds a reference to any stack item across the `pus
 **TODO:** more comprehensive benchmarking; so far the dual-stack allocator is a bit slower than a mark/sweep heap, so we may just go with (generational) heaps.
 
 
-## π UTF9 natives
-UTF9 typecode `11100___` is reserved for π, within which we define a prefix byte followed by the native value. Prefixes are:
+## UTF9 refs
+It's very wasteful to copy values around all the time. To avoid this, we reserve a block of UTF9 values for the π interpreter that allows us to refer inside others. The GC needs to be aware that this is happening; otherwise we may not dig far enough into a value to dereference the pointer.
 
-
-### `01`: `i9` ref
-UTF9 is compact as formats go, but it's still worth having ways not to copy values unless we need to. Hence `i9` refs, which refer to a specific offset within another UTF9 value and turn into those `i9`s when garbage-collected. This provides lazy slicing without incurring the space or GC-time overhead normally associated with that approach.
-
-An `i9` ref is a C++ struct with two elements: the ID of the register containing the `i9` value, and the byte offset within that `i9` value.
+**TODO:** more design; most of it is simple since we just mark some registers as "complex" and slice-copy on GC

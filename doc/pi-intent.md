@@ -43,3 +43,11 @@ Because intents must not involve side effects, there are instead two ways you ca
 
 ## Data semantics
 If `φ i64` is a φ of ints, then `φs i64` might be many φs of ints. While useful for work distribution, `φs` by itself isn't sufficient to understand more subtle aspects like how the data might be sharded or ordered. We want an intent that describes enough for us to know how each φ needs to be handled.
+
+
+## Compilation
+Intents of the form _a → b_ are compositional structures that can be compiled. For example, `int → int` is ambiguous, `a → a + 1` less so. If we join those constraints, we get `{int → int, a → a + 1}`, which uniquely selects a function -- in this case `int+` applied to `1`.
+
+When used as intents, literals encode to `('lit, x)`.
+
+**TODO:** do we enough here to close the loop? I think it's definitionally complete; if so, let's write that up.

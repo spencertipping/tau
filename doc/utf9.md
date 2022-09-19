@@ -152,7 +152,7 @@ cb [sb] dim_cb  [dim_sb]  d1 d2 ... dk
 
 `data` is a numeric type, e.g. `cf64`, whose size covers the tensor data itself. The first dimension varies last, so `dim` is a radix encoding vector.
 
-Just as with vectors, the data size and dimensions must line up for the tensor to be valid.
+Just as with vectors, the data size and dimensions must line up for the tensor to be valid: `|data| = ∏dim`.
 
 
 ### Signed vs unsigned ints

@@ -2,7 +2,6 @@
 #define tau_debug 1
 //#define tau_debug_i9st 1
 #include "../tau.hh"
-#include "../tau/debug.hh"
 
 #if τdefines_Φ
 
@@ -11,6 +10,7 @@ using namespace τ;
 using namespace std;
 
 
+#include "../tau/debug.hh"
 #include "../tau/begin.hh"
 
 
