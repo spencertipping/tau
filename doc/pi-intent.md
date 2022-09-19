@@ -38,3 +38,7 @@ Because intents must not involve side effects, there are instead two ways you ca
 2. Run an analysis separately and include the result into your source code
 
 (2) removes provenance from the resulting intent information, which is useful if the inference process consumes far more data than it produces -- e.g. when you need precision.
+
+
+## Data semantics
+If `φ i64` is a φ of ints, then `φs i64` might be many φs of ints. While useful for work distribution, `φs` by itself isn't sufficient to understand more subtle aspects like how the data might be sharded or ordered. We want an intent that describes enough for us to know how each φ needs to be handled.

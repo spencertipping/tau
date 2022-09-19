@@ -141,7 +141,7 @@ In contrast, `bytes` and `utf8` are always single, variable-size elements; the c
 
 
 ### Tensors
-_n_-dimensional packed arrays of some numeric type. Tensors are formatted like this:
+_n_-dimensional packed arrays of some numeric type. Tensors are formatted as two concatenated vectors, the first of which is the dimensional encoding and the second is the data:
 
 ```
 cb [sb] dim_cb  [dim_sb]  d1 d2 ... dk
@@ -151,6 +151,8 @@ cb [sb] dim_cb  [dim_sb]  d1 d2 ... dk
 `dim` is an unsigned integral type, e.g. `u32`, whose size covers one or more such numbers that define the tensor's size along each dimension.
 
 `data` is a numeric type, e.g. `cf64`, whose size covers the tensor data itself. The first dimension varies last, so `dim` is a radix encoding vector.
+
+Just as with vectors, the data size and dimensions must line up for the tensor to be valid.
 
 
 ### Signed vs unsigned ints
