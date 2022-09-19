@@ -11,6 +11,20 @@ If _p(i, k) → ṗ_, then the π parser is defined as _p/_ with some initial in
 
 
 ## IO
-A parser is a function interrupted by a continuation: _p ∷ i → h/h →<sub>ε</sub> i_, where _i_ is intent, _h_ is human, and _a/b_ is a γ that consumes _a_ and produces _b_. The γ returns the next intent on ε when it's ready to commit.
+A parser is a function interrupted by a continuation: _p ∷ i →<sub>δ</sub> h/h →<sub>ε</sub> i_, where _i_ is intent, _h_ is human, and _a/b_ is a γ that consumes _a_ and produces _b_. The γ returns the next intent on ε when it's ready to commit. In this case, the _h/h_ component is the user interface; it's wired like this:
+
+```
+                 intent
+                +------+
+                |      |
+                V      |
+            +------+   |
+events -+-> |  ui  | -----> rendering
+        |   +------+   |
+        |       |      |
+        V       |      |
+     history    +------+---> compiler
+                 intent
+```
 
 If we want to checkpoint parse results, we can just snapshot the final intent. This avoids us having to replay the whole user input stream to reconstruct it. The π editor does this periodically to provide reasonably fast undo/redo.
