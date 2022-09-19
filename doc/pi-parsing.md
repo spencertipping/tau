@@ -19,7 +19,7 @@ A parser is a function interrupted by a continuation: _p ∷ i →<sub>δ</sub> 
                 |      |
                 V      |
             +------+   |
-events -+-> |  ui  | -----> rendering
+events -+-> |  ui  | ------> rendering
         |   +------+   |
         |       |      |
         V       |      |
