@@ -61,7 +61,9 @@ enum class u9t
   heappin = 26,  // pinned heapref (not freed automatically)
   nstruct = 27,  // native-encoded struct
 
-  none    = 31,  // not a real type
+  pi      = 28,
+  none    = 30,  // not a real type
+  frame   = 31,
 };
 
 
@@ -158,17 +160,14 @@ template<> struct u9t_<f64>  { sletc t = u9t::f64; };
 template<> struct u9t_<c32>  { sletc t = u9t::c32; };
 template<> struct u9t_<c64>  { sletc t = u9t::c64; };
 
-template<> struct u9t_<bool>             { sletc t = u9t::b; };
-template<> struct u9t_<u9_symbol>        { sletc t = u9t::symbol; };
-//template<> struct u9t_<u9_symbol const&> { sletc t = u9t::symbol; };
+template<> struct u9t_<bool>      { sletc t = u9t::b; };
+template<> struct u9t_<u9_symbol> { sletc t = u9t::symbol; };
 
-template<> struct u9t_<B>         { sletc t = u9t::bytes; };
-//template<> struct u9t_<B const&>  { sletc t = u9t::bytes; };
-template<> struct u9t_<Bv>        { sletc t = u9t::bytes; };
-template<> struct u9t_<St>        { sletc t = u9t::utf8; };
-//template<> struct u9t_<St const&> { sletc t = u9t::utf8; };
-template<> struct u9t_<Stv>       { sletc t = u9t::utf8; };
-template<> struct u9t_<chc*>      { sletc t = u9t::utf8; };
+template<> struct u9t_<B>    { sletc t = u9t::bytes; };
+template<> struct u9t_<Bv>   { sletc t = u9t::bytes; };
+template<> struct u9t_<St>   { sletc t = u9t::utf8; };
+template<> struct u9t_<Stv>  { sletc t = u9t::utf8; };
+template<> struct u9t_<chc*> { sletc t = u9t::utf8; };
 
 template<class U>          struct u9t_<V<U>>    { sletc t = u9t::tuple; };
 template<class K, class V> struct u9t_<M<K, V>> { sletc t = u9t::map; };
@@ -368,7 +367,9 @@ O &operator<<(O &s, u9t t)
   case u9t::heappin: return s << "heappin";
   case u9t::nstruct: return s << "struct";
 
+  case u9t::pi:      return s << "π";
   case u9t::none:    return s << "none";
+  case u9t::frame:   return s << "frame";
 
     TA(s, Sc<uN>(t))
   }

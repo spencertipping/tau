@@ -78,7 +78,7 @@ In detail:
 | `1 1011` | `struct` (non-portable)   |
 | `1 1100` | π internal                |
 | `1 1101` | **reserved**              |
-| `1 1110` | **reserved**              |
+| `1 1110` | `none`                    |
 | `1 1111` | `frame`                   |
 
 
@@ -99,6 +99,8 @@ Size bytes, when indicated, immediately follow the control byte -- that is, they
 
 ## Type-specific formats
 Most types are self-explanatory: the value, in big-endian where applicable, immediately follows the control byte and any size bytes.
+
+**NOTE:** the encoded size describes the data itself and doesn't include the control+size bytes. So `00011100 08 11 22 33 44 55 66 77 88` is a valid `u64` whose encoded size is 8, but which actually occupies 10 bytes. (In practice it would usually be encoded with `00011111` and skip the `08` size byte; I've just put a size byte in to demonstrate that it isn't counted.)
 
 
 ### Collections
@@ -221,7 +223,13 @@ This is a way to pass around `struct` instances that are encoded with native-end
 
 
 ### π internals
-These are values reserved for [π](pi.md), in particular its memory allocation mechanics. They are assumed to be opaque. See [π GC](pi-gc.md) for details.
+These are values reserved for [π](pi.md), in particular its memory allocation mechanics. They are assumed to be opaque to everyone else, and are completely non-portable. See [π GC](pi-gc.md) for details.
+
+
+### `none`
+This is a value that doesn't exist because the process that created it was invalid. For example, a key lookup from a map that doesn't contain that key. `none` tends to propagate through operators like `NaN` in floating-point math.
+
+`none` can also be used to represent an undefined limit; for example, `max()` of an empty list.
 
 
 ### Frames

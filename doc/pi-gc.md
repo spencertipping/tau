@@ -21,6 +21,14 @@ There will be unused memory, marked here with _∅_, but it is reclaimed increme
 
 This works as long as nobody holds a reference to any stack item across the `push()`, which is illegal anyway as the underlying containers may need to be resized, moving the UTF9 values.
 
+**TODO:** more comprehensive benchmarking; so far the dual-stack allocator is a bit slower than a mark/sweep heap, so we may just go with (generational) heaps.
 
-## Local `i9` refs
+
+## π UTF9 natives
+UTF9 typecode `11100___` is reserved for π, within which we define a prefix byte followed by the native value. Prefixes are:
+
+
+### `01`: `i9` ref
 UTF9 is compact as formats go, but it's still worth having ways not to copy values unless we need to. Hence `i9` refs, which refer to a specific offset within another UTF9 value and turn into those `i9`s when garbage-collected. This provides lazy slicing without incurring the space or GC-time overhead normally associated with that approach.
+
+An `i9` ref is a C++ struct with two elements: the ID of the register containing the `i9` value, and the byte offset within that `i9` value.
