@@ -20,7 +20,8 @@ Intent is more open-ended in that it is free to capture more nebulous aspects of
                         'unique:     t
                         'uniqueness: {'entropy: 14.311} }),
     'author: ('utf8,  { 'density:    1,
-                        'charset:    'alnum,
+                        'charset:    {'alnum, "_[]"},
+                        'l2size:     (...),
                         'unique:     f,
                         'uniqueness: {'μ: 8.95} }),
     'posts:  ('array, { 'density:    0.889,
