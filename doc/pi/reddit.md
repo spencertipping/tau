@@ -138,6 +138,8 @@ This is clumsy and basic map/reduce machinery. I like the fact that it's manuall
 
 
 ### π and distributed streams
-If `φ` is a single stream, then `φs` can be multiple streams, e.g. in a map/reduce context.
+If `φ` is a single stream, then `φs` can be multiple streams, e.g. in a map/reduce context. There are probably natural affinities for how `φs` implements general `a → b` transformations: it probably reduces (rewrites) to locality-aware distributed jobs.
 
-**TODO:** define what "multiple streams" means here -- they can just be plural, or they can carry information about how they were sharded
+Just as the earlier JSON schema could be quoted into the development environment to inform types, so can the file layout and schemas for a distributed job. We can go further and have hostnames, CPU, RAM, disk, and network topologies included with this. Then `φs` can give us a specific execution plan despite remaining fully general in principle.
+
+**All of this applies even for data that does not yet exist.** We can use the type information from one ETL stage to calculate input types for the next one; and as a fallback/validation, we can run the concrete pipeline and infer types on the result. This should at least agree with our inferred types, and may offer additional specificity that the type information doesn't capture.
