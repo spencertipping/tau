@@ -1,5 +1,5 @@
 # Tau
-APL + Erlang + bash + Joy: a Laplace transform for control flow, where most code is data.
+APL + Erlang + bash + Joy + probabilistic Prolog: a Laplace transform for control flow, where most code is data.
 
 I will probably never have time to document this properly.
 
