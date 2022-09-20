@@ -1,7 +1,16 @@
 # π parsing
 [Intent](pi-intent.md) and parsing are closely related: a successful parse is also a valid intent. Put differently, if we can describe what we expect of a result, we can also compute that result.
 
-Parsing is allowed, and often encouraged, to be ambiguous. Underconstrained programs are then clarified, often by example. These clarifications can be separated from the program definition itself, as they're more implementation-dependent and may not capture the more mathematical core of the idea.
+Parsing is allowed, and often encouraged, to be ambiguous. Underconstrained programs are then clarified, sometimes by example and sometimes by user preference. These clarifications can be separated from the program definition itself, as they're more implementation-dependent and may not capture the more mathematical core of the idea. Programs can be layered, each layer with its own history.
+
+
+## Learning
+Piecewise functions defy local optimization, and π is no exception. That means we're likely to backtrack as we explore distribution alternatives to find acceptable parses. This is computationally expensive, so we want to find ways to avoid it. Two obvious and complementary strategies:
+
+1. Keep a log of locally-suboptimal predictions
+2. Adjust "real-world η" to make better global predictions in the future
+
+(2) is interesting because it creates a conflict between "feasible solutions" and "solutions the user has said are desirable". To work around this, we'll confine these adjustments to be conditioned such that they're orthogonal to anything the user has specified. If the user updates their preferences later on, (1) is re-consulted to build a new orthogonal error-corrector.
 
 
 ## Acquiring parsers
