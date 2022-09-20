@@ -28,12 +28,10 @@ _p(a, b)_ is the _bridge function:_ given two endpoints that work as constraints
 
 _p(a, b)_ is simple: _a → b_ may have a distribution; if so, it's consulted first. If not, we search from the endpoints to find _a → c_ and _c → b_. This proceeds recursively, graded on entropy (which has a conditional component, but we are allowed to weigh the decision to _c_-split independently of conditions, since we don't know what the search endpoints are).
 
-_B[i, k]_ is meant to fully describe the user's expectations of π.
+_B[i, k]_ is meant to fully describe the user's expectations of π; that is, it defines the state machine that updates π's intent space given input events.
 
 
 ### IO
-**TODO:** verify that this section is still correct, given above
-
 A parser is a function interrupted by a continuation: _p ∷ i →<sub>δ</sub> h/h →<sub>ε</sub> i_, where _i_ is intent, _h_ is human, and _a/b_ is a γ that consumes _a_ and produces _b_. The γ returns the next intent on ε when it's ready to commit. In this case, the _h/h_ component is the user interface; it's wired like this:
 
 ```
