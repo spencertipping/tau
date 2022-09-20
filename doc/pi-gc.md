@@ -27,4 +27,6 @@ This works as long as nobody holds a reference to any stack item across the `pus
 ## UTF9 refs
 It's very wasteful to copy values around all the time. To avoid this, we reserve a block of UTF9 values for the π interpreter that allows us to refer inside others. The GC needs to be aware that this is happening; otherwise we may not dig far enough into a value to dereference the pointer.
 
-**TODO:** more design; most of it is simple since we just mark some registers as "complex" and slice-copy on GC
+Heaps mark their values as "complex" or "simple" -- values arriving from elsewhere are simple because they have no inter-value references, whereas anything we construct that involves such a reference is marked as complex. This distinction impacts GC performance: only complex-marked values need to be deep-copied; everything else can be block-copied.
+
+UTF9 refs don't provide a way around the fundamental limitation that pointers aren't real in π: if you do something like `x = (x, x, x, x)`, you'll use 4x the memory of the initial `x`; GC flattens everything and the heap is never stably compressed, e.g. by pointer aliasing.

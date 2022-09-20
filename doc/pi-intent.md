@@ -46,8 +46,14 @@ If `φ i64` is a φ of ints, then `φs i64` might be many φs of ints. While use
 
 
 ## Compilation
-Intents of the form _a → b_ are compositional structures that can be compiled. For example, `int → int` is ambiguous, `a → a + 1` less so. If we join those constraints, we get `{int → int, a → a + 1}`, which uniquely selects a function -- in this case `int+` applied to `1`.
+Intents of the form _a → b_ are compositional structures that can be compiled. For example, `int → int` is ambiguous, `a → a + 1` less so. If we join those constraints, we get `{int → int, a → a + 1}`, which uniquely selects a function -- in this case `int+` applied to `1`. `1` is itself an intent, encoded as `('lit, 1)`.
 
-When used as intents, literals encode to `('lit, x)`.
+This continuity between "type-like things" and "value-like things" is important: although many functional languages are designed such that their value and type spaces are somewhat orthogonal, the compiler is helpful only when inferring types. π is different in that both are considered unknowns that the compiler is allowed to infer. Because this often results in ambiguity, the compiler is required to minimize the global (conditionally-aware) entropy of the result.
 
-**TODO:** do we enough here to close the loop? I think it's definitionally complete; if so, let's write that up.
+Compilation is executed by [the parser](pi-parsing.md), whose purpose is to shift the entropy basis from user input to compiled output.
+
+
+## Entropy basis shifts
+If matrices shift linear bases, then distributions shift entropy bases. And just as machine-coding effort is measured in bits, human-coding effort is also measurable -- and we can refer to that as "entropy" as well. In practice it's derived from ergonomic properties, but the principle is the same.
+
+So a π intent basis shift amounts to a transcoder: decoding human inputs along the ergonomic entropy distribution and encoding along the conditionally-informed output probability distribution (where conditions incorporate whatever intent constraints that may apply).

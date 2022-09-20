@@ -83,7 +83,7 @@ struct i9
   template<class T>
   T const* operator*() const
     { u9tm{u9t::nstruct}(type());
-      A(sizeof(T) <= size(), "i9 T* overflows bounds; |T|=" << sizeof(T) << ", size()=" << size());
+      A(sizeof(T) <= size(), "i9 native T* overflows bounds; |T|=" << sizeof(T) << ", size()=" << size());
       return Rc<T const*>(begin()); }
 
   operator St       () const { return St{Rc<ch*>(data()), size()}; }
