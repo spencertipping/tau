@@ -7,7 +7,7 @@ Parsing is allowed, and often encouraged, to be ambiguous. Underconstrained prog
 ## Acquiring parsers
 Intents provide parsers: more precisely, the initial intent (which I think is some combination of `human + version controlled π source` -- **TODO**) provides the UI and keybindings that map to other parsers, which are more specific. In this way, intents cause the language to vary between a shell and an algorithm definition system.
 
-If _p(i, k) → ṗ_, then the π parser is defined as _p/_ with some initial intent.
+If _p(i, k) → ṗ_, then the π parser is defined as _p/_ with some initial intent. This implies a strict left → right solution, although some backtracking is allowed.
 
 
 ## IO

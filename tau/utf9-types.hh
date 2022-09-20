@@ -101,6 +101,16 @@ defR(u9_heapref) { return u9_heapref{Rc<void*>(R<uN>(xs, i))}; }
 defW(u9_heapref) { W<uN>(xs, i, Rc<uN>(x.r)); }
 
 
+enum class u9_none : u8
+{
+  generic            = 0,
+  key_lookup_missing = 1,
+};
+
+defR(u9_none) { return u9_none{R<u8>(xs, i)}; }
+defW(u9_none) { W<u8>(xs, i, Sc<u8>(x)); }
+
+
 struct u9_symbol
 {
   uN h;
@@ -162,6 +172,7 @@ template<> struct u9t_<c64>  { sletc t = u9t::c64; };
 
 template<> struct u9t_<bool>      { sletc t = u9t::b; };
 template<> struct u9t_<u9_symbol> { sletc t = u9t::symbol; };
+template<> struct u9t_<u9_none>   { sletc t = u9t::none; };
 
 template<> struct u9t_<B>    { sletc t = u9t::bytes; };
 template<> struct u9t_<Bv>   { sletc t = u9t::bytes; };
@@ -301,7 +312,7 @@ letc u9strings  = u9tm{u9t::bytes, u9t::utf8};
 letc u9coll     = u9tm{u9t::index, u9t::map, u9t::set, u9t::tuple, u9t::tensor};
 letc u9native   = u9tm{u9t::pidfd, u9t::heapref};
 
-letc u9fixed    = u9numbers | u9tm{u9t::b} | u9native;
+letc u9fixed    = u9numbers | u9tm{u9t::b, u9t::none} | u9native;
 letc u9atomics  = u9strings | u9numbers | u9tm{u9t::b, u9t::symbol};
 letc u9vectors  = u9numbers;  // TODO: add bools
 
@@ -416,6 +427,15 @@ O &operator<<(O &s, u9st x)
   case u9st::ι: return s << "ι";
   case u9st::κ: return s << "κ";
     TA(s, Sc<uN>(x))
+  }
+}
+
+O &operator<<(O &s, u9_none const &n)
+{
+  switch (n)
+  {
+  case u9_none::generic:            return s << "none[]";
+  case u9_none::key_lookup_missing: return s << "none[kv]";
   }
 }
 

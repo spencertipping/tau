@@ -233,6 +233,11 @@ This is a value that doesn't exist because the process that created it was inval
 
 `none` can also be used to represent an undefined limit; for example, `max()` of an empty list.
 
+`none` can carry data. If present, its first byte describes the type of problem that produced the value; some problem types are followed by further data.
+
++ `00`: generic error
++ `01`: key/value lookup miss
+
 
 ### Frames
 If you're storing a UTF9 datastream someplace where its type is not known by default, it should begin with a frame. Because the frame byte always takes the form `11111___`, it is illegal in UTF-8 -- which quickly marks the data as binary.
