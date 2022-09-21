@@ -3,6 +3,8 @@
 
 Parsing is allowed, and often encouraged, to be ambiguous. Underconstrained programs are then clarified, sometimes by example and sometimes by user preference. These clarifications can be separated from the program definition itself, as they're more implementation-dependent and may not capture the more mathematical core of the idea. Programs can be layered, each layer with its own history.
 
+**TODO:** reorganize/rewrite most of the page below; let's identify narrative focus
+
 
 ## Learning
 Piecewise functions defy local optimization, and π is no exception. That means we're likely to backtrack as we explore distribution alternatives to find acceptable parses. This is computationally expensive, so we want to find ways to avoid it. Two obvious and complementary strategies:

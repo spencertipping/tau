@@ -6,7 +6,18 @@ Stack memory is more interesting. It can be accessed randomly for reading, but c
 A rewindable stack allocator provides access to _n_ of the most recently-pushed values and allocation space for a new one at the same time, while maintaining a bounded heap size.
 
 
-## Dual stack strategy
+## Allocation structures
++ General-purpose heap, with numbered global registers
++ Stack of local frames, each with numbered locals
++ Stack of immediate values
++ Stack of return addresses, which are unrelated to GC
+
+
+## Inline stacks
+We can make this work by having two separate linear allocators that alternate as we add values:
+
+**TODO:** maybe explain this diagram better; it's a little obscure
+
 ```
 a c e     a _         a cde     a _        ∅ abcde
 b d _  →  b ∅ cde  →  b _    →  ∅ bcde  →  _
@@ -15,11 +26,9 @@ a c e     a c _      a ∅ cde     a _
 b d _  →  b ∅ de  →  b _      →  ∅ bcde
 ```
 
-The basic idea is that each value is pushed onto an alternating stack, allowing the other to be rewound _after_ the push is complete (at which point all data is safely written).
+The basic idea is that each value is pushed inline onto one allocator, allowing the other to be rewound _after_ the push is complete (at which point all data is safely written). This creates an implicit transaction boundary on every stack push: all popped values become invalid at that point, but no sooner.
 
 There will be unused memory, marked here with _∅_, but it is reclaimed incrementally as each stack is popped.
-
-This works as long as nobody holds a reference to any stack item across the `push()`, which is illegal anyway as the underlying containers may need to be resized, moving the UTF9 values.
 
 **TODO:** more comprehensive benchmarking; so far the dual-stack allocator is a bit slower than a mark/sweep heap, so we may just go with (generational) heaps.
 
