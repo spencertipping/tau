@@ -1,4 +1,2 @@
 # π assembler
-Converts sexp-style UTF9 structures to flat bytecode, linking `goto` labels and flattening expression trees into data stack manipulations.
-
-**TODO**
+The assembler picks up from [π parsing](pi-parsing.md) to emit bytecode that will be run by the [π interpreter](pi-interpreter.md).
