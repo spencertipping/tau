@@ -6,6 +6,12 @@ An intent is an expectation about a value or a function, which often happens to 
 **The goal of the intent system is to choose concrete representations, which is the same as choosing function variants.**
 
 
+## Entropy basis shifts
+If matrices shift linear bases, then distributions shift entropy bases. And just as machine-coding effort is measured in bits, human-coding effort is also measurable -- and we can refer to that as "entropy" as well. In practice it's derived from ergonomic properties, but the principle is the same.
+
+So a π intent basis shift amounts to a transcoder: decoding human inputs along the ergonomic entropy distribution and encoding along the conditionally-informed output probability distribution (where conditions incorporate whatever intent constraints that may apply).
+
+
 ## Environmental intent
 Many data-processing workflows defy useful typing because the data may have exceptional cases or its schema may be poorly-specified. The simplest ways to work with such data are (1) to ignore types altogether, or (2) to examine the data and infer a type structure.
 
@@ -44,6 +50,8 @@ Because intents must not involve side effects, there are instead two ways you ca
 ## Data semantics
 If `φ i64` is a φ of ints, then `φs i64` might be many φs of ints. While useful for work distribution, `φs` by itself isn't sufficient to understand more subtle aspects like how the data might be sharded or ordered. We want an intent that describes enough for us to know how each φ needs to be handled.
 
+**Q:** is `φs` an intent or a variable? If a variable, how do we constrain it (or do we, beyond C++ template-style duck typing)?
+
 
 ## Compilation
 Intents of the form _a → b_ are compositional structures that can be compiled. For example, `int → int` is ambiguous, `a → a + 1` less so. If we join those constraints, we get `{int → int, a → a + 1}`, which uniquely selects a function -- in this case `int+` applied to `1`. `1` is itself an intent, encoded as `('lit, 1)`.
@@ -51,9 +59,3 @@ Intents of the form _a → b_ are compositional structures that can be compiled.
 This continuity between "type-like things" and "value-like things" is important: although many functional languages are designed such that their value and type spaces are somewhat orthogonal, the compiler is helpful only when inferring types. π is different in that both are considered unknowns that the compiler is allowed to infer. Because this often results in ambiguity, the compiler is required to minimize the global (conditionally-aware) entropy of the result.
 
 Compilation is executed by [the parser](pi-parsing.md), whose purpose is to shift the entropy basis from user input to compiled output.
-
-
-## Entropy basis shifts
-If matrices shift linear bases, then distributions shift entropy bases. And just as machine-coding effort is measured in bits, human-coding effort is also measurable -- and we can refer to that as "entropy" as well. In practice it's derived from ergonomic properties, but the principle is the same.
-
-So a π intent basis shift amounts to a transcoder: decoding human inputs along the ergonomic entropy distribution and encoding along the conditionally-informed output probability distribution (where conditions incorporate whatever intent constraints that may apply).

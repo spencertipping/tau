@@ -7,10 +7,14 @@ A rewindable stack allocator provides access to _n_ of the most recently-pushed 
 
 
 ## Allocation structures
+**TODO:** finalize this
+
 + General-purpose heap, with numbered global registers
 + Stack of local frames, each with numbered locals
 + Stack of immediate values
 + Stack of return addresses, which are unrelated to GC
+
+All of these things can be converted to UTF9, so π interpreters can be shipped elsewhere.
 
 
 ## Inline stacks
