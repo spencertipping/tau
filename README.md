@@ -15,6 +15,7 @@ I will probably never have time to document this properly.
   + [Ξ](doc/Xi.md)
   + [ξ](doc/xi.md)
   + [π](doc/pi.md)
+  + [∏](doc/Pi.md)
   + [η](doc/eta.md)
   + [security](doc/security.md)
 

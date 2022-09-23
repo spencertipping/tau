@@ -1,5 +1,5 @@
 # η
-Online weighted learners, used as optimization primitives within the [π compiler](pi-compiler.md).
+Online weighted learners, used to inform decisions such as those made by the [∏ inference system](Pi-intent.md).
 
 
 ## Incremental ML
