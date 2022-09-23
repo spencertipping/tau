@@ -12,7 +12,7 @@ namespace τ
 
 struct πs   // stack allocator
 {
-  static constexpr uN np = -1;
+  sc uN np = -1;
 
   B     a;  // alternating stacks; a's tag is 0
   B     b;  //              ...and b's tag is 1
@@ -54,8 +54,8 @@ struct πs   // stack allocator
 
 struct πh       // random-access heap (no rewinding)
 {
-  static constexpr uN  np    = -1;
-  static constexpr u8c ni[2] = {Sc<u8>(u9t::none) << 3 | Sc<u8>(u9s::f1), 0};
+  sc uN  np    = -1;
+  sc u8c ni[2] = {Sc<u8>(u9t::none) << 3 | Sc<u8>(u9s::f1), 0};
 
   B     h;
   V<uN> d;      // data registers: offsets into h

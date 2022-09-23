@@ -36,6 +36,7 @@
 #define sletc static letc
 
 #define ic inline constexpr
+#define sc static constexpr
 
 
 #define defR(I)                                                         \

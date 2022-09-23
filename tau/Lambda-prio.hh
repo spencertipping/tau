@@ -49,7 +49,7 @@ struct Λpf            // fair priority scheduler
   typedef f64 p;
 
   sletc λpn = NAN;
-  static constexpr bool λpm(p x) { return !std::isnan(x); }
+  sc bool λpm(p x) { return !std::isnan(x); }
 
 
   Λ_<Λpf>    &l;

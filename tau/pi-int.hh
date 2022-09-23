@@ -21,7 +21,7 @@ namespace τ
 
 struct πi
 {
-  static constexpr u32 ni = -1;
+  sc u32 ni = -1;
 
   Φ        &f;
   πp const  p;  // bytecode program

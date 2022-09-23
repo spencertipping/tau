@@ -318,7 +318,7 @@ letc u9vectors  = u9numbers;  // TODO: add bools
 
 
 template<class T, u32 M>
-struct u9t_is { static constexpr bool const v = M & 1 << Sc<u8>(u9t_<T>::t); };
+struct u9t_is { sc let v = !!(M & 1 << Sc<u8>(u9t_<T>::t)); };
 
 static_assert( u9t_is<u64, u9unsigned.m>::v);
 static_assert(!u9t_is<i64, u9unsigned.m>::v);
@@ -434,8 +434,8 @@ O &operator<<(O &s, u9_none const &n)
 {
   switch (n)
   {
-  case u9_none::generic:            return s << "none[]";
-  case u9_none::key_lookup_missing: return s << "none[kv]";
+  case u9_none::generic:            return s << "∅[]";
+  case u9_none::key_lookup_missing: return s << "∅[k→]";
   }
 }
 

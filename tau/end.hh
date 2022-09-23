@@ -12,6 +12,7 @@
 #undef sletc
 
 #undef ic
+#undef sc
 
 #undef defR
 #undef defRI
