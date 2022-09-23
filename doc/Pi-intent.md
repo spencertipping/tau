@@ -1,6 +1,14 @@
-# ∏ intent
+# ∏ intents
 Types play a dual role in programming languages. First, they define how values are _stored;_ second, they encode a limited set of value semantics, e.g. OOP polymorphism and tagged unions. Because these considerations are coupled and runtime structure must be known, any type system targeting an untyped runtime must be _completeness-conservative:_ if a constraint can't be knowable in all cases, then the type system cannot attempt to solve for it. Type systems are further constrained by team-development expectations: inference must be stable across a variety of conditions.
 
 ∏ has almost none of these issues. It's specialized for solo developers, UTF9 provides full RTTI, and its core behavior can change to suit specific examples and user preferences. Rather than defining the type of any given value, ∏ instead describes _intent:_ the developer's set of expectations about the value. This may or may not inform how the value is stored, and that representation need not be consistent over the scope of the intent.
 
-Intents are much broader than types: `int → int` is an intent, as is `x → x + 1`. These can be intersected to derive a unique function, although in many cases a function will be underconstrained and have multiple allowable implementations. Compiling a program involves finding any valid solution to the constraints that have been provided -- often optimizing the ambiguity for expected runtime performance.
+Intents are much broader than types: `int → int` is an intent, as is `x → x + 1`. These can be intersected to derive a unique function, although in many cases a function will be underconstrained and have multiple allowable implementations. Compiling a program involves finding any valid solution to the constraints that have been provided -- often optimizing the ambiguity for expected runtime performance. This is a mixture of solving pointwise constraints and constructing bridge connections between these points. Compilation is therefore EM across a sparse, discrete search lattice.
+
+
+## Non-typelike intents
+Semantic intents are ways to look at a value, not statements about the value. For example, `human` is an intent that means something will be manipulated or viewed with a user interface. `magnitude` and `angle` are ways to influence how such a value might be shown to a user.
+
+
+## Query distributions
+As mentioned earlier, compilation is EM across discrete search. That means each constraint is a query with an attached entropy distribution of results: "given _x_ intent, _y_ implementation carries _η_ bits of entropy". ∏ searches for the minimum-entropy solution to all query points. See [∏ EM](Pi-em.md) for details.

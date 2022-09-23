@@ -38,6 +38,7 @@
 
 #if τdefines_π
 # include "tau/pi.hh"
+# include "tau/Pi.hh"
 #endif
 
 
