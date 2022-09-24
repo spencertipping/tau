@@ -6,9 +6,9 @@ Types play a dual role in programming languages. First, they define how values a
 Intents are much broader than types: `int → int` is an intent, as is `x → x + 1`. These can be intersected to derive a unique function, although in many cases a function will be underconstrained and have multiple allowable implementations. Compiling a program involves finding any valid solution to the constraints that have been provided -- often optimizing the ambiguity for expected runtime performance. This is a mixture of solving pointwise constraints and constructing bridge connections between these points. Compilation is therefore EM across a sparse, discrete search lattice.
 
 
-## Non-typelike intents
-Semantic intents are ways to look at a value, not statements about the value. For example, `human` is an intent that means something will be manipulated or viewed with a user interface. `magnitude` and `angle` are ways to influence how such a value might be shown to a user.
-
-
 ## Query distributions
 As mentioned earlier, compilation is EM across discrete search. That means each constraint is a query with an attached entropy distribution of results: "given _x_ intent, _y_ implementation carries _η_ bits of entropy". ∏ searches for the minimum-entropy solution to all query points. See [∏ EM](Pi-em.md) for details.
+
+
+## Semantics
+Semantic intents are ways to look at a value, not statements about the value. For example, `human` is an intent that means something will be manipulated or viewed with a user interface. `magnitude` and `angle` are ways to influence how such a value might be shown to a user.
