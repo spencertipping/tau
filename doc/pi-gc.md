@@ -7,7 +7,7 @@
 
 Unlike Perl and Python, pointers are rare and we're free to move heap-allocated values. π's GC is a cheap copying mark/sweep collector.
 
-All values are encoded as UTF9 when stored, which sounds like a problem because UTF9 doesn't support pointers-to-things; each value is fully serialized inline. Luckily the [UTF9 spec](utf9.md) reserves a block of values with bit-prefix `11100sss` (`sss` encodes the size) that the π interpreter is free to use in any way whatsoever. And we do exactly that to add pre-GC references that don't involve full copies. See [lazy slicing](#lazy-slicing) for details.
+All values are encoded as UTF9 when stored, which sounds like a problem because UTF9 doesn't support pointers-to-things; each value is fully serialized inline. Luckily the [UTF9 spec](utf9.md) reserves a block of values with bit-prefix `11100sss` -- `sss` encodes the size -- that the π interpreter is free to use in any way whatsoever. See [π UTF9](pi-utf9.md) for details about how those values are allocated. And we use this block of UTF9s to define pre-GC references that don't involve full copies; see [lazy slicing](#lazy-slicing).
 
 
 ## UTF9 and copying GC

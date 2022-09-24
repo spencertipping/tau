@@ -96,6 +96,8 @@ Size bytes, when indicated, immediately follow the control byte -- that is, they
 | `110` | `u32 n`         | `n` bytes |
 | `111` | `u64 n`         | `n` bytes |
 
+**TODO:** should we improve branch prediction by removing the four fixed sizes and instead get a tag bit we can use for various π-GC things? This would let us mark just individual sub-values as "complex" rather than committing to the whole thing, which would make GC much more efficient in many cases.
+
 
 ## Type-specific formats
 Most types are self-explanatory: the value, in big-endian where applicable, immediately follows the control byte and any size bytes.
