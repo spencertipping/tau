@@ -3,3 +3,4 @@ High-level compilation and program inference for the [π](pi.md) runtime backend
 
 + [∏ intent](Pi-intent.md)
 + [∏ EM](Pi-em.md)
++ [∏ bridge spanning](Pi-spanning.md)
