@@ -31,6 +31,9 @@ template<class T> concept o9string = u9t_is<T, u9strings.m>::v;
 template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 
 
+// TODO: add flagging logic
+
+
 struct o9i9
 {
   // NOTE: the i9 may not be encoded with an optimal size, so copy verbatim

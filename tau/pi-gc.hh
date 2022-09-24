@@ -55,7 +55,7 @@ struct πs   // stack allocator
 struct πh       // random-access heap (no rewinding)
 {
   sc uN  np    = -1;
-  sc u8c ni[2] = {Sc<u8>(u9t::none) << 3 | Sc<u8>(u9s::f1), 0};
+  sc u8c ni[2] = {Sc<u8>(u9t::none) << 3 | Sc<u8>(u9s::v8), 0};
 
   B     h;
   V<uN> d;      // data registers: offsets into h

@@ -203,22 +203,16 @@ static_assert(u9t_hastype<iN>);
 
 enum class u9s
 {
-  f1  = 0,
-  f2  = 1,
-  f4  = 2,
-  f8  = 3,
-  v8  = 4,
-  v16 = 5,
-  v32 = 6,
-  v64 = 7,
+  v8  = 0,
+  v16 = 1,
+  v32 = 2,
+  v64 = 3,
 };
 
 
 ic uf8 operator|(u9t t, u9s s) { return Sc<uf8>(t) << 3 | Sc<uf8>(s); }
 ic u9t u9ts_t   (uf8 x)        { return Sc<u9t>(x >> 3); }
-ic u9s u9ts_s   (uf8 x)        { return Sc<u9s>(x  & 7); }
-
-ic bool u9sv(u9s s) { return Sc<uN>(s) >= 4; }
+ic u9s u9ts_s   (uf8 x)        { return Sc<u9s>(x  & 3); }
 
 ic uN u9sb(u9s s)  // size of size+control bytes (i.e. prefix)
 {
@@ -237,10 +231,6 @@ ic u9s u9sq(uN s)
   return ou<u32>(s) ? u9s::v64
        : ou<u16>(s) ? u9s::v32
        : ou<u8>(s)  ? u9s::v16
-       : s == 8     ? u9s::f8
-       : s == 4     ? u9s::f4
-       : s == 2     ? u9s::f2
-       : s == 1     ? u9s::f1
        :              u9s::v8;
 }
 
@@ -250,10 +240,6 @@ ic uN u9rs(T xs, uN i)
 {
   switch (u9ts_s(R<u8>(xs, 0)))
   {
-  case u9s::f1:  return 1 + 1;
-  case u9s::f2:  return 1 + 2;
-  case u9s::f4:  return 1 + 4;
-  case u9s::f8:  return 1 + 8;
   case u9s::v8:  return 2 + R<u8> (xs, 1);
   case u9s::v16: return 3 + R<u16>(xs, 1);
   case u9s::v32: return 5 + R<u32>(xs, 1);
@@ -390,10 +376,6 @@ O &operator<<(O &s, u9s x)
 {
   switch (x)
   {
-  case u9s::f1:  return s << "f1";
-  case u9s::f2:  return s << "f2";
-  case u9s::f4:  return s << "f4";
-  case u9s::f8:  return s << "f8";
   case u9s::v8:  return s << "v8";
   case u9s::v16: return s << "v16";
   case u9s::v32: return s << "v32";

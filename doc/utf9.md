@@ -24,10 +24,15 @@ UTF9 is meant to be an interchange format much like JSON or msgpack, which means
 
 ```
 type_marker = 5 bits
-size_marker = 3 bits
+flag        = 1 bit
+size_marker = 2 bits
 ```
 
-For example, the binary byte `01101010` (`0x6a`) has type marker `01101` (`0xb`) and size marker `010` (`0x02`).
+For example, the binary byte `01101010` (`0x6a`) has type marker `01101` (`0xb`), flag `0`, and size marker `10` (`0x02`).
+
+
+### Flags
+Flags have undefined semantics at the UTF9 protocol level. They union upwards; that is, any value that contains a flagged value will itself be flagged. In practice, π uses flags to optimize GC; see [π GC](pi-gc.md) and [π UTF9](pi-utf9.md) for details.
 
 
 ### Typecodes
@@ -85,24 +90,18 @@ In detail:
 ### Size codes
 Size bytes, when indicated, immediately follow the control byte -- that is, they occur before any bytes related to the type.
 
-| Bits  | Following bytes | Size      |
-|-------|-----------------|-----------|
-| `000` |                 | 1 byte    |
-| `001` |                 | 2 bytes   |
-| `010` |                 | 4 bytes   |
-| `011` |                 | 8 bytes   |
-| `100` | `u8 n`          | `n` bytes |
-| `101` | `u16 n`         | `n` bytes |
-| `110` | `u32 n`         | `n` bytes |
-| `111` | `u64 n`         | `n` bytes |
-
-**TODO:** should we improve branch prediction by removing the four fixed sizes and instead get a tag bit we can use for various π-GC things? This would let us mark just individual sub-values as "complex" rather than committing to the whole thing, which would make GC much more efficient in many cases.
+| Bits | Following bytes | Size      |
+|------|-----------------|-----------|
+| `00` | `u8 n`          | `n` bytes |
+| `01` | `u16 n`         | `n` bytes |
+| `10` | `u32 n`         | `n` bytes |
+| `11` | `u64 n`         | `n` bytes |
 
 
 ## Type-specific formats
 Most types are self-explanatory: the value, in big-endian where applicable, immediately follows the control byte and any size bytes.
 
-**NOTE:** the encoded size describes the data itself and doesn't include the control+size bytes. So `00011100 08 11 22 33 44 55 66 77 88` is a valid `u64` whose encoded size is 8, but which actually occupies 10 bytes. (In practice it would usually be encoded with `00011111` and skip the `08` size byte; I've just put a size byte in to demonstrate that it isn't counted.)
+**NOTE:** the encoded size describes the data itself and doesn't include the control+size bytes. So `00011000 08 11 22 33 44 55 66 77 88` is a valid `u64` whose encoded size is 8, but which actually occupies 10 bytes.
 
 
 ### Collections
@@ -131,7 +130,7 @@ Indexed `map` and `set` are sorted by `hash(k)` and `hash(x)`, respectively. `tu
 ### Implicit vectorization
 Implicit vectorization happens with fixed-size primitives: `iN`, `uN`, `fN`, `cN`, and, in the future, `b`.
 
-For example, `0x03` (8-byte `i8`) followed by `1122334455667788` will be interpreted as `i8[8]`, and any math will be broadcast accordingly. Implicit vectors have no specified direction; they can be used as row or column vectors in any matrix context.
+For example, `0x03 0x08` (8-byte `i8`) followed by `1122334455667788` will be interpreted as `i8[8]`, and any math will be broadcast accordingly. Implicit vectors have no specified direction; they can be used as row or column vectors in any matrix context.
 
 In contrast, `bytes` and `utf8` are always single, variable-size elements; the control-byte size determines how many bytes each contains.
 
