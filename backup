@@ -24,7 +24,6 @@ for p in "${points[@]}"; do
   ( ssh "${p%%:*}" mkdir -p "${p#*:}"
     rsync -aP --delete .encfs6.xml "$p/" ) &
 done
-wait
 
 git fsck --full --strict || exit $?
 git commit-graph verify || exit $?
