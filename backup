@@ -4,6 +4,9 @@ if [[ "$USER" != spencertipping ]]; then
   exit 1
 fi
 
+CD_EXTENSIONS=( encfs )
+. ~/.bash/cd/cd
+
 cd "$(dirname "$0")"
 git push
 
@@ -17,10 +20,18 @@ points=( rorbot.35:tau/
          orange.35:tau/
          joyce@iya.35:.spencer/tau/ )
 
-git fsck --full --strict || exit $?
-git commit-graph verify || exit $?
 for p in "${points[@]}"; do
   ( ssh "${p%%:*}" mkdir -p "${p#*:}"
-    rsync -aP --delete .git "$p" ) &
+    rsync -aP --delete .encfs6.xml "$p/" ) &
+done
+wait
+
+git fsck --full --strict || exit $?
+git commit-graph verify || exit $?
+cd renc:. || exit $?
+
+for p in "${points[@]}"; do
+  ( ssh "${p%%:*}" mkdir -p "${p#*:}"
+    rsync -aP --delete 4raOSMRmHnWJJlJS7,6Zgd,I "$p/" ) &
 done
 wait
