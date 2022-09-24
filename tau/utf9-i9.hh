@@ -52,12 +52,11 @@ struct i9
 
   // NOTE: inner, "logical" size, not outer size; that way these methods
   // have STL-style meanings
-  ζp  data()  const { return begin(); }
-  uN  size()  const { return end() - begin(); }
-
+  ζp   data()    const { return begin(); }
+  uN   size()    const { return end() - begin(); }
 
   // NOTE: returns 0 if this type cannot be vectorized
-  uN  vn()    const { return size() >> u9logsizeof(type()); }
+  uN   vn()      const { return size() >> u9logsizeof(type()); }
 
 
   template<class T>
@@ -114,14 +113,14 @@ struct i9
 
   template<class T>
   T at(uN i) const
-    { u9vectors(type());
+    { u9tm{u9t_<T>::t}(type());
       A((i + 1) * sizeof(T) <= size(),
         "i9at OOB, i = " << i << ", w = " << sizeof(T) << ", sz = " << size());
       return R<T>(begin(), i * sizeof(T)); }
 
 
   // NOTE: can't do vectors here because we don't have enough space
-  // to return type information alongside the value
+  // to return type information alongside the value; use .at()
   i9 operator[](uN i) const
     { switch (type())
       {

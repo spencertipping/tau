@@ -180,6 +180,7 @@ struct o9a  // vector of fixed
   uN isize() const { return u9sizeof(u9t_<T>::t) * n; }
   uN write(ζp m) const
     { uN b = u9ws(m, 0, u9t_<T>::t, isize());
+      A(sizeof(T) == u9sizeof(u9t_<T>::t), "o9a internal error: " << sizeof(T) << " ≠ " << u9sizeof(u9t_<T>::t) << ", t = " << u9t_<T>::t);
       for (uN i = 0; i < n; ++i)
         W(m + b, i * u9sizeof(u9t_<T>::t), xs[i]);
       return 0; }
@@ -200,7 +201,11 @@ struct o9v  // unindexed, unordered tuple/set
   uN write(ζp m) const
     { uN   i = u9ws(m, 0, u9t::tuple, isize());
       bool f = false;
-      for (let &x : xs) { auto o = o9(x); A(!o.write(m + i), "o9v internal error"); f = f || u9ts_f(R<u8>(m, i)); i += o.size(); }
+      for (let &x : xs)
+      { auto o = o9(x);
+        A(!o.write(m + i), "o9v internal error");
+        f = f || u9ts_f(R<u8>(m, i));
+        i += o.size(); }
       if (f) m[i] |= u9f;
       return 0; }
 };
