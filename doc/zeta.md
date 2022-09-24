@@ -6,6 +6,17 @@ There are two conceptual pieces: ζ, the queue, and ζb, the backing store for i
 ζ can track zero or more λs waiting for either end of the queue to become available. Not much to it, aside from noting that some ζ operations need to be atomic (like read-and-free), but this happens naturally.
 
 
+## Resize-on-write
+Sometimes we want to reserve _n_ bytes but have the option not to write all of them. For example, a file-read operation might be sized for up to 65536B but in practice often return fewer. To do this, we use a two-method protocol for the writable object:
+
+```cpp
+uN size() const;       // largest possible size
+uN write(ζp m) const;  // return number of bytes used
+```
+
+Some exceptions: `write() == ζω` to cancel the write, `write() == 0` to indicate that exactly `size()` bytes were written.
+
+
 ## ζb
 ζb is defined with a few invariants:
 

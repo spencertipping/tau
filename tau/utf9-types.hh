@@ -210,9 +210,12 @@ enum class u9s
 };
 
 
-ic uf8 operator|(u9t t, u9s s) { return Sc<uf8>(t) << 3 | Sc<uf8>(s); }
-ic u9t u9ts_t   (uf8 x)        { return Sc<u9t>(x >> 3); }
-ic u9s u9ts_s   (uf8 x)        { return Sc<u9s>(x  & 3); }
+u8c constexpr u9f = 4;
+
+ic uf8  operator|(u9t t, u9s s) { return Sc<uf8>(t) << 3 | Sc<uf8>(s); }
+ic u9t  u9ts_t   (uf8 x)        { return Sc<u9t>(x >> 3); }
+ic u9s  u9ts_s   (uf8 x)        { return Sc<u9s>(x  & 3); }
+ic bool u9ts_f   (uf8 x)        { return Sc<bool>(x & 4); }
 
 ic uN u9sb(u9s s)  // size of size+control bytes (i.e. prefix)
 {

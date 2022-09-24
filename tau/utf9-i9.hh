@@ -39,16 +39,16 @@ struct i9
 
   // true if the value is not a stream manipulator
   operator bool() const { return exists() && type() != u9t::stream; }
-  bool exists  () const { return a && a != ζωp; }
+  bool   exists() const { return a && a != ζωp; }
   operator   ζp() const { return a; }
 
 
-  uf8 code()  const { return R<u8>(a, 0); }
-
-  u9s stype() const { return u9ts_s(code()); }
-  u9t type()  const { return a ? u9ts_t(code()) : u9t::none; }
-  it  begin() const { return it{a + u9sb(stype())}; }
-  it  end()   const { return it{a + u9rs(a, 0)}; }
+  uf8  code()    const { return R<u8>(a, 0); }
+  bool flagged() const { return u9ts_f(code()); }
+  u9s  stype()   const { return u9ts_s(code()); }
+  u9t  type()    const { return a ? u9ts_t(code()) : u9t::none; }
+  it   begin()   const { return it{a + u9sb(stype())}; }
+  it   end()     const { return it{a + u9rs(a, 0)}; }
 
   // NOTE: inner, "logical" size, not outer size; that way these methods
   // have STL-style meanings

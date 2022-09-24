@@ -31,9 +31,6 @@ template<class T> concept o9string = u9t_is<T, u9strings.m>::v;
 template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 
 
-// TODO: add flagging logic
-
-
 struct o9i9
 {
   // NOTE: the i9 may not be encoded with an optimal size, so copy verbatim
@@ -50,7 +47,7 @@ inline o9i9 o9(i9 i) { return o9i9{i}; }
 struct o9i9s
 {
   V<i9> const &xs;
-  uN mutable   s = 0;
+  uN  mutable  s = 0;
 
   uN isize() const
     { if (!s) for (let x : xs) s += i9::size_of(x.a);
@@ -58,11 +55,14 @@ struct o9i9s
 
   uN size () const { return isize() + u9sb(u9sq(isize())); }
   uN write(ζp m) const
-    { uN i = u9ws(m, 0, u9t::tuple, isize());
+    { uN   i = u9ws(m, 0, u9t::tuple, isize());
+      bool f = false;
       for (let x : xs)
       { let o = o9i9{x};
         A(!o.write(m + i), "o9i9s internal error");
+        f = f || u9ts_f(R<u8>(m, i));
         i += o.size(); }
+      if (f) m[i] |= u9f;
       return 0; }
 };
 
@@ -190,7 +190,7 @@ template<o9mapped T, template<typename...> class C, class... Ts>
 struct o9v  // unindexed, unordered tuple/set
 {
   C<T, Ts...> const &xs;
-  uN mutable         s = 0;
+  uN        mutable  s = 0;
 
   uN size() const { return isize() + u9sb(u9sq(isize())); }
   uN isize() const
@@ -198,8 +198,10 @@ struct o9v  // unindexed, unordered tuple/set
       return s; }
 
   uN write(ζp m) const
-    { uN i = u9ws(m, 0, u9t::tuple, isize());
-      for (let &x : xs) { auto o = o9(x); o.write(m + i); i += o.size(); }
+    { uN   i = u9ws(m, 0, u9t::tuple, isize());
+      bool f = false;
+      for (let &x : xs) { auto o = o9(x); A(!o.write(m + i), "o9v internal error"); f = f || u9ts_f(R<u8>(m, i)); i += o.size(); }
+      if (f) m[i] |= u9f;
       return 0; }
 };
 
@@ -216,10 +218,12 @@ struct o9m  // unindexed, unordered k/v map
       return s; }
 
   uN write(ζp m) const
-    { uN i = u9ws(m, 0, u9t::map, isize());
+    { uN   i = u9ws(m, 0, u9t::map, isize());
+      bool f = false;
       for (let &[k, v] : xs)
-      { let ok = o9(k); ok.write(m + i); i += ok.size();
-        let ov = o9(v); ov.write(m + i); i += ov.size(); }
+      { let ok = o9(k); ok.write(m + i); f = f || u9ts_f(R<u8>(m, i)); i += ok.size();
+        let ov = o9(v); ov.write(m + i); f = f || u9ts_f(R<u8>(m, i)); i += ov.size(); }
+      if (f) m[0] |= u9f;
       return 0; }
 };
 
@@ -243,16 +247,20 @@ struct o9t
       return n + u9sb(u9sq(n)); }
 
   template<uN i = 0>
-  typename std::enable_if<i == sizeof...(X), uN>::type
-  write(ζp m) const { return 0; }
+  typename std::enable_if<i == sizeof...(X), bool>::type
+  write_(ζp m, bool f) const { return f; }
 
   template<uN i = 0>
-  typename std::enable_if<i < sizeof...(X), uN>::type
-  write(ζp m) const
+  typename std::enable_if<i < sizeof...(X), bool>::type
+  write_(ζp m, bool f) const
     { if (!i) m += u9ws(m, 0, u9t::tuple, isize<0>());
       auto o = o9(std::get<i>(xs));
-      o.write(m);
-      return write<i + 1>(m + o.size()); }
+      A(!o.write(m), "o9t internal error");
+      return write_<i + 1>(m + o.size(), f || u9ts_f(R<u8>(m, 0))); }
+
+  uN write(ζp m) const
+    { if (write_<0>(m, false)) m[0] |= u9f;
+      return 0; }
 };
 
 
