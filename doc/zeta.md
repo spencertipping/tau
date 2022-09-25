@@ -48,3 +48,5 @@ wrapped state:
 ```
 
 In the wrapped state, `wi = ri + ci`, not `ri + c`. As soon as `ri` also wraps around, we reset `ci = c` so the buffer is no longer truncated.
+
+We also reset `ri = wi = 0` whenever all data has been read. This defragments the buffer so we can then write an object up to the full capacity.

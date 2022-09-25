@@ -1,7 +1,7 @@
 # Tau
-APL + Erlang + bash + Joy + FRP + probabilistic Prolog: a Laplace transform for control flow, where most code is data.
+APL + Erlang + bash + Joy + Lisp + FRP + probabilistic Prolog: a Laplace transform for control flow, where most code is data.
 
-I will probably never have time to document this properly.
+Design notes:
 
 + [φ](doc/phi.md) and [Φ](doc/Phi.md)
   + [ζ](doc/zeta.md)
@@ -18,7 +18,10 @@ I will probably never have time to document this properly.
   + [π](doc/pi.md)
   + [∏](doc/Pi.md)
   + [η](doc/eta.md)
-  + [security](doc/security.md)
+
+Production design:
+
++ [Runtime security](doc/security.md)
 
 
 ## Development setup
@@ -45,11 +48,18 @@ This repo cannot be cloned on case-insensitive filesystems.
 
 
 ## Next steps
-1. γ₀ → γ UTF9 API
-2. [π](doc.pi.md)
-3. Φ trunk multiplexing
-4. γ₀ ED25519 + AES secure channels
-5. Γ routing
+1. [ρ](doc/rho.md)
+2. [π](doc/pi.md)
+3. γ₀ → γ UTF9 API ([ξ](doc/xi.md))
+4. Φ trunk multiplexing
+5. γ₀ ED25519 + AES secure channels
+6. Γ routing
+
+
+### Debt
++ WASM Φ
++ Websocket φ
++ Debugging γ transforms
 
 
 ### GL
