@@ -11,8 +11,9 @@ Text editing hasn't changed much in the last 50 years: a document amounts to a g
 4. It's portable and has widespread adoption
 5. It's compact on disk
 6. It's easy to use with very dumb terminals, e.g. printers and typewriters
+7. Every action has a simple inverse
 
-Only (2) and (3) matter for ρ. Over time ASCII has been progressively augmented into awkwardness; UTF-8, HTML/XML/Markdown, `git` and its attendant merge conflicts to manage history, bidirectional text rendering, automated refactor tools, parsers for compilers, OT for collaboration, JSON, ASCII art, and the list goes on. **This is all insane.** ASCII is the wrong tool for many jobs, yet it's so useful that we continue to use it.
+Only (2), (3), and probably (7) matter for ρ. Over time ASCII has been progressively augmented into awkwardness; UTF-8, HTML/XML/Markdown, `git` and its attendant merge conflicts to manage history, bidirectional text rendering, automated refactor tools, parsers for compilers, OT for collaboration, JSON, ASCII art, and the list goes on. **This is all insane.** ASCII is the wrong tool for many jobs, yet it's so useful that we continue to use it.
 
 
 ## ρ structure
