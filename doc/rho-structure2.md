@@ -59,23 +59,21 @@ Edge direction matters, so we need a way to communicate it. We do this with two 
 
 Mappings for directions:
 
-| Key   | Direction  |
-|-------|------------|
-| space | right      |
-| tab   | left       |
-| !     | up         |
-| $     | down       |
-| ^     | up+right   |
-| _     | down+right |
-| ^^    | up+left    |
-| __    | down+left  |
+| Key         | Direction  |
+|-------------|------------|
+| space       | right      |
+| tab         | left       |
+| shift+enter | up         |
+| enter       | down       |
+| ^           | up+right   |
+| _           | down+right |
+| ^^          | up+left    |
+| __          | down+left  |
 
 `^` and `_` alternate between left and right if further repeated.
 
-Some of these characters, like `!` and `$`, can occupy a cell. The rule is that an empty cell will always contain the next character, since empty cells can't exist. The cursor is directed by the above keybindings and the first cell-beginning character fills it in.
+Some keybindings change modes; `"` begins a string that continues until you type the closing `"`. This allows you to type `^` and `_` without breaking the cell.
 
-Some keybindings change modes; `"` begins a string that continues until you type the closing `"`.
-
-`hjkl` work to move around, with `HJKL` traversing diagonals.
+`hjkl` work to move around, with `HJKL` traversing diagonals. `HJKL` behave as though they were rotated 45° leftwards (counterclockwise) from the `hjkl` basis.
 
 **TODO:** write this editor prototype
