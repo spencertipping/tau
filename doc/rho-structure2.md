@@ -23,3 +23,21 @@ ASCII prefers horizontal to vertical linkage -- that is, horizontally-adjacent w
 There's also a question about what it even means to select vertically vs horizontally-related content. For example, if I move `a(^^b) c`, am I left with `c` or `a c`? Probably `a c` because `a` still has outbound edges -- but maybe not if `a` is also selected. And if we select `c`, are we selecting `^^c` or just `c` itself?
 
 One strength of ASCII is that from an editing perspective it's strongly concatenative; cut/paste is always well-defined. Nonlinear or multidirectional selections break that property. Of course, a terse language is less likely to require fragmented copy/paste; generally we'll be moving whole forms. So we can have term-affinity and later constraint-driven DWIM. Or maybe we don't have copy/paste as such; going back to the atomicity discussion from part 1, maybe we open a wormhole between locations and move or duplicate stuff across a boundary. So copy/paste can be seen as "collapse space and move something a short distance" rather than "grab stuff and drop it into an arbitrary other location." Or drop content into a 2.5D layer and shift that layer around -- then we have content tracking.
+
+
+## Nonlinear continuations
+ASCII's nonlinear (vertical) selection is often not useful, but it feels responsive in that it gets close to your cursor position even when it's a gross, imprecise movement. It never feels like you enter a null space -- not until you run off the right margin, at which point it can't keep up with you. The ConTEXT editor allowed you to click off the end of a line; it wasn't very useful most of the time, but it made the editor feel more dynamic and was kinda cool.
+
+If we're selecting with the mouse, the selection must converge to the point. And if we're selecting with the keyboard, we should probably use some type of geometry that back-applies to the document. This allows selection to exploit folding within the view, which is critical: if you cared about folded contents you'd unfold before selecting.
+
+
+## Coordinates
+ASCII uses numeric coordinates, which produces an awkward OT. ρ will do better by anchoring each element relative to something else. Those relative edges are OT-strong, so each element has a single anchoring path back to the origin. I don't think I want to support multiple anchoring paths; although they might be useful as indicators, we should have the π language catch this instead of ρ.
+
+Coordinates are therefore paths back to "ground". They aren't static; each character is linked to exactly one other character, and you can insert more characters to relink edges. Graphically:
+
+```
+a ← b ← c           < arrows point to ground
+a ← b ← d ← c       < insert d before c
+a ← d ← c           < delete b
+```
