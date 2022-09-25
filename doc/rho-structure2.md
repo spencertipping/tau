@@ -13,3 +13,13 @@ I don't believe ρ needs to have an opinion about how semantics should be repres
 + Keyboard inputs (precise but awkward for spatial indication)
 
 I'm going to stick to keyboard inputs for ρ. We can have mouse/touch too, but the editor should, like `vim`, be completely usable without those. Mouse/keyboard switching overhead is high enough that we should allow the user to focus on the keyboard.
+
+
+## Angular structure
+Math uses a roughly octagonal alignment: most adjacency is horizontal, some is vertical, and exponents and subscripts are right-diagonal. Only occasionally are left-diagonals used, e.g. for integral evaluation bars. LaTeX defines fairly standard keyboard shortcuts for this arrangement: `^` for superscripts, `_` for subscripts, and if we have up/down then we might use `^^` and `__`. Left-diagonals might be `^<` and `_<`, not sure. I'm also not sure we'll use these.
+
+ASCII prefers horizontal to vertical linkage -- that is, horizontally-adjacent words relate to each other more than vertically-adjacent lines do. That matters for range selection: if I select text and shift-select upwards, I'm assumed to mean "select until you get up", not "select the column vertically". This intention becomes less clear if text has octagonal continuations; it's definitely nonlinear, so the linear-region selection heuristic isn't meaningful.
+
+There's also a question about what it even means to select vertically vs horizontally-related content. For example, if I move `a(^^b) c`, am I left with `c` or `a c`? Probably `a c` because `a` still has outbound edges -- but maybe not if `a` is also selected. And if we select `c`, are we selecting `^^c` or just `c` itself?
+
+One strength of ASCII is that from an editing perspective it's strongly concatenative; cut/paste is always well-defined. Nonlinear or multidirectional selections break that property. Of course, a terse language is less likely to require fragmented copy/paste; generally we'll be moving whole forms. So we can have term-affinity and later constraint-driven DWIM. Or maybe we don't have copy/paste as such; going back to the atomicity discussion from part 1, maybe we open a wormhole between locations and move or duplicate stuff across a boundary. So copy/paste can be seen as "collapse space and move something a short distance" rather than "grab stuff and drop it into an arbitrary other location." Or drop content into a 2.5D layer and shift that layer around -- then we have content tracking.

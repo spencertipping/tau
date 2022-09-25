@@ -33,7 +33,8 @@ $ sudo apt update
 $ sudo apt install -y docker.io  # for emsdk builds
 $ sudo apt install -y \
        build-essential \
-       libboost-fiber-dev libboost-context-dev libmsgpack-dev \
+       libboost-fiber-dev libboost-context-dev \
+       libmsgpack-dev \
        libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev \
        libxcb-xinput-dev \
        g++-multilib-i686-linux-gnu \
