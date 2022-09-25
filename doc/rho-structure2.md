@@ -41,3 +41,41 @@ a ← b ← c           < arrows point to ground
 a ← b ← d ← c       < insert d before c
 a ← d ← c           < delete b
 ```
+
+
+## Symbols
+This is more about mathematical notation than it is about anything else, but each "cell" can have more than one character in it because we have a rich character set. So if you type `abc def`, you'll get two cells: `abc ← def`. And if you type `abc^def`, you'd get this:
+
+```
+   def
+abc
+```
+
+Some letter combinations turn into symbols; most `vim` digraphs can be written verbatim. So if you type `s* *l`, you'll get `σ ← λ`.
+
+
+## Edge direction
+Edge direction matters, so we need a way to communicate it. We do this with two mechanisms: first, anything you select will highlight its immediate anchor; and second, every inbound edge increases the font size of its target (non-transitively).
+
+Mappings for directions:
+
+| Key   | Direction  |
+|-------|------------|
+| space | right      |
+| tab   | left       |
+| !     | up         |
+| $     | down       |
+| ^     | up+right   |
+| _     | down+right |
+| ^^    | up+left    |
+| __    | down+left  |
+
+`^` and `_` alternate between left and right if further repeated.
+
+Some of these characters, like `!` and `$`, can occupy a cell. The rule is that an empty cell will always contain the next character, since empty cells can't exist. The cursor is directed by the above keybindings and the first cell-beginning character fills it in.
+
+Some keybindings change modes; `"` begins a string that continues until you type the closing `"`.
+
+`hjkl` work to move around, with `HJKL` traversing diagonals.
+
+**TODO:** write this editor prototype
