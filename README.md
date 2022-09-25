@@ -14,6 +14,7 @@ I will probably never have time to document this properly.
 + [γ₀](doc/gamma0.md) and [Γ](doc/Gamma.md)
   + [Ξ](doc/Xi.md)
   + [ξ](doc/xi.md)
++ [ρ](doc/rho.md)
   + [π](doc/pi.md)
   + [∏](doc/Pi.md)
   + [η](doc/eta.md)
