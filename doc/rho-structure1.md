@@ -1,4 +1,4 @@
-# ρ structure
+# ρ structure, part 1
 ρ documents are built by replaying edits, each of which is a UTF9 value in a streaming timeline. Edits correspond to individual X11/input events; they are considered to be completely atomic from the user's perspective. Documents are allowed to incorporate author/time information and other metadata into the assembled structure. It's UTF9, after all, and UTF9 is flexible.
 
 Because a document is a UTF9 data structure, it can also be snapshotted to avoid replay overhead. In this way UTF9 documents behave like git repositories.
@@ -56,10 +56,10 @@ Programming languages also complicate the picture by adding a semantic layer wit
 
 Path linearity matters from a UI perspective because it's how people tend to select things. Though as an aside, wouldn't it be _freaking awesome_ if you could select-by-execution-trace? Or "select until `x == 10`" or any other runtime thing. That would be amazing.
 
-But back to the point, when you click-drag to select stuff you're implying a region, and that region is linear in nature because point → point through time forms a possibly-squiggly line. I'm not going to call this a strength of text editors; the squiggliness of the line gets quantized out, so the whole process feels imprecise and awkward. But there are other ways to do it: you can hold down shift and select, or in `vim` you can just move in visual mode. A very poor man's bounding box for text.
+But back to the point, when you click-drag to select stuff you're implying a region, and that region is linear in nature because point → point through time forms a possibly-squiggly line. I'm not going to call this a strength of text editors; the squiggliness of the line gets quantized out, so the whole process feels imprecise and awkward. But there are other ways to do it: you can hold down shift and select, or in `vim` you can just move in visual mode. A very poor man's bounding box for text -- and one that conveys _zero_ indication of intent in many cases.
 
 Single-selection makes everything simple, but it's also limiting. You can't do the obvious thing of renaming a variable because there's no way to select-by-scope. As a result of that and non-atomic edits, we wind up with the absurdity that my variable-rename can conflict with your out-of-band insertion of code, and a human has to waste time to sort that out.
 
 The problems created by linear paths and selections are so grievous that I'm happy to dispense with linearity as a constraint. It's a good thing to have, but precise, parallel selection is much more important; that's where OT resilience comes from. It also paves the way to unexplored territory like execution-oriented syntax traversal.
 
-For example: "let _x = 10_, _y = 20_. select errors." _That's_ the selection I want. Or "grab _x_ and all dependent statements, and put them into this other function." Or "select slow things". The possibilities are enormous.
+For example: "let _x = 10_, _y = 20_. select errors." _That's_ the selection I want. Or "grab _x_ and all dependent statements, and put them into this other function." Or "select slow things" or "print statements". The possibilities are enormous.
