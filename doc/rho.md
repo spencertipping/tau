@@ -6,3 +6,4 @@ A semi-structured editor with 2.5D nonlinearity. ρ modifies UTF9 data, providin
   + [part 1](rho-structure1.md)
   + [part 2](rho-structure2.md)
   + [part 3](rho-structure3.md)
++ [Editor experiments](../dev/editor-experiments.md)
