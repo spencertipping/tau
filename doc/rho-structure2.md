@@ -81,13 +81,19 @@ Some keybindings change modes; `"` begins a string that continues until you type
 Moving upwards beyond the top will do a spatial search for the node above; i.e. you can jump across topologies by doing this.
 
 
+## Directional insertion context
+If I hit `enter` in `vim` or `emacs`, I'll start a new line at the appropriate level of indentation; in other words, there's some contextual auto-sense about which syntax element is receiving the newline. Usually it's the whole statement, but sometimes it's inside an argument list.
+
+ρ is similar: because `enter` is an intention rather than an edit action, the parent chain can provide contextual entropies that guide the next cursor position. In fact, the next cursor could be distributional rather than discrete; that communicates uncertainty to the user.
+
+
 ## Layout
 We need relatively stable auto-layout, ideally without losing too much space. The simplest strategy is to assign a bounding box to a node + all its children, and I think we'll run with that for now.
 
 Diagonals use a smaller font size than verticals and horizontals. Horizontals remain constant when chained, but nodes with vertical children are enlarged. So the layout algorithm uses three passes:
 
-1. Calculate font sizes and render tiles
+1. Calculate font sizes and tile sizes
 2. Collect tiles into localized bounding structures (bottom-up)
 3. Arrange bounding boxes into absolute locations
 
-In this case we'll encode bounding structures as margins around the tile.
+There are some subtleties. For example, diagonals should receive layout priority: that is, they should be part of the parent's core bounding box before horizontal and vertical children are laid out.
