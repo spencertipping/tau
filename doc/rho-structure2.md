@@ -51,6 +51,8 @@ This is more about mathematical notation than it is about anything else, but eac
 abc
 ```
 
+Having a multi-character cell means we get ligature rendering for free, as the cell is a single tile.
+
 Some letter combinations turn into symbols; most `vim` digraphs can be written verbatim. So if you type `s* *l`, you'll get `σ ← λ`.
 
 
@@ -74,6 +76,18 @@ Mappings for directions:
 
 Some keybindings change modes; `"` begins a string that continues until you type the closing `"`. This allows you to type `^` and `_` without breaking the cell.
 
-`hjkl` work to move around, with `HJKL` traversing diagonals. `HJKL` behave as though they were rotated 45° leftwards (counterclockwise) from the `hjkl` basis.
+`hjkl` work to move around, with `HJKL` traversing diagonals. `HJKL` behave as though they were rotated 45° leftwards (counterclockwise) from the `hjkl` basis. Ctrl+J and K will move out and in from the screen along the third axis.
 
-**TODO:** write this editor prototype
+Moving upwards beyond the top will do a spatial search for the node above; i.e. you can jump across topologies by doing this.
+
+
+## Layout
+We need relatively stable auto-layout, ideally without losing too much space. The simplest strategy is to assign a bounding box to a node + all its children, and I think we'll run with that for now.
+
+Diagonals use a smaller font size than verticals and horizontals. Horizontals remain constant when chained, but nodes with vertical children are enlarged. So the layout algorithm uses three passes:
+
+1. Calculate font sizes and render tiles
+2. Collect tiles into localized bounding structures (bottom-up)
+3. Arrange bounding boxes into absolute locations
+
+In this case we'll encode bounding structures as margins around the tile.
