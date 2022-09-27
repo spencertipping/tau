@@ -76,4 +76,4 @@ UIs enable action, data science enables thought; but both interface with users i
 
 
 ## L3 basis space
-This is roughly where my original conception of π intents picked up: describe an intent and it would produce code via bridges to implement that intent. For example, map/reduce can be expressed as a series of these constraints.
+This is roughly where my original conception of π intents picked up: describe an intent and it would produce code via bridges to implement that intent. For example, map/reduce can be expressed as a series of these constraints. Most of the substance of map/reduce is reducible to function -- or more precisely, γ -- composition.
