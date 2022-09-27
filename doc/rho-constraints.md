@@ -59,3 +59,15 @@ I'm using some terms loosely here, but hopefully the gist makes sense.
 Quantifying "product" in a precise way is often considered to be difficult, but let's try it anyway. A product may be abstract, but only its observable qualities matter; and that means we can define it in terms of how the user will perceive it. Rather than saying "I want a button here", we can say "I want the user to perceive that they can do this thing at this point". Then the basis space shifts: given that perceptive intention, how should we encode it?
 
 There's an elegance to this because humans are actually quite bad at solving this problem well. Many user interfaces are difficult to use, or allocate screen space poorly (especially on non-desktop devices), or are unusably slow, or interrupt the user with valuable but inopportune tutorials. Machine-optimizing this problem space is the million-dollar challenge.
+
+
+### Idiom and opacity
+Data science is perceived as being more complicated than software engineering, perhaps because its outputs are less viscerally observable. A usable product is easier to detect than a robust study, at least to many people. Or maybe it's just a younger field and we have fewer preferences about how it should work. I think the product space is less well-defined, as evidenced by the surplus of technically correct but ultimately unenlightening results.
+
+Either way, L4 should be able to address products-as-math just as easily as it does products-as-UIs, which I think is straightforward if we consider an adversarial user: "does the output fail to _x_ defect" is a degree of observability and therefore a way to quantify the product.
+
+Notably, **this does not imply that the computer can do math** -- nor does it imply that of humans who solve the same problem. Just as we can treat sorting algorithms as opaque pieces, we can do the same for study methodologies and UI design principles. It's good to have alternatives and causal knowledge, but it's also acceptable to use atomic, opaque ideas. In some cases these opaque idioms are optimal; we don't always have the time or context to discover the "right" solution.
+
+
+### Human-relevance domains
+UIs enable action, data science enables thought; but both interface with users in some quantifiable way.
