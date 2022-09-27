@@ -29,7 +29,7 @@ It makes sense why this would be important: humans' quantum of correctness is ve
 
 1. Byte-level transcoding: the user types stuff
 2. Small framing: the user mentally interacts with a phrase (like a line of text) and produces edits that modify it
-3. Medium framing: the user mentally interacts with a page and solves for phrase-level changes
+3. Medium framing: the user mentally interacts with a page and solves for phrase-level changes (technical decomposition of a business objective)
 4. Large framing: the user mentally interacts with a human-level objective and solves for modules/pages that realize that objective
 
 Each of these steps is laden with errors, which means the user's time is split between authoring stuff and fixing the stuff they've authored. The "fixing stuff" piece is greatly compounded if they're working collaboratively with someone else because the human-synchronization protocol is just as error-laden as authoring, if not more so due to intrinsic defects like Dunning-Kruger, incomplete rational propagation, and ego.
@@ -71,3 +71,9 @@ Notably, **this does not imply that the computer can do math** -- nor does it im
 
 ### Human-relevance domains
 UIs enable action, data science enables thought; but both interface with users in some quantifiable way.
+
+**TODO:** finish this section (or mark as done already)
+
+
+## L3 basis space
+This is roughly where my original conception of π intents picked up: describe an intent and it would produce code via bridges to implement that intent. For example, map/reduce can be expressed as a series of these constraints.
