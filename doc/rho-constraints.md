@@ -48,4 +48,14 @@ Before I dismiss this as being impossible, I want to at least explore the though
 
 Human objectives are specified in human language, which for simplicity let's say is English. So if we want a programming environment to meaningfully interact with L4, it needs to not only be able to parse and understand a problem description in English, but also to infer relevant context and understand the surrounding environment well enough to resolve ambiguity in constructive ways. Because an L4 software engineer would ask questions and accept requests for change, it should also ask questions and accept these requests.
 
-Humans can do this intelligently because (1) we understand language, (2) we understand computers, and (3) we've often built up experience that allows us to entropy-grade the problem domain.
+Humans can do this intelligently because (1) we understand English, (2) we understand computers, and (3) we've often built up experience that allows us to entropy-grade the problem domain. Using the codec model, we have three matrices, each of which, ideally speaking, is complete and well-factored:
+
++ _code ↔ software_ (L1 and L2)
++ _software ↔ product_ (L3 and L4)
++ _product ↔ english_ (L4, roughly)
+
+I'm using some terms loosely here, but hopefully the gist makes sense.
+
+Quantifying "product" in a precise way is often considered to be difficult, but let's try it anyway. A product may be abstract, but only its observable qualities matter; and that means we can define it in terms of how the user will perceive it. Rather than saying "I want a button here", we can say "I want the user to perceive that they can do this thing at this point". Then the basis space shifts: given that perceptive intention, how should we encode it?
+
+There's an elegance to this because humans are actually quite bad at solving this problem well. Many user interfaces are difficult to use, or allocate screen space poorly (especially on non-desktop devices), or are unusably slow, or interrupt the user with valuable but inopportune tutorials. Machine-optimizing this problem space is the million-dollar challenge.
