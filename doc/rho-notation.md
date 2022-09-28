@@ -15,3 +15,15 @@ fac 5 = 120    ← sufficient to infer base case
 ```
 
 API support is critical to making L1 usable. For example, `φ x` (a φ of `x`s) provides implementations for common operations like `+ 1` -- so you don't have to write any adapters to do that. Similarly, `φ a + φ b` will zip the φs and return `φ (a + b)`. Because intents and values are kind of the same thing, `ℤ + ℤ = ℤ`; therefore, `φ ℤ + φ ℤ = φ ℤ`.
+
+
+### Layout
+Text flow should follow natural typographic layouts: Latin scripts proceed left to right, Chinese top to bottom (which can be coerced LTR when necessary).
+
+Math is often typeset multidirectionally, and we try to reflect that. Although L1 input is linear, we offset superscripts and subscripts, e.g. `β²`. Same for certain vertical digraphs like `=` with some modifier above or below.
+
+It's possible I'll want to do more advanced chaining of larger symbols like `∑`, but I'm not so sure. I think the typesetting logic can be simple enough: vertical/horizontal alignment and "append to bounding box". The `i ∈ 1:10` type of qualifier you often see on ∑ would be a child box in layout, although its input would just be `_i<1:10` or similar.
+
+
+### Framing
+Layout applies within a text-flow context; but those contexts themselves can be placed into a larger arrangement using frames.
