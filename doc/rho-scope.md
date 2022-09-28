@@ -1,4 +1,4 @@
-# ρ constraints
+# ρ scope
 What is an editor for -- why not just use `vim` or `notepad`? There's a lot to it, but I'd sum it up like this:
 
 1. Visual information density/relevance
