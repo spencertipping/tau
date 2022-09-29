@@ -14,9 +14,10 @@ Design notes:
 + [γ₀](doc/gamma0.md) and [Γ](doc/Gamma.md)
   + [Ξ](doc/Xi.md)
   + [ξ](doc/xi.md)
-+ [ρ](doc/rho.md)
-  + [π](doc/pi.md)
-  + [∏](doc/Pi.md)
++ [π](doc/pi.md)
+  + [π₀](doc/pi0.md)
+  + [π₁](doc/pi1.md)
+  + [π₂](doc/pi2.md)
   + [η](doc/eta.md)
 
 Production design:

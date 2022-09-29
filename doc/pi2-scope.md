@@ -1,4 +1,4 @@
-# ρ scope
+# π₂ scope
 What is an editor for -- why not just use `vim` or `notepad`? There's a lot to it, but I'd sum it up like this:
 
 1. Visual information density/relevance
@@ -78,13 +78,13 @@ I don't think any of this is especially straightforward, but the fact that it is
 
 
 ## L3 basis space
-This is roughly where my original conception of π intents picked up: describe an intent and it would produce code via bridges to implement that intent. For example, map/reduce can be expressed as a series of these constraints. Most of the substance of map/reduce is reducible to function -- or more precisely, γ -- composition.
+This is roughly where my original conception of [π₁ intents](pi1-intent.md) picked up: describe an intent and it would produce code via bridges to implement that intent. For example, map/reduce can be expressed as a series of these constraints. Most of the substance of map/reduce is reducible to function -- or more precisely, γ -- composition.
 
 L3 doesn't involve human concerns much. There's a little bit of "know what good code is", but otherwise it's hands-off technical optimization: anything from _a → b_ is sufficient. Most of the business-case burden is on the user as they define the relevant boundary conditions.
 
 
 ## L2 basis space
-π can be designed around L2 ergonomics, both by being concise and by enabling linear edits when possible. ρ can include bindings that are commonly used to select subexpressions -- but before I commit to this, I'd like to make sure it will be useful. I don't know what type of edits will be common for π code, especially if we have L3.
+π can be designed around L2 ergonomics, both by being concise and by enabling linear edits when possible. π₂ can include bindings that are commonly used to select subexpressions -- but before I commit to this, I'd like to make sure it will be useful. I don't know what type of edits will be common for π code, especially if we have L3.
 
 A simple litmus test would be, how easy is it for us to auto-arrange code in some semantically relevant way? For example, render as flowchart or outline control flow. Then we can define edit operations against that representation.
 
@@ -95,4 +95,4 @@ A simple litmus test would be, how easy is it for us to auto-arrange code in som
 1. All registers are visible and document-resident
 2. Copy/paste is an atomic operation
 
-(1) is for visibility, (2) is for OT. In particular, ρ needs to know where copy/pasted content comes from so we can transpose OT edits into the copy buffer and ultimately across the copy/paste operation itself.
+(1) is for visibility, (2) is for OT. In particular, π₂ needs to know where copy/pasted content comes from so we can transpose OT edits into the copy buffer and ultimately across the copy/paste operation itself.

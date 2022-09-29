@@ -1,8 +1,6 @@
 # π
-An interpreted, imperative bytecode language used to implement [γ](gamma.md)s. Augmented by the [∏](Pi.md) frontend for higher-level compilation.
+The programming environment for τ. This is split into layers, starting in the backend and proceeding towards the user:
 
-As a concept, π covers everything from the runtime and GC up to the bytecode assembler and basic control flow. ∏ picks up from there to define the intent system and macros that compile down to this bytecode.
-
-+ [π performance](pi-performance.md)
-+ [π GC](pi-gc.md)
-+ [π UTF9](pi-utf9.md)
++ [π₀](pi0.md), the bytecode runtime and γ integration
++ [π₁](pi1.md), the intent-aware compiler
++ [π₂](pi2.md), the editor and version control

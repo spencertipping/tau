@@ -1,9 +1,9 @@
-# ∏ spanning
-∏ is allowed to write code that you don't mention. Many languages do ad-hoc versions of this, for instance to coerce `int` to `float`. ∏ generalizes the process such that any two spannable intents can be bridged with a minimum-entropy function that ∏ will create for you. The keys here are _spannable_ and _minimum entropy._
+# π₁ spanning
+π₁ is allowed to write code that you don't mention. Many languages do ad-hoc versions of this, for instance to coerce `int` to `float`. π₁ generalizes the process such that any two spannable intents can be bridged with a minimum-entropy function that ∏ will create for you. The keys here are _spannable_ and _minimum entropy._
 
 
 ## Span existence
-A span from _a_ to _b_ exists iff _∃{f₁, f₂, ...}_ with _f₁ ∘ f₂ ∘ ... ∷ a → b_. Checking this is not always trivial because functions can transform intents arbitrarily. It's also not always intractable because ∏ can use graph search algorithms that follow a uniform η frontier, which should minimize the expected time to find a span. Once the first span is found, ∏ can conduct bounded searches to try to find shorter ones.
+A span from _a_ to _b_ exists iff _∃{f₁, f₂, ...}_ with _f₁ ∘ f₂ ∘ ... ∷ a → b_. Checking this is not always trivial because functions can transform intents arbitrarily. It's also not always intractable because π₁ can use graph search algorithms that follow a uniform η frontier, which should minimize the expected time to find a span. Once the first span is found, π₁ can conduct bounded searches to try to find shorter ones.
 
 
 ## Minimum entropy
@@ -17,4 +17,4 @@ There's more to entropy than just "how many functions match this signature". Any
 2. The behavioral entropy of the function (roughly, how many piecewise cases it has)
 3. How often the real world involves this type of function within this context
 
-(3) is perhaps the most important, and it's a whole field of study. I take it up in [∏ modeling](Pi-modeling.md).
+(3) is perhaps the most important, and it's a whole field of study. I take it up in [π₁ modeling](pi1-modeling.md).

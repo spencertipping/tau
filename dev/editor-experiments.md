@@ -1,5 +1,5 @@
 # Editor experiments
-I'm working on [ρ](../doc/rho.md) and looking for inspiration, so let's download a bunch of technical editors and see how usable they are. [Here's one such list.](https://tex.stackexchange.com/questions/57068/wysiwyg-latex-editor-for-maths)
+I'm working on [π₂](../doc/pi2.md) and looking for inspiration, so let's download a bunch of technical editors and see how usable they are. [Here's one such list.](https://tex.stackexchange.com/questions/57068/wysiwyg-latex-editor-for-maths)
 
 + EqualX
 + [MathCha](https://mathcha.io/editor)
@@ -34,4 +34,4 @@ Just a TeX renderer, like emacs+auctex. Clunky and not very useful IMO.
 ## Overall
 I prefer spacemacs with font-lock to all of these. It feels responsive and has good keybindings, and font-lock with eziam/tao themes makes most markdown syntax unobtrusive. I can lay out my documents the way I want to. Proportional fonts look good in prose, although it's awkward to mix them with code.
 
-I'm not seeing anything very compelling in these editors, probably because I'm looking in the wrong place. Math notation looks great and is somewhat useful for APL-style code, but [ρ](../doc/rho.md) is about more than just math-as-code.
+I'm not seeing anything very compelling in these editors, probably because I'm looking in the wrong place. Math notation looks great and is somewhat useful for APL-style code, but [π₂](../doc/pi2.md) is about more than just math-as-code.

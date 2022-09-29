@@ -1,5 +1,5 @@
 # η
-Online weighted learners, used to inform decisions such as those made by the [∏ inference system](Pi-intent.md).
+Online weighted learners, used to inform decisions such as those made by the [π₁ inference system](pi1-intent.md).
 
 
 ## Incremental ML

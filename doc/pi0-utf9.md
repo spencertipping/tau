@@ -1,4 +1,4 @@
-# π UTF9
+# π₀ UTF9
 [UTF9](utf9.md) reserves the `11100___` prefix for π use. These values are non-portable, meaning that they will never leave a π heap context; that means we can use native endianness and sizing. The only constraint is that we be able to remove any such values from UTF9s we're working with, e.g. before sending them across a [φ](phi.md).
 
 π-UTF9 values begin with a byte that describes their purpose:

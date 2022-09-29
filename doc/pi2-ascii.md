@@ -10,7 +10,7 @@ Text editing hasn't changed much in the last 50 years: a document amounts to a g
 7. Every action has a simple inverse
 8. When editing, there are few dead ends
 
-Only (2), (3), and probably (7) and (8) matter for ρ. Over time ASCII has been progressively augmented into awkwardness; UTF-8, HTML/XML/Markdown, `git` and its attendant merge conflicts to manage history, bidirectional text rendering, automated refactor tools, parsers for compilers, OT for collaboration, JSON, ASCII art, and the list goes on. **This is all insane.** ASCII is the wrong tool for many jobs, yet it's so useful that we continue to use it.
+Only (2), (3), and probably (7) and (8) matter for π₂. Over time ASCII has been progressively augmented into awkwardness; UTF-8, HTML/XML/Markdown, `git` and its attendant merge conflicts to manage history, bidirectional text rendering, automated refactor tools, parsers for compilers, OT for collaboration, JSON, ASCII art, and the list goes on. **This is all insane.** ASCII is the wrong tool for many jobs, yet it's so useful that we continue to use it.
 
 
 ## Edit topology
@@ -39,7 +39,7 @@ Also, a quick aside, `vim` has more dead-ends than most text editors; for exampl
 ## Selection and focus
 Text is simple: it's always arranged in a line/grid and you can focus on a small region of it. People work around this by having multiple editor windows and/or split screens. All of that is fine but not especially ideal. Its shortcomings become evident when you search for something that occurs several times: you have to page through the matches rather than seeing them all at once. You can't fold the content around multiple focal points because you get only one focal point. (`vim` further kludges around this by offering location history.)
 
-ρ should allow you to maintain multiple simultaneous edit/focal points that can be folded to be visible at once. This carries some important implications, most importantly that **ρ space is flexible.** You don't specify rigid coordinates when you construct a document; instead, you specify relative positioning: _a_ is above _b_, that type of thing. These invariants remain true even when the document is folded, just as code folding preserves the document sequence.
+π₂ should allow you to maintain multiple simultaneous edit/focal points that can be folded to be visible at once. This carries some important implications, most importantly that **π₂ space is flexible.** You don't specify rigid coordinates when you construct a document; instead, you specify relative positioning: _a_ is above _b_, that type of thing. These invariants remain true even when the document is folded, just as code folding preserves the document sequence.
 
 Having multiple selection/foci also solves the atomic copy/paste problem, which matters in a collaborative context. You can use one cursor to select the source content and atomically transfer that content to another cursor in a single edit operation. This also solves the "where did my clipboard come from" problem: we can assume clipboard contents have no in-document origin (and therefore are OT-verbatim), whereas all atomic content transfers are tracked to the document and can be commuted.
 
@@ -52,7 +52,7 @@ Text documents have no containers. Syntax models on top of these documents manag
 
 Lisp tries to add uniform containment to text and suffers from (1). Without indentation, it is very difficult to parse more than a couple of parentheses in a row, let alone track the number of layers you're still inside after a close paren. The problem is that for a human observer, containment is a space-partitioning strategy that, when nested, creates a lot of small, disjoint spaces. If you have a large box and create a slightly smaller box inside it, you get a large square (good) and a large ring (not good). Create one more layer and you have two rings that are hard to tell apart.
 
-ρ never relies on "inside/outside", nor can ρ elements contain others. The only exception to this rule is for containers that change the schema of data inside vs outside; for example, maybe you insert a plain-text document into a UTF9 world. Then the text document has row/column edit behavior, whereas the rest of the ρ document is more flexible.
+π₂ never relies on "inside/outside", nor can π₂ elements contain others. The only exception to this rule is for containers that change the schema of data inside vs outside; for example, maybe you insert a plain-text document into a UTF9 world. Then the text document has row/column edit behavior, whereas the rest of the π₂ document is more flexible.
 
 
 ## Invalid states
@@ -68,7 +68,7 @@ Third, `paredit` sometimes makes it difficult to apply edits that move the docum
 
 To emphasize this point further, we use elaborate conventions to bridge the gap between structure and presentation -- indentation styles, where to put braces, etc. All of this happens within the null space of the parser, so clearly it doesn't matter to the machine. But to us it's the difference between code we can maintain and code we can't. Part of that equation is laying out code to be editor-friendly; it's more about presentation than ergonomics, but ergonomics do matter.
 
-To the extent that text editors are successful, it's probably because they give us the feeling of being able to move text just like we would move normal objects; and when an editor like `paredit` doesn't allow this, it feels unnecessarily restrictive. Editors very much reflect our spatial intuition; and for that reason, syntactic validity is a distant secondary consideration. (Also, editors provide a lot of composable, low-level operations that are not meant to be understood as atomic intentions. This creates many problems for OT, and ρ should avoid it.)
+To the extent that text editors are successful, it's probably because they give us the feeling of being able to move text just like we would move normal objects; and when an editor like `paredit` doesn't allow this, it feels unnecessarily restrictive. Editors very much reflect our spatial intuition; and for that reason, syntactic validity is a distant secondary consideration. (Also, editors provide a lot of composable, low-level operations that are not meant to be understood as atomic intentions. This creates many problems for OT, and π₂ should avoid it.)
 
 Another way to look at it is that editor operations are so low-level that an editor has little hope of understanding our intentions, and when the editor jumps the gun and tries to make assumptions it usually makes more of a mess than it would have had it waited until those intentions were clearer. Maybe there's a local-vs-global optimum element to it.
 
