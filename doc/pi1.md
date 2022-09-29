@@ -5,6 +5,7 @@ An intent-aware compiler that produces [π₀](pi0.md) bytecode. π₁ is multil
 
 π₁ interacts in realtime with [π₂](pi2.md), the source editor.
 
++ [π₁ code](pi1-code.md)
 + [π₁ intent](pi1-intent.md)
 + [π₁ spanning](pi1-spanning.md)
 + [π₁ modeling](pi1-modeling.md)
