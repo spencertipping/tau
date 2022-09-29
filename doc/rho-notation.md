@@ -19,19 +19,17 @@ API support is critical to making L1 usable. For example, `φ x` (a φ of `x`s) 
 **NOTE:** this equivalence conflicts with common mathematical notation like _ℝ²_ or _ℝ × ℝ_: multiplying two values differs from multiplying two sets. I think this is fine, but it's probably worth seeing if there's a way to fix the discrepancy.
 
 
-### Layout
+### Implicit layout
 Text flow should follow natural typographic layouts: Latin scripts proceed left to right, Chinese top to bottom (which can be coerced LTR when necessary).
 
 Math is often typeset multidirectionally, and we try to reflect that. Although L1 input is linear, we offset superscripts and subscripts, e.g. `β²`. Same for certain vertical digraphs like `=` with some modifier above or below.
 
 It's possible I'll want to do more advanced chaining of larger symbols like `∑`, but I'm not so sure. I think the typesetting logic can be simple enough: vertical/horizontal alignment and "append to bounding box". The `i ∈ 1:10` type of qualifier you often see on ∑ would be a child box in layout, although its input would just be `_i<1:10` or similar.
 
-A note about ergonomics: flex-layout is common, and I don't want to have awkward keybindings like `vim`'s Ctrl+K digraph prefix. Instead, we should either have no prefix at all (e.g. for Chinese, which can be Pinyin word-detected), or something simple like `\`.
+A note about ergonomics: out-of-line layout is common, and I don't want to have awkward keybindings like `vim`'s Ctrl+K digraph prefix. Instead, we should either have no prefix at all (e.g. for Chinese, which can be Pinyin word-detected), or something simple like `\`. In other words, it should be handled like syntax highlighting: something that happens automatically and on a content basis.
 
 
-### Framing
-Layout applies within a text-flow context, but those contexts themselves can be placed into a larger arrangement using frames. Frames assign positions to things they contain, some of which may be other frames.
+### Explicit layout and multiplexing
+You can break out of the vertically-linear document format by using explicit layout. This is essentially any positional constraint that isn't "below the thing I just typed" -- the result is that you can branch from a location, forking a document into multiple directions, or you can draw diagrams, or pretty much anything else.
 
-Frames don't have intrinsic boundaries or even a shape. They just assign an origin and use some strategy to assign coordinates to their contents. Therefore, a frame can be moved and otherwise transformed.
-
-**FIXME:** "frame" is the wrong abstraction; it's too concrete
+**TODO:** figure out how these constraints are represented -- it probably doesn't matter much (e.g. directional error functions are fine)
