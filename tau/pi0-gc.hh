@@ -1,8 +1,8 @@
-#ifndef τπgc_h
-#define τπgc_h
+#ifndef τπ0gc_h
+#define τπ0gc_h
 
 
-#include "pi-types.hh"
+#include "pi0-types.hh"
 
 #include "begin.hh"
 

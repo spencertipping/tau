@@ -1,14 +1,14 @@
-#ifndef τπasm_h
-#define τπasm_h
+#ifndef τπ0asm_h
+#define τπ0asm_h
 
 
 #include "types.hh"
 #include "utf9-types.hh"
 #include "utf9.hh"
 
-#include "pi-types.hh"
-#include "pi-int.hh"
-#include "pi-gc.hh"
+#include "pi0-types.hh"
+#include "pi0-int.hh"
+#include "pi0-gc.hh"
 
 #include "begin.hh"
 

@@ -1,5 +1,5 @@
-#ifndef τπint_h
-#define τπint_h
+#ifndef τπ0int_h
+#define τπ0int_h
 
 
 #include "types.hh"
@@ -9,8 +9,8 @@
 #include "zeta.hh"
 #include "utf9.hh"
 
-#include "pi-types.hh"
-#include "pi-gc.hh"
+#include "pi0-types.hh"
+#include "pi0-gc.hh"
 
 
 #include "begin.hh"
