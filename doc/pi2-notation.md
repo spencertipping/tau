@@ -33,3 +33,7 @@ A note about ergonomics: out-of-line layout is common, and I don't want to have 
 You can break out of the vertically-linear document format by using explicit layout. This is essentially any positional constraint that isn't "below the thing I just typed" -- the result is that you can branch from a location, forking a document into multiple directions, or you can draw diagrams, or pretty much anything else.
 
 **TODO:** figure out how these constraints are represented -- it probably doesn't matter much (e.g. directional error functions are fine)
+
+
+### Input parsing
+**TODO**
