@@ -32,3 +32,15 @@ a.frame("a b c d")      // push a frame with four locals
 ```
 
 The assembler is allowed to do some trickery here: it can trace the value locations to specialize `i64+` to operate directly on locals, skipping the stack entirely. This will result in a new bytecode for `i64+` that will be used in only this instance.
+
+Because frames are common, you can also write them inline with strings:
+
+```cpp
+a.q("[|a b c d| 1 a= 2 b= a b i64+ c=]")
+```
+
+That differs from an inline function, which doesn't introduce a frame:
+
+```cpp
+a.q("[1 2 i64+]")
+```

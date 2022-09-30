@@ -49,6 +49,7 @@ struct i9
   u9t  type()    const { return a ? u9ts_t(code()) : u9t::none; }
   it   begin()   const { return it{a + u9sb(stype())}; }
   it   end()     const { return it{a + u9rs(a, 0)}; }
+  uN   osize()   const { return u9rs(a, 0); }
 
   // NOTE: inner, "logical" size, not outer size; that way these methods
   // have STL-style meanings

@@ -2,6 +2,14 @@
 #define τπ0gc_h
 
 
+#include "debug.hh"
+
+#if !defined(τπ0debug_bounds_checks)
+# define τπ0debug_bounds_checks τdebug
+#endif
+
+
+#include "utf9.hh"
 #include "pi0-types.hh"
 
 #include "begin.hh"
@@ -10,141 +18,82 @@ namespace τ
 {
 
 
-struct πs   // stack allocator
+struct π0F  // local frame
 {
-  sc uN np = -1;
-
-  B     a;  // alternating stacks; a's tag is 0
-  B     b;  //              ...and b's tag is 1
-  bool  c = false;
-  V<uN> d;  // stack registers: tagged offsets
-
-
-  uN last(bool tag) const
-    { for (auto it = d.rbegin(); it != d.rend(); ++it)
-        if ((*it & 1) == tag)
-          return *it >> 1;
-      return np; }
-
-  uN size () const { return a.size() + b.size(); }
-  uN depth() const { return d.size(); }
-
-  B &h() { return c ? b : a; }
-  B &o() { return c ? a : b; }
-
-
-  template<class T>
-  πs &operator<<(T x)
-    { c = !c;
-      d.push_back(h() << o9(x) << 1 | c);
-      let l = last(!c);
-      if (l != np) o().resize(l + i9::size_of(o().data() + l));
-      return *this; }
-
-  πs &pop(uN n = 1)
-    { A(d.size() >= n, "πs pop(" << n << "), s=" << d.size());
-      d.resize(d.size() - n);
-      return *this; }
-
-  i9 operator[](uN x)
-    { let n = d[d.size() - x - 1];
-      return i9{(n & 1 ? b : a).data() + (n >> 1)}; }
+  V<π0r> xs;
+  π0F(uN vs) { xs.assign(vs, π0hω); }
 };
 
 
-struct πh       // random-access heap (no rewinding)
+struct π0h
 {
-  sc uN  np    = -1;
-  sc u8c ni[2] = {Sc<u8>(u9t::none) << 3 | Sc<u8>(u9s::v8), 0};
+  B      h;
+  V<π0r> d;  // data stack
+  V<π0F> f;  // stack of local frames
 
-  B     h;
-  V<uN> d;      // data registers: offsets into h
-  uN    z = 0;  // available heap space
-  uN    g = 0;  // generations
-  u64   a = 0;  // total allocated bytes
+  π0h(uf8 hb = ζb0) { h.reserve(1ul << hb); }
 
-  πh(uN n)
-    { d.clear();
-      d.reserve(n);
-      for (uN i = 0; i < n; ++i) d.push_back(np); }
-
-
-  uN size() const { return h.size(); }
-
-  πh &gc()
-    { uN s = 0;
-      for (uN i = 0; i < d.size(); ++i)
-        if (d[i] != np) s += i9::size_of(h.data() + d[i]);
-      B h_;
-      h.swap(h_);
-      h.reserve(s * 2);
-      let a_ = a;
-      for (uN i = 0; i < d.size(); ++i)
-        if (d[i] != np) set(i, i9{h_.data() + d[i]});
-      a = a_;
-      ++g;
-      z = 0;
-      return *this; }
-
-
-  i9 operator[](uN r)
-    { return d[r] != np ? i9{h.data() + d[r]} : i9{Cc<u8*>(ni)}; }
-
-
-  πh &clear(uN r)
-    { if (d[r] != np) { z += i9::size_of(h.data() + d[r]); d[r] = np; }
-      return *this; }
-
-  template<class T>
-  πh &set(uN r, T const &v)
-    { let o = o9(v);
+  template<o9__ T>
+  π0r operator<<(T const &x)
+    { let o = o9(x);
       let s = o.size();
-      clear(r);
-      if (h.size() + s > h.capacity() && z > h.capacity() >> 2) gc();
-      let c = h.size();
-      d[r] = h << o;
-      a += h.size() - c;
-      return *this; }
-
-  // NOTE: below methods are unsafe for mixed push/pop scenarios
-  // (for safety, use πs)
-
-  template<class T>
-  uN operator<<(T const &v)
-    { let r = d.size();
-      d.push_back(np);
-      set(r, v);
+      if (h.size() + s > h.capacity()) gc(s);
+      let r = h.size();
+      h << x;
       return r; }
 
-  πh &pop(uN n = 1)
-    { d.resize(d.size() - n);
-      return *this; }
-};
+
+  uN size_of   (π0r i) { return (*this)[i].osize(); }
+  i9 operator[](π0r i) { return (*this)(i9{h.data() + i}); }
+
+  // NOTE: call this on every value you retrieve to dereference
+  // lazy slices
+  // TODO: dereference lazy slices
+  i9 operator()(i9 i)  { return i; }
+
+  void live(S<π0r> &r) const
+    { for (let x : d) r.insert(x);
+      for (let &x : f) for (let y : x.xs) r.insert(y); }
+
+  void gc(uN s)  // GC with room for live set + s
+    { S<π0r> rs;                live(rs);
+      uN     ls = s;            for (let r : rs) ls += size_of(r);
+      uN     c  = h.capacity(); while (c >> 1 < ls) c <<= 1;
+      B      h_;                h_.reserve(c);
+
+      // TODO: deduplicate slices
+      M<π0r, π0r> ns;
+      for (let r : rs)
+      { if (r == π0hω) continue;
+        ns[r] = h_.size(); h_ << o9((*this)[r]); }
+      ns[π0hω] = π0hω;
+
+      for (auto &x : d) x = ns[x];
+      for (auto &x : f) for (auto &y : x.xs) y = ns[y];
+      h.swap(h_); }
 
 
-#if τdebug_iostream
-O &operator<<(O &s, πs const &h)
-{
-  auto &hm = const_cast<πs&>(h);
-  s << "πs s=" << h.size() << " n=" << h.d.size() << std::endl;
-  for (uN i = 0; i < h.d.size(); ++i)
-    s << "  s" << i << "\t" << h.d[h.d.size() - i - 1] << "\t" << hm[i] << std::endl;
-  return s;
-}
+#if τπ0debug_bounds_checks
+  i9 di(uN i)            { return (*this)[d.at(d.size() - 1 - i)]; }
+  i9 fi(uN i, uN fi = 0) { return (*this)[f.at(f.size() - 1 - fi).xs.at(i)]; }
 
-O &operator<<(O &s, πh const &h)
-{
-  auto &hm = const_cast<πh&>(h);
-  s << "πh c=" << h.h.capacity()
-    << " wa="  << h.h.capacity() - h.h.size()
-    << " a="   << h.a
-    << " z="   << h.z
-    << " g="   << h.g << std::endl;
-  for (uN i = 0; i < h.d.size(); ++i)
-    s << "  r" << i << "\t" << hm[i] << std::endl;
-  return s;
-}
+  template<o9__ T>
+  π0h &fs(uN i, T const &x) { f.at(f.size() - 1).xs.at(i) = *this << x; return *this; }
+#else
+  i9 di(uN i)            { return (*this)[d[d.size() - 1 - i]]; }
+  i9 fi(uN i, uN fi = 0) { return (*this)[f[f.size() - 1 - fi].xs[i]]; }
+
+  template<o9__ T>
+  π0h &fs(uN i, T const &x) { f[f.size() - 1].xs[i] = *this << x; return *this; }
 #endif
+
+  template<o9__ T>
+  π0h &dpush(T const &x) { d.push_back(*this << x); return *this; }
+  π0h &dpop()            { d.pop_back();            return *this; }
+
+  π0h &fpush(uN vs)      { f.push_back(π0F(vs));    return *this; }
+  π0h &fpop()            { f.pop_back();            return *this; }
+};
 
 
 }

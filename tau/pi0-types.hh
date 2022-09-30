@@ -12,75 +12,13 @@ namespace τ
 {
 
 
-struct πi;
-struct πF;
-struct πh;
-struct πs;
-struct πp;
+struct π0int;
+struct π0asm;
 
-typedef void(*πf)(πi&, uN);  // instruction function
-typedef m9  πt;              // utf9-encoded type
-typedef u32 πb;              // bytecode instruction
+typedef F<void(π0int&)> π0f;  // bytecode function
+typedef uN              π0r;  // π₀ heap reference
 
-
-V<πf>  πfs;
-V<πF*> πFs;
-
-
-struct πF
-{
-  u9_symbol n;
-  πt        q;   // query terms (a set)
-  πt        t;   // function type
-  uN        a;   // bytecode arity
-  f64       η0;  // prior entropy
-  πf        f;
-
-  πF(Stc &s, uN a_, πf f_) : n(u9_symbol::str(s)),
-                             q(m9("TODO")), t(m9("TODO")),
-                             a(a_), f(f_) {}
-
-  πF(u9_symbol s, uN a_, πf f_) : n(s),
-                                  q(m9("TODO")), t(m9("TODO")),
-                                  a(a_), f(f_) {}
-
-  πF(uN a_, πf f_) : n(u9_symbol::gensym()),
-                     q(m9("TODO")), t(m9("TODO")),
-                     a(a_), f(f_) {}
-
-  void operator()(πi& i, uN o) const { f(i, o); }
-};
-
-
-struct πp
-{
-  V<πb> b;   // bytecodes
-  uN    ng;  // number of globals
-  uN    p0;  // initial instruction (as index into b)
-
-  πb   operator[](uN n)        const { return b[n]; }
-  void operator()(πi &i, uN n) const { (*πfs[b[n]])(i, n); }
-};
-
-
-#if τdebug_iostream
-O &operator<<(O &s, πF const &f)
-{
-  return s << f.n;
-}
-
-O &operator<<(O &s, πp const &p)
-{
-  s << "πp ng=" << p.ng << ", p₀=" << p.p0 << std::endl;
-  for (uN i = 0; i < p.b.size();)
-  { let &f = *πFs[p[i]];
-    s << "  " << i << "\t" << f << "\t";
-    for (uN j = 1; j <= f.a; ++j) s << p[i + j] << " ";
-    s << std::endl;
-    i += f.a + 1; }
-  return s;
-}
-#endif
+constexpr uNc π0hω = -1;      // null reference
 
 
 }
