@@ -7,20 +7,28 @@ Assemblers adapt the calling convention from C++ to π₀. For example, I might 
 π0asm a;
 a.def("i64+",  [](i9 a, i9 b) { return Sc<i64>(a) + Sc<i64>(b); })
  .def("print", [](i9 a)       { cout << a << endl; })
- .lit(3, 4)
- .fn("i64+", "print")
- .compile()  // returns π0int{}
+ .q(3, 4, "i64+ print")
+ .build()  // returns π0int{}
  .go();
 ```
 
-`lit` is a builtin that quotes a UTF9 value onto the stack -- or more specifically, generates a function that does this. Any value you pass it is copied and held as static data within the resulting interpreter.
+`q()` takes multiple argument types and handles them in different ways:
 
-You can assemble sublists, e.g. for conditionals: those are done depth-first using `.list()` and `.end()`.
++ Booleans, numbers, and UTF9 are quoted
++ Strings are word-split and resolved to functions
++ Initializer lists are assembled into sublists
+
+The program above produces the list `[3 4 i64+ print]`, which is the main function and is executed when you call `.go()`.
 
 
 ## Local variables
-π₀ is dynamically-scoped and uses local frames to provide access to variables so you don't have to rely on the stack. You create a local frame like this:
+π₀ is dynamically-scoped and uses local frames to provide access to variables so you don't have to rely on the stack. You create a local frame like this, which will also emit the instruction to push that frame:
 
 ```cpp
-a.frame("a b c d");  // create a frame with four locals
+a.frame("a b c d")      // push a frame with four locals
+ .q(1, "a=", 2, "b=",   // use the generated setters
+    "a b i64+ c=")      // ...and getters
+ .fpop()                // pop the frame when done
 ```
+
+The assembler is allowed to do some trickery here: it can trace the value locations to specialize `i64+` to operate directly on locals, skipping the stack entirely. This will result in a new bytecode for `i64+` that will be used in only this instance.
