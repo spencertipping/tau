@@ -13,6 +13,8 @@ All values are encoded as UTF9 when stored, which sounds like a problem because 
 ## UTF9 and copying GC
 UTF9 is usually very cheap to GC because it needs to be neither scanned nor transformed when it is moved. This is the common "simple value" case. The exception is when the value contains a pointer to part of another value; then the former is "complex" and requires the usual trace-and-rewrite.
 
+We don't support finalizers; all values are stateless.
+
 Any value stored in a π₀-managed heap uses its flag field to indicate complexity. Or to say the same thing differently, all π₀ UTF9 internal values set the flag, and no other type of value is allowed to within the scope of a π₀ runtime.
 
 

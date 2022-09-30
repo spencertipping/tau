@@ -119,8 +119,7 @@ chc keymap_us_shift[128] =
 };
 
 
-
-xkmc keymap_us_meta[256] =
+xkmc keymap_us_meta[128] =
 {
   // NOTE: this table's first entry is scancode 8, not 0
   xkm::none,                                         // 8 is undefined
@@ -167,7 +166,8 @@ xkmc keymap_us_meta[256] =
   xkm::none, xkm::none, xkm::none,                   // ???
   xkm::f11, xkm::f12,                                // 96 = F12
 
-  // TODO: fill out the rest of these
+  // TODO: fill out the rest of these using xev to reverse-engineer
+  // (although I guess they will be thinkpad-specific)
   xkm::none,                                         // all else undefined
 };
 
