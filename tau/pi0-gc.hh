@@ -44,10 +44,17 @@ struct π0h
   uN size_of   (π0r i) { return (*this)[i].osize(); }
   i9 operator[](π0r i) { return i9{h.data() + i}; }
 
-  void live(S<π0r> &r, S<π0r> &m) const
-    { for (let  x : d) if (!r.insert(x).second) m.insert(x);
-      for (let &v : f) for (let x : v.xs) if (!r.insert(x).second) m.insert(x);
-      for (let  x : p) if (!r.insert(x).second) m.insert(x); }
+  void trace(S<π0r> &r, S<π0r> &m, π0r i)
+    { if (!r.insert(i).second) m.insert(i);
+      else
+      { let a = (*this)[i];
+        if (a.flagged() && u9tm{u9t::tuple, u9t::map, u9t::set}[a.type()])
+          for (let x : a) trace(r, m, x.a - h.data()); }}
+
+  void live(S<π0r> &r, S<π0r> &m)
+    { for (let  x : d)                    trace(r, m, x);
+      for (let &v : f) for (let x : v.xs) trace(r, m, x);
+      for (let  x : p)                    trace(r, m, x); }
 
   void gc(uN s)  // GC with room for live set + s
     { S<π0r> rs, ms;            live(rs, ms);
