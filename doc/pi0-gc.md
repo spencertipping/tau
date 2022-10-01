@@ -7,13 +7,13 @@
 
 Unlike Perl and Python, pointers are rare and we're free to move heap-allocated values. π₀'s GC is a cheap copying mark/sweep collector.
 
-All values are encoded as UTF9 when stored, which sounds like a problem because UTF9 doesn't support pointers-to-things; each value is fully serialized inline. Luckily the [UTF9 spec](utf9.md) reserves a block of values with bit-prefix `11100fss` -- `fss` encodes the flag and size -- that π₀ is free to use in any way whatsoever. See [π₀ UTF9](pi0-utf9.md) for details about how those values are allocated. And we use this block of UTF9s to define pre-GC references that don't involve full copies; see [lazy slicing](#lazy-slicing).
+All values are encoded as UTF9 when stored, which sounds like a problem because UTF9 doesn't support pointers-to-things; each value is fully serialized inline. Luckily the [UTF9 spec](utf9.md) reserves a block of values with bit-prefix `11100fss` -- `fss` encodes the flag and size -- that π₀ is free to use in any way whatsoever. See [π₀ UTF9](pi0-utf9.md) for details about how those values are allocated.
 
 
-## Transient references
-UTF9 values are always handled by-reference: the `i9` carrier type is a pointer to memory. That matters because any moving-GC will invalidate all `i9` values held in local variables or as arguments. Preventing this involves either preventing GC from happening (unlikely for reasons I'll explain shortly), or allowing heap users to pin some values as transients.
+## Managed pointers
+Any GC that moves heap values needs to rewrite pointers to those values. Because `i9`s are reference types, they are themselves pointers -- which means they must be rewritten. C++ doesn't provide managed stacks, so any local variables must be GC-invariant. That means we need a pointer-lookup table, in this case called the _pin set._
 
-GC is difficult to prevent because every value is heap-allocated; so if a function wants to return even an int, that gets pushed onto the heap and may cause GC. So any return value may potentially invalidate every `i9`.
+The pin set is small by design: it contains just the set of variables in use for a single stack function invocation. We reset the pin set whenever the native C++ function is done executing; at this point we know there are no external references.
 
 
 ## UTF9 and copying GC
@@ -21,16 +21,8 @@ UTF9 is usually very cheap to GC because it needs to be neither scanned nor tran
 
 We don't support finalizers; all values are stateless.
 
-Any value stored in a π₀-managed heap uses its flag field to indicate complexity. Or to say the same thing differently, all π₀ UTF9 internal values set the flag, and no other type of value is allowed to within the scope of a π₀ runtime.
+Any value stored in a π₀-managed heap uses its flag field to indicate complexity. Or to say the same thing differently, all π₀ UTF9 internal values set the flag, and no other type of value is allowed to do this within the scope of a π₀ runtime.
 
 
-## Immutability
-All values are immutable, but references are in particular. That means the GC can track the total live-set obligation for each value individually at little additional cost, and we know the live-set size almost immediately by summing the stored size for each register or stack entry we're storing. This information is valuable for [π₁](pi1.md), which can use it to estimate the space complexity of algorithms. It's also useful internally, as it means we can have generational GC without write barriers -- there is nothing to write.
-
-(Technically UTF9 `bytes`, `utf8`, vectorized primitives, and tensors can be modified in-place. In practice none of these matter because they can't store pointers to other objects. There are also no specific semantics about what happens if you refer to them with a slice operation; you can get a reference or a copy.)
-
-
-## Lazy slicing
-Back when I looked into these things recreationally, `substring()` tended to partition runtimes into two camps: those who execute it eagerly for _O(n)_ immediate time and space complexity, and those who execute it lazily for _O(1)_ time+space, but at the cost of pinning the operand even if the slice you've requested is quite small.
-
-π₀ can have the best of both worlds, something I hope/assume is standard behavior on modern runtimes as well. All slices, which in this case generalizes to all sub-references, happen lazily for _O(1)_ time+space. Rather than pinning the operand, though, we just continue to refer to it for as long as it's in the live set. Once it would be collected, we copy out the relevant portion in place of the pointer. (π is also free to copy pointers out sooner, for instance if the rewriting overhead is high enough.)
+## Intra-heap pointers
+Most runtimes are built for a random-access heap: data structures use pointers to refer to their contents. UTF9 prefers to serialize elements directly into data structures, but has the π₀ UTF9 backdoor to allow pointers, which are useful when a value has multiple references.

@@ -19,26 +19,19 @@ struct π0F  // local frame
 };
 
 
-// FIXME: π0h can't return i9s tied to the heap because computation
-// can potentially move them with GC. Instead, we need to return
-// pin references that will be updated automatically if GC happens;
-// the caller must dereference them before every use.
-//
-// This will also solve the auto-slicing problem, which right now
-// involves copying values around.
-//
-// NOTE: we probably won't ever have more than a few values in play
-// at a time; we don't hang onto heap values much. So the pin set can
-// be a small LIFO vector that is cleared frequently.
-
 struct π0h
 {
   B      h;
-  V<π0r> d;  // data stack
-  V<π0F> f;  // stack of local frames
-  V<π0r> p;  // pinned values
+  V<π0r> d;   // data stack
+  V<π0F> f;   // stack of local frames
+  V<π0r> p;   // pinned values
+  uf8    lb;  // live-set bits
 
-  π0h(uf8 hb = ζb0) { h.reserve(1ul << hb); }
+  π0h(uf8 lb_ = 2,
+      uf8 hb_ = ζb0)
+    : lb{lb_}
+    { h.reserve(1ul << hb_);
+      p.reserve(64); }
 
   template<o9__ T>
   π0r operator<<(T const &x)
@@ -49,21 +42,20 @@ struct π0h
 
 
   uN size_of   (π0r i) { return (*this)[i].osize(); }
-  i9 operator[](π0r i) { return (*this)(i9{h.data() + i}); }
+  i9 operator[](π0r i) { return i9{h.data() + i}; }
 
-  // TODO: dereference lazy slices
-  i9 operator()(i9 i)  { return i; }
-
-  void live(S<π0r> &r) const
-    { for (let  x : d) r.insert(x);
-      for (let &v : f) for (let x : v.xs) r.insert(x);
-      for (let  x : p) r.insert(x); }
+  void live(S<π0r> &r, S<π0r> &m) const
+    { for (let  x : d) if (!r.insert(x).second) m.insert(x);
+      for (let &v : f) for (let x : v.xs) if (!r.insert(x).second) m.insert(x);
+      for (let  x : p) if (!r.insert(x).second) m.insert(x); }
 
   void gc(uN s)  // GC with room for live set + s
-    { S<π0r> rs;                live(rs);
+    { S<π0r> rs, ms;            live(rs, ms);
       uN     ls = s;            for (let r : rs) ls += size_of(r);
       uN     c  = h.capacity(); while (c >> 1 < ls) c <<= 1;
       B      h_;                h_.reserve(c);
+
+      // TODO: write multiple-refs first
 
       // TODO: deduplicate slices
       // TODO: rewrite complex values here

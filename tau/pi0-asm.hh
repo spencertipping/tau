@@ -39,31 +39,10 @@ struct π0asm
         return fω; }
   };
 
-  enum class iop
-  {
-    quote_utf9,
-    quote_fn,
-    call_fn
-  };
-
-  struct insn
-  {
-    iop o;
-    i9 u;
-    uN b;
-    St f;
-
-    insn()     :                     u{ζωp}       {}
-    insn(i9 x) : o(iop::quote_utf9), u{x}         {}
-    insn(uN x) : o(iop::quote_fn),   u{ζωp}, b(x) {}
-    insn(St x) : o(iop::call_fn),    u{ζωp}, f(x) {}
-  };
-
   struct block
   {
-    V<insn> is;  // uncompressed instructions
-
-    block &operator<<(insn const &i) { is.push_back(i); return *this; }
+    V<uN> is;  // uncompressed instructions
+    block &operator<<(uN i) { is.push_back(i); return *this; }
   };
 
 
@@ -139,26 +118,6 @@ struct π0asm
 
 
 #if τdebug_iostream
-O &operator<<(O &s, π0asm::iop const &o)
-{
-  switch (o)
-  {
-  case π0asm::iop::call_fn:    return s << "f()";
-  case π0asm::iop::quote_fn:   return s << "'[]";
-  case π0asm::iop::quote_utf9: return s << "'u9";
-  }
-}
-
-O &operator<<(O &s, π0asm::insn const &i)
-{
-  switch (i.o)
-  {
-  case π0asm::iop::call_fn:    return s << i.f;
-  case π0asm::iop::quote_fn:   return s << "[block=" << i.b << "]";
-  case π0asm::iop::quote_utf9: return s << "'" << i.u;
-  }
-}
-
 O &operator<<(O &s, struct π0asm::frame const &f)
 {
   s << "| ";
