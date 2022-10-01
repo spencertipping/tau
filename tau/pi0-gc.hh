@@ -26,6 +26,10 @@ struct π0F  // local frame
 //
 // This will also solve the auto-slicing problem, which right now
 // involves copying values around.
+//
+// NOTE: we probably won't ever have more than a few values in play
+// at a time; we don't hang onto heap values much. So the pin set can
+// be a small LIFO vector that is cleared frequently.
 
 struct π0h
 {
@@ -41,9 +45,7 @@ struct π0h
     { let o = o9(x);
       let s = o.size();
       if (h.size() + s > h.capacity()) gc(s);
-      let r = h.size();
-      h << x;
-      return r; }
+      return h << o; }
 
 
   uN size_of   (π0r i) { return (*this)[i].osize(); }

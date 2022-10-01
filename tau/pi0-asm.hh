@@ -26,15 +26,15 @@ struct π0asm
     sc uNc fω = -1;
     V<St>  vs;
 
-    frame(St vs_)
+    frame(Stc &vs_)  // TODO: factor string-split into a utility function
       { St                x;
         std::stringstream s(vs_);
         while (s >> x) vs.push_back(x); }
 
-    frame(Il<St> vs_)
+    frame(Il<St> const &vs_)
       { std::copy(vs_.begin(), vs_.end(), std::back_inserter(vs)); }
 
-    uN operator[](St v)
+    uN operator[](Stc &v)
       { for (uN i = 0; i < vs.size(); ++i) if (vs[i] == v) return i;
         return fω; }
   };
