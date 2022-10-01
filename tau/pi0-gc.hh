@@ -36,7 +36,7 @@ struct π0h
   B      h;
   V<π0r> d;  // data stack
   V<π0F> f;  // stack of local frames
-  S<π0r> p;  // pinned values
+  V<π0r> p;  // pinned values
 
   π0h(uf8 hb = ζb0) { h.reserve(1ul << hb); }
 
@@ -55,8 +55,9 @@ struct π0h
   i9 operator()(i9 i)  { return i; }
 
   void live(S<π0r> &r) const
-    { for (let x : d) r.insert(x);
-      for (let &x : f) for (let y : x.xs) r.insert(y); }
+    { for (let  x : d) r.insert(x);
+      for (let &v : f) for (let x : v.xs) r.insert(x);
+      for (let  x : p) r.insert(x); }
 
   void gc(uN s)  // GC with room for live set + s
     { S<π0r> rs;                live(rs);
@@ -65,14 +66,14 @@ struct π0h
       B      h_;                h_.reserve(c);
 
       // TODO: deduplicate slices
+      // TODO: rewrite complex values here
       M<π0r, π0r> ns;
-      for (let r : rs)
-      { if (r == π0hω) continue;
-        ns[r] = h_.size(); h_ << o9((*this)[r]); }
+      for (let r : rs) if (r != π0hω) ns[r] = h_ << o9((*this)[r]);
       ns[π0hω] = π0hω;
 
       for (auto &x : d) x = ns[x];
       for (auto &x : f) for (auto &y : x.xs) y = ns[y];
+      for (auto &x : p) x = ns[x];
       h.swap(h_); }
 
 

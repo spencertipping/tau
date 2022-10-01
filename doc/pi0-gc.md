@@ -10,6 +10,12 @@ Unlike Perl and Python, pointers are rare and we're free to move heap-allocated 
 All values are encoded as UTF9 when stored, which sounds like a problem because UTF9 doesn't support pointers-to-things; each value is fully serialized inline. Luckily the [UTF9 spec](utf9.md) reserves a block of values with bit-prefix `11100fss` -- `fss` encodes the flag and size -- that π₀ is free to use in any way whatsoever. See [π₀ UTF9](pi0-utf9.md) for details about how those values are allocated. And we use this block of UTF9s to define pre-GC references that don't involve full copies; see [lazy slicing](#lazy-slicing).
 
 
+## Transient references
+UTF9 values are always handled by-reference: the `i9` carrier type is a pointer to memory. That matters because any moving-GC will invalidate all `i9` values held in local variables or as arguments. Preventing this involves either preventing GC from happening (unlikely for reasons I'll explain shortly), or allowing heap users to pin some values as transients.
+
+GC is difficult to prevent because every value is heap-allocated; so if a function wants to return even an int, that gets pushed onto the heap and may cause GC. So any return value may potentially invalidate every `i9`.
+
+
 ## UTF9 and copying GC
 UTF9 is usually very cheap to GC because it needs to be neither scanned nor transformed when it is moved. This is the common "simple value" case. The exception is when the value contains a pointer to part of another value; then the former is "complex" and requires the usual trace-and-rewrite.
 
