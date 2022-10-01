@@ -25,6 +25,11 @@
 #endif
 
 
+#if !defined(τπ0debug_bounds_checks)
+# define τπ0debug_bounds_checks τdebug
+#endif
+
+
 #if τhas_assert_fail
 # include <errno.h>
 # if τdebug_iostream

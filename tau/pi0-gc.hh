@@ -3,12 +3,6 @@
 
 
 #include "debug.hh"
-
-#if !defined(τπ0debug_bounds_checks)
-# define τπ0debug_bounds_checks τdebug
-#endif
-
-
 #include "utf9.hh"
 #include "pi0-types.hh"
 
@@ -25,11 +19,20 @@ struct π0F  // local frame
 };
 
 
+// FIXME: π0h can't return i9s tied to the heap because computation
+// can potentially move them with GC. Instead, we need to return
+// pin references that will be updated automatically if GC happens;
+// the caller must dereference them before every use.
+//
+// This will also solve the auto-slicing problem, which right now
+// involves copying values around.
+
 struct π0h
 {
   B      h;
   V<π0r> d;  // data stack
   V<π0F> f;  // stack of local frames
+  S<π0r> p;  // pinned values
 
   π0h(uf8 hb = ζb0) { h.reserve(1ul << hb); }
 
@@ -46,8 +49,6 @@ struct π0h
   uN size_of   (π0r i) { return (*this)[i].osize(); }
   i9 operator[](π0r i) { return (*this)(i9{h.data() + i}); }
 
-  // NOTE: call this on every value you retrieve to dereference
-  // lazy slices
   // TODO: dereference lazy slices
   i9 operator()(i9 i)  { return i; }
 
@@ -77,22 +78,22 @@ struct π0h
   i9 di(uN i)            { return (*this)[d.at(d.size() - 1 - i)]; }
   i9 fi(uN i, uN fi = 0) { return (*this)[f.at(f.size() - 1 - fi).xs.at(i)]; }
 
-  template<o9__ T>
-  π0h &fs(uN i, T const &x) { f.at(f.size() - 1).xs.at(i) = *this << x; return *this; }
+  template<class T>
+  π0h &fs(uN i, T const &x) { f.at(f.size() - 1).xs.at(i) = *this << o9(x); return *this; }
 #else
   i9 di(uN i)            { return (*this)[d[d.size() - 1 - i]]; }
   i9 fi(uN i, uN fi = 0) { return (*this)[f[f.size() - 1 - fi].xs[i]]; }
 
-  template<o9__ T>
-  π0h &fs(uN i, T const &x) { f[f.size() - 1].xs[i] = *this << x; return *this; }
+  template<class T>
+  π0h &fs(uN i, T const &x) { f[f.size() - 1].xs[i] = *this << o9(x); return *this; }
 #endif
 
-  template<o9__ T>
-  π0h &dpush(T const &x) { d.push_back(*this << x); return *this; }
-  π0h &dpop()            { d.pop_back();            return *this; }
+  template<class T>
+  π0h &dpush(T const &x) { d.push_back(*this << o9(x)); return *this; }
+  π0h &dpop(uN n = 1)    { d.resize(d.size() - n);      return *this; }
 
-  π0h &fpush(uN vs)      { f.push_back(π0F(vs));    return *this; }
-  π0h &fpop()            { f.pop_back();            return *this; }
+  π0h &fpush(uN vs)      { f.push_back(π0F(vs));        return *this; }
+  π0h &fpop()            { f.pop_back();                return *this; }
 };
 
 
