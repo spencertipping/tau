@@ -151,7 +151,7 @@ static_assert(sizeof(i9) == sizeof(uN));
 O &operator<<(O &s, i9 const &x)
 {
   if (τdebug_i9st)
-    s << "i9@" << Sc<void*>(x.a) << ":" << x.type() << ":" << x.size() << " ";
+    s << "i9@" << Sc<void*>(x.a) << ":" << x.type() << ":" << x.flagged() << ":" << x.size() << " ";
 
   switch (x.type())
   {
@@ -228,7 +228,7 @@ O &operator<<(O &s, i9 const &x)
   case u9t::heappin: return s << "hpin@" << Rc<void*>((*x).a);
 
   default:
-    return s << "i9[" << x.type() << ":" << x.size() << "]";
+    return s << "i9[" << x.type() << ":" << x.flagged() << ":" << x.size() << "]";
   }
 }
 #endif

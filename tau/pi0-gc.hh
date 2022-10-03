@@ -19,26 +19,41 @@ struct π0F  // local frame
 };
 
 
+struct π0o9r  // heap-local reference
+{
+  uN a;       // offset within heap
+  uN size ()     const { return sizeof(uN) + u9sb(u9sq(sizeof(uN))); }
+  uN write(ζp m) const { W<uN>(m, u9ws(m, 0, u9t::pi, sizeof(uN), true), a); return 0; }
+};
+
+
 struct π0h
 {
   B      h;
   V<π0r> d;   // data stack
   V<π0F> f;   // stack of local frames
   V<π0r> p;   // pinned values
-  uf8    lb;  // live-set bits
+  f64    lh;  // live set → heap size factor
+  uN     is;  // inlining size: i9s smaller than this are inlined immediately
 
-  π0h(uf8 lb_ = 2,
+  π0h(f64 lh_ = 4.0,
+      uN  is_ = 64,
       uf8 hb_ = ζb0)
-    : lb{lb_}
+    : lh{lh_}, is{is_}
     { h.reserve(1ul << hb_);
       p.reserve(64); }
 
-  template<o9__ T>
+  template<class T>
   π0r operator<<(T const &x)
     { let o = o9(x);
       let s = o.size();
       if (h.size() + s > h.capacity()) gc(s);
       return h << o; }
+
+  π0r operator<<(i9 x)
+    { return x.a >= h.data() && x.a < h.data() + h.size() && x.osize() > is
+        ? *this << π0o9r{x}
+        : *this << o9(x); }
 
 
   uN size_of   (π0r i) { return (*this)[i].osize(); }
@@ -48,7 +63,7 @@ struct π0h
     { if (!r.insert(i).second) m.insert(i);
       else
       { let a = (*this)[i];
-        if (a.flagged() && u9tm{u9t::tuple, u9t::map, u9t::set}[a.type()])
+        if (a.flagged() && u9tm{u9t::index, u9t::tuple, u9t::map, u9t::set}[a.type()])
           for (let x : a) trace(r, m, x.a - h.data()); }}
 
   void live(S<π0r> &r, S<π0r> &m)
@@ -57,12 +72,12 @@ struct π0h
       for (let  x : p)                    trace(r, m, x); }
 
   void gc(uN s)  // GC with room for live set + s
-    { S<π0r> rs, ms;            live(rs, ms);
-      uN     ls = s;            for (let r : rs) ls += size_of(r);
-      uN     c  = h.capacity(); while (c >> 1 < ls) c <<= 1;
-      B      h_;                h_.reserve(c);
+    { S<π0r> rs, ms;  live(rs, ms);
+      uN     ls = s;  for (let r : rs) ls += size_of(r);
+      B      h_;      h_.reserve(Sc<uN>(ls * lh));
 
       // TODO: write multiple-refs first
+      // TODO: inline single-refs into complex values
 
       // TODO: deduplicate slices
       // TODO: rewrite complex values here

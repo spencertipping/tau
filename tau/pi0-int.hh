@@ -31,10 +31,9 @@ struct π0int
     : q(q_), f(f_), c(c_)
     { r.push_back(c0); }
 
-  i9 operator[](uN i) { return i9{q.data() + i}; }
-
+  i9 operator[](uN i)   {                          return i9{q.data() + i}; }
   operator bool() const {                          return !r.empty(); }
-  π0int &go()           { while (*this) (*this)(); return *this; }
+  π0int     &go()       { while (*this) (*this)(); return *this; }
 
 #if τπ0debug_bounds_checks
   π0int &operator()()

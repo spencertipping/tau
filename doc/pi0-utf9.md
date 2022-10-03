@@ -1,15 +1,14 @@
 # π₀ UTF9
 [UTF9](utf9.md) reserves the `11100___` prefix for π use. These values are non-portable, meaning that they will never leave a π₀ heap context; that means we can use native endianness and sizing. The only constraint is that we be able to remove any such values from UTF9s we're working with, e.g. before sending them across a [φ](phi.md).
 
-π-UTF9 values begin with a byte that describes their purpose:
 
-| Byte | Purpose                      |
-|------|------------------------------|
-| `00` | **reserved**                 |
-| `01` | Reference to colocated value |
+## Value format
+**NOTE:** this is not long-term stable; it may change per build, and may not be the same across running instances within the same Γ network.
 
-Right now most of the values are reserved for future use. I created this data structure just to get references, but I imagine I'll want more things in the future -- like lazy evaluation, perhaps.
+In our case it's simple: all of these values are just pointers to other values within the same heap. That means we encode a single native-width, native-endian integer:
 
+```
+cb sb [uN value offset]
+```
 
-## `01`: reference to colocated value
-Causes any UTF9 value that contains it to be flagged as "complex" within the GC.
+These are flagged as "complex", meaning that anything containing them will be flagged as well. This causes the GC to rewrite any container as it's copied into the new heap, which of course is somewhat expensive. The GC is allowed to inline any pointer at any time to prevent this overhead.

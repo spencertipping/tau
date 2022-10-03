@@ -26,7 +26,11 @@
 #   define A(x, m) assert(x)
 # endif
 
-# define TA(r, m) default: A(0, m); return r;
+# if τdebug_catchall
+#   define TA(r, m) default: A(0, m); return r;
+# else
+#   define TA(r, m)
+# endif
 #endif
 
 

@@ -247,23 +247,24 @@ ic uN u9rs(T xs, uN i)
   case u9s::v16: return 3 + R<u16>(xs, 1);
   case u9s::v32: return 5 + R<u32>(xs, 1);
   case u9s::v64: return 9 + R<u64>(xs, 1);
-    TA(0, "control byte = " << R<u8>(xs, 0))
+    TA(0, "u9rs invalid size prefix: " << R<u8>(xs, 0))
   }
 }
 
 
 template<class T>
-ic uN u9ws(T xs, uN i, u9t t, uN s)
+ic uN u9ws(T xs, uN i, u9t t, uN s, bool f = false)
 {
   let q = u9sq(s);
   W<u8>(xs, i, t | q);
+  if (f) xs[i] |= u9f;
   switch (q)
   {
   case u9s::v8:  W<u8> (xs, i + 1, s); return 2;
   case u9s::v16: W<u16>(xs, i + 1, s); return 3;
   case u9s::v32: W<u32>(xs, i + 1, s); return 5;
   case u9s::v64: W<u64>(xs, i + 1, s); return 9;
-  default:                             return 1;
+    TA(0, "u9ws invalid size prefix: " << Sc<uN>(q));
   }
 }
 
