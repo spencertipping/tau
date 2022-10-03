@@ -27,6 +27,35 @@ struct π0o9r  // heap-local reference
 };
 
 
+struct π0o9c  // complex-value rewrite
+{
+  π0r     x;  // thing being rewritten
+  B      &h;  // heap used to resolve pointers
+  S<π0r> &m;  // set of objects with multiple references
+  f64     lh; // live set → heap size expansion factor
+  uN      is; // inlining size for this rewrite
+
+  uN mutable s = 0;
+
+  π0o9c(π0r x_, B &h_, S<π0r> &m_, f64 lh_, uN is_) : x(x_), h(h_), m(m_), lh(lh_), is(is_) {}
+  π0o9c(π0r x_, B &h_, S<π0r> &m_, f64 lh_)         : x(x_), h(h_), m(m_), lh(lh_)
+    {
+
+    }
+
+  i9 operator[](π0r a) const { return i9{h.data() + a}; }
+  bool       in(π0r a) const { return !m.contains(a) || (*this)[(*this)[a].π()].osize() <= is; }
+
+  uN size()  const { if (!s) s = isize(); return s + u9sb(u9sq(s)); }
+  uN isize() const
+    { // TODO
+    }
+
+  uN write() const
+    {}
+};
+
+
 struct π0h
 {
   B      h;
@@ -52,8 +81,8 @@ struct π0h
 
   π0r operator<<(i9 x)
     { return x.a >= h.data() && x.a < h.data() + h.size() && x.osize() > is
-        ? *this << π0o9r{x}
-        : *this << o9(x); }
+           ? *this << π0o9r{x}
+           : *this << o9(x); }
 
 
   uN size_of   (π0r i) { return (*this)[i].osize(); }
@@ -76,8 +105,8 @@ struct π0h
       uN     ls = s;  for (let r : rs) ls += size_of(r);
       B      h_;      h_.reserve(Sc<uN>(ls * lh));
 
+      // TODO: inline single refs into references
       // TODO: write multiple-refs first
-      // TODO: inline single-refs into complex values
 
       // TODO: deduplicate slices
       // TODO: rewrite complex values here

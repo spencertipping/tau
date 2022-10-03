@@ -10,6 +10,11 @@
 #endif
 
 
+#if !defined(τallow_todo)
+# define τallow_todo τdebug
+#endif
+
+
 #if τdebug
 # include <iostream>
 #endif

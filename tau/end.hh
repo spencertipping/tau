@@ -5,6 +5,7 @@
 
 #undef A
 #undef TA
+#undef TODO
 
 #undef let
 #undef letc

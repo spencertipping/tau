@@ -67,6 +67,8 @@ typedef unsigned char       uch;
 typedef unsigned char const uchc;
 
 
+// NOTE: "size_t", "int", and "long" don't coerce easily from sized ints,
+// even when those types match size and signedness
 #if τwordsize == 64
   typedef u64 uN;  typedef uN const uNc;
   typedef i64 iN;  typedef iN const iNc;

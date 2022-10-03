@@ -34,6 +34,13 @@
 #endif
 
 
+#if τallow_todo
+# define TODO(x) A(0, "TODO: " << x)
+#else
+# define TODO(x) TODO < #x >
+#endif
+
+
 #define let   auto const
 #define letc  let constexpr
 #define slet  static let

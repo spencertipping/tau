@@ -105,6 +105,7 @@ enum class u9_none : u8
 {
   generic            = 0,
   key_lookup_missing = 1,
+  tuple_bounds_error = 2,
 };
 
 defR(u9_none) { return u9_none{R<u8>(xs, i)}; }

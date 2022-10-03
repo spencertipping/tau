@@ -18,6 +18,25 @@ namespace τ
 {
 
 
+static u8 i9_statics[] =
+{
+  u9t::b      | u9s::v8, 1, 0,                                    // offset 0 = false
+  u9t::b      | u9s::v8, 1, 1,                                    // offset 3 = true
+  u9t::symbol | u9s::v8, 1, 0,                                    // offset 6 = null symbol
+  u9t::none   | u9s::v8, 1, Sc<u8>(u9_none::key_lookup_missing),  // offset 9 = no key
+  u9t::none   | u9s::v8, 1, Sc<u8>(u9_none::tuple_bounds_error),  // offset 12 = tuple OOB
+};
+
+
+struct i9;
+inline i9 i9_false();
+inline i9 i9_true();
+inline i9 i9_null();
+inline i9 i9_none();
+inline i9 i9_no_key();
+inline i9 i9_tuple_bounds();
+
+
 struct i9
 {
   static inline uN   size_of(ζp a) { return u9rs(a, 0); }
@@ -28,16 +47,35 @@ struct i9
   struct it
   {
     ζp a;
-    operator   ζp() const { return a; }
-    i9 operator* () const { return i9{a}; }
-    it operator++()       { a += i9{a}.size(); return *this; }
+    operator     ζp()            const { return a; }
+    i9   operator* ()            const { return i9{a}; }
+    it   operator++()                  { a += i9{a}.osize(); return *this; }
+    bool operator==(it const &x) const { return a == x.a; }
+  };
+
+
+  struct kit  // key iterator
+  {
+    it i;
+    i9   operator* ()             const { return *i; }
+    kit  operator++()                   { ++i; ++i; return *this; }
+    bool operator==(kit const &x) const { return i == x.i; }
+  };
+
+
+  struct ks
+  {
+    ζp a;
+    kit begin() const { return kit{it{a + u9sb(u9ts_s(R<u8>(a, 0)))}}; }
+    kit end()   const { return kit{it{a + u9rs(a, 0)}}; }
   };
 
 
   ζp a;
   i9(ζp a_) : a(a_) {}
 
-  // true if the value is not a stream manipulator
+  // UTF9 values are truthy if they are normal, that is they (1) exist,
+  // and (2) are not stream metadata
   operator bool() const { return exists() && type() != u9t::stream; }
   bool   exists() const { return a && a != ζωp; }
   operator   ζp() const { return a; }
@@ -49,7 +87,10 @@ struct i9
   u9t  type()    const { return a ? u9ts_t(code()) : u9t::none; }
   it   begin()   const { return it{a + u9sb(stype())}; }
   it   end()     const { return it{a + u9rs(a, 0)}; }
+  i9   next()    const { return i9{a + osize()}; }
+  ks   keys()    const { return ks{a}; }
   uN   osize()   const { return u9rs(a, 0); }
+
 
   // NOTE: inner, "logical" size, not outer size; that way these methods
   // have STL-style meanings
@@ -62,9 +103,9 @@ struct i9
 
   template<class T>
   requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v && (!u9t_is<T, u9signed.m>::v)
-    operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(begin(), 0); }
+    explicit operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(begin(), 0); }
 
-  operator i64() const
+  explicit operator i64() const
     { u9ints(type());
       switch (type())
       {
@@ -76,15 +117,35 @@ struct i9
       case u9t::u16: return R<u16>(begin(), 0);
       case u9t::u32: return R<u32>(begin(), 0);
       case u9t::u64: return R<u64>(begin(), 0);
-        TA(0, type())
+        TA(0, type());
       } }
 
+  explicit operator i32() const
+    { u9ints(type());
+      switch (type())
+      {
+      case u9t::i8:  return          R<i8> (begin(), 0);
+      case u9t::i16: return          R<i16>(begin(), 0);
+      case u9t::i32: return          R<i32>(begin(), 0);
+      case u9t::i64: return coi<i32>(R<i64>(begin(), 0));
+      case u9t::u8:  return          R<u8> (begin(), 0);
+      case u9t::u16: return          R<u16>(begin(), 0);
+      case u9t::u32: return coi<i32>(R<u32>(begin(), 0));
+      case u9t::u64: return coi<i32>(R<u64>(begin(), 0));
+        TA(0, type());
+      } }
 
   template<class T>
-  T const* operator*() const
+  T const *operator*() const
     { u9tm{u9t::nstruct}(type());
       A(sizeof(T) <= size(), "i9 native T* overflows bounds; |T|=" << sizeof(T) << ", size()=" << size());
-      return Rc<T const*>(begin()); }
+      return Rc<T const*>(data()); }
+
+  template<class T>
+  T *operator*() const
+    { u9tm{u9t::nstruct}(type());
+      A(sizeof(T) <= size(), "i9 native T* overflows bounds; |T|=" << sizeof(T) << ", size()=" << size());
+      return Rc<T*>(data()); }
 
   operator St       () const { return St{Rc<ch*>(data()), size()}; }
   operator Bv       () const { return Bv{data(), size()}; }
@@ -97,6 +158,8 @@ struct i9
   u64  θ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
   u64  ι() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::ι ? R<u64>(begin(), 1) : 0; }
   bool τ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::τ; }
+
+  uN   π() const { u9tm{u9t::pi}(type()); return *Rc<uNc*>(data()); }
 
 
   i9 operator*() const
@@ -123,25 +186,60 @@ struct i9
   // NOTE: can't do vectors here because we don't have enough space
   // to return type information alongside the value; use .at()
   i9 operator[](uN i) const
-    { switch (type())
+    { u9tm{u9t::index, u9t::tuple}(type());
+      switch (type())
       {
-        // TODO: tuple indexes
-      case u9t::tuple: { ζp b = begin(); while (i--) b += size_of(b); return b; }
+      case u9t::index: TODO("i9[uN] u9t::index");
+      case u9t::tuple: { ζp b = data(); while (i--) b += size_of(b); return b; }
         TA(0, "i9[uN] requires index or tuple, not " << type())
       } }
 
   i9 operator[](i9 i) const
-    { // TODO: indexes
-      // TODO: sets
-      // TODO: maps
-      A(0, "TODO i9[]");
-      return *this;
-    }
+    { u9tm{u9t::tuple, u9t::set, u9t::map, u9t::index}(type());
+      switch (type())
+      {
+      case u9t::tuple:
+      { iN  n = Sc<iN>(i);
+        let u = size();
+        uN  j = 0;
+        for (; n && j < u; --n, j += i9::size_of(data() + j));
+        return n ? i9_none() : i9{data() + j}; }
 
-  bool operator==(uN x)        const { return u9unsigned[type()] && Sc<uN> (*this) == x; }
-  bool operator==(i64 x)       const { return u9signed[type()]   && Sc<i64>(*this) == x; }
-  bool operator==(St const &x) const { return u9strings[type()]  && size() == x.size() && !std::memcmp(begin(), x.data(), x.size()); }
+      case u9t::set:
+      { for (let x : *this) if (i == x) return i9_true();
+        return i9_false(); }
+
+      case u9t::map:
+      { for (let x : keys()) if (i == x) return x.next();
+        return i9_no_key(); }
+
+      case u9t::index: TODO("i9[i9] index");
+
+      TA(*this, "i9[i9] undefined for " << type());
+      } }
+
+
+  bool operator==(uN   x) const { return u9unsigned[type()] && Sc<uN> (*this) == x; }
+  bool operator==(i64  x) const { return u9signed[type()]   && Sc<i64>(*this) == x; }
+  bool operator==(i32  x) const { return u9signed[type()]   && Sc<i32>(*this) == x; }
+  bool operator==(Stc &x) const { return u9strings[type()]  && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
+  bool operator==(Bc  &x) const { return u9strings[type()]  && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
+  bool operator==(i9   x) const { return x.a == a || type() == x.type() && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
+  bool operator==(ζp   b) const { return a == b; }
+
+
+  bool verify(uN s) const  // verify this value with the given external size
+    { // TODO: verify that this value can be decoded safely
+      TODO("i9 verify()"); }
 };
+
+
+inline i9 i9_false()        { return i9{i9_statics + 0}; }
+inline i9 i9_true()         { return i9{i9_statics + 3}; }
+inline i9 i9_null()         { return i9{i9_statics + 6}; }
+inline i9 i9_no_key()       { return i9{i9_statics + 9}; }
+inline i9 i9_tuple_bounds() { return i9{i9_statics + 12}; }
+inline i9 i9_none()         { return i9{ζωp}; }
 
 
 static_assert(sizeof(i9) == sizeof(uN));
@@ -190,8 +288,8 @@ O &operator<<(O &s, i9 const &x)
          : s;
 
   case u9t::bytes:  return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
-  case u9t::utf8:   return s << "\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
-  case u9t::index:  return s << "i" << i9{x.begin()};
+  case u9t::utf8:   return s << "\""  << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
+  case u9t::index:  return s << "i"   << i9{x.begin()};
 
   case u9t::tuple:
   { let b = x.begin();
@@ -215,8 +313,8 @@ O &operator<<(O &s, i9 const &x)
     s << "{";
     for (auto i = 0; b + i < e;)
     { if (i) s << ", ";
-      let k = i9{b + i}; s << k << ":"; i += k.size();
-      let v = i9{b + i}; s << v; i += v.size(); }
+      let k = i9{b + i}; s << k << ":"; i += k.osize();
+      let v = i9{b + i}; s << v;        i += v.osize(); }
     return s << "}"; }
 
   case u9t::tensor:
@@ -226,6 +324,8 @@ O &operator<<(O &s, i9 const &x)
 
   case u9t::heapref: return s << "heap@" << Rc<void*>((*x).a);
   case u9t::heappin: return s << "hpin@" << Rc<void*>((*x).a);
+
+  case u9t::pi: return s << "π₀[" << *Rc<uN*>(x.data()) << "]";
 
   default:
     return s << "i9[" << x.type() << ":" << x.flagged() << ":" << x.size() << "]";
