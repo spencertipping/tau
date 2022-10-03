@@ -54,6 +54,15 @@ struct i9
   };
 
 
+  struct fit  // flat iterator
+  {
+    it    i;
+    V<ζp> c;
+
+    // TODO: write this
+  };
+
+
   struct kit  // key iterator
   {
     it i;
