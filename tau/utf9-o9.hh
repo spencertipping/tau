@@ -44,36 +44,6 @@ struct o9i9
 inline o9i9 o9(i9 i) { return o9i9{i}; }
 
 
-// TODO: delete this class; we don't need it because i9 is o9mapped,
-// and we already have o9v<> to deal with vector things
-template<class T>
-struct o9i9s
-{
-  T   const  &xs;
-  u9t const   t;
-  uN  mutable s = 0;
-
-  uN isize() const
-    { if (!s) for (let x : xs) s += i9::size_of(x.a);
-      return s; }
-
-  uN size ()     const { return isize() + u9sb(u9sq(isize())); }
-  uN write(ζp m) const
-    { uN   i = u9ws(m, 0, t, isize());
-      bool f = false;
-      for (let x : xs)
-      { let o = o9i9{x};
-        A(!o.write(m + i), "o9i9s internal error");
-        f = f || u9ts_f(R<u8>(m, i));
-        i += o.size(); }
-      if (f) m[i] |= u9f;
-      return 0; }
-};
-
-inline o9i9s<V<i9>> o9(V<i9> const &xs) { return o9i9s<V<i9>>{xs, u9t::tuple}; }
-inline o9i9s<S<i9>> o9(S<i9> const &xs) { return o9i9s<S<i9>>{xs, u9t::set}; }
-
-
 struct o9q  // byte-quoted i9 serialization
 {
   i9 const x;
@@ -185,7 +155,8 @@ struct o9a  // vector of fixed
   uN isize() const { return u9sizeof(u9t_<T>::t) * n; }
   uN write(ζp m) const
     { uN b = u9ws(m, 0, u9t_<T>::t, isize());
-      A(sizeof(T) == u9sizeof(u9t_<T>::t), "o9a internal error: " << sizeof(T) << " ≠ " << u9sizeof(u9t_<T>::t) << ", t = " << u9t_<T>::t);
+      A(sizeof(T) == u9sizeof(u9t_<T>::t),
+        "o9a internal error: " << sizeof(T) << " ≠ " << u9sizeof(u9t_<T>::t) << ", t = " << u9t_<T>::t);
       for (uN i = 0; i < n; ++i)
         W(m + b, i * u9sizeof(u9t_<T>::t), xs[i]);
       return 0; }
@@ -293,7 +264,6 @@ ic o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
 
 template<class T>    struct o9_            { sletc v = false; };
 template<>           struct o9_<o9i9>      { sletc v =  true; };
-template<class T>    struct o9_<o9i9s<T>>  { sletc v =  true; };
 template<>           struct o9_<o9q>       { sletc v =  true; };
 template<class T>    struct o9_<o9f<T>>    { sletc v =  true; };
 template<class T>    struct o9_<o9b<T>>    { sletc v =  true; };

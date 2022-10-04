@@ -2,6 +2,9 @@
 #define τπ0gc_h
 
 
+#include <algorithm>
+
+
 #include "debug.hh"
 #include "utf9.hh"
 #include "pi0-types.hh"
@@ -34,7 +37,7 @@ struct π0o9c  // complex-value rewrite
   π0r     x;  // old-heap address of thing being rewritten
   B      &h;  // old heap used to resolve pointers
   S<π0r> &m;  // set of objects with multiple references (input, no-inline)
-  S<π0r> &w;  // set of references that need to be rewritten (output)
+  S<π0r> &w;  // set of references that need to be rewritten (output, new-heap addresses)
 
   V<P<π0r, iN>> mutable o;      // size shifts in the form (index, ∑delta)
   uN            mutable s = 0;  // == x.osize() + o[-1].second
@@ -44,31 +47,71 @@ struct π0o9c  // complex-value rewrite
   i9 operator[](π0r a) const { return i9{h.data() + a}; }
   bool       in(π0r a) const { return (*this)[a].type() == u9t::pi && !m.contains(a); }
 
-  uN size()  const { if (!s) s = isize(); return s + u9sb(u9sq(s)); }
-  uN isize() const
-    { // We know exactly which references we want to inline, so the first
+  iN disp(π0r a) const
+    { uN l = 0, u = o.size();
+      while (l + 1 < u)
+      { let m = l + u >> 1;
+        (a < o[m].first ? u : l) = m; }
+      return o[l].second; }
+
+  uN size() const
+    { if (s) return s;
+
+      // We know exactly which references we want to inline, so the first
       // step is to walk through and allocate size for them. We'll mark
       // each one into the `o` vector.
-      let i = (*this)[x];
-      V<π0r>        c;  // flagged container offsets
-      V<P<π0r, iN>> d;  // size deltas from rewrites
-      V<P<π0r, iN>> e;  // size deltas from container size encodings
+      //
+      // `o` also contains splices that result from container sizes requiring
+      // different bit-sizes to encode.
+      let           i = (*this)[x];
+      Sk<π0r>       c;   // current containers
+      V<P<π0r, iN>> ss;  // size splices
+      V<P<π0r, iN>> rs;  // rewrite splices
 
-      // TODO: modify this loop so we track all containers while we're going
-      for (π0r j = 0; j < i.osize(); j += (*this)[x + j].osize())
-      { let z = (*this)[x + j];
-        if      (in(x + j))                   d.push_back(mp(j, (*this)[z.π()].osize() - z.osize()));
-        else if (z.type() == u9t::pi)         w.insert(x + j);
-        else if (z.flagged() && ds[z.type()]) j += u9sb(z.stype()), c.push_back(j);
-        else if (z.flagged()
-                 && z.type() == u9t::index)   TODO("π₀o9c index"); }
+      iN d = 0;          // total displacement so far
+      o.clear();
 
-      uN t = i.size();  // NOTE: inner size, since we're isize()
-      for (let &[_, d] : o) t += d;
-      return t; }
+      for (π0r j = 0; j <= i.osize(); j += (*this)[x + j].osize())
+      { each:
+        for (; !c.empty() && j >= c.top() + (*this)[c.top()].osize(); c.pop())
+        { let sn = u9sq(j - c.top() + d);     // new size encoding
+          let so = (*this)[c.top()].stype();  // original size encoding
+          let ds = u9sb(sn) - u9sb(so);       // size-encoding difference
+          d += ds;
+          if (ds) ss.push_back(mp(c.top(), ds)); }
+
+        if (j >= i.osize()) break;
+
+        let z = (*this)[x + j];
+        let t = z.type();
+        if (z.flagged())
+          if (ds[t])                { c.push(j); j += u9sb(z.stype()); goto each; }
+          else if (t == u9t::index) TODO("π₀o9c index");
+          else if (in(x + j))
+          { let ds = (*this)[z.π()].osize() - z.osize();
+            d += ds;
+            rs.push_back(mp(j, ds)); }}
+
+      // Now merge our splices into the main compiled-splice list. Note that
+      // container size splices are out of order, whereas rewrite splices
+      // are not.
+      std::sort(ss.begin(), ss.end(), [](auto a, auto b) { return a.first < b.first; });
+
+      uN j = 0, k = 0;
+      for (d = 0; j < ss.size() && k < rs.size();)
+      { let &[si, sd] = ss[j];
+        let &[ri, rd] = rs[k];
+        if      (si < ri) o.push_back(mp(si, d += sd     )), ++j;
+        else if (ri < si) o.push_back(mp(ri, d +=      rd)),      ++k;
+        else              o.push_back(mp(si, d += sd + rd)), ++j, ++k; }
+      while (j < ss.size()) o.push_back(mp(ss[j].first, d += ss[j].second));
+      while (k < rs.size()) o.push_back(mp(rs[k].first, d += rs[k].second));
+      return s = i.osize() + d; }
 
   uN write(ζp m) const
-    { TODO("π0o9c write"); }
+    {
+
+      TODO("π0o9c write"); }
 };
 
 template<> struct o9_<π0o9r> { sletc v = true; };
@@ -134,7 +177,7 @@ struct π0h
       // anything under some fixed size, so at this point we want to save space.
       for (let m : ms) if (m != π0hω) ns[m] = h_ << o9((*this)[m]);
 
-      // Everything else can and should be inlined into whoever contains it.
+      // Everything else can and should be inlined into whoever refers to it.
       for (let r : rs)
         if (r != π0hω && !ms.contains(r))
         { let i = (*this)[r];
@@ -142,9 +185,9 @@ struct π0h
                               : h_ << o9(i); }
       ns[π0hω] = π0hω;
 
-      for (auto &x : d) x = ns[x];
+      for (auto &x : d)                      x = ns[x];
       for (auto &x : f) for (auto &y : x.xs) y = ns[y];
-      for (auto &x : p) x = ns[x];
+      for (auto &x : p)                      x = ns[x];
       h.swap(h_); }
 
 
