@@ -32,11 +32,29 @@ void try_heap()
   h.fs(2, o9t(1, 2, 3, "bar", true));
   h.fs(3, u9_symbol::gensym());
 
-  cout << "h₀ = " << h.h.capacity() << ", " << h.gΘ << endl;
+  cout << "h₀ = " << h.h.capacity() << ", " << h.gΘ << " " << h.gΘ.h << endl;
   for (uN i = 0; i < 100000; ++i) h.fs(0, o9t(i, "hi there", "woah", false));
-  cout << "h₁ = " << h.h.capacity() << ", " << h.gΘ << endl;
+  cout << "h₁ = " << h.h.capacity() << ", " << h.gΘ << " " << h.gΘ.h << endl;
 
   cout << h.fi(0) << " " << h.fi(1) << " " << h.fi(2) << " " << h.fi(3) << endl;
+}
+
+
+void try_stack()
+{
+  π0h h;
+
+  let t0 = now();
+  h.dpush(0);
+  for (i64 i = 0; i < 1l << 24; ++i)
+  { h.dpush(i);
+    let a = Sc<i64>(h.di(0));
+    let b = Sc<i64>(h.di(1));
+    h.dpop(2);
+    h.dpush(a + b); }
+  let t1 = now();
+
+  cout << "stack sum 16M ints = " << h.di(0) << " in " << t1 - t0 << " " << h.gΘ << endl;
 }
 
 
@@ -44,6 +62,7 @@ int main()
 {
   try_symbols();
   try_heap();
+  try_stack();
 }
 
 
