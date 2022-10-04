@@ -8,6 +8,7 @@
 #include "debug.hh"
 #include "utf9.hh"
 #include "pi0-types.hh"
+#include "shd.hh"
 
 #include "begin.hh"
 
@@ -124,6 +125,7 @@ struct π0h
   V<π0r> p;   // pinned values
   f64    lh;  // live set → heap size factor
   uN     is;  // inlining size: i9s smaller than this are inlined immediately
+  ΣΘΔ    gΘ;  // GC timer
 
   π0h(f64 lh_ = 4.0,
       uN  is_ = 64,
@@ -154,6 +156,7 @@ struct π0h
   i9 pinned      (uN i)  {                 return (*this)[τπ0debug_bounds_checks ? p.at(i) : p[i]]; }
   π0h &clear_pins()      { p.clear();      return *this; }
 
+
   void trace(S<π0r> &r, S<π0r> &m, π0r i)
     { if (!r.insert(i).second) m.insert(i);
       else
@@ -167,7 +170,8 @@ struct π0h
       for (let  x : p)                    trace(r, m, x); }
 
   void gc(uN s)  // GC with room for live set + s
-    { S<π0r> rs, ms;  live(rs, ms);
+    { gΘ.start();
+      S<π0r> rs, ms;  live(rs, ms);
       uN     ls = s;  for (let r : rs) ls += size_of(r);
       B      h_;      h_.reserve(Sc<uN>(ls * lh));
 
@@ -189,7 +193,8 @@ struct π0h
       for (auto &x : d)                      x = ns[x];
       for (auto &x : f) for (auto &y : x.xs) y = ns[y];
       for (auto &x : p)                      x = ns[x];
-      h.swap(h_); }
+      h.swap(h_);
+      gΘ.stop(); }
 
 
 #if τπ0debug_bounds_checks
