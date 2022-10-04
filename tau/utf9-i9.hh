@@ -71,7 +71,6 @@ struct i9
     bool operator==(kit const &x) const { return i == x.i; }
   };
 
-
   struct ks
   {
     ζp a;

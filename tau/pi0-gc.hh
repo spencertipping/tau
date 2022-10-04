@@ -35,24 +35,24 @@ struct π0o9c  // complex-value rewrite
   f64     lh; // live set → heap size expansion factor
   uN      is; // inlining size for this rewrite
 
+  // TODO: mutable vector of offsets + size adjustments so we can calculate
+  // new sizes of all contained values
   uN mutable s = 0;
 
   π0o9c(π0r x_, B &h_, S<π0r> &m_, f64 lh_, uN is_) : x(x_), h(h_), m(m_), lh(lh_), is(is_) {}
   π0o9c(π0r x_, B &h_, S<π0r> &m_, f64 lh_)         : x(x_), h(h_), m(m_), lh(lh_)
-    {
-
-    }
+    { TODO("calculate inlining size"); }
 
   i9 operator[](π0r a) const { return i9{h.data() + a}; }
   bool       in(π0r a) const { return !m.contains(a) || (*this)[(*this)[a].π()].osize() <= is; }
 
   uN size()  const { if (!s) s = isize(); return s + u9sb(u9sq(s)); }
   uN isize() const
-    { // TODO
-    }
+    { TODO("π0o9c isize");
+      TODO("calculate size adjustments/offsets"); }
 
   uN write() const
-    {}
+    { TODO("π0o9c write"); }
 };
 
 

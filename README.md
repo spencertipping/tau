@@ -6,7 +6,7 @@ Design notes:
 + [φ](doc/phi.md) and [Φ](doc/Phi.md)
   + [ζ](doc/zeta.md)
   + [Λ](doc/Lambda.md)
-  + [utf9](doc/utf9.md)
+  + [UTF9](doc/utf9.md)
 + [γ](doc/gamma.md)
   + [γ design](doc/gamma-design.md)
   + [γ authoring](doc/gamma-authoring.md)
@@ -50,12 +50,18 @@ This repo cannot be cloned on case-insensitive filesystems.
 
 
 ## Next steps
-1. [ρ](doc/rho.md)
-2. [π](doc/pi.md)
-3. γ₀ → γ UTF9 API ([ξ](doc/xi.md))
-4. Φ trunk multiplexing
-5. γ₀ ED25519 + AES secure channels
-6. Γ routing
+Narrowly:
+
++ π GC with UTF9 rewriting
++ π/C++ FFI
+
+Broadly:
+
+1. [π](doc/pi.md)
+2. [ξ](doc/xi.md)
+3. Φ trunk multiplexing
+4. γ₀ ED25519 + AES secure channels
+5. Γ routing
 
 
 ### Debt
@@ -66,7 +72,8 @@ This repo cannot be cloned on case-insensitive filesystems.
 
 ### GL
 + Arc rendering with fragment shaders
-+ Proper blending, also with shaders
++ Proper blending, also with shaders (probably just Z-order)
++ GL images as textures, with GC
 
 
 ### Data processing components
