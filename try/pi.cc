@@ -1,9 +1,10 @@
-#include <ostream>
-#define tau_debug 1
-//#define tau_debug_i9st 1
+#define τdebug 1
+#define τπ0debug_bounds_checks 0
+//#define τdebug_i9st 1
+
 #include "../tau.hh"
 
-#if τdefines_Φ
+#if τdefines_π
 
 
 using namespace τ;
