@@ -95,7 +95,7 @@ struct π0asm
 
   // Block authoring functions
   π0asm &block() { bs.push_back(new struct block()); return *this; }
-  π0asm &frame(Stc &vs) {  }
+  π0asm &frame(Stc &vs) { TODO("π0asm frame"); }
 
 
   π0asm &q_(Stc &c)

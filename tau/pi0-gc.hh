@@ -109,9 +109,7 @@ struct π0o9c  // complex-value rewrite
       return s = i.osize() + d; }
 
   uN write(ζp m) const
-    {
-
-      TODO("π0o9c write"); }
+    { TODO("π0o9c write"); }
 };
 
 template<> struct o9_<π0o9r> { sletc v = true; };
@@ -145,13 +143,16 @@ struct π0h
       return h << o; }
 
   π0r operator<<(i9 x)
-    { return x.a >= h.data() && x.a < h.data() + h.size() && x.osize() > is
+    { return x.a >= h.data() && x.a < h.data() + h.size() && x.osize() >= is
            ? *this << π0o9r{x}
            : *this << o9(x); }
 
 
-  uN size_of   (π0r i) { return (*this)[i].osize(); }
-  i9 operator[](π0r i) { return i9{h.data() + i}; }
+  uN size_of     (π0r i) { return (*this)[i].osize(); }
+  i9 operator[]  (π0r i) { if (τπ0debug_bounds_checks) A(i < h.size(), "π₀[π₀r]: " << i << " ≥ " << h.size()); return i9{h.data() + i}; }
+  uN pin         (π0r a) { p.push_back(a); return p.size() - 1; }
+  i9 pinned      (uN i)  {                 return (*this)[τπ0debug_bounds_checks ? p.at(i) : p[i]]; }
+  π0h &clear_pins()      { p.clear();      return *this; }
 
   void trace(S<π0r> &r, S<π0r> &m, π0r i)
     { if (!r.insert(i).second) m.insert(i);
