@@ -50,28 +50,28 @@ struct π0o9c  // complex-value rewrite
       // step is to walk through and allocate size for them. We'll mark
       // each one into the `o` vector.
       let i = (*this)[x];
-      iN  d = 0;
-      V<π0r> c;
+      V<π0r>        c;  // flagged container offsets
+      V<P<π0r, iN>> d;  // size deltas from rewrites
+      V<P<π0r, iN>> e;  // size deltas from container size encodings
 
+      // TODO: modify this loop so we track all containers while we're going
       for (π0r j = 0; j < i.osize(); j += (*this)[x + j].osize())
       { let z = (*this)[x + j];
-        if      (in(x + j))                   o.push_back(mp(j, d += (*this)[z.π()].osize() - z.osize()));
+        if      (in(x + j))                   d.push_back(mp(j, (*this)[z.π()].osize() - z.osize()));
         else if (z.type() == u9t::pi)         w.insert(x + j);
         else if (z.flagged() && ds[z.type()]) j += u9sb(z.stype()), c.push_back(j);
         else if (z.flagged()
                  && z.type() == u9t::index)   TODO("π₀o9c index"); }
 
-      // TODO: figure out which container sizes will need to be modified
-      // to accommodate rewritten values
-
       uN t = i.size();  // NOTE: inner size, since we're isize()
       for (let &[_, d] : o) t += d;
       return t; }
 
-  uN write() const
+  uN write(ζp m) const
     { TODO("π0o9c write"); }
 };
 
+template<> struct o9_<π0o9r> { sletc v = true; };
 template<> struct o9_<π0o9c> { sletc v = true; };
 
 
@@ -91,10 +91,13 @@ struct π0h
     { h.reserve(1ul << hb_);
       p.reserve(64); }
 
-  template<class T>
+  template<o9n_ T>
   π0r operator<<(T const &x)
-    { let o = o9(x);
-      let s = o.size();
+    { return *this << o9(x); }
+
+  template<o9__ T>
+  π0r operator<<(T const &o)
+    { let s = o.size();
       if (h.size() + s > h.capacity()) gc(s);
       return h << o; }
 
@@ -150,21 +153,21 @@ struct π0h
   i9 fi(uN i, uN fi = 0) { return (*this)[f.at(f.size() - 1 - fi).xs.at(i)]; }
 
   template<class T>
-  π0h &fs(uN i, T const &x) { f.at(f.size() - 1).xs.at(i) = *this << o9(x); return *this; }
+  π0h &fs(uN i, T const &x) { f.at(f.size() - 1).xs.at(i) = *this << x; return *this; }
 #else
   i9 di(uN i)            { return (*this)[d[d.size() - 1 - i]]; }
   i9 fi(uN i, uN fi = 0) { return (*this)[f[f.size() - 1 - fi].xs[i]]; }
 
   template<class T>
-  π0h &fs(uN i, T const &x) { f[f.size() - 1].xs[i] = *this << o9(x); return *this; }
+  π0h &fs(uN i, T const &x) { f[f.size() - 1].xs[i] = *this << x; return *this; }
 #endif
 
   template<class T>
-  π0h &dpush(T const &x) { d.push_back(*this << o9(x)); return *this; }
-  π0h &dpop(uN n = 1)    { d.resize(d.size() - n);      return *this; }
+  π0h &dpush(T const &x) { d.push_back(*this << x); return *this; }
+  π0h &dpop(uN n = 1)    { d.resize(d.size() - n);  return *this; }
 
-  π0h &fpush(uN vs)      { f.push_back(π0F(vs));        return *this; }
-  π0h &fpop()            { f.pop_back();                return *this; }
+  π0h &fpush(uN vs)      { f.push_back(π0F(vs));    return *this; }
+  π0h &fpop()            { f.pop_back();            return *this; }
 };
 
 

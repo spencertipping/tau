@@ -423,6 +423,7 @@ O &operator<<(O &s, u9_none const &n)
   {
   case u9_none::generic:            return s << "∅[]";
   case u9_none::key_lookup_missing: return s << "∅[k→]";
+  case u9_none::tuple_bounds_error: return s << "∅[<|≥]";
   }
 }
 
