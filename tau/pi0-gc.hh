@@ -29,31 +29,50 @@ struct π0o9r  // heap-local reference
 
 struct π0o9c  // complex-value rewrite
 {
-  π0r     x;  // thing being rewritten
-  B      &h;  // heap used to resolve pointers
-  S<π0r> &m;  // set of objects with multiple references
-  f64     lh; // live set → heap size expansion factor
-  uN      is; // inlining size for this rewrite
+  sletc ds = u9tm{u9t::tuple, u9t::map, u9t::set};
 
-  // TODO: mutable vector of offsets + size adjustments so we can calculate
-  // new sizes of all contained values
-  uN mutable s = 0;
+  π0r     x;  // old-heap address of thing being rewritten
+  B      &h;  // old heap used to resolve pointers
+  S<π0r> &m;  // set of objects with multiple references (input, no-inline)
+  S<π0r> &w;  // set of references that need to be rewritten (output)
 
-  π0o9c(π0r x_, B &h_, S<π0r> &m_, f64 lh_, uN is_) : x(x_), h(h_), m(m_), lh(lh_), is(is_) {}
-  π0o9c(π0r x_, B &h_, S<π0r> &m_, f64 lh_)         : x(x_), h(h_), m(m_), lh(lh_)
-    { TODO("calculate inlining size"); }
+  V<P<π0r, iN>> mutable o;      // size shifts in the form (index, ∑delta)
+  uN            mutable s = 0;  // == x.osize() + o[-1].second
+
+  π0o9c(π0r x_, B &h_, S<π0r> &m_, S<π0r> &w_) : x(x_), h(h_), m(m_), w(w_) {}
 
   i9 operator[](π0r a) const { return i9{h.data() + a}; }
-  bool       in(π0r a) const { return !m.contains(a) || (*this)[(*this)[a].π()].osize() <= is; }
+  bool       in(π0r a) const { return (*this)[a].type() == u9t::pi && !m.contains(a); }
 
   uN size()  const { if (!s) s = isize(); return s + u9sb(u9sq(s)); }
   uN isize() const
-    { TODO("π0o9c isize");
-      TODO("calculate size adjustments/offsets"); }
+    { // We know exactly which references we want to inline, so the first
+      // step is to walk through and allocate size for them. We'll mark
+      // each one into the `o` vector.
+      let i = (*this)[x];
+      iN  d = 0;
+      V<π0r> c;
+
+      for (π0r j = 0; j < i.osize(); j += (*this)[x + j].osize())
+      { let z = (*this)[x + j];
+        if      (in(x + j))                   o.push_back(mp(j, d += (*this)[z.π()].osize() - z.osize()));
+        else if (z.type() == u9t::pi)         w.insert(x + j);
+        else if (z.flagged() && ds[z.type()]) j += u9sb(z.stype()), c.push_back(j);
+        else if (z.flagged()
+                 && z.type() == u9t::index)   TODO("π₀o9c index"); }
+
+      // TODO: figure out which container sizes will need to be modified
+      // to accommodate rewritten values
+
+      uN t = i.size();  // NOTE: inner size, since we're isize()
+      for (let &[_, d] : o) t += d;
+      return t; }
 
   uN write() const
     { TODO("π0o9c write"); }
 };
+
+template<> struct o9_<π0o9c> { sletc v = true; };
 
 
 struct π0h
@@ -105,13 +124,19 @@ struct π0h
       uN     ls = s;  for (let r : rs) ls += size_of(r);
       B      h_;      h_.reserve(Sc<uN>(ls * lh));
 
-      // TODO: inline single refs into references
-      // TODO: write multiple-refs first
+      M<π0r, π0r> ns;  // old → new heap address map
+      S<π0r>      rw;  // set of references in new heap that need to be updated
 
-      // TODO: deduplicate slices
-      // TODO: rewrite complex values here
-      M<π0r, π0r> ns;
-      for (let r : rs) if (r != π0hω) ns[r] = h_ << o9((*this)[r]);
+      // No object with multiple references will be inlined; we already inline
+      // anything under some fixed size, so at this point we want to save space.
+      for (let m : ms) if (m != π0hω) ns[m] = h_ << o9((*this)[m]);
+
+      // Everything else can and should be inlined into whoever contains it.
+      for (let r : rs)
+        if (r != π0hω && !ms.contains(r))
+        { let i = (*this)[r];
+          ns[r] = i.flagged() ? h_ << π0o9c(r, h, ms, rw)
+                              : h_ << o9(i); }
       ns[π0hω] = π0hω;
 
       for (auto &x : d) x = ns[x];

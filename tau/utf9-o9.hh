@@ -53,7 +53,7 @@ struct o9i9s
     { if (!s) for (let x : xs) s += i9::size_of(x.a);
       return s; }
 
-  uN size () const { return isize() + u9sb(u9sq(isize())); }
+  uN size ()     const { return isize() + u9sb(u9sq(isize())); }
   uN write(ζp m) const
     { uN   i = u9ws(m, 0, u9t::tuple, isize());
       bool f = false;

@@ -128,6 +128,9 @@ template<class... T>       using Vi = typename V<T...>::const_iterator;
 
 template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std::vector<T>, C>;
 
+template<class T, class U>
+ic auto mp(T &&a, U &&b) { return std::make_pair(std::move(a), std::move(b)); }
+
 
 template<class T, class = void> struct iti_static : std::false_type {};
 template<class T> struct iti_static
