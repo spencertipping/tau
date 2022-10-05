@@ -38,6 +38,17 @@ struct π0int
   template<o9mapped T>
   π0int &operator<<(T const &x) { h.dpush(x); return *this; }
 
+  π0int &dup() { h.d.push_back(h.d.back());          return *this; }
+  π0int &dip() { h.d.push_back(h.d[h.d.size() - 2]); return *this; }
+  i9     pop() { let i = h.di(0); h.dpop();          return i; }
+
+  π0int &run(uN l)
+    { V<uN> rb; rb.push_back(l);
+      r.swap(rb);
+      go();
+      r.swap(rb);
+      return *this; }
+
 #if τπ0debug_bounds_checks
   π0int &operator()()
     { A(!r.empty(), "π₀i() r=∅");
@@ -59,9 +70,7 @@ O &operator<<(O &s, π0int const &i)
   if (!i.r.empty())
     for (iN j = i.r.size() - 1; j >= 0; --j)
       s << i.r[j] << " ";
-  s << std::endl;
-  s << i.h << std::endl;
-  return s;
+  return s << i.h << std::endl;
 }
 #endif
 

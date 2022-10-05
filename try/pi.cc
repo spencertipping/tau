@@ -70,11 +70,34 @@ void try_asm()
 }
 
 
+void try_control_flow()
+{
+  π0asm a;
+  a .def("i64+",  [](π0int &z, i9 a, i9 b) { z << Sc<i64>(a) + Sc<i64>(b); })
+    .def("print", [](π0int &z, i9 a) { cout << a << endl; })
+    .def("dup",   [](π0int &z) { z.dup(); })
+    .def("dip",   [](π0int &z) { z.dip(); })
+    .def(".",     [](π0int &z, i9 a) { z.r.push_back(a); })
+    .def("i64<",  [](π0int &z, i9 a, i9 b) { z << (Sc<i64>(a) < Sc<i64>(b)); })
+    .def("i64>",  [](π0int &z, i9 a, i9 b) { z << (Sc<i64>(a) > Sc<i64>(b)); })
+    .def("while", [](π0int &z, i9 c, i9 b)
+      { uNc cn = Sc<uN>(c);
+        uNc bn = Sc<uN>(b);
+      each:
+        z.run(cn);
+        if (z.pop().b()) { z.run(bn); goto each; }});
+
+  a << "100 [1 i64+] [dup 105 i64>] while print";
+  a.build().go();
+}
+
+
 int main()
 {
   try_symbols();
-  try_stack();
   try_asm();
+  try_control_flow();
+  try_stack();
 }
 
 

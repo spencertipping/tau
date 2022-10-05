@@ -131,13 +131,12 @@ struct π0asm
   π0asm &begin() { bls.push_back(new π0abl()); return *this; }
   π0asm &end(bool r = true)
     { let b = bls.back(); bls.pop_back();
-      cb() << def(
-        [n = b->is.size(), r](π0int &i)
-        { i.h.dpush(i.r.back());
+      cb() << def([n = b->is.size(), r](π0int &i)
+        { i << i.r.back();
           i.r.back() += n + r; });
       for (let i : b->is) cb() << i;
-      if (r) cb() << ret;
       delete b;
+      if (r) cb() << ret;
       return *this; }
 
   π0asm &frame(Stc &vs) { TODO("π0asm frame"); }
@@ -167,13 +166,13 @@ struct π0asm
           else A(0, "π₀asm<< internal error " << s[i]); }
         else if (c7in[s[i]])
         { uN j = i + 1;
-          while (c7in[s[j]]) ++j;
+          while (j < s.size() && c7in[s[j]]) ++j;
           let n = s.substr(i, j - i);
           l(atoi(n.c_str()));
           i = j - 1; }
         else
         { uN j = i + 1;
-          while (!c7ni[s[j]]) ++j;
+          while (j < s.size() && !c7ni[s[j]]) ++j;
           f(s.substr(i, j - i));
           i = j - 1; }
 

@@ -90,6 +90,8 @@ struct i9
   ks   keys()    const { return ks{a}; }
   uN   osize()   const { return u9rs(a, 0); }
 
+  bool b()       const { u9tm{u9t::b}(type()); return *Sc<u8*>(data()); }
+
 
   // NOTE: inner, "logical" size, not outer size; that way these methods
   // have STL-style meanings
