@@ -87,8 +87,13 @@ void try_control_flow()
         z.run(cn);
         if (z.pop().b()) { z.run(bn); goto each; }});
 
-  a << "100 [1 i64+] [dup 105 i64>] while print";
-  a.build().go();
+  a << "0 [1 i64+] [dup 16777216 i64>] while print";
+  π0int i = a.build();
+
+  let t0 = now();
+  i.go();
+  let t1 = now();
+  cout << "π₀ loop 16M ints in " << t1 - t0 << endl;
 }
 
 
