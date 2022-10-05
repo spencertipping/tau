@@ -61,20 +61,22 @@ void try_stack()
 
 void try_asm()
 {
-  π0asm a;
-
-  π0int i = a
-    .def("i64+",  [](i9 a, i9 b) { return Sc<i64>(a) + Sc<i64>(b); })
-    .def("print", [](i9 a)       { cout << a << endl; })
-    .q(3, 4)
-    .q("i64+")
-    .q(5)
-    .q("print")
+  bool got_7 = false;
+  π0int i = π0asm()
+    .def("i64+",  [](π0int &z, i9 a, i9 b) { z << Sc<i64>(a) + Sc<i64>(b); })
+    .def("print", [&got_7](π0int &z, i9 a) { got_7 = a == 7; cout << a << endl; })
+    .def("drop",  [](π0int &z, i9 a) {})
+    .def(".",     [](π0int &z, i9 a) { z.r.push_back(a); })
+    .begin()
+    .l(1).l(2).f("i64+").f("print")
+    .end()
+    .f(".")
+    .l(3).l(4)
+    .f("i64+").f("print")
     .build();
 
-  cout << "i₀ = " << i << endl;
-  while (i) { i(); cout << i << endl; }
-  cout << "i₁ = " << i << endl;
+  i.go();
+  A(got_7, "we should have gotten 7; i = " << i);
 }
 
 

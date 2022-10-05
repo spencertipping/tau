@@ -35,6 +35,9 @@ struct π0int
   operator bool() const {                          return !r.empty(); }
   π0int     &go()       { while (*this) (*this)(); return *this; }
 
+  template<o9mapped T>
+  π0int &operator<<(T const &x) { h.dpush(x); return *this; }
+
 #if τπ0debug_bounds_checks
   π0int &operator()()
     { A(!r.empty(), "π₀i() r=∅");

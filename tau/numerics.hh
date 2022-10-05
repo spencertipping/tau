@@ -59,8 +59,22 @@ inline constexpr f32 ce(f32 const x)
 }
 
 
+#if defined(__GNUC__)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wsign-compare"
+#elif defined(__clang__)
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wsign-compare"
+#endif
+
 template<class I, class T = uN> inline constexpr bool ou(T x) { return !!(x >> sizeof(I) * 8); }
 template<class I, class T = iN> inline constexpr bool oi(T x) { return x < Nl<I>::min() || x > Nl<I>::max(); }
+
+#if defined(__GNUC__)
+# pragma GCC diagnostic pop
+#elif defined(__clang__)
+# pragma clang diagnostic pop
+#endif
 
 template<class I, class T = uN> inline constexpr I cou(T x) { assert(!ou<I>(x)); return x; }
 template<class I, class T = uN> inline constexpr I coi(T x) { assert(!oi<I>(x)); return x; }

@@ -76,28 +76,35 @@ struct π0asm
       if (!sf.contains(i)) sf[i] = def([i](π0int &z) { z.h.fs(i, z.h.di(0)); z.h.dpop(); });
       return sf[i]; }
 
+
   template<class T>
   π0asm &def(Stc &n, T &&f)
     { A(!fn.contains(n), "π0asm redef " << n);
       fn[n] = def(std::move(f));
       return *this; }
 
-  uN                      def(π0f &&f)                 { fs.push_back(std::move(f)); return fs.size() - 1; }
+  uN def(π0f &&f) { fs.push_back(std::move(f)); return fs.size() - 1; }
 
-  uN                      def(F<void(i9)>         &&f) { return def([f = std::move(f)](π0int &z) { f(z.h.di(0));                       z.h.dpop();  }); }
-  uN                      def(F<void(i9, i9)>     &&f) { return def([f = std::move(f)](π0int &z) { f(z.h.di(0), z.h.di(1));            z.h.dpop(2); }); }
-  uN                      def(F<void(i9, i9, i9)> &&f) { return def([f = std::move(f)](π0int &z) { f(z.h.di(0), z.h.di(1), z.h.di(2)); z.h.dpop(3); }); }
+  uN def(F<void(π0int&, i9)> &&f)
+    { return def([f = std::move(f)](π0int &z)
+      { let a = z.h.di(0);
+        z.h.dpop();
+        f(z, a); }); }
 
-  template<o9mapped T> uN def(F<T(i9)>            &&f) { return def([f = std::move(f)](π0int &z) { let r = f(z.h.di(0));                       z.h.dpop();  z.h.dpush(r); }); }
-  template<o9mapped T> uN def(F<T(i9, i9)>        &&f) { return def([f = std::move(f)](π0int &z) { let r = f(z.h.di(0), z.h.di(1));            z.h.dpop(2); z.h.dpush(r); }); }
-  template<o9mapped T> uN def(F<T(i9, i9, i9)>    &&f) { return def([f = std::move(f)](π0int &z) { let r = f(z.h.di(0), z.h.di(1), z.h.di(2)); z.h.dpop(3); z.h.dpush(r); }); }
+  uN def(F<void(π0int&, i9, i9)> &&f)
+    { return def([f = std::move(f)](π0int &z)
+      { let a = z.h.di(0);
+        let b = z.h.di(1);
+        z.h.dpop(2);
+        f(z, a, b); }); }
 
-
-  template<o9mapped T>
-  π0asm &lit(T const &x)
-    { let i = qh << o9(x);
-      cb() << def([i](π0int &z) { z.h.dpush(o9(z[i])); });
-      return *this; }
+  uN def(F<void(π0int&, i9, i9, i9)> &&f)
+    { return def([f = std::move(f)](π0int &z)
+      { let a = z.h.di(0);
+        let b = z.h.di(1);
+        let c = z.h.di(2);
+        z.h.dpop(3);
+        f(z, a, b, c); }); }
 
 
   π0asm &begin() { bls.push_back(new π0abl()); return *this; }
@@ -116,21 +123,17 @@ struct π0asm
   π0asm &fpop ()        { TODO("π0asm fpop"); }
 
 
-  π0asm &q_(Stc &c)
+  template<o9mapped T>
+  π0asm &l(T const &x)
+    { let i = qh << o9(x);
+      cb() << def([i](π0int &z) { z.h.dpush(o9(z[i])); });
+      return *this; }
+
+  π0asm &f(Stc &c)
     { if (fn.contains(c))  { cb() << fn.at(c); return *this; }
       if (c.back() == '=') { cb() << setf(c);  return *this; }
       cb() << getf(c);
       return *this; }
-
-
-  template<o9mapped T>
-  typename std::enable_if<!std::is_same<T, St>::value, π0asm>::type
-  &q_(T const &x) { return lit(x); }
-
-
-  template<class X, class... Xs>
-  π0asm &q(X const &x, Xs... xs) { q_(x); return q(xs...); }
-  π0asm &q()                     { return *this; }
 
 
   π0int build()
