@@ -190,13 +190,13 @@ Indexes provide `hash → offset` lookups (or, for tuples or `utf8`, `index → 
 Indexes are formatted like this:
 
 ```
-cb [sb] (container) k1 o1 k2 o2 ... kn on
-        |-------------------------------|  <- data size
+cb [sb] (container) (index-vector)
+        |------------------------| <- data size
         |
         |   <- offsets relative to beginning of container
 ```
 
-**The container's size encoding matters,** as it specifies the width of `ki` and `oi`. For example, if the container's size is specified as `_____101 xx yy` (`u16` size), then each index entry will have a `u16 k` and `u16 o`.
+The index vector is a vectorized unsigned type that contains `k₁ o₁ k₂ o₂ ...`. These can be encoded using any unsigned width large enough to refer to the container byte offsets.
 
 The container's type determines what `k` means. For tuples, `k` is a zero-based integer subscript; for sets or maps, `k` is the highest bits of the hash of the element in question (for maps, the key; for sets, the whole element). This means index keys will always be sorted and, with the possible exception of heterogeneous tuples, uniformly distributed; as such, the keyspace can be interpolation-searched.
 
