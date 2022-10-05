@@ -15,8 +15,7 @@ a.def("i64+",  [](i9 a, i9 b) { return Sc<i64>(a) + Sc<i64>(b); })
 `q()` takes multiple argument types and handles them in different ways:
 
 + Booleans, numbers, and UTF9 are quoted
-+ Strings are word-split and resolved to functions
-+ Initializer lists are assembled into sublists
++ Strings are resolved to functions
 
 The program above produces the list `[3 4 i64+ print]`, which is the main function and is executed when you call `.go()`.
 
@@ -25,7 +24,7 @@ The program above produces the list `[3 4 i64+ print]`, which is the main functi
 π₀ is dynamically-scoped and uses local frames to provide access to variables so you don't have to rely on the stack. You create a local frame like this, which will also emit the instruction to push that frame:
 
 ```cpp
-a.frame("a b c d")           // push a frame with four locals
+a.frame("a", "b", "c", "d")  // push a frame with four locals
  .q(1, "a=", 2, "b=",        // use the generated setters
     "a", "b", "i64+", "c=")  // ...and getters
  .fpop()                     // pop the frame when done
@@ -47,7 +46,7 @@ You can also write frames and lists:
 a << "3 4 5 [|a b c| a b i64+] ."
   // .q(3, 4, 5)
   // .begin()
-  //   .frame("a b c")
+  //   .frame("a", "b", "c")
   //   .q("a", "b", "i64+")
   //   .fpop()
   // .end()

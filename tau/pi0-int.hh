@@ -27,8 +27,8 @@ struct π0int
   V<uN>        r;  // return stack
   π0h          h;  // data stack + local frames
 
-  π0int(B const &q_, V<π0f> const &f_, V<uN> const &c_, uN c0)
-    : q(q_), f(f_), c(c_)
+  π0int(B &&q_, V<π0f> &&f_, V<uN> &&c_, uN c0)
+    : q(std::move(q_)), f(std::move(f_)), c(std::move(c_))
     { r.push_back(c0); }
 
   i9 operator[](uN i)   {                          return i9{q.data() + i}; }
@@ -48,11 +48,13 @@ struct π0int
 #if τdebug_iostream
 O &operator<<(O &s, π0int const &i)
 {
-  s << "π₀i qs=" << i.q.size() << " fs=" << i.f.size()
+  s << "π₀i qs=" << i.q.size()
+    << " fs=" << i.f.size()
     << " cs=" << i.c.size()
+    << " rs=" << i.r.size()
     << " r=";
   if (!i.r.empty())
-    for (uN j = i.r.size() - 1; j >= 0; --j)
+    for (iN j = i.r.size() - 1; j >= 0; --j)
       s << i.r[j] << " ";
   return s;
 }

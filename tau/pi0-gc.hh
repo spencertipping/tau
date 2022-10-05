@@ -124,10 +124,12 @@ struct π0h
   V<π0F> f;   // stack of local frames
   V<π0r> p;   // pinned values
   f64    lh;  // live set → heap size factor
+  f64    ip;  // in-place ratio: (liveset ≥ ip * heap) skips compaction
   uN     is;  // inlining size: i9s smaller than this are inlined immediately
   ΣΘΔ    gΘ;  // GC timer
 
   π0h(f64 lh_ = 4.0,
+      f64 ip_ = 0.75,
       uN  is_ = 64,
       uf8 hb_ = ζb0)
     : lh{lh_}, is{is_}
@@ -173,8 +175,15 @@ struct π0h
     { gΘ.start();
       S<π0r> rs, ms;  live(rs, ms);
       uN     ls = s;  for (let r : rs) ls += size_of(r);
-      B      h_;      h_.reserve(Sc<uN>(ls * lh));
 
+      // Shortcut: if most of the heap is still live, don't bother moving
+      // anything; just resize the heap.
+      if (ls > h.capacity() * ip)
+      { h.reserve(Sc<uN>(h.capacity() * lh));
+        gΘ.stop();
+        return; }
+
+      B           h_; h_.reserve(Sc<uN>(ls * lh));
       M<π0r, π0r> ns;  // old → new heap address map
       S<π0r>      rw;  // set of references in new heap that need to be updated
 
@@ -202,13 +211,13 @@ struct π0h
   i9 fi(uN i, uN fi = 0) { return (*this)[f.at(f.size() - 1 - fi).xs.at(i)]; }
 
   template<class T>
-  π0h &fs(uN i, T const &x) { f.at(f.size() - 1).xs.at(i) = *this << x; return *this; }
+  π0h &fs(uN i, T const &x) { f.back().xs.at(i) = *this << x; return *this; }
 #else
   i9 di(uN i)            { return (*this)[d[d.size() - 1 - i]]; }
   i9 fi(uN i, uN fi = 0) { return (*this)[f[f.size() - 1 - fi].xs[i]]; }
 
   template<class T>
-  π0h &fs(uN i, T const &x) { f[f.size() - 1].xs[i] = *this << x; return *this; }
+  π0h &fs(uN i, T const &x) { f.back().xs[i] = *this << x; return *this; }
 #endif
 
   template<class T>

@@ -1,5 +1,5 @@
 #define τdebug 1
-#define τπ0debug_bounds_checks 0
+//#define τπ0debug_bounds_checks 0
 //#define τdebug_i9st 1
 
 #include "../tau.hh"
@@ -59,11 +59,29 @@ void try_stack()
 }
 
 
+void try_asm()
+{
+  π0asm a;
+
+  π0int i = a
+    .def("i64+",  [](i9 a, i9 b) { return Sc<i64>(a) + Sc<i64>(b); })
+    .def("print", [](i9 a)       { cout << a << endl; })
+    .q(3, 4)
+    .q("i64+", "print")
+    .build();
+
+  cout << "i₀ = " << i << endl;
+  while (i) { i(); cout << i << endl; }
+  cout << "i₁ = " << i << endl;
+}
+
+
 int main()
 {
   try_symbols();
   try_heap();
   try_stack();
+  try_asm();
 }
 
 
