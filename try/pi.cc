@@ -23,24 +23,6 @@ void try_symbols()
 }
 
 
-void try_heap()
-{
-  π0h h;
-  h.fpush(4);
-
-  h.fs(0, "foo");
-  h.fs(1, "bar");
-  h.fs(2, o9t(1, 2, 3, "bar", true));
-  h.fs(3, u9_symbol::gensym());
-
-  cout << "h₀ = " << h.h.capacity() << ", " << h.gΘ << " " << h.gΘ.h << endl;
-  for (uN i = 0; i < 100000; ++i) h.fs(0, o9t(i, "hi there", "woah", false));
-  cout << "h₁ = " << h.h.capacity() << ", " << h.gΘ << " " << h.gΘ.h << endl;
-
-  cout << h.fi(0) << " " << h.fi(1) << " " << h.fi(2) << " " << h.fi(3) << endl;
-}
-
-
 void try_stack()
 {
   π0h h;
@@ -77,13 +59,20 @@ void try_asm()
 
   i.go();
   A(got_7, "we should have gotten 7; i = " << i);
+
+  π0asm a;
+  a .def("i64+",  [](π0int &z, i9 a, i9 b) { z << Sc<i64>(a) + Sc<i64>(b); })
+    .def("print", [](π0int &z, i9 a) { cout << a << endl; })
+    .def(".",     [](π0int &z, i9 a) { z.r.push_back(a); });
+
+  a << "[1 2 i64+] . print";
+  a.build().go();
 }
 
 
 int main()
 {
   try_symbols();
-  try_heap();
   try_stack();
   try_asm();
 }

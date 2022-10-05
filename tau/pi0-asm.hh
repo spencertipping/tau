@@ -19,6 +19,22 @@ namespace τ
 {
 
 
+struct π0cs7  // 7-bit ASCII charset
+{
+  u64 c1;
+  u64 c2;
+
+  constexpr π0cs7(chc *cs)
+    : c1(0), c2(0)
+    { for (ch c; c = *cs; cs++)
+        if (c >= 0 && c < 64) c1 |= 1ull << c;
+        else if (c >= 64)     c2 |= 1ull << c - 64; }
+
+  bool operator[](ch c) const
+    { return c >= 0 && (c < 64 ? c1 & 1ull << c : c2 & 1ull << c - 64); }
+};
+
+
 struct π0afr  // π₀ asm frame
 {
   sc uNc fω = -1;
@@ -47,6 +63,11 @@ struct π0abl  // π₀ asm block
 
 struct π0asm
 {
+  sletc c7ws = π0cs7(" \t\n");         // whitespace
+  sletc c7ni = π0cs7(" \t\n{}[](),");  // non-ident
+  sletc c7in = π0cs7("0123456789");    // integer
+
+
   M<St, uN> fn;   // name → fs[i]
   M<uN, uN> gf;   // local getters (local index → fs[i])
   M<uN, uN> sf;   // local setters (local index → fs[i])
@@ -133,6 +154,29 @@ struct π0asm
     { if (fn.contains(c))  { cb() << fn.at(c); return *this; }
       if (c.back() == '=') { cb() << setf(c);  return *this; }
       cb() << getf(c);
+      return *this; }
+
+
+  π0asm &operator<<(Stc &s)
+    { for (uN i = 0; i < s.size(); ++i)
+        if      (c7ws[s[i]]) continue;
+        else if (c7ni[s[i]])
+        { if      (s[i] == '[') begin();
+          else if (s[i] == ']') end();
+          else if (s[i] == '|') TODO("<< frame");
+          else A(0, "π₀asm<< internal error " << s[i]); }
+        else if (c7in[s[i]])
+        { uN j = i + 1;
+          while (c7in[s[j]]) ++j;
+          let n = s.substr(i, j - i);
+          l(atoi(n.c_str()));
+          i = j - 1; }
+        else
+        { uN j = i + 1;
+          while (!c7ni[s[j]]) ++j;
+          f(s.substr(i, j - i));
+          i = j - 1; }
+
       return *this; }
 
 

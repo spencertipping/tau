@@ -210,17 +210,15 @@ struct π0h
 
 
 #if τπ0debug_bounds_checks
-  i9 di(uN i)            { return (*this)[d.at(d.size() - 1 - i)]; }
-  i9 fi(uN i, uN fi = 0) { return (*this)[f.at(f.size() - 1 - fi).xs.at(i)]; }
-
-  template<class T>
-  π0h &fs(uN i, T const &x) { f.back().xs.at(i) = *this << x; return *this; }
+  i9   di(uN i)            { return (*this)[d.at(d.size() - 1 - i)]; }
+  i9   fi(uN i, uN fi = 0) { return (*this)[f.at(f.size() - 1 - fi).xs.at(i)]; }
+  π0h &fg(uN i, uN fi = 0) { d.push_back(f.at(f.size() - 1 - fi).xs.at(i));             return *this; }
+  π0h &fs(uN i, uN fi = 0) { f.at(f.size() - 1 - fi).xs.at(i) = d.back(); d.pop_back(); return *this; }
 #else
-  i9 di(uN i)            { return (*this)[d[d.size() - 1 - i]]; }
-  i9 fi(uN i, uN fi = 0) { return (*this)[f[f.size() - 1 - fi].xs[i]]; }
-
-  template<class T>
-  π0h &fs(uN i, T const &x) { f.back().xs[i] = *this << x; return *this; }
+  i9   di(uN i)            { return (*this)[d[d.size() - 1 - i]]; }
+  i9   fi(uN i, uN fi = 0) { return (*this)[f[f.size() - 1 - fi].xs[i]]; }
+  π0h &fg(uN i, uN fi = 0) { d.push_back(f[f.size() - 1 - fi].xs[i]);             return *this; }
+  π0h &fs(uN i, uN fi = 0) { f[f.size() - 1 - fi].xs[i] = d.back(); d.pop_back(); return *this; }
 #endif
 
   template<class T>
