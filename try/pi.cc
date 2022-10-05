@@ -67,7 +67,9 @@ void try_asm()
     .def("i64+",  [](i9 a, i9 b) { return Sc<i64>(a) + Sc<i64>(b); })
     .def("print", [](i9 a)       { cout << a << endl; })
     .q(3, 4)
-    .q("i64+", "print")
+    .q("i64+")
+    .q(5)
+    .q("print")
     .build();
 
   cout << "i₀ = " << i << endl;

@@ -122,11 +122,10 @@ struct π0asm
       cb() << getf(c);
       return *this; }
 
-  // TODO: more inline literals?
-  π0asm &q_(uN x) { return lit(x); }
-  π0asm &q_(iN x) { return lit(x); }
 
-  template<o9mapped T> π0asm &q_(T const &x) { return lit(x); }
+  template<o9mapped T>
+  typename std::enable_if<!std::is_same<T, St>::value, π0asm>::type
+  &q_(T const &x) { return lit(x); }
 
 
   template<class X, class... Xs>

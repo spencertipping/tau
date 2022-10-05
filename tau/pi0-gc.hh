@@ -126,14 +126,17 @@ struct π0h
   f64    lh;  // live set → heap size factor
   f64    ip;  // in-place ratio: (liveset ≥ ip * heap) skips compaction
   uN     is;  // inlining size: i9s smaller than this are inlined immediately
+  uN     ms;  // min heap size
   ΣΘΔ    gΘ;  // GC timer
 
   π0h(f64 lh_ = 4.0,
       f64 ip_ = 0.75,
       uN  is_ = 64,
+      uf8 mb_ = ζb0,
       uf8 hb_ = ζb0)
-    : lh{lh_}, is{is_}
-    { h.reserve(1ul << hb_);
+    : lh{lh_}, ip{ip_}, is{is_}, ms{1ul << mb_}
+    { A(ip * lh > 1, "runaway: lh = " << lh << ", ip = " << ip);
+      h.reserve(1ul << hb_);
       p.reserve(64); }
 
   template<o9n_ T>
@@ -173,29 +176,29 @@ struct π0h
 
   void gc(uN s)  // GC with room for live set + s
     { gΘ.start();
-      S<π0r> rs, ms;  live(rs, ms);
-      uN     ls = s;  for (let r : rs) ls += size_of(r);
+      S<π0r> rs, rms;  live(rs, rms);
+      uN     ls = s;   for (let r : rs) ls += size_of(r);
 
       // Shortcut: if most of the heap is still live, don't bother moving
       // anything; just resize the heap.
       if (ls > h.capacity() * ip)
-      { h.reserve(Sc<uN>(h.capacity() * lh));
+      { h.reserve(Sc<uN>(ls * lh));
         gΘ.stop();
         return; }
 
-      B           h_; h_.reserve(Sc<uN>(ls * lh));
+      B           h_;  h_.reserve(std::max(Sc<uN>(ls * lh), ms));
       M<π0r, π0r> ns;  // old → new heap address map
       S<π0r>      rw;  // set of references in new heap that need to be updated
 
       // No object with multiple references will be inlined; we already inline
       // anything under some fixed size, so at this point we want to save space.
-      for (let m : ms) if (m != π0hω) ns[m] = h_ << o9((*this)[m]);
+      for (let m : rms) if (m != π0hω) ns[m] = h_ << o9((*this)[m]);
 
       // Everything else can and should be inlined into whoever refers to it.
       for (let r : rs)
-        if (r != π0hω && !ms.contains(r))
+        if (r != π0hω && !rms.contains(r))
         { let i = (*this)[r];
-          ns[r] = i.flagged() ? h_ << π0o9c(r, h, ms, rw)
+          ns[r] = i.flagged() ? h_ << π0o9c(r, h, rms, rw)
                               : h_ << o9(i); }
       ns[π0hω] = π0hω;
 
@@ -227,6 +230,17 @@ struct π0h
   π0h &fpush(uN vs)      { f.push_back(π0F(vs));    return *this; }
   π0h &fpop()            { f.pop_back();            return *this; }
 };
+
+
+#if τdebug_iostream
+O &operator<<(O &s, π0h const &h)
+{
+  s << "π₀h c=" << h.h.capacity() << " Θ=" << h.gΘ << std::endl;
+  for (uN i = 0; i < h.d.size(); ++i)
+    s << "  " << i << " = " << const_cast<π0h&>(h).di(i) << std::endl;
+  return s;
+}
+#endif
 
 
 }

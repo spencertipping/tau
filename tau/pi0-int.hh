@@ -56,6 +56,8 @@ O &operator<<(O &s, π0int const &i)
   if (!i.r.empty())
     for (iN j = i.r.size() - 1; j >= 0; --j)
       s << i.r[j] << " ";
+  s << std::endl;
+  s << i.h << std::endl;
   return s;
 }
 #endif
