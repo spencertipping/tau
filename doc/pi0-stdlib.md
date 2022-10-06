@@ -31,7 +31,7 @@ All of these operators automatically distribute across vectors.
   + `>f64`
   + `>c32`: assign real part only
   + `>c64`
-+ Arithmetic
++ Integer arithmetic
   + `i8+`: undefined on overflow
   + `i16+`
   + ...
@@ -42,6 +42,8 @@ All of these operators automatically distribute across vectors.
   + `i8/`, ...
   + `i8%`, ...
   + `i8n`, ...: negate
++ Float arithmetic
+  + **TODO**
 + Bitwise
   + `u8&`, ...
   + `u8|`, ...
@@ -79,15 +81,32 @@ All of these operators automatically distribute across vectors.
 
 
 ### Sets
-+ `>set`: tuple/vector/bytes/UTF8 to set
++ `>s`: tuple/vector/bytes/UTF8 to set
 + `s x s?`: check set member
 + `a b s|`: set union
 + `a b s&`: set intersection
 + `a b s-`: set difference (`a - b`)
++ `xs [...] s.`: for-each
++ `xs [...] s*`: map
++ `xs i [...] s/`: reduce
 
 
 ### Maps
-+ `m k mget`: get key from map
++ `>m`: tuple/set/vector/bytes/UTF8 of pairs → map
++ `ks vs ^m`: zip into map
++ `m mk`: tuple of map keys
++ `m mv`: tuple of map values
++ `m k m@`: map k/v lookup
++ `m ks m<`: multiple map k/v lookup
++ `a b m|`: map union, prefer values from `b`
++ `a b m&`: map intersection, prefer values from `a`
++ `m [...] m.`: for-each
++ `m [...] mk.`: for-each key
++ `m [...] mv.`: for-each value
++ `m [...] m*`: map
++ `m [...] mv*`: map values
++ `m i [...] m/`: reduce
++ `m i [...] mv/`: reduce values
 
 
 ### Indexes
