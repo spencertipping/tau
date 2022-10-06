@@ -25,7 +25,9 @@ Although program-specialized bytecode sounds like a liability due to this comple
 
 
 ## Function references
-Joy's `eval` function operates on lists. Our `eval`, called `.`, operates on opaque numbers that are internally bytecode offsets. To reduce the likelihood of errors, these bytecode offsets can be `xor`ed with a key that makes them unlikely to appear by accident -- then the interpreter can hard-fail if it encounters an invalid `.` argument.
+Joy's `i` function executes lists. Our `i`, called `.`, operates on opaque numbers that are internally bytecode offsets. To reduce the likelihood of errors, these bytecode offsets can be `xor`ed with a key that makes them unlikely to appear by accident -- then the interpreter can hard-fail if it encounters an invalid `.` argument.
+
+**TODO:** allocate a π₀-specific UTF9 value for this
 
 
 ## Quoting a function

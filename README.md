@@ -26,6 +26,8 @@ Production design:
 
 
 ## Development setup
+**Warning:** this repo requires a case-sensitive filesystem; it cannot be cloned correctly on case-insensitive MacOS or Windows.
+
 On Ubuntu 22.04:
 
 ```sh
@@ -44,16 +46,23 @@ $ sudo apt install -y \
        libpango1.0-dev libcairo2-dev
 ```
 
-This repo cannot be cloned on case-insensitive filesystems.
-
 **TODO:** dockerize build process
 
 
 ## Next steps
 Narrowly:
 
-+ π GC with UTF9 rewriting
-+ π/C++ FFI
++ π₀ GC with UTF9 rewriting
+  + Complex value rewriting
+  + UTF9 verification
+  + `o9` for vector primitives
+  + Full rewrite for outbound φ
++ π₀ local frames + tests
+  + π₀ frame capture
++ UTF9 indexed-structure support
++ π₁ stdlib
+  + π₁ native function intent declarations
+  + π₁ intent execution
 
 Broadly:
 
@@ -72,7 +81,7 @@ Broadly:
 
 ### GL
 + Arc rendering with fragment shaders
-+ Proper blending, also with shaders (probably just Z-order)
++ Proper blending, also with shaders (probably just Z-order since we're 2.5D)
 + GL images as textures, with GC
 
 
