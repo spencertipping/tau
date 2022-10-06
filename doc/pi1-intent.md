@@ -21,4 +21,6 @@ Every concrete (π₀) function transforms intent forwards: that is, it has no r
 ## Encoding
 We can derive intent encoding by looking at how we intend to structure our queries. It's user-optimal to provide many entropy-orthogonal query channels. From an ergonomic perspective, we also want queries to be self-describing; `x + 1` shouldn't require additional context. We don't need a `query → channel` function per se, but we should in general write intents such that unlabeled queries tend to match the correct one.
 
-Functions transform intent separately for each channel, often ignoring channels when the function doesn't modify them. For example, `i64+` wouldn't change the unit of measure of its arguments.
+Functions transform intent separately for each channel, often ignoring channels when the function doesn't modify them.
+
+**TODO:** how should this work -- should no-transform prevent the function from applying, is there a default, or do we just lose information (and presumably count this against our entropy) if we apply some functions?
