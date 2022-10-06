@@ -181,7 +181,7 @@ struct i9
     { u9tm{u9t_<T>::t}(type());
       A((i + 1) * sizeof(T) <= size(),
         "i9at OOB, i = " << i << ", w = " << sizeof(T) << ", sz = " << size());
-      return R<T>(begin(), i * sizeof(T)); }
+      return R<T>(data(), i * sizeof(T)); }
 
 
   // NOTE: can't do vectors here because we don't have enough space
@@ -233,6 +233,13 @@ struct i9
     { // TODO: verify that this value can be decoded safely
       TODO("i9 verify()"); }
 };
+
+
+template<>
+bool i9::at(uN i) const
+{ u9tm{u9t::b}(type());
+  A(i >> 3 < size(), "i9at bool OOB, i = " << i << ", sz = " << size());
+  return R<u8>(data(), i >> 3) & (1 << i & 7); }
 
 
 inline i9 i9_false()        { return i9{i9_statics + 0}; }

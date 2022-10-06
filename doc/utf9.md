@@ -138,7 +138,7 @@ In contrast, `bytes` and `utf8` are always single, variable-size elements; the c
 
 
 ### Booleans
-`0` for false, `1` for true. Booleans can be vectorized into bitsets; in that case, `b[i] = xs[i >> 3] >> (i & 7) & 1`; that is, the least-significant bit of the first byte has index `0`.
+`0` for false, `1` for true. Booleans can be vectorized into bitsets; in that case, `b[i] = xs[i >> 3] & (1 << i & 7)`; that is, the least-significant bit of the first byte has index `0`.
 
 
 ### Tensors

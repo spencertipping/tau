@@ -43,10 +43,9 @@ struct π0int
   i9     pop() { let i = h.di(0); h.dpop();          return i; }
 
   π0int &run(uN l)
-    { V<uN> rb; rb.push_back(l);
-      r.swap(rb);
-      go();
-      r.swap(rb);
+    { let n = r.size();
+      r.push_back(l);
+      while (r.size() > n) (*this)();
       return *this; }
 
 #if τπ0debug_bounds_checks
