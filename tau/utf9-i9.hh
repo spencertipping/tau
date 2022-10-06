@@ -87,6 +87,7 @@ struct i9
   it   begin()   const { return it{a + u9sb(stype())}; }
   it   end()     const { return it{a + u9rs(a, 0)}; }
   i9   next()    const { return i9{a + osize()}; }
+  i9   first()   const { return i9{a + u9sb(stype())}; }
   ks   keys()    const { return ks{a}; }
   uN   osize()   const { return u9rs(a, 0); }
 
@@ -236,7 +237,7 @@ struct i9
 
 
 template<>
-bool i9::at(uN i) const
+inline bool i9::at(uN i) const
 { u9tm{u9t::b}(type());
   A(i >> 3 < size(), "i9at bool OOB, i = " << i << ", sz = " << size());
   return R<u8>(data(), i >> 3) & (1 << i & 7); }

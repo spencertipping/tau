@@ -9,6 +9,16 @@ This page is about how intents are defined, but see [π₁ spanning](pi1-spannin
 
 
 ## Semantics
-Semantic intents are ways to look at a value, not statements about the value. For example, `人` ("person") is an intent that means something will be manipulated or viewed with a user interface. `震级` (magnitude) and `角度` (angle) are ways to influence how such a value might be shown to a user. So there might be an intent like `震级 ↔ 人` to allow a user to both observe and change a magnitude quantity. (Hopefully there's more to `震级` so the user knows what it's for.)
+Semantic intents are ways to look at a value, not statements about the value's representation. For example, `人` ("person") is an intent that means something will be manipulated or viewed by a human with a user interface. `震级` (magnitude) and `角度` (angle) are ways to influence how such a value might be shown to a user, in this case by contextualizing it for them. So there might be an intent like `震级 ↔ 人` to allow a user to both observe and change a magnitude quantity. (Hopefully there's more to `震级` so the user knows what it's for. "Magnitude" isn't self-describing in most contexts.)
 
 Some semantic intents have to do with runtime invariants the value is expected to possess. For example, `按x 排序` ("is ordered by `x`") might apply to a φ. Not all expectations are certain; `可能是按 x 排序` ("is probably ordered by `x`") allows π₁ to optimistically check for ordering and bail out to a sort process if it finds an exception. Without the "probably" indicator, π₁ would probably always sort; why would things be ordered without prior information? But that's not always efficient. Intents can be specified to an arbitrary degree; for example, "probably at 80%, and if unordered the exception will be in the first 5k values, and if unordered most subsequences of 100 values or fewer will still be ordered". No guarantee that downstream processes can use this information, but you can encode it anyway.
+
+
+## Intent transformation
+Every concrete (π₀) function transforms intent forwards: that is, it has no return-type polymorphism and hopefully not much argument polymorphism either.
+
+
+## Encoding
+We can derive intent encoding by looking at how we intend to structure our queries. It's user-optimal to provide many entropy-orthogonal query channels. From an ergonomic perspective, we also want queries to be self-describing; `x + 1` shouldn't require additional context. We don't need a `query → channel` function per se, but we should in general write intents such that unlabeled queries tend to match the correct one.
+
+Functions transform intent separately for each channel, often ignoring channels when the function doesn't modify them. For example, `i64+` wouldn't change the unit of measure of its arguments.

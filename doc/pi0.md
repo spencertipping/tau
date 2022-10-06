@@ -8,3 +8,4 @@ As a concept, π₀ covers everything from the runtime and GC up to the bytecode
 + [π₀ UTF9](pi0-utf9.md)
 + [π₀ bytecode](pi0-bytecode.md)
 + [π₀ assembler](pi0-asm.md)
++ [π₀ standard library](pi0-stdlib.md)
