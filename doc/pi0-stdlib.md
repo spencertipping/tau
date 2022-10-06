@@ -1,4 +1,7 @@
 # π₀ standard library
+The standard library ships in versions that you can enable per program, so I don't have to be especially careful about backwards compatibility.
+
+
 ## UTF9
 **TODO**
 

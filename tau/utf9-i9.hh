@@ -88,6 +88,7 @@ struct i9
   it   end()     const { return it{a + u9rs(a, 0)}; }
   i9   next()    const { return i9{a + osize()}; }
   i9   first()   const { return i9{a + u9sb(stype())}; }
+  i9   second()  const { return first().next(); }
   ks   keys()    const { return ks{a}; }
   uN   osize()   const { return u9rs(a, 0); }
 
