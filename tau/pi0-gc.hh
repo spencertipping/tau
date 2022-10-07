@@ -119,25 +119,31 @@ template<> struct o9_<π0o9c> { sletc v = true; };
 
 struct π0h
 {
-  B      h;
-  V<π0r> d;   // data stack
-  V<π0F> f;   // stack of local frames
-  V<π0r> p;   // pinned values
-  f64    lh;  // live set → heap size factor
-  f64    ip;  // in-place ratio: (liveset ≥ ip * heap) skips compaction
-  uN     is;  // inlining size: i9s smaller than this are inlined immediately
-  uN     ms;  // min heap size
-  ΣΘΔ    gΘ;  // GC timer
+  B       h;
+  V<B>    ps;  // set of pinned heaps
+  V<π0r>  d;   // data stack
+  V<π0F>  f;   // stack of local frames
+  V<π0F>  nf;  // stack of native frames
+  bool    p;   // if true, pin all old heaps
+  f64     lh;  // live set → heap size factor
+  f64     ip;  // in-place ratio: (liveset ≥ ip * heap) skips compaction
+  uN      is;  // inlining size: i9s smaller than this are inlined immediately
+  uN      ms;  // min heap size
+  ΣΘΔ     gΘ;  // GC timer
 
   π0h(f64 lh_ = 4.0,
       f64 ip_ = 0.75,
       uN  is_ = 64,
       uf8 mb_ = ζb0,
       uf8 hb_ = ζb0)
-    : lh{lh_}, ip{ip_}, is{is_}, ms{1ul << mb_}
+    : p{false}, lh{lh_}, ip{ip_}, is{is_}, ms{1ul << mb_}
     { A(ip * lh > 1, "runaway: lh = " << lh << ", ip = " << ip);
-      h.reserve(1ul << hb_);
-      p.reserve(64); }
+      h.reserve(1ul << hb_); }
+
+
+  π0h &pin()   { A(!p, "π₀h already pinned"); p = true;  return *this; }
+  π0h &unpin() { ps.clear();                  p = false; return *this; }
+
 
   template<o9n_ T>
   π0r operator<<(T const &x)
@@ -157,9 +163,6 @@ struct π0h
 
   uN size_of     (π0r i) { return (*this)[i].osize(); }
   i9 operator[]  (π0r i) { if (τπ0debug_bounds_checks) A(i < h.size(), "π₀[π₀r]: " << i << " ≥ " << h.size()); return i9{h.data() + i}; }
-  uN pin         (π0r a) { p.push_back(a); return p.size() - 1; }
-  i9 pinned      (uN i)  {                 return (*this)[τπ0debug_bounds_checks ? p.at(i) : p[i]]; }
-  π0h &clear_pins()      { p.clear();      return *this; }
 
 
   void trace(S<π0r> &r, S<π0r> &m, π0r i)
@@ -170,9 +173,9 @@ struct π0h
           for (let x : a) trace(r, m, x.a - h.data()); }}
 
   void live(S<π0r> &r, S<π0r> &m)
-    { for (let  x : d)                    trace(r, m, x);
-      for (let &v : f) for (let x : v.xs) trace(r, m, x);
-      for (let  x : p)                    trace(r, m, x); }
+    { for (let  x : d)                     trace(r, m, x);
+      for (let &v : f)  for (let x : v.xs) trace(r, m, x);
+      for (let &v : nf) for (let x : v.xs) trace(r, m, x); }
 
   void gc(uN s)  // GC with room for live set + s
     { gΘ.start();
@@ -202,23 +205,30 @@ struct π0h
                               : h_ << o9(i); }
       ns[π0hω] = π0hω;
 
-      for (auto &x : d)                      x = ns[x];
-      for (auto &x : f) for (auto &y : x.xs) y = ns[y];
-      for (auto &x : p)                      x = ns[x];
+      for (auto &x : d)                       x = ns[x];
+      for (auto &x : f)  for (auto &y : x.xs) y = ns[y];
+      for (auto &x : nf) for (auto &y : x.xs) y = ns[y];
+
+      // Stash the old heap data into a pinned space so it's still available
+      // to C++ functions at its current memory location
+      if (p) ps.push_back(B{}), h.swap(ps.back());
+
       h.swap(h_);
       gΘ.stop(); }
 
 
 #if τπ0debug_bounds_checks
-  i9   di(uN i)            { return (*this)[d.at(d.size() - 1 - i)]; }
-  i9   fi(uN i, uN fi = 0) { return (*this)[f.at(f.size() - 1 - fi).xs.at(i)]; }
-  π0h &fg(uN i, uN fi = 0) { d.push_back(f.at(f.size() - 1 - fi).xs.at(i));             return *this; }
-  π0h &fs(uN i, uN fi = 0) { f.at(f.size() - 1 - fi).xs.at(i) = d.back(); d.pop_back(); return *this; }
+  i9   di (uN i)            { return (*this)[d.at (d.size()  - 1 - i)]; }
+  i9   fi (uN i, uN fi = 0) { return (*this)[f.at (f.size()  - 1 - fi).xs.at(i)]; }
+  i9   nfi(uN i, uN fi = 0) { return (*this)[nf.at(nf.size() - 1 - fi).xs.at(i)]; }
+  π0h &fg (uN i, uN fi = 0) { d.push_back(f.at(f.size() - 1 - fi).xs.at(i));             return *this; }
+  π0h &fs (uN i, uN fi = 0) { f.at(f.size() - 1 - fi).xs.at(i) = d.back(); d.pop_back(); return *this; }
 #else
-  i9   di(uN i)            { return (*this)[d[d.size() - 1 - i]]; }
-  i9   fi(uN i, uN fi = 0) { return (*this)[f[f.size() - 1 - fi].xs[i]]; }
-  π0h &fg(uN i, uN fi = 0) { d.push_back(f[f.size() - 1 - fi].xs[i]);             return *this; }
-  π0h &fs(uN i, uN fi = 0) { f[f.size() - 1 - fi].xs[i] = d.back(); d.pop_back(); return *this; }
+  i9   di (uN i)            { return (*this)[d [d.size()  - 1 - i]]; }
+  i9   fi (uN i, uN fi = 0) { return (*this)[f [f.size()  - 1 - fi].xs[i]]; }
+  i9   nfi(uN i, uN fi = 0) { return (*this)[nf[nf.size() - 1 - fi].xs[i]]; }
+  π0h &fg (uN i, uN fi = 0) { d.push_back(f[f.size() - 1 - fi].xs[i]);             return *this; }
+  π0h &fs (uN i, uN fi = 0) { f[f.size() - 1 - fi].xs[i] = d.back(); d.pop_back(); return *this; }
 #endif
 
   template<class T>
@@ -227,6 +237,9 @@ struct π0h
 
   π0h &fpush(uN vs)      { f.push_back(π0F(vs));    return *this; }
   π0h &fpop()            { f.pop_back();            return *this; }
+
+  π0h &nfpush(uN vs)     { nf.push_back(π0F(vs));   return *this; }
+  π0h &nfpop()           { nf.pop_back();           return *this; }
 };
 
 

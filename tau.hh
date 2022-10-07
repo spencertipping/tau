@@ -7,8 +7,8 @@
 
 
 #define τdefines_λ (τhas_boost_context || τhas_emscripten_fiber)
+#define τdefines_π (τdefines_λ)
 #define τdefines_Φ (τdefines_λ && τhas_epoll)
-#define τdefines_π (τdefines_Φ)
 #define τdefines_γ (τdefines_Φ)
 #define τdefines_ξ (τdefines_γ)
 
@@ -39,7 +39,9 @@
 #if τdefines_π
 # include "tau/pi0.hh"
 # include "tau/pi1.hh"
-# include "tau/pi2.hh"
+# if τdefines_Φ
+#   include "tau/pi2.hh"
+# endif
 #endif
 
 

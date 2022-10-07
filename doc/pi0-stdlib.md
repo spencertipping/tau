@@ -2,6 +2,34 @@
 The standard library ships in versions that you can enable per program, so I don't have to be especially careful about backwards compatibility.
 
 
+## Stack manipulation
+Anything complicated will use frames, but it's good to have a few functions to minimize the GC impact of having frame-scoped data.
+
++ `:`: duplicate top element
++ `::`: duplicate top pair of elements
++ `:^`: grab second element
++ `:^^`: grab third element
++ `_`: drop
++ `%`: swap
+
+
+### Frames
+Mostly enabled with syntax, but we should also have explicit instructions:
+
++ `n fpush`: create a frame with _n_ locals
++ `fpop`
++ `n fget`
++ `x n fset`
+
+`fget` and `fset` are slightly slower than named variable accessors, as each involves an extra stack operation.
+
+
+## Control flow
++ `[...] .`: run bytecode function
++ `c [t] [e] ?`: if `c` is true, run `[t]`; else run `[e]`
++ `[c] [b] ?.`: while `[c]` returns true, do `[b]`
+
+
 ## UTF9
 ### General
 + `?e`: does the value exist?
@@ -9,6 +37,7 @@ The standard library ships in versions that you can enable per program, so I don
 
 
 ### Vectors
++ `xs t >v`: tuple/set/bytes/UTF8 to typed vector
 + `xs vlen`: vector length
 + `xs vtype`: symbol (`i8`, `i16`, ..., `u64`, `f32`, ..., `c64`)
 + `xs i vget`: get vector element
@@ -114,26 +143,21 @@ All of these operators automatically distribute across vectors.
 
 
 ## γ/φ
-+ `x fi φ<<`
+### Low-level state
++ `x fi >φ`: write element to φ (returns bool)
++ `x fi >=φ`: non-connect-blocking write to φ (returns bool)
++ `fi <φ`: read element from φ (returns `ω` on EOF)
++ `fi φ>?`: is φ writable
++ `fi φ<?`: is φ readable
++ `fi φω?`: is φ closed
 
 
-## Stack manipulation
-Anything complicated will use frames, but it's good to have a few functions to minimize the GC impact of having frame-scoped data.
-
-+ `dup`
-+ `duup`
-+ `dip`
-+ `diip`
-+ `drop`
-+ `swap`
+### Circular iteration
++ `τ>t`: _τ_-delineated cycle to tuple
++ `τ>s`: to set
++ `τ>m`: to map (elements are coerced to pairs, defaulting to `t`)
 
 
-### Frames
-Mostly enabled with syntax, but we should also have explicit instructions:
-
-+ `n fpush`: create a frame with _n_ locals
-+ `fpop`
-+ `n fget`
-+ `x n fset`
-
-`fget` and `fset` are slightly slower than named variable accessors, as each involves an extra stack operation.
+### Iteration
++ `fi [...] φ.`: for-each element
++ `fi i [...] φ/`: reduce
