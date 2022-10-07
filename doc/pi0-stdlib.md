@@ -7,8 +7,8 @@ Anything complicated will use frames, but it's good to have a few functions to m
 
 + `:`: duplicate top element
 + `::`: duplicate top pair of elements
-+ `:^`: grab second element
-+ `:^^`: grab third element
++ `^`: grab second element
++ `^^`: grab third element
 + `_`: drop
 + `%`: swap
 
@@ -16,12 +16,12 @@ Anything complicated will use frames, but it's good to have a few functions to m
 ### Frames
 Mostly enabled with syntax, but we should also have explicit instructions:
 
-+ `n fpush`: create a frame with _n_ locals
-+ `fpop`
-+ `n fget`
-+ `x n fset`
++ `n :&`: create a frame with _n_ locals
++ `_&`
++ `n &@`: get local
++ `x n &=`: set local
 
-`fget` and `fset` are slightly slower than named variable accessors, as each involves an extra stack operation.
+`&@` and `&=` are slightly slower than named variable accessors because `n` is pushed onto the stack.
 
 
 ## Control flow
@@ -87,6 +87,7 @@ All of these operators automatically distribute across vectors.
 ### Strings
 + `>b`: tuple/set/vector/UTF8 to bytes
 + `>u`: tuple/set/vector/bytes to UTF8
++ `u?`: is UTF8 string valid
 + `b#`: byte-length of string
 + `c#`: character length of UTF8 string
 + `s i b@`: byte at byte-position
@@ -142,8 +143,16 @@ All of these operators automatically distribute across vectors.
 **TODO**
 
 
-## γ/φ
-### Low-level state
+## γ
+### λ
++ `[...] λc`: create λ, return `λi`
++ `li λx`
++ `λy`: yield out
++ `dt Θd`
++ `t Θt`
+
+
+### Low-level φ
 + `x fi >φ`: write element to φ (returns bool)
 + `x fi >=φ`: non-connect-blocking write to φ (returns bool)
 + `fi <φ`: read element from φ (returns `ω` on EOF)

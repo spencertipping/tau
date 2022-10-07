@@ -45,8 +45,8 @@ struct γ
   γ  &λx(λi i)    {         f.l.x(i);                return *this; }
   γ  &λy()        {         f.l.y(λs::R);            return *this; }
 
-  γ &Θ(Θp t)  { f.Θ(t);          return *this; }
-  γ &Θ(ΔΘ dt) { f.Θ(now() + dt); return *this; }
+  γ  &Θ (Θp t)    {         f.Θ(t);                  return *this; }
+  γ  &Θ (ΔΘ dt)   {         f.Θ(now() + dt);         return *this; }
 
 
   φi φc(γφ *f, bool s = false)

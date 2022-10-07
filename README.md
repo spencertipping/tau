@@ -52,10 +52,16 @@ $ sudo apt install -y \
 ## Next steps
 Narrowly:
 
-+ π₀ GC with UTF9 rewriting
++ π₀ bytecode stdlib
+  + `shared_ptr` for π₀int quoted heap
+  + Manual quoted-closure allocation, pure function pointers for bytecode fns (closure data as a single `uN` against qheap)
+  + Add π₀ interpreter forking for `λc`
++ π₀ memory optimization
+  + Allocate small values directly on stack
+  + Generational GC
++ π₀ GC rewriting
   + Complex value rewriting
   + UTF9 verification
-  + `o9` for vector primitives
   + Full rewrite for outbound φ
 + π₀ local frames + tests
   + π₀ frame capture

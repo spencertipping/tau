@@ -38,9 +38,14 @@ struct π0int
   template<o9mapped T>
   π0int &operator<<(T const &x) { h.dpush(x); return *this; }
 
-  π0int &dup() { h.d.push_back(h.d.back());          return *this; }
-  π0int &dip() { h.d.push_back(h.d[h.d.size() - 2]); return *this; }
-  i9     pop() { let i = h.di(0); h.dpop();          return i; }
+  π0int &dup()  { h.d.push_back(h.d.back());                                              return *this; }
+  π0int &duup() { h.d.push_back(h.d[h.d.size() - 2]); h.d.push_back(h.d[h.d.size() - 2]); return *this; }
+  π0int &dip()  { h.d.push_back(h.d[h.d.size() - 2]);                                     return *this; }
+  π0int &diip() { h.d.push_back(h.d[h.d.size() - 3]);                                     return *this; }
+  π0int &swap() { std::swap(h.d[h.d.size() - 2], h.d.back());                             return *this; }
+  π0int &drop() { h.dpop();                                                               return *this; }
+
+  i9     pop()  { let i = h.di(0); h.dpop(); return i; }
 
   π0int &run(uN l)
     { let n = r.size();
