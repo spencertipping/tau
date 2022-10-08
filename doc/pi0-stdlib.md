@@ -152,7 +152,7 @@ All of these operators automatically distribute across vectors.
 
 
 ### Maps
-+ `... v₃ k₃ v₂ k₂ v₁ k₁ n map`: make map from elements
++ `... v₃ v₂ v₁ ... k₃ k₂ k₁ n map`: make map from elements
 + `>m`: tuple/set/vector/bytes/UTF8 of pairs → map
 + `ks vs ^m`: zip tuples/vectors into map
 + `m mk`: tuple of map keys

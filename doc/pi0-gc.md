@@ -27,3 +27,18 @@ Heap pinning is intended for very short-term use: for example, vectorized additi
 To fix this, we tell the GC to pin the old heap until we've done the addition, then release it when we say. This is heavy-handed because the old heap is potentially quite large, but the idea is that the operation needs to be low-latency and completes in a very small timeframe.
 
 Some operations require longer-term access to UTF9 values. These use native frames, which are just like regular frames but aren't visible to π₀ bytecode -- that is, they're on a separate stack. This allows old heaps to be deallocated but preserves specific values across GC generations.
+
+
+### Example: π₀ `m.`
+`m [...] m.` iterates over all `k v` pairs in `m`, invoking `[...]` for each one. `[...]` is allowed to allocate memory and may be arbitrarily complex, so we use a native frame to contain `m`. But there's a new problem: what do we do with the iterator? We could store it relative to `m`'s base address, but even that won't work because `m` could be complex, which means that the iterator position will be modified arbitrarily by GC.
+
+We solve this by tracking both `m` and `i` (the iterator) in the native frame. GC will update both in a λ-atomic way. This means we must alias C++ locals to GC-owned values, which in turn means these natives should be stored as real memory addresses, not heap-offsets. (This way the C++ function can write to them directly.)
+
+```cpp
+auto f  = z.h.nf();
+uN   fn = z.pop();         // the function bytecode
+auto &m = f << z.pop();    // the map
+auto &i = f << m.first();  // iterator
+```
+
+Now we can iterate with these locals, knowing the GC will keep them up to date for us. The GC will stop tracking our native locals as soon as `f` is destroyed.

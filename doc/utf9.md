@@ -190,10 +190,10 @@ Indexes provide `hash → offset` lookups (or, for tuples or `utf8`, `index → 
 Indexes are formatted like this:
 
 ```
-cb [sb] (container) (index-vector)
+cb [sb] (index-vector) (container)
         |------------------------| <- data size
-        |
-        |   <- offsets relative to beginning of container
+                       |
+                       |   <- offsets relative to beginning of container
 ```
 
 The index vector is a vectorized unsigned type that contains `k₁ o₁ k₂ o₂ ...`. These can be encoded using any unsigned width large enough to refer to the container byte offsets.
