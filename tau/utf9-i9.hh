@@ -84,9 +84,9 @@ struct i9
   bool flagged() const { return u9ts_f(code()); }
   u9s  stype()   const { return u9ts_s(code()); }
   u9t  type()    const { return a ? u9ts_t(code()) : u9t::none; }
-  it   begin()   const { return it{a + u9sb(stype())}; }
+  it   begin()   const { return it{data()}; }
   it   end()     const { return it{a + u9rs(a, 0)}; }
-  i9   next()    const { return i9{a + osize()}; }
+  i9   next()    const { return i9{end()}; }
   i9   first()   const { return i9{a + u9sb(stype())}; }
   i9   second()  const { return first().next(); }
   ks   keys()    const { return ks{a}; }
@@ -97,7 +97,7 @@ struct i9
 
   // NOTE: inner, "logical" size, not outer size; that way these methods
   // have STL-style meanings
-  ζp   data()    const { return begin(); }
+  ζp   data()    const { return a + u9sb(stype()); }
   uN   size()    const { return end() - begin(); }
 
   // NOTE: returns 0 if this type cannot be vectorized
@@ -106,20 +106,20 @@ struct i9
 
   template<class T>
   requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v && (!u9t_is<T, u9signed.m>::v)
-    explicit operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(begin(), 0); }
+    explicit operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(data(), 0); }
 
   explicit operator i64() const
     { u9ints(type());
       switch (type())
       {
-      case u9t::i8:  return R<i8> (begin(), 0);
-      case u9t::i16: return R<i16>(begin(), 0);
-      case u9t::i32: return R<i32>(begin(), 0);
-      case u9t::i64: return R<i64>(begin(), 0);
-      case u9t::u8:  return R<u8> (begin(), 0);
-      case u9t::u16: return R<u16>(begin(), 0);
-      case u9t::u32: return R<u32>(begin(), 0);
-      case u9t::u64: return R<u64>(begin(), 0);
+      case u9t::i8:  return R<i8> (data(), 0);
+      case u9t::i16: return R<i16>(data(), 0);
+      case u9t::i32: return R<i32>(data(), 0);
+      case u9t::i64: return R<i64>(data(), 0);
+      case u9t::u8:  return R<u8> (data(), 0);
+      case u9t::u16: return R<u16>(data(), 0);
+      case u9t::u32: return R<u32>(data(), 0);
+      case u9t::u64: return R<u64>(data(), 0);
         TA(0, type());
       } }
 
@@ -127,14 +127,14 @@ struct i9
     { u9ints(type());
       switch (type())
       {
-      case u9t::i8:  return          R<i8> (begin(), 0);
-      case u9t::i16: return          R<i16>(begin(), 0);
-      case u9t::i32: return          R<i32>(begin(), 0);
-      case u9t::i64: return coi<i32>(R<i64>(begin(), 0));
-      case u9t::u8:  return          R<u8> (begin(), 0);
-      case u9t::u16: return          R<u16>(begin(), 0);
-      case u9t::u32: return coi<i32>(R<u32>(begin(), 0));
-      case u9t::u64: return coi<i32>(R<u64>(begin(), 0));
+      case u9t::i8:  return          R<i8> (data(), 0);
+      case u9t::i16: return          R<i16>(data(), 0);
+      case u9t::i32: return          R<i32>(data(), 0);
+      case u9t::i64: return coi<i32>(R<i64>(data(), 0));
+      case u9t::u8:  return          R<u8> (data(), 0);
+      case u9t::u16: return          R<u16>(data(), 0);
+      case u9t::u32: return coi<i32>(R<u32>(data(), 0));
+      case u9t::u64: return coi<i32>(R<u64>(data(), 0));
         TA(0, type());
       } }
 

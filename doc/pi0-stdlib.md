@@ -26,8 +26,9 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 
 ## Control flow
 + `[...] .`: run bytecode function
-+ `c [t] [e] ?`: if `c` is true, run `[t]`; else run `[e]`
-+ `[c] [b] ?.`: while `[c]` returns true, do `[b]`
++ `c [t] [e] ?.`: if `c` is true, run `[t]`; else run `[e]`
++ `[b] [c] ?!`: while `[c]` returns true, do `[b]`
++ `.^`: pop return stack (used to early-return or break a loop)
 
 
 ## UTF9
@@ -38,10 +39,12 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 
 ### Vectors
 + `xs t >v`: tuple/set/bytes/UTF8 to typed vector
-+ `xs vlen`: vector length
-+ `xs vtype`: symbol (`i8`, `i16`, ..., `u64`, `f32`, ..., `c64`)
-+ `xs i vget`: get vector element
 + `... x₃ x₂ x₁ n t vec`: make vector of type `t` (a symbol, see `vtype`)
++ `xs vt`: type symbol (`i8`, `i16`, ..., `u64`, `f32`, ..., `c64`)
++ `xs v#`: vector length
++ `xs i v@`: get vector element
++ `xs i n v!`: sub-vector
++ `a b v+`: concatenate vectors
 
 
 ### Numbers
@@ -60,21 +63,22 @@ All of these operators automatically distribute across vectors.
   + `>f64`
   + `>c32`: assign real part only
   + `>c64`
-+ Integer arithmetic
++ General arithmetic
   + `i8+`: undefined on overflow
   + `i16+`
   + ...
   + `u64+`: wrap on overflow/underflow
   + `i8-`, ...
   + `i8*`, ...
-  + `i8**`, ...: discrete exponent
+  + `i8**`, ...
   + `i8/`, ...
   + `i8%`, ...
   + `i8n`, ...: negate
-  + `i8!`, ...
-+ Float arithmetic
-  + **TODO**
-+ Bitwise
+  + `i8min`, ...
+  + `i8max`, ...
+  + `i8abs`, ...
++ Integer arithmetic
+  + `i8!`, ...: nonzero → 0, 0 → 1
   + `u8~`, ...
   + `u8&`, ...
   + `u8|`, ...
@@ -84,6 +88,27 @@ All of these operators automatically distribute across vectors.
   + `i8>>`, ... (signed shift, for signed ints)
   + `u8<<<`, ...: left rotate
   + `u8>>>`, ...: right rotate
++ Float arithmetic
+  + `f32ceil`
+  + `f32floor`
+  + `f32round`
+  + `f32sqrt`, ...
+  + `f32sin`, ...
+  + `f32cos`, ...
+  + `f32tan`, ...
+  + `f32asin`, ...
+  + `f32acos`, ...
+  + `f32atan`, ...
+  + `f32atan2`, ...
+  + `f32exp`, ...
+  + `f32log`, ...
+  + `f32erf`, ...
+  + `f32fft`, ... (for vectors)
+  + `f32ifft`, ...
++ Complex numbers
+  + `c32real`, `c64real`
+  + `c32imag`, `c64imag`
+  + `c32conj`, ...
 
 
 ### Strings
@@ -101,18 +126,20 @@ All of these operators automatically distribute across vectors.
 
 
 ### Tuples
++ `... x₃ x₂ x₁ n tuple`: make tuple from elements
 + `>t`: set/map/vector/bytes/UTF8 to tuple
 + `t t#`: tuple length
 + `t i t@`: get element from tuple
 + `t s n t!`: sub-tuple (start + len)
-+ `... x₃ x₂ x₁ n tuple`: make tuple from elements
 + `xs ys t+`: append
 + `xs [...] t.`: for-each
 + `xs [...] t*`: map
++ `xs [...] t%`: filter
 + `xs i [...] t/`: reduce
 
 
 ### Sets
++ `... x₃ x₂ x₁ n set`: make set from elements
 + `>s`: tuple/vector/bytes/UTF8 to set
 + `s x s?`: check set member
 + `a b s|`: set union
@@ -120,12 +147,14 @@ All of these operators automatically distribute across vectors.
 + `a b s-`: set difference (`a - b`)
 + `xs [...] s.`: for-each
 + `xs [...] s*`: map
++ `xs [...] s%`: filter
 + `xs i [...] s/`: reduce
 
 
 ### Maps
++ `... v₃ k₃ v₂ k₂ v₁ k₁ n map`: make map from elements
 + `>m`: tuple/set/vector/bytes/UTF8 of pairs → map
-+ `ks vs ^m`: zip into map
++ `ks vs ^m`: zip tuples/vectors into map
 + `m mk`: tuple of map keys
 + `m mv`: tuple of map values
 + `m k m@`: map k/v lookup
@@ -137,6 +166,8 @@ All of these operators automatically distribute across vectors.
 + `m [...] mv.`: for-each value
 + `m [...] m*`: map
 + `m [...] mv*`: map values
++ `m [...] m%`: filter
++ `m [...] mv%`: filter values
 + `m i [...] m/`: reduce
 + `m i [...] mv/`: reduce values
 
@@ -170,5 +201,5 @@ All of these operators automatically distribute across vectors.
 
 
 ### Iteration
-+ `fi [...] φ.`: for-each element
++ `fi [...] φ.`: for each element
 + `fi i [...] φ/`: reduce
