@@ -34,6 +34,11 @@ struct π0int
   i9 operator[](uN i)   {                          return i9{q.data() + i}; }
   operator bool() const {                          return !r.empty(); }
   π0int     &go()       { while (*this) (*this)(); return *this; }
+  π0int    &run(uN l)
+    { let n = r.size();
+      r.push_back(l);
+      while (r.size() > n) (*this)();
+      return *this; }
 
   template<o9mapped T>
   π0int &operator<<(T const &x) { h.dpush(x); return *this; }
@@ -47,15 +52,9 @@ struct π0int
 
   i9     pop()  { let i = h.di(0); h.dpop(); return i; }
 
-  π0int &run(uN l)
-    { let n = r.size();
-      r.push_back(l);
-      while (r.size() > n) (*this)();
-      return *this; }
-
 #if τπ0debug_bounds_checks
   π0int &operator()()
-    { A(!r.empty(), "π₀i() r=∅");
+    { A(*this, "π₀i() r=∅");
       f.at(c.at(r.back()++))(*this); return *this; }
 #else
   π0int &operator()() { f[c[r.back()++]](*this); return *this; }
