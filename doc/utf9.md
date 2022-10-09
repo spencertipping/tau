@@ -212,11 +212,11 @@ Also note that pid/fds may create race conditions, since the other process can c
 
 
 ### Non-portable heap refs
-Some UTF9 values will be too large for the ζ being used to carry them. Rather than expanding ζ or failing, we can "box" the value into a specially-allocated `u8[]`, then store a reference to that `u8[]` into ζ.
+Some UTF9 values will be too large for the ζ being used to carry them. Rather than expanding ζ or failing, we can "box" the value into a specially-allocated `u8[]`, then store a reference to that `u8[]` into ζ. This is done with `std::malloc` and `std::free`, and these values are assumed to not be aliased into other structures such as π₀ heaps.
 
 Heap references can be pinned, which modifies their typecode in place. This is an implementation detail that prevents the heap object from being freed automatically when the ζ containing the heap ref is advanced.
 
-**NOTE:** non-portable refs cannot be embedded into other data structures, even for local transit. τ data structures don't internally hold references to anything or support tracing GC, so it would defeat automatic memory allocation if these structures could be serialized into anything besides the toplevel.
+**NOTE:** non-portable refs cannot be embedded into other data structures, even for local transit. τ data structures don't internally hold references to anything or support tracing GC, so it would defeat automatic memory allocation if these structures could be serialized into anything besides the toplevel. (For GC-aware data, use a π₀ value.)
 
 
 ### Non-portable `struct`
@@ -226,7 +226,9 @@ This is a way to pass around `struct` instances that are encoded with native-end
 
 
 ### π internals
-These are values reserved for [π](pi.md), in particular its memory allocation mechanics. They are assumed to be opaque to everyone else, and are completely non-portable. See [π GC](pi-gc.md) for details.
+These are values reserved for [π](pi.md), in particular its memory allocation mechanics. They are assumed to be opaque to everyone else, and are arbitrarily non-portable. See [π GC](pi-gc.md) for details.
+
+**NOTE:** non-portable π₀ values are flagged.
 
 
 ### `none`

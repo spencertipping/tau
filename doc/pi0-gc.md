@@ -30,6 +30,12 @@ We also need register aliases for native C++ functions that hold references to h
 Because the live set is open-ended, we'll use a set of virtual pointers that provide "views" into the heap. These implement various abstractions like data stacks, frame stacks, globals, and native frames.
 
 
+## UTF9 flagging
+Most UTF9 values are allocated inline: a tuple physically contains its elements, for example. This is convenient from a GC perspective because it means we can just copy the value as a single block without inspecting its contents, and all internal offsets are also preserved.
+
+**TODO:** document flag scheme
+
+
 # _
 π₀ programs are stack-oriented bytecode, so we need to track their values accordingly. We do this with the usual three-tier setup:
 
