@@ -21,17 +21,17 @@ namespace τ
 
 struct π0int
 {
-  B            q;  // quoted statics
+  SP<B>        q;  // quoted statics
   V<π0f> const f;  // predefined functions
   V<uN>  const c;  // bytecode program (indexes into f[])
   V<uN>        r;  // return stack
   π0h          h;  // data stack + local frames
 
-  π0int(B &&q_, V<π0f> &&f_, V<uN> &&c_, uN c0)
-    : q(std::move(q_)), f(std::move(f_)), c(std::move(c_))
+  π0int(B &q_, V<π0f> &&f_, V<uN> &&c_, uN c0)
+    : q(&q_), f(std::move(f_)), c(std::move(c_))
     { r.push_back(c0); }
 
-  i9 operator[](uN i)   {                          return i9{q.data() + i}; }
+  i9 operator[](uN i)   {                          return i9{q->data() + i}; }
   operator bool() const {                          return !r.empty(); }
   π0int     &go()       { while (*this) (*this)(); return *this; }
   π0int    &run(uN l)
@@ -65,7 +65,7 @@ struct π0int
 #if τdebug_iostream
 O &operator<<(O &s, π0int const &i)
 {
-  s << "π₀i qs=" << i.q.size()
+  s << "π₀i qs=" << i.q->size()
     << " fs=" << i.f.size()
     << " cs=" << i.c.size()
     << " rs=" << i.r.size()

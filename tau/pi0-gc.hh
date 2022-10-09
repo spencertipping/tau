@@ -16,10 +16,23 @@ namespace τ
 {
 
 
-struct π0F  // local frame
+struct π0F    // local frame
 {
   V<π0r> xs;
   π0F(uN vs) { xs.assign(vs, π0hω); }
+};
+
+
+struct π0nF   // native frame (created manually)
+{
+  S<π0nF*> &rs;
+  V<ζp*>    xs;
+  π0nF (π0nF &&)     = delete;
+  π0nF (π0nF const&) = delete;
+  π0nF (S<π0nF*> &rs_, uN vs) : rs(rs_) { rs.insert(this); xs.reserve(vs); }
+  ~π0nF()                               { rs.erase(this); }
+
+  ζp &operator<<(ζp &r) { xs.push_back(&r); return r; }
 };
 
 
@@ -87,7 +100,7 @@ struct π0o9c  // complex-value rewrite
         let t = z.type();
         if (z.flagged())
           if (ds[t])                { c.push(j); j += u9sb(z.stype()); goto each; }
-          else if (t == u9t::index) TODO("π₀o9c index");
+          else if (t == u9t::index) TODO("π₀o9c index (should this case be illegal?)");
           else if (in(x + j))
           { let ds = (*this)[z.π()].osize() - z.osize();
             d += ds;
@@ -119,18 +132,19 @@ template<> struct o9_<π0o9c> { sletc v = true; };
 
 struct π0h
 {
-  B       h;
-  V<B>    ps;  // set of pinned heaps
-  V<π0r>  d;   // data stack
-  V<π0F>  f;   // stack of local frames
-  V<π0F>  nf;  // stack of native frames
-  bool    p;   // if true, pin all old heaps
-  u64     ta;  // total allocations
-  f64     lh;  // live set → heap size factor
-  f64     ip;  // in-place ratio: (liveset ≥ ip * heap) skips compaction
-  uN      is;  // inlining size: i9s smaller than this are inlined immediately
-  uN      ms;  // min heap size
-  ΣΘΔ     gΘ;  // GC timer
+  B        h;
+  V<B>     ps;  // set of pinned heaps
+  V<π0r>   d;   // data stack
+  V<π0F>   f;   // stack of local frames
+  S<π0nF*> nf;  // set of active native frames
+
+  bool     p;   // if true, pin all old heaps
+  u64      ta;  // total allocations
+  f64      lh;  // live set → heap size factor
+  f64      ip;  // in-place ratio: (liveset ≥ ip * heap) skips compaction
+  uN       is;  // inlining size: i9s smaller than this are inlined immediately
+  uN       ms;  // min heap size
+  ΣΘΔ      gΘ;  // GC timer
 
   π0h(f64 lh_ = 4.0,
       f64 ip_ = 0.75,
@@ -167,26 +181,32 @@ struct π0h
   i9 operator[](π0r i) { if (τπ0debug_bounds_checks) A(i < h.size(), "π₀[π₀r]: " << i << " ≥ " << h.size()); return i9{h.data() + i}; }
 
 
+  // TODO: rewrite this logic; we need to design this more deliberately
+  // and differentiate between multiple stack-pointers vs multiple-complexes
+  // for multiply-referred-to values.
   void trace(S<π0r> &r, S<π0r> &m, π0r i)
     { if (!r.insert(i).second) m.insert(i);
       else
       { let a = (*this)[i];
-        if (a.flagged() && u9tm{u9t::index, u9t::tuple, u9t::map, u9t::set}[a.type()])
-          for (let x : a) trace(r, m, x.a - h.data()); }}
+        if (a.flagged())
+          if (u9tm{u9t::index, u9t::tuple, u9t::map, u9t::set}[a.type()])
+            for (let x : a) trace(r, m, x.a - h.data());
+          else if (a.type() == u9t::pi)
+            trace(r, m, a.π()); }}
 
   void live(S<π0r> &r, S<π0r> &m)
-    { for (let  x : d)                     trace(r, m, x);
-      for (let &v : f)  for (let x : v.xs) trace(r, m, x);
-      for (let &v : nf) for (let x : v.xs) trace(r, m, x); }
+    { for (let  x : d)                      trace(r, m, x);
+      for (let &v : f)  for (let x : v.xs)  trace(r, m, x);
+      for (let &v : nf) for (let x : v->xs) trace(r, m, *x - h.data()); }
 
   void gc(uN s)  // GC with room for live set + s
     { gΘ.start();
       S<π0r> rs, rms;  live(rs, rms);
       uN     ls = s;   for (let r : rs) ls += size_of(r);
 
-      // Shortcut: if most of the heap is still live, don't bother moving
-      // anything; just resize the heap.
-      if (ls > h.capacity() * ip)
+      // Shortcut: if most of the heap is still live and we aren't pinned,
+      // don't bother moving anything; just resize the heap.
+      if (!p && ls > h.capacity() * ip)
       { h.reserve(Sc<uN>(ls * lh));
         gΘ.stop();
         return; }
@@ -207,9 +227,9 @@ struct π0h
                               : h_ << o9(i); }
       ns[π0hω] = π0hω;
 
-      for (auto &x : d)                       x = ns[x];
-      for (auto &x : f)  for (auto &y : x.xs) y = ns[y];
-      for (auto &x : nf) for (auto &y : x.xs) y = ns[y];
+      for (auto &x : d)                         x = ns[x];
+      for (auto &x : f)  for (auto &y : x.xs)   y = ns[y];
+      for (auto &x : nf) for (auto &y : x->xs) *y = ns[*y - h.data()] + h.data();
 
       // Stash the old heap data into a pinned space so it's still available
       // to C++ functions at its current memory location
@@ -222,10 +242,8 @@ struct π0h
 #if τπ0debug_bounds_checks
   i9   di (uN i)                  { return (*this)[d.at (d.size()  - 1 - i)]; }
   i9   fi (uN i,       uN fi = 0) { return (*this)[f.at (f.size()  - 1 - fi).xs.at(i)]; }
-  i9   nfi(uN i,       uN fi = 0) { return (*this)[nf.at(nf.size() - 1 - fi).xs.at(i)]; }
   π0h &fg (uN i,       uN fi = 0) { d.push_back(f.at(f.size() - 1 - fi).xs.at(i));               return *this; }
   π0h &fs (uN i,       uN fi = 0) { f.at (f.size()  - 1 - fi).xs.at(i) = d.back(); d.pop_back(); return *this; }
-  π0h &nfs(uN i, i9 x, uN fi = 0) { nf.at(nf.size() - 1 - fi).xs.at(i) = x.a - h.data();         return *this; }
 #else
   i9   di (uN i)                  { return (*this)[d [d.size()  - 1 - i]]; }
   i9   fi (uN i,       uN fi = 0) { return (*this)[f [f.size()  - 1 - fi].xs[i]]; }
@@ -241,9 +259,6 @@ struct π0h
 
   π0h &fpush(uN vs)      { f.push_back(π0F(vs));    return *this; }
   π0h &fpop()            { f.pop_back();            return *this; }
-
-  π0h &nfpush(uN vs)     { nf.push_back(π0F(vs));   return *this; }
-  π0h &nfpop()           { nf.pop_back();           return *this; }
 };
 
 

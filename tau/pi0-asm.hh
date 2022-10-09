@@ -32,21 +32,36 @@ struct π0cs7  // 7-bit ASCII charset
 
   bool operator[](ch c) const
     { return c >= 0 && (c < 64 ? c1 & 1ull << c : c2 & 1ull << c - 64); }
+
+  V<St> split(Stc &s) const
+    { V<St> r;
+      if (s.empty()) return r;
+      bool c = false;
+      uN   k = 0;
+      for (uN i = 0; i < s.size(); ++i)
+      { let b = (*this)[s[i]];
+        if      (b  && !c) k = i;
+        else if (!b &&  c) r.push_back(s.substr(k, i - k));
+        c = b; }
+      if (c) r.push_back(s.substr(k));
+      return r; }
 };
 
 
 struct π0afr  // π₀ asm frame
 {
+  sletc c7fs = π0cs7(" |[]");
+
   sc uNc fω = -1;
   V<St>  vs;
 
-  π0afr(Stc &vs_)  // TODO: factor string-split into a utility function
-    { St                x;
-      std::stringstream s(vs_);
-      while (s >> x) vs.push_back(x); }
-
+  π0afr(Stc &vs_) : vs(c7fs.split(vs_)) {}
   π0afr(Il<St> const &vs_)
     { std::copy(vs_.begin(), vs_.end(), std::back_inserter(vs)); }
+  π0afr(Stc &p, uN vs_)
+    { for (uN i = 0; i < vs_; ++i)
+      { vs.push_back(p);
+        vs.back().append(std::to_string(i)); } }
 
   uN operator[](Stc &v)
     { for (uN i = 0; i < vs.size(); ++i) if (vs[i] == v) return i;
@@ -131,9 +146,9 @@ struct π0asm
   π0asm &begin() { bls.push_back(new π0abl()); return *this; }
   π0asm &end(bool r = true)
     { let b = bls.back(); bls.pop_back();
-      cb() << def([n = b->is.size(), r](π0int &i)
+      cb() << def([n = b->is.size() + r](π0int &i)
         { i << i.r.back();
-          i.r.back() += n + r; });
+          i.r.back() += n; });
       for (let i : b->is) cb() << i;
       delete b;
       if (r) cb() << ret;
@@ -182,8 +197,7 @@ struct π0asm
   π0int build()
     { A(bls.size() == 1, "π₀ bs=" << bls.size() << " ≠ 1");
       cb() << ret;
-      return π0int(std::move(qh), std::move(fs),
-                   std::move(cb().is), 0); }
+      return π0int(qh, std::move(fs), std::move(cb().is), 0); }
 };
 
 

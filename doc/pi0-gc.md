@@ -35,10 +35,16 @@ Some operations require longer-term access to UTF9 values. These use native fram
 We solve this by tracking both `m` and `i` (the iterator) in the native frame. GC will update both in a λ-atomic way. This means we must alias C++ locals to GC-owned values, which in turn means these natives should be stored as real memory addresses, not heap-offsets. (This way the C++ function can write to them directly.)
 
 ```cpp
-auto f  = z.h.nf();
+auto f  = π0nF(z.h, 2);
 uN   fn = z.pop();         // the function bytecode
 auto &m = f << z.pop();    // the map
 auto &i = f << m.first();  // iterator
-```
 
-Now we can iterate with these locals, knowing the GC will keep them up to date for us. The GC will stop tracking our native locals as soon as `f` is destroyed.
+while (i < m.end())
+{
+  // loop stuff, including z.run() for each entry
+  // if GC happens, both m and i will be updated
+}
+
+// f will fall out of scope, removing it from the pin set
+```

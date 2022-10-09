@@ -5,6 +5,8 @@ There are three stacks: data, return, and frame. Each frame reserves a prealloca
 
 
 ## Program format
+**TODO:** weaken this a bit. Fully-specialized bytecode is too much; we need interpreters to be forkable (on the C++ side), and we want the full stdlib of functions to be provided at consistent internal offsets. Probably a two-layer indirect vector of `pair<fn, arg>`, for some standardized and small `arg`. This will remove some of the current `F<>` indirection, probably resulting in faster code. We can also code the inner bytecode-delegation loop in assembly without much trouble; the decoder is completely uniform.
+
 Joy models literals and quotations as functions-that-push-values, which I think is correct for π₀ as well. I was initially hesitant because it requires that we customize the bytecode, but let's suppose our bytecode is just function pointers to start with. Then it's simple, and bytecode isn't expected to be portable in any case. Every program is run through the assembler to produce transient bytecode; that's useful because it means the _assembler_ is the invariant format, not the bytecode itself.
 
 Unlike Joy, π₀ doesn't use runtime lists as an executable format. It does use lists, but data-lists are separate from program-lists. Program-lists are produced ahead of time by the assembler, and take a simple form:
@@ -27,7 +29,7 @@ Although program-specialized bytecode sounds like a liability due to this comple
 ## Function references
 Joy's `i` function executes lists. Our `i`, called `.`, operates on opaque numbers that are internally bytecode offsets. To reduce the likelihood of errors, these bytecode offsets can be `xor`ed with a key that makes them unlikely to appear by accident -- then the interpreter can hard-fail if it encounters an invalid `.` argument.
 
-**TODO:** use symbols to encode bytecode location references; that way we don't collide with user values
+**TODO:** allocate a π₀ value prefix for bytecode offsets, since they should be opaque and are non-portable
 
 
 ## Quoting a function
@@ -42,13 +44,13 @@ fn_+
 ret
 
 fn_.                    ← immediately after [3 4 +]
-ret
+ret                       (push_and_skip lands here)
 ```
 
 Since all of these things are compactly-numbered native functions, the actual bytecode might be something like this:
 
 ```
- push_skip      eval
+ push_and_skip  eval
  |              |
 01 02 03 04 00 05 00
     |        |     |

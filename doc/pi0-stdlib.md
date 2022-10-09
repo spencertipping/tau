@@ -173,7 +173,8 @@ All of these operators automatically distribute across vectors.
 
 
 ### Indexes
-**TODO**
++ `x f >i`: index `x` with coverage factor `f`; returns indexed structure
+  + This operator auto-detects the type of `x`
 
 
 ## γ
