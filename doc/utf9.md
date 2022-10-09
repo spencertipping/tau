@@ -86,6 +86,10 @@ In detail:
 | `1 1110` | `none`                    |
 | `1 1111` | `frame`                   |
 
+**TODO:** unify heapref + heappin into a Φ-level thing
+
+**TODO:** convert pid/fd + struct into a more general host-level thing
+
 
 ### Size codes
 Size bytes, when indicated, immediately follow the control byte -- that is, they occur before any bytes related to the type.
