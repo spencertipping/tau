@@ -24,6 +24,12 @@ namespace τ
 {
 
 
+// TODO: virtual base class so we can have polymorphic
+// .size() and .write() invocations
+//
+// (polymorphism is useful for π₀ GC)
+
+
 template<class T> concept o9mapped = u9t_hastype<T> || std::is_same_v<T, i9>;
 
 template<class T> concept o9fixed  = u9t_is<T, u9fixed.m>::v;
