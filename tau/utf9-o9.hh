@@ -24,10 +24,12 @@ namespace τ
 {
 
 
-// TODO: virtual base class so we can have polymorphic
-// .size() and .write() invocations
-//
-// (polymorphism is useful for π₀ GC)
+struct o9V  // o9 virtual base
+{
+  virtual ~o9V() {}
+  virtual uN size ()     const = 0;
+  virtual uN write(ζp m) const = 0;
+};
 
 
 template<class T> concept o9mapped = u9t_hastype<T> || std::is_same_v<T, i9>;
@@ -37,12 +39,13 @@ template<class T> concept o9string = u9t_is<T, u9strings.m>::v;
 template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 
 
-struct o9i9
+struct o9i9 : virtual o9V
 {
   // NOTE: the i9 may not be encoded with an optimal size, so copy verbatim
   // even if we could compact the size by a bit. The invariant here is that
   // output == input, down to the byte level.
   i9 const a;
+  o9i9(i9 a_) : a(a_) {}
   uN size ()     const { return a.size() + u9sb(a.stype()); }
   uN write(ζp m) const { std::memcpy(m, a.a, size()); return 0; }
 };
@@ -50,9 +53,10 @@ struct o9i9
 inline o9i9 o9(i9 i) { return o9i9{i}; }
 
 
-struct o9q  // byte-quoted i9 serialization
+struct o9q : virtual o9V  // byte-quoted i9 serialization
 {
   i9 const x;
+  o9q(i9 x_) : x(x_) {}
   uN size ()     const { let s = i9::size_of(x.a); return s + u9sb(u9sq(s)); }
   uN write(ζp m) const
     { let o = o9i9{x};
@@ -63,9 +67,10 @@ struct o9q  // byte-quoted i9 serialization
 
 
 template<o9fixed T>
-struct o9f
+struct o9f : virtual o9V
 {
   T x;
+  o9f(T x_) : x(x_) {}
   uN size ()     const { return sizeof(T) + u9sb(u9sq(sizeof(T))); }
   uN write(ζp m) const { W<T>(m, u9ws(m, 0, u9t_<T>::t, sizeof(T)), x); return 0; }
 };
@@ -81,9 +86,10 @@ o9f<u9_heapref> o9box(T &x)
 
 
 template<class T>
-struct o9b
+struct o9b : virtual o9V
 {
   T x;
+  o9b(T x_) : x(x_) {}
   uN size() const { return x.size() + u9sb(u9sq(x.size())); }
   uN write(ζp m) const
     { uN i = u9ws(m, 0, u9t_<T>::t, x.size());
@@ -92,9 +98,10 @@ struct o9b
 };
 
 
-struct o9st
+struct o9st : virtual o9V
 {
   u9_stream s;
+  o9st(u9_stream const &s_) : s(s_) {}
 
   uN isize() const
     { switch (s.t)
@@ -113,14 +120,16 @@ struct o9st
       return 0; }
 };
 
-ic o9st o9(u9_stream s) { return o9st{s}; }
+inline o9st o9(u9_stream s) { return o9st{s}; }
 
 
-struct o9c
+struct o9c : virtual o9V
 {
   u9t const  t;
   chc       *xs;
   uNc        n;
+
+  o9c(u9t const t_, chc *xs_, uN n_) : t(t_), xs(xs_), n(n_) {}
 
   uN size() const { return n + u9sb(u9sq(n)); }
   uN write(ζp m) const
@@ -136,26 +145,28 @@ inline o9c o9(chc *xs)                          { return o9(xs, std::strlen(xs),
 template<o9mapped T, template<typename...> class C, class... Ts> struct o9v;
 template<o9mapped K, o9mapped V, class... Ts>                    struct o9m;
 
-template<o9fixed T> ic o9f<T> o9(T x) { return o9f<T>{x}; }
+template<o9fixed T> inline o9f<T> o9(T x) { return o9f<T>{x}; }
 
-ic o9b<B const&>         o9(B         const &x) { return o9b<B const&>        {x}; }
-ic o9b<Bv>               o9(Bv               x) { return o9b<Bv>              {x}; }
-ic o9b<St const&>        o9(St        const &x) { return o9b<St const&>       {x}; }
-ic o9b<Stv>              o9(Stv              x) { return o9b<Stv>             {x}; }
-ic o9b<u9_symbol const&> o9(u9_symbol const &s) { return o9b<u9_symbol const&>{s}; }
+inline o9b<B const&>         o9(B         const &x) { return o9b<B const&>        {x}; }
+inline o9b<Bv>               o9(Bv               x) { return o9b<Bv>              {x}; }
+inline o9b<St const&>        o9(St        const &x) { return o9b<St const&>       {x}; }
+inline o9b<Stv>              o9(Stv              x) { return o9b<Stv>             {x}; }
+inline o9b<u9_symbol const&> o9(u9_symbol const &s) { return o9b<u9_symbol const&>{s}; }
 
-template<o9mapped T, class... Ts> ic o9v<T, V, Ts...> o9(V<T, Ts...> const&);
-template<o9mapped T, class... Ts> ic o9v<T, S, Ts...> o9(S<T, Ts...> const&);
+template<o9mapped T, class... Ts> inline o9v<T, V, Ts...> o9(V<T, Ts...> const&);
+template<o9mapped T, class... Ts> inline o9v<T, S, Ts...> o9(S<T, Ts...> const&);
 
 template<o9mapped K, o9mapped V, class... Ts>
-ic o9m<K, V> o9(M<K, V, Ts...> const&);
+inline o9m<K, V> o9(M<K, V, Ts...> const&);
 
 
 template<o9fixed T>
-struct o9a  // vector of fixed
+struct o9a : virtual o9V  // vector of fixed
 {
   T const *xs;
   uNc      n;
+
+  o9a(T const *xs_, uN n_) : xs(xs_), n(n_) {}
 
   uN size()  const { return isize() + u9sb(u9sq(isize())); }
   uN isize() const { return u9sizeof(u9t_<T>::t) * n; }
@@ -170,10 +181,12 @@ struct o9a  // vector of fixed
 
 
 template<o9mapped T, template<typename...> class C, class... Ts>
-struct o9v  // unindexed, unordered tuple/set
+struct o9v : virtual o9V  // unindexed, unordered tuple/set
 {
   C<T, Ts...> const &xs;
   uN        mutable  s = 0;
+
+  o9v(C<T, Ts...> const &xs_) : xs(xs_) {}
 
   uN size() const { return isize() + u9sb(u9sq(isize())); }
   uN isize() const
@@ -194,10 +207,12 @@ struct o9v  // unindexed, unordered tuple/set
 
 
 template<o9mapped K, o9mapped V, class... Ts>
-struct o9m  // unindexed, unordered k/v map
+struct o9m : virtual o9V  // unindexed, unordered k/v map
 {
   M<K, V, Ts...> const &xs;
   uN mutable            s = 0;
+
+  o9m(M<K, V, Ts...> const &xs_) : xs(xs_) {}
 
   uN size() const { return isize() + u9sb(u9sq(isize())); }
   uN isize() const
@@ -216,7 +231,7 @@ struct o9m  // unindexed, unordered k/v map
 
 
 template<o9mapped... X>
-struct o9t
+struct o9t : virtual o9V
 {
   T<X...> const xs;
   o9t(X... xs_) : xs(std::make_tuple(xs_...)) {}
@@ -251,21 +266,20 @@ struct o9t
 };
 
 
-// TODO: generate indexes if these collections are very large
 template<o9mapped T, class... Ts>
-ic o9v<T, V, Ts...> o9(V<T, Ts...> const &xs) { return o9v<T, V, Ts...>{xs}; }
+inline o9v<T, V, Ts...> o9(V<T, Ts...> const &xs) { return o9v<T, V, Ts...>{xs}; }
 
 template<o9mapped T, class... Ts>
-ic o9v<T, S, Ts...> o9(S<T, Ts...> const &xs) { return o9v<T, S, Ts...>{xs}; }
+inline o9v<T, S, Ts...> o9(S<T, Ts...> const &xs) { return o9v<T, S, Ts...>{xs}; }
 
 template<o9mapped K, o9mapped V, class... Ts>
-ic o9m<K, V, Ts...> o9(M<K, V, Ts...> const &xs) { return o9m<K, V, Ts...>{xs}; }
+inline o9m<K, V, Ts...> o9(M<K, V, Ts...> const &xs) { return o9m<K, V, Ts...>{xs}; }
 
 template<o9fixed T>
-ic o9a<T> o9(T const *xs, uN n) { return o9a<T>{xs, n}; }
+inline o9a<T> o9(T const *xs, uN n) { return o9a<T>{xs, n}; }
 
 template<o9fixed T>
-ic o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
+inline o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
 
 
 template<class T>    struct o9_            { sletc v = false; };
@@ -281,11 +295,25 @@ template<class... T> struct o9_<o9m<T...>> { sletc v =  true; };
 template<class... T> struct o9_<o9t<T...>> { sletc v =  true; };
 
 
-template<class T> concept o9__ =  o9_<T>::v;
-template<class T> concept o9n_ = !o9_<T>::v;
+// Virtual delegation
+struct o9vd : virtual o9V
+{
+  o9V const *x;
+  o9vd(o9V const *x_) : x(x_) {}
+  uN size()      const { return x->size(); }
+  uN write(ζp m) const { return x->write(m); }
+};
+
+template<> struct o9_<o9vd> { sletc v = true; };
+
+inline o9vd o9(o9V const *x) { return o9vd(x); }
 
 
-template<o9__ T>
+template<class T> concept O9  =  o9_<T>::v;
+template<class T> concept O9N = !o9_<T>::v;
+
+
+template<O9 T>
 uN operator<<(B &i, T const &x)
 {
   let s = x.size();

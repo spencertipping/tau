@@ -160,11 +160,11 @@ struct π0h
   π0h &unpin() { ps.clear();                  p = false; return *this; }
 
 
-  template<o9n_ T>
+  template<O9N T>
   π0r operator<<(T const &x)
     { return *this << o9(x); }
 
-  template<o9__ T>
+  template<O9 T>
   π0r operator<<(T const &o)
     { let s = o.size();
       ta += s;

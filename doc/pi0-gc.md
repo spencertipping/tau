@@ -1,4 +1,36 @@
 # π₀ GC
+π₀ was created to solve the "transform things without copying" problem: rather than having γs that consume and produce full UTF9 values, we have functions that refer to parts of those values, copying only what's needed.
+
+Taken to its logical conclusion, we end up with a shared heap that can span all γs within a Φ. All that's needed is a way to drop heap-references into UTF9 values, rewriting them as needed at the Φ boundaries. This is all invisible to the user, who can assume UTF9s are immutable and manipulated as though they were being fully copied at every step.
+
+
+## Live set
+We want to share UTF9 values between λs, both in ζs and in shared variable frames, e.g. a set of globals per γ. Additionally, each λ has its own stack of data and local-variable frames. That means our γs have a live set that looks like this:
+
+```
+γ₁ +-- globals
+   |
+   +-- λ₁ +-- data stack
+   |      +-- frame stack --- [frame]
+   |
+   +-- λ₂ +-- data stack
+   |      +-- frame stack --- [frame]
+   ...
+
+γ₂ +-- globals
+   |
+   ...
+
+γ₃
+...
+```
+
+We also need register aliases for native C++ functions that hold references to heap-owned data for longer than we want to pin the heap. Each of these is an ad-hoc list of `i9&` values that will be updated automatically when GC happens.
+
+Because the live set is open-ended, we'll use a set of virtual pointers that provide "views" into the heap. These implement various abstractions like data stacks, frame stacks, globals, and native frames.
+
+
+# _
 π₀ programs are stack-oriented bytecode, so we need to track their values accordingly. We do this with the usual three-tier setup:
 
 1. A stack for immediate expressions
@@ -59,4 +91,4 @@ A practical issue is that λs need a way to communicate with one another, but π
 
 **NOTE:** we should compartmentalize stack-sets like we do native frames: these should be views onto the heap, and although the heap knows how to update them, it doesn't own them. This representation also simplifies generational GC by quite a lot.
 
-**NOTE:** this also opens up the possibility that multiple γs within the same Φ can share a heap, which in turn means that we don't have to copy values to transfer between γs. That should be a big win for performance; now the copy step is pushed all the way out to the Φ IO boundary if we want it to be.
+**NOTE:** this also opens up the possibility that multiple γs within the same Φ can share a heap, which in turn means that we don't have to copy values to transfer between γs. That should be a big win for performance; now the copy step is pushed all the way out to the Φ IO boundary if we want it to b
