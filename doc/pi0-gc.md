@@ -48,3 +48,15 @@ while (i < m.end())
 
 // f will fall out of scope, removing it from the pin set
 ```
+
+
+### Example: π₀ `λc`
+`[...] λc` requires us to fork the interpreter: `[...]` is written with the same bytecode as the rest of the program, but will execute with a separate heap and stacks.
+
+A practical issue is that λs need a way to communicate with one another, but π₀ doesn't provide one; each λ runs with a separate interpreter and heap. This limitation defeats much of the purpose of π₀ in the first place, so let's change it:
+
+**FIXME:** π₀ must support multiple λs running against the same heap, so they can share memory without copying
+
+**NOTE:** we should compartmentalize stack-sets like we do native frames: these should be views onto the heap, and although the heap knows how to update them, it doesn't own them. This representation also simplifies generational GC by quite a lot.
+
+**NOTE:** this also opens up the possibility that multiple γs within the same Φ can share a heap, which in turn means that we don't have to copy values to transfer between γs. That should be a big win for performance; now the copy step is pushed all the way out to the Φ IO boundary if we want it to be.

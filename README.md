@@ -53,9 +53,9 @@ $ sudo apt install -y \
 Narrowly:
 
 + π₀ bytecode stdlib
-  + `shared_ptr` for π₀int quoted heap
   + Manual quoted-closure allocation, pure function pointers for bytecode fns (closure data as a single `uN` against qheap)
-  + Add π₀ interpreter forking for `λc`
+  + Add π₀ interpreter forking for `λc` (shared heap)
+  + Cross-heap globals
 + π₀ memory optimization
   + Allocate small values directly on stack
   + Generational GC

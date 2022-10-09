@@ -154,6 +154,8 @@ struct π0asm
       if (r) cb() << ret;
       return *this; }
 
+  // TODO: add [|a= b= c d| ...] syntax to capture some locals from the
+  // stack when the frame is initialized
   π0asm &frame(Stc &vs) { TODO("π0asm frame"); }
   π0asm &fpop ()        { TODO("π0asm fpop"); }
 
@@ -194,6 +196,7 @@ struct π0asm
       return *this; }
 
 
+  // FIXME: this should not invalidate the assembler
   π0int build()
     { A(bls.size() == 1, "π₀ bs=" << bls.size() << " ≠ 1");
       cb() << ret;
