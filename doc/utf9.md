@@ -77,11 +77,12 @@ In detail:
 | `1 0101` | map                      |
 | `1 0110` | set                      |
 | `1 0111` | tensor                   |
-| `1 1000` | Φ-scoped object          |
-| `1 1001` | host-scoped object       |
-| `1 1010` | build-scoped object      |
+| `1 1000` | π-scoped object          |
+| `1 1001` | Φ-scoped object          |
+| `1 1010` | host-scoped object       |
+| `1 1011` | build-scoped object      |
 | `1 1011` | **reserved**             |
-| `1 1100` | π internal               |
+| `1 1100` | **reserved**             |
 | `1 1101` | **reserved**             |
 | `1 1110` | `none`                   |
 | `1 1111` | `frame`                  |

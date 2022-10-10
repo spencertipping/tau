@@ -59,11 +59,11 @@ enum class u9t
   set     = 22,
   tensor  = 23,
 
-  phi     = 24,
-  host    = 25,
-  build   = 26,
+  pi      = 24,
+  phi     = 25,
+  host    = 26,
+  build   = 27,
 
-  pi      = 28,
   none    = 30,  // not a real type
   frame   = 31,
 };
