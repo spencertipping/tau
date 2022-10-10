@@ -52,7 +52,6 @@ $ sudo apt install -y \
 ## Next steps
 Narrowly:
 
-+ Fix GL rendering for editor and X11 demo
 + π₀ bytecode stdlib
   + Manual quoted-closure allocation, pure function pointers for bytecode fns (closure data as a single `uN` against qheap)
   + Add π₀ interpreter forking for `λc` (shared heap)

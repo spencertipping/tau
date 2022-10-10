@@ -108,6 +108,10 @@ ref = hh aaaaaa aaaaaaaa aaaaaaaa aaaaaaaa
 This doesn't give us invariance across GC because we still compact the new-set. It just gives us a fast way to calculate heap-relative addresses and allows us to independently compact old generations.
 
 
+### No write barriers
+Because UTF9 values are immutable, we will never have oldgen values referring to newgen ones. This means no insta-tenuring or other complications: each oldgen is completely self-contained relative to newer ones.
+
+
 ### Tenuring
 UTF9 doesn't provide any room for metadata to store details like "how many generations has this object been alive". I could allocate more [π₀ UTF9](pi0-utf9.md) space for this, but for now we just tenure after a single generation. If we have four heaps, the final generation requires the object to live for roughly eight new-gen collection cycles.
 
