@@ -1,7 +1,7 @@
 #define τdebug 1
-#define τdebug_i9st 1
-#define τdebug_ζclear 1
-#define τdebug_ζfill  255
+//#define τdebug_i9st 1
+//#define τdebug_ζclear 1
+//#define τdebug_ζfill  255
 #include "../tau.hh"
 #include "../tau/debug.hh"
 

@@ -124,9 +124,9 @@ struct i9
     { u9tm{u9t::build}(type());
       return R<u9_scoped<u9_build, T>>(data(), 0); }
 
-  operator u9_Φ()     const { u9tm{u9t::phi}(type());   return Sc<u9_Φ>(R<u8>(data(), 1)); }
-  operator u9_host()  const { u9tm{u9t::host}(type());  return Sc<u9_host>(R<u8>(data(), 1)); }
-  operator u9_build() const { u9tm{u9t::build}(type()); return Sc<u9_build>(R<u8>(data(), 1)); }
+  operator u9_Φ()     const { u9tm{u9t::phi}(type());   return Sc<u9_Φ>    (R<u8>(data(), 0)); }
+  operator u9_host()  const { u9tm{u9t::host}(type());  return Sc<u9_host> (R<u8>(data(), 0)); }
+  operator u9_build() const { u9tm{u9t::build}(type()); return Sc<u9_build>(R<u8>(data(), 0)); }
 
   bool is_heapref() const { return type() == u9t::phi && Sc<u9_Φ>(*this) == u9_Φ::heapref; }
   bool is_heappin() const { return type() == u9t::phi && Sc<u9_Φ>(*this) == u9_Φ::heappin; }
@@ -192,7 +192,7 @@ struct i9
 
   i9 operator*() const
     { A(is_heap(), "i9* requires heap, got type " << type() << " = " << *this);
-      return R<ζp>(data(), 2); };
+      return R<ζp>(data(), 1); };
 
   i9 &pin()   { if (is_heapref()) W<u8>(data(), 1, Sc<u8>(u9_Φ::heappin)); return *this; }
   i9 &unpin() { if (is_heappin()) W<u8>(data(), 1, Sc<u8>(u9_Φ::heapref)); return *this; }
