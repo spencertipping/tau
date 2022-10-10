@@ -51,42 +51,40 @@ Broadly:
 
 In detail:
 
-| Bits     | Type                      |
-|----------|---------------------------|
-| `0 0000` | i8                        |
-| `0 0001` | i16                       |
-| `0 0010` | i32                       |
-| `0 0011` | i64                       |
-| `0 0100` | u8                        |
-| `0 0101` | u16                       |
-| `0 0110` | u32                       |
-| `0 0111` | u64                       |
-| `0 1000` | f32                       |
-| `0 1001` | f64                       |
-| `0 1010` | complex f32               |
-| `0 1011` | complex f64               |
-| `0 1100` | boolean                   |
-| `0 1101` | opaque symbol (0 = null)  |
-| `0 1110` | stream manipulator        |
-| `0 1111` | **reserved**              |
-| `1 0000` | bytes                     |
-| `1 0001` | utf8                      |
-| `1 0010` | single index              |
-| `1 0011` | **reserved**              |
-| `1 0100` | tuple                     |
-| `1 0101` | map                       |
-| `1 0110` | set                       |
-| `1 0111` | tensor                    |
-| `1 1000` | `pid, fd` (non-portable)  |
-| `1 1001` | `heap ref` (non-portable) |
-| `1 1010` | `heap pin` (non-portable) |
-| `1 1011` | `struct` (non-portable)   |
-| `1 1100` | π internal                |
-| `1 1101` | **reserved**              |
-| `1 1110` | `none`                    |
-| `1 1111` | `frame`                   |
-
-**TODO:** refactor non-portables into validity tiers (Φ-level, host-level)
+| Bits     | Type                     |
+|----------|--------------------------|
+| `0 0000` | i8                       |
+| `0 0001` | i16                      |
+| `0 0010` | i32                      |
+| `0 0011` | i64                      |
+| `0 0100` | u8                       |
+| `0 0101` | u16                      |
+| `0 0110` | u32                      |
+| `0 0111` | u64                      |
+| `0 1000` | f32                      |
+| `0 1001` | f64                      |
+| `0 1010` | complex f32              |
+| `0 1011` | complex f64              |
+| `0 1100` | boolean                  |
+| `0 1101` | opaque symbol (0 = null) |
+| `0 1110` | stream manipulator       |
+| `0 1111` | **reserved**             |
+| `1 0000` | bytes                    |
+| `1 0001` | utf8                     |
+| `1 0010` | single index             |
+| `1 0011` | **reserved**             |
+| `1 0100` | tuple                    |
+| `1 0101` | map                      |
+| `1 0110` | set                      |
+| `1 0111` | tensor                   |
+| `1 1000` | Φ-scoped object          |
+| `1 1001` | host-scoped object       |
+| `1 1010` | build-scoped object      |
+| `1 1011` | **reserved**             |
+| `1 1100` | π internal               |
+| `1 1101` | **reserved**             |
+| `1 1110` | `none`                   |
+| `1 1111` | `frame`                  |
 
 
 ### Size codes
@@ -205,26 +203,24 @@ The container's type determines what `k` means. For tuples, `k` is a zero-based 
 UTF8 strings can be indexed; in that case, `(container)` is a `utf8` and the index keys are decoded character positions within the string.
 
 
-### Non-portable `(pid, fd)`
-It's sometimes useful to capture an FD from one process and send it to another; to do this, we can store a value inside a `pidfd` and serialize it across IPC lines, as long as the value never leaves the machine/container it's running on.
+### Φ-scoped object
+A UTF9 toplevel for values whose meaning becomes undefined outside of the Φ in which they were created. This typically refers to unqualified FDs and un-shared memory addresses.
 
-Note that τ doesn't promise to stop you from sending pid/fds elsewhere, they just won't work outside of their original context.
+**NOTE:** Φ, host, and build-scoped objects can all be sent into locations where they are invalid; they just can't be _used_ there. It's legal to send one of these objects to an invalid location only to later send it back to where it's defined and use it there. Each scoped object contains a marker that indicates whether it can be used from a given Φ.
 
-Also note that pid/fds may create race conditions, since the other process can close a file before you have accessed it.
-
-
-### Non-portable heap refs
-Some UTF9 values will be too large for the ζ being used to carry them. Rather than expanding ζ or failing, we can "box" the value into a specially-allocated `u8[]`, then store a reference to that `u8[]` into ζ. This is done with `std::malloc` and `std::free`, and these values are assumed to not be aliased into other structures such as π₀ heaps.
-
-Heap references can be pinned, which modifies their typecode in place. This is an implementation detail that prevents the heap object from being freed automatically when the ζ containing the heap ref is advanced.
-
-**NOTE:** non-portable refs cannot be embedded into other data structures, even for local transit. τ data structures don't internally hold references to anything or support tracing GC, so it would defeat automatic memory allocation if these structures could be serialized into anything besides the toplevel. (For GC-aware data, use a π₀ value.)
+See [UTF9 Φ scope](utf9-Phi-scope.md) for more details.
 
 
-### Non-portable `struct`
-This is a way to pass around `struct` instances that are encoded with native-endianness and alignment. You can `Sc<type*>(i9)` to decode them.
+### Host-scoped object
+A UTF9 toplevel for values that become undefined outside of the host on which they were created. Here, "host" means "abstracted kernel" -- this includes things like a container or VM. You can assume that a shared PID/IPC space is sufficient for host continuity.
 
-`struct`s in UTF9 have no type tagging; it's assumed that all participants know which C++ type they map to. This means they have minimal overhead, just the control-byte + size prefix.
+See [UTF9 host scope](utf9-host-scope.md) for more details.
+
+
+### Build-scoped object
+A UTF9 toplevel for values that incorporate platform/architecture specifics; these are valid within any copy of the same native build. If we were to generate executable code at runtime and ship it in UTF9, that would be build-scoped.
+
+See [UTF9 build-scope](utf9-build-scope.md) for more details.
 
 
 ### π internals

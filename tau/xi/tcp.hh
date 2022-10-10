@@ -31,7 +31,7 @@ struct o9acc  // accept socket connection from server FD
       // important: o9t.write() returns 0, because it fills its size;
       // we, however, requested a different size because we don't know
       // how big l will be. So we need to calculate the return ourselves.
-      auto t = o9t(u9_pidfd{Sc<u32>(getpid()), Sc<u32>(n)},
+      auto t = o9t(u9_scoped<u9_Φ, u32>{u9_Φ::fd, Sc<u32>(n)},
                    Bv{Rc<u8*>(&sa), l});
       t.write(m);
       return t.size(); }

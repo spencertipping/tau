@@ -100,9 +100,9 @@ void try_bytes()
 
   let s1 = l.c([&]() {
     u8 bs[] = {1, 2, 3, 4, 5, 6, 7, 8};
-    a << o9t(u9_pidfd{17, 31}, Bv{bs, sizeof(bs)});
-    a << o9t(u9_pidfd{19, 43}, Bv{bs, 5});
-    a << o9t(u9_pidfd{1,  2},  Bv{bs, 1});
+    a << o9t(1, 2, 3, 4,            Bv{bs, sizeof(bs)});
+    a << o9t("foo", "bar", true,    Bv{bs, 5});
+    a << o9t(1.2, 3.4, "foo", 5, 6, Bv{bs, 1});
     a.ω();
     return 0;
   });

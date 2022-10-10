@@ -66,7 +66,7 @@ struct o9q : virtual o9V  // byte-quoted i9 serialization
 };
 
 
-template<o9fixed T>
+template<class T>
 struct o9f : virtual o9V
 {
   T x;
@@ -77,11 +77,11 @@ struct o9f : virtual o9V
 
 
 template<class T>
-o9f<u9_heapref> o9box(T &x)
+o9f<u9_scoped<u9_Φ, ζp>> o9box(T &x)
 {
-  let r = std::malloc(x.size());
-  x.write(Sc<ζp>(r));
-  return o9f<u9_heapref>{u9_heapref{r}};
+  let r = Sc<ζp>(std::malloc(x.size()));
+  x.write(r);
+  return u9_scoped<u9_Φ, ζp>{u9_Φ::heapref, r};
 }
 
 
@@ -145,7 +145,8 @@ inline o9c o9(chc *xs)                          { return o9(xs, std::strlen(xs),
 template<o9mapped T, template<typename...> class C, class... Ts> struct o9v;
 template<o9mapped K, o9mapped V, class... Ts>                    struct o9m;
 
-template<o9fixed T> inline o9f<T> o9(T x) { return o9f<T>{x}; }
+template<o9fixed T>        inline o9f<T>               o9(T x)               { return o9f<T>{x}; }
+template<class E, class T> inline o9f<u9_scoped<E, T>> o9(u9_scoped<E, T> x) { return o9f<u9_scoped<E, T>>{x}; }
 
 inline o9b<B const&>         o9(B         const &x) { return o9b<B const&>        {x}; }
 inline o9b<Bv>               o9(Bv               x) { return o9b<Bv>              {x}; }

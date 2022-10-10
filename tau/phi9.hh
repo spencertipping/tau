@@ -8,6 +8,7 @@
 
 
 #include "begin.hh"
+#include "utf9-types.hh"
 
 namespace τ
 {
@@ -18,7 +19,7 @@ struct φ9
   template<class T>
   struct φo
   {
-    Va<T, o9f<u9_heapref>> x;
+    Va<T, o9f<u9_scoped<u9_Φ, ζp>>> x;
 
     uN size ()     const { return x.index() ? std::get<1>(x).size()   : std::get<0>(x).size(); }
     uN write(ζp m) const { return x.index() ? std::get<1>(x).write(m) : std::get<0>(x).write(m); }
@@ -54,7 +55,7 @@ struct φ9
   i9 r(i9 x, ζ<R>&)
     { ++im;
       free();
-      if (x.type() == u9t::heapref) b = x = *x;
+      if (x.is_heapref()) b = x = *x;
       return x; }
 
   template<class W, class Z> ic auto w(W const &x, ζ<Z> &z)

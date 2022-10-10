@@ -84,7 +84,9 @@ z.push(o);                   // the only place GC can happen
 i64 *as = a.first();         // no GC from here down
 i64 *bs = b.first();
 i64 *cs = z.peek().first();
-for (uN i = 0; i < a.vn(); ++i) c[i] = a[i] + b[i];
+for (uN i = 0; i < a.vn(); ++i)
+  // NOTE: in practice we'd convert endianness here
+  c[i] = a[i] + b[i];
 ```
 
 So we get full native performance with no write barriers or other thread-aware constructs, since π₀ is ultimately single-threaded.

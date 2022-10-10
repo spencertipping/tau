@@ -131,11 +131,16 @@ defW(c32) { W<f32>(xs, i, x.real()); W<f32>(xs, i + 4, x.imag()); }
 defW(c64) { W<f64>(xs, i, x.real()); W<f64>(xs, i + 8, x.imag()); }
 
 
-template<class T> inline constexpr u8 bu(T x) { return ou<u32>(x) ? 3 : ou<u16>(x) ? 2 : ou<u8>(x) ? 1 : 0; }
-template<class T> inline constexpr u8 bi(T x) { return oi<i32>(x) ? 3 : oi<i16>(x) ? 2 : oi<i8>(x) ? 1 : 0; }
+// NOTE: non-portable; pointers are written native-endian
+defR(void*) { return Rc<void*>(R<uN>(xs, i)); }
+defW(void*) { W<uN>(xs, i, Rc<uN>(x)); }
 
-template<class T> inline constexpr u8 su(T x) { return 1 << bu(x); }
-template<class T> inline constexpr u8 si(T x) { return 1 << bi(x); }
+
+template<class T> ic u8 bu(T x) { return ou<u32>(x) ? 3 : ou<u16>(x) ? 2 : ou<u8>(x) ? 1 : 0; }
+template<class T> ic u8 bi(T x) { return oi<i32>(x) ? 3 : oi<i16>(x) ? 2 : oi<i8>(x) ? 1 : 0; }
+
+template<class T> ic u8 su(T x) { return 1 << bu(x); }
+template<class T> ic u8 si(T x) { return 1 << bi(x); }
 
 
 template<class T>

@@ -37,8 +37,9 @@ struct o9xcbe
       n = !!(x = xcb_poll_for_event(c));
       if (!n) { n = -1; e = EAGAIN; return ζω; }
       e = 0;
-      let i = u9ws(m, 0, u9t::nstruct, sizeof(xcb_generic_event_t));
-      memcpy(m + i, x, sizeof(xcb_generic_event_t));
+      let i = u9ws(m, 0, u9t::build, 1 + sizeof(xcb_generic_event_t));
+      W<u8>(m + i, 1, Sc<u8>(u9_build::istruct));
+      memcpy(m + i + 1, x, sizeof(xcb_generic_event_t));
       free(x);
       return 0; }
 };

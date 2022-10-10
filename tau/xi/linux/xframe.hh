@@ -136,8 +136,8 @@ struct xframe_
   // otherwise we can't create multiple frames
 
   e | sink<i9>(f, [x](i9 y)
-    { if (y.type() == u9t::nstruct)
-      { let e = Rc<xcb_generic_event_t*>(y.data());
+    { if (y.is_istruct())
+      { let e = Sc<xcb_generic_event_t*>(y);
         switch (e->response_type & ~0x80)
         {
         case XCB_EXPOSE:                           x->render(); break;

@@ -37,11 +37,16 @@ inline i9 i9_no_key();
 inline i9 i9_tuple_bounds();
 
 
+#if τdebug_iostream
+O &operator<<(O &s, i9 const &i);
+#endif
+
+
 struct i9
 {
   static inline uN   size_of(ζp a) { return u9rs(a, 0); }
   static inline i9   cast   (ζp a) { return i9{a}; }
-  static inline void free   (ζp a) { i9 i{a}; if (i.type() == u9t::heapref) i.free(); }
+  static inline void free   (ζp a) { i9 i{a}; if (i.is_heapref()) i.free(); }
 
 
   struct it
@@ -105,6 +110,32 @@ struct i9
 
 
   template<class T>
+  operator u9_scoped<u9_Φ, T>() const
+    { u9tm{u9t::phi}(type());
+      return R<u9_scoped<u9_Φ, T>>(data(), 0); }
+
+  template<class T>
+  operator u9_scoped<u9_host, T>() const
+    { u9tm{u9t::host}(type());
+      return R<u9_scoped<u9_host, T>>(data(), 0); }
+
+  template<class T>
+  operator u9_scoped<u9_build, T>() const
+    { u9tm{u9t::build}(type());
+      return R<u9_scoped<u9_build, T>>(data(), 0); }
+
+  operator u9_Φ()     const { u9tm{u9t::phi}(type());   return Sc<u9_Φ>(R<u8>(data(), 1)); }
+  operator u9_host()  const { u9tm{u9t::host}(type());  return Sc<u9_host>(R<u8>(data(), 1)); }
+  operator u9_build() const { u9tm{u9t::build}(type()); return Sc<u9_build>(R<u8>(data(), 1)); }
+
+  bool is_heapref() const { return type() == u9t::phi && Sc<u9_Φ>(*this) == u9_Φ::heapref; }
+  bool is_heappin() const { return type() == u9t::phi && Sc<u9_Φ>(*this) == u9_Φ::heappin; }
+  bool is_heap()    const { return is_heapref() || is_heappin(); }
+
+  bool is_istruct() const { return type() == u9t::build && Sc<u9_build>(*this) == u9_build::istruct; }
+
+
+  template<class T>
   requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v && (!u9t_is<T, u9signed.m>::v)
     explicit operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(data(), 0); }
 
@@ -139,16 +170,10 @@ struct i9
       } }
 
   template<class T>
-  T const *operator*() const
-    { u9tm{u9t::nstruct}(type());
-      A(sizeof(T) <= size(), "i9 native T* overflows bounds; |T|=" << sizeof(T) << ", size()=" << size());
-      return Rc<T const*>(data()); }
-
-  template<class T>
-  T *operator*() const
-    { u9tm{u9t::nstruct}(type());
-      A(sizeof(T) <= size(), "i9 native T* overflows bounds; |T|=" << sizeof(T) << ", size()=" << size());
-      return Rc<T*>(data()); }
+  operator T*() const
+    { A(is_istruct(), "i9 T* on non-struct " << *this);
+      A(sizeof(T) == size() - 1, "i9 native T* mismatches bounds; |T|=" << sizeof(T) << ", size()=" << size());
+      return Rc<T*>(data() + 1); }
 
   operator St       () const { return St{Rc<ch*>(data()), size()}; }
   operator Bv       () const { return Bv{data(), size()}; }
@@ -166,16 +191,12 @@ struct i9
 
 
   i9 operator*() const
-    { u9tm{u9t::heapref, u9t::heappin}(type());
-      return i9{Rc<ζp>(R<u9_heapref>(begin(), 0).r)}; };
+    { A(is_heap(), "i9* requires heap, got " << *this);
+      return R<ζp>(data(), 1); };
 
-  i9 &free()
-    { if (type() == u9t::heapref || type() == u9t::heappin) std::free((**this).a);
-      return *this; }
-
-  i9 &pin()
-    { if (type() == u9t::heapref) W<u8>(a, 0, u9t::heappin | stype());
-      return *this; }
+  i9 &pin()   { if (is_heapref()) W<u8>(data(), 1, Sc<u8>(u9_Φ::heappin)); return *this; }
+  i9 &unpin() { if (is_heappin()) W<u8>(data(), 1, Sc<u8>(u9_Φ::heapref)); return *this; }
+  i9 &free()  { if (is_heap()) std::free((**this).a); return *this; }
 
 
   template<class T>
@@ -288,7 +309,6 @@ O &operator<<(O &s, i9 const &x)
 
 #undef vec
 
-  case u9t::pidfd:  return s << "pidfd(" << Sc<u9_pidfd>(x).pid << "," << Sc<u9_pidfd>(x).fd << ")";
   case u9t::b:      return s << (R<u8>(x.begin(), 0) ? "t" : "f");
   case u9t::symbol: return s << Sc<u9_symbol>(x);
   case u9t::stream:
@@ -331,9 +351,6 @@ O &operator<<(O &s, i9 const &x)
   { let d  = i9{x.begin()};
     let xs = i9{d.end()};
     return s << xs.type() << "[" << d << "]"; }
-
-  case u9t::heapref: return s << "heap@" << Rc<void*>((*x).a);
-  case u9t::heappin: return s << "hpin@" << Rc<void*>((*x).a);
 
   case u9t::pi: return s << "π₀[" << *Rc<uN*>(x.data()) << "]";
 

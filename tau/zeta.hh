@@ -44,6 +44,10 @@ constexpr uNc ζω  = Nl<uN>::max();
 constexpr ζpc ζωp = Nl<ζp>::max();
 
 
+defR(ζp) { return Rc<ζp>(R<void*>(xs, i)); }
+defW(ζp) { W<void*>(xs, i, x); }
+
+
 struct ζb
 {
   uNc c;             // invariant: c is a power of 2

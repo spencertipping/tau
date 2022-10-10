@@ -56,10 +56,9 @@ enum class u9t
   set     = 22,
   tensor  = 23,
 
-  pidfd   = 24,
-  heapref = 25,  // heapref that will be freed automatically
-  heappin = 26,  // pinned heapref (not freed automatically)
-  nstruct = 27,  // native-encoded struct
+  phi     = 24,
+  host    = 25,
+  build   = 26,
 
   pi      = 28,
   none    = 30,  // not a real type
@@ -80,11 +79,7 @@ enum class u9st
 static_assert(sizeof(pid_t) <= sizeof(u32));
 static_assert(sizeof(int)   <= sizeof(u32));
 
-struct u9_pidfd { u32 pid; u32 fd; };
 struct u9_stream { u9st t; u64 n; };
-
-defR(u9_pidfd) { return u9_pidfd{R<u32>(xs, i), R<u32>(xs, i + 4)}; }
-defW(u9_pidfd) { W(xs, i, x.pid); W(xs, i + 4, x.fd); }
 
 
 sletc u9ω = u9_stream{u9st::ω, 0};
@@ -96,9 +91,46 @@ ic u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64
 ic u9_stream u9ι(u64 x) { return u9_stream{u9st::ι, x}; }
 
 
-struct u9_heapref { void* r; };
-defR(u9_heapref) { return u9_heapref{Rc<void*>(R<uN>(xs, i))}; }
-defW(u9_heapref) { W<uN>(xs, i, Rc<uN>(x.r)); }
+enum class u9_Φ : u8
+{
+  heapref = 1,
+  heappin = 2,
+  fd      = 3,
+};
+
+
+enum class u9_host : u8
+{
+  path = 1,
+  pid  = 2,
+};
+
+
+enum class u9_build : u8
+{
+  istruct = 1,
+};
+
+
+template<class E, class T>
+struct u9_scoped
+{
+  static_assert(sizeof(E) == 1);
+  E t;
+  T x;
+};
+
+template<class T>          struct is_u9_scoped                  { sletc v = false; };
+template<class E, class T> struct is_u9_scoped<u9_scoped<E, T>> { sletc v = true; };
+
+
+template<class J, class X>
+ic typename std::enable_if<is_u9_scoped<J>::v, J>::type
+R(X xs, uN i) { return u9_scoped{Sc<decltype(J{}.e)>(R<u8>(xs, 0)), R<decltype(J{}.x)>(xs, 1)}; }
+
+template<class J, class X>
+ic typename std::enable_if<is_u9_scoped<J>::v, void>::type
+W(X xs, uN i, J const &x) { W<u8>(xs, 0, Sc<u8>(x.t)); W<decltype(x.x)>(xs, 1, x.x); }
 
 
 enum class u9_none : u8
@@ -171,9 +203,10 @@ template<> struct u9t_<f64>  { sletc t = u9t::f64; };
 template<> struct u9t_<c32>  { sletc t = u9t::c32; };
 template<> struct u9t_<c64>  { sletc t = u9t::c64; };
 
-template<> struct u9t_<bool>      { sletc t = u9t::b; };
+template<> struct u9t_<bool>      { sletc t = u9t::b;      };
 template<> struct u9t_<u9_symbol> { sletc t = u9t::symbol; };
-template<> struct u9t_<u9_none>   { sletc t = u9t::none; };
+template<> struct u9t_<u9_none>   { sletc t = u9t::none;   };
+template<> struct u9t_<u9_stream> { sletc t = u9t::stream; };
 
 template<> struct u9t_<B>    { sletc t = u9t::bytes; };
 template<> struct u9t_<Bv>   { sletc t = u9t::bytes; };
@@ -185,10 +218,9 @@ template<class U>          struct u9t_<V<U>>    { sletc t = u9t::tuple; };
 template<class K, class V> struct u9t_<M<K, V>> { sletc t = u9t::map; };
 template<class U>          struct u9t_<S<U>>    { sletc t = u9t::set; };
 
-template<>        struct u9t_<u9_pidfd>     { sletc t = u9t::pidfd; };
-template<>        struct u9t_<u9_stream>    { sletc t = u9t::stream; };
-template<>        struct u9t_<u9_heapref>   { sletc t = u9t::heapref; };
-template<class U> struct u9t_<u9_struct<U>> { sletc t = u9t::nstruct; };
+template<class T> struct u9t_<u9_scoped<u9_Φ,     T>> { sletc t = u9t::phi; };
+template<class T> struct u9t_<u9_scoped<u9_host,  T>> { sletc t = u9t::host; };
+template<class T> struct u9t_<u9_scoped<u9_build, T>> { sletc t = u9t::build; };
 
 
 template<class T>
@@ -301,9 +333,8 @@ letc u9numbers  = u9reals | u9tm{u9t::c32, u9t::c64};
 
 letc u9strings  = u9tm{u9t::bytes, u9t::utf8};
 letc u9coll     = u9tm{u9t::index, u9t::map, u9t::set, u9t::tuple, u9t::tensor};
-letc u9native   = u9tm{u9t::pidfd, u9t::heapref};
 
-letc u9fixed    = u9numbers | u9tm{u9t::b, u9t::none} | u9native;
+letc u9fixed    = u9numbers | u9tm{u9t::b, u9t::none};
 letc u9atomics  = u9strings | u9numbers | u9tm{u9t::b, u9t::symbol};
 letc u9vectors  = u9numbers;  // TODO: add bools
 
@@ -313,8 +344,6 @@ struct u9t_is { sc let v = !!(M & 1 << Sc<u8>(u9t_<T>::t)); };
 
 static_assert( u9t_is<u64, u9unsigned.m>::v);
 static_assert(!u9t_is<i64, u9unsigned.m>::v);
-
-static_assert(u9t_is<u9_pidfd, u9fixed.m>::v);
 
 
 ic uN u9logsizeof(u9t t)
@@ -364,10 +393,9 @@ O &operator<<(O &s, u9t t)
   case u9t::set:     return s << "set";
   case u9t::tensor:  return s << "tensor";
 
-  case u9t::pidfd:   return s << "pidfd";
-  case u9t::heapref: return s << "heapref";
-  case u9t::heappin: return s << "heappin";
-  case u9t::nstruct: return s << "struct";
+  case u9t::phi:     return s << "Φ";
+  case u9t::host:    return s << "host";
+  case u9t::build:   return s << "build";
 
   case u9t::pi:      return s << "π";
   case u9t::none:    return s << "none";
@@ -414,6 +442,36 @@ O &operator<<(O &s, u9st x)
   case u9st::ι: return s << "ι";
   case u9st::κ: return s << "κ";
     TA(s, Sc<uN>(x))
+  }
+}
+
+O &operator<<(O &s, u9_Φ const &f)
+{
+  switch (f)
+  {
+  case u9_Φ::fd: return s << "fd";
+  case u9_Φ::heapref: return s << "heapref";
+  case u9_Φ::heappin: return s << "heappin";
+    TA(s, Sc<uN>(f));
+  }
+}
+
+O &operator<<(O &s, u9_host const &h)
+{
+  switch (h)
+  {
+  case u9_host::path: return s << "path";
+  case u9_host::pid:  return s << "pid";
+    TA(s, Sc<uN>(h));
+  }
+}
+
+O &operator<<(O &s, u9_build const &b)
+{
+  switch (b)
+  {
+  case u9_build::istruct: return s << "struct";
+    TA(s, Sc<uN>(b));
   }
 }
 
