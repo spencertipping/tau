@@ -61,7 +61,6 @@ Narrowly:
   + Generational GC
 + π₀ GC rewriting
   + Complex value rewriting
-  + UTF9 verification
   + Full rewrite for outbound φ
 + π₀ local frames + tests
   + π₀ frame capture

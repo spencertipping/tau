@@ -82,7 +82,11 @@ void try_tuple()
   });
 
   let s2 = l.c([&]() {
-    for (i9 x : b) cout << x << endl;
+    for (i9 x : b)
+    {
+      A(x.verify(), "verify() failed: " << x);
+      cout << x << endl;
+    }
     return 0;
   });
 

@@ -252,9 +252,16 @@ struct i9
   bool operator==(ζp   b) const { return a == b; }
 
 
-  bool verify(uN s) const  // verify this value with the given external size
-    { // TODO: verify that this value can be decoded safely
-      TODO("i9 verify()"); }
+  bool verify(uN s = 0) const  // verify this value with the given external size
+    { if (!s) s = osize();
+      if (s < 2)                return false;
+      if (s < u9sb(u9ts_s(*a))) return false;
+      if (s < osize())          return false;
+      let e = a + osize();
+      if (u9tm{u9t::tuple, u9t::set, u9t::map, u9t::index}[type()])
+        for (i9 i = first(); i.a >= first() && i < e; i = i.next())
+          if (!i.verify(e - i.a)) return false;
+      return true; }
 };
 
 
