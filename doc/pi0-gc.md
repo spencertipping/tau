@@ -135,6 +135,8 @@ There are a few ways we can handle this:
 
 Of these, (3) is the optimal strategy: it avoids duplication and allows _i₀_ to remain unflagged because it won't contain any new references.
 
+This is a relatively subtle aspect of design, so I'm splitting it into [its own document](pi0-gc-contained-regions.md) for full analysis.
+
 
 ### Spliced rewriting
 How do we rewrite flagged values efficiently? For example, the least efficient strategy would be to build an `o9V` for each container and rebuild everything at a low level, incurring lots of virtual-method overhead in the process. The best case is to break each flagged UTF9 into as few contiguous regions as possible and `memcpy` each, then patch in the small changes.
