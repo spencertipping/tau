@@ -79,8 +79,7 @@ enum class u9st
 };
 
 
-static_assert(sizeof(pid_t) <= sizeof(u32));
-static_assert(sizeof(int)   <= sizeof(u32));
+static_assert(sizeof(int) <= sizeof(u32));
 
 struct u9_stream { u9st t; u64 n; };
 

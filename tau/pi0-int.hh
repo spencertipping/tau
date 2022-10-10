@@ -50,6 +50,7 @@ struct π0int
   π0int &swap() { std::swap(h.d[h.d.size() - 2], h.d.back());                             return *this; }
   π0int &drop() { h.dpop();                                                               return *this; }
 
+  i9     peek() { return h.di(0); }
   i9     pop()  { let i = h.di(0); h.dpop(); return i; }
 
 #if τπ0debug_bounds_checks
