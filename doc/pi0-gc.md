@@ -114,6 +114,14 @@ UTF9 doesn't provide any room for metadata to store details like "how many gener
 Most heaps use pointers for all references, which reduces the GC problem down to pointer rewriting -- they don't have to care about the relative positions of objects in memory. UTF9 is different because its default mode of operation is that containers like tuples physically contain their elements. This complicates the picture in two ways: two references may refer to the same copy-region, and containers may change size as we dereference internal elements.
 
 
+### Inlining
+Small objects tend to be written directly into their containers even if this causes duplication. The trade can be worthwhile because we reduce the number of flagged objects that require full or partial tracing.
+
+References can sometimes be collapsed into direct children of the containers they belong to. Any singly-referenced object is automatically inlined, and multiply-referenced objects can be inlined into any one of their reference sites.
+
+**NOTE:** there's a distinction between heap→heap and stack→heap references: a heap object with multiple stack references may be "singly referenced" or "unreferenced" because no other _heap_ object refers to it; that is, nothing competes for its locality.
+
+
 ### Contained-region detection
 Consider this scenario:
 
