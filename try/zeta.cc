@@ -1,5 +1,5 @@
-#define tau_debug 1
-//#define tau_debug_i9st 1
+#define τdebug 1
+#define τdebug_i9st 1
 #include "../tau.hh"
 #include "../tau/debug.hh"
 

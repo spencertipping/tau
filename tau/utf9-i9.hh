@@ -191,8 +191,8 @@ struct i9
 
 
   i9 operator*() const
-    { A(is_heap(), "i9* requires heap, got " << *this);
-      return R<ζp>(data(), 1); };
+    { A(is_heap(), "i9* requires heap, got type " << type() << " = " << *this);
+      return R<ζp>(data(), 2); };
 
   i9 &pin()   { if (is_heapref()) W<u8>(data(), 1, Sc<u8>(u9_Φ::heappin)); return *this; }
   i9 &unpin() { if (is_heappin()) W<u8>(data(), 1, Sc<u8>(u9_Φ::heapref)); return *this; }

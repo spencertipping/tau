@@ -98,13 +98,11 @@ enum class u9_Φ : u8
   fd      = 3,
 };
 
-
 enum class u9_host : u8
 {
   path = 1,
   pid  = 2,
 };
-
 
 enum class u9_build : u8
 {

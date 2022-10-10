@@ -81,7 +81,7 @@ o9f<u9_scoped<u9_Φ, ζp>> o9box(T &x)
 {
   let r = Sc<ζp>(std::malloc(x.size()));
   x.write(r);
-  return u9_scoped<u9_Φ, ζp>{u9_Φ::heapref, r};
+  return o9f{u9_scoped<u9_Φ, ζp>{u9_Φ::heapref, r}};
 }
 
 
