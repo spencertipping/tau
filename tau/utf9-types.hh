@@ -28,6 +28,9 @@ namespace τ
 #endif
 
 
+template<class T> struct u9_sizeof { sletc v = sizeof(T); };
+
+
 enum class u9t
 {
   i8      = 0,
@@ -117,6 +120,9 @@ struct u9_scoped
   E t;
   T x;
 };
+
+// NOTE: required for alignment
+template<class E, class T> struct u9_sizeof<u9_scoped<E, T>> { sletc v = sizeof(E) + sizeof(T); };
 
 template<class T>          struct is_u9_scoped                  { sletc v = false; };
 template<class E, class T> struct is_u9_scoped<u9_scoped<E, T>> { sletc v = true; };

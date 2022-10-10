@@ -69,10 +69,11 @@ struct o9q : virtual o9V  // byte-quoted i9 serialization
 template<class T>
 struct o9f : virtual o9V
 {
+  sletc s = u9_sizeof<T>::v;
   T x;
   o9f(T x_) : x(x_) {}
-  uN size ()     const { return sizeof(T) + u9sb(u9sq(sizeof(T))); }
-  uN write(ζp m) const { W<T>(m, u9ws(m, 0, u9t_<T>::t, sizeof(T)), x); return 0; }
+  uN size ()     const { return s + u9sb(u9sq(s)); }
+  uN write(ζp m) const { W<T>(m, u9ws(m, 0, u9t_<T>::t, s), x); return 0; }
 };
 
 

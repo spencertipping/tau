@@ -19,6 +19,15 @@ namespace τ
 {
 
 
+#if !defined(τdebug_ζclear)
+# define τdebug_ζclear 0
+#endif
+
+#if !defined(τdebug_ζfill)
+# define τdebug_ζfill 0
+#endif
+
+
 #if τwordsize == 64
   uf8c constexpr ζb0 = 16;
 #elif τwordsize == 32
@@ -56,8 +65,11 @@ struct ζb
   uN  wi = 0;
   uN  ci = 0;        // TODO: use this to indicate wrap so we get full c
 
-  ζb(uf8 b_) : c(Sc<uN>(1) << b_) { A(c, "ζb uN overflow, b = " << b_); xs = new u8[c]; }
-  ~ζb()                           { delete[] xs; }
+  ζb(uf8 b_) : c(Sc<uN>(1) << b_), xs(new u8[c])
+    { A(c, "ζb uN overflow, b = " << b_);
+      if (τdebug_ζclear) for (uN i = 0; i < c; ++i) xs[i] = 0; }
+
+  ~ζb() { delete[] xs; }
 
   ζp   operator+ (uN a) const { return xs + a; }
   bool operator[](uN a) const { return wr() ? a < wi || a >= ri && a < ci
