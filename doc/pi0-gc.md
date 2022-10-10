@@ -31,9 +31,49 @@ Because the live set is open-ended, we'll use a set of virtual pointers that pro
 
 
 ## UTF9 flagging
-Most UTF9 values are allocated inline: a tuple physically contains its elements, for example. This is convenient from a GC perspective because it means we can just copy the value as a single block without inspecting its contents, and all internal offsets are also preserved.
+Most UTF9 values are allocated inline: a tuple physically contains its elements, for example. This is convenient from a GC perspective because it means we can just copy the value as a single block without inspecting its contents, and all internal offsets are also preserved. **However,** that's not the whole story.
 
-**TODO:** document flag scheme
+If we forced these constraints onto all heap-allocated UTF9 values, we'd effectively wind up copying most of the stuff we want to avoid. Instead, we allow references, defined by the [π₀ subtype of UTF9](pi0-utf9.md), which can be dropped into arbitrary locations in UTF9. Functions that work with UTF9 will dereference these, and the GC will transform them as necessary -- just like pointers are updated in traditional mark/sweep collectors.
+
+Every UTF9 value that contains a reference must be transformed, either to rewrite or to inline that reference. We mark UTF9 values using the [flag](utf9.md#flags) bit, which applies upwards. References are flagged, which automatically causes anything that contains them to be flagged as well.
+
+So: un-flagged values can be moved as opaque data, flagged values have internal fields that must be transformed.
+
+
+## Heaps, references, and inlining
+Every UTF9 value lives in a heap and can be moved. There may be more than one heap; typically they're arranged in a generational structure. References disambiguate heaps by using high-order bits.
+
+Because UTF9 values are immutable, duplication is not a problem; this means any value smaller than some size can be inlined directly into wherever the reference would go. This, in turn, means that _any reference target can be guaranteed to be at least a certain size,_ which is convenient because it gives us a place to store new-heap destination addresses as the GC is running:
+
+```
+cb [sb] |.....|    ← initial value
+        |<--->|    ← at least the inlining size
+
+π₀cb [sb] | newheap_addr |  ← rewritten value
+          |<------------>|  ← ≤ inlining size
+```
+
+**TODO:** the above is cool but also a lie: two pointers can be too close together. See contained-regions below. We'll probably end up dropping this.
+
+
+### Contained-region detection
+Consider this scenario:
+
+```
+             i₁ (unflagged)
+             |
+             V
+tuple [sb] bytes [sb] "foobar" i64 [sb] 12452135
+  ^
+  |
+  i₀ (unflagged)
+```
+
+This is perfectly legal; neither the outer tuple nor the inner `bytes` is flagged, yet both references must be rewritten. If the address mapping is ordered, we can use next-lowest address as the key lookup. This increases GC to _O(n log n)_ complexity in the live set size, but that should be fine; _log n_ is likely smaller than the allocation per element.
+
+
+### Spliced rewriting
+How do we rewrite flagged values efficiently? For example, the least-efficient strategy would be to build an `o9V` for each container and rebuild everything at a low level. The best case is to break each flagged UTF9 into as few contiguous regions as possible and `memcpy` each, then patch in the small changes.
 
 
 # _

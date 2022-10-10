@@ -21,9 +21,8 @@ sub each
   open my $fh, "<", $current_md = $_ or die "failed to open markdown $_: $!";
   while (<$fh>)
   {
-    $fenced &&= !/\`\`\`/;
-    next if $fenced ||= /\`\`\`/;
-    -e or /^#/ or /^\w+:\/\// or missing for /\]\(([^)]+)\)/g;
+    next if $fenced ^= /^\`\`\`/;
+    -e s/#.*//r or /^#/ or /^\w+:\/\// or missing for /\]\(([^)]+)\)/g;
   }
 };
 

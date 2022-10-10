@@ -32,7 +32,7 @@ For example, the binary byte `01101010` (`0x6a`) has type marker `01101` (`0xb`)
 
 
 ### Flags
-Flags have undefined semantics at the UTF9 protocol level. They union upwards; that is, any value that contains a flagged value will itself be flagged. In practice, π uses flags to optimize GC; see [π GC](pi-gc.md) and [π UTF9](pi-utf9.md) for details.
+Flags have undefined semantics at the UTF9 protocol level. They union upwards; that is, any value that contains a flagged value will itself be flagged. In practice, π₀ uses flags to optimize GC; see [π₀ GC](pi0-gc.md) and [π₀ UTF9](pi0-utf9.md) for details.
 
 
 ### Typecodes
@@ -86,9 +86,7 @@ In detail:
 | `1 1110` | `none`                    |
 | `1 1111` | `frame`                   |
 
-**TODO:** unify heapref + heappin into a Φ-level thing
-
-**TODO:** convert pid/fd + struct into a more general host-level thing
+**TODO:** refactor non-portables into validity tiers (Φ-level, host-level)
 
 
 ### Size codes
@@ -230,23 +228,18 @@ This is a way to pass around `struct` instances that are encoded with native-end
 
 
 ### π internals
-These are values reserved for [π](pi.md), in particular its memory allocation mechanics. They are assumed to be opaque to everyone else, and are arbitrarily non-portable. See [π GC](pi-gc.md) for details.
+These are values reserved for [π₀](pi0.md), in particular its memory allocation mechanics. They are assumed to be opaque to everyone else, and are arbitrarily non-portable. See [π₀ GC](pi0-gc.md) for details.
 
-**NOTE:** non-portable π₀ values are flagged.
+**NOTE:** π₀ assigns GC semantics to the flag bit. Within the π₀ GC context, flags cannot be used for any other purpose.
 
 
 ### `none`
-This is a value that doesn't exist because the process that created it was invalid. For example, a key lookup from a map that doesn't contain that key. `none` tends to propagate through operators like `NaN` in floating-point math.
-
-`none` can also be used to represent an undefined limit; for example, `max()` of an empty list.
-
-`none` can carry data. If present, its first byte describes the type of problem that produced the value; some problem types are followed by further data.
-
-+ `00`: generic error
-+ `01`: key/value lookup miss
+`none` represents a value that does not exist or could not be computed -- like an error. In general, `none` propagates through any function that inspects a value beyond its type. See the full [UTF9 `none` spec](utf9-none.md) for more details.
 
 
 ### Frames
 If you're storing a UTF9 datastream someplace where its type is not known by default, it should begin with a frame. Because the frame byte always takes the form `11111___`, it is illegal in UTF-8 -- which quickly marks the data as binary.
+
+From UTF9's internal perspective, a frame looks like a tuple with some metadata; that is, it can contain zero or more UTF9 values.
 
 **TODO:** frame spec
