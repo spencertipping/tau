@@ -16,9 +16,9 @@ namespace τ
 
 struct o9acc  // accept socket connection from server FD
 {
-  iN  &n;
-  iN  &e;
-  uNc  fd;
+  iN         &n;
+  iN         &e;
+  fd_t const  fd;
 
   uN size() const { return sizeof(sockaddr) + 256; }
   uN write(ζp m) const
@@ -31,7 +31,7 @@ struct o9acc  // accept socket connection from server FD
       // important: o9t.write() returns 0, because it fills its size;
       // we, however, requested a different size because we don't know
       // how big l will be. So we need to calculate the return ourselves.
-      auto t = o9t(u9_scoped<u9_Φ, u32>{u9_Φ::fd, Sc<u32>(n)},
+      auto t = o9t(u9_scoped<u9_Φ, fd_t>{u9_Φ::fd, Sc<fd_t>(n)},
                    Bv{Rc<u8*>(&sa), l});
       t.write(m);
       return t.size(); }
@@ -72,7 +72,7 @@ namespace ξ
   A(!listen(sfd, 16), "listen()");
 
   return *new ϝ(f, "tcp_server", ϝ::ξΦ, [&, sfd](ϝ &f, γ &g)
-    { Φf<o9acc> i{g.f, Sc<uN>(sfd)};
+    { Φf<o9acc> i{g.f, Sc<fd_t>(sfd)};
       while (f << i); });
 }
 

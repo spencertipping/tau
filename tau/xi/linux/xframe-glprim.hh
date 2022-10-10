@@ -28,8 +28,8 @@ void gl_line(f32c x1, f32c y1, f32c z1,
              f32c x2, f32c y2, f32c z2, f32c w, rgbac c)
 {
   glEnable(GL_MULTISAMPLE);
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_ALPHA_TEST);
+  //glEnable(GL_DEPTH_TEST);
+  //glEnable(GL_ALPHA_TEST);
   glDisable(GL_TEXTURE_2D);
 
   glBegin(GL_TRIANGLE_FAN);
@@ -37,7 +37,7 @@ void gl_line(f32c x1, f32c y1, f32c z1,
 
   f32  u = y2 - y1;
   f32  v = x1 - x2;
-  f32c ρ = w * 0.5 / sqrt(u*u + v*v);
+  f32c ρ = w * 0.5 / std::sqrt(u*u + v*v);
   u *= ρ;
   v *= ρ;
 

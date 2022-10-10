@@ -1,4 +1,4 @@
-//#define tau_debug_i9st 1
+//#define τdebug_i9st 1
 
 #include "../tau.hh"
 
@@ -78,8 +78,8 @@ int chat(int argc, char **argv)
   Φ f;
   auto &b = broadcast(f);
   tcp_server(f, argc ? atoi(argv[0]) : 3000)
-    | io<i9, uN>(f, [&](i9 x)
-      { let fd = Sc<u9_pidfd>(x[0]).fd;
+    | io<i9, fd_t>(f, [&](i9 x)
+      { let fd = Sc<u9_scoped<u9_Φ, fd_t>*>(x[0])->x;
         b | fd_io(f, fd);
         return fd; })
     | stream_out(f, cout);
@@ -134,18 +134,18 @@ int x11(int argc, char **argv)
   //e | xframe(f);  // bogus on the X11 side, but tau works fine
 
   s & sink<i9>(f, [cx, cy, cw, ch](i9 a) {
-    if (a.type() != u9t::nstruct) return;
-    let e = Rc<xcb_generic_event_t*>(a.data());
+    if (!a.is_istruct()) return;
+    let e = Sc<xcb_generic_event_t*>(a);
     if ((e->response_type & ~0x80) == XCB_MOTION_NOTIFY)
     { let me = Rc<xcb_motion_notify_event_t*>(e);
       *cx = me->event_x;
-      *cy = me->event_y; }
+      *cy = me->event_y;
+      cout << "mouse move " << *cx << ", " << *cy << endl; }
     else if ((e->response_type & ~0x80) == XCB_CONFIGURE_NOTIFY)
     { let ce = Rc<xcb_configure_notify_event_t*>(e);
       *cw = ce->width;
       *ch = ce->height;
-      cout << "set w,h " << *cw << ", " << *ch << endl;
-    }});
+      cout << "set w,h " << *cw << ", " << *ch << endl; }});
 
   f.go();
   return 0;
@@ -189,7 +189,7 @@ int editor(int argc, char **argv)
     | sink<i9>(f, [&](i9 x) { lx = x[2]; ly = x[3]; });
 
   auto &s = xframe(f) | splitter(f);
-  auto &es = s & tee(f);
+  //auto &es = s & tee(f);
 
   auto &e = θr(f, 30ms) |
     //es |
@@ -236,9 +236,9 @@ int editor(int argc, char **argv)
   e ^ s;
   //e | xframe(f);  // bogus on the X11 side, but tau works fine
 
-  es | sink<i9>(f, [&](i9 a) {
-    if (a.type() != u9t::nstruct) return;
-    let e = Rc<xcb_generic_event_t*>(a.data());
+  s & sink<i9>(f, [&](i9 a) {
+    if (!a.is_istruct()) return;
+    let e = Sc<xcb_generic_event_t*>(a);
     let t = e->response_type & ~0x80;
     if (t == XCB_MOTION_NOTIFY)
     { let me = Rc<xcb_motion_notify_event_t*>(e);

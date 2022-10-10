@@ -104,6 +104,10 @@ static_assert(sizeof(c32) == sizeof(f32) * 2);
 #endif
 
 
+// Standardize our representation of FDs across systems
+typedef uN fd_t;
+
+
 template<class... T>       using D  = std::deque<T...>;
 template<class... T>       using F  = std::function<T...>;
 template<class... T>       using Il = std::initializer_list<T...>;

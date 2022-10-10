@@ -89,7 +89,7 @@ struct xframe_
       return *this; }
 
   xframe_ &operator<<(i9 x)
-    { if (x.type() == u9t::stream && Sc<u9st>(x) == u9st::τ)
+    { if (x.τ())
       { let z = rb; rb = ob; (ob = z)->b.reset(); render(); }
       else A(*ob << o9(x), "xframe_ << overflow; received " << x);
       return *this; }
