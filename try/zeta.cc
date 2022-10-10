@@ -38,16 +38,19 @@ void try_small_ζ()
   });
 
   let s2 = l.c([&]() {
-    cout << "received " << i9{*t} << endl; ++t;
-    cout << "received " << i9{*t} << endl; ++t;
-    cout << "received " << i9{*t} << endl; ++t;
-    cout << "received " << i9{*t} << endl; ++t;
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify(), "verify() failed: " << i9{*t}); ++t;
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify(), "verify() failed: " << i9{*t}); ++t;
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify(), "verify() failed: " << i9{*t}); ++t;
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify(), "verify() failed: " << i9{*t}); ++t;
 
     i9 b = *t;
     cout << "received " << b << " = " << *b << endl;
+    A(i9{*t}.verify(), "verify() failed: " << i9{*t});
     ++t;  // NOTE: this should free b
 
-    cout << "received " << i9{*t} << endl; ++t;
+    cout << "received " << i9{*t} << endl;
+    A(i9{*t}.verify(), "verify() failed: " << i9{*t});
+    ++t;
 
     let z = *t;
     A(z == ζωp, "z should be ζωp, got " << z);

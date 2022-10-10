@@ -259,8 +259,10 @@ struct i9
       if (s < osize())          return false;
       let e = a + osize();
       if (u9tm{u9t::tuple, u9t::set, u9t::map, u9t::index}[type()])
-        for (i9 i = first(); i.a >= first() && i < e; i = i.next())
+      { i9 i = first();
+        for (; i.a >= first() && i < e; i = i.next())
           if (!i.verify(e - i.a)) return false;
+        if (i != e) return false; }
       return true; }
 };
 
