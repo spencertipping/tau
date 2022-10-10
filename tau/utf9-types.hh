@@ -498,6 +498,12 @@ O &operator<<(O &s, u9_symbol const &y)
       << "0123456789abcdef"[c & 15];
   return s;
 }
+
+template<class E>
+O &operator<<(O &s, u9_scoped<E, u8*> const &x)
+{
+  return s << "u9s{" << x.t << ", " << Rc<void*>(x.x) << "}";
+}
 #endif
 
 

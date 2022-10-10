@@ -22,7 +22,11 @@ struct φ9
     Va<T, o9f<u9_scoped<u9_Φ, ζp>>> x;
 
     uN size ()     const { return x.index() ? std::get<1>(x).size()   : std::get<0>(x).size(); }
-    uN write(ζp m) const { return x.index() ? std::get<1>(x).write(m) : std::get<0>(x).write(m); }
+    uN write(ζp m) const
+      { if (x.index())
+          std::cout << "writing o9f<u9_scoped> for pointer: "
+                    << std::get<1>(x).x << ", whose size is " << std::get<1>(x).size() << std::endl;
+        return x.index() ? std::get<1>(x).write(m) : std::get<0>(x).write(m); }
   };
 
 
