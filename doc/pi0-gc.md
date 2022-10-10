@@ -4,7 +4,17 @@
 Taken to its logical conclusion, we end up with a shared heap that can span all γs within a Φ. All that's needed is a way to drop heap-references into UTF9 values, rewriting them as needed at the Φ boundaries. This is all invisible to the user, who can assume UTF9s are immutable and manipulated as though they were being fully copied at every step.
 
 
-## Live set
+## UTF9 flagging
+Most UTF9 values are allocated inline: a tuple physically contains its elements, for example. This is convenient from a GC perspective because it means we can just copy the value as a single block without inspecting its contents, and all internal offsets are also preserved. **However,** that's not the whole story.
+
+If we forced these constraints onto all heap-allocated UTF9 values, we'd effectively wind up copying most of the stuff we want to avoid. Instead, we allow references, defined by the [π₀ subtype of UTF9](pi0-utf9.md), which can be dropped into arbitrary locations in UTF9. Functions that work with UTF9 will dereference these, and the GC will transform them as necessary -- just like pointers are updated in traditional mark/sweep collectors.
+
+Every UTF9 value that contains a reference must be transformed, either to rewrite or to inline that reference. We mark UTF9 values using the [flag](utf9.md#flags) bit, which applies upwards. References are flagged, which automatically causes anything that contains them to be flagged as well.
+
+So: un-flagged values can be moved as opaque data, flagged values have internal fields that must be transformed. `π₀h.simplify(i9) → O9` will remove any references and provide an object that can be written to a boundary Φ.
+
+
+## GC structure
 We want to share UTF9 values between λs, both in ζs and in shared variable frames, e.g. a set of globals per γ. Additionally, each λ has its own stack of data and local-variable frames. That means our γs have a live set that looks like this:
 
 ```
@@ -25,35 +35,83 @@ We want to share UTF9 values between λs, both in ζs and in shared variable fra
 ...
 ```
 
-We also need register aliases for native C++ functions that hold references to heap-owned data for longer than we want to pin the heap. Each of these is an ad-hoc list of `i9&` values that will be updated automatically when GC happens.
+We also need register aliases for native C++ functions that hold references to heap-owned data. Each of these is an ad-hoc list of `i9&` values that will be updated automatically when GC happens. See ["native frame"](#native-frame) below for details.
 
 Because the live set is open-ended, we'll use a set of virtual pointers that provide "views" into the heap. These implement various abstractions like data stacks, frame stacks, globals, and native frames.
 
 
-## UTF9 flagging
-Most UTF9 values are allocated inline: a tuple physically contains its elements, for example. This is convenient from a GC perspective because it means we can just copy the value as a single block without inspecting its contents, and all internal offsets are also preserved. **However,** that's not the whole story.
-
-If we forced these constraints onto all heap-allocated UTF9 values, we'd effectively wind up copying most of the stuff we want to avoid. Instead, we allow references, defined by the [π₀ subtype of UTF9](pi0-utf9.md), which can be dropped into arbitrary locations in UTF9. Functions that work with UTF9 will dereference these, and the GC will transform them as necessary -- just like pointers are updated in traditional mark/sweep collectors.
-
-Every UTF9 value that contains a reference must be transformed, either to rewrite or to inline that reference. We mark UTF9 values using the [flag](utf9.md#flags) bit, which applies upwards. References are flagged, which automatically causes anything that contains them to be flagged as well.
-
-So: un-flagged values can be moved as opaque data, flagged values have internal fields that must be transformed.
+### Data stack
+The simplest abstraction: it's just a series of `π₀r` values in a vector, the back of which is the top of the stack.
 
 
-## Heaps, references, and inlining
-Every UTF9 value lives in a heap and can be moved. There may be more than one heap; typically they're arranged in a generational structure. References disambiguate heaps by using high-order bits.
+### Frame stack
+Internally, two stacks: one of `π₀r` values (the data), and one of `uN`s describing the size of each frame. We resize the data stack by a frame size at a time, but the GC process treats all of the frame data uniformly.
 
-Because UTF9 values are immutable, duplication is not a problem; this means any value smaller than some size can be inlined directly into wherever the reference would go. This, in turn, means that _any reference target can be guaranteed to be at least a certain size,_ which is convenient because it gives us a place to store new-heap destination addresses as the GC is running:
+Because frame registers may not have been initialized, we use `π₀hω` as a null reference that is stable under GC and cannot be used by π₀ bytecode.
+
+
+### Native frame
+This is an opt-in way for native code to have `i9` variables that are kept up-to-date by GC -- sort of like having the GC trace the stack, but on a much more selective basis.
+
+For example, here's how we implement `m.`, "for each k/v pair in a map":
+
+```cpp
+auto f  = π0nF(z.h, 2);
+π0b  fn = z.pop();         // the function bytecode
+auto &m = f << z.pop();    // the map (tracked by GC)
+auto &i = f << m.first();  // iterator (tracked by GC)
+while (i < m.end())
+{
+  z.push(i); i = i.next();
+  z.push(i); i = i.next();
+  z.run(fn);  // if this causes GC, m and i are updated
+}
+// f auto-removes itself from GC scope when destructed
+```
+
+
+### λ/GC atomicity
+Every λ runs until it explicitly yields, either by calling `λy` or by blocking on ζ IO. That means we don't have the usual concerns about GC running during a loop unless that loop allocates memory.
+
+This is useful because it means we can write loops that assume nothing will move, e.g. for vectorized math:
+
+```cpp
+auto f  = π0nF(z.h, 2);
+auto &a = f << z.pop();      // operand
+auto &b = f << z.pop();      // operand
+let  o  = vectorized(a, b);  // some vector container
+z.push(o);                   // the only place GC can happen
+i64 *as = a.first();         // no GC from here down
+i64 *bs = b.first();
+i64 *cs = z.peek().first();
+for (uN i = 0; i < a.vn(); ++i) c[i] = a[i] + b[i];
+```
+
+So we get full native performance with no write barriers or other thread-aware constructs, since π₀ is ultimately single-threaded.
+
+
+## Generational heaps
+Mark/sweep requires that we copy live objects from one heap space into another, which means that the GC maintains distinct memory regions, each of which can be replaced by its new copy-into space -- more precisely, we `malloc` the new region and `free` the old one once the copying is done.
+
+All of this means that the GC's pointer space will be discontinuous, which requires us to have a fast way to map references to heap regions. We do this by commandeering the high bits of each reference; if we want four generations, we'd use two bits:
 
 ```
-cb [sb] |.....|    ← initial value
-        |<--->|    ← at least the inlining size
-
-π₀cb [sb] | newheap_addr |  ← rewritten value
-          |<------------>|  ← ≤ inlining size
+// π₀r = uN, which is u32 in this example
+ref = hh aaaaaa aaaaaaaa aaaaaaaa aaaaaaaa
+      |  ----------------+----------------
+      |                  |
+      heap identifier    address within heap
 ```
 
-**TODO:** the above is cool but also a lie: two pointers can be too close together. See contained-regions below. We'll probably end up dropping this.
+This doesn't give us invariance across GC because we still compact the new-set. It just gives us a fast way to calculate heap-relative addresses and allows us to independently compact old generations.
+
+
+### Tenuring
+UTF9 doesn't provide any room for metadata to store details like "how many generations has this object been alive". I could allocate more [π₀ UTF9](pi0-utf9.md) space for this, but for now we just tenure after a single generation. If we have four heaps, the final generation requires the object to live for roughly eight new-gen collection cycles.
+
+
+## Nested references
+Most heaps use pointers for all references, which reduces the GC problem down to pointer rewriting -- they don't have to care about the relative positions of objects in memory. UTF9 is different because its default mode of operation is that containers like tuples physically contain their elements. This complicates the picture in two ways: two references may refer to the same copy-region, and containers may change size as we dereference internal elements.
 
 
 ### Contained-region detection
@@ -69,72 +127,36 @@ tuple [sb] bytes [sb] "foobar" i64 [sb] 12452135
   i₀ (unflagged)
 ```
 
-This is perfectly legal; neither the outer tuple nor the inner `bytes` is flagged, yet both references must be rewritten. If the address mapping is ordered, we can use next-lowest address as the key lookup. This increases GC to _O(n log n)_ complexity in the live set size, but that should be fine; _log n_ is likely smaller than the allocation per element.
+There are a few ways we can handle this:
+
+1. Mark _i₀_ and _i₁_ as separate regions, duplicating _i₁_ in the new heap
+2. Mark _i₀_ and _i₁_ separately, but have _i₀ → i₁_ as a complex ref to avoid duplication
+3. Mark _i₀_ only, moving _i₁_ as a child pointer
+
+Of these, (3) is the optimal strategy: it avoids duplication and allows _i₀_ to remain unflagged because it won't contain any new references.
 
 
 ### Spliced rewriting
-How do we rewrite flagged values efficiently? For example, the least-efficient strategy would be to build an `o9V` for each container and rebuild everything at a low level. The best case is to break each flagged UTF9 into as few contiguous regions as possible and `memcpy` each, then patch in the small changes.
+How do we rewrite flagged values efficiently? For example, the least efficient strategy would be to build an `o9V` for each container and rebuild everything at a low level, incurring lots of virtual-method overhead in the process. The best case is to break each flagged UTF9 into as few contiguous regions as possible and `memcpy` each, then patch in the small changes.
+
+All of this to say that rewriting flagged UTF9 values is a complex problem that gets its own `o9` implementation with nontrivial engineering. See [π₀ GC splicing](pi0-gc-splicing.md) for details.
 
 
-# _
-π₀ programs are stack-oriented bytecode, so we need to track their values accordingly. We do this with the usual three-tier setup:
-
-1. A stack for immediate expressions
-2. A stack of frames for local variables
-3. A heap for indefinite lifetimes
-
-Unlike most languages, pointers are uncommon and we're free to move heap-allocated values. UTF9 is semantically immutable, so we don't have to follow any particular aliasing strategy. π₀'s GC prefers to be a cheap copying mark/sweep collector, with some exceptions for more complex cases.
-
-All values are encoded as UTF9 when stored, which sounds like a problem because UTF9 doesn't support pointers-to-things; each value is fully serialized inline. Luckily the [UTF9 spec](utf9.md) reserves a block of values with bit-prefix `11100fss` -- `fss` encodes the flag and size -- that π₀ is free to use in any way whatsoever. Some of these values are pointers, the only UTF9 values that set the flag (which applies transitively upwards); see [π₀ UTF9](pi0-utf9.md).
+## Latency
+π₀'s GC stops the world and runs in a single thread. This can be slow for large heaps, although we use some mitigations to minimize the amount of tracing required. Because GC can be disruptive, we provide an API that allows π₀ systems to negotiate with the GC to manage latency and/or trade space for latency on a temporary basis.
 
 
-## "Simple" vs "complex" values
-UTF9 is usually very cheap to GC because it needs to be neither scanned nor transformed when it is moved. This is the common "simple value" case. The exception is when the value contains a pointer to part of another value; then the value is "complex" and requires the usual trace-and-rewrite.
+### Runtime tuning
++ Pause time → cost function
 
-Any value stored in a π₀-managed heap uses its flag field to indicate complexity. Or to say the same thing differently, all π₀ UTF9 internal values set the flag, and no other type of value is allowed to do this within the scope of a π₀ runtime.
-
-
-## GC-invariant native FFI
-UTF9 values are very much by-reference, even simple ones like integers. For obvious reasons, the GC shouldn't move a value that's actively being used by a C++ function; so we have two mechanisms that allow C++ to coexist with a GC that will move values arbitrarily.
-
-1. Short-term heap pinning
-2. Longer-term native frames
-
-Heap pinning is intended for very short-term use: for example, vectorized addition in which the inputs will be streamed into the output. Space for the output is allocated before the inputs have been consumed, so the inputs may be moved into a new heap after we've read their sizes and before we've streamed the addition.
-
-To fix this, we tell the GC to pin the old heap until we've done the addition, then release it when we say. This is heavy-handed because the old heap is potentially quite large, but the idea is that the operation needs to be low-latency and completes in a very small timeframe.
-
-Some operations require longer-term access to UTF9 values. These use native frames, which are just like regular frames but aren't visible to π₀ bytecode -- that is, they're on a separate stack. This allows old heaps to be deallocated but preserves specific values across GC generations.
+**TODO:** explore this
 
 
-### Example: π₀ `m.`
-`m [...] m.` iterates over all `k v` pairs in `m`, invoking `[...]` for each one. `[...]` is allowed to allocate memory and may be arbitrarily complex, so we use a native frame to contain `m`. But there's a new problem: what do we do with the iterator? We could store it relative to `m`'s base address, but even that won't work because `m` could be complex, which means that the iterator position will be modified arbitrarily by GC.
+### Incremental GC
+My initial impression is that this is complicated and likely not worth it, but let's get into the details. The idea is that we'd begin to trace stacks and frames, marking objects as we go and solving for containment relationships. The GC would yield out, resuming π₀ λs, which would modify the stacks and frames as they run, probably allocating new memory as well.
 
-We solve this by tracking both `m` and `i` (the iterator) in the native frame. GC will update both in a λ-atomic way. This means we must alias C++ locals to GC-owned values, which in turn means these natives should be stored as real memory addresses, not heap-offsets. (This way the C++ function can write to them directly.)
+This is inconvenient because there's no clear relationship between λ throughput and memory allocation (from the GC's perspective); do we know that we're serving the use case by interrupting GC so that λs can progress? Furthermore, these λs allocate freely into the new heap while GC is paused. How much space can they use before we pause, copy over old-heap, and resume that way?
 
-```cpp
-auto f  = π0nF(z.h, 2);
-uN   fn = z.pop();         // the function bytecode
-auto &m = f << z.pop();    // the map
-auto &i = f << m.first();  // iterator
+Incremental GC seems time-inefficient and I'm not yet convinced it's worthwhile. We can probably do better by tuning the GC, inlining references to avoid trace/rewrite effort, and making use of generations. π₀ isn't Java, so we aren't likely to have lots of pointers to small, cache-nonlocal objects lying around.
 
-while (i < m.end())
-{
-  // loop stuff, including z.run() for each entry
-  // if GC happens, both m and i will be updated
-}
-
-// f will fall out of scope, removing it from the pin set
-```
-
-
-### Example: π₀ `λc`
-`[...] λc` requires us to fork the interpreter: `[...]` is written with the same bytecode as the rest of the program, but will execute with a separate heap and stacks.
-
-A practical issue is that λs need a way to communicate with one another, but π₀ doesn't provide one; each λ runs with a separate interpreter and heap. This limitation defeats much of the purpose of π₀ in the first place, so let's change it:
-
-**FIXME:** π₀ must support multiple λs running against the same heap, so they can share memory without copying
-
-**NOTE:** we should compartmentalize stack-sets like we do native frames: these should be views onto the heap, and although the heap knows how to update them, it doesn't own them. This representation also simplifies generational GC by quite a lot.
-
-**NOTE:** this also opens up the possibility that multiple γs within the same Φ can share a heap, which in turn means that we don't have to copy values to transfer between γs. That should be a big win for performance; now the copy step is pushed all the way out to the Φ IO boundary if we want it to b
+Worst-case we can think about multithreaded GC, which I suspect is preferable to incremental.
