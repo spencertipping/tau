@@ -31,6 +31,7 @@ void gl_line(f32c x1, f32c y1, f32c z1,
   //glEnable(GL_DEPTH_TEST);
   //glEnable(GL_ALPHA_TEST);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_BLEND);
 
   glBegin(GL_TRIANGLE_FAN);
   glColor4f(rgba_r(c), rgba_g(c), rgba_b(c), rgba_a(c));

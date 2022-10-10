@@ -137,9 +137,9 @@ struct i9
 
   template<class T>
   requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v && (!u9t_is<T, u9signed.m>::v)
-    explicit operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(data(), 0); }
+    operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(data(), 0); }
 
-  explicit operator i64() const
+  operator i64() const
     { u9ints(type());
       switch (type())
       {
@@ -154,7 +154,7 @@ struct i9
         TA(0, type());
       } }
 
-  explicit operator i32() const
+  operator i32() const
     { u9ints(type());
       switch (type())
       {
