@@ -268,7 +268,7 @@ struct i9
 
 
 template<>
-inline bool i9::at(uN i) const
+ic bool i9::at(uN i) const
 { u9tm{u9t::b}(type());
   A(i >> 3 < size(), "i9at bool OOB, i = " << i << ", sz = " << size());
   return R<u8>(data(), i >> 3) & (1 << i & 7); }
