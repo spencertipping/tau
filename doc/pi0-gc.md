@@ -115,6 +115,14 @@ Because UTF9 values are immutable, we will never have oldgen values referring to
 ### Tenuring
 UTF9 doesn't provide any room for metadata to store details like "how many generations has this object been alive". I could allocate more [π₀ UTF9](pi0-utf9.md) space for this, but for now we just tenure after a single generation. If we have four heaps, the final generation requires the object to live for roughly eight new-gen collection cycles.
 
+**NOTE:** it's easy to allocate slack space within each heap generation; maybe that's worth doing. We'd also need that space for π₀ references, but that's also easy to create.
+
+
+### Resizing
+A single-generation GC is easy to resize: we just apply some function to the live set size and use that for the new-space. Generational GC is different; we usually want the newest generation to be fixed-size and older generations to resize adaptively. The oldest generation tends to take up most of the slack.
+
+This is all generalized in π₀ GC by having a heap-resize function that gets invoked whenever any generation is collected.
+
 
 ## Nested references
 Most heaps use pointers for all references, which reduces the GC problem down to pointer rewriting -- they don't have to care about the relative positions of objects in memory. UTF9 is different because its default mode of operation is that containers like tuples physically contain their elements. This complicates the picture in two ways: two references may refer to the same copy-region, and containers may change size as we dereference internal elements.
