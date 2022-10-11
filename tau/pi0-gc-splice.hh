@@ -13,9 +13,9 @@ namespace τ
 
 struct π0gs   // splice map for a single heap generation
 {
-  B     &h;
-  V<uN>  er;  // external (stack/frame) references
-  V<uN>  ir;  // internal (pointer) references
+  B      &h;
+  V<π0r>  er;  // external (stack/frame) references
+  V<π0r>  ir;  // internal (pointer) references
 };
 
 

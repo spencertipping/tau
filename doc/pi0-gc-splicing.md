@@ -9,3 +9,5 @@ The splice-rewrite operation makes a list of all splice points, copies contiguou
 
 ## Building splices
 Nested references require that π₀'s GC track references sorted by location; that way we can quickly partition refs into "inner" vs "outer". The splice-set then provides a new offset map within each outer region.
+
+It's most efficient to collect references first, sort second.

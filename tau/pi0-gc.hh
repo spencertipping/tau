@@ -28,8 +28,8 @@ struct π0h   // a multi-generational heap (Gb = generation bits)
   sletc ghms = τwordsize - Gb;
   sletc ghm  = Sc<π0r>(gn - 1) << ghms;
   sletc gam  = ~ghm;
-  static_assert(ghm | gam == -1);
-  static_assert(ghm & gam ==  0);
+  static_assert(ghm | gam == Sc<π0r>(-1));
+  static_assert(ghm & gam == 0);
 
   π0hg         gs[gn];
   ΣΘΔ          gΘ;
