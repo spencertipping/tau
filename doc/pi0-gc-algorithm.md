@@ -31,3 +31,9 @@ A large, multiply-referenced value has multiple potential inlining sites. We may
 2. Because only one generation is collected at a time, a value can be inlined only into its original generation -- in this case, the one being GC'd; this is a special case of (1)
 3. If the value has siblings that refer to other generations, its inlining preference is zero; nothing is gained (we may later duplicate the other children, but we'd use more space to do so)
 4. A container with same-generation-reference children prefers to inline all of them proportional to its total number of children or, perhaps, cache lines
+
+**TODO**
+
+
+### Downward tenuring
+Values placed early in the generation should be tenured first on the grounds that they are older -- a poor man's cycle count. We may then decide to leave a remnant of the live set in the newer generation to avoid over-tenuring. This splitting must obey the old→new restriction, which happens naturally if we follow the age gradient.
