@@ -3,6 +3,8 @@
 
 Taken to its logical conclusion, we end up with a shared heap that can span all γs within a Φ. All that's needed is a way to drop heap-references into UTF9 values, rewriting them as needed at the Φ boundaries. This is all invisible to the user, who can assume UTF9s are immutable and manipulated as though they were being fully copied at every step.
 
+This page is about GC design; for the implementation outline, see [π₀ GC algorithm](pi0-gc-algorithm.md).
+
 
 ## UTF9 flagging
 Most UTF9 values are allocated inline: a tuple physically contains its elements, for example. This is convenient from a GC perspective because it means we can just copy the value as a single block without inspecting its contents, and all internal offsets are also preserved. **However,** that's not the whole story.

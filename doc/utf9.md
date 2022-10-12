@@ -197,6 +197,8 @@ cb [sb] (index-vector) (container)
                        |   <- offsets relative to beginning of container
 ```
 
+**NOTE:** the index is placed before the container (1) for cache locality; and (2) because it's typically written as the container itself is being written, to avoid buffering.
+
 The index vector is a vectorized unsigned type that contains `k₁ o₁ k₂ o₂ ...`. These can be encoded using any unsigned width large enough to refer to the container byte offsets.
 
 The container's type determines what `k` means. For tuples, `k` is a zero-based integer subscript; for sets or maps, `k` is the highest bits of the hash of the element in question (for maps, the key; for sets, the whole element). This means index keys will always be sorted and, with the possible exception of heterogeneous tuples, uniformly distributed; as such, the keyspace can be interpolation-searched.

@@ -1,7 +1,7 @@
 # π₀ assembler
 A stateful object that generates a preloaded bytecode interpreter. This interpreter can be stepped or run until some condition is met. The assembler allows you to incrementally construct lists and set up local variable tables.
 
-Assemblers adapt the calling convention from C++ to π₀. For example, I might do something like this:
+Assemblers adapt the [calling convention from C++ to π₀](pi0-native-ffi.md). For example, I might do something like this:
 
 ```cpp
 π0asm a;
