@@ -22,3 +22,12 @@ Throughout the marking process, we split references into "internal" and "externa
 This is the simplest case. We copy most live objects as they are, inlining any references that have at least one heap-internal reference. The goals are to minimize heap size and to reduce the number of flagged UTF9 objects, saving effort on the next collection.
 
 "Minimize flags" needs some context. Due to [splicing](pi0-gc-splicing.md), flagged objects impact mark effort but not compaction time. In particular, any value with a flag creates _O(n₁ + n₂ + ...)_ effort, where _n₁_ is the number of elements in the value's parent, _n₂_ in the element's grandparent, etc. Most of this is low-impact work -- just checking flag bits and skipping values -- but it's all opportunity for cache misses.
+
+
+### Inlining preference
+A large, multiply-referenced value has multiple potential inlining sites. We may prefer one of these over the others due to various factors, but first let's outline some invariants:
+
+1. If a value is referred to from multiple generations, it must be inlined into the oldest (via old → new pointer prohibition)
+2. Because only one generation is collected at a time, a value can be inlined only into its original generation -- in this case, the one being GC'd; this is a special case of (1)
+3. If the value has siblings that refer to other generations, its inlining preference is zero; nothing is gained (we may later duplicate the other children, but we'd use more space to do so)
+4. A container with same-generation-reference children prefers to inline all of them proportional to its total number of children or, perhaps, cache lines
