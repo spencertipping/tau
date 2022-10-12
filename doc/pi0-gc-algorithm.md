@@ -24,6 +24,14 @@ This is the simplest case. We copy most live objects as they are, inlining any r
 "Minimize flags" needs some context. Due to [splicing](pi0-gc-splicing.md), flagged objects impact mark effort but not compaction time. In particular, any value with a flag creates _O(n₁ + n₂ + ...)_ effort, where _n₁_ is the number of elements in the value's parent, _n₂_ in the element's grandparent, etc. Most of this is low-impact work -- just checking flag bits and skipping values -- but it's all opportunity for cache misses.
 
 
+### Downward tenuring
+Values placed early in the generation should be tenured first on the grounds that they are older -- a poor man's cycle count. We may then decide to leave a remnant of the live set in the newer generation to avoid over-tenuring. This splitting must obey the old→new restriction, which happens naturally if we follow the age gradient.
+
+
+### Oldest generation
+Resized per compaction to some function of the live-set size, probably 2x. Oldgen is large and rarely resized, so we probably want to balance return-memory-to-system with spend-time-tracing. This is especially relevant when memory usage fluctuates.
+
+
 ### Inlining preference
 A large, multiply-referenced value has multiple potential inlining sites. We may prefer one of these over the others due to various factors, but first let's outline some invariants:
 
@@ -32,8 +40,12 @@ A large, multiply-referenced value has multiple potential inlining sites. We may
 3. If the value has siblings that refer to other generations, its inlining preference is zero; nothing is gained (we may later duplicate the other children, but we'd use more space to do so)
 4. A container with same-generation-reference children prefers to inline all of them proportional to its total number of children or, perhaps, cache lines
 
-**TODO**
+As an initial strategy, **every value with multiple sites should be inlined into the earliest possible heap position.** This reduces the amount of duplication required when we tenure it.
 
 
-### Downward tenuring
-Values placed early in the generation should be tenured first on the grounds that they are older -- a poor man's cycle count. We may then decide to leave a remnant of the live set in the newer generation to avoid over-tenuring. This splitting must obey the old→new restriction, which happens naturally if we follow the age gradient.
+### Inlining size
+For now we can treat this as an invariant: anything smaller than a cache line can be inlined. Although we could change it at runtime, we create future commitments when we do: we can inline a value (possibly duplicating it), but we can't un-duplicate it later without a lot of work. This means it isn't a free tunable.
+
+
+## Rewriting
+The final stage: all internal and external references are rewritten. Because values may be tenured into different generations, the rewrite-lookup table must span up to every address in every generation. This matters because it forces all compactions to happen before anything is rewritten; this way we're guaranteed to have the new address for every value before updating any pointers.
