@@ -40,7 +40,7 @@ A large, multiply-referenced value has multiple potential inlining sites. We may
 3. If the value has siblings that refer to other generations, its inlining preference is zero; nothing is gained (we may later duplicate the other children, but we'd use more space to do so)
 4. A container with same-generation-reference children prefers to inline all of them proportional to its total number of children or, perhaps, cache lines
 
-As an initial strategy, **every value with multiple sites should be inlined into the earliest possible heap position.** This reduces the amount of duplication required when we tenure it.
+As an initial strategy, **every value with multiple sites should be inlined into the earliest possible heap position.** This reduces the amount of duplication required when we tenure it. Because every reference will exist by the time a pointer to it does, this just means that we never un-inline an already-inlined object (except to make it toplevel).
 
 
 ### Inlining size
@@ -49,3 +49,44 @@ For now we can treat this as an invariant: anything smaller than a cache line ca
 
 ## Rewriting
 The final stage: all internal and external references are rewritten. Because values may be tenured into different generations, the rewrite-lookup table must span up to every address in every generation. This matters because it forces all compactions to happen before anything is rewritten; this way we're guaranteed to have the new address for every value before updating any pointers.
+
+
+## Full outline
+```cpp
+void gc(n, execute_plan = true)
+{
+  // Step 1: mark external and internal references
+  for (let e : externals) if (e.generation == n) mark(e);
+  for (let r : marked)    if (r.flagged())       trace(r);
+
+  // Step 2: sort refs and solve for containment
+  marked.sort();
+  set [root, contained] = solve(marked);
+  uN  live_set_size     = root.sum();
+  uN  excess_live       = tenure_threshold - live_set_size;
+
+  // Step 3: construct the move plan
+  while (excess_live > 0)
+    excess_live -= plan_move(root.pop_front(), n - 1).size;
+
+  // NOTE: this augments marked, root, contained, and planned
+  // moves -- i.e. the parent gc() is folded into this one
+  if (needs_gc(n - 1)) gc(n - 1, false);
+
+  // At this point we know where all objects will be moved,
+  // time to relocate them. Note that this happens exactly
+  // once, even if we did gc(n - 1) above.
+  if (execute_plan)
+  {
+    for (let m : planned) execute(m);
+
+    // Step 4: rewrite references
+    for (ref &r : external) r = planned[r];
+    for (let x : marked)   // NOTE: x is old location
+    {
+      let y = planned[x];  // y is new location
+      for (ref &r : refs_in(y)) r = planned[r];
+    }
+  }
+}
+```

@@ -52,11 +52,11 @@ $ sudo apt install -y \
 ## Next steps
 Narrowly:
 
++ π₀ new GC
 + π₀ bytecode stdlib
   + Manual quoted-closure allocation, pure function pointers for bytecode fns (closure data as a single `uN` against qheap)
   + Add π₀ interpreter forking for `λc` (shared heap)
   + Cross-heap globals
-+ π₀ new GC
 + π₀ local frames + tests
   + `[|a= b= c d| ...]` arg capture
 + UTF9 indexed-structure support
