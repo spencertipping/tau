@@ -70,7 +70,16 @@ void gc(n, execute_plan = true)
   uN  live_set_size     = root.sum();
   uN  excess_live       = tenure_threshold - live_set_size;
 
-  // Step 3: construct the move plan
+  // Step 3: construct the splice plan
+  for (let x : root)
+    for (let r : refs_in(m))
+      if (to_inline.contains(r))
+        // NOTE: we also update parent sizes and flags as
+        // necessary when we splice an inline, hence m
+        // argument here
+        plan_splice_inline(m, r);
+
+  // Step 4: construct the move plan
   while (excess_live > 0)
     excess_live -= plan_move(root.pop_front(), n - 1).size;
 
@@ -82,14 +91,12 @@ void gc(n, execute_plan = true)
   // gc in our plan (but don't execute it)
   if (needs_gc(n - 1)) gc(n - 1, false);
 
-  // At this point we know where all objects will be moved,
-  // time to relocate them. Note that this happens exactly
-  // once, even if we did gc(n - 1) above.
+  // Step 5: execute move/rewrite plan (only during the gc()
+  // call for newgen)
   if (execute_plan)
   {
     for (let m : planned) execute(m);
 
-    // Step 4: rewrite references
     for (ref &r : external) r = planned[r];
     for (let  x : marked)  // x is old object
     {
