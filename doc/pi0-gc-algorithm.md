@@ -56,12 +56,17 @@ The final stage: all internal and external references are rewritten. Because val
 void gc(n, execute_plan = true)
 {
   // Step 1: mark external and internal references
+  // Because GC always begins with newgen, we just mark this
+  // generation of references -- not everything newer
   for (let e : externals) if (e.generation == n) mark(e);
-  for (let r : marked)    if (r.flagged())       trace(r);
+  for (let r : marked)
+    if (r.generation == n && r.flagged())
+      trace(r);
 
   // Step 2: sort refs and solve for containment
   marked.sort();
   set [root, contained] = solve(marked);
+  set to_inline         = singly_referenced(marked);
   uN  live_set_size     = root.sum();
   uN  excess_live       = tenure_threshold - live_set_size;
 
@@ -69,8 +74,12 @@ void gc(n, execute_plan = true)
   while (excess_live > 0)
     excess_live -= plan_move(root.pop_front(), n - 1).size;
 
-  // NOTE: this augments marked, root, contained, and planned
-  // moves -- i.e. the parent gc() is folded into this one
+  // plan the rest of the live set here, since new generations
+  // are at this point static (even if we collect older ones)
+  for (let r : root) plan_move(r, n);
+
+  // if planned moves cause parent to overflow, include parent
+  // gc in our plan (but don't execute it)
   if (needs_gc(n - 1)) gc(n - 1, false);
 
   // At this point we know where all objects will be moved,
@@ -82,9 +91,9 @@ void gc(n, execute_plan = true)
 
     // Step 4: rewrite references
     for (ref &r : external) r = planned[r];
-    for (let x : marked)   // NOTE: x is old location
+    for (let  x : marked)  // x is old object
     {
-      let y = planned[x];  // y is new location
+      let y = planned[x];  // y is new object
       for (ref &r : refs_in(y)) r = planned[r];
     }
   }
