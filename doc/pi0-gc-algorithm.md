@@ -110,3 +110,26 @@ void gc(n, execute_plan = true)
   }
 }
 ```
+
+Let's get into some parts of this.
+
+
+### Mark structure
+`marked` is just a vector of references backed by an unordered membership set, in this case `map<ref, count>`. These counts inform `singly_referenced()`.
+
+
+### Plan structure
+`planned` needs to provide three pieces of information:
+
+1. Which bytes should be copied to which (relative) new locations
+2. Which bytes need to be patched, and to which values
+3. For a given old-space address, what is the corresponding new-space address
+
+(1) provides inputs to `memcpy` and informs heap sizing, (2) allows us to fix up UTF9 container sizes and flags, and (3) makes it easy to rewrite references.
+
+`planned` stores a separate splice map per generation. Each of those splice maps contains two sorted vectors:
+
++ `offsets`: a vector of `(old_address, length, new_address)` tuples
++ `patches`: a vector of `(new_address, byte)` pairs
+
+`offsets` provides enough information to drive `memcpy` and to calculate new addresses.

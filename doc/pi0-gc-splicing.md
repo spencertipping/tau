@@ -14,4 +14,4 @@ I could use a sorted `std::set` to combine member-check and splice ordering, but
 
 
 ## Copy planning
-**TODO**
+The [GC algorithm](pi0-gc-algorithm.md) produces a full plan before executing any data copies.
