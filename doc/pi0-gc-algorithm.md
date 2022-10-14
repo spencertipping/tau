@@ -117,6 +117,10 @@ Let's get into some parts of this.
 ### Mark structure
 `marked` is just a vector of references backed by an unordered membership set, in this case `map<ref, count>`. These counts inform `singly_referenced()`.
 
+`count` is strictly a measure of _internal_ references: that is, the number of in-heap objects that refer to the object. External references aren't counted at all. If an object has only external references, `count == 0` and we consider it live.
+
+Also note that contained objects aren't considered to have internal references, even though they implicitly do due to their containers. (**TODO:** make sure this is the right strategy)
+
 
 ### Plan structure
 `planned` needs to provide three pieces of information:
