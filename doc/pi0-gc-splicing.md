@@ -11,3 +11,7 @@ The splice-rewrite operation makes a list of all splice points, copies contiguou
 Nested references require that π₀'s GC track references sorted by location; that way we can quickly partition refs into "inner" vs "outer". The splice-set then provides a new offset map within each outer region.
 
 I could use a sorted `std::set` to combine member-check and splice ordering, but I suspect it's faster to use `unordered_set` and bulk-sort a vector when we need to check for containment.
+
+
+## Copy planning
+**TODO**

@@ -52,6 +52,8 @@ The final stage: all internal and external references are rewritten. Because val
 
 
 ## Full outline
+The major parts of multi-generational GC. Some data dependencies are implicit, particularly `marked` and splice plans.
+
 ```cpp
 void gc(n, execute_plan = true)
 {
@@ -95,7 +97,9 @@ void gc(n, execute_plan = true)
   // call for newgen)
   if (execute_plan)
   {
-    for (let m : planned) execute(m);
+    for (let m : planned)
+      // copy object to destination, applying splices
+      copy_and_adjust(m);
 
     for (ref &r : external) r = planned[r];
     for (let  x : marked)  // x is old object
