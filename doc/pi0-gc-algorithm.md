@@ -68,7 +68,7 @@ void gc(n, execute_plan = true)
   // Step 2: sort refs and solve for containment
   marked.sort();
   set [root, contained] = solve(marked);
-  set to_inline         = singly_referenced(marked) - contained(marked);
+  set to_inline         = singly_referenced(marked) - contained;
   uN  live_set_size     = root.sum();
   uN  excess_live       = tenure_threshold - live_set_size;
 
@@ -118,6 +118,8 @@ Let's get into some parts of this.
 `marked` is just a vector of references backed by an unordered membership set, in this case `umap<ref, uset<ref>>`. `uset<ref>` accumulates _internal_ references; that is, things we need to rewrite. External references aren't added here because they don't have heap-internal addresses. If an object has only external references, it will be present in the map but have an empty `uset<ref>`. `singly_referenced()` returns these objects.
 
 If an object is contained within another _marked_ object, then the child is immobile and ineligible for inlining.
+
+Note that from the GC's perspective, `root` and `contained` are only with respect to the marked set; so if you have `a = tuple(b = tuple(c = tuple(d)))` and hold references to only `b`, `c`, and `d`, then `b` is a root even though it wasn't in its initial generation.
 
 
 ### Plan structure
