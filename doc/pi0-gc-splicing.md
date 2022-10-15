@@ -14,4 +14,9 @@ I could use a sorted `std::set` to combine member-check and splice ordering, but
 
 
 ## Copy planning
-The [GC algorithm](pi0-gc-algorithm.md) produces a full plan before executing any data copies.
+The [GC algorithm](pi0-gc-algorithm.md) produces a full plan before executing any data copies. The plan exists in two stages:
+
+1. **Non-patched:** references have been inlined, but we haven't spliced any sizes yet
+2. **Patched:** we've updated all parent sizes and flags
+
+Once the plan contains patches, we can calculate each object's size and `plancpy` them to destination addresses.
