@@ -68,7 +68,7 @@ void gc(n, execute_plan = true)
   // Step 2: sort refs and solve for containment
   marked.sort();
   set [root, contained] = solve(marked);
-  set to_inline         = singly_referenced(marked);
+  set to_inline         = singly_referenced(marked) - contained(marked);
   uN  live_set_size     = root.sum();
   uN  excess_live       = tenure_threshold - live_set_size;
 
@@ -115,11 +115,9 @@ Let's get into some parts of this.
 
 
 ### Mark structure
-`marked` is just a vector of references backed by an unordered membership set, in this case `map<ref, count>`. These counts inform `singly_referenced()`.
+`marked` is just a vector of references backed by an unordered membership set, in this case `umap<ref, uset<ref>>`. `uset<ref>` accumulates _internal_ references; that is, things we need to rewrite. External references aren't added here because they don't have heap-internal addresses. If an object has only external references, it will be present in the map but have an empty `uset<ref>`. `singly_referenced()` returns these objects.
 
-`count` is strictly a measure of _internal_ references: that is, the number of in-heap objects that refer to the object. External references aren't counted at all. If an object has only external references, `count == 0` and we consider it live.
-
-Also note that contained objects aren't considered to have internal references, even though they implicitly do due to their containers. (**TODO:** make sure this is the right strategy)
+If an object is contained within another _marked_ object, then the child is immobile and ineligible for inlining.
 
 
 ### Plan structure
