@@ -59,10 +59,21 @@ The major parts of multi-generational GC. Some data dependencies are implicit, p
 ```cpp
 void gc_mark(n)
 {
-  for (let e : externals) if (e.generation == n) mark(n, e);
+  for (let e : externals)
+    if (e.generation == n)
+      mark_external(n, e);
   for (let r : marked[n])
     if (r.generation == n && r.flagged())
-      trace(r);
+      trace(n, r);
+}
+
+void trace(n, r)
+{
+  mark_internal(n, r);
+  if (wasnt_internally_marked_before(r))
+    for (let c : r)
+      if (c.flagged())
+        trace(n, c);
 }
 
 plan build_plan(n, marked)
