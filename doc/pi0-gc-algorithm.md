@@ -1,7 +1,9 @@
 # π₀ GC algorithm
 Values are allocated into the newest heap. When it overflows, we trigger a GC for that heap alone, tenuring downwards. Each downwards heap overflow may indirectly cause further GCs within those generations, all the way down to the oldest.
 
-We don't track tenure-count per object (UTF9 doesn't make space), but we can track it per generation. This means one of every _n_ collections will tenure everything downwards instead of compacting. Since newer generations tend not to be resizable, we can also tenure downwards anytime the live set is larger than some fraction of the newgen size.
+We don't track tenure-count per object (UTF9 doesn't make space), but we can track it per generation. This means one of every _n_ collections will tenure everything downwards instead of compacting. Since newer generations tend not to be as resizable, we can also tenure downwards anytime the live set is larger than some fraction of the newgen size.
+
+(**NOTE:** the newgen-resizable thing is interesting. We don't resize newgen as a function of its live set, but we do temporarily expand it if we need to allocate a large object. This way large objects still follow generational lifetimes, unlike for instance the JVM G1 GC, which allocates them specially.)
 
 For implementation reasons, the number of generations is always a power of two, by default 4 -- so we reserve the top two bits to describe which generation contains each reference.
 
@@ -55,24 +57,23 @@ The final stage: all internal and external references are rewritten. Because val
 The major parts of multi-generational GC. Some data dependencies are implicit, particularly `marked` and splice plans.
 
 ```cpp
-void gc(n, execute_plan = true)
+void gc_mark(n)
 {
-  // Step 1: mark external and internal references
-  // Because GC always begins with newgen, we just mark this
-  // generation of references -- not everything newer
-  for (let e : externals) if (e.generation == n) mark(e);
-  for (let r : marked)
+  for (let e : externals) if (e.generation == n) mark(n, e);
+  for (let r : marked[n])
     if (r.generation == n && r.flagged())
       trace(r);
+}
 
-  // Step 2: sort refs and solve for containment
-  marked.sort();
-  set [root, contained] = solve(marked);
-  set to_inline         = singly_referenced(marked) - contained;
-  uN  live_set_size     = root.sum();
+plan build_plan(n, marked)
+{
+  // NOTE: marked is partitioned per generation
+  marked[n].sort();
+  set [root, contained] = solve(marked[n]);
+  set to_inline         = singly_referenced(marked[n]) - contained;
+  uN  live_set_size     = root.total_size();
   uN  excess_live       = tenure_threshold - live_set_size;
 
-  // Step 3: construct the splice plan
   for (let x : root)
     for (let r : refs_in(m))
       if (to_inline.contains(r))
@@ -81,33 +82,40 @@ void gc(n, execute_plan = true)
         // argument here
         plan_splice_inline(m, r);
 
-  // Step 4: construct the move plan
   while (excess_live > 0)
-    excess_live -= plan_move(root.pop_front(), n - 1).size;
+    // NOTE: this plans actions against heap gen n + 1
+    // (next oldest)
+    excess_live -= plan_move(root.pop_front(), n + 1).size;
 
   // plan the rest of the live set here, since new generations
   // are at this point static (even if we collect older ones)
   for (let r : root) plan_move(r, n);
+}
 
-  // if planned moves cause parent to overflow, include parent
-  // gc in our plan (but don't execute it)
-  if (needs_gc(n - 1)) gc(n - 1, false);
+void execute_plan(marked, planned)
+{
+  for (let m : planned)
+    // copy object to destination, applying splices
+    copy_and_adjust(m);
 
-  // Step 5: execute move/rewrite plan (only during the gc()
-  // call for newgen)
-  if (execute_plan)
+  for (ref &r : external) r = planned[r];
+  for (let  x : marked)  // x is old object
   {
-    for (let m : planned)
-      // copy object to destination, applying splices
-      copy_and_adjust(m);
-
-    for (ref &r : external) r = planned[r];
-    for (let  x : marked)  // x is old object
-    {
-      let y = planned[x];  // y is new object
-      for (ref &r : refs_in(y)) r = planned[r];
-    }
+    let y = planned[x];  // y is new object
+    for (ref &r : refs_in(y)) r = planned[r];
   }
+}
+
+void gc(n)
+{
+  // Because GC always begins with newgen, we just mark this
+  // generation of references -- not everything newer
+  for (; needs_gc(n); ++n)
+  {
+    gc_mark(n);
+    planned += build_plan(n, marked);
+  }
+  execute_plan(marked, planned);
 }
 ```
 
@@ -115,7 +123,7 @@ Let's get into some parts of this.
 
 
 ### Mark structure
-`marked` is just a vector of references backed by an unordered membership set, in this case `umap<ref, uset<ref>>`. `uset<ref>` accumulates _internal_ references; that is, things we need to rewrite. External references aren't added here because they don't have heap-internal addresses. If an object has only external references, it will be present in the map but have an empty `uset<ref>`. `singly_referenced()` returns these objects.
+`marked[n]` is just a vector of references backed by an unordered membership set, in this case `umap<ref, uset<ref>>`. `uset<ref>` accumulates _internal_ references; that is, things we need to rewrite. External references aren't added here because they don't have heap-internal addresses. If an object has only external references, it will be present in the map but have an empty `uset<ref>`. `singly_referenced()` returns these objects.
 
 If an object is contained within another _marked_ object, then the child is immobile and ineligible for inlining.
 
