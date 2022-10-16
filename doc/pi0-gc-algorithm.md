@@ -134,7 +134,7 @@ Let's get into some parts of this.
 
 
 ### Mark structure
-`marked[n]` is just a vector of references backed by an unordered membership set, in this case `umap<ref, uset<ref>>`. `uset<ref>` accumulates _internal_ references; that is, things we need to rewrite. External references aren't added here because they don't have heap-internal addresses. If an object has only external references, it will be present in the map but have an empty `uset<ref>`. `singly_referenced()` returns these objects.
+`marked[n]` is just a vector of references backed by an unordered membership set, in this case `umap<ref, uset<ref>>`. `uset<ref>` accumulates _internal_ references; that is, things we need to rewrite. External references aren't added here because they don't have heap-internal addresses. If an object has only external references, it will be present in the map but have an empty `uset<ref>`. `singly_referenced()` returns objects whose `uset<ref>` size is exactly 1.
 
 If an object is contained within another _marked_ object, then the child is immobile and ineligible for inlining.
 

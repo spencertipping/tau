@@ -11,7 +11,7 @@ namespace τ
 {
 
 
-struct π0gs   // splice map for a single heap generation
+struct π0gs  // splice map for a single heap generation
 {
   B      &h;
   S<π0r>  ri;  // references to be inlined

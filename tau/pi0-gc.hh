@@ -21,10 +21,13 @@ struct π0hg  // a single GC generation
   template<O9 T>
   π0r operator<<(T const &x)
     { return h.size() + x.size() > h.capacity() ? π0hω : h << x; }
+
+  i9 operator[](uN x) { return i9{h.data() + x}; }
 };
 
 
 template<uN Gb> struct π0hv;
+template<uN Gb> struct π0ms;
 
 template<uN Gb = 2>
 struct π0h   // a multi-generational heap (Gb = generation bits)
@@ -42,12 +45,28 @@ struct π0h   // a multi-generational heap (Gb = generation bits)
 
 
   π0hg         gs[gn];    // generations; 0 = newest
+  π0ms<Gb>    *ms[gn];    // during GC, mark-set for each gen
   ΣΘΔ          gΘ;
-  bool         ga;        // is GC active
   S<π0hv<Gb>*> vs;        // views that comprise the root set
+  bool         ga;        // is GC active
 
   π0h () : ga{false} {}
   ~π0h() { A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)"); }
+
+
+  i9 operator[](π0r x) const { return gs[rg(x)][ra(x)]; }
+
+  π0r operator()(ζp x) const
+    { for (uN i = 0; i < gn; ++i)
+      { let y = (*this)(i, x); if (y != π0hω) return y; }
+      return π0hω; }
+
+  π0r operator()(uN g, ζp x) const
+    { let &b = gs[g].h;
+      return x >= b.data() && x < b.data() + b.size()
+           ? gar(g, x - b.data())
+           : π0hω; }
+
 
   template<O9 T>
   π0r operator<<(T const &x)
@@ -59,7 +78,31 @@ struct π0h   // a multi-generational heap (Gb = generation bits)
 
   void gc  (uN g, uN s);  // gc a specific generation downwards
   π0r  move(π0r) const;   // used by π0hv to translate old → new ext refs
-  void mark(π0r) const;   // externally mark a reference
+  void mark(π0r) const;   // used by π0hv to externally mark a reference
+};
+
+
+template<uN Gb>
+struct π0ms  // mark-set for one generation
+{
+  π0h<Gb>        &h;
+  V<π0r>          m;      // marked refs (internal + external)
+  M<π0r, S<π0r>>  r;      // internal references
+
+  void trace(π0r x)
+    { let g = h.rg(x);
+      let i = h[x];
+      if (!i.flagged()) return;
+      if (let y = i.π()) r[x].insert(y);
+      else if (u9coll[i.type()])
+        TODO("");
+    }
+
+  void mark_external(π0r x)
+    { if (r.contains(x)) return;
+      m.push_back(x);
+      r[x] = {};
+      trace(x); }
 };
 
 
