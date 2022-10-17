@@ -94,25 +94,28 @@ ic u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64
 ic u9_stream u9ι(u64 x) { return u9_stream{u9st::ι, x}; }
 
 
-enum class u9_π : u8
+typedef u8 u9_scoped_t;
+
+
+enum class u9_π : u9_scoped_t
 {
   ref = 1,
 };
 
-enum class u9_Φ : u8
+enum class u9_Φ : u9_scoped_t
 {
   heapref = 1,
   heappin = 2,
   fd      = 3,
 };
 
-enum class u9_host : u8
+enum class u9_host : u9_scoped_t
 {
   path = 1,
   pid  = 2,
 };
 
-enum class u9_build : u8
+enum class u9_build : u9_scoped_t
 {
   istruct = 1,
 };
