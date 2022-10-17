@@ -3,9 +3,9 @@
 
 
 #include "types.hh"
+#include "Sigma.hh"
 #include "pi0-types.hh"
 #include "pi0-gc-heapspace.hh"
-#include "pi0-gc-splice.hh"
 
 #include "pi0-gc-begin.hh"
 
@@ -20,7 +20,6 @@ namespace τ
 
   π0T(π0hs)    *gs[gn];    // generations; 0 = newest
   π0T(π0ms)    *ms[gn];    // during GC, mark-set for each gen
-  π0T(π0gs)    *ss[gn];    // during GC, splice plan for each gen
   ΣΘΔ           gΘ;
   S<π0T(π0hv)*> vs;        // views that comprise the root set
 

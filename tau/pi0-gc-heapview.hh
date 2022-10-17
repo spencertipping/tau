@@ -37,7 +37,7 @@ namespace τ
   π0hnf(π0hnf&&)      = delete;
   π0hnf(π0T(π0h) &h_, uN vs) : π0T(π0hv)(h_) { v.reserve(vs); }
 
-  void mark() { for (let   x : v) π0T(π0hv)::h.mark(x); }
+  void mark() { for (let   x : v)     π0T(π0hv)::h.mark(x); }
   void move() { for (auto &x : v) x = π0T(π0hv)::h.move(x); }
 
   π0T(π0r) &operator<<(π0T(π0r) x)

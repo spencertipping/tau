@@ -95,7 +95,7 @@ plan build_plan(n, marked)
         // argument here
         plan_splice_inline(m, r);
 
-  // TODO: plan_move() is not part of the splice planning mechanism
+  // FIXME: plan_move() is not part of the splice planning mechanism
   while (excess_live > 0)
     // NOTE: this plans actions against heap gen n + 1
     // (next oldest)

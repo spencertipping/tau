@@ -138,25 +138,10 @@ struct i9
   uN   vn()      const { return size() >> u9logsizeof(type()); }
 
 
-  template<class T>
-  operator u9_scoped<u9_π, T>() const
-    { u9tm{u9t::pi}(type());
-      return R<u9_scoped<u9_π, T>>(data(), 0); }
-
-  template<class T>
-  operator u9_scoped<u9_Φ, T>() const
-    { u9tm{u9t::phi}(type());
-      return R<u9_scoped<u9_Φ, T>>(data(), 0); }
-
-  template<class T>
-  operator u9_scoped<u9_host, T>() const
-    { u9tm{u9t::host}(type());
-      return R<u9_scoped<u9_host, T>>(data(), 0); }
-
-  template<class T>
-  operator u9_scoped<u9_build, T>() const
-    { u9tm{u9t::build}(type());
-      return R<u9_scoped<u9_build, T>>(data(), 0); }
+  template<class T> operator u9_scoped<u9_π,     T>() const { u9tm{u9t::pi}   (type()); return R<u9_scoped<u9_π,     T>>(data(), 0); }
+  template<class T> operator u9_scoped<u9_Φ,     T>() const { u9tm{u9t::phi}  (type()); return R<u9_scoped<u9_Φ,     T>>(data(), 0); }
+  template<class T> operator u9_scoped<u9_host,  T>() const { u9tm{u9t::host} (type()); return R<u9_scoped<u9_host,  T>>(data(), 0); }
+  template<class T> operator u9_scoped<u9_build, T>() const { u9tm{u9t::build}(type()); return R<u9_scoped<u9_build, T>>(data(), 0); }
 
   operator u9_π()     const { u9tm{u9t::pi}   (type()); return Sc<u9_π>    (R<u9_scoped_t>(data(), 0)); }
   operator u9_Φ()     const { u9tm{u9t::phi}  (type()); return Sc<u9_Φ>    (R<u9_scoped_t>(data(), 0)); }

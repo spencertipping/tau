@@ -6,7 +6,6 @@
 #include "pi0-types.hh"
 #include "pi0-gc-heap.hh"
 #include "pi0-gc-heapspace.hh"
-#include "pi0-gc-splice.hh"
 
 #include "pi0-gc-begin.hh"
 
@@ -38,7 +37,7 @@ namespace τ
         if (i.is_πref()) mi(x, π0T(π0r)(i)); } }
 
 
-  void plan(π0T(π0gs) &s)          // construct inline splice plan
+  void plan()                      // construct inline splice plan
   { c.resize(m.size(), false);
     std::sort(m.begin(), m.end());
 
@@ -47,18 +46,16 @@ namespace τ
       while (i < m.size() && h[m[i]].a < e) c[i++] = true; }
 
     for (uN i = 0; i < m.size(); ++i)  // inline single, same-gen refs
-      if (!c[i]) plan_ref_inlines(s, c, m[i]); }
-
-  void plan_ref_inlines(π0T(π0gs) &s, V<bool> &c, π0T(π0r) x)
-  { for (let i : h[x].flags())
-      if (i.is_πref())
-      { let y = π0T(π0r)(i);
-        // Invariant: z will be marked here, meaning it will have an
-        // entry in r[]. This means we can determine how many other
-        // references exist; if it's singly-referenced, we can inline
-        // it here.
-        if (y.g() == g && r[y].size() == 1)
-          s.plan_inline(x); } }
+      if (!c[i])
+        for (let j : h[m[i]].flags())
+          if (j.is_πref())
+          { let x = π0T(π0r)(j);
+            // Invariant: x will be marked here, meaning it will have an
+            // entry in r[]. This means we can determine how many other
+            // references exist; if it's singly-referenced, we can inline
+            // it here.
+            if (x.g() == g && r[x].size() == 1)
+              TODO("inline " << j); } }
 };
 
 

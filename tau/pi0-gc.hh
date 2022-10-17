@@ -6,7 +6,7 @@
 #include "types.hh"
 #include "utf9.hh"
 #include "pi0-types.hh"
-#include "pi0-gc-splice.hh"
+
 #include "pi0-gc-heapspace.hh"
 #include "pi0-gc-heap.hh"
 #include "pi0-gc-heapview.hh"
@@ -34,8 +34,7 @@ namespace τ
 {
   gΘ.start();
   for (uN g = 0; g < gn; ++g)
-  { ms[g] = new π0T(π0ms){*this};
-    ss[g] = new π0T(π0gs){g, gs[g]->h}; }
+    ms[g] = new π0T(π0ms){*this};
 
   for (let v : vs) v->mark();
 
@@ -43,9 +42,7 @@ namespace τ
 
   for (uN i = 0; i < gn; ++i)
   { if (ms[i]) delete ms[i];
-    if (ss[i]) delete ss[i];
-    ms[i] = nullptr;
-    ss[i] = nullptr; }
+    ms[i] = nullptr; }
   gΘ.stop();
 }
 
