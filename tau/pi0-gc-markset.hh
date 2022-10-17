@@ -31,12 +31,11 @@ namespace τ
   { if (x.g() == g && !r.contains(x))
     { r[x] = {};
       m.push_back(x);
-      if (x.g() == g)
-        for (let i : h[x].flags())
-          // NOTE: we track references in all generations in case older
-          // generations end up being collected here -- we just don't
-          // trace those older-gen objects yet
-          if (i.is_πref()) mi(x, π0T(π0r)(i)); } }
+      for (let i : h[x].flags())
+        // NOTE: we track references in all generations in case older
+        // generations end up being collected here -- we just don't
+        // trace those older-gen objects yet
+        if (i.is_πref()) mi(x, π0T(π0r)(i)); } }
 
 
   void plan(π0T(π0gs) &s)          // construct inline splice plan

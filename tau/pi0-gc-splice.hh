@@ -18,6 +18,8 @@ namespace τ
   B          &h;
   S<π0ha>     ri;  // this-gen references to be inlined
 
+  // TODO: size/flag patching
+
   // planned size of old-space ref (once we copy it)
   uN planned_size(π0T(π0r) x)
     { TODO("planned_size");
