@@ -40,9 +40,7 @@ namespace τ
 
   // TODO: execute plan
 
-  for (uN i = 0; i < gn; ++i)
-  { if (ms[i]) delete ms[i];
-    ms[i] = nullptr; }
+  for (uN i = 0; i < gn; ++i) { delete ms[i]; ms[i] = nullptr; }
   gΘ.stop();
 }
 

@@ -22,6 +22,7 @@ typedef void(*π0f)(π0int&, uN);  // bytecode function
 π0TGs π0hs;                      // GC heap space
 π0TGs π0hv;                      // GC heap view
 π0TGs π0ms;                      // GC mark set
+π0TGs π0gs;                      // GC splice map
 
 typedef uN π0hg;                 // heap generation
 typedef uN π0ha;                 // heap address within generation
