@@ -9,10 +9,12 @@
 #include <initializer_list>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <optional>
 #include <queue>
+#include <set>
 #include <stack>
 #include <string>
 #include <string_view>
@@ -114,6 +116,7 @@ template<class... T>       using Il = std::initializer_list<T...>;
 template<class T>          using H  = std::hash<T>;
 template<class T>          using Lg = std::lock_guard<T>;
 template<class... T>       using M  = std::unordered_map<T...>;
+template<class... T>       using Mo = std::map<T...>;
 typedef               std::mutex Mu;
 template<class T>          using Nl = std::numeric_limits<T>;
 typedef             std::ostream O;
@@ -122,6 +125,7 @@ template<class T, class U> using P  = std::pair<T, U>;
 template<class... T>       using Q  = std::queue<T...>;
 template<class T>          using Rw = std::reference_wrapper<T>;
 template<class... K>       using S  = std::unordered_set<K...>;
+template<class... K>       using So = std::set<K...>;
 template<class... T>       using Sk = std::stack<T...>;
 template<class... T>       using SP = std::shared_ptr<T...>;
 template<class... X>       using T  = std::tuple<X...>;

@@ -85,6 +85,8 @@ plan build_plan(n, marked)
   uN  live_set_size     = root.total_size();
   uN  excess_live       = tenure_threshold - live_set_size;
 
+  // NOTE: no need to visit contained objects;
+  // just stick to the root set for efficiency
   for (let m : root)
     for (let r : refs_in(m))
       if (to_inline.contains(r))
@@ -93,6 +95,7 @@ plan build_plan(n, marked)
         // argument here
         plan_splice_inline(m, r);
 
+  // TODO: plan_move() is not part of the splice planning mechanism
   while (excess_live > 0)
     // NOTE: this plans actions against heap gen n + 1
     // (next oldest)
@@ -131,6 +134,10 @@ void gc(n)
 ```
 
 Let's get into some parts of this.
+
+
+### Tenuring and inlining
+Notice that we inline (within same-generation) before tenuring. This is important: the primary goal is to improve locality, secondary is to achieve optimum generation-packing.
 
 
 ### Mark structure

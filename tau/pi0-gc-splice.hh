@@ -5,28 +5,33 @@
 #include "types.hh"
 #include "pi0-types.hh"
 
-#include "begin.hh"
+#include "pi0-gc-begin.hh"
 
 namespace τ
 {
 
 
+π0TG
 struct π0gs  // splice map for a single heap generation
-{
-  B      &h;
-  S<π0r>  ri;  // references to be inlined
+{ π0TS;
+  B           &h;
+  uNc          g;
+  S<π0T(π0r)>  ri;  // references to be inlined
 
-  void plan_inline(π0r x)  // inline a reference in old-space addresses
-    {
+  // planned size of old-space ref (once we copy it)
+  uN planned_size(π0T(π0r) x)
+    { TODO("planned_size");
     }
 
-  void plan_move(π0r x, uN g) {}
+  void plan_inline(π0T(π0r) x)
+    { ri.insert(x);
+    }
 };
 
 
 }
 
-#include "end.hh"
+#include "pi0-gc-end.hh"
 
 
 #endif

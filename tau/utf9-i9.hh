@@ -75,25 +75,31 @@ struct i9
   };
 
 
-  struct fit
+  struct fit  // flagged iterator
   {
     sletc u9c = u9tm{u9t::index, u9t::map, u9t::set, u9t::tuple};
 
-    it i;
-    it e;
+    it       i;
+    it const e;
+
     i9   operator* ()             const { return *i; }
     bool operator==(fit const &x) const { return  i == x.i; }
-    fit  operator++()
-      {
-        while (i != e && !(*i).flagged()) ++i;
-      }
+    fit &operator++()
+      { while (1)
+        { if (i == e) return *this;
+          let j = *i;
+          if (j.flagged())
+            if (u9c[j.type()]) i.a = j.first();
+            else               i.a = j.next();
+          else ++i;
+          if ((*i).flagged()) return *this; } }
   };
 
   struct fs
   {
     ζp a;
-    fit begin() const { return fit{it{a},                  it{a + i9::size_of(a)}}; }
-    fit end()   const { return fit{it{a + i9::size_of(a)}, it{a + i9::size_of(a)}}; }
+    fit begin() const { return a ? fit{it{a},                  it{a + i9::size_of(a)}} : fit{{nullptr}, {nullptr}}; }
+    fit end()   const { return a ? fit{it{a + i9::size_of(a)}, it{a + i9::size_of(a)}} : fit{{nullptr}, {nullptr}}; }
   };
 
 
@@ -117,6 +123,7 @@ struct i9
   i9   first()   const { return i9{a + u9sb(stype())}; }
   i9   second()  const { return first().next(); }
   ks   keys()    const { return ks{a}; }
+  fs   flags()   const { return flagged() ? fs{a} : fs{0}; }
   uN   osize()   const { return u9rs(a, 0); }
 
   bool b()       const { u9tm{u9t::b}(type()); return *Sc<u8*>(data()); }

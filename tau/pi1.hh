@@ -2,8 +2,10 @@
 #define τπ1_h
 
 
-#include "pi1-asm.hh"
-#include "pi1-stdlib.hh"
+//#include "pi1-asm.hh"
+//#include "pi1-stdlib.hh"
+
+#warning fix pi1.hh
 
 
 #endif
