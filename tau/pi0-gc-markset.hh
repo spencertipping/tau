@@ -88,6 +88,8 @@ namespace τ
           s.push_back({ja, js, Rc<ζp>(js + Δs), u9sb(u9sq(js + Δs)), 2 | f}); }
         if (i.is_πref())
         { let y = π0R(i);
+          // TODO: this is a little too strict; we can inline some objects
+          // that have multiple references
           if (y.g() == g && ms.r[y].size() == 1 && !c(ms.m, y))
           { let z  = h(g, i);
             let s1 = i.osize();
