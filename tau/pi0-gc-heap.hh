@@ -23,9 +23,8 @@ namespace τ
   π0T(π0gs)    *ss[gn];    // during GC, splice plan for each gen
   ΣΘΔ           gΘ;
   S<π0T(π0hv)*> vs;        // views that comprise the root set
-  bool          ga;        // is GC active
 
-  π0h(uN s0 = 65536, uN sb = 0) : ga{false}
+  π0h(uN s0 = 65536, uN sb = 0)
   { for (uN g = 0; g < gn; ++g)
     { if (gs[g]) delete gs[g];
       gs[g] = new π0hs(g, s0 << g * sb); } }
@@ -57,8 +56,8 @@ namespace τ
 
 
   void     gc  (uN g, uN s);       // gc a specific generation downwards
+  void     mark(π0T(π0r));         // externally mark a reference
   π0T(π0r) move(π0T(π0r)) const;   // used by π0hv to translate old → new ext refs
-  void     mark(π0T(π0r)) const;   // used by π0hv to externally mark a reference
 };
 
 
