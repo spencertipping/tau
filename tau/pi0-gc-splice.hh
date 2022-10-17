@@ -16,6 +16,11 @@ struct π0gs  // splice map for a single heap generation
   B      &h;
   S<π0r>  ri;  // references to be inlined
 
+  void plan_inline(π0r x)  // inline a reference in old-space addresses
+    {
+    }
+
+  void plan_move(π0r x, uN g) {}
 };
 
 

@@ -85,7 +85,7 @@ plan build_plan(n, marked)
   uN  live_set_size     = root.total_size();
   uN  excess_live       = tenure_threshold - live_set_size;
 
-  for (let x : root)
+  for (let m : root)
     for (let r : refs_in(m))
       if (to_inline.contains(r))
         // NOTE: we also update parent sizes and flags as

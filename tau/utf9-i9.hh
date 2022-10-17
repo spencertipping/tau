@@ -54,8 +54,8 @@ struct i9
     ζp a;
     operator     ζp()            const { return a; }
     i9   operator* ()            const { return i9{a}; }
-    it   operator++()                  { a += i9{a}.osize(); return *this; }
     bool operator==(it const &x) const { return a == x.a; }
+    it   operator++()                  { a += i9{a}.osize(); return *this; }
   };
 
 
@@ -63,8 +63,8 @@ struct i9
   {
     it i;
     i9   operator* ()             const { return *i; }
+    bool operator==(kit const &x) const { return  i == x.i; }
     kit  operator++()                   { ++i; ++i; return *this; }
-    bool operator==(kit const &x) const { return i == x.i; }
   };
 
   struct ks
@@ -72,6 +72,28 @@ struct i9
     ζp a;
     kit begin() const { return kit{it{a + u9sb(u9ts_s(R<u8>(a, 0)))}}; }
     kit end()   const { return kit{it{a + u9rs(a, 0)}}; }
+  };
+
+
+  struct fit
+  {
+    sletc u9c = u9tm{u9t::index, u9t::map, u9t::set, u9t::tuple};
+
+    it i;
+    it e;
+    i9   operator* ()             const { return *i; }
+    bool operator==(fit const &x) const { return  i == x.i; }
+    fit  operator++()
+      {
+        while (i != e && !(*i).flagged()) ++i;
+      }
+  };
+
+  struct fs
+  {
+    ζp a;
+    fit begin() const { return fit{it{a},                  it{a + i9::size_of(a)}}; }
+    fit end()   const { return fit{it{a + i9::size_of(a)}, it{a + i9::size_of(a)}}; }
   };
 
 

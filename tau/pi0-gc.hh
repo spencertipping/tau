@@ -32,9 +32,9 @@ template<uN Gb> struct π0ms;
 template<uN Gb = 2>
 struct π0h   // a multi-generational heap (Gb = generation bits)
 {
-  sletc gn   = 1 << Gb;
+  sletc gn   = Sc<π0r>(1) << Gb;
   sletc ghms = τwordsize - Gb;
-  sletc ghm  = Sc<π0r>(gn - 1) << ghms;
+  sletc ghm  = gn - 1 << ghms;
   sletc gam  = ~ghm;
   static_assert(ghm | gam == π0hω);
   static_assert(ghm & gam == 0);
@@ -46,6 +46,7 @@ struct π0h   // a multi-generational heap (Gb = generation bits)
 
   π0hg         gs[gn];    // generations; 0 = newest
   π0ms<Gb>    *ms[gn];    // during GC, mark-set for each gen
+  π0gs        *ss[gn];    // during GC, splice plan for each gen
   ΣΘΔ          gΘ;
   S<π0hv<Gb>*> vs;        // views that comprise the root set
   bool         ga;        // is GC active
@@ -86,23 +87,38 @@ template<uN Gb>
 struct π0ms  // mark-set for one generation
 {
   π0h<Gb>        &h;
+  uN              g;      // generation being marked
   V<π0r>          m;      // marked refs (internal + external)
   M<π0r, S<π0r>>  r;      // internal references
 
   void trace(π0r x)
-    { let g = h.rg(x);
-      let i = h[x];
-      if (!i.flagged()) return;
-      if (let y = i.π()) r[x].insert(y);
-      else if (u9coll[i.type()])
-        TODO("");
-    }
+    { if (h.rg(x) == g)
+      { let i = h[x];
+        if (i.flagged())
+          if      (let y = i.π()) mark_internal(x, y);
+          else if (u9c[i.type()]) for (let y : i) trace(h(g, y)); } }
 
+  void mark_internal(π0r x, π0r y) { mark_external(y); r[y].insert(x); }
   void mark_external(π0r x)
-    { if (r.contains(x)) return;
-      m.push_back(x);
-      r[x] = {};
-      trace(x); }
+    { if (h.rg(x) == g && !r.contains(x))
+        r[x] = {}, m.push_back(x), trace(x); }
+
+  void plan(π0gs &s)
+    { V<bool> c; c.resize(m.size(), false);
+      std::sort(m.begin(), m.end());
+      for (uN i = 0; i < m.size();)
+      { let e = h[m[i++]].end().a;
+        while (i < m.size() && h[m[i]].a < e) c[i++] = true; }
+      for (uN i = 0; i < m.size(); ++i)
+        if (!c[i]) plan_ref_inlines(s, c, m[i]);
+
+      TODO("plan tenuring"); }
+
+  void plan_ref_inlines(π0gs &s, V<bool> &c, uN x)
+    { let i = h[x];
+
+
+    }
 };
 
 
