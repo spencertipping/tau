@@ -11,8 +11,7 @@ namespace τ
 {
 
 
-π0TG
-struct π0gs  // splice map for a single heap generation
+π0TGs π0gs  // splice map for a single heap generation
 { π0TS;
   B           &h;
   uNc          g;

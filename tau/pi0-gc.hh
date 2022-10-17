@@ -1,7 +1,12 @@
 #ifndef τπ0_gc_h
 #define τπ0_gc_h
 
-//#define τπ0debug_specialize_templates 1
+
+// Specialize templates when parsing with emacs/LSP; this #if
+// will be skipped in production builds
+#if !defined(τ_h)
+# define τπ0debug_specialize_templates 1
+#endif
 
 
 #include "debug.hh"
@@ -18,8 +23,7 @@ namespace τ
 {
 
 
-π0TG
-struct π0hs  // a single GC heap-space (generation)
+π0TGs π0hs  // a single GC heap-space (generation)
 { π0TS;
   B h;
 
@@ -31,11 +35,10 @@ struct π0hs  // a single GC heap-space (generation)
 };
 
 
-π0TG struct π0hv;
-π0TG struct π0ms;
+π0TGs π0hv;
+π0TGs π0ms;
 
-π0TG
-struct π0h   // a multi-generational heap (Gb = generation bits)
+π0TGs π0h   // a multi-generational heap (Gb = generation bits)
 { π0TS;
   sletc gn = Sc<uN>(1) << Gb;
 
@@ -72,14 +75,13 @@ struct π0h   // a multi-generational heap (Gb = generation bits)
       return gar(0, gs[0] << x); }
 
 
-  void     gc  (uN g, uN s);      // gc a specific generation downwards
+  void     gc  (uN g, uN s);       // gc a specific generation downwards
   π0T(π0r) move(π0T(π0r)) const;   // used by π0hv to translate old → new ext refs
   void     mark(π0T(π0r)) const;   // used by π0hv to externally mark a reference
 };
 
 
-π0TG
-struct π0ms  // mark-set for one generation
+π0TGs π0ms  // mark-set for one generation
 { π0TS;
   π0T(π0h)                 &h;
   uNc                       g;  // generation being marked
@@ -123,18 +125,17 @@ struct π0ms  // mark-set for one generation
 };
 
 
-π0TG
-struct π0hv  // heap view: a part of the root set
+π0TGs π0hv  // heap view: a part of the root set
 { π0TS;
   π0T(π0h) &h;
+  π0hv(π0T(π0h) &h_) : h(h_) {}
   virtual ~π0hv() { h.vs.erase(this); }
   virtual void mark() = 0;  // mark everything in this view
   virtual void move() = 0;  // move everything in this view
 };
 
 
-π0TG
-void π0T(π0h)::gc(uN g, uN s)
+π0TG void π0T(π0h)::gc(uN g, uN s)
 {
   TODO("gc");
 }
