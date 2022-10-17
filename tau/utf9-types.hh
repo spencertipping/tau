@@ -271,7 +271,7 @@ ic uN u9sb(u9s s)  // size of size+control bytes (i.e. prefix)
   case u9s::v16: return 3;
   case u9s::v32: return 5;
   case u9s::v64: return 9;
-  default:       return 1;
+    TA(0, "u9sb");
   }
 }
 

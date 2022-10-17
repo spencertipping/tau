@@ -20,13 +20,13 @@ namespace τ
 
   π0hs(π0hg g_, uN s) : g(g_) { h.reserve(s); }
 
-  π0TO π0T(π0r) operator<<(π0To const &x)
+  π0TO π0R operator<<(π0To const &x)
     { return h.size() + x.size() > h.capacity()
-           ? π0T(π0r)()
-           : π0T(π0r)(g, h << x); }
+           ? π0R()
+           : π0R(g, h << x); }
 
   i9 operator[](uN x) { return i9{h.data() + x}; }
-  i9 operator[](π0T(π0r) x)
+  i9 operator[](π0R x)
   { A(x.g() == g, "π₀hs: gen " << g << " ≠ " << x.g());
     return (*this)[x.a()]; }
 };

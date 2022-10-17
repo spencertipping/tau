@@ -30,7 +30,7 @@ namespace τ
 π0TGs π0hnf : virtual π0T(π0hv)  // native frame heap view
 {
   π0TS;
-  V<π0T(π0r)> v;
+  V<π0R> v;
 
   π0hnf()             = delete;
   π0hnf(π0hnf const&) = delete;
@@ -40,7 +40,7 @@ namespace τ
   void mark() { for (let   x : v)     π0T(π0hv)::h.mark(x); }
   void move() { for (auto &x : v) x = π0T(π0hv)::h.move(x); }
 
-  π0T(π0r) &operator<<(π0T(π0r) x)
+  π0R &operator<<(π0R x)
   { A(v.size() + 1 <= v.capacity(),
       "π₀hnf: undersized frame (reserved " << v.capacity() << ")");
     v.push_back(x);

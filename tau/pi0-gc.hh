@@ -18,13 +18,13 @@ namespace τ
 {
 
 
-π0TG void π0T(π0h)::mark(π0T(π0r) x)
+π0TG void π0T(π0h)::mark(π0R x)
 {
   if (ms[x.g()]) ms[x.g()]->me(x);
 }
 
 
-π0TG π0T(π0r) π0T(π0h)::move(π0T(π0r) x) const
+π0TG π0R π0T(π0h)::move(π0R x) const
 {
   TODO("π₀h move()");
 }
@@ -33,8 +33,7 @@ namespace τ
 π0TG void π0T(π0h)::gc(uN s)
 {
   gΘ.start();
-  for (uN g = 0; g < gn; ++g)
-    ms[g] = new π0T(π0ms){*this};
+  ms[0] = new π0T(π0ms){*this, 0};
 
   for (let v : vs) v->mark();
 

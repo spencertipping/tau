@@ -18,10 +18,10 @@ namespace τ
   π0TS;
   sletc gn = Sc<uN>(1) << Gb;
 
-  π0T(π0hs)    *gs[gn];    // generations; 0 = newest
-  π0T(π0ms)    *ms[gn];    // during GC, mark-set for each gen
+  π0T(π0hs)    *gs[gn];  // generations; 0 = newest
+  π0T(π0ms)    *ms[gn];  // during GC, mark-set for each gen
   ΣΘΔ           gΘ;
-  S<π0T(π0hv)*> vs;        // views that comprise the root set
+  S<π0T(π0hv)*> vs;      // views that comprise the root set
 
   π0h(uN s0 = 65536, uN sb = 0)
   { for (uN g = 0; g < gn; ++g)
@@ -33,30 +33,30 @@ namespace τ
     for (uN g = 0; g < gn; ++g) delete gs[g]; }
 
 
-  i9 operator[](π0T(π0r) x) { return (*gs[x.g()])[x.a()]; }
+  i9 operator[](π0R x) { return (*gs[x.g()])[x.a()]; }
 
-  π0T(π0r) operator()(ζp x) const
+  π0R operator()(ζp x) const
     { for (uN i = 0; i < gn; ++i)
       { let y = (*this)(i, x); if (!y.ω()) return y; }
-      return π0T(π0r)(); }
+      return π0R(); }
 
-  π0T(π0r) operator()(uN g, ζp x) const
+  π0R operator()(uN g, ζp x) const
     { let &b = gs[g]->h;
       return x >= b.data() && x < b.data() + b.size()
-           ? π0T(π0r)(g, x - b.data())
-           : π0T(π0r)(); }
+           ? π0R(g, x - b.data())
+           : π0R(); }
 
 
-  π0TO π0T(π0r) operator<<(π0To const &x)
+  π0TO π0R operator<<(π0To const &x)
     { let a = *gs[0] << x;
       if (!a.ω()) return a;
       gc(x.size());
       return *gs[0] << x; }
 
 
-  void     gc  (uN s);            // GC to allocate s bytes of space
-  void     mark(π0T(π0r));        // externally mark a reference
-  π0T(π0r) move(π0T(π0r)) const;  // used by π0hv to translate old → new ext refs
+  void gc  (uN s);       // GC to allocate s bytes of space
+  void mark(π0R);        // externally mark a reference
+  π0R  move(π0R) const;  // used by π0hv to translate old → new ext refs
 };
 
 
