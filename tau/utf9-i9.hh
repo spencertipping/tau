@@ -139,6 +139,11 @@ struct i9
 
 
   template<class T>
+  operator u9_scoped<u9_π, T>() const
+    { u9tm{u9t::pi}(type());
+      return R<u9_scoped<u9_π, T>>(data(), 0); }
+
+  template<class T>
   operator u9_scoped<u9_Φ, T>() const
     { u9tm{u9t::phi}(type());
       return R<u9_scoped<u9_Φ, T>>(data(), 0); }
@@ -153,6 +158,7 @@ struct i9
     { u9tm{u9t::build}(type());
       return R<u9_scoped<u9_build, T>>(data(), 0); }
 
+  operator u9_π()     const { u9tm{u9t::pi}(type());    return Sc<u9_π>    (R<u8>(data(), 0)); }
   operator u9_Φ()     const { u9tm{u9t::phi}(type());   return Sc<u9_Φ>    (R<u8>(data(), 0)); }
   operator u9_host()  const { u9tm{u9t::host}(type());  return Sc<u9_host> (R<u8>(data(), 0)); }
   operator u9_build() const { u9tm{u9t::build}(type()); return Sc<u9_build>(R<u8>(data(), 0)); }
@@ -160,6 +166,8 @@ struct i9
   bool is_heapref() const { return type() == u9t::phi && Sc<u9_Φ>(*this) == u9_Φ::heapref; }
   bool is_heappin() const { return type() == u9t::phi && Sc<u9_Φ>(*this) == u9_Φ::heappin; }
   bool is_heap()    const { return is_heapref() || is_heappin(); }
+
+  bool is_πref()    const { return type() == u9t::pi && Sc<u9_π>(*this) == u9_π::ref; }
 
   bool is_istruct() const { return type() == u9t::build && Sc<u9_build>(*this) == u9_build::istruct; }
 
@@ -215,8 +223,6 @@ struct i9
   u64  θ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
   u64  ι() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::ι ? R<u64>(begin(), 1) : 0; }
   bool τ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::τ; }
-
-  uN   π() const { u9tm{u9t::pi}(type()); return *Rc<uNc*>(data()); }
 
 
   i9 operator*() const

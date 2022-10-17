@@ -51,13 +51,13 @@ namespace τ
   π0TO π0T(π0r) operator<<(π0To const &x)
     { let a = *gs[0] << x;
       if (!a.ω()) return a;
-      gc(0, x.size());
+      gc(x.size());
       return *gs[0] << x; }
 
 
-  void     gc  (uN g, uN s);       // gc a specific generation downwards
-  void     mark(π0T(π0r));         // externally mark a reference
-  π0T(π0r) move(π0T(π0r)) const;   // used by π0hv to translate old → new ext refs
+  void     gc  (uN s);            // GC to allocate s bytes of space
+  void     mark(π0T(π0r));        // externally mark a reference
+  π0T(π0r) move(π0T(π0r)) const;  // used by π0hv to translate old → new ext refs
 };
 
 

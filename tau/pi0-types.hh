@@ -40,6 +40,10 @@ typedef uN π0ha;                 // heap address within generation
   π0r()                 : ga(-1)             {}
   π0r(π0hg g, π0ha a_)  : ga(g << ghms | a_) {}
   explicit π0r(uN ga_)  : ga(ga_)            {}
+  explicit π0r(i9 i)
+  { let s = Sc<u9_scoped<u9_π, uN>>(i);
+    A(s.t == u9_π::ref, "π₀r from non-ref " << i);
+    ga = s.x; }
 
   π0hg g() const { return ga >> ghms; }
   uN   a() const { return ga  & gam;  }

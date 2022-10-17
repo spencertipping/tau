@@ -27,7 +27,7 @@ namespace τ
 // TODO: frame view
 
 
-π0TGs π0hnf : virtual π0hv  // native frame heap view
+π0TGs π0hnf : virtual π0T(π0hv)  // native frame heap view
 {
   π0TS;
   V<π0T(π0r)> v;
@@ -35,10 +35,10 @@ namespace τ
   π0hnf()             = delete;
   π0hnf(π0hnf const&) = delete;
   π0hnf(π0hnf&&)      = delete;
-  π0hnf(π0T(π0h) &h_, uN vs) : π0hv(h_) { v.reserve(vs); }
+  π0hnf(π0T(π0h) &h_, uN vs) : π0T(π0hv)(h_) { v.reserve(vs); }
 
-  void mark() { for (let   x : v) h.mark(x); }
-  void move() { for (auto &x : v) x = h.move(x); }
+  void mark() { for (let   x : v) π0T(π0hv)::h.mark(x); }
+  void move() { for (auto &x : v) x = π0T(π0hv)::h.move(x); }
 
   π0T(π0r) &operator<<(π0T(π0r) x)
   { A(v.size() + 1 <= v.capacity(),

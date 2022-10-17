@@ -14,18 +14,16 @@ namespace τ
 π0TGs π0gs  // splice map for a single heap generation
 {
   π0TS;
-  π0hg const   g;
-  B           &h;
-  S<π0T(π0r)>  ri;  // references to be inlined
+  π0hg const  g;
+  B          &h;
+  S<π0ha>     ri;  // this-gen references to be inlined
 
   // planned size of old-space ref (once we copy it)
   uN planned_size(π0T(π0r) x)
     { TODO("planned_size");
     }
 
-  void plan_inline(π0T(π0r) x)
-    { ri.insert(x);
-    }
+  void plan_inline(π0T(π0r) x) { ri.insert(x.a()); }
 };
 
 

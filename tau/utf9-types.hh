@@ -5,6 +5,7 @@
 #include "../dep/picosha2.h"
 
 
+#include "ctypes.hh"
 #include "debug.hh"
 #include "numerics.hh"
 #include "types.hh"
@@ -92,6 +93,11 @@ ic u9_stream u9θ(u64 x) { return u9_stream{u9st::θ, x}; }
 ic u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
 ic u9_stream u9ι(u64 x) { return u9_stream{u9st::ι, x}; }
 
+
+enum class u9_π : u8
+{
+  ref = 1,
+};
 
 enum class u9_Φ : u8
 {

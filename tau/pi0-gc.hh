@@ -20,7 +20,7 @@ namespace τ
 
 π0TG void π0T(π0h)::mark(π0T(π0r) x)
 {
-  if (ms[x.g()]) ms[x.g()]->mark_external(x);
+  if (ms[x.g()]) ms[x.g()]->me(x);
 }
 
 
@@ -30,8 +30,9 @@ namespace τ
 }
 
 
-π0TG void π0T(π0h)::gc(uN g, uN s)
+π0TG void π0T(π0h)::gc(uN s)
 {
+  gΘ.start();
   for (uN g = 0; g < gn; ++g)
   { ms[g] = new π0T(π0ms){*this};
     ss[g] = new π0T(π0gs){g, gs[g]->h}; }
@@ -41,10 +42,11 @@ namespace τ
   // TODO: execute plan
 
   for (uN i = 0; i < gn; ++i)
-  { if (ms[g]) delete ms[g];
-    if (ss[g]) delete ss[g];
-    ms[g] = nullptr;
-    ss[g] = nullptr; }
+  { if (ms[i]) delete ms[i];
+    if (ss[i]) delete ss[i];
+    ms[i] = nullptr;
+    ss[i] = nullptr; }
+  gΘ.stop();
 }
 
 
