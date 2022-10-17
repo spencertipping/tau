@@ -10,4 +10,9 @@
 #warning fix pi0.hh
 
 
+#if τπ0debug_specialize_templates
+# error π₀ templates should not be specialized here
+#endif
+
+
 #endif

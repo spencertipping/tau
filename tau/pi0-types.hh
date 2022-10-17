@@ -15,17 +15,20 @@ namespace τ
 struct π0int;
 struct π0asm;
 
-
-// TODO: add uN/void* arg here and make this a bare function pointer
-typedef F<void(π0int&)> π0f;  // bytecode function
+typedef void(*π0f)(π0int&, uN);  // bytecode function
 
 
-typedef uN π0hg;              // heap generation
-typedef uN π0ha;              // heap address within generation
+π0TGs π0h;                       // GC heap (all generations)
+π0TGs π0hs;                      // GC heap space
+π0TGs π0hv;                      // GC heap view
+π0TGs π0ms;                      // GC mark set
 
-π0TG
-struct π0r                    // π₀ generational heap reference
-{ π0TS;
+typedef uN π0hg;                 // heap generation
+typedef uN π0ha;                 // heap address within generation
+
+π0TGs π0r                        // π₀ generational heap reference
+{
+  π0TS;
   sletc gn   = Sc<uN>(1) << Gb;
   sletc ghms = τwordsize - Gb;
   sletc ghm  = gn - 1 << ghms;
@@ -48,8 +51,7 @@ struct π0r                    // π₀ generational heap reference
 
 
 #if τdebug_iostream
-π0TG
-O &operator<<(O &s, π0T(π0r) r)
+π0TG O &operator<<(O &s, π0T(π0r) r)
 {
   return r.ω() ? s << "π₀r:ω" : s << "π₀r:" << r.g() << ":" << r.a();
 }
@@ -59,8 +61,7 @@ O &operator<<(O &s, π0T(π0r) r)
 }
 
 
-π0TGn
-struct std::hash<π0T(τ::π0r)>
+π0TGn struct std::hash<π0T(τ::π0r)>
 {
   size_t operator()(π0T(τ::π0r) a) const
     { return std::hash<τ::uN>{}(a.ga); }

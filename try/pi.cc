@@ -7,6 +7,11 @@
 #if τdefines_π
 
 
+#if τπ0debug_specialize_templates
+# error π₀ templates should not be specialized here
+#endif
+
+
 using namespace τ;
 using namespace std;
 

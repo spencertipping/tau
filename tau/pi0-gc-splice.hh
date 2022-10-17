@@ -12,7 +12,8 @@ namespace τ
 
 
 π0TGs π0gs  // splice map for a single heap generation
-{ π0TS;
+{
+  π0TS;
   B           &h;
   uNc          g;
   S<π0T(π0r)>  ri;  // references to be inlined
