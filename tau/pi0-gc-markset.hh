@@ -76,17 +76,17 @@ namespace τ
     // an iN, not a ζp, and it's the new size + flag state for the
     // container.
     for (let x : ms.m)
-    { V<P<ζp, ζp>> cs;
-      iN           Δs = 0;
+    { V<T<ζp, ζp, bool>> cs;
+      iN                 Δs = 0;
       for (let i : h[x].flags())
-      { while (!cs.empty() && i.a >= cs.back().second)
-        { let [j, _] = cs.back();
+      { while (!cs.empty() && i.a >= std::get<1>(cs.back()))
+        { let [j, _, f] = cs.back();
           cs.pop_back();
+          if (!cs.empty()) std::get<2>(cs.back()) |= f;
           let ja = h(g, j);
           let js = u9sb(i9{j}.stype());
-          s.push_back({ja, js, Rc<ζp>(js + Δs), u9sb(u9sq(js + Δs)), 1}); }
+          s.push_back({ja, js, Rc<ζp>(js + Δs), u9sb(u9sq(js + Δs)), 2 | f}); }
         if (i.is_πref())
-          // TODO: calculate new flag state here, stash in size-splice
         { let y = π0R(i);
           if (y.g() == g && ms.r[y].size() == 1 && !c(ms.m, y))
           { let z  = h(g, i);
@@ -94,23 +94,27 @@ namespace τ
             let s2 = h[y].osize();
             s.push_back({z, s1, i, s2, 0});
             Δs += s2 - s1;
-            m.erase(z); } }
+            m.erase(z); }
+          else
+            std::get<2>(cs.back()) = true; }
         else
-          cs.push_back({i, i.next()}); }
+          cs.push_back({i, i.next(), false}); }
       while (!cs.empty())
-      { let [j, _] = cs.back();
+      { let [j, _, f] = cs.back();
         cs.pop_back();
+        if (!cs.empty()) std::get<2>(cs.back()) |= f;
         let ja = h(g, j);
         let js = u9sb(i9{j}.stype());
-        s.push_back({ja, js, Rc<ζp>(js + Δs), u9sb(u9sq(js + Δs)), 1}); } }
+        s.push_back({ja, js, Rc<ζp>(js + Δs), u9sb(u9sq(js + Δs)), 2 | f}); } }
 
     // Fix up revised sizes
     b.reserve(css * csb);
     for (auto &x : s)
-    { let ns = Rc<uN>(x.a);
-      x.a = b.data() + b.size();
-      u9ws(x.a, 0, i9{h[x.o]}.type(), ns, true);
-      b.resize(b.size() + csb); }
+      if (x.c)
+      { let ns = Rc<uN>(x.a);
+        x.a = b.data() + b.size();
+        u9ws(x.a, 0, i9{h[x.o]}.type(), ns, x.c & 1);
+        b.resize(b.size() + csb); }
 
     // Sort and fix up cumulative offsets for patching
     std::sort(s.begin(), s.end());
