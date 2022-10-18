@@ -122,13 +122,13 @@ namespace τ
 
   { std::sort(m.begin(), m.end());
 
-    M<π0R, uN> nsf;  // new size + flag (flag = lsb) for each reference
+    uN         css = 0;  // number of container size splices
+    M<π0R, uN> nsf;      // new size + flag (flag = lsb) for each object
 
     // NOTE: immutability guarantees that forward references don't exist,
     // so we're guaranteed that each x in the for-loop below has not been
     // inlined by the time we visit it -- although it's allowed to inline
     // things we've visited on previous iterations.
-    uN css = 0;
     for (let x : ms.m)
     { π0T(π0gSs) ss{h, g, s, nsf};
       let i = h[x];
