@@ -115,6 +115,7 @@ namespace τ
   S<π0R>     ri;   // inlined references
   V<π0gS>    s;    // splice points
   B          b;    // buffer for new control/size byte patches
+  M<π0R, uN> nsf;  // new size + flag (flag = lsb) for each object
   uN         lss;  // live-set size
 
   π0gs(π0T(π0ms) &&ms)
@@ -122,13 +123,11 @@ namespace τ
 
   { std::sort(m.begin(), m.end());
 
-    uN         css = 0;  // number of container size splices
-    M<π0R, uN> nsf;      // new size + flag (flag = lsb) for each object
-
     // NOTE: immutability guarantees that forward references don't exist,
     // so we're guaranteed that each x in the for-loop below has not been
     // inlined by the time we visit it -- although it's allowed to inline
     // things we've visited on previous iterations.
+    uN css = 0;  // number of container size splices
     for (let x : ms.m)
     { π0T(π0gSs) ss{h, g, s, nsf};
       let i = h[x];
@@ -138,7 +137,8 @@ namespace τ
         // be a part of the root set anymore. However, we can't just
         // remove it from the root set because the inline may itself
         // contain other inlines, and those should still be "contained".
-        // So we keep a separate "we've inlined this" set.
+        // So we keep a separate "we've inlined this" set and check
+        // that before tenuring/copying a potential root object.
         //
         // Three states here:
         //   flagged non-reference   -- push container
@@ -185,8 +185,27 @@ namespace τ
     return i != m.end() && *i != x && h[x].a < h[*i].next().a; }
 
 
-  // TODO: o9 splice-out from old heap address
-  // TODO: ref patching, which involves tenuring
+  // TODO: this object needs to return a series of roots (minus inlines)
+
+
+  π0ha operator[](π0ha o) const
+  {
+    // TODO: ref patching, which involves tenuring
+
+  }
+};
+
+
+π0TGs π0gso9 : virtual o9V  // spliced heap-copy out from a generation
+{
+  π0TS;
+  π0gs &gs;
+  π0R   o;
+  π0gso9(π0gs &gs_, π0R o_) : gs(gs_), o(o_) {}
+
+  uN size() const { return gs.nsf.at(o) >> 1; }
+  uN write(ζp m) const
+  { TODO("write"); }
 };
 
 
