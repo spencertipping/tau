@@ -50,6 +50,8 @@ typedef uN π0ha;                 // heap address within generation
   uN   a() const { return ga  & gam;  }
   bool ω() const { return ga == -1; }
 
+  operator bool() const { return !ω(); }
+
   bool operator==(π0T(π0r) x) const { return ga == x.ga; }
   bool operator< (π0T(π0r) x) const { return ga <  x.ga; }
 };
