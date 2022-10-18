@@ -183,6 +183,10 @@ namespace τ
   bool ci(π0R x) const
   { let i = std::lower_bound(m.begin(), m.end(), x);
     return i != m.end() && *i != x && h[x].a < h[*i].next().a; }
+
+
+  // TODO: o9 splice-out from old heap address
+  // TODO: ref patching, which involves tenuring
 };
 
 
