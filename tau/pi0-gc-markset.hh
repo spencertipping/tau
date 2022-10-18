@@ -54,16 +54,17 @@ namespace τ
 };
 
 
-π0TGs π0gSs           // multilevel splice set
+π0TGs π0gSs            // multilevel splice set
 {
   π0TS;
-  π0T(π0h)  &h;
-  π0hg const g;
-  V<π0gS>   &ss;      // splice points
-  V<i9>      s;       // container start points
-  V<ζp>      e;       // contained end points
-  V<bool>    f;       // flags
-  iN         Δs = 0;  // running size differences
+  π0T(π0h)   &h;
+  π0hg const  g;
+  V<π0gS>    &ss;      // splice points
+  M<π0R, uN> &nsf;     // new size+flag of each old-heap object
+  V<i9>       s;       // container start points
+  V<ζp>       e;       // contained end points
+  V<bool>     f;       // flags
+  iN          Δs = 0;  // running size differences
 
   operator   bool()     const { return !e.empty(); }
   ζp          end()     const { return  e.back(); }
@@ -77,12 +78,14 @@ namespace τ
     f.push_back(false); }
 
   π0R inl(i9 i, i9 t)  // returns old-heap ref to i9 reference
-  { let r  = h(g, i);
-    let s1 = i.osize();
-    let s2 = t.osize();  // FIXME: inaccurate if t itself has inlines
-    ss.push_back({r, s1, t, s2, 0});
-    if (t.flagged()) flag();
+  { let r   = h(g, i);
+    let d   = h(g, t);
+    let s1  = i.osize();
+    let dsf = nsf.contains(d) ? nsf[d] : t.osize() << 1 | t.flagged();
+    let s2  = dsf >> 1;
     Δs += s2 - s1;
+    ss.push_back({r, s1, t, s2, 0});
+    if (dsf & 1) flag();
     return r; }
 
   void pop()
@@ -95,6 +98,7 @@ namespace τ
     let is  = i.size();
     let isb = u9sb(i.stype());
     let nsb = u9sb(u9sq(is + Δs));
+    nsf[ia] = is + Δs << 1 | b;
     ss.push_back({ia, isb, Rc<ζp>(is + Δs), nsb, 2 | b});
     Δs += nsb - isb; }
 };
@@ -118,13 +122,15 @@ namespace τ
 
   { std::sort(m.begin(), m.end());
 
+    M<π0R, uN> nsf;  // new size + flag (flag = lsb) for each reference
+
     // NOTE: immutability guarantees that forward references don't exist,
     // so we're guaranteed that each x in the for-loop below has not been
     // inlined by the time we visit it -- although it's allowed to inline
     // things we've visited on previous iterations.
     uN css = 0;
     for (let x : ms.m)
-    { π0T(π0gSs) ss{h, g, s};
+    { π0T(π0gSs) ss{h, g, s, nsf};
       let i = h[x];
       for (let j : i.flags())
         // If we inline an object, that object is now covered by
@@ -134,9 +140,10 @@ namespace τ
         // contain other inlines, and those should still be "contained".
         // So we keep a separate "we've inlined this" set.
         //
-        // Three states here: flagged non-reference (container),
-        //                    reference to be inlined,
-        //                    reference not to inline -- keep the flag
+        // Three states here:
+        //   flagged non-reference   -- push container
+        //   reference to be inlined -- flag if referent is flagged
+        //   reference not to inline -- always flag
         if      (!ss(j).is_πref())    ss << j, ++css;
         else if (let d = ii(j, ms.r)) ri.insert(ss.inl(j, h[d]));
         else                          ss.flag();
