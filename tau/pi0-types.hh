@@ -30,6 +30,7 @@ typedef uN π0ha;                 // heap address within generation
 π0TGs π0r                        // π₀ generational heap reference
 {
   π0TS;
+  sletc rω   = Sc<uN>(-1);
   sletc gn   = Sc<uN>(1) << Gb;
   sletc ghms = τwordsize - Gb;
   sletc ghm  = gn - 1 << ghms;
@@ -38,7 +39,7 @@ typedef uN π0ha;                 // heap address within generation
   static_assert((ghm & gam) ==  0);
 
   uN ga;
-  π0r()                : ga(-1)             {}
+  π0r()                : ga(rω)             {}
   π0r(π0hg g, π0ha a_) : ga(g << ghms | a_) {}
   explicit π0r(uN ga_) : ga(ga_)            {}
   explicit π0r(i9 i)
@@ -48,7 +49,7 @@ typedef uN π0ha;                 // heap address within generation
 
   π0hg g() const { return ga >> ghms; }
   uN   a() const { return ga  & gam;  }
-  bool ω() const { return ga == -1; }
+  bool ω() const { return ga == rω; }
 
   operator bool() const { return !ω(); }
 

@@ -8,6 +8,7 @@
 
 #include "debug.hh"
 #include "types.hh"
+#include "utf9-types.hh"
 #include "pi0-types.hh"
 #include "pi0-gc-heap.hh"
 #include "pi0-gc-heapspace.hh"
@@ -272,7 +273,13 @@ namespace τ
 };
 
 
+π0TGn struct u9t_<π0R>        { sletc t = u9t::pi; };
 π0TGn struct o9_<π0T(π0gso9)> { sletc v = true; };
+
+π0TG inline auto o9(π0R r)
+{
+  return o9(u9_scoped<u9_π, uN>{u9_π::ref, r.ga});
+}
 
 
 #if τdebug_iostream

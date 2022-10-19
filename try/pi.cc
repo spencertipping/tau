@@ -20,9 +20,22 @@ using namespace std;
 #include "../tau/begin.hh"
 
 
+void try_simple_gc()
+{
+  π0h<2> h;
+  let a = h << o9t(1, 2, 3);
+  let b = h << o9t("foo", a, "bar");
+
+  TODO("gc test");
+
+  cout << a << endl;
+  cout << b << endl;
+}
+
+
 int main()
 {
-
+  try_simple_gc();
 }
 
 
