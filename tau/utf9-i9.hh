@@ -268,10 +268,14 @@ struct i9
   bool operator==(i32  x) const { return u9signed[type()]   && Sc<i32>(*this) == x; }
   bool operator==(Stc &x) const { return u9strings[type()]  && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
   bool operator==(Bc  &x) const { return u9strings[type()]  && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
+
+  // TODO: it's risky to have both of these cases, especially given that
+  // they are handled differently
   bool operator==(i9   x) const { return x.a == a || type() == x.type() && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
   bool operator==(ζp   b) const { return a == b; }
 
 
+  // TODO: return an enum value so we can describe failure cases better
   bool verify(uN s = 0) const  // verify this value with the given external size
     { if (!s) s = osize();
       if (s < 2)                return false;

@@ -3,6 +3,7 @@
 
 
 #include <algorithm>
+#include <cstring>
 
 
 #include "types.hh"
@@ -50,7 +51,8 @@ namespace τ
   uN  s;    // splice size
   iN  c;    // cumulative displacement from original
 
-  bool operator<(π0T(π0gS) const &x) const { return o < x.o; }
+  bool operator< (π0T(π0gS) const &x) const { return o <  x.o; }
+  bool operator<=(π0T(π0gS) const &x) const { return o <= x.o; }
 };
 
 
@@ -65,6 +67,8 @@ namespace τ
   V<ζp>       e;       // contained end points
   V<bool>     f;       // flags
   iN          Δs = 0;  // running size differences
+
+  ~π0gSs() { while (*this) pop(); }
 
   operator   bool()     const { return !e.empty(); }
   ζp          end()     const { return  e.back(); }
@@ -109,14 +113,14 @@ namespace τ
   π0TS;
   sletc csb = u9sb(u9s::v64);  // bytes per container size splice
 
-  π0T(π0h)  &h;
-  π0hg const g;
-  V<π0R>     m;    // root marked objects
-  S<π0R>     ri;   // inlined references
-  V<π0gS>    s;    // splice points
-  B          b;    // buffer for new control/size byte patches
-  M<π0R, uN> nsf;  // new size + flag (flag = lsb) for each object
-  uN         lss;  // live-set size
+  π0T(π0h)    &h;
+  π0hg   const g;
+  V<π0R>       m;    // root marked objects
+  S<π0R>       ri;   // inlined references
+  V<π0T(π0gS)> s;    // splice points
+  B            b;    // buffer for new control/size byte patches
+  M<π0R, uN>   nsf;  // new size + flag (flag = lsb) for each object
+  uN           lss;  // live-set size
 
   π0gs(π0T(π0ms) &&ms)
   : h(ms.h), g(ms.g), m(std::move(ms.m)), lss(0)
@@ -130,8 +134,7 @@ namespace τ
     uN css = 0;  // number of container size splices
     for (let x : ms.m)
     { π0T(π0gSs) ss{h, g, s, nsf};
-      let i = h[x];
-      for (let j : i.flags())
+      for (let i : h[x].flags())
         // If we inline an object, that object is now covered by
         // whichever thing it's inlined by; so we don't need it to
         // be a part of the root set anymore. However, we can't just
@@ -144,11 +147,9 @@ namespace τ
         //   flagged non-reference   -- push container
         //   reference to be inlined -- flag if referent is flagged
         //   reference not to inline -- always flag
-        if      (!ss(j).is_πref())    ss << j, ++css;
-        else if (let d = ii(j, ms.r)) ri.insert(ss.inl(j, h[d]));
-        else                          ss.flag();
-      ss(i.next().a);
-      lss += i.osize() + ss.Δs; }
+        if      (!ss(i).is_πref())    ss << i, ++css;
+        else if (let d = ii(i, ms.r)) ri.insert(ss.inl(i, h[d]));
+        else                          ss.flag(); }
 
     // Convert inlined size patches, stored in .a, into buffer references
     // that can be spliced in the normal memcpy way; inlined patches have
@@ -167,12 +168,15 @@ namespace τ
     // offsets span multiple objects.
     iN cd = 0;
     std::sort(s.begin(), s.end());
-    for (auto &x : s) x.c = cd += x.s - x.d; }
+    for (auto &x : s) x.c = cd += x.s - x.d;
+
+    // Finally, calculate the live-set size so we can easily report it.
+    for (let x : m) if ((*this)[x]) lss += newsize(x); }
 
 
   // Returns the referent if the given i9 ref should be inlined
   //
-  // TODO: this is a little too strict; we can inline some objects
+  // NOTE: this is a little too strict; we can inline some objects
   // that have multiple references (but for now it's fine if we don't)
   π0R ii(i9 r, M<π0R, S<π0R>> &rs) const
   { let d = π0R(r);
@@ -185,28 +189,68 @@ namespace τ
     return i != m.end() && *i != x && h[x].a < h[*i].next().a; }
 
 
-  // TODO: this object needs to return a series of roots (minus inlines)
+  // Root-set iteration -- if [] is true, then you need to copy the
+  // object into newspace
+  V<π0R>::const_iterator begin() const { return m.begin(); }
+  V<π0R>::const_iterator end()   const { return m.end(); }
+  bool operator[](π0R a)         const { return !ri.contains(a); }
 
 
-  π0ha operator[](π0ha o) const
-  {
-    // TODO: ref patching, which involves tenuring
+  V<π0gS>::const_iterator rpt(π0R x) const
+  { return std::lower_bound(s.begin(), s.end(), π0gS{x}); }
 
-  }
+  uN newsize(π0R x) const
+  { return nsf.contains(x) ? nsf.at(x) >> 1 : h[x].osize(); }
+
+
+  // Patch a reference to offset x within root r by returning x', the new
+  // offset. It's assumed that you know r', the newspace root location.
+  π0ha patch(π0R r, π0ha x) const
+  { let i = rpt(r);
+    if (i == s.end()) return x;
+    let j = std::lower_bound(i, s.end(), π0gS{π0R(r.g(), r.a() + x)});
+    return x - (*i).c + (*j).c; }
 };
 
 
 π0TGs π0gso9 : virtual o9V  // spliced heap-copy out from a generation
 {
   π0TS;
-  π0gs &gs;
-  π0R   o;
-  π0gso9(π0gs &gs_, π0R o_) : gs(gs_), o(o_) {}
+  π0T(π0gs) &gs;
+  π0R        o;
+  π0gso9(π0T(π0gs) &gs_, π0R o_) : gs(gs_), o(o_) {}
 
-  uN size() const { return gs.nsf.at(o) >> 1; }
+  uN size ()     const { return gs.newsize(o); }
   uN write(ζp m) const
-  { TODO("write"); }
+  { let  i  = gs.h[o];
+    let  os = i.osize();
+    auto s  = gs.rpt(o);
+
+    // Simple case: no splices in the object, so copy it directly
+    if (s == gs.s.end() || *s < π0gS{o})
+    { std::memcpy(m, i.a, os); return 0; }
+
+    // NOTE: there may be some performance advantage to merging memcpy()
+    // calls when the offsets line up, but it adds complexity and
+    // probably isn't significant.
+    let oe = o + os;  // end of original object
+    let od = (*s).c;  // displacement of original object
+    uN  c  = 0;       // copy point (relative to original object)
+    while (c < os && s != gs.s.end() && *s <= π0gS{oe})
+    { // Right now we have o + c ≤ *s ≤ oe, which means there's a splice
+      // between the copy point and the end of the input object.
+
+
+
+    }
+
+
+    TODO("write");
+  }
 };
+
+
+π0TGn struct o9_<π0T(π0gso9)> { sletc v = true; };
 
 
 #if τdebug_iostream

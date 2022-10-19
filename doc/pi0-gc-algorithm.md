@@ -1,4 +1,6 @@
 # π₀ GC algorithm
+**TODO:** draw pictures for this; it's getting too complicated for me to reason about as symbols
+
 Values are allocated into the newest heap. When it overflows, we trigger a GC for that heap alone, tenuring downwards. Each downwards heap overflow may indirectly cause further GCs within those generations, all the way down to the oldest.
 
 We don't track tenure-count per object (UTF9 doesn't make space), but we can track it per generation. This means one of every _n_ collections will tenure everything downwards instead of compacting. Since newer generations tend not to be as resizable, we can also tenure downwards anytime the live set is larger than some fraction of the newgen size.

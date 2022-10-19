@@ -38,9 +38,9 @@ typedef uN π0ha;                 // heap address within generation
   static_assert((ghm & gam) ==  0);
 
   uN ga;
-  π0r()                 : ga(-1)             {}
-  π0r(π0hg g, π0ha a_)  : ga(g << ghms | a_) {}
-  explicit π0r(uN ga_)  : ga(ga_)            {}
+  π0r()                : ga(-1)             {}
+  π0r(π0hg g, π0ha a_) : ga(g << ghms | a_) {}
+  explicit π0r(uN ga_) : ga(ga_)            {}
   explicit π0r(i9 i)
   { let s = Sc<u9_scoped<u9_π, uN>>(i);
     A(s.t == u9_π::ref, "π₀r from non-ref " << i);
@@ -52,8 +52,14 @@ typedef uN π0ha;                 // heap address within generation
 
   operator bool() const { return !ω(); }
 
-  bool operator==(π0T(π0r) x) const { return ga == x.ga; }
-  bool operator< (π0T(π0r) x) const { return ga <  x.ga; }
+  bool operator==(π0R x) const { return ga == x.ga; }
+  bool operator< (π0R x) const { return ga <  x.ga; }
+  π0R  operator+ (iN  x) const { return π0R(g(), a() + x); }
+  π0R  operator+ (uN  x) const { return *this + Sc<iN>(x); }
+  iN   operator- (π0R x) const
+  { A(g() == x.g(), "π0R- g mismatch: " << g() << " ≠ " << x.g());
+    return a() - x.a(); }
+
 };
 
 
