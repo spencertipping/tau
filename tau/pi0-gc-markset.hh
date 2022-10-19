@@ -6,12 +6,19 @@
 #include <cstring>
 
 
+#include "debug.hh"
 #include "types.hh"
 #include "pi0-types.hh"
 #include "pi0-gc-heap.hh"
 #include "pi0-gc-heapspace.hh"
 
 #include "pi0-gc-begin.hh"
+
+
+#if !defined(τπ0debug_gc_postcopy_verify)
+# define τπ0debug_gc_postcopy_verify τdebug
+#endif
+
 
 namespace τ
 {
@@ -56,17 +63,17 @@ namespace τ
 };
 
 
-π0TGs π0gSs            // multilevel splice set
+π0TGs π0gSs              // multilevel splice set
 {
   π0TS;
-  π0T(π0h)   &h;
-  π0hg const  g;
-  V<π0gS>    &ss;      // splice points
-  M<π0R, uN> &nsf;     // new size+flag of each old-heap object
-  V<i9>       s;       // container start points
-  V<ζp>       e;       // contained end points
-  V<bool>     f;       // flags
-  iN          Δs = 0;  // running size differences
+  π0T(π0h)     &h;
+  π0hg const    g;
+  V<π0T(π0gS)> &ss;      // splice points
+  M<π0R, uN>   &nsf;     // new size+flag of each old-heap object
+  V<i9>         s;       // container start points
+  V<ζp>         e;       // contained end points
+  V<bool>       f;       // flags
+  iN            Δs = 0;  // running size differences
 
   ~π0gSs() { while (*this) pop(); }
 
@@ -191,12 +198,12 @@ namespace τ
 
   // Root-set iteration -- if [] is true, then you need to copy the
   // object into newspace
-  V<π0R>::const_iterator begin() const { return m.begin(); }
-  V<π0R>::const_iterator end()   const { return m.end(); }
-  bool operator[](π0R a)         const { return !ri.contains(a); }
+  typename V<π0R>::const_iterator begin() const { return m.begin(); }
+  typename V<π0R>::const_iterator end()   const { return m.end(); }
+  bool operator[](π0R a)                  const { return !ri.contains(a); }
 
 
-  V<π0gS>::const_iterator rpt(π0R x) const
+  typename V<π0T(π0gS)>::const_iterator rpt(π0R x) const
   { return std::lower_bound(s.begin(), s.end(), π0gS{x}); }
 
   uN newsize(π0R x) const
@@ -234,19 +241,20 @@ namespace τ
     // calls when the offsets line up, but it adds complexity and
     // probably isn't significant.
     let oe = o + os;  // end of original object
-    let od = (*s).c;  // displacement of original object
-    uN  c  = 0;       // copy point (relative to original object)
+    uN  c  = 0;       // copy source (relative to original object)
+    uN  d  = 0;       // copy destination (relative to m)
     while (c < os && s != gs.s.end() && *s <= π0gS{oe})
-    { // Right now we have o + c ≤ *s ≤ oe, which means there's a splice
-      // between the copy point and the end of the input object.
+    { // Right now we have o + c ≤ *s < oe, which means there's a splice
+      // between the copy source point and the end of the input object.
+      let vl = (*s).o - (o + c);  // verbatim-copy length
+      std::memcpy(m + d,      i.a + c, vl);
+      std::memcpy(m + d + vl, (*s).a,  (*s).s);
+      c += vl + (*s).d;
+      d += vl + (*s).s; }
 
-
-
-    }
-
-
-    TODO("write");
-  }
+    std::memcpy(m + d, i.a + c, os - c);
+    if (τπ0debug_gc_postcopy_verify) A(i9{m}.verify(), "π₀gso9 !v");
+    return 0; }
 };
 
 

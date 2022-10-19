@@ -2,7 +2,6 @@
 #define τπ0_gc_h
 
 
-#include "Sigma.hh"
 #include "types.hh"
 #include "utf9.hh"
 #include "pi0-types.hh"
