@@ -2,17 +2,15 @@
 #include "begin.hh"
 
 
-// This exists to help LSP detect errors at edit-time; by default it's disabled
+// This exists to help LSP detect errors at edit-time;
+// by default it's disabled
 #if !defined(τπ0debug_specialize_templates)
-
-// Specialize templates when parsing with emacs/LSP; this #if
-// will be skipped in production builds
 # if !defined(τπ0_h)
+    // We're editing one file in LSP (i.e. not production)
 #   define τπ0debug_specialize_templates 1
 # else
 #   define τπ0debug_specialize_templates 0
 # endif
-
 #endif
 
 

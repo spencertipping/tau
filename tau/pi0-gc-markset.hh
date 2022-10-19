@@ -32,10 +32,14 @@ namespace τ
   V<π0R>          m;  // marked refs (internal + external)
   M<π0R, S<π0R>>  r;  // internal references
 
+  // TODO: remove r from this class, replace m with sorted set
+
   // NOTE: no need to chase down references-to-references because we will
   // always inline small objects (like references)
   void mi(π0R x, π0R y)  // mark internal reference x → y
-  { me(y); r[y].insert(x); }
+  { me(y);
+    h.mark(y);           // important: mark into other generations
+    r[y].insert(x); }
 
   void me(π0R x)         // mark external reference to x
   { if (x.g() == g && !r.contains(x))
@@ -115,10 +119,12 @@ namespace τ
 };
 
 
+// TODO: replace π0gs.m with sorted set, merge π0gs and π0ms
+
 π0TGs π0gs  // splice map for one generation
 {
   π0TS;
-  sletc csb = u9sb(u9s::v64);  // bytes per container size splice
+  sletc csb = u9sb(u9s::v64);  // buffer bytes per container size splice
 
   π0T(π0h)    &h;
   π0hg   const g;
@@ -183,8 +189,10 @@ namespace τ
 
   // Returns the referent if the given i9 ref should be inlined
   //
-  // NOTE: this is a little too strict; we can inline some objects
-  // that have multiple references (but for now it's fine if we don't)
+  // FIXME: this logic should work, but we probably don't need or want
+  // rs[] here; we should be able to inline multiply-referenced objects
+  // without issue. The big consideration is whether the object is
+  // contained within another marked object.
   π0R ii(i9 r, M<π0R, S<π0R>> &rs) const
   { let d = π0R(r);
     return d.g() == g && rs[d].size() == 1 && !ci(d)

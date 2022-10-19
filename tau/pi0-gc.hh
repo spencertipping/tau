@@ -36,6 +36,11 @@ namespace τ
 
   for (let v : vs) v->mark();
 
+  auto g = π0gs(std::move(*ms[0]));
+  for (let r : g)
+    if (g[r])
+      TODO("copy ref into newspace");
+
   // TODO: execute plan
 
   for (uN i = 0; i < gn; ++i) { delete ms[i]; ms[i] = nullptr; }

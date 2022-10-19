@@ -16,7 +16,7 @@ namespace τ
 π0TGs π0h   // a multi-generational heap (Gb = generation bits)
 {
   π0TS;
-  sletc gn = Sc<uN>(1) << Gb;
+  sletc gn = 1u << Gb;
 
   π0T(π0hs)    *gs[gn];  // generations; 0 = newest
   π0T(π0ms)    *ms[gn];  // during GC, mark-set for each gen
@@ -25,8 +25,7 @@ namespace τ
 
   π0h(uN s0 = 65536, uN sb = 0)
   { for (uN g = 0; g < gn; ++g)
-    { if (gs[g]) delete gs[g];
-      gs[g] = new π0hs(g, s0 << g * sb); } }
+      gs[g] = new π0hs(g, s0 << g * sb); }
 
   ~π0h()
   { A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
