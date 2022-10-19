@@ -2,11 +2,10 @@
 #include "begin.hh"
 
 
-// This exists to help LSP detect errors at edit-time;
-// by default it's disabled
+// This exists to help LSP detect errors at edit-time by pre-specializing
+// templates so LSP can do more analysis. It isn't enabled for full builds.
 #if !defined(τπ0debug_specialize_templates)
-# if !defined(τπ0_h)
-    // We're editing one file in LSP (i.e. not production)
+# if !defined(τπ0_h)  // if not defined, this file wasn't included normally
 #   define τπ0debug_specialize_templates 1
 # else
 #   define τπ0debug_specialize_templates 0
