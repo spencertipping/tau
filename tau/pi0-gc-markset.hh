@@ -197,6 +197,9 @@ namespace τ
   // rs[] here; we should be able to inline multiply-referenced objects
   // without issue. The big consideration is whether the object is
   // contained within another marked object.
+  //
+  // I believe we can inline if same-gen, not contained, and not in ri
+  // (i.e. not claimed by another object wanting to inline it).
   π0R ii(i9 r, M<π0R, S<π0R>> &rs) const
   { let d = π0R(r);
     return d.g() == g && rs[d].size() == 1 && !ci(d)
@@ -227,7 +230,7 @@ namespace τ
   π0ha patch(π0R r, π0ha x) const
   { let i = rpt(r);
     if (i == s.end()) return x;
-    let j = std::lower_bound(i, s.end(), π0gS{π0R(r.g(), r.a() + x)});
+    let j = std::lower_bound(i, s.end(), π0gS{r + x});
     return x - (*i).c + (*j).c; }
 };
 
@@ -250,6 +253,8 @@ namespace τ
     uN   c  = 0;       // copy source (relative to original object)
     uN   d  = 0;       // copy destination (relative to m)
     auto s  = gs.rpt(o);
+    if (s != gs.s.end() && *s < π0gS{o}) ++s;
+
     while (c < os && s != gs.s.end() && *s < π0gS{oe})
     { // Right now we have o + c ≤ *s < oe, which means there's a splice
       // between the copy source point and the end of the input object.
