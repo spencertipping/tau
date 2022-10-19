@@ -24,6 +24,12 @@ namespace τ
 {
 
 
+// NOTE: π0ms and π0gs (defined below) are split deliberately to reflect
+// the state-wall between them. Splicing and inlining require us to
+// analyze the whole heap at once and look at objects in their allocation
+// order. So we don't have anything like incremental marking.
+
+
 π0TGs π0ms  // mark-set for one generation
 {
   π0TS;
@@ -118,8 +124,6 @@ namespace τ
     Δs += nsb - isb; }
 };
 
-
-// TODO: replace π0gs.m with sorted set, merge π0gs and π0ms
 
 π0TGs π0gs  // splice map for one generation
 {
@@ -257,7 +261,8 @@ namespace τ
       ++s; }
 
     std::memcpy(m + d, i.a + c, os - c);
-    if (τπ0debug_gc_postcopy_verify) A(i9{m}.verify(), "π₀gso9 !v");
+    if (τπ0debug_gc_postcopy_verify)
+      A(i9{m}.verify(), "π₀gso9 !v, i = " << i << ", o = " << i9{m});
     return 0; }
 };
 
