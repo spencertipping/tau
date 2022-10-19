@@ -229,20 +229,15 @@ namespace τ
 
   uN size ()     const { return gs.newsize(o); }
   uN write(ζp m) const
-  { let  i  = gs.h[o];
-    let  os = i.osize();
-    auto s  = gs.rpt(o);
-
-    // Simple case: no splices in the object, so copy it directly
-    if (s == gs.s.end() || *s < π0gS{o})
-    { std::memcpy(m, i.a, os); return 0; }
-
-    // NOTE: there may be some performance advantage to merging memcpy()
+  { // NOTE: there may be some performance advantage to merging memcpy()
     // calls when the offsets line up, but it adds complexity and
     // probably isn't significant.
-    let oe = o + os;  // end of original object
-    uN  c  = 0;       // copy source (relative to original object)
-    uN  d  = 0;       // copy destination (relative to m)
+    let  i  = gs.h[o];
+    let  os = i.osize();
+    let  oe = o + os;  // end of original object
+    uN   c  = 0;       // copy source (relative to original object)
+    uN   d  = 0;       // copy destination (relative to m)
+    auto s  = gs.rpt(o);
     while (c < os && s != gs.s.end() && *s <= π0gS{oe})
     { // Right now we have o + c ≤ *s < oe, which means there's a splice
       // between the copy source point and the end of the input object.
@@ -250,7 +245,8 @@ namespace τ
       std::memcpy(m + d,      i.a + c, vl);
       std::memcpy(m + d + vl, (*s).a,  (*s).s);
       c += vl + (*s).d;
-      d += vl + (*s).s; }
+      d += vl + (*s).s;
+      ++s; }
 
     std::memcpy(m + d, i.a + c, os - c);
     if (τπ0debug_gc_postcopy_verify) A(i9{m}.verify(), "π₀gso9 !v");
