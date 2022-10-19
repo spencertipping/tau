@@ -238,14 +238,14 @@ namespace τ
     uN   c  = 0;       // copy source (relative to original object)
     uN   d  = 0;       // copy destination (relative to m)
     auto s  = gs.rpt(o);
-    while (c < os && s != gs.s.end() && *s <= π0gS{oe})
+    while (c < os && s != gs.s.end() && *s < π0gS{oe})
     { // Right now we have o + c ≤ *s < oe, which means there's a splice
       // between the copy source point and the end of the input object.
-      let vl = (*s).o - (o + c);  // verbatim-copy length
-      std::memcpy(m + d,      i.a + c, vl);
-      std::memcpy(m + d + vl, (*s).a,  (*s).s);
-      c += vl + (*s).d;
-      d += vl + (*s).s;
+      let l = (*s).o - (o + c);  // verbatim-copy length
+      std::memcpy(m + d,     i.a + c, l);
+      std::memcpy(m + d + l, (*s).a,  (*s).s);
+      c += l + (*s).d;
+      d += l + (*s).s;
       ++s; }
 
     std::memcpy(m + d, i.a + c, os - c);
