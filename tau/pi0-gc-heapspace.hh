@@ -32,6 +32,22 @@ namespace τ
 };
 
 
+#if τdebug_iostream
+π0TG O &operator<<(O &s, π0T(π0hs) const &h)
+{
+  s << "π₀hg " << h.g << std::endl;
+  uN i = 0;
+  for (let c : h.h)
+  { s << "0123456789abcdef"[c >> 4]
+      << "0123456789abcdef"[c & 15];
+    if (!(++i & 3))    s << " ";
+    if (!(  i & 31))   s << std::endl;
+    if (!(  i & 1023)) s << std::endl; }
+  return s;
+}
+#endif
+
+
 }
 
 #include "pi0-gc-end.hh"

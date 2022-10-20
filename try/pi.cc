@@ -1,6 +1,6 @@
 #define τdebug 1
-//#define τπ0debug_bounds_checks 0
-//#define τdebug_i9st 1
+#define τπ0debug_bounds_checks 0
+#define τdebug_i9st 1
 
 #include "../tau.hh"
 
@@ -22,14 +22,24 @@ using namespace std;
 
 void try_simple_gc()
 {
-  π0h<2> h;
-  let a = h << o9t(1, 2, 3);
-  let b = h << o9t("foo", a, "bar");
+  π0h<2> h{64, 256, 0};
+  π0hnf<2> f{h, 4};
+  auto &a = f << (h << o9t(1, 2, 3));
+  auto &b = f << (h << o9t("foo", a, "bar"));
+  auto &c = f << a;
 
-  TODO("gc test");
+  a = h << o9("new value for a");
 
-  cout << a << endl;
-  cout << b << endl;
+  cout << a << " = " << h[a] << endl;
+  cout << b << " = " << h[b] << endl;
+  cout << c << " = " << h[c] << endl;
+  cout << *h.hs[0] << endl;
+
+  h.gc();
+  cout << a << " = " << h[a] << endl;
+  cout << b << " = " << h[b] << endl;
+  cout << c << " = " << h[c] << endl;
+  cout << *h.hs[0] << endl;
 }
 
 

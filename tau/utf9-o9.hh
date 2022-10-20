@@ -316,6 +316,21 @@ template<class T> concept O9N = !o9_<T>::v;
 
 
 template<O9 T>
+struct o9flag : virtual o9V
+{
+  T x;
+  o9flag(T x_) : x(x_) {}
+  uN size ()     const { return x.size(); }
+  uN write(ζp m) const
+    { let r = x.write(m);
+      *m |= u9f;
+      return r; }
+};
+
+template<O9 T> struct o9_<o9flag<T>> { sletc v = true; };
+
+
+template<O9 T>
 uN operator<<(B &i, T const &x)
 {
   let s = x.size();

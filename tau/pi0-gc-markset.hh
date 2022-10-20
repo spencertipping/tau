@@ -36,22 +36,17 @@ namespace τ
   π0TS;
   π0T(π0h)       &h;
   π0hg      const g;  // generation being marked
-  V<π0R>          m;  // marked refs (internal + external)
-  M<π0R, S<π0R>>  r;  // internal references
-
-  // TODO: remove r from this class, replace m with sorted set
+  So<π0R>         m;  // marked refs (internal + external)
 
   // NOTE: no need to chase down references-to-references because we will
   // always inline small objects (like references)
   void mi(π0R x, π0R y)  // mark internal reference x → y
   { me(y);
-    h.mark(y);           // important: mark into other generations
-    r[y].insert(x); }
+    h.mark(y); }         // important: mark into other generations
 
   void me(π0R x)         // mark external reference to x
-  { if (x.g() == g && !r.contains(x))
-    { r[x] = {};
-      m.push_back(x);
+  { if (x.g() == g && !m.contains(x))
+    { m.insert(x);
       for (let i : h[x].flags())
         // NOTE: we track references in all generations in case older
         // generations end up being collected here -- we just don't
@@ -108,7 +103,7 @@ namespace τ
     Δs += s2 - s1;
     ss.push_back({r, s1, t, s2, 0});
     if (dsf & 1) flag();
-    return r; }
+    return d; }
 
   void pop()
   { let i = s.back(); s.pop_back();
@@ -133,19 +128,18 @@ namespace τ
 
   π0T(π0h)    &h;
   π0hg   const g;
-  V<π0R>       m;    // root marked objects
-  S<π0R>       ri;   // inlined references
+  uNc          is;   // inlining size
+  V<π0R>       m;    // marked, non-inlined objects
+  M<π0R, π0R>  in;   // inlined objects and their new containers
   V<π0T(π0gS)> s;    // splice points
   B            b;    // buffer for new control/size byte patches
   M<π0R, uN>   nsf;  // new size + flag (flag = lsb) for each object
   uN           lss;  // live-set size
 
-  π0gs(π0T(π0ms) &&ms)
-  : h(ms.h), g(ms.g), m(std::move(ms.m)), lss(0)
+  π0gs(π0T(π0ms) &ms, uN is_)
+  : h(ms.h), g(ms.g), is(is_), lss(0)
 
-  { std::sort(m.begin(), m.end());
-
-    // NOTE: immutability guarantees that forward references don't exist,
+  { // NOTE: immutability guarantees that forward references don't exist,
     // so we're guaranteed that each x in the for-loop below has not been
     // inlined by the time we visit it -- although it's allowed to inline
     // things we've visited on previous iterations.
@@ -165,9 +159,9 @@ namespace τ
         //   flagged non-reference   -- push container
         //   reference to be inlined -- flag if referent is flagged
         //   reference not to inline -- always flag
-        if      (!ss(i).is_πref())    ss << i, ++css;
-        else if (let d = ii(i, ms.r)) ri.insert(ss.inl(i, h[d]));
-        else                          ss.flag(); }
+        if      (!ss(i).is_πref())  ss << i, ++css;
+        else if (let d = ii(i))     in[ss.inl(i, h[d])] = x;
+        else                        ss.flag(); }
 
     // Convert inlined size patches, stored in .a, into buffer references
     // that can be spliced in the normal memcpy way; inlined patches have
@@ -178,9 +172,9 @@ namespace τ
     for (auto &x : s)
       if (x.c)
       { let ns = Rc<uN>(x.a);
-        u9ws(x.a = b.data() + b.size(), 0,
-             i9{h[x.o]}.type(), ns, x.c & 1);
-        b.resize(b.size() + csb); }
+        b.resize(b.size() + csb);
+        u9ws(x.a = b.data() + b.size() - csb, 0,
+             i9{h[x.o]}.type(), ns, x.c & 1); }
 
     // Sort and fix up cumulative offsets for patching -- note that these
     // offsets span multiple objects.
@@ -188,22 +182,26 @@ namespace τ
     std::sort(s.begin(), s.end());
     for (auto &x : s) x.c = cd += x.s - x.d;
 
+    // Build the root set
+    m.reserve(ms.m.size() - in.size());
+    for (let x : ms.m) if (!in.contains(x)) m.push_back(x);
+
     // Finally, calculate the live-set size so we can easily report it.
-    for (let x : m) if ((*this)[x]) lss += newsize(x); }
+    for (let x : m) lss += newsize(x); }
 
 
-  // Returns the referent if the given i9 ref should be inlined
+  // Returns the referent if the given i9 ref should be inlined, which
+  // happens when:
   //
-  // FIXME: this logic should work, but we probably don't need or want
-  // rs[] here; we should be able to inline multiply-referenced objects
-  // without issue. The big consideration is whether the object is
-  // contained within another marked object.
+  // 1. It's small, i.e. ≤ `is` (we copy it into all use sites)
+  // 2. We can claim it uniquely
   //
-  // I believe we can inline if same-gen, not contained, and not in ri
-  // (i.e. not claimed by another object wanting to inline it).
-  π0R ii(i9 r, M<π0R, S<π0R>> &rs) const
+  // We claim a reference uniquely when it hasn't already been claimed,
+  // it's in the same generation, and is isn't contained by anything
+  // else.
+  π0R ii(i9 r) const
   { let d = π0R(r);
-    return d.g() == g && rs[d].size() == 1 && !ci(d)
+    return h[d].size() <= is || d.g() == g && !in.contains(d) && !ci(d)
          ? d
          : π0R(); }
 
@@ -216,7 +214,6 @@ namespace τ
   // object into newspace
   typename V<π0R>::const_iterator begin() const { return m.begin(); }
   typename V<π0R>::const_iterator end()   const { return m.end(); }
-  bool operator[](π0R a)                  const { return !ri.contains(a); }
 
 
   typename V<π0T(π0gS)>::const_iterator rpt(π0R x) const
@@ -229,9 +226,15 @@ namespace τ
   // Patch a reference to offset x within root r by returning x', the new
   // offset. It's assumed that you know r', the newspace root location.
   π0ha patch(π0R r, π0ha x) const
-  { let i = rpt(r);
+  { if (!x) return x;
+    let i = rpt(r);
     if (i == s.end()) return x;
-    let j = std::lower_bound(i, s.end(), π0gS{r + x});
+    auto j = std::lower_bound(i, s.end(), π0gS{r + (x - 1)});
+
+    std::cout << "patch(" << r << ", " << x << ") : "
+              << "*i.c = " << (*i).c << ", *j.c = " << (*j).c
+              << std::endl;
+
     return x - (*i).c + (*j).c; }
 };
 

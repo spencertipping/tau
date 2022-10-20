@@ -51,9 +51,10 @@ typedef uN π0ha;                 // heap address within generation
   uN   a() const { return ga  & gam;  }
   bool ω() const { return ga == rω; }
 
-  operator bool() const { return !ω(); }
+  explicit operator bool() const { return !ω(); }
 
   bool operator==(π0R x) const { return ga == x.ga; }
+  bool operator<=(π0R x) const { return ga <= x.ga; }
   bool operator< (π0R x) const { return ga <  x.ga; }
   π0R  operator+ (iN  x) const { return π0R(g(), a() + x); }
   π0R  operator+ (uN  x) const { return *this + Sc<iN>(x); }
@@ -67,7 +68,7 @@ typedef uN π0ha;                 // heap address within generation
 
 π0TG inline auto o9(π0R r)
 {
-  return o9(u9_scoped<u9_π, uN>{u9_π::ref, r.ga});
+  return o9flag{o9(u9_scoped<u9_π, uN>{u9_π::ref, r.ga})};
 }
 
 

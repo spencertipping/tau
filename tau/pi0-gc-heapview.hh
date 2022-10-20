@@ -16,8 +16,8 @@ namespace τ
 {
   π0TS;
   π0T(π0h) &h;
-  π0hv(π0T(π0h) &h_) : h(h_) {}
-  virtual ~π0hv() { h.vs.erase(this); }
+  π0hv(π0T(π0h) &h_) : h(h_) { h.vs.insert(this); }
+  virtual ~π0hv()            { h.vs.erase(this); }
   virtual void mark() = 0;  // mark everything in this view
   virtual void move() = 0;  // move everything in this view
 };

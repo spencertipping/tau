@@ -6,7 +6,9 @@
 #include <memory>
 
 
+#include "arch.hh"
 #include "debug.hh"
+#include "numerics.hh"
 #include "types.hh"
 #include "zeta.hh"
 
@@ -385,7 +387,11 @@ O &operator<<(O &s, i9 const &x)
     let xs = i9{d.end()};
     return s << xs.type() << "[" << d << "]"; }
 
-  case u9t::pi: return s << "π₀[" << *Rc<uN*>(x.data()) << "]";
+  case u9t::pi:
+    // Minor TODO: figure out why this Sc<> causes LSP errors in the cast
+    // operator definition above, but compiles fine with g++
+  { let p = Sc<u9_scoped<u9_π, uN>>(x);
+    return s << "π₀:" << p.t << ":" << p.x; }
 
   default:
     return s << "i9[" << x.type() << ":" << x.flagged() << ":" << x.size() << "]";

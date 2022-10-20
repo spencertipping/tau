@@ -17,6 +17,12 @@ namespace τ
 {
 
 
+π0TG π0T(π0h)::~π0h ()
+{ A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
+  A(!rm,        "~π0h during GC");
+  for (uN g = 0; g < gn; ++g) delete hs[g]; }
+
+
 π0TG void π0T(π0h)::mark(π0R x)
 {
   if (ms[x.g()]) ms[x.g()]->me(x);
@@ -25,7 +31,15 @@ namespace τ
 
 π0TG π0R π0T(π0h)::move(π0R x) const
 {
-  TODO("π₀h move()");
+  if (rm->contains(x)) return rm->at(x);
+
+  // If the reference wasn't moved as a root, then it's been inlined
+  // into something that is now either a root or an inline. We need to
+  // reframe x in terms of that object.
+
+  let &g = *gs[x.g()];
+  let  o = g.in.at(x);
+  return move(o) + g.patch(o, x - o);
 }
 
 
@@ -36,14 +50,22 @@ namespace τ
 
   for (let v : vs) v->mark();
 
-  auto g = π0gs(std::move(*ms[0]));
-  for (let r : g)
-    if (g[r])
-      TODO("copy ref into newspace");
+  rm = new M<π0R, π0R>;
+  gs[0] = new π0gs(*ms[0], is);
+  B ns;
+  ns.reserve(std::max(gs[0]->lss + s << 1, s0));
+  for (let r : *gs[0])
+    std::cout << "copying " << r << " to " <<
+      ((*rm)[r] = π0R(0, ns << π0gso9{*gs[0], r})) << std::endl;
 
-  // TODO: execute plan
+  hs[0]->h = std::move(ns);
 
-  for (uN i = 0; i < gn; ++i) { delete ms[i]; ms[i] = nullptr; }
+  for (let v : vs) v->move();
+  delete rm; rm = nullptr;
+
+  for (uN i = 0; i < gn; ++i)
+  { delete gs[i]; gs[i] = nullptr;
+    delete ms[i]; ms[i] = nullptr; }
   gΘ.stop();
 }
 
