@@ -36,10 +36,7 @@ namespace τ
   // If the reference wasn't moved as a root, then it's been inlined
   // into something that is now either a root or an inline. We need to
   // reframe x in terms of that object.
-
-  let &g = *gs[x.g()];
-  let  o = g.in.at(x);
-  return move(o) + g.patch(o, x - o);
+  TODO("rewrite inlined references");
 }
 
 

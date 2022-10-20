@@ -126,15 +126,15 @@ namespace τ
   π0TS;
   sletc csb = u9sb(u9s::v64);  // buffer bytes per container size splice
 
-  π0T(π0h)    &h;
-  π0hg   const g;
-  uNc          is;   // inlining size
-  V<π0R>       m;    // marked, non-inlined objects
-  M<π0R, π0R>  in;   // inlined objects and their new containers
-  V<π0T(π0gS)> s;    // splice points
-  B            b;    // buffer for new control/size byte patches
-  M<π0R, uN>   nsf;  // new size + flag (flag = lsb) for each object
-  uN           lss;  // live-set size
+  π0T(π0h)          &h;
+  π0hg         const g;
+  uNc                is;   // inlining size
+  V<π0R>             m;    // marked, non-inlined objects
+  M<π0R, P<π0R, uN>> in;   // inlined objects and their new containers
+  V<π0T(π0gS)>       s;    // splice points
+  B                  b;    // buffer for new control/size byte patches
+  M<π0R, uN>         nsf;  // new size + flag (flag = lsb) for each object
+  uN                 lss;  // live-set size
 
   π0gs(π0T(π0ms) &ms, uN is_)
   : h(ms.h), g(ms.g), is(is_), lss(0)
@@ -146,7 +146,8 @@ namespace τ
     uN css = 0;  // number of container size splices
     for (let x : ms.m)
     { π0T(π0gSs) ss{h, g, s, nsf};
-      for (let i : h[x].flags())
+      let xi = h[x];
+      for (let i : xi.flags())
         // If we inline an object, that object is now covered by
         // whichever thing it's inlined by; so we don't need it to
         // be a part of the root set anymore. However, we can't just
@@ -160,7 +161,7 @@ namespace τ
         //   reference to be inlined -- flag if referent is flagged
         //   reference not to inline -- always flag
         if      (!ss(i).is_πref())  ss << i, ++css;
-        else if (let d = ii(i))     in[ss.inl(i, h[d])] = x;
+        else if (let d = ii(i))     in[ss.inl(i, h[d])] = mp(x, i.a - xi.a);
         else                        ss.flag(); }
 
     // Convert inlined size patches, stored in .a, into buffer references
