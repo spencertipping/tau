@@ -74,7 +74,7 @@ namespace τ
   π0hss()                  = delete;
   π0hss(π0T(π0hss) const&) = delete;
   π0hss(π0T(π0hss)&&)      = delete;
-  π0hss(π0T(π0h) &h_, π0T(π0sv) d_) : π0T(π0hv)(h_), d(d_) {}
+  π0hss(π0T(π0h) &h_, π0T(π0sv) &d_) : π0T(π0hv)(h_), d(d_) {}
 
   // NOTE: no need to mark/move d, since it's an independent
   // member of h.vs
