@@ -1,6 +1,6 @@
 #define τdebug 1
 #define τπ0debug_bounds_checks 0
-//#define τdebug_i9st 1
+#define τdebug_i9st 1
 
 #include "../tau.hh"
 
