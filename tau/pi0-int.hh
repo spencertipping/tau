@@ -34,6 +34,9 @@ namespace τ
   // e.g. () and {}. How do we do this? We probably need to have separate
   // ABI functions for each case and link them accordingly.
 
+  // NOTE: on that point, π0hss actually needs its own bifurcation, which
+  // means we'll need virtual methods, not templates.
+
 
   π0int(π0T(π0abi) &a_, π0T(π0p) &&p_, uN c0)
   : a(a_), p(std::move(p_)), d(h), f(h)
