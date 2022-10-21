@@ -24,7 +24,22 @@ namespace τ
 };
 
 
-π0TGs π0hds : virtual π0T(π0hv)  // data-stack heap view
+π0TGs π0sv  // stack view
+{
+  π0TS;
+  virtual ~π0sv() {}
+  virtual π0T(π0sv)    *up()    const = 0;
+  virtual uN         size()     const = 0;
+  virtual π0R  operator[](uN i) const = 0;
+  virtual void operator<<(π0R x)      = 0;
+  virtual void       drop(uN n = 1)   = 0;
+
+  π0R pop() { let r = (*this)[0]; drop(1); return r; }
+};
+
+
+π0TGs π0hds : virtual π0T(π0hv),  // data-stack heap view
+              virtual π0T(π0sv)
 {
   π0TS;
   V<π0R> s;
@@ -37,45 +52,47 @@ namespace τ
   void mark() { for (let   x : s)     π0T(π0hv)::h.mark(x); }
   void move() { for (auto &x : s) x = π0T(π0hv)::h.move(x); }
 
-  π0hds      &operator<<(π0R x)         { s.push_back(x); return *this; }
-  π0TO π0hds &operator<<(π0To const &x) { return *this << (π0T(π0hv)::h << x); }
+  π0T(π0sv) *up() const { return nullptr; }
+
+  void      operator<<(π0R x)         { s.push_back(x); }
+  π0TO void operator<<(π0To const &x) { *this << (π0T(π0hv)::h << x); }
 
   π0R operator[](uN i) const { return s.at(s.size() - i - 1); }
-  π0R        pop()           { let r = s.back(); s.pop_back(); return r; }
-  π0hds    &drop(uN n = 1)   { s.resize(s.size() - n); return *this; }
+  void      drop(uN n = 1)   { s.resize(s.size() - n); }
   uN        size()     const { return s.size(); }
 };
 
 
-π0TGs π0hss : virtual π0T(π0hv)  // split-stack heap view
+π0TGs π0hss : virtual π0T(π0hv),  // split-stack heap view
+              virtual π0T(π0sv)
 {
   π0TS;
-  π0T(π0hds) const &d;           // base data stack
-  uN                n;           // number of elements "deleted"
-  V<π0R>            s;           // elements we've added
+  π0T(π0sv) const &d;             // base data stack
+  uN               n;             // number of elements "deleted"
+  V<π0R>           s;             // elements we've added
 
   π0hss()                  = delete;
   π0hss(π0T(π0hss) const&) = delete;
   π0hss(π0T(π0hss)&&)      = delete;
-  π0hss(π0T(π0h) &h_) : π0T(π0hv)(h_) {}
+  π0hss(π0T(π0h) &h_, π0T(π0sv) d_) : π0T(π0hv)(h_), d(d_) {}
 
+  // NOTE: no need to mark/move d, since it's an independent
+  // member of h.vs
   void mark() { for (let   x : s)     π0T(π0hv)::h.mark(x); }
   void move() { for (auto &x : s) x = π0T(π0hv)::h.move(x); }
 
-  π0hss      &operator<<(π0R x)         { s.push_back(x); return *this; }
-  π0TO π0hss &operator<<(π0To const &x) { return *this << (π0T(π0hv)::h << x); }
+  π0T(π0sv) *up() const { return &d; }
+
+  void      operator<<(π0R x)         { s.push_back(x); }
+  π0TO void operator<<(π0To const &x) { *this << (π0T(π0hv)::h << x); }
 
   π0R operator[](uN i) const
   { return i < s.size() ? s.at(s.size() - i - 1) : d[i - s.size() + n]; }
 
-  π0R pop()
-  { if (s.empty()) return d[n++];
-    let r = s.back(); s.pop_back(); return r; }
-
-  π0hss &drop(uN x = 1)
+  void drop(uN x = 1)
   { let l = std::min(x, s.size());
     x -= l; s.resize(s.size() - l);
-    n += l; return *this; }
+    n += l; }
 
   uN size() const { return d.size() - n + s.size(); }
 };

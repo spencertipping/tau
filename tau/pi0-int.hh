@@ -4,7 +4,6 @@
 
 #include "types.hh"
 #include "numerics.hh"
-#include "Phi.hh"
 #include "Lambda.hh"
 #include "zeta.hh"
 #include "utf9.hh"
@@ -22,28 +21,20 @@ namespace τ
 π0TGs π0int
 {
   π0TS;
-  π0T(π0h)         &h;  // data stack + local frames
-  π0T(π0abi) const &a;  // ABI (native functions)
-  π0T(π0p)   const  p;  // bytecode program
-  V<uN>             r;  // return stack
-  π0T(π0hds)        d;  // data stack
-  π0T(π0hdf)        f;  // frame stack
-
-
-  // TODO: we sometimes want to evaluate functions against split stacks,
-  // e.g. () and {}. How do we do this? We probably need to have separate
-  // ABI functions for each case and link them accordingly.
-
-  // NOTE: on that point, π0hss actually needs its own bifurcation, which
-  // means we'll need virtual methods, not templates.
+  π0T(π0h)         &h;   // data stack + local frames
+  π0T(π0abi) const &a;   // ABI (native functions)
+  π0T(π0p)   const  p;   // bytecode program
+  V<uN>             r;   // return stack
+  π0T(π0hdf)        f;   // frame stack
+  π0T(π0hds)        d;   // base data stack
+  π0T(π0sv)        *dv;  // current data stack view
 
 
   π0int(π0T(π0abi) &a_, π0T(π0p) &&p_, uN c0)
-  : a(a_), p(std::move(p_)), d(h), f(h)
+  : a(a_), p(std::move(p_)), f(h), d(h), dv(&d)
   { A(p.v == a.v, "π₀ ABI mismatch: " << p.v << " ≠ " << a.v);
     r.push_back(c0); }
 
-  i9 operator[](uN i)   {                          return i9{p.q.data() + i}; }
   operator bool() const {                          return !r.empty(); }
   π0int     &go()       { while (*this) (*this)(); return *this; }
   π0int    &run(uN l)
@@ -51,6 +42,13 @@ namespace τ
       r.push_back(l);
       while (r.size() > n) (*this)();
       return *this; }
+
+  // FIXME: standardize this API, maybe π0int even follows the π0sv API
+  i9 operator[](uN i) { return i9{p.q.data() + i}; }
+
+
+  π0int &spush() { dv = new π0T(π0sv){h, *dv};          return *this; }
+  π0int &spop()  { let v = dv; dv = dv->up(); delete v; return *this; }
 
 
 #if τπ0debug_bounds_checks
