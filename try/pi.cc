@@ -1,6 +1,6 @@
 #define τdebug 1
-#define τπ0debug_bounds_checks 1
-#define τπ0debug_gc_postcopy_verify 1
+#define τπ0debug_bounds_checks 0
+#define τπ0debug_gc_postcopy_verify 0
 //#define τdebug_i9st 1
 
 #include "../tau.hh"
@@ -75,7 +75,8 @@ void try_data_stack_fast()
   π0hds<2> s{h};
 
   // Outer loop for better profiling if we want more data
-  for (uN l = 0; l < 1; ++l)
+  let ul = 10;
+  for (uN l = 0; l < ul; ++l)
   { s << o9(Sc<u64>(0));
     for (u64 i = 0; i < 1ul << 24; ++i)
     { s << o9(i);
@@ -84,7 +85,7 @@ void try_data_stack_fast()
     let t = h[s.pop()];
     A(Sc<u64>(t) == 140737479966720, t << " ≠ 140737479966720"); }
 
-  cout << "fast 16M:  " << h.gΘ << endl;
+  cout << "fast " << 16 * ul << "M: " << h.gΘ << endl;
 }
 
 
