@@ -272,6 +272,9 @@ namespace τ
       // between the copy source point and the end of the input object.
       let l = (*s).o - (o + c);  // verbatim-copy length
       std::memcpy(m + d,     i.a + c, l);
+
+      // TODO: spliced regions may contain splices of their own, which also
+      // must be executed
       std::memcpy(m + d + l, (*s).a,  (*s).s);
       c += l + (*s).d;
       d += l + (*s).s;
