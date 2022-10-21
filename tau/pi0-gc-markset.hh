@@ -13,7 +13,7 @@
 #include "pi0-gc-heap.hh"
 #include "pi0-gc-heapspace.hh"
 
-#include "pi0-gc-begin.hh"
+#include "pi0-begin.hh"
 
 
 #if !defined(τπ0debug_gc_postcopy_verify)
@@ -312,7 +312,7 @@ namespace τ
 
 }
 
-#include "pi0-gc-end.hh"
+#include "pi0-end.hh"
 
 
 #endif

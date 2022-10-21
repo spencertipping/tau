@@ -6,28 +6,53 @@
 #include "utf9-types.hh"
 #include "utf9.hh"
 
-#include "pi0-gc-begin.hh"
+#include "pi0-begin.hh"
+
 
 namespace τ
 {
 
 
-struct π0int;
-struct π0asm;
-
-typedef void(*π0f)(π0int&, uN);  // bytecode function
+π0TGs π0int;
+π0TGs π0asm;
 
 
-π0TGs π0h;                       // GC heap (all generations)
-π0TGs π0hs;                      // GC heap space
-π0TGs π0hv;                      // GC heap view
-π0TGs π0ms;                      // GC mark set
-π0TGs π0gs;                      // GC splice map
+typedef uN π0fi;  // function index
+typedef uN π0fa;  // function argument
+typedef uN π0av;  // ABI version
 
-typedef uN π0hg;                 // heap generation
-typedef uN π0ha;                 // heap address within generation
+// Bytecode function: takes a single native-width argument whose meaning
+// is determined by the function
+π0TG using π0f = void(*)(π0T(π0int)&, π0fa);
 
-π0TGs π0r                        // π₀ generational heap reference
+
+π0TGs π0abi
+{
+  π0TS;
+  π0av        v;  // version
+  V<π0T(π0f)> f;  // function table (π0fi to index)
+};
+
+π0TGs π0p
+{
+  π0TS;
+  π0av             v;  // ABI version being targeted by this program
+  B                q;  // quoted statics
+  V<P<π0fi, π0fa>> p;  // bytecodes
+};
+
+
+π0TGs π0h;        // GC heap (all generations)
+π0TGs π0hs;       // GC heap space
+π0TGs π0hv;       // GC heap view
+π0TGs π0ms;       // GC mark set
+π0TGs π0gs;       // GC splice map
+
+typedef uN π0hg;  // heap generation
+typedef uN π0ha;  // heap address within generation
+
+
+π0TGs π0r         // π₀ generational heap reference
 {
   π0TS;
   sletc rω   = Sc<uN>(-1);
@@ -90,7 +115,7 @@ typedef uN π0ha;                 // heap address within generation
 };
 
 
-#include "pi0-gc-end.hh"
+#include "pi0-end.hh"
 
 
 #endif

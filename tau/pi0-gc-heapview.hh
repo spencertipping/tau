@@ -7,7 +7,7 @@
 #include "pi0-types.hh"
 #include "pi0-gc-heap.hh"
 
-#include "pi0-gc-begin.hh"
+#include "pi0-begin.hh"
 
 namespace τ
 {
@@ -29,9 +29,9 @@ namespace τ
   π0TS;
   V<π0R> s;
 
-  π0hds()             = delete;
-  π0hds(π0hds const&) = delete;
-  π0hds(π0hds&&)      = delete;
+  π0hds()                  = delete;
+  π0hds(π0T(π0hds) const&) = delete;
+  π0hds(π0T(π0hds)&&)      = delete;
   π0hds(π0T(π0h) &h_) : π0T(π0hv)(h_) {}
 
   void mark() { for (let   x : s)     π0T(π0hv)::h.mark(x); }
@@ -47,15 +47,49 @@ namespace τ
 };
 
 
+π0TGs π0hss : virtual π0T(π0hv)  // split-stack heap view
+{
+  π0TS;
+  π0T(π0hds) const &d;           // base data stack
+  uN                n;           // number of elements "deleted"
+  V<π0R>            s;           // elements we've added
+
+  π0hss()                  = delete;
+  π0hss(π0T(π0hss) const&) = delete;
+  π0hss(π0T(π0hss)&&)      = delete;
+  π0hss(π0T(π0h) &h_) : π0T(π0hv)(h_) {}
+
+  void mark() { for (let   x : s)     π0T(π0hv)::h.mark(x); }
+  void move() { for (auto &x : s) x = π0T(π0hv)::h.move(x); }
+
+  π0hss      &operator<<(π0R x)         { s.push_back(x); return *this; }
+  π0TO π0hss &operator<<(π0To const &x) { return *this << (π0T(π0hv)::h << x); }
+
+  π0R operator[](uN i) const
+  { return i < s.size() ? s.at(s.size() - i - 1) : d[i - s.size() + n]; }
+
+  π0R pop()
+  { if (s.empty()) return d[n++];
+    let r = s.back(); s.pop_back(); return r; }
+
+  π0hss &drop(uN x = 1)
+  { let l = std::min(x, s.size());
+    x -= l; s.resize(s.size() - l);
+    n += l; return *this; }
+
+  uN size() const { return d.size() - n + s.size(); }
+};
+
+
 π0TGs π0hdf : virtual π0T(π0hv)  // stack-of-frames heap view
 {
   π0TS;
   V<π0R> d;  // all frames concatenated together
   V<uN>  n;  // first variable within each frame
 
-  π0hdf()             = delete;
-  π0hdf(π0hdf const&) = delete;
-  π0hdf(π0hdf&&)      = delete;
+  π0hdf()                  = delete;
+  π0hdf(π0T(π0hdf) const&) = delete;
+  π0hdf(π0T(π0hdf)&&)      = delete;
   π0hdf(π0T(π0h) &h_) : π0T(π0hv)(h_) {}
 
   void mark() { for (let   x : d)     π0T(π0hv)::h.mark(x); }
@@ -73,9 +107,9 @@ namespace τ
   π0TS;
   V<π0R> v;
 
-  π0hnf()             = delete;
-  π0hnf(π0hnf const&) = delete;
-  π0hnf(π0hnf&&)      = delete;
+  π0hnf()                  = delete;
+  π0hnf(π0T(π0hnf) const&) = delete;
+  π0hnf(π0T(π0hnf)&&)      = delete;
   π0hnf(π0T(π0h) &h_, uN vs) : π0T(π0hv)(h_) { v.reserve(vs); }
 
   void mark() { for (let   x : v)     π0T(π0hv)::h.mark(x); }
@@ -91,7 +125,7 @@ namespace τ
 
 }
 
-#include "pi0-gc-end.hh"
+#include "pi0-end.hh"
 
 
 #endif

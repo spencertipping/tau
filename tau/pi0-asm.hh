@@ -13,7 +13,7 @@
 #include "pi0-int.hh"
 #include "pi0-gc.hh"
 
-#include "begin.hh"
+#include "pi0-begin.hh"
 
 namespace τ
 {
@@ -76,8 +76,9 @@ struct π0abl  // π₀ asm block
 };
 
 
-struct π0asm
+π0TGs π0asm
 {
+  π0TS;
   sletc c7ws = π0cs7(" \t\n");         // whitespace
   sletc c7ni = π0cs7(" \t\n{}[](),");  // non-ident
   sletc c7in = π0cs7("0123456789");    // integer
@@ -224,7 +225,7 @@ O &operator<<(O &s, π0abl const &b)
 
 }
 
-#include "end.hh"
+#include "pi0-end.hh"
 
 
 #endif

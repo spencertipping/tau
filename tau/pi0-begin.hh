@@ -2,7 +2,7 @@
 #include "begin.hh"
 
 
-#define τπ0debug_enable_specialize_templates 0
+#define τπ0debug_enable_specialize_templates 1
 
 
 // This exists to help LSP detect errors at edit-time by pre-specializing

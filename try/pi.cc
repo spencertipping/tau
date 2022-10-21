@@ -75,7 +75,7 @@ void try_data_stack_fast()
   π0hds<2> s{h};
 
   // Outer loop for better profiling if we want more data
-  let ul = 10;
+  let ul = 1;
   for (uN l = 0; l < ul; ++l)
   { s << o9(Sc<u64>(0));
     for (u64 i = 0; i < 1ul << 24; ++i)

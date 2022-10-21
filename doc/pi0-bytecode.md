@@ -3,6 +3,10 @@ Exactly like [Joy](https://en.wikipedia.org/wiki/Joy_(programming_language)): we
 
 There are three stacks: data, return, and frame. Each frame reserves a preallocated local variable space against which you can issue get/set commands to minimize stack manipulation. Function arguments and return values are passed on the stack.
 
+**TODO:** specify `fi, a` bytecode format -- simple pairs of values
+
+**TODO:** define the strategy we use to differentiate between "the data stack" and "a view of the data stack", from a template-type perspective.
+
 
 ## Program format
 **TODO:** weaken this a bit. Fully-specialized bytecode is too much; we need interpreters to be forkable (on the C++ side), and we want the full stdlib of functions to be provided at consistent internal offsets. Probably a two-layer indirect vector of `pair<fn, arg>`, for some standardized and small `arg`. This will remove some of the current `F<>` indirection, probably resulting in faster code. We can also code the inner bytecode-delegation loop in assembly without much trouble; the decoder is completely uniform.

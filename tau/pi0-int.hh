@@ -13,25 +13,34 @@
 #include "pi0-gc.hh"
 
 
-#include "begin.hh"
+#include "pi0-begin.hh"
 
 namespace τ
 {
 
 
-struct π0int
+π0TGs π0int
 {
-  SP<B>        q;  // quoted statics
-  V<π0f> const f;  // predefined functions
-  V<uN>  const c;  // bytecode program (indexes into f[])
-  V<uN>        r;  // return stack
-  π0h          h;  // data stack + local frames
+  π0TS;
+  π0T(π0h)         &h;  // data stack + local frames
+  π0T(π0abi) const &a;  // ABI (native functions)
+  π0T(π0p)   const  p;  // bytecode program
+  V<uN>             r;  // return stack
+  π0T(π0hds)        d;  // data stack
+  π0T(π0hdf)        f;  // frame stack
 
-  π0int(B &q_, V<π0f> &&f_, V<uN> &&c_, uN c0)
-    : q(&q_), f(std::move(f_)), c(std::move(c_))
-    { r.push_back(c0); }
 
-  i9 operator[](uN i)   {                          return i9{q->data() + i}; }
+  // TODO: we sometimes want to evaluate functions against split stacks,
+  // e.g. () and {}. How do we do this? We probably need to have separate
+  // ABI functions for each case and link them accordingly.
+
+
+  π0int(π0T(π0abi) &a_, π0T(π0p) &&p_, uN c0)
+  : a(a_), p(std::move(p_)), d(h), f(h)
+  { A(p.v == a.v, "π₀ ABI mismatch: " << p.v << " ≠ " << a.v);
+    r.push_back(c0); }
+
+  i9 operator[](uN i)   {                          return i9{p.q.data() + i}; }
   operator bool() const {                          return !r.empty(); }
   π0int     &go()       { while (*this) (*this)(); return *this; }
   π0int    &run(uN l)
@@ -40,36 +49,24 @@ struct π0int
       while (r.size() > n) (*this)();
       return *this; }
 
-  template<o9mapped T>
-  π0int &operator<<(T const &x) { h.dpush(x); return *this; }
-
-  π0int &dup()  { h.d.push_back(h.d.back());                                              return *this; }
-  π0int &duup() { h.d.push_back(h.d[h.d.size() - 2]); h.d.push_back(h.d[h.d.size() - 2]); return *this; }
-  π0int &dip()  { h.d.push_back(h.d[h.d.size() - 2]);                                     return *this; }
-  π0int &diip() { h.d.push_back(h.d[h.d.size() - 3]);                                     return *this; }
-  π0int &swap() { std::swap(h.d[h.d.size() - 2], h.d.back());                             return *this; }
-  π0int &drop() { h.dpop();                                                               return *this; }
-
-  i9     peek() { return h.di(0); }
-  i9     pop()  { let i = h.di(0); h.dpop(); return i; }
 
 #if τπ0debug_bounds_checks
   π0int &operator()()
-    { A(*this, "π₀i() r=∅");
-      f.at(c.at(r.back()++))(*this); return *this; }
+  { A(*this, "π₀i() r=∅");
+    let [fi, x] = p.at(r.back()++);
+    f.at(fi)(*this, x); return *this; }
 #else
-  π0int &operator()() { f[c[r.back()++]](*this); return *this; }
+  π0int &operator()()
+  { let [fi, x] = p[r.back()++];
+    f[fi](*this, x); return *this; }
 #endif
 };
 
 
 #if τdebug_iostream
-O &operator<<(O &s, π0int const &i)
+π0TG O &operator<<(O &s, π0T(π0int) const &i)
 {
   s << "π₀i qs=" << i.q->size()
-    << " fs=" << i.f.size()
-    << " cs=" << i.c.size()
-    << " rs=" << i.r.size()
     << " r=";
   if (!i.r.empty())
     for (iN j = i.r.size() - 1; j >= 0; --j)
@@ -81,7 +78,7 @@ O &operator<<(O &s, π0int const &i)
 
 }
 
-#include "end.hh"
+#include "pi0-end.hh"
 
 
 #endif

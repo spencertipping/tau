@@ -6,7 +6,7 @@
 #include "utf9.hh"
 #include "pi0-types.hh"
 
-#include "pi0-gc-begin.hh"
+#include "pi0-begin.hh"
 
 namespace τ
 {
@@ -50,7 +50,7 @@ namespace τ
 
 }
 
-#include "pi0-gc-end.hh"
+#include "pi0-end.hh"
 
 
 #endif
