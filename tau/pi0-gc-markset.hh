@@ -281,8 +281,7 @@ namespace τ
       d += l + (*si).s;
       ++si; }
 
-    std::memcpy(m + d, i.a + c, os - c);
-  }
+    std::memcpy(m + d, i.a + c, os - c); }
 };
 
 
