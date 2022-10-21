@@ -52,27 +52,44 @@ void try_simple_gc()
 }
 
 
-void try_data_stack()
+void try_data_stack_slow()
 {
   π0h<2>   h{64, 256, 0};
   π0hds<2> s{h};
 
-  for (uN i = 0; i < 1000000; ++i) s << o9(i);
+  for (uN i = 0; i < 100000; ++i) s << o9(i);
   while (s.size() > 1)
   { let x = Sc<uN>(h[s[0]]) + Sc<uN>(h[s[1]]);
     s.drop(2);
     s << o9(x); }
 
   let t = h[s.pop()];
-  A(Sc<uN>(t) == 499999500000, t << " ≠ 499999500000");
-  cout << h.gΘ << endl;
+  A(Sc<uN>(t) == 4999950000, t << " ≠ 4999950000");
+  cout << "slow 100k: " << h.gΘ << endl;
+}
+
+
+void try_data_stack_fast()
+{
+  π0h<2>   h{64, 256, 0};
+  π0hds<2> s{h};
+
+  s << o9(Sc<uN>(0));
+  for (uN i = 0; i < 1ul << 24; ++i)
+  { s << o9(i);
+    s << o9(Sc<uN>(h[s.pop()]) + Sc<uN>(h[s.pop()])); }
+
+  let t = h[s.pop()];
+  A(Sc<uN>(t) == 140737479966720, t << " ≠ 140737479966720");
+  cout << "fast 16M:  " << h.gΘ << endl;
 }
 
 
 int main()
 {
   try_simple_gc();
-  try_data_stack();
+  try_data_stack_slow();
+  try_data_stack_fast();
 }
 
 
