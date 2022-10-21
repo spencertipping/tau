@@ -185,10 +185,16 @@ namespace τ
              i9{h[x.o]}.type(), ns, x.c & 1); }
 
     // Sort and fix up cumulative offsets for patching -- note that these
-    // offsets span multiple objects.
-    iN cd = 0;
+    // offsets span multiple objects. Also note that we should never have
+    // multiple splices at the same offset; if we do, we'll rewrite the
+    // heap nondeterministically.
+    iN  cd = 0;
+    π0R l  = π0R();
     std::sort(s.begin(), s.end());
-    for (auto &x : s) x.c = cd += x.s - x.d;
+    for (auto &x : s)
+    { A(x.o != l, "π₀gs duplicated splice origin " << x.o);
+      x.c = cd += x.s - x.d;
+      l   = x.o; }
 
     // Build the root set
     m.reserve(ms.m.size() - in.size());
@@ -238,7 +244,7 @@ namespace τ
     let i = rpt(r);
     if (i == s.end()) return x;
     auto j = std::lower_bound(i, s.end(), π0gS{r + x});
-    if (i != j) --j;
+    while (j != s.end() && (*j).o == r + x) --j;
     return x - (*i).c + (*j).c; }
 
 

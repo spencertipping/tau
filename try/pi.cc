@@ -1,6 +1,7 @@
 #define τdebug 1
-#define τπ0debug_bounds_checks 0
-#define τdebug_i9st 1
+#define τπ0debug_bounds_checks 1
+#define τπ0debug_gc_postcopy_verify 1
+//#define τdebug_i9st 1
 
 #include "../tau.hh"
 
@@ -31,6 +32,7 @@ void try_simple_gc()
 
   a = h << o9("new value for a");
 
+  cout << "pre-GC" << endl;
   cout << a << " = " << h[a] << endl;
   cout << b << " = " << h[b] << endl;
   cout << c << " = " << h[c] << endl;
@@ -38,6 +40,38 @@ void try_simple_gc()
   //cout << *h.hs[0] << endl;
 
   h.gc();
+  cout << "post-GC" << endl;
+  cout << a << " = " << h[a] << endl;
+  cout << b << " = " << h[b] << endl;
+  cout << c << " = " << h[c] << endl;
+  cout << d << " = " << h[d] << endl;
+  //cout << *h.hs[0] << endl;
+}
+
+
+void try_gc_resplice()
+{
+  // The test here is to see whether references are rewritten correctly
+  // when we refer into an object that is then inlined.
+
+  π0h<2>   h{64, 256, 0};
+  π0hnf<2> f{h, 16};
+  auto &a = f << (h << o9t(1, 2, 3));
+  auto &b = f << (h << o9t("foo", a, a, "bar"));
+  auto &c = f << a;
+  auto &d = f << (h << o9t(true, false, b, a, b));
+
+  a = h << o9("new value for a");
+
+  cout << "pre-GC" << endl;
+  cout << a << " = " << h[a] << endl;
+  cout << b << " = " << h[b] << endl;
+  cout << c << " = " << h[c] << endl;
+  cout << d << " = " << h[d] << endl;
+  //cout << *h.hs[0] << endl;
+
+  h.gc();
+  cout << "post-GC" << endl;
   cout << a << " = " << h[a] << endl;
   cout << b << " = " << h[b] << endl;
   cout << c << " = " << h[c] << endl;
@@ -49,6 +83,7 @@ void try_simple_gc()
 int main()
 {
   try_simple_gc();
+  try_gc_resplice();
 }
 
 
