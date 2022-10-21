@@ -71,16 +71,19 @@ void try_data_stack_slow()
 
 void try_data_stack_fast()
 {
-  π0h<2>   h{64, 256, 0};
+  π0h<2>   h{64, 65536, 0};
   π0hds<2> s{h};
 
-  s << o9(Sc<uN>(0));
-  for (uN i = 0; i < 1ul << 24; ++i)
-  { s << o9(i);
-    s << o9(Sc<uN>(h[s.pop()]) + Sc<uN>(h[s.pop()])); }
+  // Outer loop for better profiling if we want more data
+  for (uN l = 0; l < 1; ++l)
+  { s << o9(Sc<uN>(0));
+    for (uN i = 0; i < 1ul << 24; ++i)
+    { s << o9(i);
+      s << o9(Sc<uN>(h[s.pop()]) + Sc<uN>(h[s.pop()])); }
 
-  let t = h[s.pop()];
-  A(Sc<uN>(t) == 140737479966720, t << " ≠ 140737479966720");
+    let t = h[s.pop()];
+    A(Sc<uN>(t) == 140737479966720, t << " ≠ 140737479966720"); }
+
   cout << "fast 16M:  " << h.gΘ << endl;
 }
 
