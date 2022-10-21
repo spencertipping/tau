@@ -119,9 +119,10 @@ namespace τ
 
     let ia  = h(g, i);
     let is  = i.size();
+    let os  = i.osize();
     let isb = u9sb(i.stype());
     let nsb = u9sb(u9sq(is + Δs));
-    nsf[ia] = is + Δs << 1 | b;
+    nsf[ia] = os + Δs << 1 | b;
     ss.push_back({ia, isb, Rc<ζp>(is + Δs), nsb, 2 | b});
     Δs += nsb - isb; }
 };
@@ -238,12 +239,44 @@ namespace τ
     if (i == s.end()) return x;
     auto j = std::lower_bound(i, s.end(), π0gS{r + x});
     if (i != j) --j;
-
-    std::cout << "patch(" << r << ", " << x << ") : "
-              << "i = " << *i << ", j = " << *j
-              << std::endl;
-
     return x - (*i).c + (*j).c; }
+
+
+  // Spliced-copy-out from o to m.
+  void scopy(ζp m, π0R o) const
+  { // NOTE: there may be some performance advantage to merging memcpy()
+    // calls when the offsets line up, but it adds complexity and
+    // probably isn't significant.
+    let  i  = h[o];
+    let  os = i.osize();
+    let  oe = o + os;  // end of original object
+    uN   c  = 0;       // copy source (relative to original object)
+    uN   d  = 0;       // copy destination (relative to m)
+    auto si = rpt(o);
+    if (si != s.end() && *si < π0gS{o}) ++si;
+
+    while (c < os && si != s.end() && *si < π0gS{oe})
+    { // Right now we have o + c ≤ *s < oe, which means there's a splice
+      // between the copy source point and the end of the input object.
+      let l = (*si).o - (o + c);  // verbatim-copy length
+      std::memcpy(m + d, i.a + c, l);
+
+      // Two cases for the splice. If it's a heap reference, then it may
+      // itself have splices and we should recursively splice-copy it.
+      // Otherwise it's just bytes and we can memcpy().
+      //
+      // If it's a heap reference that refers to another existing
+      // generation, delegate to that generation.
+      let r = h((*si).a);
+      if (r && h.gs[r.g()]) h.gs[r.g()]->scopy(m + d + l, r);
+      else                  std::memcpy(m + d + l, (*si).a, (*si).s);
+
+      c += l + (*si).d;
+      d += l + (*si).s;
+      ++si; }
+
+    std::memcpy(m + d, i.a + c, os - c);
+  }
 };
 
 
@@ -256,33 +289,9 @@ namespace τ
 
   uN size ()     const { return gs.newsize(o); }
   uN write(ζp m) const
-  { // NOTE: there may be some performance advantage to merging memcpy()
-    // calls when the offsets line up, but it adds complexity and
-    // probably isn't significant.
-    let  i  = gs.h[o];
-    let  os = i.osize();
-    let  oe = o + os;  // end of original object
-    uN   c  = 0;       // copy source (relative to original object)
-    uN   d  = 0;       // copy destination (relative to m)
-    auto s  = gs.rpt(o);
-    if (s != gs.s.end() && *s < π0gS{o}) ++s;
-
-    while (c < os && s != gs.s.end() && *s < π0gS{oe})
-    { // Right now we have o + c ≤ *s < oe, which means there's a splice
-      // between the copy source point and the end of the input object.
-      let l = (*s).o - (o + c);  // verbatim-copy length
-      std::memcpy(m + d,     i.a + c, l);
-
-      // TODO: spliced regions may contain splices of their own, which also
-      // must be executed
-      std::memcpy(m + d + l, (*s).a,  (*s).s);
-      c += l + (*s).d;
-      d += l + (*s).s;
-      ++s; }
-
-    std::memcpy(m + d, i.a + c, os - c);
+  { gs.scopy(m, o);
     if (τπ0debug_gc_postcopy_verify)
-      A(i9{m}.verify(), "π₀gso9 !v, i = " << i << ", o = " << i9{m});
+      A(i9{m}.verify(), "π₀gso9 !v, i = " << gs.h[o] << ", o = " << i9{m});
     return 0; }
 };
 

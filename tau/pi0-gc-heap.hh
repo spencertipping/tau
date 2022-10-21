@@ -37,14 +37,15 @@ namespace τ
 
   ~π0h();
 
+
   i9 operator[](π0R x) { return (*hs[x.g()])[x.a()]; }
 
   π0R operator()(ζp x) const
-    { for (uN i = 0; i < gn; ++i)
+    { for (π0hg i = 0; i < gn; ++i)
       { let y = (*this)(i, x); if (!y.ω()) return y; }
       return π0R(); }
 
-  π0R operator()(uN g, ζp x) const
+  π0R operator()(π0hg g, ζp x) const
     { let &b = hs[g]->h;
       return x >= b.data() && x < b.data() + b.size()
            ? π0R(g, x - b.data())

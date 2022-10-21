@@ -35,14 +35,14 @@ void try_simple_gc()
   cout << b << " = " << h[b] << endl;
   cout << c << " = " << h[c] << endl;
   cout << d << " = " << h[d] << endl;
-  cout << *h.hs[0] << endl;
+  //cout << *h.hs[0] << endl;
 
   h.gc();
   cout << a << " = " << h[a] << endl;
   cout << b << " = " << h[b] << endl;
   cout << c << " = " << h[c] << endl;
   cout << d << " = " << h[d] << endl;
-  cout << *h.hs[0] << endl;
+  //cout << *h.hs[0] << endl;
 }
 
 
