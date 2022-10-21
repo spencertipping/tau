@@ -61,31 +61,31 @@ namespace τ
 };
 
 
-π0TGs π0gS  // splice point
+π0TGs π0gS        // splice point
 {
   π0TS;
-  π0R o;    // origin point (old-space)
-  uN  d;    // deletion size (old-space)
-  ζp  a;    // copy-from address
-  uN  s;    // splice size (new-space)
-  iN  c;    // cumulative displacement from original (old → new)
+  π0R        o;   // origin point (old-space)
+  uN         d;   // deletion size (old-space)
+  ζp mutable a;   // copy-from address
+  uN         s;   // splice size (new-space)
+  iN mutable c;   // cumulative displacement from original (old → new)
 
   bool operator< (π0T(π0gS) const &x) const { return o <  x.o; }
   bool operator<=(π0T(π0gS) const &x) const { return o <= x.o; }
 };
 
 
-π0TGs π0gSs              // multilevel splice set
+π0TGs π0gSs               // multilevel splice set
 {
   π0TS;
-  π0T(π0h)     &h;
-  π0hg const    g;
-  V<π0T(π0gS)> &ss;      // splice points
-  M<π0R, uN>   &nsf;     // new size+flag of each old-heap object
-  V<i9>         s;       // container start points
-  V<ζp>         e;       // contained end points
-  V<bool>       f;       // flags
-  iN            Δs = 0;  // running size differences
+  π0T(π0h)      &h;
+  π0hg const     g;
+  So<π0T(π0gS)> &ss;      // splice points
+  M<π0R, uN>    &nsf;     // new size+flag of each old-heap object
+  V<i9>          s;       // container start points
+  V<ζp>          e;       // contained end points
+  V<bool>        f;       // flags
+  iN             Δs = 0;  // running size differences
 
   ~π0gSs() { while (*this) pop(); }
 
@@ -107,7 +107,15 @@ namespace τ
     let dsf = nsf.contains(d) ? nsf[d] : t.osize() << 1 | t.flagged();
     let s2  = dsf >> 1;
     Δs += s2 - s1;
-    ss.push_back({r, s1, t, s2, 0});
+    ss.insert({r, s1, t, s2, 0});
+
+    // By this point the original object is in its final state. We need
+    // to copy its splices so we replicate any inlines it has.
+    let ie = ss.upper_bound(π0T(π0gS){h(g, t.next())});
+    V<π0T(π0gS)> ns;
+    for (auto it = ss.lower_bound(π0T(π0gS){d}); it != ie; ++it)
+      ns.push_back({d + ((*it).o - d)});
+
     if (dsf & 1) flag();
     return d; }
 
@@ -122,7 +130,7 @@ namespace τ
     let isb = u9sb(i.stype());
     let nsb = u9sb(u9sq(is + Δs));
     nsf[ia] = is + Δs << 1 | b;
-    ss.push_back({ia, isb, Rc<ζp>(is + Δs), nsb, 2 | b});
+    ss.insert({ia, isb, Rc<ζp>(is + Δs), nsb, 2 | b});
     Δs += nsb - isb; }
 };
 
@@ -137,7 +145,7 @@ namespace τ
   uNc                is;   // inlining size
   V<π0R>             m;    // marked, non-inlined objects
   M<π0R, P<π0R, uN>> in;   // inlined objects and their new containers
-  V<π0T(π0gS)>       s;    // splice points
+  So<π0T(π0gS)>      s;    // splice points
   B                  b;    // buffer for new control/size byte patches
   M<π0R, uN>         nsf;  // new size + flag (flag = lsb) for each object
   uN                 lss;  // live-set size
@@ -186,7 +194,6 @@ namespace τ
     // Sort and fix up cumulative offsets for patching -- note that these
     // offsets span multiple objects.
     iN cd = 0;
-    std::sort(s.begin(), s.end());
     for (auto &x : s) x.c = cd += x.s - x.d;
 
     // Build the root set
@@ -223,7 +230,7 @@ namespace τ
   typename V<π0R>::const_iterator end()   const { return m.end(); }
 
 
-  typename V<π0T(π0gS)>::const_iterator rpt(π0R x) const
+  typename So<π0T(π0gS)>::const_iterator rpt(π0R x) const
   { return std::lower_bound(s.begin(), s.end(), π0gS{x}); }
 
   uN newsize(π0R x) const
@@ -236,9 +243,7 @@ namespace τ
   { if (!x) return x;
     let i = rpt(r);
     if (i == s.end()) return x;
-    auto j = std::lower_bound(i, s.end(), π0gS{r + x});
-    if (i != j) --j;
-
+    auto j = std::upper_bound(i, s.end(), π0gS{r + x});
     std::cout << "patch(" << r << ", " << x << ") : "
               << "i = " << *i << ", j = " << *j
               << std::endl;
