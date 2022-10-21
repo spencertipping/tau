@@ -89,9 +89,15 @@ void try_data_stack_fast()
 }
 
 
-/*
+// FIXME: the function below does test something worthwhile, but
+// I need to figure out the API for GC-safe tuple iteration. We
+// probably need to have native frames that can hold i9 refs, not
+// just π0r.
+
 void try_data_stack_tuple()
 {
+  cout << "FIXME: try_data_stack_tuple()" << endl;
+  /*
   π0h<2>   h{64, 65536, 0};
   π0hds<2> s{h};
   π0hnf<2> n{h, 2};
@@ -99,6 +105,7 @@ void try_data_stack_tuple()
   V<uN> xs; xs.reserve(1ul << 24);
   for (uN i = 0; i < 1ul << 24; ++i) xs.push_back(i);
 
+  // FIXME: this errors out in LSP, but not g++ or wasm builds
   auto &v = n << (h << o9(xs));
   auto &i = n << h(h[v].first().a);
   s << o9(Sc<uN>(0));
@@ -112,8 +119,8 @@ void try_data_stack_tuple()
   A(Sc<uN>(t) == 140737479966720, t << " ≠ 140737479966720");
 
   cout << "on-heap list: " << h.gΘ << endl;
+  */
 }
-*/
 
 
 int main()
@@ -121,7 +128,7 @@ int main()
   try_simple_gc();
   try_data_stack_slow();
   try_data_stack_fast();
-  //try_data_stack_tuple();
+  try_data_stack_tuple();
 }
 
 

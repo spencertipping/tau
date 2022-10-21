@@ -2,11 +2,14 @@
 #include "begin.hh"
 
 
+#define τπ0debug_enable_specialize_templates 0
+
+
 // This exists to help LSP detect errors at edit-time by pre-specializing
 // templates so LSP can do more analysis. It isn't enabled for full builds.
 #if !defined(τπ0debug_specialize_templates)
 # if !defined(τπ0_h)
-#   define τπ0debug_specialize_templates 1
+#   define τπ0debug_specialize_templates τπ0_debug_enable_specialize_templates
 # else
 #   define τπ0debug_specialize_templates 0
 # endif
