@@ -64,11 +64,11 @@ namespace τ
 π0TGs π0gS  // splice point
 {
   π0TS;
-  π0R o;    // origin point
-  uN  d;    // deletion size
+  π0R o;    // origin point (old-space)
+  uN  d;    // deletion size (old-space)
   ζp  a;    // copy-from address
-  uN  s;    // splice size
-  iN  c;    // cumulative displacement from original
+  uN  s;    // splice size (new-space)
+  iN  c;    // cumulative displacement from original (old → new)
 
   bool operator< (π0T(π0gS) const &x) const { return o <  x.o; }
   bool operator<=(π0T(π0gS) const &x) const { return o <= x.o; }
