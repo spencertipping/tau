@@ -31,6 +31,12 @@ namespace τ
 // order. So we don't have anything like incremental marking.
 
 
+#if τdebug_iostream
+π0TGs π0gS;
+π0TG O &operator<<(O &s, π0T(π0gS) const &x);
+#endif
+
+
 π0TGs π0ms  // mark-set for one generation
 {
   π0TS;
@@ -160,9 +166,9 @@ namespace τ
         //   flagged non-reference   -- push container
         //   reference to be inlined -- flag if referent is flagged
         //   reference not to inline -- always flag
-        if      (!ss(i).is_πref())  ss << i, ++css;
-        else if (let d = ii(i))     in[ss.inl(i, h[d])] = mp(x, i.a - xi.a);
-        else                        ss.flag(); }
+        if      (!ss(i).is_πref()) ss << i, ++css;
+        else if (let d = ii(i))    in[ss.inl(i, h[d])] = mp(x, i.a - xi.a);
+        else                       ss.flag(); }
 
     // Convert inlined size patches, stored in .a, into buffer references
     // that can be spliced in the normal memcpy way; inlined patches have
@@ -230,10 +236,11 @@ namespace τ
   { if (!x) return x;
     let i = rpt(r);
     if (i == s.end()) return x;
-    auto j = std::lower_bound(i, s.end(), π0gS{r + (x - 1)});
+    auto j = std::lower_bound(i, s.end(), π0gS{r + x});
+    if (i != j) --j;
 
     std::cout << "patch(" << r << ", " << x << ") : "
-              << "*i.c = " << (*i).c << ", *j.c = " << (*j).c
+              << "i = " << *i << ", j = " << *j
               << std::endl;
 
     return x - (*i).c + (*j).c; }
