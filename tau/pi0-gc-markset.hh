@@ -196,12 +196,9 @@ namespace τ
       x.c = cd += x.s - x.d;
       l   = x.o; }
 
-    // Build the root set
+    // Build the root set and calculate live-set size
     m.reserve(ms.m.size() - in.size());
-    for (let x : ms.m) if (!in.contains(x)) m.push_back(x);
-
-    // Finally, calculate the live-set size so we can easily report it.
-    for (let x : m) lss += newsize(x); }
+    for (let x : ms.m) if (!in.contains(x)) m.push_back(x), lss += newsize(x); }
 
 
   // Returns the referent if the given i9 ref should be inlined, which

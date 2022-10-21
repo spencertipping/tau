@@ -3,6 +3,7 @@
 
 
 #include "types.hh"
+#include "utf9.hh"
 #include "pi0-types.hh"
 #include "pi0-gc-heap.hh"
 
@@ -23,8 +24,48 @@ namespace τ
 };
 
 
-// TODO: stack view
-// TODO: frame view
+π0TGs π0hds : virtual π0T(π0hv)  // data-stack heap view
+{
+  π0TS;
+  V<π0R> s;
+
+  π0hds()             = delete;
+  π0hds(π0hds const&) = delete;
+  π0hds(π0hds&&)      = delete;
+  π0hds(π0T(π0h) &h_) : π0T(π0hv)(h_) {}
+
+  void mark() { for (let   x : s)     π0T(π0hv)::h.mark(x); }
+  void move() { for (auto &x : s) x = π0T(π0hv)::h.move(x); }
+
+  π0hds      &operator<<(π0R x)         { s.push_back(x); return *this; }
+  π0TO π0hds &operator<<(π0To const &x) { return *this << (π0T(π0hv)::h << x); }
+
+  π0R operator[](uN i) const { return s.at(s.size() - i - 1); }
+  π0R        pop()           { let r = s.back(); s.pop_back(); return r; }
+  π0hds    &drop(uN n = 1)   { s.resize(s.size() - n); return *this; }
+  uN        size()     const { return s.size(); }
+};
+
+
+π0TGs π0hdf : virtual π0T(π0hv)  // stack-of-frames heap view
+{
+  π0TS;
+  V<π0R> d;  // all frames concatenated together
+  V<uN>  n;  // first variable within each frame
+
+  π0hdf()             = delete;
+  π0hdf(π0hdf const&) = delete;
+  π0hdf(π0hdf&&)      = delete;
+  π0hdf(π0T(π0h) &h_) : π0T(π0hv)(h_) {}
+
+  void mark() { for (let   x : d)     π0T(π0hv)::h.mark(x); }
+  void move() { for (auto &x : d) x = π0T(π0hv)::h.move(x); }
+
+  π0R &operator[](uN i) { return d[n.back() + i]; }
+
+  π0hdf &push(uN s) { n.push_back(d.size()); d.resize(d.size() + s, π0R()); return *this; }
+  π0hdf  &pop()     { d.resize(n.back()); n.pop_back(); return *this; }
+};
 
 
 π0TGs π0hnf : virtual π0T(π0hv)  // native frame heap view

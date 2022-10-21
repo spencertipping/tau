@@ -46,12 +46,33 @@ void try_simple_gc()
   cout << c << " = " << h[c] << endl;
   cout << d << " = " << h[d] << endl;
   //cout << *h.hs[0] << endl;
+
+  // TODO: write assertions for this (one of the rare cases where
+  // they're probably worth the time)
+}
+
+
+void try_data_stack()
+{
+  π0h<2>   h{64, 256, 0};
+  π0hds<2> s{h};
+
+  for (uN i = 0; i < 1000000; ++i) s << o9(i);
+  while (s.size() > 1)
+  { let x = Sc<uN>(h[s[0]]) + Sc<uN>(h[s[1]]);
+    s.drop(2);
+    s << o9(x); }
+
+  let t = h[s.pop()];
+  A(Sc<uN>(t) == 499999500000, t << " ≠ 499999500000");
+  cout << h.gΘ << endl;
 }
 
 
 int main()
 {
   try_simple_gc();
+  try_data_stack();
 }
 
 
