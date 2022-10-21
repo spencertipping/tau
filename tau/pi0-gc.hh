@@ -58,7 +58,7 @@ namespace τ
   B ns;
   ns.reserve(std::max(gs[0]->lss + s << 1, s0));
   for (let r : *gs[0])
-    (*rm)[r] = π0R(0, ns << π0gso9{*gs[0], r});
+    (*rm)[r] = π0R(0, ns << π0T(π0gso9){*gs[0], r});
 
   hs[0]->h = std::move(ns);
 

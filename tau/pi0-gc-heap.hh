@@ -47,7 +47,12 @@ namespace τ
 
   π0R operator()(π0hg g, ζp x) const
     { let &b = hs[g]->h;
-      return x >= b.data() && x < b.data() + b.size()
+
+      // NOTE: upper bound is included to provide endpoint/next
+      // continuity, even though it isn't a valid reference.
+      //
+      // FIXME: this may break everything
+      return x >= b.data() && x <= b.data() + b.size()
            ? π0R(g, x - b.data())
            : π0R(); }
 

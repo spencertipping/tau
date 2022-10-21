@@ -57,14 +57,14 @@ void try_data_stack_slow()
   π0h<2>   h{64, 256, 0};
   π0hds<2> s{h};
 
-  for (uN i = 0; i < 100000; ++i) s << o9(i);
+  for (u64 i = 0; i < 100000; ++i) s << o9(i);
   while (s.size() > 1)
-  { let x = Sc<uN>(h[s[0]]) + Sc<uN>(h[s[1]]);
+  { let x = Sc<u64>(h[s[0]]) + Sc<u64>(h[s[1]]);
     s.drop(2);
     s << o9(x); }
 
   let t = h[s.pop()];
-  A(Sc<uN>(t) == 4999950000, t << " ≠ 4999950000");
+  A(Sc<u64>(t) == 4999950000, t << " ≠ 4999950000");
   cout << "slow 100k: " << h.gΘ << endl;
 }
 
@@ -76,16 +76,43 @@ void try_data_stack_fast()
 
   // Outer loop for better profiling if we want more data
   for (uN l = 0; l < 1; ++l)
-  { s << o9(Sc<uN>(0));
-    for (uN i = 0; i < 1ul << 24; ++i)
+  { s << o9(Sc<u64>(0));
+    for (u64 i = 0; i < 1ul << 24; ++i)
     { s << o9(i);
-      s << o9(Sc<uN>(h[s.pop()]) + Sc<uN>(h[s.pop()])); }
+      s << o9(Sc<u64>(h[s.pop()]) + Sc<u64>(h[s.pop()])); }
 
     let t = h[s.pop()];
-    A(Sc<uN>(t) == 140737479966720, t << " ≠ 140737479966720"); }
+    A(Sc<u64>(t) == 140737479966720, t << " ≠ 140737479966720"); }
 
   cout << "fast 16M:  " << h.gΘ << endl;
 }
+
+
+/*
+void try_data_stack_tuple()
+{
+  π0h<2>   h{64, 65536, 0};
+  π0hds<2> s{h};
+  π0hnf<2> n{h, 2};
+
+  V<uN> xs; xs.reserve(1ul << 24);
+  for (uN i = 0; i < 1ul << 24; ++i) xs.push_back(i);
+
+  auto &v = n << (h << o9(xs));
+  auto &i = n << h(h[v].first().a);
+  s << o9(Sc<uN>(0));
+
+  while (i < h(h[v].next().a))
+  { s << i;
+    s << o9(Sc<uN>(h[s.pop()]) + Sc<uN>(h[s.pop()]));
+    i = h(i.next().a); }
+
+  let t = h[s.pop()];
+  A(Sc<uN>(t) == 140737479966720, t << " ≠ 140737479966720");
+
+  cout << "on-heap list: " << h.gΘ << endl;
+}
+*/
 
 
 int main()
@@ -93,6 +120,7 @@ int main()
   try_simple_gc();
   try_data_stack_slow();
   try_data_stack_fast();
+  //try_data_stack_tuple();
 }
 
 

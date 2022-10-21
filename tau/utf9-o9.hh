@@ -292,9 +292,12 @@ template<class T>    struct o9_<o9b<T>>    { sletc v =  true; };
 template<>           struct o9_<o9st>      { sletc v =  true; };
 template<>           struct o9_<o9c>       { sletc v =  true; };
 template<class T>    struct o9_<o9a<T>>    { sletc v =  true; };
-template<class... T> struct o9_<o9v<T...>> { sletc v =  true; };
 template<class... T> struct o9_<o9m<T...>> { sletc v =  true; };
 template<class... T> struct o9_<o9t<T...>> { sletc v =  true; };
+
+// This one is special due to higher-order second type arg
+template<o9mapped T, template<typename> class C, class... X>
+struct o9_<o9v<T, C, X...>> { sletc v = true; };
 
 
 // Virtual delegation

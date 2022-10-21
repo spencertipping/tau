@@ -228,7 +228,7 @@ namespace τ
 
 
   typename V<π0T(π0gS)>::const_iterator rpt(π0R x) const
-  { return std::lower_bound(s.begin(), s.end(), π0gS{x}); }
+  { return std::lower_bound(s.begin(), s.end(), π0T(π0gS){x}); }
 
   uN newsize(π0R x) const
   { return nsf.contains(x) ? nsf.at(x) >> 1 : h[x].osize(); }
@@ -240,7 +240,7 @@ namespace τ
   { if (!x) return x;
     let i = rpt(r);
     if (i == s.end()) return x;
-    auto j = std::lower_bound(i, s.end(), π0gS{r + x});
+    auto j = std::lower_bound(i, s.end(), π0T(π0gS){r + x});
     while (j != s.end() && (*j).o == r + x) --j;
     return x - (*i).c + (*j).c; }
 
@@ -256,9 +256,9 @@ namespace τ
     uN   c  = 0;       // copy source (relative to original object)
     uN   d  = 0;       // copy destination (relative to m)
     auto si = rpt(o);
-    if (si != s.end() && *si < π0gS{o}) ++si;
+    if (si != s.end() && *si < π0T(π0gS){o}) ++si;
 
-    while (c < os && si != s.end() && *si < π0gS{oe})
+    while (c < os && si != s.end() && *si < π0T(π0gS){oe})
     { // Right now we have o + c ≤ *s < oe, which means there's a splice
       // between the copy source point and the end of the input object.
       let l = (*si).o - (o + c);  // verbatim-copy length

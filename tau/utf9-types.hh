@@ -142,11 +142,16 @@ template<class E, class T> struct is_u9_scoped<u9_scoped<E, T>> { sletc v = true
 
 template<class J, class X>
 ic typename std::enable_if<is_u9_scoped<J>::v, J>::type
-R(X xs, uN i) { return u9_scoped{Sc<typename J::Et>(R<u9_scoped_t>(xs, i)), R<typename J::Tt>(xs, i + 1)}; }
+R(X xs, uN i)
+{ return u9_scoped<typename J::Et, typename J::Tt>
+    {Sc<typename J::Et>(R<u9_scoped_t>(xs, i)),
+     R <typename J::Tt>               (xs, i + 1)}; }
 
 template<class J, class X>
 ic typename std::enable_if<is_u9_scoped<J>::v, void>::type
-W(X xs, uN i, J const &x) { W<u9_scoped_t>(xs, i, Sc<u9_scoped_t>(x.t)); W<decltype(x.x)>(xs, i + 1, x.x); }
+W(X xs, uN i, J const &x)
+{ W<u9_scoped_t>  (xs, i,     Sc<u9_scoped_t>(x.t));
+  W<decltype(x.x)>(xs, i + 1, x.x); }
 
 
 enum class u9_none : u8
