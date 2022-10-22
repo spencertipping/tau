@@ -18,7 +18,10 @@ namespace τ
 {
 
 
-π0TGs π0int
+// NOTE: π0int : π0sv only for notational purposes; we never use π0int
+// as a stack view.
+
+π0TGs π0int : π0T(π0sv)
 {
   π0TS;
   π0T(π0h)         &h;   // data stack + local frames
@@ -35,31 +38,45 @@ namespace τ
   { A(p.v == a.v, "π₀ ABI mismatch: " << p.v << " ≠ " << a.v);
     r.push_back(c0); }
 
-  operator bool() const {                          return !r.empty(); }
-  π0int     &go()       { while (*this) (*this)(); return *this; }
+  operator bool() const {                       return !r.empty(); }
+  π0int     &go()       { while (*this) step(); return *this; }
   π0int    &run(uN l)
     { let n = r.size();
       r.push_back(l);
-      while (r.size() > n) (*this)();
+      while (r.size() > n) step();
       return *this; }
 
-  // FIXME: standardize this API, maybe π0int even follows the π0sv API
-  i9 operator[](uN i) { return i9{p.q.data() + i}; }
 
+  // Stack-view accessors, used by bytecode functions
+  π0T(π0sv)   *up()     const { return nullptr; }
+  uN         size()     const { return dv->size(); }
+  π0R  operator[](uN i) const { return (*dv)[i]; }
+  void operator<<(π0R x)      { *dv << x; }
+  void       drop(uN n) const { dv->drop(n); }
 
-  π0int &spush() { dv = new π0T(π0sv){h, *dv};          return *this; }
+  π0int &spush() { dv = new π0T(π0hss){h, *dv};         return *this; }
   π0int &spop()  { let v = dv; dv = dv->up(); delete v; return *this; }
 
 
+  // Frame accessors
+  π0int &fpush(uN s) { f.push(s); return *this; }
+  π0int &fpop()      { f.pop();   return *this; }
+  π0R   &fi(uN i)    { return f[i]; }
+
+
+  // Native frames are always created externally because their lifetime
+  // is managed by the caller
+
+
 #if τπ0debug_bounds_checks
-  π0int &operator()()
+  π0int &step()
   { A(*this, "π₀i() r=∅");
     let [fi, x] = p.at(r.back()++);
-    f.at(fi)(*this, x); return *this; }
+    a.f.at(fi)(*this, x); return *this; }
 #else
-  π0int &operator()()
+  π0int &step()
   { let [fi, x] = p[r.back()++];
-    f[fi](*this, x); return *this; }
+    a.f[fi](*this, x); return *this; }
 #endif
 };
 

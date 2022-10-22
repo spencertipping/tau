@@ -28,7 +28,7 @@ namespace τ
 {
   π0TS;
   virtual ~π0sv() {}
-  virtual π0T(π0sv)    *up()    const = 0;
+  virtual π0T(π0sv)   *up()     const = 0;
   virtual uN         size()     const = 0;
   virtual π0R  operator[](uN i) const = 0;
   virtual void operator<<(π0R x)      = 0;

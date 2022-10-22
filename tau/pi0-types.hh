@@ -15,6 +15,7 @@ namespace τ
 
 π0TGs π0int;
 π0TGs π0asm;
+π0TGs π0abi;
 
 
 typedef uN π0fi;  // function index
@@ -25,20 +26,19 @@ typedef uN π0av;  // ABI version
 // is determined by the function
 π0TG using π0f = void(*)(π0T(π0int)&, π0fa);
 
+// Bytecode instantiation: function index + arg
+typedef P<π0fi, π0fa> π0b;
 
-π0TGs π0abi
-{
-  π0TS;
-  π0av        v;  // version
-  V<π0T(π0f)> f;  // function table (π0fi to index)
-};
 
 π0TGs π0p
 {
   π0TS;
-  π0av             v;  // ABI version being targeted by this program
-  B                q;  // quoted statics
-  V<P<π0fi, π0fa>> p;  // bytecodes
+  π0av   v;  // ABI version being targeted by this program
+  B      q;  // quoted statics
+  V<π0b> p;  // bytecodes
+
+  π0p() {}
+  π0p(π0T(π0p) &&p_) : v(p_.v), q(std::move(p_.q)), p(std::move(p_.p)) {}
 };
 
 

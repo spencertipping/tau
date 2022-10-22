@@ -12,6 +12,7 @@
 #include "pi0-types.hh"
 #include "pi0-int.hh"
 #include "pi0-gc.hh"
+#include "pi0-abi.hh"
 
 #include "pi0-begin.hh"
 
@@ -84,7 +85,10 @@ struct π0abl  // π₀ asm block
   sletc c7in = π0cs7("0123456789");    // integer
 
 
-  M<St, uN> fn;   // name → fs[i]
+  π0T(π0abi)  a;
+  M<St, π0fi> fn;  // string index of ABI functions
+
+
   M<uN, uN> gf;   // local getters (local index → fs[i])
   M<uN, uN> sf;   // local setters (local index → fs[i])
   V<π0f>    fs;   // quotation and defined functions (not all functions are named)
