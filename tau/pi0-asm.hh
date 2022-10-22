@@ -83,9 +83,9 @@ struct π0afr  // π₀ asm frame
 π0TGs π0asm
 {
   π0TS;
-  sletc c7ws = π0cs7(" \t\n");         // whitespace
-  sletc c7ni = π0cs7(" \t\n{}[](),");  // non-ident
-  sletc c7in = π0cs7("0123456789");    // integer
+  sletc c7ws = π0cs7(" \t\n");            // whitespace
+  sletc c7ni = π0cs7(" \t\n{}[](),'\"");  // non-ident
+  sletc c7in = π0cs7("0123456789");       // integer
 
   typedef V<π0b> π0blk;  // code block
 
@@ -120,10 +120,7 @@ struct π0afr  // π₀ asm frame
     return *this; }
 
 
-  // TODO: add i9 quoting
-
   π0T(π0asm) &operator<<(π0b b) { bs.back().push_back(b); return *this; }
-  π0T(π0asm) &operator<<(iN x)  { return *this << π0b{fn.at("iN"), x}; }
   π0T(π0asm) &operator<<(Stc &s)
   { for (uN i = 0; i < s.size(); ++i)
       if      (c7ws[s[i]]) continue;
@@ -132,16 +129,15 @@ struct π0afr  // π₀ asm frame
         else if (s[i] == ']') end();
         else if (s[i] == '|') TODO("<< frame");
         else A(0, "π₀asm<< internal error " << s[i]); }
-      else if (c7in[s[i]])
-      { uN j = i + 1;
-        while (j < s.size() && c7in[s[j]]) ++j;
-        let n = s.substr(i, j - i);
-        *this << atoi(n.c_str());
-        i = j - 1; }
       else
       { uN j = i + 1;
         while (j < s.size() && !c7ni[s[j]]) ++j;
-        *this << π0b{fn.at(s.substr(i, j - i)), 0};
+        let f = s.substr(i, j - i);
+        uN  x = 0;
+        if (j < s.size() && s[j] == '\'')
+          for (i = j++; j < s.size() && c7in[s[j]]; ++j)
+            x *= 10, x += s[j] - '0';
+        *this << π0b{fn.at(f), x};
         i = j - 1; }
     return *this; }
 

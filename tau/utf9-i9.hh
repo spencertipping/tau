@@ -271,10 +271,7 @@ struct i9
   bool operator==(Stc &x) const { return u9strings[type()]  && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
   bool operator==(Bc  &x) const { return u9strings[type()]  && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
 
-  // TODO: it's risky to have both of these cases, especially given that
-  // they are handled differently
   bool operator==(i9   x) const { return x.a == a || type() == x.type() && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
-  bool operator==(ζp   b) const { return a == b; }
 
 
   // TODO: return an enum value so we can describe failure cases better
@@ -288,7 +285,7 @@ struct i9
       { i9 i = first();
         for (; i.a >= first() && i < e; i = i.next())
           if (!i.verify(e - i.a)) return false;
-        if (i != e) return false; }
+        if (i.a != e) return false; }
       return true; }
 };
 

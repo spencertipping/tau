@@ -47,8 +47,21 @@ void try_simple_gc()
   cout << d << " = " << h[d] << endl;
   //cout << *h.hs[0] << endl;
 
-  // TODO: write assertions for this (one of the rare cases where
-  // they're probably worth the time)
+  // One of the rare cases where it's worth asserting everything.
+
+  A(h[a] == St{"new value for a"}, "a");
+  A(h[b][0] == St{"foo"}, "b[0]");
+  A(h[b][1] == h[c],      "b[1]");
+  A(h[b][2] == h[c],      "b[2]");
+  A(h[b][3] == St{"bar"}, "b[3]");
+  A(h[c][0] == 1,         "c[0]");
+  A(h[c][1] == 2,         "c[1]");
+  A(h[c][2] == 3,         "c[3]");
+  A(h[d][0].at<bool>(0) == true,  "d[0]");
+  A(h[d][1].at<bool>(1) == false, "d[1]");
+  A(h[d][2]             == h[b],  "d[2]");
+  A(h[d][3]             == h[c],  "d[3]");
+  A(h[d][4]             == h[b],  "d[4]");
 }
 
 
@@ -126,12 +139,12 @@ void try_data_stack_tuple()
 void try_asm()
 {
   π0asm<2> a{π0abi1<2>()};
-  a << "3 4 :out _ :out";
+  a << "i32'3 i32'4 :out _ :out";
 
   π0h<2>   h{};
   π0int<2> i{π0abi1<2>(), a.build(), h};
   i.run(0);
-  iN x = i.dpop();
+  i32 x = i.dpop();
   A(x == 3, "expected 3, got " << x);
 }
 

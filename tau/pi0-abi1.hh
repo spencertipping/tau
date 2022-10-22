@@ -75,11 +75,19 @@ namespace τ
 }
 
 
+π0TG void π0abi1_numbers(π0T(π0abi) &a)
+{
+  a .def("i8",  I{ i.dpush(Sc<i8>(n)); })
+    .def("i16", I{ i.dpush(Sc<i16>(n)); })
+    .def("i32", I{ i.dpush(Sc<i32>(n)); })
+    .def("i64", I{ i.dpush(Sc<i64>(n)); });
+}
+
+
 #if τdebug
 π0TG void π0abi1_debug(π0T(π0abi) &a)
 {
-  a .def("iN",    I{ i.dpush(Sc<iN>(n)); })
-    .def(":out",  I{ std::cout << i.h[i[0]] << std::endl; })
+  a .def(":out",  I{ std::cout << i.h[i[0]] << std::endl; })
     .def("::out", I
          { for (uN j = 0; j < i.size(); ++j)
              std::cout << "[" << j << "]\t" << i.h[i[j]] << std::endl; });
@@ -101,6 +109,7 @@ namespace τ
   π0abi1_stack(a);
   π0abi1_frame(a);
   π0abi1_control(a);
+  π0abi1_numbers(a);
 
 # if τdebug
   π0abi1_debug(a);
