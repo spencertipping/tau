@@ -16,8 +16,8 @@ Anything complicated will use frames, but it's good to have a few functions to m
 ### Frames
 Mostly enabled with syntax, but we should also have explicit instructions:
 
-+ `n :&`: create a frame with _n_ locals
-+ `_&`
++ `n &:`: create a frame with _n_ locals
++ `&_`
 + `n &@`: get local
 + `x n &=`: set local
 

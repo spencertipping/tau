@@ -98,7 +98,7 @@ struct π0afr  // π₀ asm frame
   π0asm(π0T(π0abi) const &a_) : a(a_)
   { fs.push_back(π0afr{});
     bs.push_back(π0blk{});
-    for (uN i = 0; i < a.f.size(); ++i) fn[a.n.at(i)] = a.f.at(i); }
+    for (uN i = 0; i < a.f.size(); ++i) fn[a.n.at(i)] = i; }
 
 
   π0T(π0asm) &begin() { bs.push_back(π0blk{}); return *this; }
@@ -146,9 +146,10 @@ struct π0afr  // π₀ asm frame
     return *this; }
 
 
-  π0T(π0p) build() const
+  π0T(π0p) build()
   { A(bs.size() == 1, "π₀asm::build |bs| = " << bs.size());
-    return π0T(π0p){a.v, qh, bs.back()}; }
+    *this << π0b{fn.at("]"), 0};
+    return π0T(π0p){a.v(), qh, bs.back()}; }
 };
 
 

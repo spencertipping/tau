@@ -87,8 +87,6 @@ typedef uN π0ha;  // heap address within generation
   iN   operator- (π0R x) const
   { A(g() == x.g(), "π0R- g mismatch: " << g() << " ≠ " << x.g());
     return a() - x.a(); }
-
-  π0R &operator=(π0R const &r) { ga = r.ga; return *this; }
 };
 
 

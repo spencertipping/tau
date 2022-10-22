@@ -25,23 +25,20 @@ namespace τ
 π0TGs π0int : π0T(π0sv)
 {
   π0TS;
-  π0T(π0h)         &h;   // data stack + local frames
   π0T(π0abi) const &a;   // ABI (native functions)
   π0T(π0p)   const  p;   // bytecode program
+  π0T(π0h)         &h;   // data stack + local frames
   V<uN>             r;   // return stack
   π0T(π0hdf)        f;   // frame stack
   π0T(π0hds)        d;   // base data stack
   π0T(π0sv)        *dv;  // current data stack view
 
+  π0int(π0T(π0abi) const &a_, π0T(π0p) &&p_, π0T(π0h) &h_)
+    : a(a_), p(std::move(p_)), h(h_), f(h), d(h), dv(&d)
+  { A(p.v == a.v(), "π₀ ABI mismatch: " << p.v << " ≠ " << a.v()); }
 
-  π0int(π0T(π0h) &h_, π0T(π0abi) &a_, π0T(π0p) &&p_)
-    : h(h_), a(a_), p(std::move(p_)), f(h), d(h), dv(&d)
-  { A(p.v == a.v(), "π₀ ABI mismatch: " << p.v << " ≠ " << a.v());
-    r.push_back(0); }
 
-  operator bool() const {                       return !r.empty(); }
-  π0int     &go()       { while (*this) step(); return *this; }
-  π0int    &run(uN l)
+  π0int &run(uN l)
     { let n = r.size();
       r.push_back(l);
       while (r.size() > n) step();
@@ -77,12 +74,11 @@ namespace τ
 
 #if τπ0debug_bounds_checks
   π0int &step()
-  { A(*this, "π₀i() r=∅");
-    let [fi, x] = p.p.at(r.back()++);
+  { let [fi, x] = p.p.at(r.back()++);
     a.f.at(fi)(*this, x); return *this; }
 #else
   π0int &step()
-  { let [fi, x] = p[r.back()++];
+  { let [fi, x] = p.p[r.back()++];
     a.f[fi](*this, x); return *this; }
 #endif
 };

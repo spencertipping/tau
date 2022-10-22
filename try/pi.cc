@@ -123,12 +123,26 @@ void try_data_stack_tuple()
 }
 
 
+void try_asm()
+{
+  π0asm<2> a{π0abi1<2>()};
+  a << "3 4 :out _ :out";
+
+  π0h<2>   h{};
+  π0int<2> i{π0abi1<2>(), a.build(), h};
+  i.run(0);
+  iN x = i.dpop();
+  A(x == 3, "expected 3, got " << x);
+}
+
+
 int main()
 {
   try_simple_gc();
   try_data_stack_slow();
   try_data_stack_fast();
   try_data_stack_tuple();
+  try_asm();
 }
 
 

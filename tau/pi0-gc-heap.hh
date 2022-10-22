@@ -29,7 +29,7 @@ namespace τ
   S<π0T(π0hv)*> vs;      // views that comprise the root set
 
   π0h(uN is_ = 64, uN s0_ = 65536, uN sb_ = 0)
-  : is(is_), s0(s0_), sb(sb_)
+  : is(is_), s0(s0_), sb(sb_), rm(nullptr)
   { for (uN g = 0; g < gn; ++g)
     { ms[g] = nullptr;
       gs[g] = nullptr;

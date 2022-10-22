@@ -151,7 +151,7 @@ namespace τ
     // inlined by the time we visit it -- although it's allowed to inline
     // things we've visited on previous iterations.
     uN css = 0;  // number of container size splices
-    for (let x : ms.m)
+    for (let &x : ms.m)
     { π0T(π0gSs) ss{h, g, s, nsf};
       let xi = h[x];
       for (let i : xi.flags())

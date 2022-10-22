@@ -81,7 +81,7 @@ namespace τ
   void mark() { for (let   x : s)     π0T(π0hv)::h.mark(x); }
   void move() { for (auto &x : s) x = π0T(π0hv)::h.move(x); }
 
-  π0T(π0sv) *up() const { return &d; }
+  π0T(π0sv) *up() const { return const_cast<π0T(π0sv)*>(&d); }
 
   void      operator<<(π0R x)         { s.push_back(x); }
   π0TO void operator<<(π0To const &x) { *this << (π0T(π0hv)::h << x); }
