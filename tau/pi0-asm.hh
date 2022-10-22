@@ -20,14 +20,14 @@ namespace τ
 {
 
 
-struct π0cs7  // 7-bit ASCII charset
+struct π0cs7  // 7-bit ASCII char set, used to split things
 {
   u64 c1;
   u64 c2;
 
   constexpr π0cs7(chc *cs)
     : c1(0), c2(0)
-    { for (ch c; c = *cs; cs++)
+    { for (ch c; c = *cs++;)
         if (c >= 0 && c < 64) c1 |= 1ull << c;
         else if (c >= 64)     c2 |= 1ull << c - 64; }
 
@@ -51,16 +51,18 @@ struct π0cs7  // 7-bit ASCII charset
 
 struct π0afr  // π₀ asm frame
 {
-  sletc c7fs = π0cs7(" |[]");
+  sletc  c7fs = π0cs7(" |[]");
+  sc uNc fω   = -1;
 
-  sc uNc fω = -1;
-  V<St>  vs;
+  V<St> vs;   // variables, positionally mapped to frame offsets
+  uN    nc;   // number of arg-captures when entering frame
 
   π0afr(Stc &vs_) : vs(c7fs.split(vs_)) {}
   π0afr(Il<St> const &vs_)
     { std::copy(vs_.begin(), vs_.end(), std::back_inserter(vs)); }
-  π0afr(Stc &p, uN vs_)
-    { for (uN i = 0; i < vs_; ++i)
+
+  π0afr(Stc &p, uN n)  // anonymous variables with prefix
+    { for (uN i = 0; i < n; ++i)
       { vs.push_back(p);
         vs.back().append(std::to_string(i)); } }
 
@@ -87,6 +89,7 @@ struct π0abl  // π₀ asm block
 
   π0T(π0abi)  a;
   M<St, π0fi> fn;  // string index of ABI functions
+
 
 
   M<uN, uN> gf;   // local getters (local index → fs[i])
