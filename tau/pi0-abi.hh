@@ -23,7 +23,7 @@ namespace τ
 
   π0av v() const
   { if (v_) return v_;
-    St nul = "\0";
+    Stc nul = "\0";
     picosha2::hash256_one_by_one h;
     for (let &s : n)
     { h.process(s  .begin(), s  .end());

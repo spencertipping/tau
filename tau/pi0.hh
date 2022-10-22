@@ -6,7 +6,9 @@
 #include "pi0-gc.hh"
 #include "pi0-abi.hh"
 #include "pi0-int.hh"
-//#include "pi0-asm.hh"
+#include "pi0-asm.hh"
+
+#include "pi0-abi1.hh"
 
 
 #if τπ0debug_specialize_templates

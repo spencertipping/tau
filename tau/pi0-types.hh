@@ -39,6 +39,7 @@ typedef P<π0fi, π0fa> π0b;
 
   π0p() {}
   π0p(π0T(π0p) &&p_) : v(p_.v), q(std::move(p_.q)), p(std::move(p_.p)) {}
+  π0p(π0av v_, Bc &q_, V<π0b> const &p_) : v(v_), q(q_), p(p_) {}
 };
 
 
@@ -86,6 +87,8 @@ typedef uN π0ha;  // heap address within generation
   iN   operator- (π0R x) const
   { A(g() == x.g(), "π0R- g mismatch: " << g() << " ≠ " << x.g());
     return a() - x.a(); }
+
+  π0R &operator=(π0R const &r) { ga = r.ga; return *this; }
 };
 
 

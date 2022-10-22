@@ -18,6 +18,8 @@ namespace τ
   π0hg const g;
   B          h;
 
+  // TODO: add finalizer functions
+
   π0hs(π0hg g_, uN s) : g(g_) { h.reserve(s); }
 
   π0TO π0R operator<<(π0To const &x)

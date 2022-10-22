@@ -10,6 +10,7 @@
 
 #include "pi0-types.hh"
 #include "pi0-gc.hh"
+#include "pi0-abi.hh"
 
 
 #include "pi0-begin.hh"
@@ -33,10 +34,10 @@ namespace τ
   π0T(π0sv)        *dv;  // current data stack view
 
 
-  π0int(π0T(π0abi) &a_, π0T(π0p) &&p_, uN c0)
-  : a(a_), p(std::move(p_)), f(h), d(h), dv(&d)
-  { A(p.v == a.v, "π₀ ABI mismatch: " << p.v << " ≠ " << a.v);
-    r.push_back(c0); }
+  π0int(π0T(π0h) &h_, π0T(π0abi) &a_, π0T(π0p) &&p_)
+    : h(h_), a(a_), p(std::move(p_)), f(h), d(h), dv(&d)
+  { A(p.v == a.v(), "π₀ ABI mismatch: " << p.v << " ≠ " << a.v());
+    r.push_back(0); }
 
   operator bool() const {                       return !r.empty(); }
   π0int     &go()       { while (*this) step(); return *this; }
@@ -52,10 +53,16 @@ namespace τ
   uN         size()     const { return dv->size(); }
   π0R  operator[](uN i) const { return (*dv)[i]; }
   void operator<<(π0R x)      { *dv << x; }
-  void       drop(uN n) const { dv->drop(n); }
+  void       drop(uN n)       { dv->drop(n); }
 
   π0int &spush() { dv = new π0T(π0hss){h, *dv};         return *this; }
   π0int &spop()  { let v = dv; dv = dv->up(); delete v; return *this; }
+
+
+  template<o9mapped T>
+  π0T(π0int) &dpush(T const &x) { *this << (h << o9(x)); return *this; }
+
+  i9 dpop() { let r = h[(*dv)[0]]; drop(1); return r; }
 
 
   // Frame accessors
@@ -71,7 +78,7 @@ namespace τ
 #if τπ0debug_bounds_checks
   π0int &step()
   { A(*this, "π₀i() r=∅");
-    let [fi, x] = p.at(r.back()++);
+    let [fi, x] = p.p.at(r.back()++);
     a.f.at(fi)(*this, x); return *this; }
 #else
   π0int &step()
@@ -84,12 +91,12 @@ namespace τ
 #if τdebug_iostream
 π0TG O &operator<<(O &s, π0T(π0int) const &i)
 {
-  s << "π₀i qs=" << i.q->size()
+  s << "π₀i qs=" << i.p.q.size()
     << " r=";
   if (!i.r.empty())
     for (iN j = i.r.size() - 1; j >= 0; --j)
       s << i.r[j] << " ";
-  return s << i.h << std::endl;
+  return s;
 }
 #endif
 
