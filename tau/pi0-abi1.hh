@@ -18,7 +18,7 @@ namespace τ
 
 π0TG void π0abi1_blocks(π0T(π0abi) &a)
 {
-  a .def("[",  I{ i.dpush(i.r.back()); i.r.back() += n; })
+  a .def("[",  I{ i.dpush(Sc<π0bi>(i.r.back())); i.r.back() += n; })
     .def("]",  I{ i.r.pop_back(); })
     .def("[|", I{ i.fpush(n); })
     .def("|]", I{ i.fpop(); });
@@ -29,9 +29,9 @@ namespace τ
 {
   a .def(":",  I{ i << i[0]; })
     .def("::", I{ i << i[1]; i << i[1]; })
-    .def("^",  I{ i << i[1]; })
+    .def("^",  I{ i << i[n ? n : 1]; })
     .def("^^", I{ i << i[2]; })
-    .def("_",  I{ i.drop(1); })
+    .def("_",  I{ i.drop(n ? n : 1); })
     .def("%",  I
          { let a = i[0];
            let b = i[1];
@@ -48,47 +48,51 @@ namespace τ
     .def("&@", I{ i << i.fi(Sc<uN>(i.dpop())); })
     .def("&=", I
          { let v = Sc<uN>(i.dpop());
-           i.fi(v) = i[0];
-           i.drop(1); });
+           i.fi(v) = i.pop(); });
 }
 
 
 π0TG void π0abi1_control(π0T(π0abi) &a)
 {
-  // FIXME: define a portable type alias for bytecode offsets
-
-  a .def(".",  I{ i.r.push_back(Sc<uN>(i.dpop())); })
+  a .def(".",  I{ i.r.push_back(Sc<π0bi>(i.dpop())); })
     .def("?.", I
-         { let e = Sc<uN>(i.dpop());
-           let t = Sc<uN>(i.dpop());
-           let c = Sc<bool>(i.dpop());
+         { let e = Sc<π0bi>(i.dpop());
+           let t = Sc<π0bi>(i.dpop());
+           let c = i.dpop().at<bool>(0);
            i.run(c ? t : e); })
     .def("?!", I
-         { let c = Sc<uN>(i.dpop());
-           let b = Sc<uN>(i.dpop());
+         { let c = Sc<π0bi>(i.dpop());
+           let b = Sc<π0bi>(i.dpop());
          loop:
            i.run(c);
-           if (Sc<bool>(i.dpop()))
-           { i.run(b);
-             goto loop; }})
-    .def(".^", I{ i.r.pop_back(); });
+           if (i.dpop().at<bool>(0)) { i.run(b); goto loop; }})
+    .def(".^", I{ i.r.resize(i.r.size() - n - 1); });
 }
 
 
-π0TG void π0abi1_numbers(π0T(π0abi) &a)
+π0TG void π0abi1_quote(π0T(π0abi) &a)
 {
+  // FIXME: all of these should just be "copy quoted value from
+  // statics"
   a .def("i8",  I{ i.dpush(Sc<i8>(n)); })
     .def("i16", I{ i.dpush(Sc<i16>(n)); })
     .def("i32", I{ i.dpush(Sc<i32>(n)); })
-    .def("i64", I{ i.dpush(Sc<i64>(n)); });
+    .def("i64", I{ i.dpush(Sc<i64>(n)); })
+
+    .def("utf8", I{ i.dpush(i9{const_cast<ζp>(i.p.q.data() + n)}); })
+    .def("sym",  I{ i.dpush(i9{const_cast<ζp>(i.p.q.data() + n)}); });
 }
 
 
 #if τdebug
 π0TG void π0abi1_debug(π0T(π0abi) &a)
 {
-  a .def(":out",  I{ std::cout << i.h[i[0]] << std::endl; })
-    .def("::out", I
+  a .def(":gc",   I{ i.h.gc(); })
+    .def(":gH",   I{ std::cout << i.h.gΘ << std::endl; })
+    .def(":src",  I{ std::cout << i.p << std::endl; })
+    .def(":int",  I{ std::cout << i << std::endl; })
+    .def(":out",  I{ std::cout << i.h[i[0]] << std::endl; })
+    .def(":data", I
          { for (uN j = 0; j < i.size(); ++j)
              std::cout << "[" << j << "]\t" << i.h[i[j]] << std::endl; });
 }
@@ -109,7 +113,7 @@ namespace τ
   π0abi1_stack(a);
   π0abi1_frame(a);
   π0abi1_control(a);
-  π0abi1_numbers(a);
+  π0abi1_quote(a);
 
 # if τdebug
   π0abi1_debug(a);

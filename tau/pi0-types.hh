@@ -17,10 +17,13 @@ namespace τ
 π0TGs π0asm;
 π0TGs π0abi;
 
+π0TGs π0p;
 
-typedef uN π0fi;  // function index
-typedef uN π0fa;  // function argument
-typedef uN π0av;  // ABI version
+
+typedef u32 π0bi;  // bytecode index
+typedef u32 π0fi;  // function index
+typedef u64 π0fa;  // function argument
+typedef u64 π0av;  // ABI version
 
 // Bytecode function: takes a single native-width argument whose meaning
 // is determined by the function
@@ -28,19 +31,6 @@ typedef uN π0av;  // ABI version
 
 // Bytecode instantiation: function index + arg
 typedef P<π0fi, π0fa> π0b;
-
-
-π0TGs π0p
-{
-  π0TS;
-  π0av   v;  // ABI version being targeted by this program
-  B      q;  // quoted statics
-  V<π0b> p;  // bytecodes
-
-  π0p() {}
-  π0p(π0T(π0p) &&p_) : v(p_.v), q(std::move(p_.q)), p(std::move(p_.p)) {}
-  π0p(π0av v_, Bc &q_, V<π0b> const &p_) : v(v_), q(q_), p(p_) {}
-};
 
 
 π0TGs π0h;        // GC heap (all generations)

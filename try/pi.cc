@@ -3,6 +3,9 @@
 #define τπ0debug_gc_postcopy_verify 0
 //#define τdebug_i9st 1
 
+
+#include <cstring>
+
 #include "../tau.hh"
 
 #if τdefines_π
@@ -139,7 +142,7 @@ void try_data_stack_tuple()
 void try_asm()
 {
   π0asm<2> a{π0abi1<2>()};
-  a << "i32'3 i32'4 :out _ :out";
+  a << "i32'3 [i32'4 :out] . _ :out";
 
   π0h<2>   h{};
   π0int<2> i{π0abi1<2>(), a.build(), h};
@@ -149,13 +152,55 @@ void try_asm()
 }
 
 
-int main()
+void default_try_stuff()
 {
   try_simple_gc();
   try_data_stack_slow();
   try_data_stack_fast();
   try_data_stack_tuple();
   try_asm();
+}
+
+
+int asmrun(char *src)
+{
+  π0h<2>   h{};
+  π0asm<2> a{π0abi1<2>()}; a << St{src};
+  π0int<2> i{π0abi1<2>(), a.build(), h};
+  i.run(0);
+  return 0;
+}
+
+
+int asmdebug(char *src)
+{
+  π0h<2>   h{};
+  π0asm<2> a{π0abi1<2>()}; a << St{src};
+  π0int<2> i{π0abi1<2>(), a.build(), h};
+
+  cout << "input program:" << endl;
+  cout << i.p << endl;
+  i.r.push_back(0);
+
+  uN s = 0;
+  while (!i.r.empty())
+  { cout << "step " << ++s << endl;
+    i.step();
+    cout << i << endl; }
+
+  cout << "program ended; final state:" << endl;
+  cout << i      << endl;
+  cout << i.h.gΘ << endl;
+  return 0;
+}
+
+
+int main(int argc, char **argv)
+{
+  if (argc > 2)
+    if      (!strcmp(argv[1], "run"))   return asmrun  (argv[2]);
+    else if (!strcmp(argv[1], "debug")) return asmdebug(argv[2]);
+  default_try_stuff();
 }
 
 

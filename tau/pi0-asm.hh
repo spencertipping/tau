@@ -13,6 +13,7 @@
 #include "pi0-int.hh"
 #include "pi0-gc.hh"
 #include "pi0-abi.hh"
+#include "pi0-pgm.hh"
 
 #include "pi0-begin.hh"
 
@@ -104,20 +105,25 @@ struct π0afr  // π₀ asm frame
   π0T(π0asm) &begin() { bs.push_back(π0blk{}); return *this; }
   π0T(π0asm) &end()
   { auto b = std::move(bs.back()); bs.pop_back();
-    *this << π0b{fn.at("["), b.size() + 1};
+    *this << π0b{f("["), b.size() + 1};
     for (let &x : b) *this << x;
-    *this << π0b{fn.at("]"), 0};
+    *this << π0b{f("]"), 0};
     return *this; }
 
   π0T(π0asm) &fbegin(Stc &vs)
   { fs.push_back(π0afr(vs));
-    *this << π0b{fn.at("[|"), fs.back().vs.size() << 16 | fs.back().nc};
+    *this << π0b{f("[|"), fs.back().vs.size() << 16 | fs.back().nc};
     return *this; }
 
   π0T(π0asm) &fend()
   { fs.pop_back();
-    *this << π0b{fn.at("|]"), 0};
+    *this << π0b{f("|]"), 0};
     return *this; }
+
+
+  uN f(Stc &n)
+  { A(fn.contains(n), "π₀asm: " << n << " is not defined");
+    return fn.at(n); }
 
 
   π0T(π0asm) &operator<<(π0b b) { bs.back().push_back(b); return *this; }
@@ -127,25 +133,44 @@ struct π0afr  // π₀ asm frame
       else if (c7ni[s[i]])
       { if      (s[i] == '[') begin();
         else if (s[i] == ']') end();
+        else if (s[i] == '\'')
+        { uN j = i + 1;
+          while (j < s.size() && !c7ni[s[j]]) ++j;
+          *this << π0b{f("sym"), qh << o9(u9_symbol::str(s.substr(i, j - 1)))};
+          i = j - 1; }
+        else if (s[i] == '"')
+        { St x;
+          for (++i; i < s.size() && s[i] != '"'; ++i)
+            if (s[i] == '\\' && ++i < s.size())
+              switch (s[i])
+              {
+              case '"': case '\\': x.push_back(s[i]); break;
+              case 'n': x.push_back('\n'); break;
+              case 't': x.push_back('\t'); break;
+              case 'r': x.push_back('\r'); break;
+                TA(*this, "π₀asm unknown string escape: " << s[i]);
+              }
+            else x.push_back(s[i]);
+          *this << π0b{f("utf8"), qh << o9(x)}; }
         else if (s[i] == '|') TODO("<< frame");
         else A(0, "π₀asm<< internal error " << s[i]); }
       else
       { uN j = i + 1;
         while (j < s.size() && !c7ni[s[j]]) ++j;
-        let f = s.substr(i, j - i);
+        let n = s.substr(i, j - i);
         uN  x = 0;
         if (j < s.size() && s[j] == '\'')
           for (i = j++; j < s.size() && c7in[s[j]]; ++j)
             x *= 10, x += s[j] - '0';
-        *this << π0b{fn.at(f), x};
+        *this << π0b{f(n), x};
         i = j - 1; }
     return *this; }
 
 
   π0T(π0p) build()
   { A(bs.size() == 1, "π₀asm::build |bs| = " << bs.size());
-    *this << π0b{fn.at("]"), 0};
-    return π0T(π0p){a.v(), qh, bs.back()}; }
+    *this << π0b{f("]"), 0};
+    return π0T(π0p){a, qh, bs.back()}; }
 };
 
 

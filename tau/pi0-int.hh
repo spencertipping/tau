@@ -3,14 +3,12 @@
 
 
 #include "types.hh"
-#include "numerics.hh"
-#include "Lambda.hh"
-#include "zeta.hh"
 #include "utf9.hh"
 
 #include "pi0-types.hh"
 #include "pi0-gc.hh"
 #include "pi0-abi.hh"
+#include "pi0-pgm.hh"
 
 
 #include "pi0-begin.hh"
@@ -28,14 +26,14 @@ namespace τ
   π0T(π0abi) const &a;   // ABI (native functions)
   π0T(π0p)   const  p;   // bytecode program
   π0T(π0h)         &h;   // data stack + local frames
-  V<uN>             r;   // return stack
+  V<π0bi>           r;   // return stack
   π0T(π0hdf)        f;   // frame stack
   π0T(π0hds)        d;   // base data stack
   π0T(π0sv)        *dv;  // current data stack view
 
   π0int(π0T(π0abi) const &a_, π0T(π0p) &&p_, π0T(π0h) &h_)
     : a(a_), p(std::move(p_)), h(h_), f(h), d(h), dv(&d)
-  { A(p.v == a.v(), "π₀ ABI mismatch: " << p.v << " ≠ " << a.v()); }
+  { A(p.a.v() == a.v(), "π₀ ABI mismatch: " << p.a.v() << " ≠ " << a.v()); }
 
 
   π0int &run(uN l)
@@ -90,8 +88,13 @@ namespace τ
   s << "π₀i qs=" << i.p.q.size()
     << " r=";
   if (!i.r.empty())
-    for (iN j = i.r.size() - 1; j >= 0; --j)
+  { for (iN j = i.r.size() - 1; j >= 0; --j)
       s << i.r[j] << " ";
+    let [fi, x] = i.p.p[i.r.back()];
+    s << " " << i.p.a.n[fi] << "'" << x; }
+  s << std::endl;
+  for (uN j = 0; j < i.size(); ++j)
+    s << "  [" << j << "]\t" << i.h[i[j]] << std::endl;
   return s;
 }
 #endif

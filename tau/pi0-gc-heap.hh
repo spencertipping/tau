@@ -51,10 +51,16 @@ namespace τ
       // NOTE: upper bound is included to provide endpoint/next
       // continuity, even though it isn't a valid reference.
       //
-      // FIXME: this may break everything
+      // FIXME: this may break everything if heap-spaces are allocated
+      // immediately adjacent to one another; we probably need to size
+      // them up by one to prevent this.
       return x >= b.data() && x <= b.data() + b.size()
            ? π0R(g, x - b.data())
            : π0R(); }
+
+
+  // TODO: we need a "flatten all references" method so we can compare
+  // values and send them across Φ boundary
 
 
   π0TO π0R operator<<(π0To const &x)
