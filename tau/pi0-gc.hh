@@ -17,6 +17,13 @@ namespace τ
 {
 
 
+// TODO: rewrite all of the GC logic; we should base out to managed i9*s
+// in the GC itself, and provide managed iterators. We don't need π0R as
+// such, although we want ζp to have a custom o9 so it can be written as
+// a reference.
+//
+// Heap-view design should stay; it's really good.
+
 π0TG π0T(π0h)::~π0h ()
 { A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
   A(!rm,        "~π0h during GC");
