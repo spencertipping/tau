@@ -10,3 +10,6 @@
 [submodule "dep/rapidjson"]
 	path = dep/rapidjson
 	url = https://github.com/Tencent/rapidjson
+[submodule "dep/pffft"]
+	path = dep/pffft
+	url = https://bitbucket.org/jpommier/pffft.git
