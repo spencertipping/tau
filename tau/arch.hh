@@ -10,7 +10,7 @@
 #define τplatform_linux 1
 #define τplatform_wasm  2
 
-#define τcompiler_gcc 1
+#define τcompiler_gcc   1
 #define τcompiler_clang 2
 
 
@@ -56,6 +56,7 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 # define τhas_epoll            0
 # define τplatform             τplatform_wasm
 # define τhas_emscripten_fiber 1
+# define τhas_boost_context    0
 
 # if τwordsize == 64
 #  define τarch τarch_wasm64

@@ -70,6 +70,10 @@ namespace τ
   // is managed by the caller
 
 
+  // TODO: soft-fail for interpreter errors; this will allow π₁ to experiment
+  // without A() crashing the whole program
+
+
 #if τπ0debug_bounds_checks
   π0int &step()
   { let [fi, x] = p.p.at(r.back()++);
