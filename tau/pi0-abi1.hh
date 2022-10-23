@@ -75,8 +75,8 @@ namespace τ
 
 π0TG void π0abi1_quote(π0T(π0abi) &a)
 {
-  // FIXME: all of these should just be "copy quoted value from
-  // statics"
+  // NOTE: in a later ABI, these should probably be "copy from static";
+  // but for now it's useful to unpack args from bytecode
   a .def("i8",  I{ i.dpush(Sc<i8>(n)); })
     .def("i16", I{ i.dpush(Sc<i16>(n)); })
     .def("i32", I{ i.dpush(Sc<i32>(n)); })
@@ -84,6 +84,34 @@ namespace τ
 
     .def("utf8", I{ i.dpush(i9{const_cast<ζp>(i.p.q.data() + n)}); })
     .def("sym",  I{ i.dpush(i9{const_cast<ζp>(i.p.q.data() + n)}); });
+}
+
+
+π0TG void π0abi1_number(π0T(π0abi) &a)
+{
+#define sop(t, o) a.def(""#t#o, I{ i.dpush(i.dpop().template at<t>(0) o i.dpop().template at<t>(0)); })
+#define sopi(o) sop(i8, o); sop(i16, o); sop(i32, o); sop(i64, o);
+#define sopu(o) sop(u8, o); sop(u16, o); sop(u32, o); sop(u64, o);
+#define sopf(o) sop(f32, o); sop(f64, o);
+#define sopc(o) sop(c32, o); sop(c64, o);
+
+#define gena(f) f(+); f(-); f(*); f(/);
+#define rela(f) f(==); f(!=); f(<); f(>); f(<=); f(>=);
+#define bita(f) f(&); f(|); f(^); f(<<); f(>>);
+
+
+  gena(sopi); gena(sopu); gena(sopf); gena(sopc);
+  rela(sopi); rela(sopu); rela(sopf);
+  bita(sopi); rela(sopu);
+
+
+#undef sop
+#undef sopi
+#undef sopu
+#undef sopf
+#undef sopc
+#undef gena
+#undef bita
 }
 
 
@@ -117,6 +145,7 @@ namespace τ
   π0abi1_frame(a);
   π0abi1_control(a);
   π0abi1_quote(a);
+  π0abi1_number(a);
 
 # if τdebug
   π0abi1_debug(a);
