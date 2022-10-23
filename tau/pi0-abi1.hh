@@ -96,7 +96,9 @@ namespace τ
 
 π0TG void π0abi1_u9_vector(π0T(π0abi) &a)
 {
-
+  a .def("v#", I{ i.dpush(Sc<u64>(i.dpop().vn())); })
+    .def("v@", I{ iNc j = i.dpop(); TODO("v@ type dispatch"); })
+    .def("v+", I{ TODO("v+"); });
 }
 
 
