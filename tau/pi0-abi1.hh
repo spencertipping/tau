@@ -147,7 +147,6 @@ namespace τ
 
 π0TG void π0abi1_u9_number(π0T(π0abi) &a)
 {
-
 #define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__);
 #define a1fu(f, ...) f(u8,  __VA_ARGS__); f(u16, __VA_ARGS__); f(u32, __VA_ARGS__); f(u64, __VA_ARGS__);
 #define a1ff(f, ...) f(f32, __VA_ARGS__); f(f64, __VA_ARGS__);
@@ -289,6 +288,22 @@ namespace τ
 }
 
 
+π0TG void π0abi1_u9_nrange(π0T(π0abi) &a)
+{
+
+}
+
+
+π0TG void π0abi1_u9_tuple(π0T(π0abi) &a)
+{
+  a.def(">>t", I{
+      uNc k = Sc<iN>(i.dpop());
+      π0T(π0hnf) f{i.h, k};
+      for (uN j = 0; j < k; ++j) f << i.pop();
+      i << f.v; });
+}
+
+
 #if τdebug
 π0TG void π0abi1_debug(π0T(π0abi) &a)
 {
@@ -323,6 +338,8 @@ namespace τ
   π0abi1_u9_vector(a);
   π0abi1_u9_number(a);
   π0abi1_u9_fft(a);
+  π0abi1_u9_nrange(a);
+  π0abi1_u9_tuple(a);
 
 # if τdebug
   π0abi1_debug(a);

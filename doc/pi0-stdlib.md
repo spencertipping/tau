@@ -39,7 +39,7 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 
 ### Vectors
 + `xs t >v`: tuple/set/bytes/UTF8 to typed vector
-+ `... x₃ x₂ x₁ n t vec`: make vector of type `t` (a symbol, see `?t`)
++ `... x₃ x₂ x₁ n t >>v`: make vector of type `t` (a symbol, see `?t`)
 + `xs v#`: vector length
 + `xs i v@`: get vector element
 + `xs i n v!`: sub-vector
@@ -108,6 +108,9 @@ All of these operators automatically distribute across vectors.
   + `c32real`, `c64real`
   + `c32imag`, `c64imag`
   + `c32conj`, ...
++ Iteration (integer types)
+  + `[...] n i8r.`, ...: for-each in range _0..n-1_
+  + `i [...] n i8r/`, ...: reduce for range _0..n-1_
 
 **TODO:** depend on https://bitbucket.org/jpommier/pffft/src/master/ for FFT
 
@@ -127,7 +130,7 @@ All of these operators automatically distribute across vectors.
 
 
 ### Tuples
-+ `... x₃ x₂ x₁ n tuple`: make tuple from elements
++ `... x₃ x₂ x₁ n >>t`: make tuple from elements
 + `>t`: set/map/vector/bytes/UTF8 to tuple
 + `t t#`: tuple length
 + `t i t@`: get element from tuple
