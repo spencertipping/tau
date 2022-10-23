@@ -87,7 +87,20 @@ namespace τ
 }
 
 
-π0TG void π0abi1_number(π0T(π0abi) &a)
+π0TG void π0abi1_u9_general(π0T(π0abi) &a)
+{
+  a .def("?e", I{ i.dpush(i.dpop().exists()); })
+    .def("?t", I{ i.dpush(u9typesyms.at(i.dpop().type())); });
+}
+
+
+π0TG void π0abi1_u9_vector(π0T(π0abi) &a)
+{
+
+}
+
+
+π0TG void π0abi1_u9_number(π0T(π0abi) &a)
 {
 #define a1sc(t, u) a.def(#t  ">"#u, I{ i.dpush(Sc<u>(i.dpop().template at<t>(0))); });
 #define a1vc(t, u) a.def(#t "s>"#u, I{                  \
@@ -227,7 +240,9 @@ namespace τ
   π0abi1_frame(a);
   π0abi1_control(a);
   π0abi1_quote(a);
-  π0abi1_number(a);
+  π0abi1_u9_general(a);
+  π0abi1_u9_vector(a);
+  π0abi1_u9_number(a);
 
 # if τdebug
   π0abi1_debug(a);

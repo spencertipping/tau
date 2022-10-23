@@ -11,11 +11,6 @@
 #if τdefines_π
 
 
-#if τπ0debug_specialize_templates
-# error π₀ templates should not be specialized here
-#endif
-
-
 using namespace τ;
 using namespace std;
 
@@ -24,10 +19,13 @@ using namespace std;
 #include "../tau/begin.hh"
 
 
+#define T(x) x<2>
+
+
 void try_simple_gc()
 {
-  π0h<2>   h{64, 256, 0};
-  π0hnf<2> f{h, 16};
+  T(π0h)   h{64, 256, 0};
+  T(π0hnf) f{h, 16};
   auto &a = f << (h << o9t(1, 2, 3));
   auto &b = f << (h << o9t("foo", a, a, "bar"));
   auto &c = f << a;
@@ -70,8 +68,8 @@ void try_simple_gc()
 
 void try_data_stack_slow()
 {
-  π0h<2>   h{64, 256, 0};
-  π0hds<2> s{h};
+  T(π0h)   h{64, 256, 0};
+  T(π0hds) s{h};
 
   for (u64 i = 0; i < 100000; ++i) s << o9(i);
   while (s.size() > 1)
@@ -87,8 +85,8 @@ void try_data_stack_slow()
 
 void try_data_stack_fast()
 {
-  π0h<2>   h{64, 65536, 0};
-  π0hds<2> s{h};
+  T(π0h)   h{64, 65536, 0};
+  T(π0hds) s{h};
 
   // Outer loop for better profiling if we want more data
   let ul = 1;
@@ -141,11 +139,11 @@ void try_data_stack_tuple()
 
 void try_asm()
 {
-  π0asm<2> a{π0abi1<2>()};
+  T(π0asm) a{T(π0abi1)()};
   a << "i32'3 [i32'4 :out] . _ :out";
 
-  π0h<2>   h{};
-  π0int<2> i{π0abi1<2>(), a.build(), h};
+  T(π0h)   h{};
+  T(π0int) i{T(π0abi1)(), a.build(), h};
   i.run(0);
   i32 x = i.dpop();
   A(x == 3, "expected 3, got " << x);
@@ -164,9 +162,9 @@ void default_try_stuff()
 
 int asmrun(char *src)
 {
-  π0h<2>   h{};
-  π0asm<2> a{π0abi1<2>()}; a << St{src};
-  π0int<2> i{π0abi1<2>(), a.build(), h};
+  T(π0h)   h{};
+  T(π0asm) a{T(π0abi1)()}; a << St{src};
+  T(π0int) i{T(π0abi1)(), a.build(), h};
   i.run(0);
   return 0;
 }
@@ -174,9 +172,9 @@ int asmrun(char *src)
 
 int asmdebug(char *src)
 {
-  π0h<2>   h{};
-  π0asm<2> a{π0abi1<2>()}; a << St{src};
-  π0int<2> i{π0abi1<2>(), a.build(), h};
+  T(π0h)   h{};
+  T(π0asm) a{T(π0abi1)()}; a << St{src};
+  T(π0int) i{T(π0abi1)(), a.build(), h};
 
   cout << "input program:" << endl;
   cout << i.p << endl;

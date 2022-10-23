@@ -39,8 +39,7 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 
 ### Vectors
 + `xs t >v`: tuple/set/bytes/UTF8 to typed vector
-+ `... x₃ x₂ x₁ n t vec`: make vector of type `t` (a symbol, see `vt`)
-+ `xs vt`: type symbol (`i8`, `i16`, ..., `u64`, `f32`, ..., `c64`)
++ `... x₃ x₂ x₁ n t vec`: make vector of type `t` (a symbol, see `?t`)
 + `xs v#`: vector length
 + `xs i v@`: get vector element
 + `xs i n v!`: sub-vector

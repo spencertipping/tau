@@ -184,6 +184,9 @@ struct u9_symbol
       picosha2::hash256(s, b);
       return u9_symbol{std::move(b)}; }
 
+  static u9_symbol str(char const *s)
+    { return u9_symbol{B(Rc<u8c*>(s))}; }
+
   template<class T>
   static u9_symbol str(T const &s)
     { return u9_symbol{B(Rc<u8c*>(s.data()), s.size())}; }
@@ -196,6 +199,43 @@ struct u9_symbol
   bool printable() const
     { for (let c : x) if (c < 32 || c >= 127) return false;
       return true; }
+};
+
+
+M<u9t, u9_symbol> const u9typesyms
+{
+  {u9t::i8,  u9_symbol::str("i8")},
+  {u9t::i16, u9_symbol::str("i16")},
+  {u9t::i32, u9_symbol::str("i32")},
+  {u9t::i64, u9_symbol::str("i64")},
+  {u9t::u8,  u9_symbol::str("u8")},
+  {u9t::u16, u9_symbol::str("u16")},
+  {u9t::u32, u9_symbol::str("u32")},
+  {u9t::u64, u9_symbol::str("u64")},
+  {u9t::f32, u9_symbol::str("f32")},
+  {u9t::f64, u9_symbol::str("f64")},
+  {u9t::c32, u9_symbol::str("c32")},
+  {u9t::c64, u9_symbol::str("c64")},
+  {u9t::b,   u9_symbol::str("b")},
+
+  {u9t::symbol, u9_symbol::str("symbol")},
+  {u9t::stream, u9_symbol::str("stream")},
+  {u9t::bytes,  u9_symbol::str("bytes")},
+  {u9t::utf8,   u9_symbol::str("utf8")},
+  {u9t::index,  u9_symbol::str("index")},
+
+  {u9t::tuple,  u9_symbol::str("tuple")},
+  {u9t::map,    u9_symbol::str("map")},
+  {u9t::set,    u9_symbol::str("set")},
+  {u9t::tensor, u9_symbol::str("tensor")},
+
+  {u9t::pi,     u9_symbol::str("pi")},
+  {u9t::phi,    u9_symbol::str("phi")},
+  {u9t::host,   u9_symbol::str("host")},
+  {u9t::build,  u9_symbol::str("build")},
+
+  {u9t::none,   u9_symbol::str("none")},
+  {u9t::frame,  u9_symbol::str("frame")},
 };
 
 

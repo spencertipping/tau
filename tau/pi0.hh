@@ -13,7 +13,7 @@
 
 
 #if τπ0debug_specialize_templates
-# error π₀ templates should not be specialized here
+//# error π₀ templates should not be specialized here
 #endif
 
 
