@@ -87,6 +87,9 @@
 #   define τassert_fail(x, f, l, m)             \
   __assert_fail(x, f, l, __ASSERT_FUNCTION)
 # endif
+#else
+# define τassert_begin
+# define τassert_end
 #endif
 
 

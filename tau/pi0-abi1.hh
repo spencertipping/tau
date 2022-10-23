@@ -2,6 +2,8 @@
 #define τπ0abi1_h
 
 
+#include "../dep/pffft.h"
+
 #include "utf9.hh"
 #include "pi0-types.hh"
 #include "pi0-gc.hh"
@@ -281,6 +283,12 @@ namespace τ
 }
 
 
+π0TG void π0abi1_u9_fft(π0T(π0abi) &a)
+{
+  // TODO
+}
+
+
 #if τdebug
 π0TG void π0abi1_debug(π0T(π0abi) &a)
 {
@@ -314,6 +322,7 @@ namespace τ
   π0abi1_u9_general(a);
   π0abi1_u9_vector(a);
   π0abi1_u9_number(a);
+  π0abi1_u9_fft(a);
 
 # if τdebug
   π0abi1_debug(a);
