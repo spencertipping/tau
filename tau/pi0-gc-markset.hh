@@ -115,7 +115,7 @@ namespace τ
   { let i = s.back(); s.pop_back();
     let b = f.back(); f.pop_back();
     e.pop_back();
-    if (*this) f.assign(f.size() - 1, f.back() | b);
+    if (*this) f.assign(f.size() - 1, f.back() || b);
 
     let ia  = h(g, i);
     let is  = i.size();

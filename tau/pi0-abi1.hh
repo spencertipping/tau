@@ -145,18 +145,48 @@ namespace τ
 
 π0TG void π0abi1_u9_number(π0T(π0abi) &a)
 {
-#define a1sc(t, u) a.def(#t  ">"#u, I{ i.dpush(Sc<u>(i.dpop().template at<t>(0))); });
-#define a1vc(t, u) a.def(#t "s>"#u, I{                  \
-    π0T(π0hnf) f{i.h, 2};                               \
-    auto &a = f << i.pop();                             \
-    auto &b = f << (i.h << o9vec<u>{i.h[a].vn()});      \
-    i << b;                                             \
-    let ia = i.h[a];                                    \
-    let ib = i.h[b];                                    \
-    for (uN i = 0; i < ia.vn(); ++i)                    \
-      ib.template set<u>(i, ia.template at<t>(i)); });
 
-#define a1sop(t, o) a.def(""#t#o, I{ i.dpush(i.dpop().template at<t>(0) o i.dpop().template at<t>(0)); })
+#define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__);
+#define a1fu(f, ...) f(u8,  __VA_ARGS__); f(u16, __VA_ARGS__); f(u32, __VA_ARGS__); f(u64, __VA_ARGS__);
+#define a1ff(f, ...) f(f32, __VA_ARGS__); f(f64, __VA_ARGS__);
+#define a1fc(f, ...) f(c32, __VA_ARGS__); f(c64, __VA_ARGS__);
+
+#define a1sc(t, u) a.def(#t  ">"#u, I{ i.dpush(Sc<u>(i.dpop().template at<t>(0))); });
+#define a1vc(t, u) a.def(#t "s>"#u, I{                          \
+      π0T(π0hnf) f{i.h, 2};                                     \
+      auto &a = f << i.pop();                                   \
+      auto &b = f << (i.h << o9vec<u>{i.h[a].vn()});            \
+      i << b;                                                   \
+      let ia = i.h[a];                                          \
+      let ib = i.h[b];                                          \
+      for (uN i = 0; i < ia.vn(); ++i)                          \
+        ib.template set<u>(i, ia.template at<t>(i)); });
+
+#define a1cfi(f, g) f(g, i8);  f(g, i16); f(g, i32); f(g, i64);
+#define a1cfu(f, g) f(g, u8);  f(g, u16); f(g, u32); f(g, u64);
+#define a1cff(f, g) f(g, f32); f(g, f64);
+#define a1cfc(f, g) f(g, c32); f(g, c64);
+
+  a1cfi(a1fi, a1sc);  a1cfi(a1fu, a1sc);  a1cfi(a1ff, a1sc);
+  a1cfu(a1fi, a1sc);  a1cfu(a1fu, a1sc);  a1cfu(a1ff, a1sc);
+  a1cff(a1fi, a1sc);  a1cff(a1fu, a1sc);  a1cff(a1ff, a1sc);
+  a1cfc(a1fi, a1sc);  a1cfc(a1fu, a1sc);  a1cfc(a1ff, a1sc);
+
+  a1cfi(a1fi, a1vc);  a1cfi(a1fu, a1vc);  a1cfi(a1ff, a1vc);
+  a1cfu(a1fi, a1vc);  a1cfu(a1fu, a1vc);  a1cfu(a1ff, a1vc);
+  a1cff(a1fi, a1vc);  a1cff(a1fu, a1vc);  a1cff(a1ff, a1vc);
+  a1cfc(a1fi, a1vc);  a1cfc(a1fu, a1vc);  a1cfc(a1ff, a1vc);
+
+#undef a1cfi
+#undef a1cfu
+#undef a1cff
+#undef a1cfc
+
+#undef a1sc
+#undef a1vc
+
+#define a1sop(t, o)     a.def(""#t#o, I{ i.dpush(i.dpop().template at<t>(0) o i.dpop().template at<t>(0)); })
+#define a1suop(t, o, n) a.def(""#t#n, I{ i.dpush(o i.dpop().template at<t>(0)); })
 
 #define a1vop(t, o) a.def(""#t "s"#o, I{                                \
       π0T(π0hnf) f{i.h, 3};                                             \
@@ -190,35 +220,32 @@ namespace τ
             i, a_.template at<t>(i) o b_.template at<t>(i));            \
         i << c; }});
 
-#define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__);
-#define a1fu(f, ...) f(u8,  __VA_ARGS__); f(u16, __VA_ARGS__); f(u32, __VA_ARGS__); f(u64, __VA_ARGS__);
-#define a1ff(f, ...) f(f32, __VA_ARGS__); f(f64, __VA_ARGS__);
-#define a1fc(f, ...) f(c32, __VA_ARGS__); f(c64, __VA_ARGS__);
-
-#define a1cfi(f, g) f(g, i8);  f(g, i16); f(g, i32); f(g, i64);
-#define a1cfu(f, g) f(g, u8);  f(g, u16); f(g, u32); f(g, u64);
-#define a1cff(f, g) f(g, f32); f(g, f64);
-#define a1cfc(f, g) f(g, c32); f(g, c64);
-
-  a1cfi(a1fi, a1sc);  a1cfi(a1fu, a1sc);  a1cfi(a1ff, a1sc);
-  a1cfu(a1fi, a1sc);  a1cfu(a1fu, a1sc);  a1cfu(a1ff, a1sc);
-  a1cff(a1fi, a1sc);  a1cff(a1fu, a1sc);  a1cff(a1ff, a1sc);
-  a1cfc(a1fi, a1sc);  a1cfc(a1fu, a1sc);  a1cfc(a1ff, a1sc);
-
-  a1cfi(a1fi, a1vc);  a1cfi(a1fu, a1vc);  a1cfi(a1ff, a1vc);
-  a1cfu(a1fi, a1vc);  a1cfu(a1fu, a1vc);  a1cfu(a1ff, a1vc);
-  a1cff(a1fi, a1vc);  a1cff(a1fu, a1vc);  a1cff(a1ff, a1vc);
-  a1cfc(a1fi, a1vc);  a1cfc(a1fu, a1vc);  a1cfc(a1ff, a1vc);
-
-#undef a1cfi
-#undef a1cfu
-#undef a1cff
-#undef a1cfc
+#define a1vuop(t, o, n) a.def(#t "s"#n, I{                      \
+      typedef decltype(o std::declval<t>()) r;                  \
+      π0T(π0hnf) f{i.h, 2};                                     \
+      auto &a = f << i.pop();                                   \
+      auto &b = f << (i.h << o9vec<r>{i.h[a].vn()});            \
+      i << b;                                                   \
+      let ia = i.h[a];                                          \
+      let ib = i.h[b];                                          \
+      for (uN i = 0; i < ia.vn(); ++i)                          \
+        ib.template set<r>(i, o ia.template at<t>(i)); });
 
 #define a1gena(f, g) f(g, +); f(g, -); f(g, *); f(g, /);
 #define a1rela(f, g) f(g, ==); f(g, !=); f(g, <); f(g, >); f(g, <=); f(g, >=);
 #define a1moda(f, g) f(g, %);
 #define a1bita(f, g) f(g, &); f(g, |); f(g, ^); f(g, <<); f(g, >>);
+
+#define a1genu(f, g) f(g, -, n);
+#define a1bitu(f, g) f(g, !, l); f(g, ~, ~);
+
+  a1genu(a1fi, a1suop);  a1genu(a1fi, a1vuop);
+  a1genu(a1fu, a1suop);  a1genu(a1fu, a1vuop);
+  a1genu(a1ff, a1suop);  a1genu(a1ff, a1vuop);
+  a1genu(a1fc, a1suop);  a1genu(a1fc, a1vuop);
+
+  a1bitu(a1fi, a1suop);  a1bitu(a1fi, a1vuop);
+  a1bitu(a1fu, a1suop);  a1bitu(a1fu, a1vuop);
 
   a1gena(a1fi, a1sop);  a1gena(a1fi, a1vop);
   a1gena(a1fu, a1sop);  a1gena(a1fu, a1vop);
@@ -235,16 +262,18 @@ namespace τ
   a1bita(a1fi, a1sop);  a1bita(a1fi, a1vop);
   a1bita(a1fu, a1sop);  a1bita(a1fu, a1vop);
 
-#undef a1sc
-#undef a1vc
-
 #undef a1sop
+#undef a1suop
 #undef a1vop
+#undef a1vuop
 
 #undef a1fi
 #undef a1fu
 #undef a1ff
 #undef a1fc
+
+#undef a1genu
+#undef a1bitu
 
 #undef a1gena
 #undef a1rela
