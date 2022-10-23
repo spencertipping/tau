@@ -221,15 +221,14 @@ namespace τ
         i << c; }});
 
 #define a1vuop(t, o, n) a.def(#t "s"#n, I{                      \
-      typedef decltype(o std::declval<t>()) r;                  \
       π0T(π0hnf) f{i.h, 2};                                     \
       auto &a = f << i.pop();                                   \
-      auto &b = f << (i.h << o9vec<r>{i.h[a].vn()});            \
+      auto &b = f << (i.h << o9vec<t>{i.h[a].vn()});            \
       i << b;                                                   \
       let ia = i.h[a];                                          \
       let ib = i.h[b];                                          \
       for (uN i = 0; i < ia.vn(); ++i)                          \
-        ib.template set<r>(i, o ia.template at<t>(i)); });
+        ib.template set<t>(i, o ia.template at<t>(i)); });
 
 #define a1gena(f, g) f(g, +); f(g, -); f(g, *); f(g, /);
 #define a1rela(f, g) f(g, ==); f(g, !=); f(g, <); f(g, >); f(g, <=); f(g, >=);
