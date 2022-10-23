@@ -57,7 +57,7 @@ namespace τ
   template<o9mapped T>
   π0T(π0int) &dpush(T const &x) { *this << (h << o9(x)); return *this; }
 
-  i9 dpop() { let r = h[(*dv)[0]]; drop(1); return r; }
+  template<class T = i9> T dpop() { let r = h[(*dv)[0]]; drop(1); return Sc<T>(r); }
 
 
   // Frame accessors

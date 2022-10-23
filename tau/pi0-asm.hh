@@ -21,6 +21,15 @@ namespace τ
 {
 
 
+#if τdebug_iostream
+struct π0afr;
+struct π0cs7;
+
+O &operator<<(O &, π0afr const&);
+O &operator<<(O &, π0cs7 const&);
+#endif
+
+
 struct π0cs7  // 7-bit ASCII char set, used to split things
 {
   u64 c1;
@@ -37,15 +46,12 @@ struct π0cs7  // 7-bit ASCII char set, used to split things
 
   V<St> split(Stc &s) const
     { V<St> r;
-      if (s.empty()) return r;
-      bool c = false;
-      uN   k = 0;
       for (uN i = 0; i < s.size(); ++i)
-      { let b = (*this)[s[i]];
-        if      (b  && !c) k = i;
-        else if (!b &&  c) r.push_back(s.substr(k, i - k));
-        c = b; }
-      if (c) r.push_back(s.substr(k));
+      { while (i < s.size() && (*this)[s[i]]) ++i;
+        uN j = i;
+        while (j < s.size() && !(*this)[s[j]]) ++j;
+        r.push_back(s.substr(i, j - i));
+        i = j - 1; }
       return r; }
 };
 
@@ -84,9 +90,10 @@ struct π0afr  // π₀ asm frame
 π0TGs π0asm
 {
   π0TS;
-  sletc c7ws = π0cs7(" \t\n");            // whitespace
-  sletc c7ni = π0cs7(" \t\n{}[](),'\"");  // non-ident
-  sletc c7in = π0cs7("0123456789");       // integer
+  sletc c7ws = π0cs7(" \t\n");              // whitespace
+  sletc c7ni = π0cs7(" \t\n{}[]()|,'\"#");  // non-ident
+  sletc c7nc = π0cs7(" \t\n{}[](),'");      // non-[ident]-continuation
+  sletc c7in = π0cs7("0123456789");         // integer
 
   typedef V<π0b> π0blk;  // code block
 
@@ -105,25 +112,31 @@ struct π0afr  // π₀ asm frame
   π0T(π0asm) &begin() { bs.push_back(π0blk{}); return *this; }
   π0T(π0asm) &end()
   { auto b = std::move(bs.back()); bs.pop_back();
-    *this << π0b{f("["), b.size() + 1};
+    *this << f("[", b.size() + 1);
     for (let &x : b) *this << x;
-    *this << π0b{f("]"), 0};
+    *this << f("]", 0);
     return *this; }
 
   π0T(π0asm) &fbegin(Stc &vs)
   { fs.push_back(π0afr(vs));
-    *this << π0b{f("[|"), fs.back().vs.size() << 16 | fs.back().nc};
+    *this << f("[|", fs.back().vs.size());
     return *this; }
 
   π0T(π0asm) &fend()
   { fs.pop_back();
-    *this << π0b{f("|]"), 0};
+    *this << f("|]");
     return *this; }
 
 
-  uN f(Stc &n)
-  { A(fn.contains(n), "π₀asm: " << n << " is not defined");
-    return fn.at(n); }
+  π0b f(Stc &n, uN k = 0)
+  { if (!fs.empty())
+    { let a = fs.back()[n];
+      if (a != π0afr::fω) return π0b{fn.at("&@'"), a};
+      if (n.ends_with('='))
+      { let b = fs.back()[n.substr(0, n.size() - 1)];
+        if (b != π0afr::fω) return π0b{fn.at("&='"), b}; } }
+    A(fn.contains(n), "π₀asm: " << n << " is not defined");
+    return π0b{fn.at(n), k}; }
 
 
   π0T(π0asm) &operator<<(π0b b) { bs.back().push_back(b); return *this; }
@@ -131,14 +144,18 @@ struct π0afr  // π₀ asm frame
   { for (uN i = 0; i < s.size(); ++i)
       if      (c7ws[s[i]]) continue;
       else if (c7ni[s[i]])
-      { if      (s[i] == '[') begin();
-        else if (s[i] == ']') end();
-        else if (s[i] == '\'')
+        switch (s[i])
+        {
+        case '#': while (i < s.size() && s[i] != '\n') ++i; break;
+        case '[': begin(); break;
+        case ']': end();   break;
+        case '\'':
         { uN j = i + 1;
           while (j < s.size() && !c7ni[s[j]]) ++j;
-          *this << π0b{f("sym"), qh << o9(u9_symbol::str(s.substr(i, j - 1)))};
-          i = j - 1; }
-        else if (s[i] == '"')
+          *this << f("sym", qh << o9(u9_symbol::str(s.substr(i, j - 1))));
+          i = j - 1;
+          break; }
+        case '"':
         { St x;
           for (++i; i < s.size() && s[i] != '"'; ++i)
             if (s[i] == '\\' && ++i < s.size())
@@ -148,28 +165,39 @@ struct π0afr  // π₀ asm frame
               case 'n': x.push_back('\n'); break;
               case 't': x.push_back('\t'); break;
               case 'r': x.push_back('\r'); break;
-                TA(*this, "π₀asm unknown string escape: " << s[i]);
+              TA(*this, "π₀asm unknown string escape: " << s[i]);
               }
             else x.push_back(s[i]);
-          *this << π0b{f("utf8"), qh << o9(x)}; }
-        else if (s[i] == '|') TODO("<< frame");
-        else A(0, "π₀asm<< internal error " << s[i]); }
+          *this << f("utf8", qh << o9(x));
+          break; }
+        case '|':
+        { if (i + 1 < s.size() && s[i + 1] == ']')
+          { fend(); end(); ++i; }
+          else
+          { uN j = i + 1;
+            while (j < s.size() && s[j] != '|') ++j;
+            fbegin(s.substr(i + 1, j - i - 1));
+            *this << f("[|", fs.back().vs.size());
+            i = j; }
+          break; }
+        TA(*this, "π₀asm<< ni " << s[i]);
+        }
       else
       { uN j = i + 1;
-        while (j < s.size() && !c7ni[s[j]]) ++j;
+        while (j < s.size() && !c7nc[s[j]]) ++j;
         let n = s.substr(i, j - i);
         uN  x = 0;
         if (j < s.size() && s[j] == '\'')
           for (i = j++; j < s.size() && c7in[s[j]]; ++j)
             x *= 10, x += s[j] - '0';
-        *this << π0b{f(n), x};
+        *this << f(n, x);
         i = j - 1; }
     return *this; }
 
 
   π0T(π0p) build()
   { A(bs.size() == 1, "π₀asm::build |bs| = " << bs.size());
-    *this << π0b{f("]"), 0};
+    *this << f("]", 0);
     return π0T(π0p){a, qh, bs.back()}; }
 };
 
@@ -180,6 +208,11 @@ O &operator<<(O &s, π0afr const &f)
   s << "| ";
   for (let &v : f.vs) s << v << " ";
   return s << "|";
+}
+
+O &operator<<(O &s, π0cs7 const &c)
+{
+  TODO("<<cs7");
 }
 #endif
 

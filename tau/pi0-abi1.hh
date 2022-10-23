@@ -14,7 +14,7 @@ namespace τ
 {
 
 
-#define I [](π0T(π0int) &i, uN n)
+#define I [](π0T(π0int) &i, π0fa n)
 
 π0TG void π0abi1_blocks(π0T(π0abi) &a)
 {
@@ -43,10 +43,13 @@ namespace τ
 
 π0TG void π0abi1_frame(π0T(π0abi) &a)
 {
-  a .def("&:", I{ i.fpush(Sc<uN>(i.dpop())); })
-    .def("&_", I{ i.fpop(); })
-    .def("&@", I{ i << i.fi(Sc<uN>(i.dpop())); })
-    .def("&=", I
+  a .def("&:",  I{ i.fpush(Sc<uN>(i.dpop())); })
+    .def("&:'", I{ i.fpush(n); })
+    .def("&_",  I{ i.fpop(); })
+    .def("&@'", I{ i << i.fi(n); })
+    .def("&='", I{ i.fi(n) = i.pop(); })
+    .def("&@",  I{ i << i.fi(Sc<uN>(i.dpop())); })
+    .def("&=",  I
          { let v = Sc<uN>(i.dpop());
            i.fi(v) = i.pop(); });
 }
@@ -56,16 +59,16 @@ namespace τ
 {
   a .def(".",  I{ i.r.push_back(Sc<π0bi>(i.dpop())); })
     .def("?.", I
-         { let e = Sc<π0bi>(i.dpop());
-           let t = Sc<π0bi>(i.dpop());
-           let c = i.dpop().at<bool>(0);
+         { π0bi e = i.dpop();
+           π0bi t = i.dpop();
+           let  c = i.dpop().template at<bool>(0);
            i.run(c ? t : e); })
     .def("?!", I
-         { let c = Sc<π0bi>(i.dpop());
-           let b = Sc<π0bi>(i.dpop());
+         { π0bi c = i.dpop();
+           π0bi b = i.dpop();
          loop:
            i.run(c);
-           if (i.dpop().at<bool>(0)) { i.run(b); goto loop; }})
+           if (i.dpop().template at<bool>(0)) { i.run(b); goto loop; }})
     .def(".^", I{ i.r.resize(i.r.size() - n - 1); });
 }
 
