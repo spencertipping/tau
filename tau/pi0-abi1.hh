@@ -94,29 +94,36 @@ namespace τ
 
 #define a1sop(t, o) a.def(""#t#o,     I{ i.dpush(i.dpop().template at<t>(0) o i.dpop().template at<t>(0)); })
 
-  // FIXME: we should allocate an i9 first, then use a new vectorized .set()
-  // to set each output element in place -- this avoids the copy and
-  // current V<bool> shenanigans
 #define a1vop(t, o) a.def(""#t "s"#o, I{                                \
-      V<decltype(std::declval<t>() o std::declval<t>())> r;             \
-      let a = i.dpop();                                                 \
-      let b = i.dpop();                                                 \
-      if (a.vn() == 1)                                                  \
-      { let xa = a.template at<t>(0);                                   \
-        r.reserve(b.vn());                                              \
-        for (uN ib = 0; ib < b.vn(); ++ib)                              \
-          r.push_back(xa o b.template at<t>(ib)); }                     \
-      else if (b.vn() == 1)                                             \
-      { let xb = b.template at<t>(0);                                   \
-        r.reserve(a.vn());                                              \
-        for (uN ia = 0; ia < a.vn(); ++ia)                              \
-          r.push_back(a.template at<t>(ia) o xb); }                     \
-      else                                                              \
-      { let k = std::min(a.vn(), b.vn());                               \
-        r.reserve(k);                                                   \
+      π0T(π0hnf) f{i.h, 3};                                             \
+      typedef decltype(std::declval<t>() o std::declval<t>()) r;        \
+      auto &a = f << i.pop();                                           \
+      auto &b = f << i.pop();                                           \
+      if (i.h[a].vn() == 1)                                             \
+      { auto &c = f << (i.h << o9vec<r>{i.h[b].vn()});                  \
+        let b_ = i.h[b];                                                \
+        let c_ = i.h[c];                                                \
+        let xa = i.h[a].template at<t>(0);                              \
+        for (uN i = 0; i < b_.vn(); ++i)                                \
+          c_.set(i, xa o b_.template at<t>(i));                         \
+        i << c; }                                                       \
+      else if (i.h[b].vn() == 1)                                        \
+      { auto &c = f << (i.h << o9vec<r>{i.h[a].vn()});                  \
+        let a_ = i.h[a];                                                \
+        let c_ = i.h[c];                                                \
+        let xb = i.h[b].template at<t>(0);                              \
+        for (uN i = 0; i < a_.vn(); ++i)                                \
+          c_.set(i, a_.template at<t>(i) o xb);                         \
+        i << c; }                                                       \
+      else                                                            \
+      { let k = std::min(i.h[a].vn(), i.h[b].vn());                     \
+        auto &c = f << (i.h << o9vec<r>{k});                            \
+        let a_ = i.h[a];                                                \
+        let b_ = i.h[b];                                                \
+        let c_ = i.h[c];                                                \
         for (uN i = 0; i < k; ++i)                                      \
-          r.push_back(a.template at<t>(i) o b.template at<t>(i)); }     \
-      i << (i.h << o9(r.data(), r.size())); });
+          c_.set(i, a_.template at<t>(i) o b_.template at<t>(i));       \
+        i << c; }});
 
 #define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__);
 #define a1fu(f, ...) f(u8,  __VA_ARGS__); f(u16, __VA_ARGS__); f(u32, __VA_ARGS__); f(u64, __VA_ARGS__);

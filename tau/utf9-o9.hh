@@ -268,6 +268,33 @@ struct o9t : virtual o9V
 };
 
 
+template<o9fixed T>
+struct o9vec : virtual o9V
+{
+  uN n;
+  o9vec(uN n_) : n(n_) {}
+  uN isize()     const { return sizeof(T) * n; }
+  uN size()      const { return isize() + u9sb(u9sq(isize())); }
+  uN write(ζp m) const
+    { let i = u9ws(m, 0, u9t_<T>::t, isize());
+      std::memset(m + i, 0, isize());
+      return 0; }
+};
+
+template<>
+struct o9vec<bool> : virtual o9V
+{
+  uN n;
+  o9vec(uN n_) : n(n_) {}
+  uN isize()     const { return n + 7 >> 3; }
+  uN size()      const { return isize() + u9sb(u9sq(isize())); }
+  uN write(ζp m) const
+    { let i = u9ws(m, 0, u9t::b, isize());
+      std::memset(m + i, 0, isize());
+      return 0; }
+};
+
+
 template<o9mapped T, class... Ts>
 inline o9v<T, V, Ts...> o9(V<T, Ts...> const &xs) { return o9v<T, V, Ts...>{xs}; }
 
@@ -294,6 +321,7 @@ template<>           struct o9_<o9c>       { sletc v =  true; };
 template<class T>    struct o9_<o9a<T>>    { sletc v =  true; };
 template<class... T> struct o9_<o9m<T...>> { sletc v =  true; };
 template<class... T> struct o9_<o9t<T...>> { sletc v =  true; };
+template<class T>    struct o9_<o9vec<T>>  { sletc v =  true; };
 
 // This one is special due to higher-order second type arg
 template<o9mapped T, template<typename> class C, class... X>

@@ -228,6 +228,14 @@ struct i9
         "i9at OOB, i = " << i << ", w = " << sizeof(T) << ", sz = " << size());
       return R<T>(data(), i * sizeof(T)); }
 
+  template<class T>
+  i9 set(uN i, T x) const
+    { u9tm{u9t_<T>::t}(type());
+      A((i + 1) * sizeof(T) <= size(),
+        "i9set OOB, i = " << i << ", w = " << sizeof(T) << ", sz = " << size());
+      W<T>(data(), i * sizeof(T), x);
+      return *this; }
+
 
   // NOTE: can't do vectors here because we don't have enough space
   // to return type information alongside the value; use .at()
@@ -295,6 +303,13 @@ inline bool i9::at(uN i) const
 { u9tm{u9t::b}(type());
   A(i >> 3 < size(), "i9at bool OOB, i = " << i << ", sz = " << size());
   return R<u8>(data(), i >> 3) & (1 << i & 7); }
+
+template<>
+inline i9 i9::set(uN i, bool x) const
+{ u9tm{u9t::b}(type());
+  A(i >> 3 < size(), "i9set bool OOB, i = " << i << ", sz = " << size());
+  W<u8>(data(), i >> 3, R<u8>(data(), i >> 3) | (1 << i & 7));
+  return *this; }
 
 
 inline i9 i9_false()        { return i9{i9_statics + 0}; }
