@@ -304,6 +304,7 @@ int editor(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+  τassert_begin;
   if (!strcmp(argv[1], "nseq"))   return nop_seq   (argc - 2, argv + 2);
   if (!strcmp(argv[1], "tseq"))   return tau_seq   (argc - 2, argv + 2);
   if (!strcmp(argv[1], "fseq"))   return tau_fseq  (argc - 2, argv + 2);
@@ -317,6 +318,7 @@ int main(int argc, char **argv)
   if (!strcmp(argv[1], "editor")) return editor    (argc - 2, argv + 2);
 
   cerr << "unknown command " << argv[1] << endl;
+  τassert_end;
   return 1;
 }
 

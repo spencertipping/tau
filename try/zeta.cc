@@ -181,6 +181,7 @@ void bench(int argc)
 
 int main(int argc, char **argv)
 {
+  τassert_begin;
   try_small_ζ();
   try_tuple();
   try_bytes();
@@ -188,6 +189,7 @@ int main(int argc, char **argv)
   cout << "checked  bench"      << endl; bench<φc>(argc);
   cout << "measured bench (-H)" << endl; bench<φπ<ΘΔ>> (argc);
   cout << "measured bench (+H)" << endl; bench<φπ<ΣΘΔ>>(argc);
+  τassert_end;
   return 0;
 }
 

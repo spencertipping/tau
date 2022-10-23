@@ -39,21 +39,49 @@
 # define τdebug_catchall τdebug
 #endif
 
-
-#if τhas_assert_fail
-# include <errno.h>
+#if τhas_fast_exceptions
 # if τdebug_iostream
-#   define τassert_fail(x, f, l, m)                         \
-  ([&]() {                                                  \
-    static bool τdebugging = false;                         \
-    if (!τdebugging)                                        \
-    {                                                       \
-      τdebugging = true;                                    \
-      if (errno)                                            \
-        perror("assertion failure errno (if any)");         \
-      std::cerr << "FAIL: " << m << std::endl;              \
-    }                                                       \
-    __assert_fail(x, f, l, __ASSERT_FUNCTION);              \
+#   include <errno.h>
+#   include <iostream>
+#   include <sstream>
+
+#   define τassert_begin try {
+#   define τassert_end   } catch (std::string const &e)         \
+                           { std::cerr << "FAIL: "              \
+                                       << e << std::endl; }
+
+#   define τassert_fail(x, f, l, m)                             \
+  ([&]() {                                                      \
+    static bool τdebugging = false;                             \
+    std::stringstream τafs;                                     \
+    if (!τdebugging)                                            \
+    {                                                           \
+      τdebugging = true;                                        \
+      τafs << m << ", errno = " << strerror(errno);             \
+    }                                                           \
+    throw τafs.str();                                           \
+  })()
+# else
+#   define τassert_fail(x, f, l, m)             \
+  __assert_fail(x, f, l, __ASSERT_FUNCTION)
+# endif
+#elif τhas_assert_fail
+# define τassert_begin
+# define τassert_end
+
+# if τdebug_iostream
+#   include <errno.h>
+#   define τassert_fail(x, f, l, m)                     \
+  ([&]() {                                              \
+    static bool τdebugging = false;                     \
+    if (!τdebugging)                                    \
+    {                                                   \
+      τdebugging = true;                                \
+      if (errno)                                        \
+        perror("assertion failure errno (if any)");     \
+      std::cerr << "FAIL: " << m << std::endl;          \
+    }                                                   \
+    __assert_fail(x, f, l, __ASSERT_FUNCTION);          \
   })()
 # else
 #   define τassert_fail(x, f, l, m)             \

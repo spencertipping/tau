@@ -195,10 +195,12 @@ int asmdebug(char *src)
 
 int main(int argc, char **argv)
 {
+  τassert_begin;
   if (argc > 2)
     if      (!strcmp(argv[1], "run"))   return asmrun  (argv[2]);
     else if (!strcmp(argv[1], "debug")) return asmdebug(argv[2]);
   default_try_stuff();
+  τassert_end;
 }
 
 
