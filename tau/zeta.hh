@@ -54,7 +54,7 @@ constexpr ζpc ζωp = Nl<ζp>::max();
 
 
 defR(ζp) { return Rc<ζp>(R<void*>(xs, i)); }
-defW(ζp) { W<void*>(xs, i, x); }
+defW(ζp) { W(xs, i, Rc<void*>(x)); }
 
 
 struct ζb

@@ -81,7 +81,7 @@ O &operator<<(O &s, λs t)
   case λs::ΦO: return s << "ΦO";
   case λs::φc: return s << "φc";
   case λs::φx: return s << "φx";
-  default:     return s << "BOGUS " << Su(t);
+  default:     return s << "BOGUS " << Sc<uN>(t);
   }
 }
 #endif

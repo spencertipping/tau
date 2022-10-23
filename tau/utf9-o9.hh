@@ -73,7 +73,7 @@ struct o9f : virtual o9V
   T x;
   o9f(T x_) : x(x_) {}
   uN size ()     const { return s + u9sb(u9sq(s)); }
-  uN write(ζp m) const { W<T>(m, u9ws(m, 0, u9t_<T>::t, s), x); return 0; }
+  uN write(ζp m) const { W(m, u9ws(m, 0, u9t_<T>::t, s), x); return 0; }
 };
 
 
@@ -109,7 +109,7 @@ struct o9st : virtual o9V
       {
       case u9st::ω: return 1;
       case u9st::τ: return 1;
-      case u9st::θ: return 9;
+      case u9st::θ: return 1 + sizeof(s.n);
         TA(0, Sc<uN>(s.t))
       } }
 
@@ -117,7 +117,7 @@ struct o9st : virtual o9V
   uN write(ζp m) const
     { uN i = u9ws(m, 0, u9t::stream, isize());
       W(m, i, Sc<u8>(s.t));
-      if (s.t == u9st::θ) W<u64>(m, i + 1, s.n);
+      if (s.t == u9st::θ) W(m, i + 1, s.n);
       return 0; }
 };
 

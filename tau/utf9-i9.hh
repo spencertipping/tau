@@ -217,8 +217,8 @@ struct i9
     { A(is_heap(), "i9* requires heap, got type " << type() << " = " << *this);
       return R<ζp>(data(), 1); };
 
-  i9 &pin()   { if (is_heapref()) W<u8>(data(), 1, Sc<u8>(u9_Φ::heappin)); return *this; }
-  i9 &unpin() { if (is_heappin()) W<u8>(data(), 1, Sc<u8>(u9_Φ::heapref)); return *this; }
+  i9 &pin()   { if (is_heapref()) W(data(), 1, Sc<u8>(u9_Φ::heappin)); return *this; }
+  i9 &unpin() { if (is_heappin()) W(data(), 1, Sc<u8>(u9_Φ::heapref)); return *this; }
   i9 &free()  { if (is_heap()) std::free((**this).a); return *this; }
 
 
@@ -234,7 +234,7 @@ struct i9
     { u9tm{u9t_<T>::t}(type());
       A((i + 1) * sizeof(T) <= size(),
         "i9set OOB, i = " << i << ", w = " << sizeof(T) << ", sz = " << size());
-      W<T>(data(), i * sizeof(T), x);
+      W(data(), i * sizeof(T), x);
       return *this; }
 
 
@@ -309,9 +309,9 @@ template<>
 inline i9 i9::set(uN i, bool x) const
 { u9tm{u9t::b}(type());
   A(i >> 3 < size(), "i9set bool OOB, i = " << i << ", sz = " << size());
-  W<u8>(data(), i >> 3,
-        x ? R<u8>(data(), i >> 3) |  (1 << i & 7)
-          : R<u8>(data(), i >> 3) & ~(1 << i & 7));
+  W(data(), i >> 3,
+    Sc<u8>(x ? R<u8>(data(), i >> 3) |  (1 << i & 7)
+             : R<u8>(data(), i >> 3) & ~(1 << i & 7)));
   return *this; }
 
 

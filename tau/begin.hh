@@ -66,12 +66,5 @@
   R(T xs, uN i)
 
 #define defW(I)                                                         \
-  template<class J, class T>                                            \
-  ic typename std::enable_if<std::is_same<I, J>::value, void>::type     \
-  W(T xs, uN i, I x)
-
-#define defWI(s)                                                        \
-  template<class I, class T>                                            \
-  ic typename std::enable_if<std::is_integral<I>::value                 \
-                             and sizeof(I) == s, void>::type            \
-  W(T xs, uN i, I x)
+  template<class T>                                                     \
+  ic void W(T xs, uN i, I x)

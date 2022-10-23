@@ -114,10 +114,14 @@ defRI(2) { return Sc<I>(R<typename half<I>::t>(xs, i)) <<  8 | R<typename uns<ty
 defRI(4) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 16 | R<typename uns<typename half<I>::t>::t>(xs, i + 2); }
 defRI(8) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 32 | R<typename uns<typename half<I>::t>::t>(xs, i + 4); }
 
-defWI(1) { xs[i] = x; }
-defWI(2) { W<typename half<I>::t>(xs, i, x >> 8);  W<typename half<I>::t>(xs, i + 1, x & 0xff); }
-defWI(4) { W<typename half<I>::t>(xs, i, x >> 16); W<typename half<I>::t>(xs, i + 2, x & 0xffff); }
-defWI(8) { W<typename half<I>::t>(xs, i, x >> 32); W<typename half<I>::t>(xs, i + 4, x & 0xffffffff); }
+defW(i8)  { xs[i] = x; }
+defW(u8)  { xs[i] = x; }
+defW(i16) { W(xs, i, Sc<i8> (x >> 8));  W(xs, i + 1, Sc<i8> (x & 0xff)); }
+defW(u16) { W(xs, i, Sc<u8> (x >> 8));  W(xs, i + 1, Sc<u8> (x & 0xff)); }
+defW(i32) { W(xs, i, Sc<i16>(x >> 16)); W(xs, i + 2, Sc<i16>(x & 0xffff)); }
+defW(u32) { W(xs, i, Sc<u16>(x >> 16)); W(xs, i + 2, Sc<u16>(x & 0xffff)); }
+defW(i64) { W(xs, i, Sc<i32>(x >> 32)); W(xs, i + 4, Sc<i32>(x & 0xffffffffl)); }
+defW(u64) { W(xs, i, Sc<u32>(x >> 32)); W(xs, i + 4, Sc<u32>(x & 0xffffffffl)); }
 
 
 defR(f32) { union {f32 f; i32 n;}; n = R<i32>(xs, i); return f; }
@@ -127,13 +131,13 @@ defR(c64) { return c64{R<f64>(xs, i), R<f64>(xs, i + 8)}; }
 
 defW(f32) { union {f32 f; i32 n;}; f = x; W(xs, i, n); }
 defW(f64) { union {f64 f; i64 n;}; f = x; W(xs, i, n); }
-defW(c32) { W<f32>(xs, i, x.real()); W<f32>(xs, i + 4, x.imag()); }
-defW(c64) { W<f64>(xs, i, x.real()); W<f64>(xs, i + 8, x.imag()); }
+defW(c32) { W(xs, i, x.real()); W(xs, i + 4, x.imag()); }
+defW(c64) { W(xs, i, x.real()); W(xs, i + 8, x.imag()); }
 
 
 // NOTE: non-portable; pointers are written native-endian
 defR(void*) { return Rc<void*>(R<uN>(xs, i)); }
-defW(void*) { W<uN>(xs, i, Rc<uN>(x)); }
+defW(void*) { W(xs, i, Rc<uN>(x)); }
 
 
 template<class T> ic u8 bu(T x) { return ou<u32>(x) ? 3 : ou<u16>(x) ? 2 : ou<u8>(x) ? 1 : 0; }

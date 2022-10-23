@@ -168,13 +168,6 @@ typedef B  const Bc;
 typedef St const Stc;
 
 
-template<class T> inline constexpr u64 Su (T x) { return Sc<u64>(x); }
-template<class T> inline constexpr i64 Si (T x) { return Sc<i64>(x); }
-template<class T> inline constexpr uN  Sun(T x) { return Sc<uN> (x); }
-template<class T> inline constexpr iN  Sin(T x) { return Sc<iN> (x); }
-template<class T> inline constexpr f64 Sf (T x) { return Sc<f64>(x); }
-
-
 }
 
 

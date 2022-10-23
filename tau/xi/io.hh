@@ -26,8 +26,8 @@ struct o9fdr  // zero-copy read from FD
     { n = read(fd, m + sb, s);
       if (n <= 0) { if (n == -1) e = errno; return ζω; }
       e = 0;
-      W<u8>(m, 0, u9t::bytes | u9s::v32);
-      W<u32>(m, 1, n);
+      W(m, 0, u9t::bytes | u9s::v32);
+      W(m, 1, Sc<u32>(n));
       return n + sb; }
 };
 

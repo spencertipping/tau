@@ -150,8 +150,8 @@ R(X xs, uN i)
 template<class J, class X>
 ic typename std::enable_if<is_u9_scoped<J>::v, void>::type
 W(X xs, uN i, J const &x)
-{ W<u9_scoped_t>  (xs, i,     Sc<u9_scoped_t>(x.t));
-  W<decltype(x.x)>(xs, i + 1, x.x); }
+{ W(xs, i,     Sc<u9_scoped_t>(x.t));
+  W(xs, i + 1, x.x); }
 
 
 enum class u9_none : u8
@@ -162,7 +162,7 @@ enum class u9_none : u8
 };
 
 defR(u9_none) { return u9_none{R<u8>(xs, i)}; }
-defW(u9_none) { W<u8>(xs, i, Sc<u8>(x)); }
+defW(u9_none) { W(xs, i, Sc<u8>(x)); }
 
 
 struct u9_symbol
@@ -311,14 +311,14 @@ template<class T>
 ic uN u9ws(T xs, uN i, u9t t, uN s, bool f = false)
 {
   let q = u9sq(s);
-  W<u8>(xs, i, t | q);
+  W(xs, i, t | q);
   if (f) xs[i] |= u9f;
   switch (q)
   {
-  case u9s::v8:  W<u8> (xs, i + 1, s); return 2;
-  case u9s::v16: W<u16>(xs, i + 1, s); return 3;
-  case u9s::v32: W<u32>(xs, i + 1, s); return 5;
-  case u9s::v64: W<u64>(xs, i + 1, s); return 9;
+  case u9s::v8:  W(xs, i + 1, Sc<u8>(s));  return 2;
+  case u9s::v16: W(xs, i + 1, Sc<u16>(s)); return 3;
+  case u9s::v32: W(xs, i + 1, Sc<u32>(s)); return 5;
+  case u9s::v64: W(xs, i + 1, Sc<u64>(s)); return 9;
     TA(0, "u9ws invalid size prefix: " << Sc<uN>(q));
   }
 }
