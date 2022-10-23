@@ -89,29 +89,74 @@ namespace τ
 
 π0TG void π0abi1_number(π0T(π0abi) &a)
 {
-#define sop(t, o) a.def(""#t#o, I{ i.dpush(i.dpop().template at<t>(0) o i.dpop().template at<t>(0)); })
-#define sopi(o) sop(i8, o); sop(i16, o); sop(i32, o); sop(i64, o);
-#define sopu(o) sop(u8, o); sop(u16, o); sop(u32, o); sop(u64, o);
-#define sopf(o) sop(f32, o); sop(f64, o);
-#define sopc(o) sop(c32, o); sop(c64, o);
+  // FIXME: a1sc() needs to inspect arg type, or we need to fix i9 casts
+#define a1sc(t) a.def(">"#t, I{ i.dpush(Sc<t>(i.dpop())); });
 
-#define gena(f) f(+); f(-); f(*); f(/);
-#define rela(f) f(==); f(!=); f(<); f(>); f(<=); f(>=);
-#define bita(f) f(&); f(|); f(^); f(<<); f(>>);
+#define a1sop(t, o) a.def(""#t#o,     I{ i.dpush(i.dpop().template at<t>(0) o i.dpop().template at<t>(0)); })
 
+  // FIXME: we should allocate an i9 first, then use a new vectorized .set()
+  // to set each output element in place -- this avoids the copy and
+  // current V<bool> shenanigans
+#define a1vop(t, o) a.def(""#t "s"#o, I{                                \
+      V<decltype(std::declval<t>() o std::declval<t>())> r;             \
+      let a = i.dpop();                                                 \
+      let b = i.dpop();                                                 \
+      if (a.vn() == 1)                                                  \
+      { let xa = a.template at<t>(0);                                   \
+        r.reserve(b.vn());                                              \
+        for (uN ib = 0; ib < b.vn(); ++ib)                              \
+          r.push_back(xa o b.template at<t>(ib)); }                     \
+      else if (b.vn() == 1)                                             \
+      { let xb = b.template at<t>(0);                                   \
+        r.reserve(a.vn());                                              \
+        for (uN ia = 0; ia < a.vn(); ++ia)                              \
+          r.push_back(a.template at<t>(ia) o xb); }                     \
+      else                                                              \
+      { let k = std::min(a.vn(), b.vn());                               \
+        r.reserve(k);                                                   \
+        for (uN i = 0; i < k; ++i)                                      \
+          r.push_back(a.template at<t>(i) o b.template at<t>(i)); }     \
+      i << (i.h << o9(r.data(), r.size())); });
 
-  gena(sopi); gena(sopu); gena(sopf); gena(sopc);
-  rela(sopi); rela(sopu); rela(sopf);
-  bita(sopi); rela(sopu);
+#define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__);
+#define a1fu(f, ...) f(u8,  __VA_ARGS__); f(u16, __VA_ARGS__); f(u32, __VA_ARGS__); f(u64, __VA_ARGS__);
+#define a1ff(f, ...) f(f32, __VA_ARGS__); f(f64, __VA_ARGS__);
+#define a1fc(f, ...) f(c32, __VA_ARGS__); f(c64, __VA_ARGS__);
 
+#define a1gena(f, g) f(g, +); f(g, -); f(g, *); f(g, /);
+#define a1rela(f, g) f(g, ==); f(g, !=); f(g, <); f(g, >); f(g, <=); f(g, >=);
+#define a1moda(f, g) f(g, %);
+#define a1bita(f, g) f(g, &); f(g, |); f(g, ^); f(g, <<); f(g, >>);
 
-#undef sop
-#undef sopi
-#undef sopu
-#undef sopf
-#undef sopc
-#undef gena
-#undef bita
+  a1gena(a1fi, a1sop);  a1gena(a1fi, a1vop);
+  a1gena(a1fu, a1sop);  a1gena(a1fu, a1vop);
+  a1gena(a1ff, a1sop);  a1gena(a1ff, a1vop);
+  a1gena(a1fc, a1sop);  a1gena(a1fc, a1vop);
+
+  a1rela(a1fi, a1sop);  a1rela(a1fi, a1vop);
+  a1rela(a1fu, a1sop);  a1rela(a1fu, a1vop);
+  a1rela(a1ff, a1sop);  a1rela(a1ff, a1vop);
+
+  a1moda(a1fi, a1sop);  a1moda(a1fi, a1vop);
+  a1moda(a1fu, a1sop);  a1moda(a1fu, a1vop);
+
+  a1bita(a1fi, a1sop);  a1bita(a1fi, a1vop);
+  a1bita(a1fu, a1sop);  a1bita(a1fu, a1vop);
+
+#undef a1sc
+
+#undef a1sop
+#undef a1vop
+
+#undef a1fi
+#undef a1fu
+#undef a1ff
+#undef a1fc
+
+#undef a1gena
+#undef a1rela
+#undef a1moda
+#undef a1bita
 }
 
 
