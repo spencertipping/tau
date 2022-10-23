@@ -27,6 +27,8 @@ namespace τ
 // New GC should be simple i9 tracing with copy-out via o9. This may be
 // slower than splicing, but it should be a lot easier to work with.
 
+// TODO: remove all <Gb> templating
+
 π0TG π0T(π0h)::~π0h ()
 { A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
   A(!rm,        "~π0h during GC");
