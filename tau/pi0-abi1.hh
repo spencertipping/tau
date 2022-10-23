@@ -89,8 +89,16 @@ namespace τ
 
 π0TG void π0abi1_number(π0T(π0abi) &a)
 {
-  // FIXME: a1sc() needs to inspect arg type, or we need to fix i9 casts
-#define a1sc(t) a.def(">"#t, I{ i.dpush(Sc<t>(i.dpop())); });
+#define a1sc(t, u) a.def(#t  ">"#u, I{ i.dpush(Sc<u>(i.dpop().template at<t>(0))); });
+#define a1vc(t, u) a.def(#t "s>"#u, I{                  \
+    π0T(π0hnf) f{i.h, 2};                               \
+    auto &a = f << i.pop();                             \
+    auto &b = f << (i.h << o9vec<u>{i.h[a].vn()});      \
+    i << b;                                             \
+    let ia = i.h[a];                                    \
+    let ib = i.h[b];                                    \
+    for (uN i = 0; i < ia.vn(); ++i)                    \
+      ib.template set<u>(i, ia.template at<t>(i)); });
 
 #define a1sop(t, o) a.def(""#t#o, I{ i.dpush(i.dpop().template at<t>(0) o i.dpop().template at<t>(0)); })
 
@@ -131,10 +139,25 @@ namespace τ
 #define a1ff(f, ...) f(f32, __VA_ARGS__); f(f64, __VA_ARGS__);
 #define a1fc(f, ...) f(c32, __VA_ARGS__); f(c64, __VA_ARGS__);
 
+#define a1cfi(f, g) f(g, i8);  f(g, i16); f(g, i32); f(g, i64);
+#define a1cfu(f, g) f(g, u8);  f(g, u16); f(g, u32); f(g, u64);
+#define a1cff(f, g) f(g, f32); f(g, f64);
+#define a1cfc(f, g) f(g, c32); f(g, c64);
+
 #define a1gena(f, g) f(g, +); f(g, -); f(g, *); f(g, /);
 #define a1rela(f, g) f(g, ==); f(g, !=); f(g, <); f(g, >); f(g, <=); f(g, >=);
 #define a1moda(f, g) f(g, %);
 #define a1bita(f, g) f(g, &); f(g, |); f(g, ^); f(g, <<); f(g, >>);
+
+  a1cfi(a1fi, a1sc);  a1cfi(a1fu, a1sc);  a1cfi(a1ff, a1sc);
+  a1cfu(a1fi, a1sc);  a1cfu(a1fu, a1sc);  a1cfu(a1ff, a1sc);
+  a1cff(a1fi, a1sc);  a1cff(a1fu, a1sc);  a1cff(a1ff, a1sc);
+  a1cfc(a1fi, a1sc);  a1cfc(a1fu, a1sc);  a1cfc(a1ff, a1sc);
+
+  a1cfi(a1fi, a1vc);  a1cfi(a1fu, a1vc);  a1cfi(a1ff, a1vc);
+  a1cfu(a1fi, a1vc);  a1cfu(a1fu, a1vc);  a1cfu(a1ff, a1vc);
+  a1cff(a1fi, a1vc);  a1cff(a1fu, a1vc);  a1cff(a1ff, a1vc);
+  a1cfc(a1fi, a1vc);  a1cfc(a1fu, a1vc);  a1cfc(a1ff, a1vc);
 
   a1gena(a1fi, a1sop);  a1gena(a1fi, a1vop);
   a1gena(a1fu, a1sop);  a1gena(a1fu, a1vop);

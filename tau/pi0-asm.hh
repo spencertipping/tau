@@ -90,10 +90,10 @@ struct π0afr  // π₀ asm frame
 π0TGs π0asm
 {
   π0TS;
-  sletc c7ws = π0cs7(" \t\n");              // whitespace
-  sletc c7ni = π0cs7(" \t\n{}[]()|,'\"#");  // non-ident
-  sletc c7nc = π0cs7(" \t\n{}[](),'");      // non-[ident]-continuation
-  sletc c7in = π0cs7("0123456789");         // integer
+  sletc c7ws = π0cs7(" \t\n");                // whitespace
+  sletc c7ni = π0cs7(" \t\n{}[]()|,'\\\"#");  // non-ident
+  sletc c7nc = π0cs7(" \t\n{}[](),'");        // non-[ident]-continuation
+  sletc c7in = π0cs7("0123456789");           // integer
 
   typedef V<π0b> π0blk;  // code block
 
@@ -152,7 +152,7 @@ struct π0afr  // π₀ asm frame
         case '\'':
         { uN j = i + 1;
           while (j < s.size() && !c7ni[s[j]]) ++j;
-          *this << f("sym", qh << o9(u9_symbol::str(s.substr(i, j - 1))));
+          *this << f("sym", qh << o9(u9_symbol::str(s.substr(i + 1, j - i - 1))));
           i = j - 1;
           break; }
         case '"':
@@ -171,8 +171,7 @@ struct π0afr  // π₀ asm frame
           *this << f("utf8", qh << o9(x));
           break; }
         case '|':
-        { if (i + 1 < s.size() && s[i + 1] == ']')
-          { fend(); end(); ++i; }
+        { if (i + 1 < s.size() && s[i + 1] == ']') { fend(); end(); ++i; }
           else
           { uN j = i + 1;
             while (j < s.size() && s[j] != '|') ++j;
