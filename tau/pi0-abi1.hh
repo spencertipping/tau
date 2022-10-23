@@ -85,15 +85,21 @@ namespace τ
     .def("i32", I{ i.dpush(Sc<i32>(n)); })
     .def("i64", I{ i.dpush(Sc<i64>(n)); })
 
-    .def("utf8", I{ i.dpush(i9{const_cast<ζp>(i.p.q.data() + n)}); })
-    .def("sym",  I{ i.dpush(i9{const_cast<ζp>(i.p.q.data() + n)}); });
+    .def("utf8", I{ i.dpush(i9{Cc<ζp>(i.p.q.data() + n)}); })
+    .def("sym",  I{ i.dpush(i9{Cc<ζp>(i.p.q.data() + n)}); });
 }
 
 
 π0TG void π0abi1_u9_general(π0T(π0abi) &a)
 {
   a .def("?e", I{ i.dpush(i.dpop().exists()); })
-    .def("?t", I{ i.dpush(u9typesyms.at(i.dpop().type())); });
+    .def("?t", I{ i.dpush(u9typesyms.at(i.dpop().type())); })
+    .def("?f", I{ i.dpush(i.dpop().flagged()); })
+    .def("?s", I{ i.dpush(i.dpop().size()); })
+    .def("?S", I{ i.dpush(i.dpop().osize()); })
+    .def(":f", I{
+        if (i.h[i[0]].flagged())
+          i << (i.h << π0gso9i{i.h, i.pop()}); });
 }
 
 
@@ -290,17 +296,19 @@ namespace τ
 
 π0TG void π0abi1_u9_nrange(π0T(π0abi) &a)
 {
-
+  // TODO
 }
 
 
 π0TG void π0abi1_u9_tuple(π0T(π0abi) &a)
 {
-  a.def(">>t", I{
+  a .def(">>t", I{
       uNc k = Sc<iN>(i.dpop());
       π0T(π0hnf) f{i.h, k};
       for (uN j = 0; j < k; ++j) f << i.pop();
-      i << f.v; });
+      i << (i.h << o9(f.v)); })
+    .def("t@", I{ uNc k = Sc<iN>(i.dpop()); i.dpush(i.dpop()[k]); })
+    .def("t#", I{ uN  k = 0; for (let _ : i.dpop()) ++k; i.dpush(k); });
 }
 
 

@@ -127,7 +127,7 @@ namespace τ
   π0hnf()                  = delete;
   π0hnf(π0T(π0hnf) const&) = delete;
   π0hnf(π0T(π0hnf)&&)      = delete;
-  π0hnf(π0T(π0h) &h_, uN vs = 4) : π0T(π0hv)(h_), v(vs) {}
+  π0hnf(π0T(π0h) &h_, uN vs = 4) : π0T(π0hv)(h_) { v.reserve(vs); }
 
   void mark() { for (let   x : v)     π0T(π0hv)::h.mark(x); }
   void move() { for (auto &x : v) x = π0T(π0hv)::h.move(x); }

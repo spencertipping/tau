@@ -298,7 +298,24 @@ namespace τ
 };
 
 
-π0TGn struct o9_<π0T(π0gso9)> { sletc v = true; };
+π0TGs π0gso9i : virtual o9V  // inline everything and copy out
+{
+  π0TS;
+  π0T(π0gs) *g;
+  π0R        o;
+  π0gso9i(π0T(π0h) &h, π0R o_) : o(o_)
+  { π0T(π0ms) m{h}; m.me(o);
+    g = new π0gs{m, 0}; }
+
+  ~π0gso9i() { delete g; }
+
+  uN size()      const { return g->newsize(o); }
+  uN write(ζp m) const { g->scopy(m, o); return 0; }
+};
+
+
+π0TGn struct o9_<π0T(π0gso9)>  { sletc v = true; };
+π0TGn struct o9_<π0T(π0gso9i)> { sletc v = true; };
 
 
 #if τdebug_iostream

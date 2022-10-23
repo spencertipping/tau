@@ -200,10 +200,10 @@ struct o9v : virtual o9V  // unindexed, unordered tuple/set
       bool f = false;
       for (let &x : xs)
       { auto o = o9(x);
-        A(!o.write(m + i), "o9v internal error");
+        A(!o.write(m + i), "o9v element attempted to resize");
         f = f || u9ts_f(R<u8>(m, i));
         i += o.size(); }
-      if (f) m[i] |= u9f;
+      if (f) m[0] |= u9f;
       return 0; }
 };
 

@@ -35,6 +35,10 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 ### General
 + `?e`: does the value exist?
 + `?t`: what is the value type? (returns symbol)
++ `?f`: is the value flagged?
++ `?s`: how big is the value? (inner size)
++ `?S`: outer size
++ `:f`: flatten value (inlines all references)
 
 
 ### Vectors
@@ -135,7 +139,7 @@ All of these operators automatically distribute across vectors.
 + `t t#`: tuple length
 + `t i t@`: get element from tuple
 + `t s n t!`: sub-tuple (start + len)
-+ `xs ys t+`: append
++ `xs ys t++`: append
 + `xs [...] t.`: for-each
 + `xs [...] t*`: map
 + `xs [...] t%`: filter
