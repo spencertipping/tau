@@ -109,6 +109,8 @@ All of these operators automatically distribute across vectors.
   + `c32imag`, `c64imag`
   + `c32conj`, ...
 
+**TODO:** depend on https://bitbucket.org/jpommier/pffft/src/master/ for FFT
+
 
 ### Strings
 + `>b`: tuple/set/vector/UTF8 to bytes
