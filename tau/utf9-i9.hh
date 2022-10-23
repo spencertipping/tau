@@ -137,7 +137,8 @@ struct i9
   uN   size()    const { return end() - begin(); }
 
   // NOTE: returns 0 if this type cannot be vectorized
-  uN   vn()      const { return size() >> u9logsizeof(type()); }
+  uN   vn()      const
+    { return type() == u9t::b ? size() << 3 : size() >> u9logsizeof(type()); }
 
 
   template<class T> operator u9_scoped<u9_π,     T>() const { u9tm{u9t::pi}   (type()); return R<u9_scoped<u9_π,     T>>(data(), 0); }
@@ -308,7 +309,9 @@ template<>
 inline i9 i9::set(uN i, bool x) const
 { u9tm{u9t::b}(type());
   A(i >> 3 < size(), "i9set bool OOB, i = " << i << ", sz = " << size());
-  W<u8>(data(), i >> 3, R<u8>(data(), i >> 3) | (1 << i & 7));
+  W<u8>(data(), i >> 3,
+        x ? R<u8>(data(), i >> 3) |  (1 << i & 7)
+          : R<u8>(data(), i >> 3) & ~(1 << i & 7));
   return *this; }
 
 
@@ -334,6 +337,7 @@ O &operator<<(O &s, i9 const &x)
 
 #define vec(rt, ct, t)                                                  \
     case rt:                                                            \
+      if (!x.vn()) return s << x.type() << "[]";                        \
       s << Sc<ct>(x);                                                   \
       for (uN i = 1; i < x.vn(); ++i)                                   \
         s << " " << Sc<ct>(x.at<t>(i));                                 \
@@ -356,7 +360,14 @@ O &operator<<(O &s, i9 const &x)
 
 #undef vec
 
-  case u9t::b:      return s << (R<u8>(x.begin(), 0) ? "t" : "f");
+  case u9t::b:
+    if (!x.vn()) return s << "b[]";
+    s << (x.template at<bool>(0) ? 't' : 'f');
+    if (x.size() != 1 || R<u8>(x.data(), 0) > 1)
+      for (uN i = 1; i < x.vn(); ++i)
+        s << ' ' << (x.template at<bool>(i) ? 't' : 'f');
+    return s;
+
   case u9t::symbol: return s << Sc<u9_symbol>(x);
   case u9t::stream:
     s << Sc<u9st>(x);

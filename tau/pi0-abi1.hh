@@ -92,7 +92,7 @@ namespace τ
   // FIXME: a1sc() needs to inspect arg type, or we need to fix i9 casts
 #define a1sc(t) a.def(">"#t, I{ i.dpush(Sc<t>(i.dpop())); });
 
-#define a1sop(t, o) a.def(""#t#o,     I{ i.dpush(i.dpop().template at<t>(0) o i.dpop().template at<t>(0)); })
+#define a1sop(t, o) a.def(""#t#o, I{ i.dpush(i.dpop().template at<t>(0) o i.dpop().template at<t>(0)); })
 
 #define a1vop(t, o) a.def(""#t "s"#o, I{                                \
       π0T(π0hnf) f{i.h, 3};                                             \
@@ -105,7 +105,7 @@ namespace τ
         let c_ = i.h[c];                                                \
         let xa = i.h[a].template at<t>(0);                              \
         for (uN i = 0; i < b_.vn(); ++i)                                \
-          c_.set(i, xa o b_.template at<t>(i));                         \
+          c_.template set<r>(i, xa o b_.template at<t>(i));             \
         i << c; }                                                       \
       else if (i.h[b].vn() == 1)                                        \
       { auto &c = f << (i.h << o9vec<r>{i.h[a].vn()});                  \
@@ -113,7 +113,7 @@ namespace τ
         let c_ = i.h[c];                                                \
         let xb = i.h[b].template at<t>(0);                              \
         for (uN i = 0; i < a_.vn(); ++i)                                \
-          c_.set(i, a_.template at<t>(i) o xb);                         \
+          c_.template set<r>(i, a_.template at<t>(i) o xb);             \
         i << c; }                                                       \
       else                                                              \
       { let k = std::min(i.h[a].vn(), i.h[b].vn());                     \
@@ -122,7 +122,8 @@ namespace τ
         let b_ = i.h[b];                                                \
         let c_ = i.h[c];                                                \
         for (uN i = 0; i < k; ++i)                                      \
-          c_.set(i, a_.template at<t>(i) o b_.template at<t>(i));       \
+          c_.template set<r>(                                           \
+            i, a_.template at<t>(i) o b_.template at<t>(i));            \
         i << c; }});
 
 #define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__);
@@ -205,7 +206,6 @@ namespace τ
 
   return a;
 }
-
 
 
 }
