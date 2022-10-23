@@ -23,7 +23,7 @@ namespace τ
   π0hs(π0hg g_, uN s) : g(g_) { h.reserve(s); }
 
   π0TO π0R operator<<(π0To const &x)
-    { return h.size() + x.size() > h.capacity()
+    { return h.size() + x.size() > h.capacity() - 1
            ? π0R()
            : π0R(g, h << x); }
 

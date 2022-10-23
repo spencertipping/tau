@@ -113,8 +113,7 @@ All of these operators automatically distribute across vectors.
   + `c32imag`, `c64imag`
   + `c32conj`, ...
 + Iteration (integer types)
-  + `[...] n i8r.`, ...: for-each in range _0..n-1_
-  + `i [...] n i8r/`, ...: reduce for range _0..n-1_
+  + `[...] n i8.`, ...: for-each in range _0..n-1_
 
 **TODO:** depend on https://bitbucket.org/jpommier/pffft/src/master/ for FFT
 
@@ -143,7 +142,6 @@ All of these operators automatically distribute across vectors.
 + `xs [...] t.`: for-each
 + `xs [...] t*`: map
 + `xs [...] t%`: filter
-+ `xs i [...] t/`: reduce
 
 
 ### Sets
@@ -156,7 +154,6 @@ All of these operators automatically distribute across vectors.
 + `xs [...] s.`: for-each
 + `xs [...] s*`: map
 + `xs [...] s%`: filter
-+ `xs i [...] s/`: reduce
 
 
 ### Maps
@@ -176,8 +173,6 @@ All of these operators automatically distribute across vectors.
 + `m [...] mv*`: map values
 + `m [...] m%`: filter
 + `m [...] mv%`: filter values
-+ `m i [...] m/`: reduce
-+ `m i [...] mv/`: reduce values
 
 
 ### Indexes
@@ -211,7 +206,6 @@ All of these operators automatically distribute across vectors.
 
 ### Iteration
 + `fi [...] φ.`: for each element
-+ `fi i [...] φ/`: reduce
 
 
 ## π₀ interpreter API

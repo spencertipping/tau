@@ -296,7 +296,16 @@ namespace τ
 
 π0TG void π0abi1_u9_nrange(π0T(π0abi) &a)
 {
-  // TODO
+#define a1r(t) a.def(#t ".", I{                 \
+      π0bi f = i.dpop();                        \
+      let  k = i.dpop().template at<t>(0);      \
+      for (t j = 0; j < k; ++j)                 \
+        i.dpush(j).run(f); });
+
+  a1r(i8); a1r(i16); a1r(i32); a1r(i64);
+  a1r(u8); a1r(u16); a1r(u32); a1r(u64);
+
+#undef a1r
 }
 
 
@@ -308,7 +317,20 @@ namespace τ
       for (uN j = 0; j < k; ++j) f << i.pop();
       i << (i.h << o9(f.v)); })
     .def("t@", I{ uNc k = Sc<iN>(i.dpop()); i.dpush(i.dpop()[k]); })
-    .def("t#", I{ uN  k = 0; for (let _ : i.dpop()) ++k; i.dpush(k); });
+    .def("t#", I{ i.dpush(i.dpop().len()); })
+    .def("t++", I{
+        let k = i.h[i[0]].len() + i.h[i[1]].len();
+        π0T(π0hnf) f{i.h, k};
+        for (let x : i.dpop()) f << i.h(x);
+        for (let x : i.dpop()) f << i.h(x);
+        i << (i.h << o9(f.v)); })
+    .def("t.", I{
+        π0T(π0hnf) f{i.h, 3};
+        π0bi g   = i.dpop();
+        auto &xs = f << i.pop();
+        auto &xe = f << i.h(i.h[xs].next());
+        auto &x  = f << i.h(i.h[xs].first());
+        while (x < xe) { i << x; i.run(g); x = i.h(i.h[x].next()); } });
 }
 
 

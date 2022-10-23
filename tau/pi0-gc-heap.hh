@@ -49,11 +49,10 @@ namespace τ
     { let &b = hs[g]->h;
 
       // NOTE: upper bound is included to provide endpoint/next
-      // continuity, even though it isn't a valid reference.
-      //
-      // FIXME: this may break everything if heap-spaces are allocated
-      // immediately adjacent to one another; we probably need to size
-      // them up by one to prevent this.
+      // continuity, even though it isn't a valid reference. π0hs
+      // never allocates the topmost address, which means the
+      // bytestring will always properly contain every address
+      // we assign to it.
       return x >= b.data() && x <= b.data() + b.size()
            ? π0R(g, x - b.data())
            : π0R(); }

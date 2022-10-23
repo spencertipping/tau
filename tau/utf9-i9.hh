@@ -238,6 +238,13 @@ struct i9
       return *this; }
 
 
+  uN len() const  // number of contained elements
+    { u9tm{u9t::tuple, u9t::set, u9t::map}(type());
+      uN r = 0;
+      for (let _ : *this) ++r;
+      return r; }
+
+
   // NOTE: can't do vectors here because we don't have enough space
   // to return type information alongside the value; use .at()
   i9 operator[](uN i) const
