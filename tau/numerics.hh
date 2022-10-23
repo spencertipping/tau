@@ -114,14 +114,15 @@ defRI(2) { return Sc<I>(R<typename half<I>::t>(xs, i)) <<  8 | R<typename uns<ty
 defRI(4) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 16 | R<typename uns<typename half<I>::t>::t>(xs, i + 2); }
 defRI(8) { return Sc<I>(R<typename half<I>::t>(xs, i)) << 32 | R<typename uns<typename half<I>::t>::t>(xs, i + 4); }
 
-defW(i8)  { xs[i] = x; }
-defW(u8)  { xs[i] = x; }
-defW(i16) { W(xs, i, Sc<i8> (x >> 8));  W(xs, i + 1, Sc<i8> (x & 0xff)); }
-defW(u16) { W(xs, i, Sc<u8> (x >> 8));  W(xs, i + 1, Sc<u8> (x & 0xff)); }
-defW(i32) { W(xs, i, Sc<i16>(x >> 16)); W(xs, i + 2, Sc<i16>(x & 0xffff)); }
-defW(u32) { W(xs, i, Sc<u16>(x >> 16)); W(xs, i + 2, Sc<u16>(x & 0xffff)); }
-defW(i64) { W(xs, i, Sc<i32>(x >> 32)); W(xs, i + 4, Sc<i32>(x & 0xffffffffl)); }
-defW(u64) { W(xs, i, Sc<u32>(x >> 32)); W(xs, i + 4, Sc<u32>(x & 0xffffffffl)); }
+defW(bool) { xs[i] = x; }
+defW(i8)   { xs[i] = x; }
+defW(u8)   { xs[i] = x; }
+defW(i16)  { W(xs, i, Sc<i8> (x >> 8));  W(xs, i + 1, Sc<i8> (x & 0xff)); }
+defW(u16)  { W(xs, i, Sc<u8> (x >> 8));  W(xs, i + 1, Sc<u8> (x & 0xff)); }
+defW(i32)  { W(xs, i, Sc<i16>(x >> 16)); W(xs, i + 2, Sc<i16>(x & 0xffff)); }
+defW(u32)  { W(xs, i, Sc<u16>(x >> 16)); W(xs, i + 2, Sc<u16>(x & 0xffff)); }
+defW(i64)  { W(xs, i, Sc<i32>(x >> 32)); W(xs, i + 4, Sc<i32>(x & 0xffffffffl)); }
+defW(u64)  { W(xs, i, Sc<u32>(x >> 32)); W(xs, i + 4, Sc<u32>(x & 0xffffffffl)); }
 
 
 defR(f32) { union {f32 f; i32 n;}; n = R<i32>(xs, i); return f; }

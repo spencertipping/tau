@@ -127,16 +127,12 @@ namespace τ
   π0hnf()                  = delete;
   π0hnf(π0T(π0hnf) const&) = delete;
   π0hnf(π0T(π0hnf)&&)      = delete;
-  π0hnf(π0T(π0h) &h_, uN vs) : π0T(π0hv)(h_) { v.reserve(vs); }
+  π0hnf(π0T(π0h) &h_, uN vs = 4) : π0T(π0hv)(h_), v(vs) {}
 
   void mark() { for (let   x : v)     π0T(π0hv)::h.mark(x); }
   void move() { for (auto &x : v) x = π0T(π0hv)::h.move(x); }
 
-  π0R &operator<<(π0R x)
-  { A(v.size() + 1 <= v.capacity(),
-      "π₀hnf: undersized frame (reserved " << v.capacity() << ")");
-    v.push_back(x);
-    return v.back(); }
+  π0R &operator<<(π0R x) { v.push_back(x); return v.back(); }
 };
 
 
