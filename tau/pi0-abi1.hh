@@ -115,7 +115,7 @@ namespace τ
         for (uN i = 0; i < a_.vn(); ++i)                                \
           c_.set(i, a_.template at<t>(i) o xb);                         \
         i << c; }                                                       \
-      else                                                            \
+      else                                                              \
       { let k = std::min(i.h[a].vn(), i.h[b].vn());                     \
         auto &c = f << (i.h << o9vec<r>{k});                            \
         let a_ = i.h[a];                                                \
