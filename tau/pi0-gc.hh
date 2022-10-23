@@ -23,6 +23,9 @@ namespace τ
 // a reference.
 //
 // Heap-view design should stay; it's really good.
+//
+// New GC should be simple i9 tracing with copy-out via o9. This may be
+// slower than splicing, but it should be a lot easier to work with.
 
 π0TG π0T(π0h)::~π0h ()
 { A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
