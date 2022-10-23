@@ -49,6 +49,10 @@
 #define ic inline constexpr
 #define sc static constexpr
 
+#define Sc static_cast
+#define Rc reinterpret_cast
+#define Cc const_cast
+
 
 #define defR(I)                                                         \
   template<class J, class T>                                            \

@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 which=${1:-zeta}
 
 exec \
-  g++ $(<compile_flags.txt) -g try/$which.cc -o try/$which \
+  g++ $(<compile_flags.txt) try/$which.cc -o try/$which \
       -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lharfbuzz -lcairo \
       -lxcb -lX11 -lGL -lX11-xcb \
       -lboost_context

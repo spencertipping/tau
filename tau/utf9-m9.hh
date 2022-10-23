@@ -21,7 +21,7 @@ struct m9  // memory-resident immediate UTF9 value
   template<O9N T> explicit m9(T x) { let o = o9(x); b = Rc<ζp>(std::malloc(o.size())); o.write(b); }
   ~m9() { std::free(b); }
 
-  operator i9() { return i9{b}; }
+  operator i9() const { return i9{b}; }
 };
 
 

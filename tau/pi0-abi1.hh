@@ -144,11 +144,6 @@ namespace τ
 #define a1cff(f, g) f(g, f32); f(g, f64);
 #define a1cfc(f, g) f(g, c32); f(g, c64);
 
-#define a1gena(f, g) f(g, +); f(g, -); f(g, *); f(g, /);
-#define a1rela(f, g) f(g, ==); f(g, !=); f(g, <); f(g, >); f(g, <=); f(g, >=);
-#define a1moda(f, g) f(g, %);
-#define a1bita(f, g) f(g, &); f(g, |); f(g, ^); f(g, <<); f(g, >>);
-
   a1cfi(a1fi, a1sc);  a1cfi(a1fu, a1sc);  a1cfi(a1ff, a1sc);
   a1cfu(a1fi, a1sc);  a1cfu(a1fu, a1sc);  a1cfu(a1ff, a1sc);
   a1cff(a1fi, a1sc);  a1cff(a1fu, a1sc);  a1cff(a1ff, a1sc);
@@ -158,6 +153,16 @@ namespace τ
   a1cfu(a1fi, a1vc);  a1cfu(a1fu, a1vc);  a1cfu(a1ff, a1vc);
   a1cff(a1fi, a1vc);  a1cff(a1fu, a1vc);  a1cff(a1ff, a1vc);
   a1cfc(a1fi, a1vc);  a1cfc(a1fu, a1vc);  a1cfc(a1ff, a1vc);
+
+#undef a1cfi
+#undef a1cfu
+#undef a1cff
+#undef a1cfc
+
+#define a1gena(f, g) f(g, +); f(g, -); f(g, *); f(g, /);
+#define a1rela(f, g) f(g, ==); f(g, !=); f(g, <); f(g, >); f(g, <=); f(g, >=);
+#define a1moda(f, g) f(g, %);
+#define a1bita(f, g) f(g, &); f(g, |); f(g, ^); f(g, <<); f(g, >>);
 
   a1gena(a1fi, a1sop);  a1gena(a1fi, a1vop);
   a1gena(a1fu, a1sop);  a1gena(a1fu, a1vop);
@@ -175,6 +180,7 @@ namespace τ
   a1bita(a1fu, a1sop);  a1bita(a1fu, a1vop);
 
 #undef a1sc
+#undef a1vc
 
 #undef a1sop
 #undef a1vop

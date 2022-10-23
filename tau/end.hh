@@ -15,6 +15,10 @@
 #undef ic
 #undef sc
 
+#undef Sc
+#undef Rc
+#undef Cc
+
 #undef defR
 #undef defRI
 #undef defW

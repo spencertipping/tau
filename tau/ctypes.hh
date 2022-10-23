@@ -168,11 +168,6 @@ typedef B  const Bc;
 typedef St const Stc;
 
 
-template<class T, class U> inline constexpr T Rc(U x) { return reinterpret_cast<T>(x); }
-template<class T, class U> inline constexpr T Sc(U x) { return      static_cast<T>(x); }
-template<class T, class U> inline constexpr T Cc(U x) { return       const_cast<T>(x); }
-
-
 template<class T> inline constexpr u64 Su (T x) { return Sc<u64>(x); }
 template<class T> inline constexpr i64 Si (T x) { return Sc<i64>(x); }
 template<class T> inline constexpr uN  Sun(T x) { return Sc<uN> (x); }
