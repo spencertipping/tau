@@ -19,6 +19,7 @@ namespace τ
   π0TS;
   V<π0T(π0f)>  f;       // function table (π0fi to index)
   V<St>        n;       // function names, to list disassembly
+  S<St>        ns;      // set of defined names
   π0av mutable v_ = 0;  // cached version
 
   π0av v() const
@@ -35,6 +36,7 @@ namespace τ
 
   π0abi &def(Stc &n_, π0T(π0f) f_)
   { A(!v_, "defining " << n_ << " on versioned π₀abi");
+    A(ns.emplace(n_).second, "redefining " << n_);
     f.push_back(f_);
     n.push_back(n_);
     return *this; }

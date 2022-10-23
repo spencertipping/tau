@@ -16,6 +16,7 @@ namespace τ
 
 #define I [](π0T(π0int) &i, π0fa n)
 
+
 π0TG void π0abi1_blocks(π0T(π0abi) &a)
 {
   a .def("[",  I{ i.dpush(Sc<π0bi>(i.r.back())); i.r.back() += n; })
@@ -96,9 +97,49 @@ namespace τ
 
 π0TG void π0abi1_u9_vector(π0T(π0abi) &a)
 {
-  a .def("v#", I{ i.dpush(Sc<u64>(i.dpop().vn())); })
-    .def("v@", I{ iNc j = i.dpop(); TODO("v@ type dispatch"); })
-    .def("v+", I{ TODO("v+"); });
+#define a1vfns(t)                                                     \
+  a.def(">" #t "s", I{                                                \
+      uNc k  = Sc<iN>(i.dpop());                                      \
+      let r  = i.h << o9vec<t>{k};                                    \
+      let ir = i.h[r];                                                \
+      for (uN j = 0; j < k; ++j)                                      \
+        ir.template set<t>(j, i.dpop().template at<t>(0));            \
+      i << r; })                                                      \
+    .def(#t "s#", I{ i.dpush(Sc<u64>(i.dpop().vn())); })              \
+    .def(#t "s@", I{                                                  \
+        uNc k = Sc<iN>(i.dpop());                                     \
+        i.dpush(i.dpop().template at<t>(k)); })                       \
+    .def(#t "s!", I{                                                  \
+        π0T(π0hnf) f{i.h, 2};                                         \
+        uNc sn = Sc<iN>(i.dpop());                                    \
+        uNc si = Sc<iN>(i.dpop());                                    \
+        auto &s = f << i.pop();                                       \
+        auto &r = f << (i.h << o9vec<t>{sn});                         \
+        let is = i.h[s];                                              \
+        let ir = i.h[r];                                              \
+        for (uN j = si; j < sn; ++j)                                  \
+          ir.template set<t>(j - si, is.template at<t>(j));           \
+        i << r; })                                                    \
+    .def(#t "s++", I{                                                 \
+        π0T(π0hnf) f{i.h, 3};                                         \
+        auto &a = f << i.pop();                                       \
+        auto &b = f << i.pop();                                       \
+        auto &c = f << (i.h << o9vec<t>{i.h[a].vn() + i.h[b].vn()});  \
+        let a_ = i.h[a];                                              \
+        let b_ = i.h[b];                                              \
+        let c_ = i.h[c];                                              \
+        for (uN j = 0; j < a_.vn(); ++j)                              \
+          c_.template set<t>(j, a_.template at<t>(j));                \
+        for (uN j = 0; j < b_.vn(); ++j)                              \
+          c_.template set<t>(j + a_.vn(), b_.template at<t>(j));      \
+        i << c; })
+
+  a1vfns(i8);  a1vfns(i16); a1vfns(i32); a1vfns(i64);
+  a1vfns(u8);  a1vfns(u16); a1vfns(u32); a1vfns(u64);
+  a1vfns(f32); a1vfns(f64);
+  a1vfns(c32); a1vfns(c64);
+
+#undef a1vfns
 }
 
 
@@ -250,6 +291,7 @@ namespace τ
   π0abi1_debug(a);
 # endif
 
+  i = true;
   return a;
 }
 

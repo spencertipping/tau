@@ -43,7 +43,7 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 + `xs v#`: vector length
 + `xs i v@`: get vector element
 + `xs i n v!`: sub-vector
-+ `a b v+`: concatenate vectors
++ `a b v++`: concatenate vectors
 
 
 ### Numbers

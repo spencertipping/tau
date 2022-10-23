@@ -299,6 +299,9 @@ struct i9
 };
 
 
+// TODO: add some type of half-byte prefix to bool vectors
+// so we can accurately encode vector size
+
 template<>
 inline bool i9::at(uN i) const
 { u9tm{u9t::b}(type());
