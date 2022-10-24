@@ -38,9 +38,7 @@ typedef void(*π0f)(π0int&, π0fa);
 typedef P<π0fi, π0fa> π0b;  static_assert(sizeof(π0b) == 8);
 
 
-template<> struct u9t_<π0r> { sletc t = u9t::pi; };
-
-inline auto o9(π0r r)
+inline auto π0o9r(π0r r)
 {
   return o9flag{o9(u9_scoped<u9_π, ζp>{u9_π::ref, r})};
 }

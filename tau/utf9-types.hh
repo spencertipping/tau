@@ -275,9 +275,9 @@ template<> struct u9t_<St>   { sletc t = u9t::utf8; };
 template<> struct u9t_<Stv>  { sletc t = u9t::utf8; };
 template<> struct u9t_<chc*> { sletc t = u9t::utf8; };
 
-template<class U>          struct u9t_<V<U>>    { sletc t = u9t::tuple; };
-template<class K, class V> struct u9t_<M<K, V>> { sletc t = u9t::map; };
-template<class U>          struct u9t_<S<U>>    { sletc t = u9t::set; };
+template<class... U>          struct u9t_<V<U...>>    { sletc t = u9t::tuple; };
+template<class K, class... V> struct u9t_<M<K, V...>> { sletc t = u9t::map; };
+template<class... U>          struct u9t_<S<U...>>    { sletc t = u9t::set; };
 
 template<class T> struct u9t_<u9_scoped<u9_π,     T>> { sletc t = u9t::pi; };
 template<class T> struct u9t_<u9_scoped<u9_Φ,     T>> { sletc t = u9t::phi; };

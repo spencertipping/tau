@@ -38,6 +38,8 @@ template<class T> concept o9fixed  = u9t_is<T, u9fixed.m>::v;
 template<class T> concept o9string = u9t_is<T, u9strings.m>::v;
 template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 
+template<class T> concept o9simple = o9mapped<T> && !o9coll<T>;
+
 
 struct o9i9 : virtual o9V
 {
@@ -143,8 +145,10 @@ inline o9c o9(chc *xs, uN n, u9t t = u9t::utf8) { return o9c{t, xs, n}; }
 inline o9c o9(chc *xs)                          { return o9(xs, std::strlen(xs), u9t::utf8); }
 
 
-template<o9mapped T, template<typename...> class C, class... Ts> struct o9v;
-template<o9mapped K, o9mapped V, class... Ts>                    struct o9m;
+template<o9simple T, template<typename...> class C, class... Ts> struct o9v;
+template<o9mapped K, o9simple T, class... Ts>                    struct o9m;
+template<o9coll   T, template<typename...> class C, class... Ts> struct o9vc;
+template<o9mapped K, o9coll   T, class... Ts>                    struct o9mc;
 
 template<o9fixed T>        inline o9f<T>               o9(T x)               { return o9f<T>{x}; }
 template<class E, class T> inline o9f<u9_scoped<E, T>> o9(u9_scoped<E, T> x) { return o9f<u9_scoped<E, T>>{x}; }
@@ -155,11 +159,17 @@ inline o9b<St const&>        o9(St        const &x) { return o9b<St const&>     
 inline o9b<Stv>              o9(Stv              x) { return o9b<Stv>             {x}; }
 inline o9b<u9_symbol const&> o9(u9_symbol const &s) { return o9b<u9_symbol const&>{s}; }
 
-template<o9mapped T, class... Ts> inline o9v<T, V, Ts...> o9(V<T, Ts...> const&);
-template<o9mapped T, class... Ts> inline o9v<T, S, Ts...> o9(S<T, Ts...> const&);
+template<o9simple T, class... Ts> inline o9v<T, V, Ts...> o9(V<T, Ts...> const&);
+template<o9simple T, class... Ts> inline o9v<T, S, Ts...> o9(S<T, Ts...> const&);
 
-template<o9mapped K, o9mapped V, class... Ts>
-inline o9m<K, V> o9(M<K, V, Ts...> const&);
+template<o9mapped K, o9simple T, class... Ts>
+inline o9m<K, T> o9(M<K, T, Ts...> const&);
+
+template<o9coll T, class... Ts> inline o9vc<T, V, Ts...> o9(V<T, Ts...> const&);
+template<o9coll T, class... Ts> inline o9vc<T, S, Ts...> o9(S<T, Ts...> const&);
+
+template<o9mapped K, o9coll T, class... Ts>
+inline o9mc<K, T> o9(M<K, T, Ts...> const&);
 
 
 template<o9fixed T>
@@ -182,15 +192,66 @@ struct o9a : virtual o9V  // vector of fixed
 };
 
 
-template<o9mapped T, template<typename...> class C, class... Ts>
+
+template<o9simple T, template<typename...> class C, class... Ts>
 struct o9v : virtual o9V  // unindexed, unordered tuple/set
+{
+  C<T, Ts...> const &xs;
+  uN        mutable  s = 0;
+
+  o9v(C<T, Ts...> const &xs_) : xs(xs_) {}
+
+  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN isize() const
+    { if (!s) for (let &x : xs) s += o9(x).size();
+      return s; }
+
+  uN write(ζp m) const
+    { uN   i = u9ws(m, 0, u9t::tuple, isize());
+      bool f = false;
+      for (let &x : xs)
+      { auto o = o9(x);
+        A(!o.write(m + i), "o9v element attempted to resize");
+        f = f || u9ts_f(R<u8>(m, i));
+        i += o.size(); }
+      if (f) m[0] |= u9f;
+      return 0; }
+};
+
+
+template<o9mapped K, o9simple V, class... Ts>
+struct o9m : virtual o9V  // unindexed, unordered k/v map
+{
+  M<K, V, Ts...> const &xs;
+  uN mutable            s = 0;
+
+  o9m(M<K, V, Ts...> const &xs_) : xs(xs_) {}
+
+  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN isize() const
+    { if (!s) for (let &[k, v] : xs) s += o9(k).size() + o9(v).size();
+      return s; }
+
+  uN write(ζp m) const
+    { uN   i = u9ws(m, 0, u9t::map, isize());
+      bool f = false;
+      for (let &[k, v] : xs)
+      { let ok = o9(k); ok.write(m + i); f = f || u9ts_f(R<u8>(m, i)); i += ok.size();
+        let ov = o9(v); ov.write(m + i); f = f || u9ts_f(R<u8>(m, i)); i += ov.size(); }
+      if (f) m[0] |= u9f;
+      return 0; }
+};
+
+
+template<o9coll T, template<typename...> class C, class... Ts>
+struct o9vc : virtual o9V  // unindexed, unordered tuple/set
 {
   typedef decltype(o9(std::declval<T>())) T9;
 
   V<T9>      ys;
   uN mutable s = 0;
 
-  o9v(C<T, Ts...> const &xs)
+  o9vc(C<T, Ts...> const &xs)
     { ys.reserve(xs.size());
       for (let &x : xs) ys.push_back(o9(x)); }
 
@@ -212,8 +273,8 @@ struct o9v : virtual o9V  // unindexed, unordered tuple/set
 };
 
 
-template<o9mapped K, o9mapped T, class... Ts>
-struct o9m : virtual o9V  // unindexed, unordered k/v map
+template<o9mapped K, o9coll T, class... Ts>
+struct o9mc : virtual o9V  // unindexed, unordered k/v map
 {
   typedef decltype(o9(std::declval<K>())) K9;
   typedef decltype(o9(std::declval<T>())) T9;
@@ -222,7 +283,7 @@ struct o9m : virtual o9V  // unindexed, unordered k/v map
   V<T9>      vs;
   uN mutable s = 0;
 
-  o9m(M<K, T, Ts...> const &m)
+  o9mc(M<K, T, Ts...> const &m)
     { ks.reserve(m.size());
       vs.reserve(m.size());
       for (let &[k, v] : m) ks.push_back(o9(k)), vs.push_back(o9(v)); }
@@ -313,37 +374,37 @@ struct o9vec<bool> : virtual o9V
 };
 
 
-template<o9mapped T, class... Ts>
-inline o9v<T, V, Ts...> o9(V<T, Ts...> const &xs) { return o9v<T, V, Ts...>{xs}; }
+template<o9simple T,             class... Ts> inline o9v<T, V, Ts...> o9(V<T,    Ts...> const &xs) { return o9v<T, V, Ts...>{xs}; }
+template<o9simple T,             class... Ts> inline o9v<T, S, Ts...> o9(S<T,    Ts...> const &xs) { return o9v<T, S, Ts...>{xs}; }
+template<o9mapped K, o9simple T, class... Ts> inline o9m<K, T, Ts...> o9(M<K, T, Ts...> const &xs) { return o9m<K, T, Ts...>{xs}; }
 
-template<o9mapped T, class... Ts>
-inline o9v<T, S, Ts...> o9(S<T, Ts...> const &xs) { return o9v<T, S, Ts...>{xs}; }
+template<o9coll T,               class... Ts> inline o9vc<T, V, Ts...> o9(V<T,    Ts...> const &xs) { return o9vc<T, V, Ts...>{xs}; }
+template<o9coll T,               class... Ts> inline o9vc<T, S, Ts...> o9(S<T,    Ts...> const &xs) { return o9vc<T, S, Ts...>{xs}; }
+template<o9mapped K, o9coll T,   class... Ts> inline o9mc<K, T, Ts...> o9(M<K, T, Ts...> const &xs) { return o9mc<K, T, Ts...>{xs}; }
 
-template<o9mapped K, o9mapped V, class... Ts>
-inline o9m<K, V, Ts...> o9(M<K, V, Ts...> const &xs) { return o9m<K, V, Ts...>{xs}; }
-
-template<o9fixed T>
-inline o9a<T> o9(T const *xs, uN n) { return o9a<T>{xs, n}; }
-
-template<o9fixed T>
-inline o9a<T> o9(T const *b, T const *e) { return o9(b, e - b); }
+template<o9fixed T> inline o9a<T> o9(T const *xs, uN       n) { return o9a<T>{xs, n}; }
+template<o9fixed T> inline o9a<T> o9(T const *b,  T const *e) { return o9(b, e - b); }
 
 
-template<class T>    struct o9_            { sletc v = false; };
-template<>           struct o9_<o9i9>      { sletc v =  true; };
-template<>           struct o9_<o9q>       { sletc v =  true; };
-template<class T>    struct o9_<o9f<T>>    { sletc v =  true; };
-template<class T>    struct o9_<o9b<T>>    { sletc v =  true; };
-template<>           struct o9_<o9st>      { sletc v =  true; };
-template<>           struct o9_<o9c>       { sletc v =  true; };
-template<class T>    struct o9_<o9a<T>>    { sletc v =  true; };
-template<class... T> struct o9_<o9m<T...>> { sletc v =  true; };
-template<class... T> struct o9_<o9t<T...>> { sletc v =  true; };
-template<class T>    struct o9_<o9vec<T>>  { sletc v =  true; };
+template<class T>    struct o9_             { sletc v = false; };
+template<>           struct o9_<o9i9>       { sletc v =  true; };
+template<>           struct o9_<o9q>        { sletc v =  true; };
+template<class T>    struct o9_<o9f<T>>     { sletc v =  true; };
+template<class T>    struct o9_<o9b<T>>     { sletc v =  true; };
+template<>           struct o9_<o9st>       { sletc v =  true; };
+template<>           struct o9_<o9c>        { sletc v =  true; };
+template<class T>    struct o9_<o9a<T>>     { sletc v =  true; };
+template<class... T> struct o9_<o9m<T...>>  { sletc v =  true; };
+template<class... T> struct o9_<o9mc<T...>> { sletc v =  true; };
+template<class... T> struct o9_<o9t<T...>>  { sletc v =  true; };
+template<class T>    struct o9_<o9vec<T>>   { sletc v =  true; };
 
 // This one is special due to higher-order second type arg
 template<o9mapped T, template<typename> class C, class... X>
 struct o9_<o9v<T, C, X...>> { sletc v = true; };
+
+template<o9mapped T, template<typename> class C, class... X>
+struct o9_<o9vc<T, C, X...>> { sletc v = true; };
 
 
 // Virtual delegation
