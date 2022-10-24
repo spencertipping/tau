@@ -13,7 +13,7 @@ If we forced these constraints onto all heap-allocated UTF9 values, we'd effecti
 
 Every UTF9 value that contains a reference must be transformed, either to rewrite or to inline that reference. We mark UTF9 values using the [flag](utf9.md#flags) bit, which applies upwards. References are flagged, which automatically causes anything that contains them to be flagged as well.
 
-So: un-flagged values can be moved as opaque data, flagged values have internal fields that must be transformed. `π₀h.simplify(i9) → O9` will remove any references and provide an object that can be written to a boundary Φ.
+So: un-flagged values can be moved as opaque data, flagged values have internal fields that must be transformed. `π₀h.simplify(i9) → O9` will remove any references and provide an object that can be written to a boundary [Φ](Phi.md).
 
 
 ## GC structure
@@ -53,16 +53,16 @@ Because frame registers may not have been initialized, we use `π₀hω` as a nu
 
 
 ### Native frame
-This is an opt-in way for native code to have `i9` variables that are kept up-to-date by GC -- sort of like having the GC trace the stack, but on a much more selective basis.
+This is an opt-in way for native code to have `i9` variables that are kept up-to-date by GC -- sort of like having the GC trace the stack, but on a more selective basis.
 
 For example, here's how we implement `m.`, "for each k/v pair in a map":
 
 ```cpp
-auto f  = π0nF(z.h, 2);
-π0b  fn = z.pop();         // the function bytecode
+auto f  = π0hnf(z.h, 2);
+π0bi fn = z.pop();         // the function bytecode
 auto &m = f << z.pop();    // the map (tracked by GC)
 auto &i = f << m.first();  // iterator (tracked by GC)
-while (i < m.end())
+while (i < m.next())
 {
   z.push(i); i = i.next();
   z.push(i); i = i.next();
@@ -71,24 +71,43 @@ while (i < m.end())
 // f auto-removes itself from GC scope when destructed
 ```
 
+Notice that we recompute `m.next()` instead of having a third GC-tracked variable. The reason is that `m.next()` refers to a separate object that may or may not be defined; from the GC's perspective it's an invalid pointer.
+
+If we wanted to cache `m.next()`, we'd need to set up a GC-variant quantity:
+
+```cpp
+auto &e = f << [&]() { return m.next(); };
+```
+
+This will add a non-tracked quantity that is recomputed after each GC and before control returns to user-code.
+
+
+### GC locking
+We can't magically tell the GC not to run because it may legitimately need to run a compaction to find new space. But we can write code that fails loudly if GC runs where we don't expect it.
+
+```cpp
+π0hgl l(z.h);  // crashes if GC runs while in scope
+```
+
 
 ### λ/GC atomicity
-Every λ runs until it explicitly yields, either by calling `λy` or by blocking on ζ IO. That means we don't have the usual concerns about GC running during a loop unless that loop allocates memory.
+Every λ runs until it explicitly yields, either by calling `λy` or by blocking on ζ IO. That means we don't have the usual concerns about GC running during a loop unless that loop allocates memory or does IO.
 
 This is useful because it means we can write loops that assume nothing will move, e.g. for vectorized math:
 
 ```cpp
-auto f  = π0nF(z.h, 2);
+auto f  = π0hnf(z.h, 2);
 auto &a = f << z.pop();      // operand
 auto &b = f << z.pop();      // operand
 let  o  = vectorized(a, b);  // some vector container
 z.push(o);                   // the only place GC can happen
-i64 *as = a.first();         // no GC from here down
-i64 *bs = b.first();
-i64 *cs = z.peek().first();
+π0hgl l(z.h);                // explicit GC lock
+i64 *as = a.data();          // no GC from here down
+i64 *bs = b.data();
+i64 *cs = z[0].data();
 for (uN i = 0; i < a.vn(); ++i)
   // NOTE: in practice we'd convert endianness here
-  c[i] = a[i] + b[i];
+  cs[i] = as[i] + bs[i];
 ```
 
 So we get full native performance with no write barriers or other thread-aware constructs, since π₀ is ultimately single-threaded.
@@ -97,18 +116,6 @@ So we get full native performance with no write barriers or other thread-aware c
 ## Generational heaps
 Mark/sweep requires that we copy live objects from one heap space into another, which means that the GC maintains distinct memory regions, each of which can be replaced by its new copy-into space -- more precisely, we `malloc` the new region and `free` the old one once the copying is done.
 
-All of this means that the GC's pointer space will be discontinuous, which requires us to have a fast way to map references to heap regions. We do this by commandeering the high bits of each reference; if we want four generations, we'd use two bits:
-
-```
-// π₀r = uN, which is u32 in this example
-ref = hh aaaaaa aaaaaaaa aaaaaaaa aaaaaaaa
-      |  ----------------+----------------
-      |                  |
-      heap identifier    address within heap
-```
-
-This doesn't give us invariance across GC because we still compact the new-set. It just gives us a fast way to calculate heap-relative addresses and allows us to independently compact old generations.
-
 
 ### No write barriers
 Because UTF9 values are immutable, we will never have oldgen values referring to newgen ones. This means no insta-tenuring or other complications: each oldgen is completely self-contained relative to newer ones.
@@ -116,8 +123,6 @@ Because UTF9 values are immutable, we will never have oldgen values referring to
 
 ### Tenuring
 UTF9 doesn't provide any room for metadata to store details like "how many generations has this object been alive". I could allocate more [π₀ UTF9](pi0-utf9.md) space for this, but for now we just tenure after a single generation. If we have four heaps, the final generation requires the object to live for roughly eight new-gen collection cycles.
-
-**NOTE:** it's easy to allocate slack space within each heap generation; maybe that's worth doing. We'd also need that space for π₀ references, but that's also easy to create.
 
 
 ### Resizing
@@ -158,29 +163,3 @@ There are a few ways we can handle this:
 3. Mark _i₀_ only, moving _i₁_ as a child pointer
 
 Of these, (3) is the optimal strategy: it avoids duplication and allows _i₀_ to remain unflagged because it won't contain any new references.
-
-
-### Spliced rewriting
-How do we rewrite flagged values efficiently? For example, the least efficient strategy would be to build an `o9V` for each container and rebuild everything at a low level, incurring lots of virtual-method overhead in the process. The best case is to break each flagged UTF9 into as few contiguous regions as possible and `memcpy` each, then patch in the small changes.
-
-All of this to say that rewriting flagged UTF9 values is a complex problem that gets its own `o9` implementation with nontrivial engineering. See [π₀ GC splicing](pi0-gc-splicing.md) for details.
-
-
-## Latency
-π₀'s GC stops the world and runs in a single thread. This can be slow for large heaps, although we use some mitigations to minimize the amount of tracing required. Because GC can be disruptive, we provide an API that allows π₀ systems to negotiate with the GC to manage latency and/or trade space for latency on a temporary basis.
-
-
-### Runtime tuning
-+ Pause time → cost function
-
-**TODO:** explore this
-
-
-### Incremental GC
-My initial impression is that this is complicated and likely not worth it, but let's get into the details. The idea is that we'd begin to trace stacks and frames, marking objects as we go and solving for containment relationships. The GC would yield out, resuming π₀ λs, which would modify the stacks and frames as they run, probably allocating new memory as well.
-
-This is inconvenient because there's no clear relationship between λ throughput and memory allocation (from the GC's perspective); do we know that we're serving the use case by interrupting GC so that λs can progress? Furthermore, these λs allocate freely into the new heap while GC is paused. How much space can they use before we pause, copy over old-heap, and resume that way?
-
-Incremental GC seems time-inefficient and I'm not yet convinced it's worthwhile. We can probably do better by tuning the GC, inlining references to avoid trace/rewrite effort, and making use of generations. π₀ isn't Java, so we aren't likely to have lots of pointers to small, cache-nonlocal objects lying around.
-
-Worst-case we can think about multithreaded GC, which I suspect is preferable to incremental.
