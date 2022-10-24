@@ -308,9 +308,9 @@ enum class u9s
 u8c constexpr u9f = 4;
 
 ic uf8  operator|(u9t t, u9s s) { return Sc<uf8>(t) << 3 | Sc<uf8>(s); }
-ic u9t  u9ts_t   (uf8 x)        { return Sc<u9t>(x >> 3); }
-ic u9s  u9ts_s   (uf8 x)        { return Sc<u9s>(x  & 3); }
-ic bool u9ts_f   (uf8 x)        { return Sc<bool>(x & 4); }
+ic u9t  u9ts_t   (uf8 x)        { return Sc<u9t>(x  >> 3); }
+ic u9s  u9ts_s   (uf8 x)        { return Sc<u9s>(x   & 3); }
+ic bool u9ts_f   (uf8 x)        { return Sc<bool>(x  & 4); }
 
 ic uN u9sb(u9s s)  // size of size+control bytes (i.e. prefix)
 {
@@ -398,7 +398,7 @@ letc u9coll     = u9tm{u9t::index, u9t::map, u9t::set, u9t::tuple, u9t::tensor};
 
 letc u9fixed    = u9numbers | u9tm{u9t::b, u9t::none};
 letc u9atomics  = u9strings | u9numbers | u9tm{u9t::b, u9t::symbol};
-letc u9vectors  = u9numbers;  // TODO: add bools
+letc u9vectors  = u9numbers | u9tm{u9t::b};
 
 
 template<class T, u32 M>
