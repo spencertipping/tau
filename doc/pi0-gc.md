@@ -131,7 +131,7 @@ A single-generation GC is easy to resize: we just apply some function to the liv
 This is all generalized in π₀ GC by having a heap-resize function that gets invoked whenever any generation is collected.
 
 
-## Nested references
+## Contained references
 Most heaps use pointers for all references, which reduces the GC problem down to pointer rewriting -- they don't have to care about the relative positions of objects in memory. UTF9 is different because its default mode of operation is that containers like tuples physically contain their elements. This complicates the picture in two ways: two references may refer to the same copy-region, and containers may change size as we dereference internal elements.
 
 

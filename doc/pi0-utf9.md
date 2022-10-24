@@ -6,6 +6,7 @@ Within a π execution context, π-scoped UTF9s are the only values that are allo
 Like other scoped values, π₀ UTF9s begin with a byte that defines their purpose.
 
 + `00`: reserved
-+ `01`: π₀ heap reference (generation + address, bit-packed)
++ `01`: π₀ heap reference (`ζp`)
++ `02`: π₀ bytecode offset (`uN` or fixed `u32`, most likely)
 
 **TODO**
