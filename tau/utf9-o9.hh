@@ -185,48 +185,61 @@ struct o9a : virtual o9V  // vector of fixed
 template<o9mapped T, template<typename...> class C, class... Ts>
 struct o9v : virtual o9V  // unindexed, unordered tuple/set
 {
-  C<T, Ts...> const &xs;
-  uN        mutable  s = 0;
+  typedef decltype(o9(std::declval<T>())) T9;
 
-  o9v(C<T, Ts...> const &xs_) : xs(xs_) {}
+  V<T9>      ys;
+  uN mutable s = 0;
+
+  o9v(C<T, Ts...> const &xs)
+    { ys.reserve(xs.size());
+      for (let &x : xs) ys.push_back(o9(x)); }
 
   uN size() const { return isize() + u9sb(u9sq(isize())); }
   uN isize() const
-    { if (!s) for (let &x : xs) s += o9(x).size();
+    { if (!s) for (let &y : ys) s += y.size();
       return s; }
 
   uN write(ζp m) const
+  // FIXME: should choose correct container type here
     { uN   i = u9ws(m, 0, u9t::tuple, isize());
       bool f = false;
-      for (let &x : xs)
-      { auto o = o9(x);
-        A(!o.write(m + i), "o9v element attempted to resize");
+      for (let &y : ys)
+      { A(!y.write(m + i), "o9v resize");
         f = f || u9ts_f(R<u8>(m, i));
-        i += o.size(); }
+        i += y.size(); }
       if (f) m[0] |= u9f;
       return 0; }
 };
 
 
-template<o9mapped K, o9mapped V, class... Ts>
+template<o9mapped K, o9mapped T, class... Ts>
 struct o9m : virtual o9V  // unindexed, unordered k/v map
 {
-  M<K, V, Ts...> const &xs;
-  uN mutable            s = 0;
+  typedef decltype(o9(std::declval<K>())) K9;
+  typedef decltype(o9(std::declval<T>())) T9;
 
-  o9m(M<K, V, Ts...> const &xs_) : xs(xs_) {}
+  V<K9>      ks;
+  V<T9>      vs;
+  uN mutable s = 0;
+
+  o9m(M<K, T, Ts...> const &m)
+    { ks.reserve(m.size());
+      vs.reserve(m.size());
+      for (let &[k, v] : m) ks.push_back(o9(k)), vs.push_back(o9(v)); }
 
   uN size() const { return isize() + u9sb(u9sq(isize())); }
   uN isize() const
-    { if (!s) for (let &[k, v] : xs) s += o9(k).size() + o9(v).size();
+    { if (!s)
+      { for (let &k : ks) s += k.size();
+        for (let &v : vs) s += v.size(); }
       return s; }
 
   uN write(ζp m) const
     { uN   i = u9ws(m, 0, u9t::map, isize());
       bool f = false;
-      for (let &[k, v] : xs)
-      { let ok = o9(k); ok.write(m + i); f = f || u9ts_f(R<u8>(m, i)); i += ok.size();
-        let ov = o9(v); ov.write(m + i); f = f || u9ts_f(R<u8>(m, i)); i += ov.size(); }
+      for (uN j = 0; j < ks.size(); ++j)
+      { A(!ks[i].write(m + i), "o9m k resize"); f = f || u9ts_f(R<u8>(m, i)); i += ks[i].size();
+        A(!vs[i].write(m + i), "o9m v resize"); f = f || u9ts_f(R<u8>(m, i)); i += vs[i].size(); }
       if (f) m[0] |= u9f;
       return 0; }
 };
@@ -235,6 +248,11 @@ struct o9m : virtual o9V  // unindexed, unordered k/v map
 template<o9mapped... X>
 struct o9t : virtual o9V
 {
+  // NOTE: hetereogeneous container can't easily cache o9s -- although
+  // we could template-magic our way to doing that.
+
+  // TODO: template magic to cache o9s
+
   T<X...> const xs;
   o9t(X... xs_) : xs(std::make_tuple(xs_...)) {}
 
