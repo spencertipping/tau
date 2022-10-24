@@ -11,54 +11,45 @@
 #include "pi0-gc-heapview.hh"
 #include "pi0-gc-markset.hh"
 
-#include "pi0-begin.hh"
+#include "begin.hh"
 
 namespace τ
 {
 
 
-// TODO: rewrite all of the GC logic; we should base out to managed i9*s
-// in the GC itself, and provide managed iterators. We don't need π0R as
-// such, although we want ζp to have a custom o9 so it can be written as
-// a reference.
-//
-// Heap-view design should stay; it's really good.
-//
-// New GC should be simple i9 tracing with copy-out via o9. This may be
-// slower than splicing, but it should be a lot easier to work with.
-
-// TODO: remove all <Gb> templating
-
-π0TG π0T(π0h)::~π0h ()
+π0h::~π0h ()
 { A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
   A(!rm,        "~π0h during GC");
   for (uN g = 0; g < gn; ++g) delete hs[g]; }
 
 
-π0TG void π0T(π0h)::mark(π0R x)
+void π0h::mark(π0r x)
 {
-  if (ms[x.g()]) ms[x.g()]->me(x);
+  // Mark the object as having an external reference.
+  ms->me(x);
 }
 
 
-π0TG π0R π0T(π0h)::move(π0R x) const
+π0r π0h::move(π0r x) const
 {
-  if (!ms[x.g()])      return x;
-  if (rm->contains(x)) return rm->at(x);
-
-  // If the reference wasn't moved as a root, then it's been inlined
-  // into something that is now either a root or an inline. We need to
-  // reframe x in terms of that object. That object will in turn either
-  // be a root or inlined, etc.
-  let [r, o] = gs[x.g()]->in.at(x);
-  return move(r) + gs[x.g()]->patch(r, o);
+  // If the object was never marked, then it's uninvolved in this GC.
+  // This happens if we're just collecting newgen and the reference
+  // is oldgen, for example.
+  //
+  // Otherwise, we should have an entry for the reference in the
+  // move table.
+  return rm->contains(x) ? rm->at(x) : x;
 }
 
 
-π0TG void π0T(π0h)::gc(uN s)
+void π0h::gc(uN s)
 {
   gΘ.start();
-  ms[0] = new π0T(π0ms){*this, 0};
+
+  // TODO: rewrite this function
+  /*
+
+  ms[0] = new π0ms{*this, 0};
 
   // TODO: tenure stuff to older generations
 
@@ -80,13 +71,15 @@ namespace τ
   for (uN i = 0; i < gn; ++i)
   { delete gs[i]; gs[i] = nullptr;
     delete ms[i]; ms[i] = nullptr; }
+  */
+
   gΘ.stop();
 }
 
 
 }
 
-#include "pi0-end.hh"
+#include "end.hh"
 
 
 #endif

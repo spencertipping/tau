@@ -8,16 +8,15 @@
 #include "types.hh"
 #include "pi0-types.hh"
 
-#include "pi0-begin.hh"
+#include "begin.hh"
 
 namespace τ
 {
 
 
-π0TGs π0abi
+struct π0abi
 {
-  π0TS;
-  V<π0T(π0f)>  f;       // function table (π0fi to index)
+  V<π0f>       f;       // function table (π0fi to index)
   V<St>        n;       // function names, to list disassembly
   S<St>        ns;      // set of defined names
   π0av mutable v_ = 0;  // cached version
@@ -34,17 +33,19 @@ namespace τ
     h.get_hash_bytes(r.begin(), r.end());
     return v_ = R<u64>(r.data(), 0); }
 
-  π0abi &def(Stc &n_, π0T(π0f) f_)
+  π0abi &def(Stc &n_, π0f f_)
   { A(!v_, "defining " << n_ << " on versioned π₀abi");
     A(ns.emplace(n_).second, "redefining " << n_);
     f.push_back(f_);
     n.push_back(n_);
     return *this; }
+
+  uN size() const { return f.size(); }
 };
 
 
 #if τdebug_iostream
-π0TG O &operator<<(O &s, π0T(π0abi) const &a)
+O &operator<<(O &s, π0abi const &a)
 {
   TODO("<<π0abi");
 }
@@ -53,7 +54,7 @@ namespace τ
 
 }
 
-#include "pi0-end.hh"
+#include "end.hh"
 
 
 #endif

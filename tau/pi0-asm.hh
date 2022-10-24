@@ -15,7 +15,7 @@
 #include "pi0-abi.hh"
 #include "pi0-pgm.hh"
 
-#include "pi0-begin.hh"
+#include "begin.hh"
 
 namespace τ
 {
@@ -218,7 +218,7 @@ O &operator<<(O &s, π0cs7 const &c)
 
 }
 
-#include "pi0-end.hh"
+#include "end.hh"
 
 
 #endif
