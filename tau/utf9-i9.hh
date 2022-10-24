@@ -241,7 +241,7 @@ struct i9
   uN len() const  // number of contained elements
     { u9tm{u9t::tuple, u9t::set, u9t::map}(type());
       uN r = 0;
-      for (let _ : *this) ++r;
+      for (let _ : *this) (void)_, ++r;
       return r; }
 
 

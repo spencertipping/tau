@@ -147,9 +147,8 @@ R(X xs, uN i)
     {Sc<typename J::Et>(R<u9_scoped_t>(xs, i)),
      R <typename J::Tt>               (xs, i + 1)}; }
 
-template<class J, class X>
-ic typename std::enable_if<is_u9_scoped<J>::v, void>::type
-W(X xs, uN i, J const &x)
+template<class X, class E, class T>
+ic void W(X xs, uN i, u9_scoped<E, T> const &x)
 { W(xs, i,     Sc<u9_scoped_t>(x.t));
   W(xs, i + 1, x.x); }
 
