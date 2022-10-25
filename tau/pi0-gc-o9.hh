@@ -46,7 +46,10 @@ struct π0ho9 : virtual o9V
 
   uN size()      const { return isize() + u9sb(u9sq(isize())); }
   uN write(ζp m) const
-    { if (h && h->rm)       (*h->rm)[r] = m;
+    { if (h && h->ms) (h->ms->n)[r] = m;
+
+      // FIXME: using o9i9{} will conflict with size if the size
+      // isn't optimally packed; we need to write header + copy here
       if (!i9{r}.flagged()) return o9i9{r}.write(m);
 
       TODO("write() flagged");
