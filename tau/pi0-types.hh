@@ -21,6 +21,8 @@ struct π0hs;       // GC heap space (one generation)
 struct π0hv;       // GC heap view (stack/frame/etc)
 struct π0ms;       // GC markset
 
+struct π0ho9;      // o9 writer for heap-resident object
+
 
 typedef u32 π0bi;  // bytecode index
 typedef u32 π0fi;  // function index

@@ -24,15 +24,21 @@ namespace τ
 
 struct π0ho9 : virtual o9V
 {
-  π0r        r;       // object being written
-  π0h       *h;       // heap, if used during GC
-  uN mutable is = 0;  // post-rewrite size
+  π0r             r;       // object being written
+  π0h            *h;       // heap, if used during GC
+  uN mutable      is = 0;  // post-rewrite size
+  V<P<uN, π0ho9>> f;       // flagged children
 
   π0ho9(π0r r_, π0h *h_) : r(r_), h(h_) {}
 
   uN isize() const
-    { if (is)               return is;
-      if (!i9{r}.flagged()) return is = i9{r}.size();
+    { let i = i9{r};
+      if (is)           return is;
+      if (!i.flagged()) return is = i.size();
+      if (u9coll[i.type()])
+      {
+
+      }
 
       TODO("isize() flagged");
 

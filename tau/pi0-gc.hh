@@ -18,9 +18,11 @@ namespace τ
 
 
 π0h::~π0h ()
-{ A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
+{
+  A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
   A(!ms,        "~π0h during GC");
-  for (uN g = 0; g < gn; ++g) delete hs[g]; }
+  for (uN g = 0; g < gn; ++g) delete hs[g];
+}
 
 
 void π0h::mark(π0r x)

@@ -15,7 +15,7 @@ namespace τ
 
 struct π0h  // a multi-generational heap
 {
-  sletc gn = 2;          // number of generations
+  sletc gn = 2;        // number of generations
 
   uNc         is;      // auto-inlining size
   Ar<uN, gn>  s;       // size of each generation
@@ -24,7 +24,7 @@ struct π0h  // a multi-generational heap
   π0ms       *ms;      // during GC, the mark-set tracker
   ΣΘΔ         gΘ;      // GC timer
 
-  π0h(uN is_ = 64, Ar<uN, gn> s_ = {65536, 1048576})
+  π0h(uN is_ = 64, Ar<uN, gn> const &s_ = {65536, 1048576})
     : is(is_), s(s_), ms(nullptr)
     { for (uN g = 0; g < gn; ++g) hs[g] = new π0hs(s[g]); }
 

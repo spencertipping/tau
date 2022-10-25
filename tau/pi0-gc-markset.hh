@@ -21,8 +21,9 @@ namespace τ
 
 struct π0ms
 {
-  π0h         &h;
-  M<π0r, π0r>  rm;
+  π0h           &h;
+  M<π0r, π0r>    n;  // new address for each reference
+  M<π0r, π0ho9*> m;  // writer for each marked reference
 
   bool contains(π0r x) const { TODO("contains"); }
   π0r  at      (π0r x) const { TODO("at"); }
