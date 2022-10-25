@@ -44,6 +44,19 @@ inline auto π0o9r(π0r r)
 }
 
 
+struct π0sv  // stack view
+{
+  virtual ~π0sv() {}
+  virtual π0sv        *up()     const = 0;
+  virtual uN         size()     const = 0;
+  virtual π0r  operator[](uN i) const = 0;
+  virtual void operator<<(π0r x)      = 0;
+  virtual void       drop(uN n = 1)   = 0;
+
+  π0r pop() { let r = (*this)[0]; drop(1); return r; }
+};
+
+
 }
 
 #include "end.hh"

@@ -87,9 +87,8 @@ struct π0afr  // π₀ asm frame
 };
 
 
-π0TGs π0asm
+struct π0asm
 {
-  π0TS;
   sletc c7ws = π0cs7(" \t\n");                // whitespace
   sletc c7ni = π0cs7(" \t\n{}[]()|,'\\\"#");  // non-ident
   sletc c7nc = π0cs7(" \t\n{}[](),'");        // non-[ident]-continuation
@@ -97,32 +96,32 @@ struct π0afr  // π₀ asm frame
 
   typedef V<π0b> π0blk;  // code block
 
-  π0T(π0abi) const &a;
-  M<St, π0fi>       fn;  // string index of ABI functions
-  B                 qh;  // static quoted values
-  V<π0afr>          fs;  // stack of frames
-  V<π0blk>          bs;  // stack of blocks
+  π0abi const &a;
+  M<St, π0fi>  fn;  // string index of ABI functions
+  B            qh;  // static quoted values
+  V<π0afr>     fs;  // stack of frames
+  V<π0blk>     bs;  // stack of blocks
 
-  π0asm(π0T(π0abi) const &a_) : a(a_)
+  π0asm(π0abi const &a_) : a(a_)
   { fs.push_back(π0afr{});
     bs.push_back(π0blk{});
     for (uN i = 0; i < a.f.size(); ++i) fn[a.n.at(i)] = i; }
 
 
-  π0T(π0asm) &begin() { bs.push_back(π0blk{}); return *this; }
-  π0T(π0asm) &end()
+  π0asm &begin() { bs.push_back(π0blk{}); return *this; }
+  π0asm &end()
   { auto b = std::move(bs.back()); bs.pop_back();
     *this << f("[", b.size() + 1);
     for (let &x : b) *this << x;
     *this << f("]", 0);
     return *this; }
 
-  π0T(π0asm) &fbegin(Stc &vs)
+  π0asm &fbegin(Stc &vs)
   { fs.push_back(π0afr(vs));
     *this << f("[|", fs.back().vs.size());
     return *this; }
 
-  π0T(π0asm) &fend()
+  π0asm &fend()
   { fs.pop_back();
     *this << f("|]");
     return *this; }
@@ -139,8 +138,8 @@ struct π0afr  // π₀ asm frame
     return π0b{fn.at(n), k}; }
 
 
-  π0T(π0asm) &operator<<(π0b b) { bs.back().push_back(b); return *this; }
-  π0T(π0asm) &operator<<(Stc &s)
+  π0asm &operator<<(π0b b) { bs.back().push_back(b); return *this; }
+  π0asm &operator<<(Stc &s)
   { for (uN i = 0; i < s.size(); ++i)
       if      (c7ws[s[i]]) continue;
       else if (c7ni[s[i]])
@@ -194,10 +193,10 @@ struct π0afr  // π₀ asm frame
     return *this; }
 
 
-  π0T(π0p) build()
+  π0pgm build()
   { A(bs.size() == 1, "π₀asm::build |bs| = " << bs.size());
     *this << f("]", 0);
-    return π0T(π0p){a, qh, bs.back()}; }
+    return π0pgm{a, qh, bs.back()}; }
 };
 
 

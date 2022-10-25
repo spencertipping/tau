@@ -18,7 +18,7 @@ namespace τ
 
 
 // NOTE: π0int : π0sv only for notational purposes; we never use π0int
-// as a stack view.
+// as a stack view within another π0int.
 
 struct π0int : π0sv
 {
@@ -56,7 +56,7 @@ struct π0int : π0sv
   template<o9mapped T>
   π0int &dpush(T const &x) { *this << (h << o9(x)); return *this; }
 
-  template<class T = i9> T dpop() { let r = h[(*dv)[0]]; drop(1); return Sc<T>(r); }
+  template<class T = i9> T dpop() { let r = (*dv)[0]; drop(1); return Sc<T>(r); }
 
 
   // Frame accessors
@@ -93,7 +93,7 @@ O &operator<<(O &s, π0int const &i)
     s << " " << i.p.a.n[fi] << "'" << x; }
   s << std::endl;
   for (uN j = 0; j < i.size(); ++j)
-    s << "  [" << j << "]\t" << i.h[i[j]] << std::endl;
+    s << "  [" << j << "]\t" << i[j] << std::endl;
   return s;
 }
 #endif

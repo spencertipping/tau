@@ -24,7 +24,12 @@ struct π0ms
   π0h         &h;
   M<π0r, π0r>  rm;
 
+  bool contains(π0r x) const { TODO("contains"); }
+  π0r  at      (π0r x) const { TODO("at"); }
 
+  void gc() { TODO("gc"); }
+
+  void me(π0r x) { TODO("me"); }
 };
 
 

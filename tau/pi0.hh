@@ -3,13 +3,13 @@
 
 
 #include "pi0-types.hh"
-//#include "pi0-gc.hh"
+#include "pi0-gc.hh"
 #include "pi0-abi.hh"
 #include "pi0-pgm.hh"
-//#include "pi0-int.hh"
-//#include "pi0-asm.hh"
+#include "pi0-int.hh"
+#include "pi0-asm.hh"
 
-//#include "pi0-abi1.hh"
+#include "pi0-abi1.hh"
 
 
 #endif
