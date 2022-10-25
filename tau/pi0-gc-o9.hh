@@ -7,6 +7,12 @@
 #include "pi0-types.hh"
 #include "pi0-gc-markset.hh"
 
+
+#if !defined(τπ0debug_gc_postcopy_verify)
+# define τπ0debug_gc_postcopy_verify τdebug
+#endif
+
+
 #include "begin.hh"
 
 namespace τ

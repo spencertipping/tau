@@ -2,6 +2,7 @@
 #define τctypes_h
 
 
+#include <array>
 #include <complex>
 #include <cstddef>
 #include <cstdint>
@@ -110,6 +111,7 @@ static_assert(sizeof(c32) == sizeof(f32) * 2);
 typedef uN fd_t;
 
 
+template<class T, uN S>    using Ar = std::array<T, S>;
 template<class... T>       using D  = std::deque<T...>;
 template<class... T>       using F  = std::function<T...>;
 template<class... T>       using Il = std::initializer_list<T...>;

@@ -15,20 +15,14 @@
 
 #include "begin.hh"
 
-
-#if !defined(τπ0debug_gc_postcopy_verify)
-# define τπ0debug_gc_postcopy_verify τdebug
-#endif
-
-
 namespace τ
 {
 
 
-struct π0ms  // mark-set for one generation
+struct π0ms
 {
-  π0h &h;
-
+  π0h         &h;
+  M<π0r, π0r>  rm;
 
 
 };

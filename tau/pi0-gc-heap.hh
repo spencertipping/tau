@@ -15,20 +15,18 @@ namespace τ
 
 struct π0h  // a multi-generational heap
 {
-  sletc gn = 4;          // number of generations
+  sletc gn = 2;          // number of generations
 
-  uNc           is;      // auto-inlining size
-  uNc           s0;      // newgen size
-  uNc           sb;      // expansion bits per generation
-  π0hs         *hs[gn];  // generations; 0 = newest
-  π0ms         *ms;      // during GC, mark-set for each gen
-  ΣΘΔ           gΘ;      // GC timer
-  M<π0r, π0r>  *rm;      // reference moves
-  S<π0hv*>      vs;      // views that comprise the root set
+  uNc         is;      // auto-inlining size
+  Ar<uN, gn>  s;       // size of each generation
+  S<π0hv*>    vs;      // views that comprise the root set
+  π0hs       *hs[gn];  // generations; 0 = newest
+  π0ms       *ms;      // during GC, the mark-set tracker
+  ΣΘΔ         gΘ;      // GC timer
 
-  π0h(uN is_ = 64, uN s0_ = 65536, uN sb_ = 0)
-    : is(is_), s0(s0_), sb(sb_), ms(nullptr), rm(nullptr)
-    { for (uN g = 0; g < gn; ++g) hs[g] = new π0hs(s0 << g * sb); }
+  π0h(uN is_ = 64, Ar<uN, gn> s_ = {65536, 1048576})
+    : is(is_), s(s_), ms(nullptr)
+    { for (uN g = 0; g < gn; ++g) hs[g] = new π0hs(s[g]); }
 
   ~π0h();
 

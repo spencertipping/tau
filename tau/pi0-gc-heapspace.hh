@@ -17,6 +17,8 @@ struct π0hs  // a single GC heap-space (generation)
   B h;
   π0hs(uN s) { h.reserve(s); }
 
+  bool contains(π0r x) { return x >= h.data() && x < h.data() + h.size(); }
+
   template<O9 T> π0r operator<<(T const &x)
     { return h.size() + x.size() > h.capacity()
            ? nullptr
