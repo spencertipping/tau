@@ -58,10 +58,10 @@ This is an opt-in way for native code to have `i9` variables that are kept up-to
 For example, here's how we implement `m.`, "for each k/v pair in a map":
 
 ```cpp
-auto f  = π0hnf(z.h, 2);
-π0bi fn = z.pop();         // the function bytecode
-auto &m = f << z.pop();    // the map (tracked by GC)
-auto &i = f << m.first();  // iterator (tracked by GC)
+π0hnf f{z.h, 2};
+π0bi fn = z.pop();             // the function bytecode
+i9   m  = z.pop();   f << &m;  // the map (tracked by GC)
+i9   i  = m.first(); f << &i;  // iterator (tracked by GC)
 while (i < m.next())
 {
   z.push(i); i = i.next();
@@ -71,12 +71,12 @@ while (i < m.next())
 // f auto-removes itself from GC scope when destructed
 ```
 
-Notice that we recompute `m.next()` instead of having a third GC-tracked variable. The reason is that `m.next()` refers to a separate object that may or may not be defined; from the GC's perspective it's an invalid pointer.
+Notice that we recompute `m.next()` instead of having a third GC-tracked variable. The reason is that `m.next()` refers to a separate object that may or may not be defined; the GC doesn't understand that we mean "the thing after `m`" rather than whatever `m.next()` refers to.
 
-If we wanted to cache `m.next()`, we'd need to set up a GC-variant quantity:
+If we wanted to cache `m.next()` to avoid recomputation, we'd need to set up a GC-variant quantity:
 
 ```cpp
-auto &e = f << [&]() { return m.next(); };
+i9 e; f << [&]() { e = m.next(); };
 ```
 
 This will add a non-tracked quantity that is recomputed after each GC and before control returns to user-code.
@@ -86,31 +86,8 @@ This will add a non-tracked quantity that is recomputed after each GC and before
 We can't magically tell the GC not to run because it may legitimately need to run a compaction to find new space. But we can write code that fails loudly if GC runs where we don't expect it.
 
 ```cpp
-π0hgl l(z.h);  // crashes if GC runs while in scope
+π0hgl l{z.h};  // crashes if GC runs while in scope
 ```
-
-
-### λ/GC atomicity
-Every λ runs until it explicitly yields, either by calling `λy` or by blocking on ζ IO. That means we don't have the usual concerns about GC running during a loop unless that loop allocates memory or does IO.
-
-This is useful because it means we can write loops that assume nothing will move, e.g. for vectorized math:
-
-```cpp
-auto f  = π0hnf(z.h, 2);
-auto &a = f << z.pop();      // operand
-auto &b = f << z.pop();      // operand
-let  o  = vectorized(a, b);  // some vector container
-z.push(o);                   // the only place GC can happen
-π0hgl l(z.h);                // explicit GC lock
-i64 *as = a.data();          // no GC from here down
-i64 *bs = b.data();
-i64 *cs = z[0].data();
-for (uN i = 0; i < a.vn(); ++i)
-  // NOTE: in practice we'd convert endianness here
-  cs[i] = as[i] + bs[i];
-```
-
-So we get full native performance with no write barriers or other thread-aware constructs, since π₀ is ultimately single-threaded.
 
 
 ## Generational heaps
