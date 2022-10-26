@@ -37,9 +37,17 @@ struct π0h  // a multi-generational heap
       return *hs[0] << x; }
 
 
-  void gc  (uN s = 0);   // GC to allocate s bytes of space
+  // Convert a reference to its referent if the referent is small
+  // enough to be inlined.
+  π0r operator[](π0r x) const
+    { let i = i9{x};        if (!i.is_πref()) return x;
+      let d = i9{i.πref()}; return d.osize() <= is ? d.a : x; }
+
+
+  void gc  (uN s = 0);   // GC to allocate s bytes of space (beyond live set)
   void mark(π0r);        // externally mark a reference
   π0r  move(π0r) const;  // used by π0hv to translate old → new ext refs
+  void move(π0r, π0r);   // declare a moved reference
 };
 
 

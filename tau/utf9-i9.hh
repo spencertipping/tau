@@ -156,6 +156,7 @@ struct i9
   bool is_heap()    const { return is_heapref() || is_heappin(); }
 
   bool is_πref()    const { return type() == u9t::pi && Sc<u9_π>(*this) == u9_π::ref; }
+  ζp   πref()       const { return Sc<u9_scoped<u9_π, ζp>>(*this).x; }
 
   bool is_istruct() const { return type() == u9t::build && Sc<u9_build>(*this) == u9_build::istruct; }
 

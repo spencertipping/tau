@@ -1,7 +1,9 @@
 # π₀ GC
-π₀ was created to solve the "transform things without copying" problem: rather than having γs that consume and produce full UTF9 values, we have functions that refer to parts of those values, copying only what's needed.
+[π₀](pi0.md) was created to solve the "transform things without copying" problem: rather than having γs that consume and produce full UTF9 values, we have functions that refer to parts of those values, copying only what's needed.
 
 Taken to its logical conclusion, we end up with a shared heap that can span all γs within a Φ. All that's needed is a way to drop heap-references into UTF9 values, rewriting them as needed at the Φ boundaries. This is all invisible to the user, who can assume UTF9s are immutable and manipulated as though they were being fully copied at every step.
+
+This page is about GC ideas; see [GC implementation](pi0-gc-impl.md) for the algorithm and invariants.
 
 
 ## UTF9 flagging

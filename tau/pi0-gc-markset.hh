@@ -2,10 +2,6 @@
 #define τπ0_gc_markset_h
 
 
-#include <algorithm>
-#include <cstring>
-
-
 #include "debug.hh"
 #include "types.hh"
 #include "utf9.hh"
@@ -21,9 +17,9 @@ namespace τ
 
 struct π0ms
 {
-  π0h           &h;
-  M<π0r, π0r>    n;  // new address for each reference
-  M<π0r, π0ho9*> m;  // writer for each marked reference
+  π0h         &h;
+  M<π0r, π0r>  n;  // new address for each reference
+  M<π0r, o9V*> m;  // writer for each marked reference
 
   bool contains(π0r x) const { TODO("contains"); }
   π0r  at      (π0r x) const { TODO("at"); }

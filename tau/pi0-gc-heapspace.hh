@@ -12,6 +12,10 @@ namespace τ
 {
 
 
+// FIXME: π₀hs should be more persistent than it is; we should use B::swap()
+// and have heapspaces allocate new bytestrings. Then heapspaces can track
+// their own capacity set points, and we can remove some indirection in π₀h.
+
 struct π0hs  // a single GC heap-space (generation)
 {
   B h;

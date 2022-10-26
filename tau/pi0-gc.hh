@@ -17,7 +17,7 @@ namespace τ
 {
 
 
-π0h::~π0h ()
+inline π0h::~π0h ()
 {
   A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
   A(!ms,        "~π0h during GC");
@@ -25,14 +25,14 @@ namespace τ
 }
 
 
-void π0h::mark(π0r x)
+inline void π0h::mark(π0r x)
 {
   // Mark the object as having an external reference.
   ms->me(x);
 }
 
 
-π0r π0h::move(π0r x) const
+inline π0r π0h::move(π0r x) const
 {
   // If the object was never marked, then it's uninvolved in this GC.
   // This happens if we're just collecting newgen and the reference
@@ -41,6 +41,16 @@ void π0h::mark(π0r x)
   // Otherwise, we should have an entry for the reference in the
   // move table.
   return ms->contains(x) ? ms->at(x) : x;
+}
+
+
+inline void π0h::move(π0r f, π0r t)
+{
+  // NOTE: this function may be called multiple times for the same
+  // source ref, e.g. if the reference is inlined in several places.
+  //
+  // TODO: is this true?
+  (ms->n)[f] = t;
 }
 
 
