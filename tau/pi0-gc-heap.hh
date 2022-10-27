@@ -43,6 +43,12 @@ struct π0h  // a multi-generational heap
       return gω; }
 
 
+  // Dereference all pointers
+  i9 operator()(π0r x) const
+    { while (i9{x}.is_πref()) x = *i9{x};
+      return x; }
+
+
   void gc  (uN s = 0);   // GC to allocate s extra bytes of space
   void mark(π0r);        // externally mark a reference
   π0r  move(π0r) const;  // used by π0hv to translate old → new ext refs
