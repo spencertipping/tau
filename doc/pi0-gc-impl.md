@@ -7,23 +7,149 @@ Starting with invariants:
 4. Some references are inlined during GC compaction.
 
 
-## Algorithm outline
-For a single generation without tenuring:
+## GC in pictures
+Starting with the single-gen "when/where can we inline" scenario:
 
-1. Mark all externally-referenced objects and their references
-2. Make a set of pointers (not objects) that will be inlined
-3. Calculate post-inlining live set size, make new-space
-4. Copy live objects to new space, rewriting reference addresses as we go
-5. Swap new-space into the heap, dispose of old-space
+```
+                #       ← root set
+     +-----+    |
+     V     |    V
+  a=(b) c=(d e) f=(g h)
+  ^     ^          | |
+  |     +----------+ |
+  +------------------+
+```
 
-(4) can happen as a single step because we calculated the new size of each object in step (3).
+We can't inline `h` unless we also inline `d`. This means `h`'s inlining overhead is _|b|_, since it will occur in two places:
+
+```
+          #
+     b₁   |       b₂  ← now we have two b's
+     |    V       |
+  c=(b e) f=(g a=(b))
+  ^          |
+  +----------+
+```
+
+This should happen only if _|b| ≤ ρ_, where _ρ_ is the inlining size threshold -- but presumably in that case we never would have had _d → b_ to begin with, as `b` would have been pre-emptively inlined. So we can ignore this case: `h` cannot be inlined in the above example.
+
+What about un-inlining `b` from `a`? Then we'd have one of three cases, depending on how clever we're willing to be:
+
+```
+case 1:
+            #
+  +----+    |
+  V    |    V
+  b c=(d e) f=(g a=(i))
+  ^ ^          |    |
+  | +----------+    |
+  +-----------------+
+
+case 2:
+          #
+          |
+     +----(-------+
+     V    V       |
+  c=(b e) f=(g a=(i))
+  ^          |
+  +----------+
+
+case 3:
+  #
+  |
+  V
+  f=(c=(b e) a=(i))
+        ^       |
+        +-------+
+```
+
+Case (1) doesn't help us; net heap complexity remains the same and we have more deeply-nested flags. If anything it's a step backwards.
+
+Case (2) is better but also complicated; we wind up splicing `a`, which was a simple object that could be moved with a single `memcpy`. Although the resulting heap doesn't lose any of that simplicity in the big picture -- presumably `c` is also simple now -- it requires us to disassemble and reassemble non-flagged roots from the original heap space.
+
+I think it's worth saying we want case (3) if we can get it. Let's run with that and explore multigenerational GC.
 
 
-## Inlinable objects
-Any object not contained by another _marked_ object can be inlined into its earliest reference site, provided that none of its contained referents would be moved forward beyond their references (due to invariant 2).
+### Multigenerational GC
+Newgen is always on top.
 
-**Q:** is there a simple way to ensure we don't violate the forward-reference constraint? I think we need to inline any broken references to contained objects, but we could also take other strategies: don't inline anything with marked children, or don't inline beyond any child's reference boundary. Of these, the former is probably simpler to implement.
+```
+                #         ← newgen root set
+   +-------+    |
+   V       |    V
+a=(b c) d=(e f) g=(h i)
+^    |  ^    |     | |
+|    |  +----(-----+ |
++----(-------(-------+
+     |       |              newgen
+- -  +--+    |  - - - - - - ------------
+        |    |              oldgen
+     +--(----+
+     |  |
+     V  V
+j=(k l) m=(n) ...
+^          |
++----------+
+```
+
+As expected, we can tenure `a=(b c)` with no issues. Doing so allows us to then also tenure `d` and then `g` in that dependency order. So tenuring as such isn't complicated; the complexity once again comes from choosing which references to inline.
+
+We can inline _ρ_-small references across generations -- untenuring by duplication -- but that would have happened already, so let's assume all references are large. Let's also assume we're willing to tenure both `a` and `d`. We initially have this:
+
+```
+#
+|
+V
+g=(h i)                     newgen
+   | |          - - - - - - ------------
+   | |                      oldgen
+   | |
+   +-(--------------------+
+     +------------+       |
+                  |  +----(--+
+                  V  V    V  |
+j=(k l) m=(n) ... a=(b c) d=(e f)
+^    ^  ^  |           |       |
++----(--(--+           |       |
+     |  +--------------+       |
+     +-------------------------+
+```
+
+Then old-gen compaction is free to run on its own, with newgen references updated as though they were a heap view. In other words, old-gen GC considers only the root set from newgen.
+
+This is useful because it means that tenuring and old-gen GC/inlining are two separate processes, and inlining is the same regardless of which generation we're working with.
 
 
-## Tenuring
-**TODO:** design for tenuring -- it should be a simple change to step (4)
+### Case-3 relocation
+The optimal-rewriting strategy. Note that the ordering of `g` and `h` doesn't matter:
+
+```
+     original order       |       g/h flipped
+                          |
+                #         |                 #
+     +-----+    |         |      +-----+    |
+     V     |    V         |      V     |    V
+  a=(b) c=(d e) f=(g h)   |   a=(b) c=(d e) f=(g h)
+  ^     ^          | |    |   ^     ^          | |
+  |     +----------+ |    |   |     +----------(-+
+  +------------------+    |   |                |
+                          |   +----------------+
+                          |
+  #                       |   #
+  |     +-------+         |   |     +-----+
+  V     V       |         |   V     V     |
+  f=(c=(b e) a=(i))       |   f=(a=(b) c=(d e))
+```
+
+If we define an _optimal heap_ as one in which only large, multiply-referenced quantities have references, then case-3 implies that **every heap has an optimal representation.**
+
+The algorithm to optimize a heap is actually pretty simple. We start with the root set and inline everything, creating a reference only when we've already written an object:
+
+```
+      +-------+
+      V       |
+f=(c=(b e) a=(X))
+
+              ↑
+              already inlined b, so make a reference here
+```
