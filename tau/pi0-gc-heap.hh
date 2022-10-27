@@ -15,14 +15,15 @@ namespace τ
 
 struct π0h  // a multi-generational heap
 {
-  sletc gn = 2;        // number of generations
+  sletc gn = 2;           // number of generations
+  sletc gω = Sc<uN>(-1);  // null generation -- off-heap memory
 
-  uNc         is;      // auto-inlining size
-  Ar<uN, gn>  s;       // size of each generation
-  S<π0hv*>    vs;      // views that comprise the root set
-  π0hs       *hs[gn];  // generations; 0 = newest
-  π0ms       *ms;      // during GC, the mark-set tracker
-  ΣΘΔ         gΘ;      // GC timer
+  uNc         is;         // auto-inlining size
+  Ar<uN, gn>  s;          // size of each generation
+  S<π0hv*>    vs;         // views that comprise the root set
+  π0hs       *hs[gn];     // generations; 0 = newest
+  π0ms       *ms;         // during GC, the mark-set tracker
+  ΣΘΔ         gΘ;         // GC timer
 
   π0h(uN is_ = 64, Ar<uN, gn> const &s_ = {65536, 1048576})
     : is(is_), s(s_), ms(nullptr)
@@ -39,25 +40,10 @@ struct π0h  // a multi-generational heap
 
   uN gen(π0r x) const
     { for (uN i = 0; i < gn; ++i) if (hs[i]->contains(x)) return i;
-      return -1; }
+      return gω; }
 
 
-  // Returns true if y occurs "after" x in the sense that y is allowed
-  // to refer to x.
-  bool after(π0r x, π0r y) const
-    { let gx = gen(x);
-      let gy = gen(y);
-      return gx < gy ? false : gx > gy ? true : x < y; }
-
-
-  // Convert a reference to its referent if the referent is small
-  // enough to be inlined.
-  π0r operator[](π0r x) const
-    { let i = i9{x};        if (!i.is_πref()) return x;
-      let d = i9{i.πref()}; return d.osize() <= is ? d.a : x; }
-
-
-  void gc  (uN s = 0);   // GC to allocate s bytes of space (beyond live set)
+  void gc  (uN s = 0);   // GC to allocate s extra bytes of space
   void mark(π0r);        // externally mark a reference
   π0r  move(π0r) const;  // used by π0hv to translate old → new ext refs
   void move(π0r, π0r);   // declare a moved reference
