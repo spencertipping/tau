@@ -215,11 +215,12 @@ struct i9
 
 
   i9 operator*() const
-    { A(is_heap(), "i9* requires heap, got type " << type() << " = " << *this);
-      return R<ζp>(data(), 1); };
+    { A(is_heap() || is_πref(),
+        "i9* requires heap or π, got type " << type() << " = " << *this);
+      return R<ζp>(data(), sizeof(u9_scoped_t)); };
 
-  i9 &pin()   { if (is_heapref()) W(data(), 1, Sc<u8>(u9_Φ::heappin)); return *this; }
-  i9 &unpin() { if (is_heappin()) W(data(), 1, Sc<u8>(u9_Φ::heapref)); return *this; }
+  i9 &pin()   { if (is_heapref()) W(data(), 0, Sc<u8>(u9_Φ::heappin)); return *this; }
+  i9 &unpin() { if (is_heappin()) W(data(), 0, Sc<u8>(u9_Φ::heapref)); return *this; }
   i9 &free()  { if (is_heap()) std::free((**this).a); return *this; }
 
 

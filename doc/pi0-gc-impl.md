@@ -155,3 +155,32 @@ f=(c=(b e) a=(X))
 ```
 
 This is great because (1) it's very simple, and (2) we don't have to post-trace the heap to rewrite reference addresses; every reference we create is to an object whose location has already been defined. Coding-wise it's as simple as the usual mark-in-place strategy.
+
+
+## Native `i9`s of references
+Code like this needs to be handled carefully:
+
+```cpp
+π0hnf f{z.h, 2};
+i9    x = z.pop;     f << &x;
+i9    i = x.first(); f << &i;
+i9    e;  f << [&]() { e = x.next(); };
+while (i < e)
+{
+  // ...
+  i = i.next();
+}
+```
+
+Drawing another picture, let's suppose our state looks like this:
+
+```
+                x      i
+                |      |
+                V      V
+a=(b c) d=(e f) g=(h i j k l)
+        ^              |
+        +--------------+
+```
+
+Although logical operations on `i` should dereference through to `d`, we need to make sure any GC preserves _i ∈ g_ -- that is, we draw a distinction between "pointer to `j`" and "pointer to `d`" even though they're the same logical object. The constraint here is that unless _i_ is an uncontained root, _i.next()_ is semantically invariant across GC. Equivalently, GC preserves container/child relationships within the live set. (All of this is easy to do; we just keep track of the original addresses while we update the root set. But it's worth mentioning because it's important for FFI.)
