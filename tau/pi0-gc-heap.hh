@@ -37,6 +37,19 @@ struct π0h  // a multi-generational heap
       return *hs[0] << x; }
 
 
+  uN gen(π0r x) const
+    { for (uN i = 0; i < gn; ++i) if (hs[i]->contains(x)) return i;
+      return -1; }
+
+
+  // Returns true if y occurs "after" x in the sense that y is allowed
+  // to refer to x.
+  bool after(π0r x, π0r y) const
+    { let gx = gen(x);
+      let gy = gen(y);
+      return gx < gy ? false : gx > gy ? true : x < y; }
+
+
   // Convert a reference to its referent if the referent is small
   // enough to be inlined.
   π0r operator[](π0r x) const

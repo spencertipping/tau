@@ -18,4 +18,10 @@ For a single generation without tenuring:
 
 (4) can happen as a single step because we calculated the new size of each object in step (3).
 
+
+### Inlinable objects
+Any object not contained by another _marked_ object can be inlined into its earliest reference site, provided that none of its contained referents would be moved forward beyond their references.
+
+
+### Tenuring
 **TODO:** design for tenuring -- it should be a simple change to step (4)
