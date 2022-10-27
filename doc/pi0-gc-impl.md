@@ -141,7 +141,7 @@ The optimal-rewriting strategy. Note that the ordering of `g` and `h` doesn't ma
   f=(c=(b e) a=(i))       |   f=(a=(b) c=(d e))
 ```
 
-If we define an _optimal heap_ as one in which only large, multiply-referenced quantities have references, then case-3 implies that **every heap has an optimal representation.**
+If we define an _optimal heap_ as one in which only _ρ_-large, multiply-referenced quantities have references, then case-3 implies that **every heap has an optimal representation.**
 
 The algorithm to optimize a heap is actually pretty simple. We start with the root set and inline everything, creating a reference only when we've already written an object:
 
@@ -153,3 +153,5 @@ f=(c=(b e) a=(X))
               ↑
               already inlined b, so make a reference here
 ```
+
+This is great because (1) it's very simple, and (2) we don't have to post-trace the heap to rewrite reference addresses; every reference we create is to an object whose location has already been defined. Coding-wise it's as simple as the usual mark-in-place strategy.
