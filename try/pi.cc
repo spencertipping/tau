@@ -19,13 +19,10 @@ using namespace std;
 #include "../tau/begin.hh"
 
 
-#define T(x) x<2>
-
-
 void try_simple_gc()
 {
-  T(π0h)   h{64, 256, 0};
-  T(π0hnf) f{h, 16};
+  π0h   h{64, {256, 0}};
+  π0hnf f{h, 16};
   auto &a = f << (h << o9t(1, 2, 3));
   auto &b = f << (h << o9t("foo", a, a, "bar"));
   auto &c = f << a;
@@ -34,50 +31,50 @@ void try_simple_gc()
   a = h << o9("new value for a");
 
   cout << "pre-GC" << endl;
-  cout << a << " = " << h[a] << endl;
-  cout << b << " = " << h[b] << endl;
-  cout << c << " = " << h[c] << endl;
-  cout << d << " = " << h[d] << endl;
+  cout << a << " = " << h(a) << endl;
+  cout << b << " = " << h(b) << endl;
+  cout << c << " = " << h(c) << endl;
+  cout << d << " = " << h(d) << endl;
   //cout << *h.hs[0] << endl;
 
   h.gc();
   cout << "post-GC" << endl;
-  cout << a << " = " << h[a] << endl;
-  cout << b << " = " << h[b] << endl;
-  cout << c << " = " << h[c] << endl;
-  cout << d << " = " << h[d] << endl;
+  cout << a << " = " << h(a) << endl;
+  cout << b << " = " << h(b) << endl;
+  cout << c << " = " << h(c) << endl;
+  cout << d << " = " << h(d) << endl;
   //cout << *h.hs[0] << endl;
 
   // One of the rare cases where it's worth asserting everything.
 
-  A(h[a] == St{"new value for a"}, "a");
-  A(h[b][0] == St{"foo"}, "b[0]");
-  A(h[b][1] == h[c],      "b[1]");
-  A(h[b][2] == h[c],      "b[2]");
-  A(h[b][3] == St{"bar"}, "b[3]");
-  A(h[c][0] == 1,         "c[0]");
-  A(h[c][1] == 2,         "c[1]");
-  A(h[c][2] == 3,         "c[3]");
-  A(h[d][0].at<bool>(0) == true,  "d[0]");
-  A(h[d][1].at<bool>(1) == false, "d[1]");
-  A(h[d][2]             == h[b],  "d[2]");
-  A(h[d][3]             == h[c],  "d[3]");
-  A(h[d][4]             == h[b],  "d[4]");
+  A(h(a) == St{"new value for a"}, "a");
+  A(h(b)[0] == St{"foo"}, "b[0]");
+  A(h(b)[1] == h(c),      "b[1]");
+  A(h(b)[2] == h(c),      "b[2]");
+  A(h(b)[3] == St{"bar"}, "b[3]");
+  A(h(c)[0] == 1,         "c[0]");
+  A(h(c)[1] == 2,         "c[1]");
+  A(h(c)[2] == 3,         "c[3]");
+  A(h(d)[0].at<bool>(0) == true,  "d[0]");
+  A(h(d)[1].at<bool>(1) == false, "d[1]");
+  A(h(d)[2]             == h(b),  "d[2]");
+  A(h(d)[3]             == h(c),  "d[3]");
+  A(h(d)[4]             == h(b),  "d[4]");
 }
 
 
 void try_data_stack_slow()
 {
-  T(π0h)   h{64, 256, 0};
-  T(π0hds) s{h};
+  π0h   h{64, {256, 0}};
+  π0hds s{h};
 
   for (u64 i = 0; i < 100000; ++i) s << o9(i);
   while (s.size() > 1)
-  { let x = Sc<u64>(h[s[0]]) + Sc<u64>(h[s[1]]);
+  { let x = Sc<u64>(h(s[0])) + Sc<u64>(h(s[1]));
     s.drop(2);
     s << o9(x); }
 
-  let t = h[s.pop()];
+  let t = h(s.pop());
   A(Sc<u64>(t) == 4999950000, t << " ≠ 4999950000");
   cout << "slow 100k: " << h.gΘ << endl;
 }
@@ -85,8 +82,8 @@ void try_data_stack_slow()
 
 void try_data_stack_fast()
 {
-  T(π0h)   h{64, 65536, 0};
-  T(π0hds) s{h};
+  π0h   h{64, {65536, 0}};
+  π0hds s{h};
 
   // Outer loop for better profiling if we want more data
   let ul = 1;
@@ -94,9 +91,9 @@ void try_data_stack_fast()
   { s << o9(Sc<u64>(0));
     for (u64 i = 0; i < 1ul << 24; ++i)
     { s << o9(i);
-      s << o9(Sc<u64>(h[s.pop()]) + Sc<u64>(h[s.pop()])); }
+      s << o9(Sc<u64>(h(s.pop())) + Sc<u64>(h(s.pop()))); }
 
-    let t = h[s.pop()];
+    let t = h(s.pop());
     A(Sc<u64>(t) == 140737479966720, t << " ≠ 140737479966720"); }
 
   cout << "fast " << 16 * ul << "M: " << h.gΘ << endl;
@@ -139,11 +136,11 @@ void try_data_stack_tuple()
 
 void try_asm()
 {
-  T(π0asm) a{T(π0abi1)()};
+  π0asm a{π0abi1()};
   a << "i32'3 [i32'4 :out] . _ :out";
 
-  T(π0h)   h{};
-  T(π0int) i{T(π0abi1)(), a.build(), h};
+  π0h   h{};
+  π0int i{π0abi1(), a.build(), h};
   i.run(0);
   i32 x = i.dpop();
   A(x == 3, "expected 3, got " << x);
@@ -162,9 +159,9 @@ void default_try_stuff()
 
 int asmrun(char *src)
 {
-  T(π0h)   h{};
-  T(π0asm) a{T(π0abi1)()}; a << St{src};
-  T(π0int) i{T(π0abi1)(), a.build(), h};
+  π0h   h{};
+  π0asm a{π0abi1()}; a << St{src};
+  π0int i{π0abi1(), a.build(), h};
   i.run(0);
   return 0;
 }
@@ -172,9 +169,9 @@ int asmrun(char *src)
 
 int asmdebug(char *src)
 {
-  T(π0h)   h{};
-  T(π0asm) a{T(π0abi1)()}; a << St{src};
-  T(π0int) i{T(π0abi1)(), a.build(), h};
+  π0h   h{};
+  π0asm a{π0abi1()}; a << St{src};
+  π0int i{π0abi1(), a.build(), h};
 
   cout << "input program:" << endl;
   cout << i.p << endl;
