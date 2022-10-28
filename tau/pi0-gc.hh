@@ -28,7 +28,7 @@ inline π0h::~π0h ()
 inline void π0h::mark(π0r x)
 {
   // Mark the object as having an external reference.
-  ms->me(x);
+  ms->mark(x);
 }
 
 
@@ -56,6 +56,7 @@ inline void π0h::move(π0r f, π0r t)
 
 void π0h::gc(uN s)
 {
+  A(!ms, "gc() within GC");
   gΘ.start();
   ms = new π0ms{*this};
   for (let v : vs) v->mark();

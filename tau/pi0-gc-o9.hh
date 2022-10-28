@@ -34,8 +34,10 @@ struct π0ho9f : virtual o9V  // flagged-object writer
   V<P<uN, π0ho9f>> f;        // flagged children
   uN mutable       is = 0;   // post-rewrite size
 
-  π0ho9f(π0r r_, π0h *h_) : r(r_), h(h_)
-    { A(r.flagged(), "π₀ho9f on non-flagged " << r); }
+  // NOTE: this object is created on non-flagged old-space objects iff
+  // they have stolen children, which will result in them being flagged
+  // when written.
+  π0ho9f(π0r r_, π0h *h_) : r(r_), h(h_) {}
 
   uN isize() const
     { if (is) return is;
@@ -55,6 +57,19 @@ struct π0ho9f : virtual o9V  // flagged-object writer
       TODO("write()");
     }
 };
+
+
+template<> struct o9_<π0ho9n> { sletc v = true; };
+template<> struct o9_<π0ho9f> { sletc v = true; };
+
+
+inline o9V *o9(i9 r, π0h *h)
+{
+  TODO("fix for stolen children");
+  return r.flagged()
+       ? Sc<o9V*>(new π0ho9f{r, h})
+       : Sc<o9V*>(new π0ho9n{r, h});
+}
 
 
 }

@@ -58,7 +58,7 @@ This is an opt-in way for native code to have `i9` variables that are kept up-to
 For example, here's how we implement `m.`, "for each k/v pair in a map":
 
 ```cpp
-π0hnf f{z.h, 2};
+π0hnf f{z.h};
 π0bi fn = z.pop();    // the function bytecode
 i9   m  = z.pop();    // the map (tracked by GC)
 i9   i  = m.first();  // iterator (tracked by GC)

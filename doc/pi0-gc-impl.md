@@ -184,3 +184,85 @@ a=(b c) d=(e f) g=(h i j k l)
 ```
 
 Although logical operations on `i` should dereference through to `d`, we need to make sure any GC preserves _i ∈ g_ -- that is, we draw a distinction between "pointer to `j`" and "pointer to `d`" even though they're the same logical object. The constraint here is that unless _i_ is an uncontained root, _i.next()_ is semantically invariant across GC. Equivalently, GC preserves container/child relationships within the live set. (All of this is easy to do; we just keep track of the original addresses while we update the root set. But it's worth mentioning because it's important for FFI.)
+
+
+## Algorithm outline
+The pointer-containment constraint means that we need to understand all containment relationships before writing anything to new-space: in the diagram above, we could mark `j` as a root (which it is), but we need to wait until we've also marked `g` before writing either to the new heap. Because we have no ordering guarantees for the root set, this means we must fully mark the old heap before calculating the "true roots" for the new space.
+
+High-level process:
+
+1. Mark all roots
+2. Make a set of "false roots" (contained by others)
+3. Calculate full size of true roots, which will solve for new inlines
+4. Allocate new-space
+5. Copy true roots into new-space, which will build the new-location map
+6. Update true and false roots
+
+
+### False-root relocation
+```
+                  r₁     r₂
+     +-------+    |      |
+     V       |    V      V
+a=(b c d) e=(f g) h=(i j k l)
+          ^            |
+          +------------+
+```
+
+_r₂ ∈ r₁_ is a false root whose location is determined as `h` copies its contents into new-space: in particular, each `o9`, one of which is `k`, will add its new address to the relocation map.
+
+The situation is different if _r₂_ is a true root:
+
+```
+       r₃         r₁     r₂
+       |          |      |
+     +-(-----+    |      |
+     V V     |    V      V
+a=(b c d) e=(f g) h=(i j k l)
+          ^            |
+          +------------+
+```
+
+Here, _r₃_ is a true root, so we aren't obligated to preserve the relationship between `c` and `d`; so it's valid to GC into this state:
+
+```
+r₃ r₁            r₂
+|  |             |
+V  V             V
+d  h=(i e=(c g)) k l)
+```
+
+
+### Stolen children
+Consider this situation:
+
+```
+     r₁r₂    r₃     r₄
+     | |     |      |
++----(-(-----(------(----+
+V    V V     V      V    |
+a=(b c d) e=(f g h) i=(j k l)
+     ^    ^  |         |
+     +----(--+         |
+          |            |
+          +------------+
+```
+
+_r₁_, _r₂_, and _r₃_ are false roots because `a` and `e` exist in the live set, which means the only true root is _r₄_. Thus the new heap would look like this:
+
+```
+r₄    r₃          r₁r₂
+|     |           | |
+V     V           V V
+i=(e=(c g h) a=(b m d) l)
+      ^           |
+      +-----------+
+```
+
+This results in `a`, an unflagged container, having a stolen child, which means (1) it cannot be block-copied as a single `i9`, (2) it will be flagged in the new heap, and (3) its children have been relocated with respect to one another -- in particular `d`, which now exists at a different offset.
+
+From an implementation perspective, this just means we need to trace-rewrite any `i9` whose old-space range contains any relocated objects; relocation means we must insert a reference.
+
+Notice that _r₁_ and _r₂_ preserve their sibling relationship, and that _r₃_ is still the first child of `e`. This is intentional and a consequence of how the relocation table works: old-space `f` relocates to new-space `c`, and old-space `c` relocates to new-space `m` -- since these are the new objects that occur _at those locations within the copy chain_.
+
+Because stolen children result in flagged containers, we end up creating a relocation table entry for each child of a container with stolen children. This means that although false roots may not all have relocation entries, their offsets with respect to those entries will remain constant.
