@@ -196,8 +196,15 @@ High-level process:
 2. Make a set of "false roots" (contained by others)
 3. Calculate full size of true roots, which will solve for new inlines
 4. Allocate new-space
-5. Copy true roots into new-space, which will build the new-location map
+5. Copy true roots into new-space, which will build the relocation table
 6. Update true and false roots
+
+Some important details, background in below sections:
+
++ False roots involve reference-transitive containment
++ The root set requires range queries
++ The relocation table requires range queries
++ Some unflagged objects will end up with flags (due to stolen children)
 
 
 ### False-root relocation

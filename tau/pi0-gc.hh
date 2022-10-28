@@ -40,17 +40,18 @@ inline π0r π0h::move(π0r x) const
   //
   // Otherwise, we should have an entry for the reference in the
   // move table.
+  //
+  // NOTE: this function's results are valid only if you mark all
+  // references that you then ask about.
   return ms->contains(x) ? ms->at(x) : x;
 }
 
 
 inline void π0h::move(π0r f, π0r t)
 {
-  // NOTE: this function may be called multiple times for the same
-  // source ref, e.g. if the reference is inlined in several places.
-  //
-  // TODO: is this true?
-  (ms->n)[f] = t;
+  // NOTE: this will be called at most once per source ref; we never
+  // multi-inline.
+  ms->move(f, t);
 }
 
 
@@ -60,7 +61,10 @@ void π0h::gc(uN s)
   gΘ.start();
   ms = new π0ms{*this};
   for (let v : vs) v->mark();
-  ms->gc();
+
+  let lss = ms->plan();
+  TODO("allocate new-space");
+
   for (let v : vs) v->move();
   delete ms; ms = nullptr;
   gΘ.stop();
