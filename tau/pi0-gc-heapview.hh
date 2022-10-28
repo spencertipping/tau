@@ -103,22 +103,25 @@ struct π0hdf : virtual π0hv  // stack-of-frames heap view
 
 struct π0hnf : virtual π0hv  // native frame heap view
 {
-  V<i9>        v;  // TODO: store pointers instead
-  V<F<void()>> f;  // TODO: add array of non-tracked things here
+  V<i9*>       v;
+  V<F<void()>> f;
 
   π0hnf()             = delete;
   π0hnf(π0hnf const&) = delete;
   π0hnf(π0hnf&&)      = delete;
   π0hnf(π0h &h_, uN vs = 4) : π0hv(h_) { v.reserve(vs); }
 
-  void mark() { for (let x : v) π0hv::h.mark(x); }
+  void mark() { for (let x : v) π0hv::h.mark(*x); }
   void move()
-    { for (auto &x : v) x = π0hv::h.move(x);
-      for (auto &x : f) x(); }
+    { for (auto &x : v) *x = π0hv::h.move(*x);
+      for (auto &x : f)  x(); }
 
-  i9 &operator<<(π0r x) {
-    TODO("FIXME: π0hnf can't return refs within memory-moving containers");
-    v.push_back(x); return v.back(); }
+  π0hnf &operator()(i9 &x)         { v.push_back(&x);           return *this; }
+  π0hnf &operator()(F<void()> &&x) { f.push_back(std::move(x)); return *this; }
+
+  template<class T, class... Xs>
+  typename std::enable_if<sizeof...(Xs) != 0, π0hnf&>::type
+  operator()(T x, Xs... xs) { (*this)(x); (*this)(xs...); return *this; }
 };
 
 

@@ -23,10 +23,12 @@ void try_simple_gc()
 {
   π0h   h{64, {256, 0}};
   π0hnf f{h, 16};
-  auto &a = f << (h << o9t(1, 2, 3));
-  auto &b = f << (h << o9t("foo", a, a, "bar"));
-  auto &c = f << a;
-  auto &d = f << (h << o9t(true, false, b, a, b));
+  i9 a = h << o9t(1, 2, 3);
+  i9 b = h << o9t("foo", a, a, "bar");
+  i9 c = a;
+  i9 d = h << o9t(true, false, b, a, b);
+
+  f(a, b, c, d);
 
   a = h << o9("new value for a");
 

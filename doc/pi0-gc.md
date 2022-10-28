@@ -59,13 +59,14 @@ For example, here's how we implement `m.`, "for each k/v pair in a map":
 
 ```cpp
 π0hnf f{z.h, 2};
-π0bi fn = z.pop();             // the function bytecode
-i9   m  = z.pop();   f << &m;  // the map (tracked by GC)
-i9   i  = m.first(); f << &i;  // iterator (tracked by GC)
+π0bi fn = z.pop();    // the function bytecode
+i9   m  = z.pop();    // the map (tracked by GC)
+i9   i  = m.first();  // iterator (tracked by GC)
+f(m, i);              // enable GC tracking
 while (i < m.next())
 {
-  z.push(i); i = i.next();
-  z.push(i); i = i.next();
+  z.push(i); ++i;
+  z.push(i); ++i;
   z.run(fn);  // if this causes GC, m and i are updated
 }
 // f auto-removes itself from GC scope when destructed
@@ -73,13 +74,14 @@ while (i < m.next())
 
 Notice that we recompute `m.next()` instead of having a third GC-tracked variable. The reason is that `m.next()` refers to a separate object that may or may not be defined; the GC doesn't understand that we mean "the thing after `m`" rather than whatever `m.next()` refers to.
 
-If we wanted to cache `m.next()` to avoid recomputation, we'd need to set up a GC-variant quantity:
+If we wanted to cache `m.next()` to avoid recomputation, we'd need to set up a GC-variant quantity, which we can do by specifying a function that calculates it after each GC:
 
 ```cpp
-i9 e; f << [&]() { e = m.next(); };
+i9 m = ...;
+i9 i = ...;
+i9 e;
+f(m, i, [&]() { e = m.next(); });
 ```
-
-This will add a non-tracked quantity that is recomputed after each GC and before control returns to user-code.
 
 
 ### GC locking
