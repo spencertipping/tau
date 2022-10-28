@@ -266,3 +266,36 @@ From an implementation perspective, this just means we need to trace-rewrite any
 Notice that _r₁_ and _r₂_ preserve their sibling relationship, and that _r₃_ is still the first child of `e`. This is intentional and a consequence of how the relocation table works: old-space `f` relocates to new-space `c`, and old-space `c` relocates to new-space `m` -- since these are the new objects that occur _at those locations within the copy chain_.
 
 Because stolen children result in flagged containers, we end up creating a relocation table entry for each child of a container with stolen children. This means that although false roots may not all have relocation entries, their offsets with respect to those entries will remain constant.
+
+
+### Fictitious references
+Consider this somewhat pathological situation:
+
+```
+   r₁r₂    r₃     r₄
+   | |     |      |
+   | |     V      |
+   | |     +------(--+
+   V V     V      V  |
+a=(b c) d=(e f g) h=(i j k)
+^  ^    ^  | |         |
+|  +----(--+ |         |
++-------(----+         |
+        |              |
+        +--------------+
+```
+
+_r₄_ is the only true root, so our algorithm says we trace depth-first like this:
+
+```
+r₄      r₃   r₁r₂
+|       |    | |
+V       V    V V
+h=(b d=(l a=(m c) g) k)
+   ^    |    |
+   +----+    |
+   ^         |
+   +---------+
+```
+
+Notice, though, that _r₃ → r₁_ no longer applies. This is by design: only immediate container relationships are preserved by the GC -- and for references, only the ultimate destination is guaranteed to remain invariant.
