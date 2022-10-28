@@ -116,8 +116,8 @@ struct π0hnf : virtual π0hv  // native frame heap view
     { for (auto &x : v) *x = π0hv::h.move(*x);
       for (auto &x : f)  x(); }
 
-  π0hnf &operator()(i9 &x)         { v.push_back(&x);           return *this; }
-  π0hnf &operator()(F<void()> &&x) { f.push_back(std::move(x)); return *this; }
+  π0hnf &operator()(i9 &x)         { v.push_back(&x);                       return *this; }
+  π0hnf &operator()(F<void()> &&x) { f.push_back(std::move(x)); f.back()(); return *this; }
 
   template<class T, class... Xs>
   typename std::enable_if<sizeof...(Xs) != 0, π0hnf&>::type

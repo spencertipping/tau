@@ -11,24 +11,24 @@ Starting with invariants:
 Starting with the single-gen "when/where can we inline" scenario:
 
 ```
-                #       ← root set
-     +-----+    |
-     V     |    V
-  a=(b) c=(d e) f=(g h)
-  ^     ^          | |
-  |     +----------+ |
-  +------------------+
+              #       ← root set
+   +-----+    |
+   V     |    V
+a=(b) c=(d e) f=(g h)
+^     ^          | |
+|     +----------+ |
++------------------+
 ```
 
 We can't inline `h` unless we also inline `d`. This means `h`'s inlining overhead is _|b|_, since it will occur in two places:
 
 ```
-          #
-     b₁   |       b₂  ← now we have two b's
-     |    V       |
-  c=(b e) f=(g a=(b))
-  ^          |
-  +----------+
+        #
+   b₁   |       b₂  ← now we have two b's
+   |    V       |
+c=(b e) f=(g a=(b))
+^          |
++----------+
 ```
 
 This should happen only if _|b| ≤ ρ_, where _ρ_ is the inlining size threshold -- but presumably in that case we never would have had _d → b_ to begin with, as `b` would have been pre-emptively inlined. So we can ignore this case: `h` cannot be inlined in the above example.
@@ -162,13 +162,14 @@ Code like this needs to be handled carefully:
 
 ```cpp
 π0hnf f{z.h, 2};
-i9    x = z.pop;     f << &x;
-i9    i = x.first(); f << &i;
-i9    e;  f << [&]() { e = x.next(); };
+i9    x = z.pop;
+i9    i = x.first();
+i9    e;
+f(x, i, [&]() { e = x.next(); });
 while (i < e)
 {
   // ...
-  i = i.next();
+  ++i;
 }
 ```
 
