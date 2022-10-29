@@ -1,6 +1,6 @@
 #define τdebug 1
-#define τπ0debug_bounds_checks 0
-#define τπ0debug_gc_postcopy_verify 0
+#define τπ0debug_bounds_checks 1
+#define τπ0debug_heapview_shuffle 1
 //#define τdebug_i9st 1
 
 

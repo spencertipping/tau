@@ -9,8 +9,10 @@
 #include "pi0-gc-heap.hh"
 
 
+// Tests the GC to make sure the algorithm is invariant wrt external
+// root ordering.
 #if !defined(τπ0debug_heapview_shuffle)
-# define τπ0debug_heapview_shuffle τdebug
+# define τπ0debug_heapview_shuffle 0
 #endif
 
 #if τπ0debug_heapview_shuffle
