@@ -18,7 +18,7 @@ struct π0ho9 : virtual o9V
 {
   π0h        &h;
   i9    const r;      // oldspace object
-  π0r   const o;      // owner, if any (i.e. which i9 is inlining us)
+  π0r mutable o;      // owner, if any (i.e. which i9 is inlining us)
   π0r mutable n = 0;  // newspace location
   uN  mutable s = 0;  // cached newspace inner size
 
@@ -28,7 +28,12 @@ struct π0ho9 : virtual o9V
   // Always inline objects if they are smaller than the heap's inlining
   // size threshold. This improves locality and can save space, since
   // some objects are smaller than a reference that would point to them.
-  bool inline_at(π0r x) const { return r.osize() <= h.is || o == x; }
+  //
+  // Note that roots can be inlined anywhere, at which point they become
+  // owned by their inlined location.
+  bool inline_at(π0r x) const
+    { if (!o) o = x;
+      return r.osize() <= h.is || o == x; }
 
 
   uN size()  const { return isize() + u9sb(u9sq(isize())); }

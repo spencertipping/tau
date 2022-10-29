@@ -45,7 +45,7 @@ struct π0int : π0sv
   // Stack-view accessors, used by bytecode functions
   π0sv        *up()     const { return nullptr; }
   uN         size()     const { return dv->size(); }
-  π0r  operator[](uN i) const { return (*dv)[i]; }
+  i9   operator[](uN i) const { return (*dv)[i]; }
   void operator<<(π0r x)      { *dv << x; }
   void       drop(uN n)       { dv->drop(n); }
 

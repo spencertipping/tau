@@ -50,7 +50,7 @@ struct π0sv  // stack view
   virtual ~π0sv() {}
   virtual π0sv        *up()     const = 0;
   virtual uN         size()     const = 0;
-  virtual π0r  operator[](uN i) const = 0;
+  virtual i9   operator[](uN i) const = 0;
   virtual void operator<<(π0r x)      = 0;
   virtual void       drop(uN n = 1)   = 0;
 

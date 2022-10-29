@@ -41,9 +41,9 @@ struct π0hds : virtual π0hv,  // data-stack heap view
   void                operator<<(π0r x)      { s.push_back(x); }
   template<O9 T> void operator<<(T const &x) { *this << (π0hv::h << x); }
 
-  π0r operator[](uN i) const { return s.at(s.size() - i - 1); }
-  void      drop(uN n = 1)   { s.resize(s.size() - n); }
-  uN        size()     const { return s.size(); }
+  i9 operator[](uN i) const { return s.at(s.size() - i - 1); }
+  void     drop(uN n = 1)   { s.resize(s.size() - n); }
+  uN       size()     const { return s.size(); }
 };
 
 
@@ -69,8 +69,8 @@ struct π0hss : virtual π0hv,  // split-stack heap view
   void                operator<<(π0r x)      { s.push_back(x); }
   template<O9 T> void operator<<(T const &x) { *this << (π0hv::h << x); }
 
-  π0r operator[](uN i) const
-  { return i < s.size() ? s.at(s.size() - i - 1) : d[i - s.size() + n]; }
+  i9 operator[](uN i) const
+    { return i < s.size() ? i9{s.at(s.size() - i - 1)} : d[i - s.size() + n]; }
 
   void drop(uN x = 1)
   { let l = std::min(x, s.size());
