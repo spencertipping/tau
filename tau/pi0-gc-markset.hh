@@ -80,11 +80,11 @@ struct π0ms
       V<π0r> rs; rs.reserve(m.size());
       for (let &[k, _] : m) rs.push_back(k);
       std::sort(rs.begin(), rs.end());
-      for (auto i = rs.begin(); i != rs.end(); ++i)
-        for (i9 x = *i++, e = x.next();
-             i != rs.end() && *i < e;
+      for (uN i = 0; i < rs.size(); ++i)
+        for (i9 x = rs[i++], e = x.next().a;
+             i < rs.size() && rs[i] < e;
              ++i)
-          t.erase(*i);
+          t.erase(rs[i]);
 
       // Now calculate the new live-set size, which involves deciding
       // which container gets to inline each object. This is handled

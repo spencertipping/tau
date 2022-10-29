@@ -27,8 +27,10 @@ void π0h::gc(uN s)
 
   // TODO: replace this temporary logic with real generational GC
   let lss = ms->plan();
-  B h_; h_.reserve(lss + s << 2);
+  B h_; h_.reserve(std::max(this->s[0], lss + s << 2));
   *ms >> h_;
+  A(h_.size() == lss,
+    "GC live-set size mismatch: " << h_.size() << " ≠ " << lss);
   hs[0]->h.swap(h_);
 
   for (let v : vs) v->move();

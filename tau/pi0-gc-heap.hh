@@ -34,6 +34,10 @@ struct π0h  // a multi-generational heap
 
   template<O9 T> π0r operator<<(T const &x)
     { if (let a = *hs[0] << x) return a;
+
+      // FIXME: we need to buffer x to a temporary location and
+      // make sure it's part of the live set, so any contained references
+      // are rewritten correctly
       gc(x.size());
       return *hs[0] << x; }
 
