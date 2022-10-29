@@ -109,7 +109,7 @@ struct π0hnf : virtual π0hv  // native frame heap view
   π0hnf()             = delete;
   π0hnf(π0hnf const&) = delete;
   π0hnf(π0hnf&&)      = delete;
-  π0hnf(π0h &h_, uN vs = 4) : π0hv(h_) { v.reserve(vs); }
+  π0hnf(π0h &h_, uN vs = 16) : π0hv(h_) { v.reserve(vs); }
 
   void mark() { for (let x : v) π0hv::h.mark(*x); }
   void move()

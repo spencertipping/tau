@@ -24,19 +24,19 @@ void try_simple_gc()
   π0h   h{64, {256, 0}};
   π0hnf f{h, 16};
   i9 a = h << o9t(1, 2, 3);
-  i9 b = h << o9t("foo", a, a, "bar");
+  i9 b = h << o9t("foo", π0o9r(a), π0o9r(a), "bar");
   i9 c = a;
-  i9 d = h << o9t(true, false, b, a, b);
+  i9 d = h << o9t(true, false, π0o9r(b), π0o9r(a), π0o9r(b));
 
   f(a, b, c, d);
 
   a = h << o9("new value for a");
 
   cout << "pre-GC" << endl;
-  cout << a << " = " << h(a) << endl;
-  cout << b << " = " << h(b) << endl;
-  cout << c << " = " << h(c) << endl;
-  cout << d << " = " << h(d) << endl;
+  cout << a << endl;
+  cout << b << endl;
+  cout << c << endl;
+  cout << d << endl;
   //cout << *h.hs[0] << endl;
 
   h.gc();

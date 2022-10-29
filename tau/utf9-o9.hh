@@ -32,13 +32,20 @@ struct o9V  // o9 virtual base
 };
 
 
-template<class T> concept o9mapped = u9t_hastype<T> || std::is_same_v<T, i9>;
+template<class T> struct o9_ { sletc v = false; };
+template<class T> concept O9  =  o9_<T>::v;
+template<class T> concept O9N = !o9_<T>::v;
+
+template<class T> concept o9mapped = O9<T> || u9t_hastype<T> || std::is_same_v<T, i9>;
 
 template<class T> concept o9fixed  = u9t_is<T, u9fixed.m>::v;
 template<class T> concept o9string = u9t_is<T, u9strings.m>::v;
 template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 
-template<class T> concept o9simple = o9mapped<T> && !o9coll<T>;
+template<class T> concept o9simple = o9mapped<T> && O9N<T> && !o9coll<T>;
+
+
+template<O9 T> inline T o9(T x) { return x; }
 
 
 struct o9i9 : virtual o9V
@@ -386,7 +393,6 @@ template<o9fixed T> inline o9a<T> o9(T const *xs, uN       n) { return o9a<T>{xs
 template<o9fixed T> inline o9a<T> o9(T const *b,  T const *e) { return o9(b, e - b); }
 
 
-template<class T>    struct o9_             { sletc v = false; };
 template<>           struct o9_<o9i9>       { sletc v =  true; };
 template<>           struct o9_<o9q>        { sletc v =  true; };
 template<class T>    struct o9_<o9f<T>>     { sletc v =  true; };
@@ -419,10 +425,6 @@ struct o9vd : virtual o9V
 template<> struct o9_<o9vd> { sletc v = true; };
 
 inline o9vd o9(o9V const *x) { return o9vd(x); }
-
-
-template<class T> concept O9  =  o9_<T>::v;
-template<class T> concept O9N = !o9_<T>::v;
 
 
 template<O9 T>
