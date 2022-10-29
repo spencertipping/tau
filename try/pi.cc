@@ -136,6 +136,7 @@ void try_data_stack_tuple()
 }
 
 
+/*
 void try_asm()
 {
   π0asm a{π0abi1()};
@@ -146,7 +147,7 @@ void try_asm()
   i.run(0);
   i32 x = i.dpop();
   A(x == 3, "expected 3, got " << x);
-}
+  } */
 
 
 void default_try_stuff()
@@ -155,10 +156,11 @@ void default_try_stuff()
   try_data_stack_slow();
   try_data_stack_fast();
   try_data_stack_tuple();
-  try_asm();
+  //try_asm();
 }
 
 
+/*
 int asmrun(char *src)
 {
   π0h   h{};
@@ -190,14 +192,17 @@ int asmdebug(char *src)
   cout << i.h.gΘ << endl;
   return 0;
 }
+*/
 
 
 int main(int argc, char **argv)
 {
   τassert_begin;
+  /*
   if (argc > 2)
     if      (!strcmp(argv[1], "run"))   return asmrun  (argv[2]);
     else if (!strcmp(argv[1], "debug")) return asmdebug(argv[2]);
+  */
   default_try_stuff();
   τassert_end;
 }

@@ -25,9 +25,11 @@ void π0h::gc(uN s)
   ms = new π0ms{*this};
   for (let v : vs) v->mark();
 
+  // TODO: replace this temporary logic with real generational GC
   let lss = ms->plan();
-
-
+  B h_; h_.reserve(lss + s << 2);
+  *ms >> h_;
+  hs[0]->h.swap(h_);
 
   for (let v : vs) v->move();
   delete ms; ms = nullptr;

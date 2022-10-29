@@ -16,6 +16,8 @@ namespace τ
 {
 
 
+#if 0
+
 #define I [](π0int &i, π0fa n)
 
 
@@ -364,6 +366,8 @@ void π0abi1_debug(π0abi &a)
   i = true;
   return a;
 }
+
+#endif
 
 
 }
