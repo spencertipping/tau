@@ -197,7 +197,7 @@ void try_data_stack_tuple()
   let t = s.pop();
   A(Sc<u64>(t) == 140737479966720, t << " ≠ 140737479966720");
 
-  cout << "on-heap list: " << h.gΘ << endl;
+  cout << "on-heap list with artificial GCs: " << h.gΘ << endl;
 }
 
 

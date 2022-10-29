@@ -63,8 +63,8 @@ struct π0ms
   // instead of allocating an o9 to save space.
   π0ho9 *claim(π0r f, π0r o)
     { return !m.contains(f)
-           ? nullptr
-           : m[f] ? m[f] : (m[f] = new π0ho9{h, f, o}); }
+           ?  nullptr
+           :  m[f] ? m[f] : (m[f] = new π0ho9{h, f, o}); }
 
   auto cb(π0r x) const { return m.lower_bound(x); }
   auto ce()      const { return m.end(); }
