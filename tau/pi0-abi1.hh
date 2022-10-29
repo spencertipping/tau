@@ -16,8 +16,6 @@ namespace τ
 {
 
 
-#if 0
-
 #define I [](π0int &i, π0fa n)
 
 
@@ -125,16 +123,16 @@ void π0abi1_u9_vector(π0abi &a)
         π0hnf f{i.h, 2};                                              \
         uNc sn = Sc<iN>(i.dpop());                                    \
         uNc si = Sc<iN>(i.dpop());                                    \
-        auto &s = f << i.pop();                                       \
-        auto &r = f << (i.h << o9vec<t>{sn});                         \
+        i9 s = i.pop();             f(&s);                            \
+        i9 r = i.h << o9vec<t>{sn}; f(&r);                            \
         for (uN j = si; j < sn; ++j)                                  \
           r.template set<t>(j - si, s.template at<t>(j));             \
         i << r; })                                                    \
     .def(#t "s++", I{                                                 \
         π0hnf f{i.h, 3};                                              \
-        auto &a = f << i.pop();                                       \
-        auto &b = f << i.pop();                                       \
-        auto &c = f << (i.h << o9vec<t>{a.vn() + b.vn()});            \
+        i9 a = i.pop(); f(&a);                                        \
+        i9 b = i.pop(); f(&b);                                        \
+        i9 c  = i.h << o9vec<t>{a.vn() + b.vn()}; f(&c);              \
         for (uN j = 0; j < a.vn(); ++j)                               \
           c.template set<t>(j, a.template at<t>(j));                  \
         for (uN j = 0; j < b.vn(); ++j)                               \
@@ -160,8 +158,8 @@ void π0abi1_u9_number(π0abi &a)
 #define a1sc(t, u) a.def(#t  ">"#u, I{ i.dpush(Sc<u>(i.dpop().template at<t>(0))); });
 #define a1vc(t, u) a.def(#t "s>"#u, I{                          \
       π0hnf f{i.h, 2};                                          \
-      auto &a = f << i.pop();                                   \
-      auto &b = f << (i.h << o9vec<u>{a.vn()});                 \
+      i9 a = i.pop(); f(&a);                                    \
+      i9 b = i.h << o9vec<u>{a.vn()}; f(&b);                    \
       i << b;                                                   \
       for (uN i = 0; i < a.vn(); ++i)                           \
         b.template set<u>(i, a.template at<t>(i)); });
@@ -195,23 +193,23 @@ void π0abi1_u9_number(π0abi &a)
 #define a1vop(t, o) a.def(""#t "s"#o, I{                                \
       π0hnf f{i.h, 3};                                                  \
       typedef decltype(std::declval<t>() o std::declval<t>()) r;        \
-      auto &a = f << i.pop();                                           \
-      auto &b = f << i.pop();                                           \
+      i9 a = i.pop(); f(&a);                                            \
+      i9 b = i.pop(); f(&b);                                            \
       if (a.vn() == 1)                                                  \
-      { auto &c = f << (i.h << o9vec<r>{b.vn()});                       \
+      { i9 c = i.h << o9vec<r>{b.vn()}; f(&c);                          \
         let xa = a.template at<t>(0);                                   \
         for (uN i = 0; i < b.vn(); ++i)                                 \
           c.template set<r>(i, xa o b.template at<t>(i));               \
         i << c; }                                                       \
       else if (b.vn() == 1)                                             \
-      { auto &c = f << (i.h << o9vec<r>{a.vn()});                       \
+      { i9 c = i.h << o9vec<r>{a.vn()}; f(&c);                          \
         let xb = b.template at<t>(0);                                   \
         for (uN i = 0; i < a.vn(); ++i)                                 \
           c.template set<r>(i, a.template at<t>(i) o xb);               \
         i << c; }                                                       \
       else                                                              \
       { let k = std::min(a.vn(), b.vn());                               \
-        auto &c = f << (i.h << o9vec<r>{k});                            \
+        i9 c = i.h << o9vec<r>{k}; f(&c);                               \
         for (uN i = 0; i < k; ++i)                                      \
           c.template set<r>(                                            \
             i, a.template at<t>(i) o b.template at<t>(i));              \
@@ -219,8 +217,8 @@ void π0abi1_u9_number(π0abi &a)
 
 #define a1vuop(t, o, n) a.def(#t "s"#n, I{                      \
       π0hnf f{i.h, 2};                                          \
-      auto &a = f << i.pop();                                   \
-      auto &b = f << (i.h << o9vec<t>{a.vn()});                 \
+      i9 a = i.pop(); f(&a);                                    \
+      i9 b = i.h << o9vec<t>{a.vn()}; f(&b);                    \
       i << b;                                                   \
       for (uN i = 0; i < a.vn(); ++i)                           \
         b.template set<t>(i, o a.template at<t>(i)); });
@@ -301,24 +299,26 @@ void π0abi1_u9_tuple(π0abi &a)
 {
   a .def(">>t", I{
       uNc k = Sc<iN>(i.dpop());
-      π0hnf f{i.h, k};
-      for (uN j = 0; j < k; ++j) f << i.pop();
-      i << (i.h << o9(f.v)); })
+      π0hnf f{i.h, 0};
+      V<i9> xs; xs.reserve(k); f(&xs);
+      for (uN j = 0; j < k; ++j) xs.push_back(i.pop());
+      i.dpush(xs); })
     .def("t@", I{ uNc k = Sc<iN>(i.dpop()); i.dpush(i.dpop()[k]); })
     .def("t#", I{ i.dpush(i.dpop().len()); })
     .def("t++", I{
         let k = i9{i[0]}.len() + i9{i[1]}.len();
-        π0hnf f{i.h, k};
-        for (let x : i.dpop()) f << x;
-        for (let x : i.dpop()) f << x;
-        i << (i.h << o9(f.v)); })
+        π0hnf f{i.h, 0};
+        V<i9> xs; xs.reserve(k); f(&xs);
+        for (let x : i.dpop()) xs.push_back(x);
+        for (let x : i.dpop()) xs.push_back(x);
+        i.dpush(xs); })
     .def("t.", I{
         π0hnf f{i.h, 3};
         π0bi g   = i.dpop();
-        auto &xs = f << i.pop();
-        auto &xe = f << xs.next();  // FIXME: don't track with GC
-        auto &x  = f << xs.first();
-        while (x.a < xe.a) { i << x; i.run(g); x = x.next(); } });
+        i9 xs = i.pop(); f(&xs);
+        i9 x  = xs.first(); f(&x);
+        i9 e; f([&]() { e = xs.next(); });
+        while (x.a < e.a) { i << x; i.run(g); x = x.next(); } });
 }
 
 
@@ -366,8 +366,6 @@ void π0abi1_debug(π0abi &a)
   i = true;
   return a;
 }
-
-#endif
 
 
 }
