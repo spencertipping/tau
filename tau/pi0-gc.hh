@@ -61,9 +61,9 @@ inline π0r  π0h::move(π0r x) const
 }
 
 
-inline π0ho9                          *π0h::claim(π0r r, π0ho9 const *o) { return ms->claim(r, o); }
-inline Mo<π0r, π0ho9*>::const_iterator π0h::cb   (π0r r)           const { return ms->cb(r); }
-inline Mo<π0r, π0ho9*>::const_iterator π0h::ce   ()                const { return ms->ce(); }
+inline π0ho9                          *π0h::claim(π0r r, π0r o) { return ms->claim(r, o); }
+inline Mo<π0r, π0ho9*>::const_iterator π0h::cb   (π0r r)  const { return ms->cb(r); }
+inline Mo<π0r, π0ho9*>::const_iterator π0h::ce   ()       const { return ms->ce(); }
 
 
 }

@@ -39,8 +39,7 @@ struct π0ms
   // it is itself a reference that points elsewhere. This guarantees
   // that external reference locality is preserved.
   void me(i9 x)
-    { std::cout << "marking " << x << std::endl;
-      if (m.contains(x) || h.gen(x) > mg) return;
+    { if (m.contains(x) || h.gen(x) > mg) return;
       m[x] = nullptr;
       t.insert(x);
       if (x.is_πref()) mi(h(x));
@@ -62,7 +61,7 @@ struct π0ms
   // is, it has exactly one liveness-link from its container and is
   // guaranteed to be inlinable by that container. We return nullptr
   // instead of allocating an o9 to save space.
-  π0ho9 *claim(π0r f, π0ho9 const *o)
+  π0ho9 *claim(π0r f, π0r o)
     { return !m.contains(f)
            ? nullptr
            : m[f] ? m[f] : (m[f] = new π0ho9{h, f, o}); }

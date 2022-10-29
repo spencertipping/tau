@@ -21,45 +21,60 @@ using namespace std;
 
 void try_simple_gc()
 {
-  π0h   h{64, {256, 0}};
+  π0h   h{4, {256, 0}};
   π0hnf f{h};
   i9 a = h << o9t(1, 2, 3);
   i9 b = h << o9t("foo", π0o9r(a), π0o9r(a), "bar");
   i9 c = a;
   i9 d = h << o9t(true, false, π0o9r(b), π0o9r(a), π0o9r(b));
 
-  f(a, b, c, d);
+  f(&a, &b, &c, &d);
 
   a = h << o9("new value for a");
 
+  A(!a.flagged(), "try/pi false flag on a");
+  A( b.flagged(), "try/pi b should be flagged");
+  A(!c.flagged(), "try/pi c false flag on c");
+  A( d.flagged(), "try/pi d should be flagged");
+
   cout << "pre-GC" << endl;
-  cout << a << endl;
-  cout << b << endl;
-  cout << c << endl;
-  cout << d << endl;
+  cout << (void*) a.a << ": " << a << endl;
+  cout << (void*) b.a << ": " << b << endl;
+  cout << (void*) c.a << ": " << c << endl;
+  cout << (void*) d.a << ": " << d << endl;
 
   h.gc();
   cout << "post-GC" << endl;
-  cout << a << " = " << h(a) << endl;
-  cout << b << " = " << h(b) << endl;
-  cout << c << " = " << h(c) << endl;
-  cout << d << " = " << h(d) << endl;
+  cout << (void*) a.a << ": " << a << endl;
+  cout << (void*) b.a << ": " << b << endl;
+  cout << (void*) c.a << ": " << c << endl;
+  cout << (void*) d.a << ": " << d << endl;
 
   // One of the rare cases where it's worth asserting everything.
 
-  A(h(a) == St{"new value for a"}, "try/pi a");
-  A(h(h(b)[0]) == St{"foo"}, "try/pi b[0]");
-  A(h(h(b)[1]) == h(c),      "try/pi b[1]");
-  A(h(h(b)[2]) == h(c),      "try/pi b[2]");
-  A(h(h(b)[3]) == St{"bar"}, "try/pi b[3]");
-  A(h(h(c)[0]) == 1,         "try/pi c[0]");
-  A(h(h(c)[1]) == 2,         "try/pi c[1]");
-  A(h(h(c)[2]) == 3,         "try/pi c[3]");
+  A(h(a) == St{"new value for a"},   "try/pi a");
+  A(h(h(b)[0]) == St{"foo"},         "try/pi b[0]");
+  A(h(h(b)[1]) == h(c),              "try/pi b[1]");
+  A(h(h(b)[2]) == h(c),              "try/pi b[2]");
+  A(h(h(b)[3]) == St{"bar"},         "try/pi b[3]");
+  A(h(h(c)[0]) == 1,                 "try/pi c[0]");
+  A(h(h(c)[1]) == 2,                 "try/pi c[1]");
+  A(h(h(c)[2]) == 3,                 "try/pi c[3]");
   A(h(h(d)[0]).at<bool>(0) == true,  "try/pi d[0]");
   A(h(h(d)[1]).at<bool>(0) == false, "try/pi d[1]");
   A(h(h(d)[2])             == h(b),  "try/pi d[2]");
   A(h(h(d)[3])             == h(c),  "try/pi d[3]");
   A(h(h(d)[4])             == h(b),  "try/pi d[4]");
+
+  // One or both of b's (1,2,3) entries must be a reference, since
+  // we've set our inlining size so low.
+  A(h(b)[1].is_πref() || h(b)[2].is_πref(),
+    "try/pi h[1] NR || h[2] NR");
+
+  A(h(d)[2].is_πref() || h(d)[4].is_πref(),
+    "try/pi d[2] NR || d[4] NR");
+
+  cout << "GC OK" << endl;
 }
 
 

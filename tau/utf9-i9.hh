@@ -429,9 +429,8 @@ O &operator<<(O &s, i9 const &x)
     return s << xs.type() << "[" << d << "]"; }
 
   case u9t::pi:
-    // Minor TODO: figure out why this Sc<> causes LSP errors in the cast
-    // operator definition above, but compiles fine with g++
-  { let p = Sc<u9_scoped<u9_π, uN>>(x);
+  { if (x.is_πref()) return s << "π₀r:" << *x;
+    let p = Sc<u9_scoped<u9_π, ζp>>(x);
     return s << "π₀:" << p.t << ":" << p.x; }
 
   default:

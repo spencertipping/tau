@@ -42,7 +42,8 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 # define τhas_assert_fail      1
 # define τhas_epoll            1
 # define τhas_emscripten_fiber 0
-# define τhas_fast_exceptions  1
+//# define τhas_fast_exceptions  1
+# define τhas_fast_exceptions  0
 # define τplatform             τplatform_linux
 
 # if τwordsize == 64

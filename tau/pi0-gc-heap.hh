@@ -47,10 +47,10 @@ struct π0h  // a multi-generational heap
   i9 operator()(i9 x) const { while (x.is_πref()) x = *x; return x; }
 
 
-  void   gc   (uN s = 0);           // GC to allocate s extra bytes of space
-  void   mark (π0r);                // externally mark a reference
-  π0r    move (π0r) const;          // used by π0hv to translate old → new ext refs
-  π0ho9 *claim(π0r, π0ho9 const*);  // used by π₀ho9 to mark objects as inlined
+  void   gc   (uN s = 0);   // GC to allocate s extra bytes of space
+  void   mark (π0r);        // externally mark a reference
+  π0r    move (π0r) const;  // used by π0hv to translate old → new ext refs
+  π0ho9 *claim(π0r, π0r);   // used by π₀ho9 to mark objects as inlined
 
   Mo<π0r, π0ho9*>::const_iterator cb(π0r) const;
   Mo<π0r, π0ho9*>::const_iterator ce()    const;
