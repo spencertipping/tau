@@ -17,6 +17,24 @@ namespace τ
 {
 
 
+void π0h::gc(uN s)
+{
+  A(!ms, "gc() within GC");
+
+  gΘ.start();
+  ms = new π0ms{*this};
+  for (let v : vs) v->mark();
+
+  let lss = ms->plan();
+
+
+
+  for (let v : vs) v->move();
+  delete ms; ms = nullptr;
+  gΘ.stop();
+}
+
+
 inline π0h::~π0h ()
 {
   A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
@@ -47,12 +65,6 @@ inline π0r π0h::move(π0r x) const
 }
 
 
-inline void π0h::claim(π0r r, π0ho9 *o)
-{
-  ms->claim(r, o);
-}
-
-
 inline void π0h::move(π0r f, π0r t)
 {
   // NOTE: this will be called at most once per source ref; we never
@@ -61,21 +73,21 @@ inline void π0h::move(π0r f, π0r t)
 }
 
 
-void π0h::gc(uN s)
+inline π0ho9* π0h::claim(π0r r, π0ho9 const *o)
 {
-  A(!ms, "gc() within GC");
-
-  gΘ.start();
-  ms = new π0ms{*this};
-  for (let v : vs) v->mark();
-
-  let lss = ms->plan();
+  return ms->claim(r, o);
+}
 
 
+inline auto π0h::cb(π0r r) const
+{
+  return ms->cb(r);
+}
 
-  for (let v : vs) v->move();
-  delete ms; ms = nullptr;
-  gΘ.stop();
+
+inline auto π0h::ce(π0r r) const
+{
+  return ms->ce(r);
 }
 
 

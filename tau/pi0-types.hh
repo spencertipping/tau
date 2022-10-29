@@ -20,9 +20,7 @@ struct π0h;        // GC heap
 struct π0hs;       // GC heap space (one generation)
 struct π0hv;       // GC heap view (stack/frame/etc)
 struct π0ms;       // GC markset
-
-struct π0ho9n;     // o9 for simple heap object
-struct π0ho9f;     // o9 for complex (flagged) heap object
+struct π0ho9;      // GC heap object copy (or copy-out-to-Φ)
 
 
 typedef u32 π0bi;  // bytecode index

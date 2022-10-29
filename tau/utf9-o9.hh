@@ -410,7 +410,7 @@ struct o9_<o9vc<T, C, X...>> { sletc v = true; };
 // Virtual delegation
 struct o9vd : virtual o9V
 {
-  o9V const *x;
+  o9V const *const x;
   o9vd(o9V const *x_) : x(x_) {}
   uN size()      const { return x->size(); }
   uN write(ζp m) const { return x->write(m); }

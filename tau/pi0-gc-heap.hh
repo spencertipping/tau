@@ -13,9 +13,6 @@ namespace τ
 {
 
 
-struct π0ho9;
-
-
 struct π0h  // a multi-generational heap
 {
   sletc gn = 2;           // number of generations
@@ -52,11 +49,13 @@ struct π0h  // a multi-generational heap
       return x; }
 
 
-  void gc  (uN s = 0);      // GC to allocate s extra bytes of space
-  void mark(π0r);           // externally mark a reference
-  π0r  move(π0r) const;     // used by π0hv to translate old → new ext refs
-  void claim(π0r, π0ho9*);  // used by π₀ho9 to mark objects as inlined
-  void move(π0r, π0r);      // declare a moved reference
+  void   gc   (uN s = 0);           // GC to allocate s extra bytes of space
+  void   mark (π0r);                // externally mark a reference
+  π0r    move (π0r) const;          // used by π0hv to translate old → new ext refs
+  void   move (π0r, π0r);           // declare a moved reference
+  π0ho9 *claim(π0r, π0ho9 const*);  // used by π₀ho9 to mark objects as inlined
+  auto   cb   (π0r) const;          // beginning of claimable range
+  auto   ce   (π0r) const;          // end of claimable range
 };
 
 
