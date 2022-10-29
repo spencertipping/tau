@@ -2,10 +2,23 @@
 #define τπ0_gc_heapview_h
 
 
+#include "debug.hh"
 #include "types.hh"
 #include "utf9.hh"
 #include "pi0-types.hh"
 #include "pi0-gc-heap.hh"
+
+
+#if !defined(τπ0debug_heapview_shuffle)
+# define τπ0debug_heapview_shuffle τdebug
+#endif
+
+#if τπ0debug_heapview_shuffle
+# include <algorithm>
+# include <random>
+# warning π₀ debug heapview shuffle enabled
+#endif
+
 
 #include "begin.hh"
 
@@ -112,9 +125,19 @@ struct π0hnf : virtual π0hv  // native frame heap view
   π0hnf(π0hnf&&)      = delete;
   π0hnf(π0h &h_, uN vs = 16) : π0hv(h_) { v.reserve(vs); }
 
+#if τπ0debug_heapview_shuffle
+  void mark()
+    { std::shuffle(v.begin(), v.end(), std::default_random_engine(now().time_since_epoch().count()));
+      std::shuffle(s.begin(), s.end(), std::default_random_engine(now().time_since_epoch().count()));
+      for (let x : v) π0hv::h.mark(x->a);
+      for (let x : s)
+      { std::shuffle(x->begin(), x->end(), std::default_random_engine(now().time_since_epoch().count()));
+        for (let y : *x) π0hv::h.mark(y); } }
+#else
   void mark()
     { for (let x : v)                  π0hv::h.mark(x->a);
       for (let x : s) for (let y : *x) π0hv::h.mark(y); }
+#endif
 
   void move()
     { for (let   x : v)                 x->a = π0hv::h.move(x->a);
