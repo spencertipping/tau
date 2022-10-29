@@ -28,7 +28,7 @@ inline π0h::~π0h ()
 inline void π0h::mark(π0r x)
 {
   // Mark the object as having an external reference.
-  ms->mark(x);
+  ms->me(x);
 }
 
 
@@ -47,6 +47,12 @@ inline π0r π0h::move(π0r x) const
 }
 
 
+inline void π0h::claim(π0r r, π0ho9 *o)
+{
+  ms->claim(r, o);
+}
+
+
 inline void π0h::move(π0r f, π0r t)
 {
   // NOTE: this will be called at most once per source ref; we never
@@ -58,12 +64,14 @@ inline void π0h::move(π0r f, π0r t)
 void π0h::gc(uN s)
 {
   A(!ms, "gc() within GC");
+
   gΘ.start();
   ms = new π0ms{*this};
   for (let v : vs) v->mark();
 
   let lss = ms->plan();
-  TODO("allocate new-space");
+
+
 
   for (let v : vs) v->move();
   delete ms; ms = nullptr;

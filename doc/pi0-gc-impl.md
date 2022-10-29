@@ -193,7 +193,7 @@ The pointer-containment constraint means that we need to understand all containm
 High-level process:
 
 1. Mark all roots
-2. Make a set of "false roots" (contained by others)
+2. Identify false roots, that is those which would be copied automatically by others
 3. Calculate full size of true roots, which will solve for new inlines
 4. Allocate new-space
 5. Copy true roots into new-space, which will build the relocation table
