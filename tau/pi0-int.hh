@@ -56,7 +56,7 @@ struct π0int : π0sv
   template<o9mapped T>
   π0int &dpush(T const &x) { *this << (h << o9(x)); return *this; }
 
-  template<class T = i9> T dpop() { let r = (*dv)[0]; drop(1); return Sc<T>(r); }
+  i9 dpop() { let r = (*dv)[0]; drop(1); return h(r); }
 
 
   // Frame accessors
