@@ -32,7 +32,7 @@ struct π0int : π0sv
 
   π0int(π0abi const &a_, π0pgm &&p_, π0h &h_)
     : a(a_), p(std::move(p_)), h(h_), f(h), d(h), dv(&d)
-  { A(p.a.v() == a.v(), "π₀ ABI mismatch: " << p.a.v() << " ≠ " << a.v()); }
+    { A(p.a.v() == a.v(), "π₀ ABI mismatch: " << p.a.v() << " ≠ " << a.v()); }
 
 
   π0int &run(uN l)
@@ -45,18 +45,18 @@ struct π0int : π0sv
   // Stack-view accessors, used by bytecode functions
   π0sv        *up()     const { return nullptr; }
   uN         size()     const { return dv->size(); }
-  i9   operator[](uN i) const { return (*dv)[i]; }
+  i9   operator[](uN i) const { return h((*dv)[i]); }
   void operator<<(π0r x)      { *dv << x; }
   void       drop(uN n)       { dv->drop(n); }
 
-  π0int &spush() { dv = new π0hss{h, *dv};              return *this; }
+  π0int &spush() {             dv = new π0hss{h, *dv};  return *this; }
   π0int &spop()  { let v = dv; dv = dv->up(); delete v; return *this; }
 
 
   template<o9mapped T>
   π0int &dpush(T const &x) { *this << (h << o9(x)); return *this; }
 
-  i9 dpop() { let r = (*dv)[0]; drop(1); return h(r); }
+  i9 dpop() { let r = h((*dv)[0]); drop(1); return r; }
 
 
   // Frame accessors
