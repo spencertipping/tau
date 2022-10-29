@@ -32,7 +32,9 @@ struct o9V  // o9 virtual base
 };
 
 
-template<class T> struct o9_ { sletc v = false; };
+template<class T> struct o9_      { sletc v = false; };
+template<>        struct o9_<o9V> { sletc v = true; };
+
 template<class T> concept O9  =  o9_<T>::v;
 template<class T> concept O9N = !o9_<T>::v;
 

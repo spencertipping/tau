@@ -37,7 +37,6 @@ void try_simple_gc()
   cout << b << endl;
   cout << c << endl;
   cout << d << endl;
-  //cout << *h.hs[0] << endl;
 
   h.gc();
   cout << "post-GC" << endl;
@@ -45,7 +44,6 @@ void try_simple_gc()
   cout << b << " = " << h(b) << endl;
   cout << c << " = " << h(c) << endl;
   cout << d << " = " << h(d) << endl;
-  //cout << *h.hs[0] << endl;
 
   // One of the rare cases where it's worth asserting everything.
 
@@ -58,7 +56,7 @@ void try_simple_gc()
   A(h(h(c)[1]) == 2,         "try/pi c[1]");
   A(h(h(c)[2]) == 3,         "try/pi c[3]");
   A(h(h(d)[0]).at<bool>(0) == true,  "try/pi d[0]");
-  A(h(h(d)[1]).at<bool>(1) == false, "try/pi d[1]");
+  A(h(h(d)[1]).at<bool>(0) == false, "try/pi d[1]");
   A(h(h(d)[2])             == h(b),  "try/pi d[2]");
   A(h(h(d)[3])             == h(c),  "try/pi d[3]");
   A(h(h(d)[4])             == h(b),  "try/pi d[4]");

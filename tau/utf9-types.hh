@@ -395,7 +395,7 @@ letc u9numbers  = u9reals | u9tm{u9t::c32, u9t::c64};
 letc u9strings  = u9tm{u9t::bytes, u9t::utf8};
 letc u9coll     = u9tm{u9t::index, u9t::map, u9t::set, u9t::tuple, u9t::tensor};
 
-letc u9fixed    = u9numbers | u9tm{u9t::b, u9t::none};
+letc u9fixed    = u9numbers | u9tm{u9t::b};
 letc u9atomics  = u9strings | u9numbers | u9tm{u9t::b, u9t::symbol};
 letc u9vectors  = u9numbers | u9tm{u9t::b};
 

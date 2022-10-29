@@ -39,12 +39,13 @@ struct π0ms
   // it is itself a reference that points elsewhere. This guarantees
   // that external reference locality is preserved.
   void me(i9 x)
-    { if (m.contains(x) || h.gen(x) > mg) return;
+    { std::cout << "marking " << x << std::endl;
+      if (m.contains(x) || h.gen(x) > mg) return;
       m[x] = nullptr;
       t.insert(x);
       if (x.is_πref()) mi(h(x));
       else
-        for (let y : x.flags()) if (y != x && y.is_πref()) mi(h(y)); }
+        for (let y : x.flags()) if (y.is_πref()) mi(h(y)); }
 
   // Mark x as having an internal reference -- i.e. being a false root.
   void mi(i9 x) { t.erase(x); me(x); }
@@ -97,7 +98,7 @@ struct π0ms
       // to the object, so it may be live-by-containment but it can be
       // copied verbatim.
       //
-      // FIXME: sort true roots by generation; we must always create
+      // TODO: sort true roots by generation; we must always create
       // oldgen pointers before newgen ones
       uN s = 0;
       for (let x : t) s += (m[x] = new π0ho9{h, x, nullptr})->size();
