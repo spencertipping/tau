@@ -43,14 +43,8 @@ inline π0h::~π0h ()
 }
 
 
-inline void π0h::mark(π0r x)
-{
-  // Mark the object as having an external reference.
-  ms->me(x);
-}
-
-
-inline π0r π0h::move(π0r x) const
+inline void π0h::mark(π0r x) { ms->me(x); }
+inline π0r  π0h::move(π0r x) const
 {
   // If the object was never marked, then it's uninvolved in this GC.
   // This happens if we're just collecting newgen and the reference
@@ -65,30 +59,9 @@ inline π0r π0h::move(π0r x) const
 }
 
 
-inline void π0h::move(π0r f, π0r t)
-{
-  // NOTE: this will be called at most once per source ref; we never
-  // multi-inline.
-  ms->move(f, t);
-}
-
-
-inline π0ho9* π0h::claim(π0r r, π0ho9 const *o)
-{
-  return ms->claim(r, o);
-}
-
-
-inline auto π0h::cb(π0r r) const
-{
-  return ms->cb(r);
-}
-
-
-inline auto π0h::ce(π0r r) const
-{
-  return ms->ce(r);
-}
+inline π0ho9                          *π0h::claim(π0r r, π0ho9 const *o) { return ms->claim(r, o); }
+inline Mo<π0r, π0ho9*>::const_iterator π0h::cb   (π0r r)           const { return ms->cb(r); }
+inline Mo<π0r, π0ho9*>::const_iterator π0h::ce   ()                const { return ms->ce(); }
 
 
 }

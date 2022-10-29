@@ -85,7 +85,7 @@ f(m, i, [&]() { e = m.next(); });
 
 
 ### GC locking
-We can't magically tell the GC not to run because it may legitimately need to run a compaction to find new space. But we can write code that fails loudly if GC runs where we don't expect it.
+We can't tell the GC to magically not run because it may legitimately need to run a compaction to find new space. But we can write code that fails loudly if GC runs where we don't expect it.
 
 ```cpp
 π0hgl l{z.h};  // crashes if GC runs while in scope

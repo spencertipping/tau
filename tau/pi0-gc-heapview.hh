@@ -125,6 +125,14 @@ struct π0hnf : virtual π0hv  // native frame heap view
 };
 
 
+struct π0hgl : virtual π0hv  // GC lock (asserts that no GC will happen)
+{
+  π0hgl(π0h &h_) : π0hv(h_) {}
+  void mark() { A(0, "GC during lock"); }
+  void move() {}
+};
+
+
 }
 
 #include "end.hh"
