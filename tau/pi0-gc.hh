@@ -47,7 +47,7 @@ inline π0h::~π0h ()
 }
 
 
-inline void π0h::mark(π0r x) { ms->me(x); }
+inline void π0h::mark(π0r x) { if (x) ms->me(x); }
 inline π0r  π0h::move(π0r x) const
 {
   // If the object was never marked, then it's uninvolved in this GC.
@@ -59,7 +59,7 @@ inline π0r  π0h::move(π0r x) const
   //
   // NOTE: this function's results are valid only if you mark all
   // references that you then ask about.
-  return ms->contains(x) ? ms->at(x) : x;
+  return x && ms->contains(x) ? ms->at(x) : x;
 }
 
 

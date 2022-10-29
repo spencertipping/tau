@@ -4,7 +4,9 @@
 //#define τdebug_i9st 1
 
 
+#include <algorithm>
 #include <cstring>
+#include <random>
 
 #include "../tau.hh"
 
@@ -31,16 +33,18 @@ void try_simple_gc()
     i9 d = h << o9t(true, false, π0o9r(b), π0o9r(a), π0o9r(b));
     i9 e = d.first();
 
-    f(&a, &b, &c, &d, &e);
+    V<i9*> ps{&a, &b, &c, &d, &e};
+    std::shuffle(ps.begin(), ps.end(), std::default_random_engine(now().time_since_epoch().count()));
+    f(ps[0], ps[1], ps[2], ps[3], ps[4]);
 
     a = h << o9("new value for a");
     let la = a.size();
 
-    A(!a.flagged(), "try/pi false flag on a");
-    A( b.flagged(), "try/pi b should be flagged");
-    A(!c.flagged(), "try/pi false flag on c");
-    A( d.flagged(), "try/pi d should be flagged");
-    A(!e.flagged(), "try/pi false flag on e");
+    A(!a.flagged(), "try/pi pre false flag on a");
+    A( b.flagged(), "try/pi pre b should be flagged");
+    A(!c.flagged(), "try/pi pre false flag on c");
+    A( d.flagged(), "try/pi pre d should be flagged");
+    A(!e.flagged(), "try/pi pre false flag on e");
 
     if (!is)
     {
@@ -54,14 +58,15 @@ void try_simple_gc()
 
     h.gc();
 
-    A(!a.flagged(), "try/pi false flag on a");
-    A( b.flagged(), "try/pi b should be flagged");
-    A(!c.flagged(), "try/pi false flag on c");
-    A( d.flagged(), "try/pi d should be flagged");
-    A(!e.flagged(), "try/pi false flag on e");
 
     if (!is)
     {
+      A(!a.flagged(), "try/pi post false flag on a");
+      A( b.flagged(), "try/pi post b should be flagged");
+      A(!c.flagged(), "try/pi post false flag on c");
+      A( d.flagged(), "try/pi post d should be flagged");
+      A(!e.flagged(), "try/pi post false flag on e");
+
       cout << "post-GC heap size = " << h.hs[0]->h.size() << endl;
       cout << (void*) a.a << "+" << a.osize() << ": " << a << endl;
       cout << (void*) b.a << "+" << b.osize() << ": " << b << endl;
@@ -85,7 +90,7 @@ void try_simple_gc()
     A(h(h(d)[2])             == h(b),  "try/pi d[2]");
     A(h(h(d)[3])             == h(c),  "try/pi d[3]");
     A(h(h(d)[4])             == h(b),  "try/pi d[4]");
-    A(h(e) == true,                    "try/pi e");
+    A(h(e).at<bool>(0) == true,        "try/pi e");
 
     if (!is)
     {
@@ -171,7 +176,7 @@ void try_data_stack_tuple()
   A(i.type() == u9t::u32,   "i has changed type; new = " << i.type());
   A(e.a == v.next().a, "e is no longer v.next()");
 
-  s << o9(Sc<uN>(0));
+  s << o9(Sc<u64>(0));
   h.gc();
   A(v.type() == u9t::tuple, "v has changed type");
   A(i.type() == u9t::u32,   "i has changed type");
@@ -180,15 +185,17 @@ void try_data_stack_tuple()
   uN its = 0;
   while (i.a < e.a)
   { s << i;
-    s << o9(Sc<uN>(s.pop()) + Sc<uN>(s.pop()));
-    ++i;
-    if (!(++its & 0xfffff)) h.gc(); }
+    let a = Sc<u32>(s.pop());
+    let b = Sc<u64>(s.pop());
+    s << o9(a + b);
+    if (!(++its & (1ul << 23) - 1)) h.gc();
+    ++i; }
 
   A(its == 1ul << 24, "too few loop iterations");
   A(h.gΘ.n > 3,       "too few GCs");
 
   let t = s.pop();
-  A(Sc<uN>(t) == 140737479966720, t << " ≠ 140737479966720");
+  A(Sc<u64>(t) == 140737479966720, t << " ≠ 140737479966720");
 
   cout << "on-heap list: " << h.gΘ << endl;
 }
@@ -211,8 +218,8 @@ void try_asm()
 void default_try_stuff()
 {
   try_simple_gc();
-  //try_data_stack_slow();
-  //try_data_stack_fast();
+  try_data_stack_slow();
+  try_data_stack_fast();
   try_data_stack_tuple();
   //try_asm();
 }
