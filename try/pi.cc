@@ -29,16 +29,18 @@ void try_simple_gc()
     i9 b = h << o9t("foo", π0o9r(a), π0o9r(a), "bar");
     i9 c = a;
     i9 d = h << o9t(true, false, π0o9r(b), π0o9r(a), π0o9r(b));
+    i9 e = d.first();
 
-    f(&a, &b, &c, &d);
+    f(&a, &b, &c, &d, &e);
 
     a = h << o9("new value for a");
     let la = a.size();
 
     A(!a.flagged(), "try/pi false flag on a");
     A( b.flagged(), "try/pi b should be flagged");
-    A(!c.flagged(), "try/pi c false flag on c");
+    A(!c.flagged(), "try/pi false flag on c");
     A( d.flagged(), "try/pi d should be flagged");
+    A(!e.flagged(), "try/pi false flag on e");
 
     if (!is)
     {
@@ -47,9 +49,16 @@ void try_simple_gc()
       cout << (void*) b.a << ": " << b << endl;
       cout << (void*) c.a << ": " << c << endl;
       cout << (void*) d.a << ": " << d << endl;
+      cout << (void*) e.a << ": " << e << endl;
     }
 
     h.gc();
+
+    A(!a.flagged(), "try/pi false flag on a");
+    A( b.flagged(), "try/pi b should be flagged");
+    A(!c.flagged(), "try/pi false flag on c");
+    A( d.flagged(), "try/pi d should be flagged");
+    A(!e.flagged(), "try/pi false flag on e");
 
     if (!is)
     {
@@ -58,6 +67,7 @@ void try_simple_gc()
       cout << (void*) b.a << "+" << b.osize() << ": " << b << endl;
       cout << (void*) c.a << "+" << c.osize() << ": " << c << endl;
       cout << (void*) d.a << "+" << d.osize() << ": " << d << endl;
+      cout << (void*) e.a << "+" << e.osize() << ": " << e << endl;
     }
 
     // One of the rare cases where it's worth asserting everything.
@@ -75,6 +85,7 @@ void try_simple_gc()
     A(h(h(d)[2])             == h(b),  "try/pi d[2]");
     A(h(h(d)[3])             == h(c),  "try/pi d[3]");
     A(h(h(d)[4])             == h(b),  "try/pi d[4]");
+    A(h(e) == true,                    "try/pi e");
 
     if (!is)
     {
@@ -136,37 +147,50 @@ void try_data_stack_fast()
 }
 
 
-// FIXME: the function below does test something worthwhile, but
-// I need to figure out the API for GC-safe tuple iteration. We
-// probably need to have native frames that can hold i9 refs, not
-// just π0r.
-
 void try_data_stack_tuple()
 {
-  cout << "FIXME: try_data_stack_tuple()" << endl;
-  /*
-  π0h<2>   h{64, 65536, 0};
-  π0hds<2> s{h};
-  π0hnf<2> n{h, 2};
+  π0h   h{64, {65536, 0}};
+  π0hds s{h};
+  π0hnf n{h};
 
-  V<uN> xs; xs.reserve(1ul << 24);
-  for (uN i = 0; i < 1ul << 24; ++i) xs.push_back(i);
+  V<u32> xs; xs.reserve(1ul << 24);
+  for (u32 i = 0; i < 1ul << 24; ++i) xs.push_back(i);
 
   // FIXME: this errors out in LSP, but not g++ or wasm builds
-  auto &v = n << (h << o9(xs));
-  auto &i = n << h(h[v].first().a);
+  i9 v = h << o9(xs);
+  i9 i = v.first();
+  i9 e;
+  n(&v, &i, [&]() { e = v.next(); });
+
+  A(v.type() == u9t::tuple, "v has wrong type = " << v.type());
+  A(i.type() == u9t::u32,   "i has wrong type = " << i.type());
+  A(e.a == v.next().a, "e is not v.next()");
+
+  h.gc();
+  A(v.type() == u9t::tuple, "v has changed type; new = " << v.type());
+  A(i.type() == u9t::u32,   "i has changed type; new = " << i.type());
+  A(e.a == v.next().a, "e is no longer v.next()");
+
   s << o9(Sc<uN>(0));
+  h.gc();
+  A(v.type() == u9t::tuple, "v has changed type");
+  A(i.type() == u9t::u32,   "i has changed type");
+  A(e.a == v.next().a, "e is no longer v.next()");
 
-  while (i < h(h[v].next().a))
+  uN its = 0;
+  while (i.a < e.a)
   { s << i;
-    s << o9(Sc<uN>(h[s.pop()]) + Sc<uN>(h[s.pop()]));
-    i = h(i.next().a); }
+    s << o9(Sc<uN>(s.pop()) + Sc<uN>(s.pop()));
+    ++i;
+    if (!(++its & 0xfffff)) h.gc(); }
 
-  let t = h[s.pop()];
+  A(its == 1ul << 24, "too few loop iterations");
+  A(h.gΘ.n > 3,       "too few GCs");
+
+  let t = s.pop();
   A(Sc<uN>(t) == 140737479966720, t << " ≠ 140737479966720");
 
   cout << "on-heap list: " << h.gΘ << endl;
-  */
 }
 
 
@@ -187,8 +211,8 @@ void try_asm()
 void default_try_stuff()
 {
   try_simple_gc();
-  try_data_stack_slow();
-  try_data_stack_fast();
+  //try_data_stack_slow();
+  //try_data_stack_fast();
   try_data_stack_tuple();
   //try_asm();
 }

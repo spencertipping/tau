@@ -54,7 +54,7 @@ struct π0sv  // stack view
   virtual void operator<<(π0r x)      = 0;
   virtual void       drop(uN n = 1)   = 0;
 
-  π0r pop() { let r = (*this)[0]; drop(1); return r; }
+  i9 pop() { let r = (*this)[0]; drop(1); return r; }
 };
 
 

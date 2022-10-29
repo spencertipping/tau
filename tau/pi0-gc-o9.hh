@@ -28,7 +28,8 @@ struct π0ho9 : virtual o9V
   // Always inline objects if they are smaller than the heap's inlining
   // size threshold. This improves locality and can save space, since
   // some objects are smaller than a reference that would point to them.
-  bool inline_at(π0r x) const { return r.a != x && r.osize() <= h.is || o == x; }
+  bool inline_at(π0r x) const
+    { return r.a != x && (r.osize() <= h.is || o == x); }
 
 
   uN size()  const { return isize() + u9sb(u9sq(isize())); }
@@ -98,9 +99,12 @@ struct π0ho9 : virtual o9V
         { let c  = h(y);
           let o  = h.claim(c, y.a);
           let x0 = x;
-          if      (!o)                { let w = o9i9{c};     A(!w .write(m + x), "GC internal error"); x += w .size(); }
-          else if (o->inline_at(y.a)) {                      A(!o->write(m + x), "GC internal error"); x += o->size(); }
-          else                        { let w = π0o9r(o->n); A(!w .write(m + x), "GC internal error"); x += w .size(); }
+          if      (!o)                { let w = o9i9{c}; A(!w .write(m + x), "GC internal error"); x += w .size(); }
+          else if (o->inline_at(y.a)) {                  A(!o->write(m + x), "GC internal error"); x += o->size(); }
+          else
+          { A(o->n, "π₀o9 ∅ref");
+            let w = π0o9r(o->n);
+            A(!w .write(m + x), "GC internal error"); x += w .size(); }
           f = f || u9ts_f(R<u8>(m, x0)); }
         if (f) m[0] |= u9f;
         return 0; } }

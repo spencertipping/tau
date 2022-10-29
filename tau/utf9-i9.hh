@@ -106,6 +106,7 @@ struct i9
 
 
   ζp a;
+  i9() : a(nullptr) {}
   i9(ζp a_) : a(a_) {}
 
   // UTF9 values are truthy if they are normal, that is they (1) exist,
