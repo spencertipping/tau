@@ -2,7 +2,6 @@
 #define τπ0gc_o9_h
 
 
-#include "utf9-types.hh"
 #include "utf9.hh"
 #include "types.hh"
 #include "pi0-types.hh"
@@ -14,7 +13,50 @@ namespace τ
 {
 
 
-struct π0ho9 : virtual o9V
+struct π0o9f : virtual o9V  // flatten heap object for export
+{
+  i9                     r;
+  M<π0r, π0o9f*> mutable c;
+  uN             mutable s = 0;
+
+  static i9 f(i9 x) { while (x.is_πref()) x = *x; return x; }
+
+  π0o9f(i9 r_) : r(f(r_)) {}
+  ~π0o9f() { for (let &[_, v] : c) delete v; }
+
+  π0o9f &operator=(π0o9f &&x)
+    { r = x.r;
+      c = std::move(x.c);
+      s = x.s;
+      return *this; }
+
+  uN size()  const { return isize() + u9sb(u9sq(isize())); }
+  uN isize() const
+    { if (s)            return s;
+      if (!r.flagged()) return s = r.osize();
+
+      // We must be a flagged collection here. If we weren't, we'd have
+      // to be a reference, which we can't be due to f() in the ctor.
+      for (let x : r)
+        if (!x.flagged()) s += x.osize();
+        else              s += (c[x.a] = new π0o9f(x))->size();
+      return s; }
+
+  uN write(ζp m) const
+    { if (!r.flagged()) return o9i9{r}.write(m);
+      uN o = u9ws(m, 0, r.type(), isize(), false);
+      for (let x : r)
+        if (!x.flagged())
+        { let y = o9i9{x};
+          y.write(m + o); o += y.size(); }
+        else
+        { let y = c.at(x.a);
+          y->write(m + o); o += y->size(); }
+      return 0; }
+};
+
+
+struct π0ho9 : virtual o9V  // write heap object for GC
 {
   π0h        &h;
   i9    const r;      // oldspace object

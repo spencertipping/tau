@@ -96,13 +96,10 @@ void π0abi1_u9_general(π0abi &a)
     .def("?t", I{ i.dpush(u9typesyms.at(i.dpop().type())); })
     .def("?f", I{ i.dpush(i.dpop().flagged()); })
     .def("?s", I{ i.dpush(i.dpop().size()); })
-    .def("?S", I{ i.dpush(i.dpop().osize()); });
-
-  /*
+    .def("?S", I{ i.dpush(i.dpop().osize()); })
     .def(":f", I{
         if (i[0].flagged())
-          i << (i.h << π0gso9i{i.h, i.pop()}); });
-  */
+          i << (i.h << π0o9f{i.pop()}); });
 }
 
 
