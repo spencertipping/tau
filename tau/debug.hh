@@ -39,6 +39,7 @@
 # define τdebug_catchall τdebug
 #endif
 
+
 #if τhas_fast_exceptions
 # if τdebug_iostream
 #   include <errno.h>
@@ -90,6 +91,24 @@
 #else
 # define τassert_begin
 # define τassert_end
+# if τdebug_iostream
+#   define τassert_fail(x, f, l, m)                        \
+  ([&]() {                                                 \
+    static bool τdebugging = false;                        \
+    if (!τdebugging)                                       \
+    {                                                      \
+      τdebugging = true;                                   \
+      if (errno)                                           \
+        perror("assertion failure errno (if any)");        \
+      std::cerr << "FAIL: " << m << std::endl;             \
+      std::cerr << "NOTE: assertion location may be wrong" \
+                << std::endl;                              \
+    }                                                      \
+    assert(0);                                             \
+  })()
+# else
+#   define τassert_fail(x, f, l, m) assert(0)
+# endif
 #endif
 
 

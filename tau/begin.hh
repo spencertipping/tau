@@ -11,20 +11,20 @@
 # undef assert
 // NOTE: assert() may produce side-effects, so we need to keep those
 // even if not debugging
-# define assert(x) (x)
-# define A(x, m) assert(x)
-# define TA(x, m)
+# define assert(x) void(static_cast<bool>(x))
+# define A(x, m)   assert(x)
+# if τdebug_catchall
+#   define TA(x, m)  default: return x;
+# else
+#   define TA(x, m)
+# endif
 
 #else
 # include <cassert>
-# if τhas_assert_fail
-#   define A(x, m)                                          \
-      (static_cast<bool>(x)                                 \
-       ? void(0)                                            \
-       : τassert_fail(#x, __FILE__, __LINE__, m))
-# else
-#   define A(x, m) assert(x)
-# endif
+# define A(x, m)                                          \
+    (static_cast<bool>(x)                                 \
+     ? void(0)                                            \
+     : τassert_fail(#x, __FILE__, __LINE__, m))
 
 # if τdebug_catchall
 #   define TA(r, m) default: A(0, m); return r;
