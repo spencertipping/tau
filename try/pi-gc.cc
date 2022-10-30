@@ -1,12 +1,15 @@
 #define τdebug 1
-#define τπ0debug_bounds_checks 1
-#define τπ0debug_heapview_shuffle 1
+
+//#define τdebug 1
+//#define τdebug_iostream 1
+//#define τallow_todo 1
+
+//#define τπ0debug_bounds_checks 1
+//#define τπ0debug_heapview_shuffle 1
 //#define τdebug_i9st 1
 
 
-#include <algorithm>
 #include <cstring>
-#include <random>
 
 #include "../tau.hh"
 
@@ -33,9 +36,7 @@ void try_simple_gc()
     i9 d = h << o9t(true, false, π0o9r(b), π0o9r(a), π0o9r(b));
     i9 e = d.first();
 
-    V<i9*> ps{&a, &b, &c, &d, &e};
-    std::shuffle(ps.begin(), ps.end(), std::default_random_engine(now().time_since_epoch().count()));
-    f(ps[0], ps[1], ps[2], ps[3], ps[4]);
+    f(&a, &b, &c, &d, &e);
 
     a = h << o9("new value for a");
     let la = a.size();
@@ -98,14 +99,15 @@ void try_simple_gc()
       A(h(b)[1].is_πref() || h(b)[2].is_πref(), "try/pi h[1] NR || h[2] NR");
       A(h(d)[2].is_πref() || h(d)[4].is_πref(), "try/pi d[2] NR || d[4] NR");
 
+      let rs = 3 + sizeof(ζp);
       let elss =
-        la+2 +  // a = "new value for a"
-        2 +     // d = tuple(
-        6 +     //   true, false,
-        2 +     //   tuple(
-        21 +    //     "foo", "bar", ref,
-        11 +    //     tuple(1,2,3)),
-        22;     //   ref, ref)
+        la+2 +     // a = "new value for a"
+        2 +        // d = tuple(
+        6 +        //   true, false,
+        2 +        //   tuple(
+        10 + rs +  //     "foo", "bar", ref,
+        11 +       //     tuple(1,2,3)),
+        2*rs;      //   ref, ref)
 
       A(h.hs[0]->h.size() == elss,
         "try/pi wrong live-set size: " << h.hs[0]->h.size() << " ≠ " << elss);
@@ -161,7 +163,6 @@ void try_data_stack_tuple()
   V<u32> xs; xs.reserve(1ul << 24);
   for (u32 i = 0; i < 1ul << 24; ++i) xs.push_back(i);
 
-  // FIXME: this errors out in LSP, but not g++ or wasm builds
   i9 v = h << o9(xs);
   i9 i = v.first();
   i9 e;

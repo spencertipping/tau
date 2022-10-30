@@ -38,12 +38,14 @@ template<>        struct o9_<o9V> { sletc v = true; };
 template<class T> concept O9  =  o9_<T>::v;
 template<class T> concept O9N = !o9_<T>::v;
 
-template<class T> concept o9mapped = O9<T> || u9t_hastype<T> || std::is_same_v<T, i9>;
-
 template<class T> concept o9fixed  = u9t_is<T, u9fixed.m>::v;
 template<class T> concept o9string = u9t_is<T, u9strings.m>::v;
 template<class T> concept o9coll   = u9t_is<T, u9coll.m>::v;
 
+// NOTE: o9simple describes types that are low-effort to size and write.
+// This matters for container o9 optimization, as dichotomized into
+// o9v<> (simple) and o9vc<> (complex).
+template<class T> concept o9mapped = O9<T> || u9t_hastype<T> || std::is_same_v<T, i9>;
 template<class T> concept o9simple = o9mapped<T> && O9N<T> && !o9coll<T>;
 
 
@@ -201,9 +203,8 @@ struct o9a : virtual o9V  // vector of fixed
 };
 
 
-
 template<o9simple T, template<typename...> class C, class... Ts>
-struct o9v : virtual o9V  // unindexed, unordered tuple/set
+struct o9v : virtual o9V  // unindexed, unordered tuple/set (simple)
 {
   C<T, Ts...> const &xs;
   uN        mutable  s = 0;
@@ -216,6 +217,7 @@ struct o9v : virtual o9V  // unindexed, unordered tuple/set
       return s; }
 
   uN write(ζp m) const
+  // FIXME: choose correct container type
     { uN   i = u9ws(m, 0, u9t::tuple, isize());
       bool f = false;
       for (let &x : xs)
@@ -223,6 +225,36 @@ struct o9v : virtual o9V  // unindexed, unordered tuple/set
         A(!o.write(m + i), "o9v element attempted to resize");
         f = f || u9ts_f(R<u8>(m, i));
         i += o.size(); }
+      if (f) m[0] |= u9f;
+      return 0; }
+};
+
+
+template<o9coll T, template<typename...> class C, class... Ts>
+struct o9vc : virtual o9V  // unindexed, unordered tuple/set (complex)
+{
+  typedef decltype(o9(std::declval<T>())) T9;
+
+  V<T9>      ys;
+  uN mutable s = 0;
+
+  o9vc(C<T, Ts...> const &xs)
+    { ys.reserve(xs.size());
+      for (let &x : xs) ys.push_back(o9(x)); }
+
+  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN isize() const
+    { if (!s) for (let &y : ys) s += y.size();
+      return s; }
+
+  uN write(ζp m) const
+  // FIXME: should choose correct container type here
+    { uN   i = u9ws(m, 0, u9t::tuple, isize());
+      bool f = false;
+      for (let &y : ys)
+      { A(!y.write(m + i), "o9v resize");
+        f = f || u9ts_f(R<u8>(m, i));
+        i += y.size(); }
       if (f) m[0] |= u9f;
       return 0; }
 };
@@ -247,36 +279,6 @@ struct o9m : virtual o9V  // unindexed, unordered k/v map
       for (let &[k, v] : xs)
       { let ok = o9(k); ok.write(m + i); f = f || u9ts_f(R<u8>(m, i)); i += ok.size();
         let ov = o9(v); ov.write(m + i); f = f || u9ts_f(R<u8>(m, i)); i += ov.size(); }
-      if (f) m[0] |= u9f;
-      return 0; }
-};
-
-
-template<o9coll T, template<typename...> class C, class... Ts>
-struct o9vc : virtual o9V  // unindexed, unordered tuple/set
-{
-  typedef decltype(o9(std::declval<T>())) T9;
-
-  V<T9>      ys;
-  uN mutable s = 0;
-
-  o9vc(C<T, Ts...> const &xs)
-    { ys.reserve(xs.size());
-      for (let &x : xs) ys.push_back(o9(x)); }
-
-  uN size() const { return isize() + u9sb(u9sq(isize())); }
-  uN isize() const
-    { if (!s) for (let &y : ys) s += y.size();
-      return s; }
-
-  uN write(ζp m) const
-  // FIXME: should choose correct container type here
-    { uN   i = u9ws(m, 0, u9t::tuple, isize());
-      bool f = false;
-      for (let &y : ys)
-      { A(!y.write(m + i), "o9v resize");
-        f = f || u9ts_f(R<u8>(m, i));
-        i += y.size(); }
       if (f) m[0] |= u9f;
       return 0; }
 };
@@ -395,24 +397,29 @@ template<o9fixed T> inline o9a<T> o9(T const *xs, uN       n) { return o9a<T>{xs
 template<o9fixed T> inline o9a<T> o9(T const *b,  T const *e) { return o9(b, e - b); }
 
 
-template<>           struct o9_<o9i9>       { sletc v =  true; };
-template<>           struct o9_<o9q>        { sletc v =  true; };
-template<class T>    struct o9_<o9f<T>>     { sletc v =  true; };
-template<class T>    struct o9_<o9b<T>>     { sletc v =  true; };
-template<>           struct o9_<o9st>       { sletc v =  true; };
-template<>           struct o9_<o9c>        { sletc v =  true; };
-template<class T>    struct o9_<o9a<T>>     { sletc v =  true; };
-template<class... T> struct o9_<o9m<T...>>  { sletc v =  true; };
-template<class... T> struct o9_<o9mc<T...>> { sletc v =  true; };
-template<class... T> struct o9_<o9t<T...>>  { sletc v =  true; };
-template<class T>    struct o9_<o9vec<T>>   { sletc v =  true; };
+template<>           struct o9_<o9i9>       { sletc v = true; };
+template<>           struct o9_<o9q>        { sletc v = true; };
+template<class T>    struct o9_<o9f<T>>     { sletc v = true; };
+template<class T>    struct o9_<o9b<T>>     { sletc v = true; };
+template<>           struct o9_<o9st>       { sletc v = true; };
+template<>           struct o9_<o9c>        { sletc v = true; };
+template<class T>    struct o9_<o9a<T>>     { sletc v = true; };
+template<class... T> struct o9_<o9m<T...>>  { sletc v = true; };
+template<class... T> struct o9_<o9mc<T...>> { sletc v = true; };
+template<class... T> struct o9_<o9t<T...>>  { sletc v = true; };
+template<class T>    struct o9_<o9vec<T>>   { sletc v = true; };
+
 
 // This one is special due to higher-order second type arg
-template<o9mapped T, template<typename> class C, class... X>
+template<o9mapped T, template<typename...> class C, class... X>
 struct o9_<o9v<T, C, X...>> { sletc v = true; };
 
-template<o9mapped T, template<typename> class C, class... X>
+template<o9mapped T, template<typename...> class C, class... X>
 struct o9_<o9vc<T, C, X...>> { sletc v = true; };
+
+// These alternatives included for clang-based compilers
+template<class... T> struct o9_<o9v<T...>>  { sletc v = true; };
+template<class... T> struct o9_<o9vc<T...>> { sletc v = true; };
 
 
 // Virtual delegation

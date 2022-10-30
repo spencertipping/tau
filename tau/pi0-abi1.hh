@@ -299,8 +299,7 @@ void π0abi1_u9_tuple(π0abi &a)
       π0hnf f{i.h, 0};
       V<i9> xs; xs.reserve(k); f(&xs);
       for (uN j = 0; j < k; ++j) xs.push_back(i.pop());
-      let r = i.h << o9(xs);
-      i << (i.h << π0o9r(r)); })
+      i.dpush(xs); })
     .def("t@", I{ uNc k = Sc<iN>(i.dpop()); i.dpush(i.dpop()[k]); })
     .def("t#", I{ i.dpush(i.dpop().len()); })
     .def("t++", I{
@@ -309,15 +308,14 @@ void π0abi1_u9_tuple(π0abi &a)
         V<i9> xs; xs.reserve(k); f(&xs);
         for (let x : i.dpop()) xs.push_back(x);
         for (let x : i.dpop()) xs.push_back(x);
-        let r = i.h << o9(xs);
-        i << (i.h << π0o9r(r));})
+        i.dpush(xs); })
     .def("t.", I{
-        π0hnf f{i.h, 3};
-        π0bi g = i.dpop();
-        i9 xs = i.pop(); f(&xs);
-        i9 x  = xs.first(); f(&x);
-        i9 e; f([&]() { e = xs.next(); });
-        while (x.a < e.a) { i << x; i.run(g); x = x.next(); } });
+        π0hnf f{i.h, 2};
+        π0bi  g  = i.dpop();
+        i9    xs = i.pop();    f(&xs);
+        i9    x  = xs.first(); f(&x);
+        i9    e;               f([&]() { e = xs.next(); });
+        while (x.a < e.a) { i << x; i.run(g); ++x; } });
 }
 
 

@@ -88,9 +88,9 @@ struct π0hss : virtual π0hv,  // split-stack heap view
     { return i < s.size() ? i9{s.at(s.size() - i - 1)} : d[i - s.size() + n]; }
 
   void drop(uN x = 1)
-  { let l = std::min(x, s.size());
-    x -= l; s.resize(s.size() - l);
-    n += l; }
+    { let l = std::min(x, Sc<uN>(s.size()));
+      x -= l; s.resize(s.size() - l);
+      n += l; }
 
   uN size() const { return d.size() - n + s.size(); }
 };
