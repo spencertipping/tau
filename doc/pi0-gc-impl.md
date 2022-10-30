@@ -165,7 +165,7 @@ Code like this needs to be handled carefully:
 i9    x = z.pop;
 i9    i = x.first();
 i9    e;
-f(x, i, [&]() { e = x.next(); });
+f(&x, &i, [&]() { e = x.next(); });
 while (i < e)
 {
   // ...

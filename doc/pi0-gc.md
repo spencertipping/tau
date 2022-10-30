@@ -62,7 +62,7 @@ For example, here's how we implement `m.`, "for each k/v pair in a map":
 π0bi fn = z.pop();    // the function bytecode
 i9   m  = z.pop();    // the map (tracked by GC)
 i9   i  = m.first();  // iterator (tracked by GC)
-f(m, i);              // enable GC tracking
+f(&m, &i);            // enable GC tracking
 while (i < m.next())
 {
   z.push(i); ++i;
@@ -80,7 +80,7 @@ If we wanted to cache `m.next()` to avoid recomputation, we'd need to set up a G
 i9 m = ...;
 i9 i = ...;
 i9 e;
-f(m, i, [&]() { e = m.next(); });
+f(&m, &i, [&]() { e = m.next(); });
 ```
 
 
