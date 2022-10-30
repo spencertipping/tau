@@ -65,8 +65,10 @@
 # else
 #   define τassert_fail(x, f, l, m)             \
   __assert_fail(x, f, l, __ASSERT_FUNCTION)
-# endif
-#elif τhas_assert_fail
+# endif                 // if τdebug_iostream
+
+#elif τhas_assert_fail  // if τhas_fast_exceptions
+
 # define τassert_begin
 # define τassert_end
 
@@ -87,8 +89,10 @@
 # else
 #   define τassert_fail(x, f, l, m)             \
   __assert_fail(x, f, l, __ASSERT_FUNCTION)
-# endif
-#else
+# endif  // if τdebug_iostream
+
+#else    // elif τhas_assert_fail
+
 # define τassert_begin
 # define τassert_end
 # if τdebug_iostream
@@ -108,8 +112,9 @@
   })()
 # else
 #   define τassert_fail(x, f, l, m) assert(0)
-# endif
-#endif
+# endif  // if τdebug_iostream
+
+#endif   // if τhas_fast_exceptions ... elif has_assert_fail ... else
 
 
 #endif
