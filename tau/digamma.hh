@@ -74,7 +74,7 @@ struct ϝ
 
 
   template<class F, class... Fs>
-  void λcs(F f, Fs... fs) { λc(f); λcs(fs...); }
+  void λcs(F &&f, Fs... fs) { λc(std::move(f)); λcs(fs...); }
   void λcs() {}
 
 

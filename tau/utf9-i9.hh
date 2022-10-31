@@ -120,14 +120,17 @@ struct i9
   bool flagged() const { return u9ts_f(code()); }
   u9s  stype()   const { return u9ts_s(code()); }
   u9t  type()    const { return a ? u9ts_t(code()) : u9t::none; }
-  it   begin()   const { return it{data()}; }
-  it   end()     const { return it{a + u9rs(a, 0)}; }
-  i9   next()    const { return i9{end()}; }
-  i9   first()   const { return i9{a + u9sb(stype())}; }
+  i9   next()    const { return a + osize(); }
+  i9   first()   const { return data(); }
   i9   second()  const { return first().next(); }
   ks   keys()    const { return ks{a}; }
   fs   flags()   const { return flagged() ? fs{a} : fs{0}; }
   uN   osize()   const { return u9rs(a, 0); }
+
+  // NOTE: iteration supported only for collections of UTF9 objects, and
+  // indexes require .second() if you want to traverse elements
+  it   begin()   const { return it{data()}; }
+  it   end()     const { return it{next()}; }
 
   bool b()       const { u9tm{u9t::b}(type()); return *Sc<u8*>(data()); }
 

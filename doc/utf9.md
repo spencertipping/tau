@@ -3,10 +3,10 @@ Values within [ζ](zeta.md) buffers are stored using the UTF9 protocol, which is
 
 1. Values are immutable once serialized
 2. Serialization claims a length before writing data
-3. Most of UTF9 is fully portable and always big-endian, although there are a few non-portable values, e.g. for oversized heap allocations that don't fit inline into ζ
+3. Most of UTF9 is fully portable and always big-endian, although there are a few non-portable values, e.g. for oversized heap allocations that don't fit inline into ζ (or anything to do with π₀)
 4. Nested values are self-contained and can be accessed just by address
 5. ∃ toplevel stream markers that inform the state of computation without modifying it, and these stream markers may be embedded into other data structures freely
-6. For nested or large data structures, indexes are generated alongside the value to provide fast lookup
+6. For large data structures, indexes can be generated alongside the value to provide fast lookup
 
 
 ## Stream states
@@ -51,41 +51,40 @@ Broadly:
 
 In detail:
 
-| Bits     | Type                     |
-|----------|--------------------------|
-| `0 0000` | i8                       |
-| `0 0001` | i16                      |
-| `0 0010` | i32                      |
-| `0 0011` | i64                      |
-| `0 0100` | u8                       |
-| `0 0101` | u16                      |
-| `0 0110` | u32                      |
-| `0 0111` | u64                      |
-| `0 1000` | f32                      |
-| `0 1001` | f64                      |
-| `0 1010` | complex f32              |
-| `0 1011` | complex f64              |
-| `0 1100` | boolean                  |
-| `0 1101` | opaque symbol (0 = null) |
-| `0 1110` | stream manipulator       |
-| `0 1111` | **reserved**             |
-| `1 0000` | bytes                    |
-| `1 0001` | utf8                     |
-| `1 0010` | single index             |
-| `1 0011` | **reserved**             |
-| `1 0100` | tuple                    |
-| `1 0101` | map                      |
-| `1 0110` | set                      |
-| `1 0111` | tensor                   |
-| `1 1000` | π-scoped object          |
-| `1 1001` | Φ-scoped object          |
-| `1 1010` | host-scoped object       |
-| `1 1011` | build-scoped object      |
-| `1 1011` | **reserved**             |
-| `1 1100` | **reserved**             |
-| `1 1101` | **reserved**             |
-| `1 1110` | `none`                   |
-| `1 1111` | `frame`                  |
+| Bits     | Type                  |
+|----------|-----------------------|
+| `0 0000` | i8                    |
+| `0 0001` | i16                   |
+| `0 0010` | i32                   |
+| `0 0011` | i64                   |
+| `0 0100` | u8                    |
+| `0 0101` | u16                   |
+| `0 0110` | u32                   |
+| `0 0111` | u64                   |
+| `0 1000` | f32                   |
+| `0 1001` | f64                   |
+| `0 1010` | complex f32           |
+| `0 1011` | complex f64           |
+| `0 1100` | boolean/bitvector     |
+| `0 1101` | symbol (empty = null) |
+| `0 1110` | stream manipulator    |
+| `0 1111` | **reserved**          |
+| `1 0000` | bytes                 |
+| `1 0001` | utf8                  |
+| `1 0010` | index                 |
+| `1 0011` | **reserved**          |
+| `1 0100` | tuple                 |
+| `1 0101` | map                   |
+| `1 0110` | set                   |
+| `1 0111` | tensor                |
+| `1 1000` | π-scoped object       |
+| `1 1001` | Φ-scoped object       |
+| `1 1010` | host-scoped object    |
+| `1 1011` | build-scoped object   |
+| `1 1100` | **reserved**          |
+| `1 1101` | **reserved**          |
+| `1 1110` | `none`                |
+| `1 1111` | `frame`               |
 
 
 ### Size codes
@@ -164,9 +163,9 @@ As a rule, use unsigned if you want specific overflow semantics and signed if yo
 
 
 ### Symbols
-Symbols are just integers, but they exist within a separate namespace to prevent collisions. Their mapping to strings (or anything else) is not specified. They can be any length, e.g. `01101100 00100000 ...` would encode a 32-byte symbol that could hold a SHA256. This could also be represented with a vectorized int of any size, but symbol equivalence will be a single op, as opposed to the vectorized `==` for ints.
+Symbols are just integers, but they exist within a separate namespace to prevent collisions. Their mapping to strings (or anything else) is not specified. They can be any length, e.g. `01101000 00100000 ...` would encode a 32-byte symbol that could hold a SHA256. This could also be represented with a vectorized int of any size, but symbol equivalence will be a single op, as opposed to the vectorized `==` for ints.
 
-Semantically, the `0` symbol always means `null` or `nil`.
+Semantically, a symbol of zero length is defined to mean `null` or `nil`.
 
 
 ### Stream state manipulators
@@ -227,9 +226,9 @@ See [UTF9 build-scope](utf9-build-scope.md) for more details.
 
 
 ### π internals
-These are values reserved for [π₀](pi0.md), in particular its memory allocation mechanics. They are assumed to be opaque to everyone else, and are arbitrarily non-portable. See [π₀ GC](pi0-gc.md) for details.
+These are values reserved for [π₀](pi0.md), in particular its memory allocation mechanics. They are assumed to be opaque to everyone else, and are portable only within a single π₀ instance. See [π₀ GC](pi0-gc.md) for details.
 
-**NOTE:** π₀ assigns GC semantics to the flag bit. Within the π₀ GC context, flags cannot be used for any other purpose.
+**NOTE:** π₀ assigns GC semantics to the flag bit. Within the π₀ context, flags cannot be used for any other purpose -- which means π₀ exclusively owns the flag bit when in use.
 
 
 ### `none`

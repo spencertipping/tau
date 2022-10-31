@@ -1,6 +1,8 @@
 # π₀
 An interpreted, imperative bytecode language used to implement [γ](gamma.md)s. Augmented by the [π₁](pi1.md) frontend for higher-level compilation.
 
+Multiple π₀ interpreters can share a heap, which means it's possible to send GC-managed references across [φ](phi.md).
+
 As a concept, π₀ covers everything from the runtime and GC up to the bytecode assembler and basic control flow. π₁ picks up from there to define the intent system and macros that compile down to this bytecode.
 
 + [π₀ performance](pi0-performance.md)
