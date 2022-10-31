@@ -45,7 +45,7 @@ void bench_json_filter()
             break; }})
     | *new ϝ(f, "filter", ϝ::ξι, [](ϝ &f)
       { for (let x : f)
-          if (x[1] != "[deleted]")
+          if (x[1] != St{"[deleted]"})
             if (!(f.β() << x)) break; })
     | stream_out(f, cout);
   f.go();
