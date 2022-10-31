@@ -89,10 +89,11 @@ struct π0afr  // π₀ asm frame
 
 struct π0asm
 {
-  sletc c7ws = π0cs7(" \t\n");                // whitespace
-  sletc c7ni = π0cs7(" \t\n{}[]()|,'\\\"#");  // non-ident
-  sletc c7nc = π0cs7(" \t\n{}[](),'");        // non-[ident]-continuation
-  sletc c7in = π0cs7("0123456789");           // integer
+  sletc c7ws = π0cs7(" \t\n");           // whitespace
+  sletc c7ni = π0cs7(" \t\n[]|'\\\"#");  // non-ident
+  sletc c7nc = π0cs7(" \t\n[]'");        // non-[ident]-continuation
+  sletc c7sc = π0cs7("(){},");           // single-char idents
+  sletc c7in = π0cs7("0123456789");      // integer
 
   typedef V<π0b> π0blk;  // code block
 
@@ -142,6 +143,7 @@ struct π0asm
   π0asm &operator<<(Stc &s)
   { for (uN i = 0; i < s.size(); ++i)
       if      (c7ws[s[i]]) continue;
+      else if (c7sc[s[i]]) *this << f(s.substr(i, 1), 0);
       else if (c7ni[s[i]])
         switch (s[i])
         {

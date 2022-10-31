@@ -47,6 +47,14 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 **TODO:** quote and unquote-verify from `bytes`
 
 
+### Structure literals
++ `(`: begin tuple (fork stack)
++ `)`: end tuple (pop forked stack)
++ `{`: begin map
++ `}`: end map
++ `,`: emit tuple element
+
+
 ### Vectors
 In the functions below, `v` is replaced by a primitive type, e.g. `i8s`. So `i8s#` returns the number of elements in a vector of `i8`s.
 

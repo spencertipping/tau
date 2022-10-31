@@ -72,7 +72,7 @@ struct π0hss : virtual π0hv,  // split-stack heap view
   π0hss()             = delete;
   π0hss(π0hss const&) = delete;
   π0hss(π0hss&&)      = delete;
-  π0hss(π0h &h_, π0sv &d_) : π0hv(h_), d(d_) {}
+  π0hss(π0h &h_, π0sv &d_, uN n_ = 0) : π0hv(h_), d(d_), n(n_) {}
 
   // NOTE: no need to mark/move d, since it's an independent
   // member of h.vs

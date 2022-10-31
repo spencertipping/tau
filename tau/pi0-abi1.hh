@@ -326,15 +326,40 @@ void π0abi1_u9_tuple(π0abi &a)
 }
 
 
+void π0abi1_u9_structure(π0abi &a)
+{
+  a .def("(", I{ i.dpush(Sc<iN>(1)); i.spush(1); })
+    .def(")", I{
+        let x = i[0];
+        i.spop();
+        uNc k = Sc<iN>(i.dpop());
+        i << x;
+        π0hnf f{i.h, 0};
+        V<i9> xs; xs.reserve(k); f(&xs);
+        for (uN j = 0; j < k; ++j) xs.push_back(i[k - j - 1]);
+        i.drop(k);
+        i.dpush(xs); })
+    .def(",", I{
+        let x = i[0];
+        i.spop();
+        let k = Sc<iN>(i.dpop());
+        i << x;
+        i.dpush(k + 1);
+        i.spush(k + 1); });
+}
+
+
 #if τdebug
 void π0abi1_debug(π0abi &a)
 {
-  a .def(":gc",   I{ i.h.gc(); })
-    .def(":gH",   I{ std::cout << i.h.gΘ << std::endl; })
-    .def(":gL",   I{ std::cout << i.h.lss0 << ": " << i.h.gl << std::endl; })
-    .def(":src",  I{ std::cout << i.p << std::endl; })
-    .def(":int",  I{ std::cout << i << std::endl; })
-    .def(":out",  I{ std::cout << i[0] << std::endl; })
+  a .def(":gc",    I{ i.h.gc(); })
+    .def(":gH",    I{ std::cout << i.h.gΘ << std::endl; })
+    .def(":gL",    I{ std::cout << i.h.lss0 << ": " << i.h.gl << std::endl; })
+    .def(":src",   I{ std::cout << i.p << std::endl; })
+    .def(":int",   I{ std::cout << i << std::endl; })
+    .def(":out",   I{ std::cout << i[0] << std::endl; })
+    .def(":spush", I{ i.spush(); })
+    .def(":spop",  I{ i.spop(); })
     .def(":data", I
          { for (uN j = 0; j < i.size(); ++j)
              std::cout << "[" << j << "]\t" << i[j] << std::endl; });
@@ -363,6 +388,7 @@ void π0abi1_debug(π0abi &a)
   π0abi1_u9_fft(a);
   π0abi1_u9_nrange(a);
   π0abi1_u9_tuple(a);
+  π0abi1_u9_structure(a);
 
 # if τdebug
   π0abi1_debug(a);

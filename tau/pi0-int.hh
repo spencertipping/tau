@@ -34,6 +34,8 @@ struct π0int : π0sv
     : a(a_), p(std::move(p_)), h(h_), f(h), d(h), dv(&d)
     { A(p.a.v() == a.v(), "π₀ ABI mismatch: " << p.a.v() << " ≠ " << a.v()); }
 
+  ~π0int() { while (dv != &d) spop(); }
+
 
   π0int &run(uN l)
     { let n = r.size();
@@ -49,8 +51,8 @@ struct π0int : π0sv
   void operator<<(π0r x)      { *dv << x; }
   void       drop(uN n)       { dv->drop(n); }
 
-  π0int &spush() {             dv = new π0hss{h, *dv};  return *this; }
-  π0int &spop()  { let v = dv; dv = dv->up(); delete v; return *this; }
+  π0int &spush(uN n = 0) {             dv = new π0hss{h, *dv, n}; return *this; }
+  π0int &spop()          { let v = dv; dv = dv->up(); delete v;   return *this; }
 
 
   template<o9mapped T>
