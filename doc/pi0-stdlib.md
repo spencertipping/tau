@@ -152,6 +152,8 @@ All of these operators automatically distribute across vectors.
 
 
 ### Sets
+**NOTE:** set elements are stored in hash-order and set operators both deduplicate accordingly, and preserve this ordering.
+
 + `... x₃ x₂ x₁ n set`: make set from elements
 + `>s`: tuple/vector/bytes/UTF8 to set
 + `s x s?`: check set member
