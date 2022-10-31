@@ -4,6 +4,7 @@
 
 #include "types.hh"
 #include "Sigma.hh"
+#include "shd.hh"
 #include "pi0-types.hh"
 #include "pi0-gc-heapspace.hh"
 
@@ -24,9 +25,11 @@ struct π0h  // a multi-generational heap
   π0hs       *hs[gn];     // generations; 0 = newest
   π0ms       *ms;         // during GC, the mark-set tracker
   ΣΘΔ         gΘ;         // GC timer
+  uN          lss0;       // last live-set size
+  Σι          gl;         // live-set size
 
   π0h(uN is_ = 64, Ar<uN, gn> const &s_ = {65536, 1048576})
-    : is(is_), s(s_), ms(nullptr)
+    : is(is_), s(s_), ms(nullptr), lss0(0)
     { for (uN g = 0; g < gn; ++g) hs[g] = new π0hs(s[g]); }
 
   ~π0h();
@@ -49,6 +52,9 @@ struct π0h  // a multi-generational heap
 
   // Follow references until we hit something else
   i9 operator()(i9 x) const { while (x.is_πref()) x = *x; return x; }
+
+
+  uN note_lss(uN lss) { gl << (lss0 = lss); return lss; }
 
 
   void   gc   (uN s = 0);   // GC to allocate s extra bytes of space

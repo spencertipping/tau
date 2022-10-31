@@ -31,6 +31,10 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 + `.^`: pop return stack (used to early-return or break a loop)
 
 
+### Interpreter control
+**TODO:** `spush`/`spop`, run-catching-exceptions, etc
+
+
 ## UTF9
 ### General
 + `?e`: does the value exist?
@@ -42,12 +46,15 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 
 
 ### Vectors
+In the functions below, `v` is replaced by a primitive type, e.g. `i8s`. So `i8s#` returns the number of elements in a vector of `i8`s.
+
 + `xs t >v`: tuple/set/bytes/UTF8 to typed vector
 + `... x₃ x₂ x₁ n t >>v`: make vector of type `t` (a symbol, see `?t`)
 + `xs v#`: vector length
 + `xs i v@`: get vector element
 + `xs i n v!`: sub-vector
 + `a b v++`: concatenate vectors
++ `xs [...] v.`: vector for-each
 
 
 ### Numbers

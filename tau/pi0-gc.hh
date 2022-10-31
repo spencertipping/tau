@@ -26,7 +26,7 @@ void π0h::gc(uN s)
   for (let v : vs) v->mark();
 
   // TODO: replace this temporary logic with real generational GC
-  let lss = ms->plan();
+  let lss = note_lss(ms->plan());
   B h_; h_.reserve(std::max(this->s[0], lss + s << 2));
   *ms >> h_;
   A(h_.size() == lss,

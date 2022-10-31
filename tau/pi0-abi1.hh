@@ -105,36 +105,43 @@ void π0abi1_u9_general(π0abi &a)
 
 void π0abi1_u9_vector(π0abi &a)
 {
-#define a1vfns(t)                                                     \
-  a .def(">" #t "s", I{                                               \
-      uNc k = Sc<iN>(i.dpop());                                       \
-      let r = i9{i.h << o9vec<t>{k}};                                 \
-      for (uN j = 0; j < k; ++j)                                      \
-        r.template set<t>(j, i.dpop().template at<t>(0));             \
-      i << r; })                                                      \
-    .def(#t "s#", I{ i.dpush(Sc<u64>(i.dpop().vn())); })              \
-    .def(#t "s@", I{                                                  \
-        uNc k = Sc<iN>(i.dpop());                                     \
-        i.dpush(i.dpop().template at<t>(k)); })                       \
-    .def(#t "s!", I{                                                  \
-        π0hnf f{i.h, 2};                                              \
-        uNc sn = Sc<iN>(i.dpop());                                    \
-        uNc si = Sc<iN>(i.dpop());                                    \
-        i9 s = i.pop();             f(&s);                            \
-        i9 r = i.h << o9vec<t>{sn}; f(&r);                            \
-        for (uN j = si; j < sn; ++j)                                  \
-          r.template set<t>(j - si, s.template at<t>(j));             \
-        i << r; })                                                    \
-    .def(#t "s++", I{                                                 \
-        π0hnf f{i.h, 3};                                              \
-        i9 a = i.pop(); f(&a);                                        \
-        i9 b = i.pop(); f(&b);                                        \
-        i9 c  = i.h << o9vec<t>{a.vn() + b.vn()}; f(&c);              \
-        for (uN j = 0; j < a.vn(); ++j)                               \
-          c.template set<t>(j, a.template at<t>(j));                  \
-        for (uN j = 0; j < b.vn(); ++j)                               \
-          c.template set<t>(j + a.vn(), b.template at<t>(j));         \
-        i << c; })
+#define a1vfns(t)                                                      \
+  a .def(">>" #t "s", I{                                               \
+      uNc k = Sc<iN>(i.dpop());                                        \
+      let r = i9{i.h << o9vec<t>{k}};                                  \
+      for (uN j = 0; j < k; ++j)                                       \
+        r.template set<t>(j, i.dpop().template at<t>(0));              \
+      i << r; })                                                       \
+    .def(#t "s#", I{ i.dpush(Sc<u64>(i.dpop().vn())); })               \
+    .def(#t "s@", I{                                                   \
+        uNc k = Sc<iN>(i.dpop());                                      \
+        i.dpush(i.dpop().template at<t>(k)); })                        \
+    .def(#t "s!", I{                                                   \
+        π0hnf f{i.h, 2};                                               \
+        uNc sn = Sc<iN>(i.dpop());                                     \
+        uNc si = Sc<iN>(i.dpop());                                     \
+        i9 s = i.dpop();            f(&s);                             \
+        i9 r = i.h << o9vec<t>{sn}; f(&r);                             \
+        for (uN j = si; j < sn; ++j)                                   \
+          r.template set<t>(j - si, s.template at<t>(j));              \
+        i << r; })                                                     \
+    .def(#t "s++", I{                                                  \
+        π0hnf f{i.h, 3};                                               \
+        i9 a = i.dpop(); f(&a);                                        \
+        i9 b = i.dpop(); f(&b);                                        \
+        i9 c  = i.h << o9vec<t>{a.vn() + b.vn()}; f(&c);               \
+        for (uN j = 0; j < a.vn(); ++j)                                \
+          c.template set<t>(j, a.template at<t>(j));                   \
+        for (uN j = 0; j < b.vn(); ++j)                                \
+          c.template set<t>(j + a.vn(), b.template at<t>(j));          \
+        i << c; })                                                     \
+    .def(#t "s.", I{                                                   \
+        π0hnf f{i.h, 1};                                               \
+        let g = i.dpop();                                              \
+        i9 xs = i.dpop(); f(&xs);                                      \
+        for (uN j = 0; j < xs.vn(); ++j)                               \
+        { i.dpush(xs.template at<t>(j));                               \
+          i.run(g); } })
 
   a1vfns(i8);  a1vfns(i16); a1vfns(i32); a1vfns(i64);
   a1vfns(u8);  a1vfns(u16); a1vfns(u32); a1vfns(u64);
@@ -324,6 +331,7 @@ void π0abi1_debug(π0abi &a)
 {
   a .def(":gc",   I{ i.h.gc(); })
     .def(":gH",   I{ std::cout << i.h.gΘ << std::endl; })
+    .def(":gL",   I{ std::cout << i.h.lss0 << ": " << i.h.gl << std::endl; })
     .def(":src",  I{ std::cout << i.p << std::endl; })
     .def(":int",  I{ std::cout << i << std::endl; })
     .def(":out",  I{ std::cout << i[0] << std::endl; })
