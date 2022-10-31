@@ -319,7 +319,7 @@ void π0abi1_u9_tuple(π0abi &a)
     .def("t.", I{
         π0hnf f{i.h, 2};
         π0bi  g  = i.dpop();
-        i9    xs = i.pop();    f(&xs);
+        i9    xs = i.dpop();   f(&xs);
         i9    x  = xs.first(); f(&x);
         i9    e;               f([&]() { e = xs.next(); });
         while (x.a < e.a) { i << x; i.run(g); ++x; } });

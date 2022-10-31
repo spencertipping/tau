@@ -32,7 +32,7 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 
 
 ### Interpreter control
-**TODO:** `spush`/`spop`, run-catching-exceptions, etc
+**TODO:** `spush`/`spop`, run-catching-exceptions, GC, timings, etc
 
 
 ## UTF9
@@ -43,6 +43,8 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 + `?s`: how big is the value? (inner size)
 + `?S`: outer size
 + `:f`: flatten value (inlines all references)
+
+**TODO:** quote and unquote-verify from `bytes`
 
 
 ### Vectors
@@ -121,8 +123,6 @@ All of these operators automatically distribute across vectors.
   + `c32conj`, ...
 + Iteration (integer types)
   + `[...] n i8.`, ...: for-each in range _0..n-1_
-
-**TODO:** depend on https://bitbucket.org/jpommier/pffft/src/master/ for FFT
 
 
 ### Strings
