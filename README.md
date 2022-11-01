@@ -49,50 +49,70 @@ $ sudo apt install -y \
 **TODO:** dockerize build process
 
 
-## Next steps
+## Priority queue
 Narrowly:
 
-+ π₀ define-function
++ π₀ γ API
+  + γ/λ interfacing
+  + ξ API
++ π₀ GC finalizers + natives
++ π₀ define-function (likely just using frame variables)
 + π₀ REPL
   + π₀/Φ integration
   + Read-and-execute source
 + UTF9 indexed-structure support
++ WASM Φ
++ Websocket φ
 + π₁ stdlib
   + π₁ native function intent declarations
   + π₁ intent execution
 
 Broadly:
 
-1. [π](doc/pi.md)
-2. [ξ](doc/xi.md)
-3. Φ trunk multiplexing
-4. γ₀ ED25519 + AES secure channels
+1. [ξ](doc/xi.md)
+2. Φ trunk multiplexing
+3. γ₀ ED25519 + AES secure channels
+4. [π](doc/pi.md)
 5. Γ routing
 
 
-### Debt
-+ WASM Φ
-+ Websocket φ
-+ Debugging γ transforms
+### Fall 2022 deliverables
+Ordered by descending priority, give or take.
 
-
-### GL
-+ Arc rendering with fragment shaders
-+ Proper blending, also with shaders (probably just Z-order since we're 2.5D)
-+ GL images as textures, with GC
-
-
-### Data processing components
-+ File reader with θ progress output
-+ File writer
-  + Frame format with boundary markers/SHAs
-+ `zstd` compress/decompress
-+ Shell command filter
-+ JSON → UTF9 converter
-+ Sort
-+ APL-style operators
-
-
-### Reactive components
-+ Union
-+ Gated register
++ Web stuff
+  + WASM/websocket Φ
+  + Multiplexer
+  + HTTP server
+  + WebGL rendering
+  + DOM interop
+  + Fragment-shader arc rendering
+  + Scenegraph Z-order blending
+  + GL image → texture support
+  + π₀ image IO?
++ Core runtime
+  + π₀ stress/security testing
+    + GC
+    + UTF9 verification
+    + Randomized tests
+    + Performance tests
+  + π₀ γ API
+  + π₀ ξ API
+  + `libsodium` encrypted-Φ/Γ
+  + π₀ REPL
++ ϝ components
+  + Reactive
+    + Union
+    + Rate-limited register
++ Data science (lower priority)
+  + UTF9 frame format
+  + File IO γ
+  + JSON ↔ UTF9
+  + Offline bulk sort
+  + Online streaming sort
+  + Shell command γ
+  + FFT
+  + Distributed map/reduce
++ Stretch goals
+  + π₁ compiler
+  + Unified Γ routing
+  + π₂

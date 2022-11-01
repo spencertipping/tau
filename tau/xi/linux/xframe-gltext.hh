@@ -77,8 +77,8 @@ struct gl_text
 
   gl_text &r(f32 x, f32 y, f32 z = 1.f, f32 sw = 1.f, f32 sh = 1.f)
     { glEnable(GL_BLEND);
-      //glDisable(GL_DEPTH_TEST);
-      //glEnable(GL_ALPHA_TEST);
+      glDisable(GL_DEPTH_TEST);
+      glEnable(GL_ALPHA_TEST);
       glEnable(GL_TEXTURE_2D);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
