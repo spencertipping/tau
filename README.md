@@ -52,7 +52,10 @@ $ sudo apt install -y \
 ## Next steps
 Narrowly:
 
-+ π₀ UTF9 quasiquote support
++ π₀ define-function
++ π₀ REPL
+  + π₀/Φ integration
+  + Read-and-execute source
 + UTF9 indexed-structure support
 + π₁ stdlib
   + π₁ native function intent declarations

@@ -4,6 +4,8 @@
 
 #include "../dep/pffft.h"
 
+#include "utf9-i9.hh"
+#include "utf9-types.hh"
 #include "utf9.hh"
 #include "pi0-types.hh"
 #include "pi0-gc.hh"
@@ -349,6 +351,18 @@ void π0abi1_u9_structure(π0abi &a)
 }
 
 
+void π0abi1_u9_quote(π0abi &a)
+{
+  a. def("$b",   I{ i << (i.h << π0o9q(i.dpop())); })
+    .def("b$!!", I{ i.dpush(i9{i.dpop().data()}); })
+    .def("b$", I{
+        let x = i.dpop();
+        let j = i9{x.data()};
+        i.dpush(j.verify(x.size()) ? j : i9_none());
+      });
+}
+
+
 #if τdebug
 void π0abi1_debug(π0abi &a)
 {
@@ -389,6 +403,7 @@ void π0abi1_debug(π0abi &a)
   π0abi1_u9_nrange(a);
   π0abi1_u9_tuple(a);
   π0abi1_u9_structure(a);
+  π0abi1_u9_quote(a);
 
 # if τdebug
   π0abi1_debug(a);

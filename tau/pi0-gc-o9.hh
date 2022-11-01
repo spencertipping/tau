@@ -56,6 +56,19 @@ struct π0o9f : virtual o9V  // flatten heap object for export
 };
 
 
+struct π0o9q : virtual o9V  // quote heap object in bytes
+{
+  π0o9f o;
+  π0o9q(i9 r_) : o(r_) {}
+
+  uN size() const { return o.size() + u9sb(u9sq(o.size())); }
+  uN write(ζp m) const
+    { let i = u9ws(m, 0, u9t::bytes, o.size(), false);
+      o.write(m + i);
+      return 0; }
+};
+
+
 struct π0ho9 : virtual o9V  // write heap object for GC
 {
   π0h        &h;

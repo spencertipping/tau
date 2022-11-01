@@ -158,6 +158,7 @@ enum class u9_none : u8
   generic            = 0,
   key_lookup_missing = 1,
   tuple_bounds_error = 2,
+  invalid_value      = 3,
 };
 
 defR(u9_none) { return u9_none{R<u8>(xs, i)}; }
@@ -552,6 +553,7 @@ O &operator<<(O &s, u9_none const &n)
   case u9_none::generic:            return s << "∅[]";
   case u9_none::key_lookup_missing: return s << "∅[k→]";
   case u9_none::tuple_bounds_error: return s << "∅[<|≥]";
+  case u9_none::invalid_value:      return s << "∅[INV]";
   }
 }
 

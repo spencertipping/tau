@@ -32,7 +32,7 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 
 
 ### Interpreter control
-**TODO:** `spush`/`spop`, run-catching-exceptions, GC, timings, etc
+**TODO:** `spush`/`spop`, run-catching-exceptions, GC, timings, etc -- currently these are debugging functions
 
 
 ## UTF9
@@ -43,8 +43,9 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 + `?s`: how big is the value? (inner size)
 + `?S`: outer size
 + `:f`: flatten value (inlines all references)
-
-**TODO:** quote and unquote-verify from `bytes`
++ `$b`: UTF9 → `bytes` (flatten + serialize)
++ `b$`: `bytes` → UTF9 -- deserialize and validate (invalid → `none`)
++ `b$!!`: `bytes` → UTF9 -- deserialize and don't validate (dangerous)
 
 
 ### Structure literals
@@ -65,6 +66,14 @@ In the functions below, `v` is replaced by a primitive type, e.g. `i8s`. So `i8s
 + `xs i n v!`: sub-vector
 + `a b v++`: concatenate vectors
 + `xs [...] v.`: vector for-each
++ `xs [...] v*`: vector elementwise map
++ Native reductions
+  + `xs v/+`: sum of elements
+  + `xs v/*`: product of elements
+  + `xs v/<`: check for descending order
+  + `xs v/&`: bitwise-and of elements
+  + `xs v/|`: bitwise-or of elements
+  + `xs v/^`: bitwise-xor of elements
 
 
 ### Numbers
@@ -98,7 +107,7 @@ All of these operators automatically distribute across vectors.
   + `i8max`, ...
   + `i8abs`, ...
 + Integer arithmetic
-  + `i8l`, ...: nonzero → 0, 0 → 1 (`l` instead of `!`, which means "substring" here)
+  + `i8l`, ...: nonzero → 0, 0 → 1 (`l` instead of `!`, which means "substring" in π₀)
   + `u8~`, ...
   + `u8&`, ...
   + `u8|`, ...
@@ -123,8 +132,8 @@ All of these operators automatically distribute across vectors.
   + `f32exp`, ...
   + `f32log`, ...
   + `f32erf`, ...
-  + `f32fft`, ... (for vectors)
-  + `f32ifft`, ...
+  + `f32sfft`, ... (for vectors)
+  + `f32sifft`, ...
 + Complex numbers
   + `c32real`, `c64real`
   + `c32imag`, `c64imag`
@@ -149,6 +158,7 @@ All of these operators automatically distribute across vectors.
 
 ### Tuples
 + `... x₃ x₂ x₁ n >>t`: make tuple from elements
++ `t <<t`: flatten tuple to stack, with length on top
 + `>t`: set/map/vector/bytes/UTF8 to tuple
 + `t t#`: tuple length
 + `t i t@`: get element from tuple
@@ -157,6 +167,7 @@ All of these operators automatically distribute across vectors.
 + `xs [...] t.`: for-each
 + `xs [...] t*`: map
 + `xs [...] t%`: filter
++ `([...], [...], ...) t*.`: apply each function to the current stack, entuple results
 
 
 ### Sets

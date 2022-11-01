@@ -27,6 +27,8 @@ static u8 i9_statics[] =
   u9t::symbol | u9s::v8, 1, 0,                                    // offset 6 = null symbol
   u9t::none   | u9s::v8, 1, Sc<u8>(u9_none::key_lookup_missing),  // offset 9 = no key
   u9t::none   | u9s::v8, 1, Sc<u8>(u9_none::tuple_bounds_error),  // offset 12 = tuple OOB
+  u9t::none   | u9s::v8, 1, Sc<u8>(u9_none::invalid_value),       // offset 15 = decoding error
+  u9t::none   | u9s::v8, 1, Sc<u8>(u9_none::generic),             // offset 18 = generic error
 };
 
 
@@ -344,7 +346,8 @@ inline i9 i9_true()         { return i9{i9_statics + 3}; }
 inline i9 i9_null()         { return i9{i9_statics + 6}; }
 inline i9 i9_no_key()       { return i9{i9_statics + 9}; }
 inline i9 i9_tuple_bounds() { return i9{i9_statics + 12}; }
-inline i9 i9_none()         { return i9{ζωp}; }
+inline i9 i9_invalid()      { return i9{i9_statics + 15}; }
+inline i9 i9_none()         { return i9{i9_statics + 18}; }
 
 
 static_assert(sizeof(i9) == sizeof(uN));

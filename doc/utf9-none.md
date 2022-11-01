@@ -12,3 +12,4 @@ The first byte of data specifies the type of `none` -- i.e. the reason it was cr
 + `00`: generic error
 + `01`: missing key in map
 + `02`: tuple index out of bounds
++ `03`: decoding/verification error

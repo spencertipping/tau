@@ -22,9 +22,11 @@ struct π0hv;       // GC heap view (stack/frame/etc)
 struct π0ms;       // GC markset
 struct π0ho9;      // GC heap object copy (or copy-out-to-Φ)
 struct π0o9f;      // π₀ object export
+struct π0o9q;      // π₀ object quote-to-bytes
 
 template<> struct o9_<π0ho9> { sletc v = true; };
 template<> struct o9_<π0o9f> { sletc v = true; };
+template<> struct o9_<π0o9q> { sletc v = true; };
 
 
 typedef u32 π0bi;  // bytecode index
