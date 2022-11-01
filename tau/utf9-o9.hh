@@ -202,6 +202,12 @@ struct o9a : virtual o9V  // vector of fixed
       return 0; }
 };
 
+template<>
+struct o9a<bool> : virtual o9V
+{
+  // TODO
+};
+
 
 template<o9simple T, template<typename...> class C, class... Ts>
 struct o9v : virtual o9V  // unindexed, unordered tuple/set (simple)
