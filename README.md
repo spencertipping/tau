@@ -92,9 +92,14 @@ Ordered by descending priority, give or take.
 + Core runtime
   + π₀ stress/security testing
     + GC
-    + UTF9 verification
     + Randomized tests
     + Performance tests
+  + UTF9
+    + Indexed collections
+    + Allocate bits for bitvector size
+    + `verify()` detailed return value
+    + Fix/verify int cast semantics
+    + Fix/verify `i9` cast semantics generally
   + π₀ γ API
   + π₀ ξ API
   + `libsodium` encrypted-Φ/Γ
