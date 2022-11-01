@@ -77,46 +77,52 @@ Broadly:
 
 
 ### Fall 2022 deliverables
-Ordered by descending priority, give or take.
+Ordered by descending priority, give or take. Time estimates are 80% CI.
 
-+ Web stuff
-  + WASM/websocket Φ
-  + Multiplexer
-  + HTTP server
-  + WebGL rendering
-  + DOM interop
-  + Fragment-shader arc rendering
-  + Scenegraph Z-order blending
-  + GL image → texture support
-  + π₀ image IO?
-+ Core runtime
-  + π₀ stress/security testing
-    + GC
-    + Randomized tests
-    + Performance tests
-  + UTF9
-    + Indexed collections
-    + Allocate bits for bitvector size
-    + `verify()` detailed return value
-    + Fix/verify int cast semantics
-    + Fix/verify `i9` cast semantics generally
-  + π₀ γ API
-  + π₀ ξ API
-  + `libsodium` encrypted-Φ/Γ
-  + π₀ REPL
-+ ϝ components
-  + Reactive
-    + Union
-    + Rate-limited register
-+ Data science (lower priority)
-  + UTF9 frame format
-  + File IO γ
-  + JSON ↔ UTF9
-  + Offline bulk sort
-  + Online streaming sort
-  + Shell command γ
-  + FFT
-  + Distributed map/reduce
+**Total:** 49.75 days, out of 60.4 days left this year. >80% chance it all gets done, assuming no major setbacks.
+
+If we drop data science, we're down to 34.75 days and a >95% chance the remainder is done.
+
++ **15 days:** Web stuff
+  + **3 days:** WASM/websocket Φ
+  + **1 day:** Multiplexer
+  + **2 days:** HTTP server
+  + **2 days:** WebGL rendering
+  + **2 days:** DOM interop
+  + **1 day:** Fragment-shader arc rendering
+  + **1 day:** Scenegraph Z-order blending
+  + **2 days:** GL image → texture support
+  + **1 day:** π₀ image IO?
++ **17.75 days:** Core runtime
+  + **3.5 days:** π₀ stress/security testing
+    + **0.5 days:** GC
+    + **2 days:** Randomized tests
+    + **1 day:** Performance tests
+  + **5.25 days:** UTF9
+    + **2 days:** Indexed collections
+    + **0.25 days:** Quoted maps
+    + **0.25 days:** Quoted vectors
+    + **0.5 days:** Allocate bits for bitvector size
+    + **0.25 days:** `verify()` detailed return value
+    + **0.5 days:** Fix/verify int cast semantics
+    + **1.5 days:** Fix/verify `i9` cast semantics generally (optional, probably)
+  + **2 days:** π₀ γ API
+  + **2 days:** π₀ ξ API
+  + **2 days:** `libsodium` encrypted-Φ/Γ (optional)
+  + **3 days:** π₀ REPL (optional)
++ **2 days:** ϝ components
+  + **2 days:** Reactive
+    + **1 day:** Union
+    + **1 day:** Rate-limited register
++ **15 days:** Data science (lower priority)
+  + **1 day:** UTF9 frame format
+  + **0.5 days:** File IO γ
+  + **1.5 days:** JSON ↔ UTF9 (point accessors + whole-object conversion)
+  + **3 days:** Offline bulk sort
+  + **2 days:** Online streaming sort
+  + **2 days:** Shell command γ
+  + **4 days:** Distributed map/reduce
+  + **1 day:** FFT
 + Stretch goals
   + π₁ compiler
   + Unified Γ routing
