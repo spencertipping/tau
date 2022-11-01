@@ -94,6 +94,8 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
   + **2 days:** GL image → texture support
   + **1 day:** π₀ image IO?
 + **17.75 days:** Core runtime
+  + **2 days:** π₀ γ API (**NOTE:** some design-lead time required)
+  + **2 days:** π₀ ξ API (**NOTE:** some design-lead time required)
   + **3.5 days:** π₀ stress/security testing
     + **0.5 days:** GC
     + **2 days:** Randomized tests
@@ -106,8 +108,6 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
     + **0.25 days:** `verify()` detailed return value
     + **0.5 days:** Fix/verify int cast semantics
     + **1.5 days:** Fix/verify `i9` cast semantics generally (optional, probably)
-  + **2 days:** π₀ γ API
-  + **2 days:** π₀ ξ API
   + **2 days:** `libsodium` encrypted-Φ/Γ (optional)
   + **3 days:** π₀ REPL (optional)
 + **2 days:** ϝ components
