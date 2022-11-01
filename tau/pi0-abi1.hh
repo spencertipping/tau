@@ -374,9 +374,13 @@ void π0abi1_debug(π0abi &a)
     .def(":out",   I{ std::cout << i[0] << std::endl; })
     .def(":spush", I{ i.spush(); })
     .def(":spop",  I{ i.spop(); })
-    .def(":data", I
+    .def(":data",  I
          { for (uN j = 0; j < i.size(); ++j)
-             std::cout << "[" << j << "]\t" << i[j] << std::endl; });
+             std::cout << "[" << j << "]\t" << i[j] << std::endl; })
+    .def(":cout", I{
+        let x = i.dpop();
+        std::cout << Stv{Rc<chc*>(x.data()), x.size()};
+      });
 }
 #endif
 
