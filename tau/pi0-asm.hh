@@ -129,14 +129,21 @@ struct π0asm
 
 
   π0b f(Stc &n, uN k = 0)
-  { if (!fs.empty())
-    { let a = fs.back()[n];
-      if (a != π0afr::fω) return π0b{fn.at("&@'"), a};
-      if (n.ends_with('='))
-      { let b = fs.back()[n.substr(0, n.size() - 1)];
-        if (b != π0afr::fω) return π0b{fn.at("&='"), b}; } }
-    A(fn.contains(n), "π₀asm: " << n << " is not defined");
-    return π0b{fn.at(n), k}; }
+    { A(!n.empty(), "π₀asm f(\"\")");
+      if (!fs.empty())
+      { let a = fs.back()[n];
+        if (a != π0afr::fω) return π0b{fn.at("&@'"), a};
+        if (n.ends_with('='))
+        { let b = fs.back()[n.substr(0, n.size() - 1)];
+          if (b != π0afr::fω) return π0b{fn.at("&='"), b}; } }
+      if (fn.contains(n)) return π0b{fn.at(n), k};
+      if (c7in[n[0]])
+      { std::stringstream s{n};
+        i64 x;
+        s >> x;
+        A(!oi<i32>(x), "int literal overflow: " << x << " from " << n);
+        return π0b{fn.at(oi<i16>(x) ? "i32" : oi<i8>(x) ? "i16" : "i8"), x}; }
+      A(0, "π₀asm: " << n << " is not defined"); }
 
 
   π0asm &operator<<(π0b b) { bs.back().push_back(b); return *this; }
