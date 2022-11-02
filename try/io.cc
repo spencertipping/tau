@@ -186,7 +186,7 @@ int editor(int argc, char **argv)
   θr(f, 250ms)
     | each<i9>(f, [&](i9, γφ &p) { p << o9t("Ubuntu Mono 36", "x"); })
     | text_size(f)
-    | sink<i9>(f, [&](i9 x) { lx = x[2]; ly = x[3]; });
+    | sink<i9>(f, [&](i9 x) { lx = Sc<f32>(x[2]); ly = Sc<f32>(x[3]); });
 
   auto &s = xframe(f) | splitter(f);
   //auto &es = s & tee(f);

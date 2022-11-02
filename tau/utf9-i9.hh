@@ -126,7 +126,7 @@ struct i9
 
   // UTF9 values are truthy if they are normal, that is they (1) exist,
   // and (2) are not stream metadata
-  operator bool() const { return exists() && type() != u9t::stream; }
+  explicit operator bool() const { return exists() && type() != u9t::stream; }
   bool   exists() const { return a && a != ζωp; }
   operator   ζp() const { return a; }
 
@@ -186,9 +186,9 @@ struct i9
 
   template<class T>
   requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v && (!u9t_is<T, u9signed.m>::v)
-    operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(data(), 0); }
+    explicit operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(data(), 0); }
 
-  operator i64() const
+  explicit operator i64() const
     { u9ints(type());
       switch (type())
       {
@@ -203,7 +203,7 @@ struct i9
         TA(0, type());
       } }
 
-  operator i32() const
+  explicit operator i32() const
     { u9ints(type());
       switch (type())
       {

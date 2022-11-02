@@ -64,13 +64,13 @@ void π0abi1_control(π0abi &a)
 {
   a .def(".",  I{ i.r.push_back(Sc<π0bi>(i.dpop())); })
     .def("?.", I
-         { π0bi e = i.dpop();
-           π0bi t = i.dpop();
-           let  c = i.dpop().template at<bool>(0);
+         { let e = i.bpop();
+           let t = i.bpop();
+           let c = i.dpop().template at<bool>(0);
            i.run(c ? t : e); })
     .def("?!", I
-         { π0bi c = i.dpop();
-           π0bi b = i.dpop();
+         { let c = i.bpop();
+           let b = i.bpop();
          loop:
            i.run(c);
            if (i.dpop().template at<bool>(0)) { i.run(b); goto loop; }})
@@ -139,7 +139,7 @@ void π0abi1_u9_vector(π0abi &a)
         i << z; })                                                     \
     .def(#t "s.", I{                                                   \
         π0hnf f{i.h, 1};                                               \
-        let g = i.dpop();                                              \
+        let g = i.bpop();                                              \
         i9 xs = i.dpop(); f(&xs);                                      \
         for (uN j = 0; j < xs.vn(); ++j)                               \
         { i.dpush(xs.template at<t>(j));                               \
@@ -299,8 +299,8 @@ void π0abi1_u9_fft(π0abi &a)
 void π0abi1_u9_nrange(π0abi &a)
 {
 #define a1r(t) a.def(#t ".", I{                 \
-      π0bi f = i.dpop();                        \
-      let  k = i.dpop().template at<t>(0);      \
+      let f = i.bpop();                         \
+      let k = i.dpop().template at<t>(0);       \
       for (t j = 0; j < k; ++j)                 \
         i.dpush(j).run(f); });
 
@@ -319,7 +319,7 @@ void π0abi1_u9_tuple(π0abi &a)
       V<i9> xs; xs.reserve(k); f(&xs);
       for (uN j = 0; j < k; ++j) xs.push_back(i.pop());
       i.dpush(xs); })
-    .def("t@", I{ uNc k = Sc<iN>(i.dpop()); i.dpush(i.dpop()[k]); })
+    .def("t@", I{ let k = Sc<uN>(i.dpop()); i.dpush(i.dpop()[k]); })
     .def("t#", I{ i.dpush(i.dpop().len()); })
     .def("t++", I{
         let k = i9{i[0]}.len() + i9{i[1]}.len();
@@ -330,7 +330,7 @@ void π0abi1_u9_tuple(π0abi &a)
         i.dpush(xs); })
     .def("t.", I{
         π0hnf f{i.h, 2};
-        π0bi  g  = i.dpop();
+        let   g  = i.bpop();
         i9    xs = i.dpop();   f(&xs);
         i9    x  = xs.first(); f(&x);
         i9    e;               f([&]() { e = xs.next(); });
