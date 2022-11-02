@@ -328,8 +328,8 @@ struct i9
   i9 &retype(u9t f, u9t t)
     { A(type() == f, f << " → " << t << " retyping mismatch: "
                        << type() << " ≠ " << f);
-      TODO("retype");
-    }
+      *a = *a & 7 | Sc<u8>(t) << 3;
+      return *this; }
 };
 
 

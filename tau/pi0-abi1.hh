@@ -363,7 +363,7 @@ void π0abi1_u9_structure(π0abi &a)
         for (uN j = 0; j < k; ++j) xs.push_back(i[k - j - 1]);
         i.drop(k);
         i.dpush(xs);
-         })
+        i.h(i[0]).retype(u9t::tuple, u9t::map); })
     .def(",", I{
         let x = i[0];
         i.spop();

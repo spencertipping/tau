@@ -39,3 +39,16 @@ f f f f f f f f f f f f f f f f f t t t t
 f f f f f f f f f f f f f f f f f f t t t t
 f f f f f f f f f f f f f f f f f f f t t t t
 ```
+
+
+## Literals
+```bash
+$ ./pi0 '"foo" :out'
+"foo"
+$ ./pi0 '"foo\n" :cout'
+foo
+$ ./pi0 '("foo", "bar") :out'
+("foo","bar")
+$ ./pi0 '{"foo", "bar"} :out'
+{"foo":"bar"}
+```

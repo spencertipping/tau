@@ -83,7 +83,8 @@ Ordered by descending priority, give or take. Time estimates are 80% CI.
 
 If we drop data science, we're down to 34.75 days and a >95% chance the remainder is done.
 
-**Done so far:** 0.5/49.75 days
++ **Done so far:** 1/49.75 days
++ **Dropped:** 0.25 days (I canceled these tasks as being unnecessary)
 
 
 ### Execution plan
@@ -107,9 +108,8 @@ Some work items fit well together and/or support each other if executed in order
   + Arc rendering
   + GL images
 + π₀
-  + Quoted maps
-  + Quoted vectors
-  + REPL
+  + [x] Quoted maps
+  + [ ] REPL
 + π₀ stress testing
   + Randomized tests
   + Performance tests
@@ -137,8 +137,7 @@ Some work items fit well together and/or support each other if executed in order
     + [ ] **1 day:** Performance tests
   + [ ] **5.25 days:** UTF9
     + [ ] **2 days:** Indexed collections
-    + [ ] **0.25 days:** Quoted maps
-    + [ ] **0.25 days:** Quoted vectors
+    + [x] **0.25 days:** Quoted maps
     + [x] **0.5 days:** Allocate bits for bitvector size
     + [ ] **0.25 days:** `verify()` detailed return value
     + [ ] **0.5 days:** Fix/verify int cast semantics
