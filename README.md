@@ -83,6 +83,8 @@ Ordered by descending priority, give or take. Time estimates are 80% CI.
 
 If we drop data science, we're down to 34.75 days and a >95% chance the remainder is done.
 
+**Done so far:** 0.5/49.75 days
+
 
 ### Execution plan
 Some work items fit well together and/or support each other if executed in order.
