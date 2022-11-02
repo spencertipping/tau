@@ -100,7 +100,9 @@ Some work items fit well together and/or support each other if executed in order
   + [ ] WASM/websocket Φ
   + [ ] Basic DOM -- textbox in → div/pre out
   + [ ] WebGL proof of concept (small mirror of linux/xframe stuff)
-+ [ ] **Background:** π₀ stress testing
++ [ ] **Background:** π₀
+  + [ ] **Think:** ξ API design
+  + [ ] **Think:** γ API design
   + [ ] Generative tests
   + [ ] Performance tests
 + [ ] **Background:** GL enhancements
