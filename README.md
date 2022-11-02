@@ -87,6 +87,11 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
 ### Execution plan
 Some work items fit well together and/or support each other if executed in order.
 
++ [ ] UTF9
+  + [ ] Bitvector size bits
+  + [ ] `verify` return value
+  + [ ] int cast semantics
+  + [ ] `i9` cast semantics
 + γ components
   + Multiplexer
   + Union
@@ -99,11 +104,6 @@ Some work items fit well together and/or support each other if executed in order
   + Z-order blending
   + Arc rendering
   + GL images
-+ UTF9
-  + Bitvector size bits
-  + `verify` return value
-  + int cast semantics
-  + `i9` cast semantics
 + π₀
   + Quoted maps
   + Quoted vectors
