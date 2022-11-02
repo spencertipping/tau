@@ -18,7 +18,8 @@ points=( rorbot.35:tau/
          reichenbach.35:tau/
          rorbot.35:/mnt/v1/st/tau/
          orange.35:tau/
-         joyce@iya.35:.spencer/tau/ )
+         joyce@iya.35:.spencer/tau/
+         ubuntu@dev.spencertipping.com:tau/ )
 
 for p in "${points[@]}"; do
   ( ssh "${p%%:*}" mkdir -p "${p#*:}"

@@ -331,7 +331,7 @@ inline bool i9::at(uN i) const
 { u9tm{u9t::b}(type());
   A(i < vn(), "i9at bool OOB, i = " << i << ", sz = " << size());
   let j = i + 4;
-  return R<u8>(data(), j >> 3) & (1 << j & 7); }
+  return R<u8>(data(), j >> 3) & (1 << (j & 7)); }
 
 template<>
 inline i9 i9::set(uN i, bool x) const
@@ -339,8 +339,8 @@ inline i9 i9::set(uN i, bool x) const
   A(i < vn(), "i9set bool OOB, i = " << i << ", sz = " << size());
   let j = i + 4;
   W(data(), j >> 3,
-    Sc<u8>(x ? R<u8>(data(), j >> 3) |  (1 << j & 7)
-             : R<u8>(data(), j >> 3) & ~(1 << j & 7)));
+    Sc<u8>(x ? R<u8>(data(), j >> 3) |  (1 << (j & 7))
+             : R<u8>(data(), j >> 3) & ~(1 << (j & 7))));
   return *this; }
 
 

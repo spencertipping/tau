@@ -88,7 +88,7 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
 Some work items fit well together and/or support each other if executed in order.
 
 + [ ] UTF9
-  + [ ] Bitvector size bits
+  + [x] Bitvector size bits
   + [ ] `verify` return value
   + [ ] int cast semantics
   + [ ] `i9` cast semantics
@@ -137,7 +137,7 @@ Some work items fit well together and/or support each other if executed in order
     + [ ] **2 days:** Indexed collections
     + [ ] **0.25 days:** Quoted maps
     + [ ] **0.25 days:** Quoted vectors
-    + [ ] **0.5 days:** Allocate bits for bitvector size
+    + [x] **0.5 days:** Allocate bits for bitvector size
     + [ ] **0.25 days:** `verify()` detailed return value
     + [ ] **0.5 days:** Fix/verify int cast semantics
     + [ ] **1.5 days:** Fix/verify `i9` cast semantics generally (optional, probably)
