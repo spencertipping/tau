@@ -384,6 +384,7 @@ struct u9tm
   constexpr u9tm operator|(u9tm x) const { return m | x.m; }
   constexpr u9tm operator&(u9tm x) const { return m & x.m; }
   constexpr u9tm operator^(u9tm x) const { return m ^ x.m; }
+  constexpr u9tm operator-(u9tm x) const { return m & ~x.m; }
 };
 
 
@@ -399,6 +400,63 @@ letc u9coll     = u9tm{u9t::index, u9t::map, u9t::set, u9t::tuple, u9t::tensor};
 letc u9fixed    = u9numbers | u9tm{u9t::b};
 letc u9atomics  = u9strings | u9numbers | u9tm{u9t::b, u9t::symbol};
 letc u9vectors  = u9numbers | u9tm{u9t::b};
+
+
+// Converible-from: u9cf_<T>::m contains the set of things from which
+// T can be implicitly converted
+template<class T> struct u9cf_ { sletc m = u9tm{}; };
+
+template<> struct u9cf_<bool> { sletc m = u9tm{u9t::b}; };
+
+template<> struct u9cf_<i8>  { sletc m = u9tm{u9t::b, u9t::i8}; };
+template<> struct u9cf_<i16> { sletc m = u9tm{u9t::b, u9t::i8, u9t::u8, u9t::i16}; };
+template<> struct u9cf_<i32> { sletc m = u9tm{u9t::b, u9t::i8, u9t::u8, u9t::i16, u9t::u16, u9t::i32}; };
+template<> struct u9cf_<i64> { sletc m = u9tm{u9t::b, u9t::i8, u9t::u8, u9t::i16, u9t::u16, u9t::i32, u9t::u32, u9t::i64}; };
+template<> struct u9cf_<u8>  { sletc m = u9tm{u9t::b, u9t::i8, u9t::u8}; };
+template<> struct u9cf_<u16> { sletc m = u9tm{u9t::b, u9t::i8, u9t::u8, u9t::i16, u9t::u16}; };
+template<> struct u9cf_<u32> { sletc m = u9tm{u9t::b, u9t::i8, u9t::u8, u9t::i16, u9t::u16, u9t::i32, u9t::u32}; };
+template<> struct u9cf_<u64> { sletc m = u9tm{u9t::b, u9t::i8, u9t::u8, u9t::i16, u9t::u16, u9t::i32, u9t::u32, u9t::i64, u9t::u64}; };
+
+template<> struct u9cf_<f32> { sletc m = u9ints | u9tm{u9t::b, u9t::f32, u9t::f64}; };
+template<> struct u9cf_<f64> { sletc m = u9ints | u9tm{u9t::b, u9t::f32, u9t::f64}; };
+template<> struct u9cf_<c32> { sletc m = u9ints | u9tm{u9t::b, u9t::f32, u9t::f64, u9t::c32, u9t::c64}; };
+template<> struct u9cf_<c64> { sletc m = u9ints | u9tm{u9t::b, u9t::f32, u9t::f64, u9t::c32, u9t::c64}; };
+
+
+// Convertible-to: u9ct_<T>::m contains the set of things to which
+// T can be implicitly converted
+template<class T> struct u9ct_ { sletc m = u9tm{}; };
+
+template<> struct u9ct_<bool> { sletc m = u9numbers | u9tm{u9t::b}; };
+
+template<> struct u9ct_<i8>  { sletc m = u9numbers; };
+template<> struct u9ct_<i16> { sletc m = u9numbers - u9tm{u9t::i8, u9t::u8}; };
+template<> struct u9ct_<i32> { sletc m = u9numbers - u9tm{u9t::i8, u9t::u8, u9t::i16, u9t::u16}; };
+template<> struct u9ct_<i64> { sletc m = u9numbers - u9tm{u9t::i8, u9t::u8, u9t::i16, u9t::u16, u9t::i32, u9t::u32}; };
+template<> struct u9ct_<u8>  { sletc m = u9numbers - u9tm{u9t::i8}; };
+template<> struct u9ct_<u16> { sletc m = u9numbers - u9tm{u9t::i8, u9t::u8, u9t::i16}; };
+template<> struct u9ct_<u32> { sletc m = u9numbers - u9tm{u9t::i8, u9t::u8, u9t::i16, u9t::u16, u9t::i32}; };
+template<> struct u9ct_<u64> { sletc m = u9numbers - u9tm{u9t::i8, u9t::u8, u9t::i16, u9t::u16, u9t::i32, u9t::u32, u9t::i64}; };
+
+template<> struct u9ct_<f32> { sletc m = u9tm{u9t::f32, u9t::f64, u9t::c32, u9t::c64}; };
+template<> struct u9ct_<f64> { sletc m = u9tm{u9t::f32, u9t::f64, u9t::c32, u9t::c64}; };
+template<> struct u9ct_<c32> { sletc m = u9tm{u9t::c32, u9t::c64}; };
+template<> struct u9ct_<c64> { sletc m = u9tm{u9t::c32, u9t::c64}; };
+
+
+// UTF9 semantic casting
+template<bool C> struct u9Sca
+{ template<class F, class T> static constexpr T f(F x) { A(0, "u9SCa " << u9t_<F>::t << " → " << u9t_<T>::t); return 0; } };
+
+template<> struct u9Sca<true>
+{ template<class F, class T> static constexpr T f(F x) { return Sc<T>(x); } };
+
+
+template<class F, class T> struct u9Sc
+{ static_assert(u9cf_<T>::m[u9t_<F>::t] == u9ct_<F>::m[u9t_<T>::t],
+                "u9ct_<> ≠ u9cf_<>");
+  static constexpr T f(F x)
+    { return u9Sca<u9cf_<T>::m[u9t_<F>::t]>::template f<F, T>(x); } };
 
 
 template<class T, u32 M>

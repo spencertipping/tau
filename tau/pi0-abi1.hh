@@ -66,14 +66,14 @@ void π0abi1_control(π0abi &a)
     .def("?.", I
          { let e = i.bpop();
            let t = i.bpop();
-           let c = i.dpop().template at<bool>(0);
+           let c = i.dpop().b();
            i.run(c ? t : e); })
     .def("?!", I
          { let c = i.bpop();
            let b = i.bpop();
          loop:
            i.run(c);
-           if (i.dpop().template at<bool>(0)) { i.run(b); goto loop; }})
+           if (i.dpop().b()) { i.run(b); goto loop; }})
     .def(".^", I{ i.r.resize(i.r.size() - n - 1); });
 }
 

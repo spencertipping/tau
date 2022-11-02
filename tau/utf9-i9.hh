@@ -124,10 +124,10 @@ struct i9
   i9() : a(nullptr) {}
   i9(ζp a_) : a(a_) {}
 
-  // UTF9 values are truthy if they are normal, that is they (1) exist,
-  // and (2) are not stream metadata
-  explicit operator bool() const { return exists() && type() != u9t::stream; }
+
+  // TODO: create names for UTF9 states and formalize definitions
   bool   exists() const { return a && a != ζωp; }
+  bool     real() const { return exists() && type() != u9t::stream; }
   operator   ζp() const { return a; }
 
 
@@ -147,7 +147,7 @@ struct i9
   it   begin()   const { return it{data()}; }
   it   end()     const { return it{next()}; }
 
-  bool b()       const { u9tm{u9t::b}(type()); return *Sc<u8*>(data()); }
+  inline bool b() const;
 
 
   // NOTE: inner, "logical" size, not outer size; that way these methods
@@ -185,44 +185,15 @@ struct i9
 
 
   template<class T>
-  requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v && (!u9t_is<T, u9signed.m>::v)
-    explicit operator T() const { u9tm{u9t_<T>::t}(type()); return R<T>(data(), 0); }
-
-  explicit operator i64() const
-    { u9ints(type());
-      switch (type())
-      {
-      case u9t::i8:  return R<i8> (data(), 0);
-      case u9t::i16: return R<i16>(data(), 0);
-      case u9t::i32: return R<i32>(data(), 0);
-      case u9t::i64: return R<i64>(data(), 0);
-      case u9t::u8:  return R<u8> (data(), 0);
-      case u9t::u16: return R<u16>(data(), 0);
-      case u9t::u32: return R<u32>(data(), 0);
-      case u9t::u64: return R<u64>(data(), 0);
-        TA(0, type());
-      } }
-
-  explicit operator i32() const
-    { u9ints(type());
-      switch (type())
-      {
-      case u9t::i8:  return          R<i8> (data(), 0);
-      case u9t::i16: return          R<i16>(data(), 0);
-      case u9t::i32: return          R<i32>(data(), 0);
-      case u9t::i64: return coi<i32>(R<i64>(data(), 0));
-      case u9t::u8:  return          R<u8> (data(), 0);
-      case u9t::u16: return          R<u16>(data(), 0);
-      case u9t::u32: return coi<i32>(R<u32>(data(), 0));
-      case u9t::u64: return coi<i32>(R<u64>(data(), 0));
-        TA(0, type());
-      } }
+  requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v
+    explicit operator T() const;
 
   template<class T>
   operator T*() const
     { A(is_istruct(), "i9 T* on non-struct " << *this);
       A(sizeof(T) == size() - 1, "i9 native T* mismatches bounds; |T|=" << sizeof(T) << ", size()=" << size());
       return Rc<T*>(data() + 1); }
+
 
   operator St       () const { return St{Rc<ch*>(data()), size()}; }
   operator Bv       () const { return Bv{data(), size()}; }
@@ -250,22 +221,6 @@ struct i9
   i9 &pin()   { if (is_heapref()) W(data(), 0, Sc<u8>(u9_Φ::heappin)); return *this; }
   i9 &unpin() { if (is_heappin()) W(data(), 0, Sc<u8>(u9_Φ::heapref)); return *this; }
   i9 &free()  { if (is_heap()) std::free((**this).a); return *this; }
-
-
-  template<class T>
-  T at(uN i) const
-    { u9tm{u9t_<T>::t}(type());
-      A((i + 1) * sizeof(T) <= size(),
-        "i9at OOB, i = " << i << ", w = " << sizeof(T) << ", sz = " << size());
-      return R<T>(data(), i * sizeof(T)); }
-
-  template<class T>
-  i9 set(uN i, T x) const
-    { u9tm{u9t_<T>::t}(type());
-      A((i + 1) * sizeof(T) <= size(),
-        "i9set OOB, i = " << i << ", w = " << sizeof(T) << ", sz = " << size());
-      W(data(), i * sizeof(T), x);
-      return *this; }
 
 
   uN len() const  // number of contained elements
@@ -344,25 +299,97 @@ struct i9
                        << type() << " ≠ " << f);
       *a = *a & 7 | Sc<u8>(t) << 3;
       return *this; }
+
+
+  // Vector accessors
+  template<class T> inline T  at (uN)    const;
+  template<class T> inline i9 set(uN, T) const;
+
+  inline bool bvec_at(uN i) const
+    { u9tm{u9t::b}(type());
+      A(i < vn(), "i9at bool OOB, i = " << i << ", sz = " << size());
+      let j = i + 4;
+      return R<u8>(data(), j >> 3) & (1 << (j & 7)); }
+
+  inline i9 bvec_set(uN i, bool x) const
+    { u9tm{u9t::b}(type());
+      A(i < vn(), "i9set bool OOB, i = " << i << ", sz = " << size());
+      let j = i + 4;
+      W(data(), j >> 3,
+        Sc<u8>(x ? R<u8>(data(), j >> 3) |  (1 << (j & 7))
+               : R<u8>(data(), j >> 3) & ~(1 << (j & 7))));
+      return *this; }
 };
 
 
-template<>
-inline bool i9::at(uN i) const
-{ u9tm{u9t::b}(type());
-  A(i < vn(), "i9at bool OOB, i = " << i << ", sz = " << size());
-  let j = i + 4;
-  return R<u8>(data(), j >> 3) & (1 << (j & 7)); }
+template<class T>
+T i9::at(uN i) const
+{
+  let t = type();
+  if (t == u9t::b) return u9Sc<bool, T>::f(bvec_at(i));
 
-template<>
-inline i9 i9::set(uN i, bool x) const
-{ u9tm{u9t::b}(type());
-  A(i < vn(), "i9set bool OOB, i = " << i << ", sz = " << size());
-  let j = i + 4;
-  W(data(), j >> 3,
-    Sc<u8>(x ? R<u8>(data(), j >> 3) |  (1 << (j & 7))
-             : R<u8>(data(), j >> 3) & ~(1 << (j & 7))));
-  return *this; }
+  u9vectors(t);
+  let s = u9sizeof(t);
+  A((i + 1) * s <= size(),  // important: final byte is checked
+    "i9at OOB, i = " << i << ", t = " << t << ", w = " << s << ", sz = " << size());
+
+  switch (t)
+  {
+  case u9t::i8:  return u9Sc<i8,  T>::f(R<i8> (data(), i * s));
+  case u9t::i16: return u9Sc<i16, T>::f(R<i16>(data(), i * s));
+  case u9t::i32: return u9Sc<i32, T>::f(R<i32>(data(), i * s));
+  case u9t::i64: return u9Sc<i64, T>::f(R<i64>(data(), i * s));
+  case u9t::u8:  return u9Sc<u8,  T>::f(R<u8> (data(), i * s));
+  case u9t::u16: return u9Sc<u16, T>::f(R<u16>(data(), i * s));
+  case u9t::u32: return u9Sc<u32, T>::f(R<u32>(data(), i * s));
+  case u9t::u64: return u9Sc<u64, T>::f(R<u64>(data(), i * s));
+
+  case u9t::f32: return u9Sc<f32, T>::f(R<f32>(data(), i * s));
+  case u9t::f64: return u9Sc<f64, T>::f(R<f64>(data(), i * s));
+  case u9t::c32: return u9Sc<c32, T>::f(R<c32>(data(), i * s));
+  case u9t::c64: return u9Sc<c64, T>::f(R<c64>(data(), i * s));
+    TA(0, "i9at internal error, T = " << u9t_<T>::t << ", t = " << t);
+  }
+}
+
+
+template<class T>
+i9 i9::set(uN i, T x) const
+{
+  let t = type();
+  if (t == u9t::b) return bvec_set(i, u9Sc<T, bool>::f(x));
+
+  u9vectors(t);
+  let s = u9sizeof(t);
+  A((i + 1) * s <= size(),  // important: final byte is checked
+    "i9set OOB, i = " << i << ", t = " << t << ", w = " << s << ", sz = " << size());
+
+  switch (t)
+  {
+  case u9t::i8:  W(data(), i * s, u9Sc<T, i8> ::f(x)); break;
+  case u9t::i16: W(data(), i * s, u9Sc<T, i16>::f(x)); break;
+  case u9t::i32: W(data(), i * s, u9Sc<T, i32>::f(x)); break;
+  case u9t::i64: W(data(), i * s, u9Sc<T, i64>::f(x)); break;
+  case u9t::u8:  W(data(), i * s, u9Sc<T, u8> ::f(x)); break;
+  case u9t::u16: W(data(), i * s, u9Sc<T, u16>::f(x)); break;
+  case u9t::u32: W(data(), i * s, u9Sc<T, u32>::f(x)); break;
+  case u9t::u64: W(data(), i * s, u9Sc<T, u64>::f(x)); break;
+
+  case u9t::f32: W(data(), i * s, u9Sc<T, f32>::f(x)); break;
+  case u9t::f64: W(data(), i * s, u9Sc<T, f64>::f(x)); break;
+  case u9t::c32: W(data(), i * s, u9Sc<T, c32>::f(x)); break;
+  case u9t::c64: W(data(), i * s, u9Sc<T, c64>::f(x)); break;
+    TA(0, "i9set internal error, T = " << u9t_<T>::t << ", t = " << t);
+  }
+  return *this;
+}
+
+
+template<class T>
+requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v
+i9::operator T() const { return at<T>(0); }
+
+bool i9::b() const { return at<bool>(0); }
 
 
 inline i9 i9_false()        { return i9{i9_statics + 0}; }
