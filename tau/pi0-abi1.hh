@@ -129,14 +129,14 @@ void π0abi1_u9_vector(π0abi &a)
         i << r; })                                                     \
     .def(#t "s++", I{                                                  \
         π0hnf f{i.h, 3};                                               \
-        i9 a = i.dpop(); f(&a);                                        \
-        i9 b = i.dpop(); f(&b);                                        \
-        i9 c  = i.h << o9vec<t>{a.vn() + b.vn()}; f(&c);               \
-        for (uN j = 0; j < a.vn(); ++j)                                \
-          c.template set<t>(j, a.template at<t>(j));                   \
-        for (uN j = 0; j < b.vn(); ++j)                                \
-          c.template set<t>(j + a.vn(), b.template at<t>(j));          \
-        i << c; })                                                     \
+        i9 x = i.dpop(); f(&x);                                        \
+        i9 y = i.dpop(); f(&y);                                        \
+        i9 z  = i.h << o9vec<t>{x.vn() + y.vn()}; f(&z);               \
+        for (uN j = 0; j < x.vn(); ++j)                                \
+          z.template set<t>(j, x.template at<t>(j));                   \
+        for (uN j = 0; j < y.vn(); ++j)                                \
+          z.template set<t>(j + x.vn(), y.template at<t>(j));          \
+        i << z; })                                                     \
     .def(#t "s.", I{                                                   \
         π0hnf f{i.h, 1};                                               \
         let g = i.dpop();                                              \
@@ -144,6 +144,8 @@ void π0abi1_u9_vector(π0abi &a)
         for (uN j = 0; j < xs.vn(); ++j)                               \
         { i.dpush(xs.template at<t>(j));                               \
           i.run(g); } })
+
+  typedef bool b; a1vfns(b);
 
   a1vfns(i8);  a1vfns(i16); a1vfns(i32); a1vfns(i64);
   a1vfns(u8);  a1vfns(u16); a1vfns(u32); a1vfns(u64);
@@ -164,11 +166,12 @@ void π0abi1_u9_number(π0abi &a)
 #define a1sc(t, u) a.def(#t  ">"#u, I{ i.dpush(Sc<u>(i.dpop().template at<t>(0))); });
 #define a1vc(t, u) a.def(#t "s>"#u, I{                          \
       π0hnf f{i.h, 2};                                          \
-      i9 a = i.pop(); f(&a);                                    \
-      i9 b = i.h << o9vec<u>{a.vn()}; f(&b);                    \
-      i << b;                                                   \
-      for (uN i = 0; i < a.vn(); ++i)                           \
-        b.template set<u>(i, a.template at<t>(i)); });
+      i9 x = i.pop(); f(&x);                                    \
+      i9 y = i.h << o9vec<u>{x.vn()}; f(&y);                    \
+      i << y;                                                   \
+      let k = x.vn();                                           \
+      for (uN i = 0; i < k; ++i)                                \
+        y.template set<u>(i, x.template at<t>(i)); });
 
 #define a1cfi(f, g) f(g, i8);  f(g, i16); f(g, i32); f(g, i64);
 #define a1cfu(f, g) f(g, u8);  f(g, u16); f(g, u32); f(g, u64);
@@ -199,35 +202,38 @@ void π0abi1_u9_number(π0abi &a)
 #define a1vop(t, o) a.def(""#t "s"#o, I{                                \
       π0hnf f{i.h, 3};                                                  \
       typedef decltype(std::declval<t>() o std::declval<t>()) r;        \
-      i9 a = i.pop(); f(&a);                                            \
-      i9 b = i.pop(); f(&b);                                            \
-      if (a.vn() == 1)                                                  \
-      { i9 c = i.h << o9vec<r>{b.vn()}; f(&c);                          \
-        let xa = a.template at<t>(0);                                   \
-        for (uN i = 0; i < b.vn(); ++i)                                 \
-          c.template set<r>(i, xa o b.template at<t>(i));               \
-        i << c; }                                                       \
-      else if (b.vn() == 1)                                             \
-      { i9 c = i.h << o9vec<r>{a.vn()}; f(&c);                          \
-        let xb = b.template at<t>(0);                                   \
-        for (uN i = 0; i < a.vn(); ++i)                                 \
-          c.template set<r>(i, a.template at<t>(i) o xb);               \
-        i << c; }                                                       \
+      i9 x = i.pop(); f(&x);                                            \
+      i9 y = i.pop(); f(&y);                                            \
+      if (x.vn() == 1)                                                  \
+      { i9 z = i.h << o9vec<r>{y.vn()}; f(&z);                          \
+        let xa = x.template at<t>(0);                                   \
+        let nb = y.vn();                                                \
+        for (uN i = 0; i < nb; ++i)                                     \
+          z.template set<r>(i, xa o y.template at<t>(i));               \
+        i << z; }                                                       \
+      else if (y.vn() == 1)                                             \
+      { i9 z = i.h << o9vec<r>{x.vn()}; f(&z);                          \
+        let xb = y.template at<t>(0);                                   \
+        let na = x.vn();                                                \
+        for (uN i = 0; i < na; ++i)                                     \
+          z.template set<r>(i, x.template at<t>(i) o xb);               \
+        i << z; }                                                       \
       else                                                              \
-      { let k = std::min(a.vn(), b.vn());                               \
-        i9 c = i.h << o9vec<r>{k}; f(&c);                               \
+      { let k = std::min(x.vn(), y.vn());                               \
+        i9 z = i.h << o9vec<r>{k}; f(&z);                               \
         for (uN i = 0; i < k; ++i)                                      \
-          c.template set<r>(                                            \
-            i, a.template at<t>(i) o b.template at<t>(i));              \
-        i << c; }});
+          z.template set<r>(                                            \
+            i, x.template at<t>(i) o y.template at<t>(i));              \
+        i << z; }});
 
 #define a1vuop(t, o, n) a.def(#t "s"#n, I{                      \
       π0hnf f{i.h, 2};                                          \
-      i9 a = i.pop(); f(&a);                                    \
-      i9 b = i.h << o9vec<t>{a.vn()}; f(&b);                    \
-      i << b;                                                   \
-      for (uN i = 0; i < a.vn(); ++i)                           \
-        b.template set<t>(i, o a.template at<t>(i)); });
+      i9 x = i.pop(); f(&x);                                    \
+      i9 y = i.h << o9vec<t>{x.vn()}; f(&y);                    \
+      i << y;                                                   \
+      let k = x.vn();                                           \
+      for (uN i = 0; i < k; ++i)                                \
+        y.template set<t>(i, o x.template at<t>(i)); });
 
 #define a1gena(f, g) f(g, +); f(g, -); f(g, *); f(g, /);
 #define a1rela(f, g) f(g, ==); f(g, !=); f(g, <); f(g, >); f(g, <=); f(g, >=);
@@ -259,6 +265,10 @@ void π0abi1_u9_number(π0abi &a)
 
   a1bita(a1fi, a1sop);  a1bita(a1fi, a1vop);
   a1bita(a1fu, a1sop);  a1bita(a1fu, a1vop);
+
+  // TODO: vectorize
+  typedef bool b;
+  a1vop(b, &); a1vop(b, |); a1vop(b, ^); a1vuop(b, !, l);
 
 #undef a1sop
 #undef a1suop

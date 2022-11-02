@@ -202,12 +202,6 @@ struct o9a : virtual o9V  // vector of fixed
       return 0; }
 };
 
-template<>
-struct o9a<bool> : virtual o9V
-{
-  // TODO
-};
-
 
 template<o9simple T, template<typename...> class C, class... Ts>
 struct o9v : virtual o9V  // unindexed, unordered tuple/set (simple)
@@ -365,7 +359,7 @@ struct o9t : virtual o9V
 
 
 template<o9fixed T>
-struct o9vec : virtual o9V
+struct o9vec : virtual o9V  // cleared vector of given size
 {
   uN n;
   o9vec(uN n_) : n(n_) {}
@@ -382,11 +376,12 @@ struct o9vec<bool> : virtual o9V
 {
   uN n;
   o9vec(uN n_) : n(n_) {}
-  uN isize()     const { return n + 7 >> 3; }
+  uN isize()     const { return 1 + (n + 3 >> 3); }
   uN size()      const { return isize() + u9sb(u9sq(isize())); }
   uN write(ζp m) const
     { let i = u9ws(m, 0, u9t::b, isize());
       std::memset(m + i, 0, isize());
+      W(m, i, Sc<u8>(n & 7));
       return 0; }
 };
 

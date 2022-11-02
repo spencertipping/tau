@@ -140,6 +140,45 @@ In contrast, `bytes` and `utf8` are always single, variable-size elements; the c
 ### Booleans
 `0` for false, `1` for true. Booleans can be vectorized into bitsets; in that case, `b[i] = xs[i >> 3] & (1 << i & 7)`; that is, the least-significant bit of the first byte has index `0`.
 
+The least-significant four bits of the first byte are used to encode the size-remainder, in this case `n & 15`. For example, suppose we have this:
+
+```
+       n % 16 = 12 (n == 12)
+       |
+       | bits 4..11
+       V VV
+60 02 fc ff
+^   ^ ^
+|   | bits 0..3
+|   |
+|   2bytes
+bool
+```
+
+We use the half-byte strategy like this so single boolean values use only three bytes. Technically we could encode the remainder with just three bits, but I prefer to use four to keep the encoding more predictable.
+
+Calculating the logical size of a bitvector from its byte-size + remainder requires us to break on the remainder. If _n%8 ≤ 4_, then _n = 8(s - 1) + n%8_; otherwise _n = 8(s - 2) + n%8_.
+
+| n  | n%8 | size |
+|----|-----|------|
+| 0  | 0   | 1    |
+| 1  | 1   | 1    |
+| 2  | 2   | 1    |
+| 3  | 3   | 1    |
+| 4  | 4   | 1    |
+| 5  | 5   | 2    |
+| 6  | 6   | 2    |
+| 7  | 7   | 2    |
+| 8  | 0   | 2    |
+| 9  | 1   | 2    |
+| 10 | 2   | 2    |
+| 11 | 3   | 2    |
+| 12 | 4   | 2    |
+| 13 | 5   | 3    |
+| 14 | 6   | 3    |
+| 15 | 7   | 3    |
+| 16 | 0   | 3    |
+
 
 ### Tensors
 _n_-dimensional packed arrays of some numeric type. Tensors are formatted as two concatenated vectors, the first of which is the dimensional encoding and the second is the data:

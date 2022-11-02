@@ -144,7 +144,11 @@ struct i9
 
   // NOTE: returns 0 if this type cannot be vectorized
   uN   vn()      const
-    { return type() == u9t::b ? size() << 3 : size() >> u9logsizeof(type()); }
+    { if (type() == u9t::b)
+      { let r = R<u8>(data(), 0) & 7;
+        return r <= 4 ? size() - 1 << 3 | r : size() - 2 << 3 | r; }
+      else
+        return size() >> u9logsizeof(type()); }
 
 
   template<class T> operator u9_scoped<u9_π,     T>() const { u9tm{u9t::pi}   (type()); return R<u9_scoped<u9_π,     T>>(data(), 0); }
@@ -322,22 +326,21 @@ struct i9
 };
 
 
-// TODO: add some type of half-byte prefix to bool vectors
-// so we can accurately encode vector size
-
 template<>
 inline bool i9::at(uN i) const
 { u9tm{u9t::b}(type());
-  A(i >> 3 < size(), "i9at bool OOB, i = " << i << ", sz = " << size());
-  return R<u8>(data(), i >> 3) & (1 << i & 7); }
+  A(i < vn(), "i9at bool OOB, i = " << i << ", sz = " << size());
+  let j = i + 4;
+  return R<u8>(data(), j >> 3) & (1 << j & 7); }
 
 template<>
 inline i9 i9::set(uN i, bool x) const
 { u9tm{u9t::b}(type());
-  A(i >> 3 < size(), "i9set bool OOB, i = " << i << ", sz = " << size());
-  W(data(), i >> 3,
-    Sc<u8>(x ? R<u8>(data(), i >> 3) |  (1 << i & 7)
-             : R<u8>(data(), i >> 3) & ~(1 << i & 7)));
+  A(i < vn(), "i9set bool OOB, i = " << i << ", sz = " << size());
+  let j = i + 4;
+  W(data(), j >> 3,
+    Sc<u8>(x ? R<u8>(data(), j >> 3) |  (1 << j & 7)
+             : R<u8>(data(), j >> 3) & ~(1 << j & 7)));
   return *this; }
 
 
@@ -390,9 +393,8 @@ O &operator<<(O &s, i9 const &x)
   case u9t::b:
     if (!x.vn()) return s << "b[]";
     s << (x.template at<bool>(0) ? 't' : 'f');
-    if (x.size() != 1 || R<u8>(x.data(), 0) > 1)
-      for (uN i = 1; i < x.vn(); ++i)
-        s << ' ' << (x.template at<bool>(i) ? 't' : 'f');
+    for (uN i = 1; i < x.vn(); ++i)
+      s << ' ' << (x.template at<bool>(i) ? 't' : 'f');
     return s;
 
   case u9t::symbol: return s << Sc<u9_symbol>(x);
