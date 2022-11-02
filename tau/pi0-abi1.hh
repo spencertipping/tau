@@ -341,6 +341,7 @@ void π0abi1_u9_tuple(π0abi &a)
 void π0abi1_u9_structure(π0abi &a)
 {
   a .def("(", I{ i.dpush(Sc<iN>(1)); i.spush(1); })
+    .def("{", I{ i.dpush(Sc<iN>(1)); i.spush(1); })
     .def(")", I{
         let x = i[0];
         i.spop();
@@ -351,6 +352,18 @@ void π0abi1_u9_structure(π0abi &a)
         for (uN j = 0; j < k; ++j) xs.push_back(i[k - j - 1]);
         i.drop(k);
         i.dpush(xs); })
+    .def("}", I{
+        let x = i[0];
+        i.spop();
+        uNc k = Sc<iN>(i.dpop());
+        A(!(k & 1), "{} size = " << k << " (must be even)");
+        i << x;
+        π0hnf f{i.h, 0};
+        V<i9> xs; xs.reserve(k); f(&xs);
+        for (uN j = 0; j < k; ++j) xs.push_back(i[k - j - 1]);
+        i.drop(k);
+        i.dpush(xs);
+         })
     .def(",", I{
         let x = i[0];
         i.spop();

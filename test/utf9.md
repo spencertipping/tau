@@ -1,6 +1,8 @@
 # UTF9 tests
 We'll use π₀ and lazytest to assert various behavior here.
 
+
+## Vector basics
 ```bash
 $ ./pi0 "i8'8 [] i8. i8'8 >>i8s :out"
 7 6 5 4 3 2 1 0

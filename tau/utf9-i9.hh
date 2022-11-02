@@ -323,6 +323,13 @@ struct i9
           if (!i.verify(e - i.a)) return false;
         if (i.a != e) return false; }
       return true; }
+
+
+  i9 &retype(u9t f, u9t t)
+    { A(type() == f, f << " → " << t << " retyping mismatch: "
+                       << type() << " ≠ " << f);
+      TODO("retype");
+    }
 };
 
 

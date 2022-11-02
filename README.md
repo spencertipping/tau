@@ -94,10 +94,10 @@ Some work items fit well together and/or support each other if executed in order
   + [ ] `verify` return value
   + [ ] int cast semantics
   + [ ] `i9` cast semantics
-+ γ components
-  + Multiplexer
-  + Union
-  + Rate-limited register
++ [ ] γ components
+  + [ ] Multiplexer
+  + [ ] Union
+  + [ ] Rate-limited register
 + Web Φ
   + HTTP
   + WASM/websocket Φ
