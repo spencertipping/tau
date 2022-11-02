@@ -41,8 +41,21 @@ inline i9 i9_no_key();
 inline i9 i9_tuple_bounds();
 
 
+enum class i9v : u8
+{
+  valid         = 0,
+  osize_overrun = 1,
+  osize_2       = 2,
+  osize_sb      = 3,
+  undersized    = 4,
+  bad_element   = 5,
+  bad_collsize  = 6,
+};
+
+
 #if τdebug_iostream
-O &operator<<(O &s, i9 const &i);
+O &operator<<(O&, i9 const&);
+O &operator<<(O&, i9v);
 #endif
 
 
@@ -308,21 +321,22 @@ struct i9
   bool operator==(i9   x) const { return x.a == a || type() == x.type() && size() == x.size() && !std::memcmp(data(), x.data(), x.size()); }
 
 
-  // TODO: return an enum value so we can describe failure cases better
-  bool verify(uN s = 0) const  // verify this value with the given external size
+  i9v verify(uN s = 0) const  // verify this value with the given external size
     { if (!s) s = osize();
-      if (s < 2)                return false;
-      if (s < u9sb(u9ts_s(*a))) return false;
-      if (s < osize())          return false;
+      if (s < 2)                return i9v::osize_2;
+      if (s < u9sb(u9ts_s(*a))) return i9v::osize_sb;
+      if (s < osize())          return i9v::osize_overrun;
       let e = a + osize();
+
+      // TODO: verify vector sizes
 
       // TODO: verify index offsets
       if (u9tm{u9t::tuple, u9t::set, u9t::map, u9t::index}[type()])
       { i9 i = first();
         for (; i.a >= first() && i < e; i = i.next())
-          if (!i.verify(e - i.a)) return false;
-        if (i.a != e) return false; }
-      return true; }
+          if (i.verify(e - i.a) != i9v::valid) return i9v::bad_element;
+        if (i.a != e) return i9v::bad_collsize; }
+      return i9v::valid; }
 
 
   i9 &retype(u9t f, u9t t)
@@ -364,6 +378,20 @@ static_assert(sizeof(i9) == sizeof(uN));
 
 
 #if τdebug_iostream
+O &operator<<(O &s, i9v x)
+{
+  switch (x)
+  {
+  case i9v::valid:         return s << "OK";
+  case i9v::bad_collsize:  return s << "s≠Σ";
+  case i9v::bad_element:   return s << "X∈";
+  case i9v::osize_2:       return s << "|2";
+  case i9v::osize_overrun: return s << "|>os";
+  case i9v::osize_sb:      return s << "|>sb";
+  case i9v::undersized:    return s << "|<s";
+  }
+}
+
 O &operator<<(O &s, i9 const &x)
 {
   if (τdebug_i9st)

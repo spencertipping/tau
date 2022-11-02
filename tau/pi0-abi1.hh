@@ -381,7 +381,7 @@ void π0abi1_u9_quote(π0abi &a)
     .def("b$", I{
         let x = i.dpop();
         let j = i9{x.data()};
-        i.dpush(j.verify(x.size()) ? j : i9_none());
+        i.dpush(j.verify(x.size()) == i9v::valid ? j : i9_none());
       });
 }
 

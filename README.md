@@ -83,7 +83,7 @@ Ordered by descending priority, give or take. Time estimates are 80% CI.
 
 If we drop data science, we're down to 34.75 days and a >95% chance the remainder is done.
 
-+ **Done so far:** 1/49.75 days
++ **Done so far:** 1.25/49.75 days
 + **Dropped:** 0.25 days (I canceled these tasks as being unnecessary)
 
 
@@ -92,7 +92,7 @@ Some work items fit well together and/or support each other if executed in order
 
 + [ ] UTF9
   + [x] Bitvector size bits
-  + [ ] `verify` return value
+  + [x] `verify` return value
   + [ ] int cast semantics
   + [ ] `i9` cast semantics
 + [ ] γ components
@@ -139,7 +139,7 @@ Some work items fit well together and/or support each other if executed in order
     + [ ] **2 days:** Indexed collections
     + [x] **0.25 days:** Quoted maps
     + [x] **0.5 days:** Allocate bits for bitvector size
-    + [ ] **0.25 days:** `verify()` detailed return value
+    + [x] **0.25 days:** `verify()` detailed return value
     + [ ] **0.5 days:** Fix/verify int cast semantics
     + [ ] **1.5 days:** Fix/verify `i9` cast semantics generally (optional, probably)
   + [ ] **2 days:** `libsodium` encrypted-Φ/Γ (optional)
