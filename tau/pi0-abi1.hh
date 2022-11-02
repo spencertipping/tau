@@ -158,40 +158,27 @@ void π0abi1_u9_vector(π0abi &a)
 
 void π0abi1_u9_number(π0abi &a)
 {
-#define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__);
-#define a1fu(f, ...) f(u8,  __VA_ARGS__); f(u16, __VA_ARGS__); f(u32, __VA_ARGS__); f(u64, __VA_ARGS__);
-#define a1ff(f, ...) f(f32, __VA_ARGS__); f(f64, __VA_ARGS__);
-#define a1fc(f, ...) f(c32, __VA_ARGS__); f(c64, __VA_ARGS__);
+  typedef bool b;
 
-#define a1sc(t, u) a.def(#t  ">"#u, I{ i.dpush(Sc<u>(i.dpop().template at<t>(0))); });
-#define a1vc(t, u) a.def(#t "s>"#u, I{                          \
+#define a1sc(t) a.def(">"#t,    I{ i.dpush(i.dpop().template at<t>(0)); });
+#define a1vc(t) a.def(">"#t"s", I{                              \
       π0hnf f{i.h, 2};                                          \
       i9 x = i.pop(); f(&x);                                    \
-      i9 y = i.h << o9vec<u>{x.vn()}; f(&y);                    \
+      i9 y = i.h << o9vec<t>{x.vn()}; f(&y);                    \
       i << y;                                                   \
       let k = x.vn();                                           \
       for (uN i = 0; i < k; ++i)                                \
-        y.template set<u>(i, x.template at<t>(i)); });
+        y.template set<t>(i, x.template at<t>(i)); });
 
-#define a1cfi(f, g) f(g, i8);  f(g, i16); f(g, i32); f(g, i64);
-#define a1cfu(f, g) f(g, u8);  f(g, u16); f(g, u32); f(g, u64);
-#define a1cff(f, g) f(g, f32); f(g, f64);
-#define a1cfc(f, g) f(g, c32); f(g, c64);
+  a1sc(b);   a1vc(b);
 
-  a1cfi(a1fi, a1sc);  a1cfi(a1fu, a1sc);  a1cfi(a1ff, a1sc);
-  a1cfu(a1fi, a1sc);  a1cfu(a1fu, a1sc);  a1cfu(a1ff, a1sc);
-  a1cff(a1fi, a1sc);  a1cff(a1fu, a1sc);  a1cff(a1ff, a1sc);
-  a1cfc(a1fi, a1sc);  a1cfc(a1fu, a1sc);  a1cfc(a1ff, a1sc);
+  a1sc(i8);  a1vc(i8);   a1sc(u8);  a1vc(u8);
+  a1sc(i16); a1vc(i16);  a1sc(u16); a1vc(u16);
+  a1sc(i32); a1vc(i32);  a1sc(u32); a1vc(u32);
+  a1sc(i64); a1vc(i64);  a1sc(u64); a1vc(u64);
 
-  a1cfi(a1fi, a1vc);  a1cfi(a1fu, a1vc);  a1cfi(a1ff, a1vc);
-  a1cfu(a1fi, a1vc);  a1cfu(a1fu, a1vc);  a1cfu(a1ff, a1vc);
-  a1cff(a1fi, a1vc);  a1cff(a1fu, a1vc);  a1cff(a1ff, a1vc);
-  a1cfc(a1fi, a1vc);  a1cfc(a1fu, a1vc);  a1cfc(a1ff, a1vc);
-
-#undef a1cfi
-#undef a1cfu
-#undef a1cff
-#undef a1cfc
+  a1sc(f32); a1vc(f32);  a1sc(c32); a1vc(c32);
+  a1sc(f64); a1vc(f64);  a1sc(c64); a1vc(c64);
 
 #undef a1sc
 #undef a1vc
@@ -243,6 +230,11 @@ void π0abi1_u9_number(π0abi &a)
 #define a1genu(f, g) f(g, -, n);
 #define a1bitu(f, g) f(g, !, l); f(g, ~, ~);
 
+#define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__);
+#define a1fu(f, ...) f(u8,  __VA_ARGS__); f(u16, __VA_ARGS__); f(u32, __VA_ARGS__); f(u64, __VA_ARGS__);
+#define a1ff(f, ...) f(f32, __VA_ARGS__); f(f64, __VA_ARGS__);
+#define a1fc(f, ...) f(c32, __VA_ARGS__); f(c64, __VA_ARGS__);
+
   a1genu(a1fi, a1suop);  a1genu(a1fi, a1vuop);
   a1genu(a1fu, a1suop);  a1genu(a1fu, a1vuop);
   a1genu(a1ff, a1suop);  a1genu(a1ff, a1vuop);
@@ -267,18 +259,17 @@ void π0abi1_u9_number(π0abi &a)
   a1bita(a1fu, a1sop);  a1bita(a1fu, a1vop);
 
   // TODO: vectorize
-  typedef bool b;
   a1vop(b, &); a1vop(b, |); a1vop(b, ^); a1vuop(b, !, l);
-
-#undef a1sop
-#undef a1suop
-#undef a1vop
-#undef a1vuop
 
 #undef a1fi
 #undef a1fu
 #undef a1ff
 #undef a1fc
+
+#undef a1sop
+#undef a1suop
+#undef a1vop
+#undef a1vuop
 
 #undef a1genu
 #undef a1bitu
