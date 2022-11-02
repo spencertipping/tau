@@ -92,8 +92,8 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
 + 2022.1102: -1.75 = 48 (0.75 ahead)
 
 
-### Execution plan
-Some work items fit well together and/or support each other if executed in order.
+### Next-sprint plan
+**Total:** 17 days; goal = 2022.1120
 
 + [ ] **Primary:** browser-enabled multiway chat = webapp core
   + [ ] Native websocket server -- later we'll also want JSON/REST API
