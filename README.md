@@ -95,29 +95,19 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
 ### Execution plan
 Some work items fit well together and/or support each other if executed in order.
 
-+ [ ] UTF9
-  + [x] Bitvector size bits
-  + [x] `verify` return value
-  + [x] int cast semantics
-  + [ ] `i9` cast semantics
-+ [ ] γ components
-  + [ ] Multiplexer
-  + [ ] Union
-  + [ ] Rate-limited register
-+ Web Φ
-  + HTTP
-  + WASM/websocket Φ
-  + DOM
-+ WebGL
-  + Z-order blending
-  + Arc rendering
-  + GL images
-+ π₀
-  + [x] Quoted maps
-  + [ ] REPL
-+ π₀ stress testing
-  + Randomized tests
-  + Performance tests
++ [ ] **Primary:** browser-enabled multiway chat = webapp core
+  + [ ] Native websocket server -- later we'll also want JSON/REST API
+  + [ ] WASM/websocket Φ
+  + [ ] Basic DOM -- textbox in → div/pre out
+  + [ ] WebGL proof of concept (small mirror of linux/xframe stuff)
++ [ ] **Background:** π₀ stress testing
+  + [ ] Generative tests
+  + [ ] Performance tests
++ [ ] **Background:** GL enhancements
+  + [ ] Define the operation space more precisely
+  + [ ] Z-order blending
+  + [ ] Arc rendering
+  + [ ] GL images
 
 **TODO:** more of these as I make progress on the ones above
 
