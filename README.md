@@ -85,6 +85,11 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
 
 + **Done so far:** 1.75/49.75 days
 + **Dropped:** 0.25 days (I canceled these tasks as being unnecessary)
++ **Over/under:** 0.75 days ahead of schedule
+
+
+### Execution log
++ 2022.1102: -1.75 = 48 (0.75 ahead)
 
 
 ### Execution plan
