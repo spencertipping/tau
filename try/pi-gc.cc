@@ -13,8 +13,6 @@
 
 #include "../tau.hh"
 
-#if τdefines_π
-
 
 using namespace τ;
 using namespace std;
@@ -220,7 +218,11 @@ void default_try_stuff()
   try_simple_gc();
   try_data_stack_slow();
   try_data_stack_fast();
+#if τplatform != τplatform_wasm
   try_data_stack_tuple();
+#else
+  cout << "try_data_stack_tuple() disabled on wasm due to high memory usage" << endl;
+#endif
   try_asm();
 }
 
@@ -270,14 +272,3 @@ int main(int argc, char **argv)
 
 
 #include "../tau/end.hh"
-
-
-#else
-
-int main(int argc, char **argv)
-{
-  std::cout << "no π on this platform" << std::endl;
-  return 0;
-}
-
-#endif

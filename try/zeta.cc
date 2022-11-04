@@ -38,18 +38,18 @@ void try_small_ζ()
   });
 
   let s2 = l.c([&]() {
-    cout << "received " << i9{*t} << endl; A(i9{*t}.verify(), "verify() failed: " << i9{*t}); ++t;
-    cout << "received " << i9{*t} << endl; A(i9{*t}.verify(), "verify() failed: " << i9{*t}); ++t;
-    cout << "received " << i9{*t} << endl; A(i9{*t}.verify(), "verify() failed: " << i9{*t}); ++t;
-    cout << "received " << i9{*t} << endl; A(i9{*t}.verify(), "verify() failed: " << i9{*t}); ++t;
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify() == i9v::valid, "verify() failed: " << i9{*t} << " = " << i9{*t}.verify()); ++t;
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify() == i9v::valid, "verify() failed: " << i9{*t} << " = " << i9{*t}.verify()); ++t;
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify() == i9v::valid, "verify() failed: " << i9{*t} << " = " << i9{*t}.verify()); ++t;
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify() == i9v::valid, "verify() failed: " << i9{*t} << " = " << i9{*t}.verify()); ++t;
 
     i9 b = *t;
     cout << "received " << b << " = " << *b << endl;
-    A(i9{*t}.verify(), "verify() failed: " << i9{*t});
+    A(i9{*t}.verify() == i9v::valid, "verify() failed: " << i9{*t} << " = " << i9{*t}.verify());
     ++t;  // NOTE: this should free b
 
     cout << "received " << i9{*t} << endl;
-    A(i9{*t}.verify(), "verify() failed: " << i9{*t});
+    A(i9{*t}.verify() == i9v::valid, "verify() failed: " << i9{*t} << " = " << i9{*t}.verify());
     ++t;
 
     let z = *t;
@@ -87,7 +87,7 @@ void try_tuple()
   let s2 = l.c([&]() {
     for (i9 x : b)
     {
-      A(x.verify(), "verify() failed: " << x);
+      A(x.verify() == i9v::valid, "verify() failed: " << x << " = " << x.verify());
       cout << x << endl;
     }
     return 0;

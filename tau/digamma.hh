@@ -124,9 +124,13 @@ struct ϝ
 };
 
 
+#if τhas_epoll  // FIXME: this is the wrong way to condition the def below
+
 // important: prevents attempted coercion of Φf into an o9
 template<class O>
 ic bool operator<<(ϝ &f, Φf<O> &x) { return f.φο() << x; }
+
+#endif
 
 
 }
