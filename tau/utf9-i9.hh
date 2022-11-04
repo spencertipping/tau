@@ -307,17 +307,17 @@ struct i9
 
   inline bool bvec_at(uN i) const
     { u9tm{u9t::b}(type());
-      A(i < vn(), "i9at bool OOB, i = " << i << ", sz = " << size());
+      A(i < vn(), "i9at bool OOB, i = " << i << ", vn = " << vn() << ", sz = " << size());
       let j = i + 4;
       return R<u8>(data(), j >> 3) & (1 << (j & 7)); }
 
   inline i9 bvec_set(uN i, bool x) const
     { u9tm{u9t::b}(type());
-      A(i < vn(), "i9set bool OOB, i = " << i << ", sz = " << size());
+      A(i < vn(), "i9set bool OOB, i = " << i << ", vn = " << vn() << ", sz = " << size());
       let j = i + 4;
       W(data(), j >> 3,
         Sc<u8>(x ? R<u8>(data(), j >> 3) |  (1 << (j & 7))
-               : R<u8>(data(), j >> 3) & ~(1 << (j & 7))));
+                 : R<u8>(data(), j >> 3) & ~(1 << (j & 7))));
       return *this; }
 };
 

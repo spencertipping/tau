@@ -210,7 +210,7 @@ void try_asm()
   π0h   h{};
   π0int i{π0abi1(), a.build(), h};
   i.run(0);
-  i32 x = i.dpop();
+  i32 x = Sc<i32>(i.dpop());
   A(x == 3, "expected 3, got " << x);
 }
 

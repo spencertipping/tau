@@ -89,6 +89,15 @@ struct o9f : virtual o9V
   uN write(ζp m) const { W(m, u9ws(m, 0, u9t_<T>::t, s), x); return 0; }
 };
 
+template<>
+struct o9f<bool> : virtual o9V
+{
+  bool x;
+  o9f(bool x_) : x(x_) {}
+  uN size()      const { return 1 + u9sb(u9sq(1)); }
+  uN write(ζp m) const { W(m, u9ws(m, 0, u9t::b, 1), Sc<u8>(x ? 17 : 1)); return 0; }
+};
+
 
 template<class T>
 o9f<u9_scoped<u9_Φ, ζp>> o9box(T &x)
