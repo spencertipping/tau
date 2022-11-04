@@ -1,5 +1,5 @@
-#ifndef τξtcp_h
-#define τξtcp_h
+#ifndef τξlinux_tcp_h
+#define τξlinux_tcp_h
 
 
 #include <netdb.h>
@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 
 
-#include "begin.hh"
+#include "../begin.hh"
 
 
 namespace τ
@@ -81,7 +81,7 @@ namespace ξ
 }
 
 
-#include "end.hh"
+#include "../end.hh"
 
 
 #endif

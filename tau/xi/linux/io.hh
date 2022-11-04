@@ -1,8 +1,8 @@
-#ifndef τξio_h
-#define τξio_h
+#ifndef τξlinux_io_h
+#define τξlinux_io_h
 
 
-#include "begin.hh"
+#include "../begin.hh"
 
 
 namespace τ
@@ -139,7 +139,7 @@ namespace ξ
 }
 }
 
-#include "end.hh"
+#include "../end.hh"
 
 
 #endif

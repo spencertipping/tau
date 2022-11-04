@@ -206,7 +206,7 @@ int editor(int argc, char **argv)
       let tx = 8.f;
 
       static uN  n = 0;
-      if (!l)
+      if (!l.real())
       { n = 0;
         p << o9t((uN) xrop_line,
                  ox + tx + ex * lx, oy + (ey % 16)     * ly * lh, oz + ((ey >> 4) + 1)*.3f,
