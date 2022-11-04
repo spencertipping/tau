@@ -12,10 +12,10 @@
 #endif
 
 
-void foo()
-{
-  EM_ASM("alert('hi');");
-}
+struct Φ;
+
+
+// TODO: define Φ interface within an event-loop context
 
 
 #endif

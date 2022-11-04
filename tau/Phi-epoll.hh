@@ -19,7 +19,6 @@
 #include "types.hh"
 #include "phi.hh"
 #include "Lambda.hh"
-#include "gate.hh"
 #include "utf9.hh"
 
 

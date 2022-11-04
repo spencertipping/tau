@@ -6,6 +6,7 @@
 
 
 #include "xi/basics.hh"
+#include "xi/asm.hh"
 #include "xi/theta.hh"
 #include "xi/digamma.hh"
 #include "xi/debug.hh"
