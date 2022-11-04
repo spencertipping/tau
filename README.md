@@ -90,6 +90,7 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
 
 ### Execution log
 + 2022.1102: -1.75 = 48 (0.75 ahead)
++ 2022.1104: -1.5 = 46.5 (0.25 ahead)
 
 
 ### Next-sprint plan
@@ -138,7 +139,7 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
     + [x] **0.5 days:** Allocate bits for bitvector size
     + [x] **0.25 days:** `verify()` detailed return value
     + [x] **0.5 days:** Fix/verify int cast semantics
-    + [ ] **1.5 days:** Fix/verify `i9` cast semantics generally (optional, probably)
+    + [x] **1.5 days:** Fix/verify `i9` cast semantics generally (optional, probably)
   + [ ] **2 days:** `libsodium` encrypted-Φ/Γ (optional)
   + [ ] **3 days:** π₀ REPL (optional)
 + [ ] **2 days:** ϝ components
