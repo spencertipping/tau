@@ -24,10 +24,6 @@ struct π0ho9;      // GC heap object copy (or copy-out-to-Φ)
 struct π0o9f;      // π₀ object export
 struct π0o9q;      // π₀ object quote-to-bytes
 
-template<> struct o9_<π0ho9> { sletc v = true; };
-template<> struct o9_<π0o9f> { sletc v = true; };
-template<> struct o9_<π0o9q> { sletc v = true; };
-
 
 typedef u32 π0bi;  // bytecode index
 typedef u32 π0fi;  // function index
@@ -35,6 +31,11 @@ typedef u32 π0fa;  // function argument
 typedef u64 π0av;  // ABI version
 
 typedef ζp  π0r;   // reference to heap-allocated object
+
+
+template<> struct o9_<π0ho9> { sletc v = true; };
+template<> struct o9_<π0o9f> { sletc v = true; };
+template<> struct o9_<π0o9q> { sletc v = true; };
 
 
 // Bytecode function: takes a single 32-bit argument whose meaning
