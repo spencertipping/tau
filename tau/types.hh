@@ -2,6 +2,10 @@
 #define τtypes_h
 
 
+#include <chrono>
+#include <type_traits>
+
+
 #include "arch.hh"
 #include "debug.hh"
 
@@ -13,6 +17,8 @@
 namespace τ
 {
 
+using namespace std::literals;
+
 
 typedef uN      Λr;  // NOTE: this value is never used
 typedef uN      λi;
@@ -21,6 +27,17 @@ typedef uN      ζi;
 typedef uN      φi;
 typedef uN      γi;
 typedef F<Λr()> λf;
+
+
+typedef std::chrono::steady_clock       Θc;
+typedef std::chrono::nanoseconds        ΔΘ;
+typedef std::chrono::time_point<Θc, ΔΘ> Θp;
+
+// Definition of time quantum
+ΔΘ constexpr Θq = 1ns;
+static_assert(Θq.count() == 1);
+static_assert(std::is_integral<ΔΘ::rep>::value);
+
 
 enum class λs  // lambda runnability state
 {

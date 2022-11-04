@@ -21,6 +21,8 @@
 #include "Lambda.hh"
 #include "utf9.hh"
 
+#include "Phi-common.hh"
+
 
 #include "begin.hh"
 
@@ -78,30 +80,19 @@ O &operator<<(O&, Φf<fO> const&);
 #endif
 
 
-struct ΦΘ
-{
-  Θp h;
-  λi l;
-  bool operator<(ΦΘ const &x) const { return h > x.h; }
-};
-
-
-struct Φ
+struct Φ : public Φb
 {
   sletc Φen = 256;  // number of events per epoll_wait call
 
-  Λ               l;
   iNc             efd;        // epoll control FD
   M<uN, S<void*>> fs;         // who's listening for each FD
   S<void*>        nfs;        // non-monitored files
   epoll_event     ev[Φen];    // inbound epoll event buffer
-  PQ<ΦΘ>          h;          // upcoming timed λs
-  Θp              t0 = now();
 
 
   Φ(Φ&)  = delete;
   Φ(Φ&&) = delete;
-  Φ() : efd(epoll_create1(0))
+  Φ() : Φb(), efd(epoll_create1(0))
     { signal(SIGPIPE, SIG_IGN);
       A(efd != -1, "epoll_create1 failure " << errno); }
 
@@ -130,15 +121,6 @@ struct Φ
       return !close(c); }
 
 
-  Φ &Θ(Θp t)
-    { while (now() < t) { h.push(ΦΘ{t, l.i()}); l.y(λs::Θ); }
-      return *this; }
-
-  Θp hn() const { return h.empty() ? forever() : h.top().h; }
-
-  ΔΘ dt() const { return now() - t0; }
-
-
   Φ &operator()()
     { let t = now();
       if (t < hn() && (!fs.empty() || hn() < forever()))
@@ -155,7 +137,7 @@ struct Φ
   operator bool() const
     { return !fs.empty() || !nfs.empty() || hn() != forever(); }
 
-  Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return static_cast<bool>(f); })
+  Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return Sc<bool>(f); })
     { l.go();
       while (f(*this)) (*this)(), l.go();
       return *this; }

@@ -21,20 +21,9 @@ namespace τ
 using namespace std::literals;
 
 
-typedef std::chrono::steady_clock       Θc;
-typedef std::chrono::nanoseconds        ΔΘ;
-typedef std::chrono::time_point<Θc, ΔΘ> Θp;
-
-
-// Definition of time quantum
-ΔΘ const constexpr Θq = 1ns;
-static_assert(Θq.count() == 1);
-static_assert(std::is_integral<ΔΘ::rep>::value);
-
-
-inline           Θp now()     { return Θc::now(); }
-inline constexpr Θp never()   { return Θp{0ns}; }
-inline constexpr Θp forever() { return Θp{Nl<typename Θp::duration::rep>::max() * Θq}; }
+inline Θp now()     { return Θc::now(); }
+ic     Θp never()   { return Θp{0ns}; }
+ic     Θp forever() { return Θp{Nl<typename Θp::duration::rep>::max() * Θq}; }
 
 
 template<class H>
