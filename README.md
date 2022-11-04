@@ -100,16 +100,16 @@ If we drop data science, we're down to 34.75 days and a >95% chance the remainde
   + [ ] WASM/websocket Φ
   + [ ] Basic DOM -- textbox in → div/pre out
   + [ ] WebGL proof of concept (small mirror of linux/xframe stuff)
-+ [ ] **Background:** π₀
-  + [ ] **Think:** ξ API design
-  + [ ] **Think:** γ API design
-  + [ ] Generative tests
-  + [ ] Performance tests
 + [ ] **Background:** GL enhancements
   + [ ] Define the operation space more precisely
   + [ ] Z-order blending
   + [ ] Arc rendering
   + [ ] GL images
++ [ ] **Background:** π₀
+  + [ ] **Think:** ξ API design
+  + [ ] **Think:** γ API design
+  + [ ] Generative tests
+  + [ ] Performance tests
 
 **TODO:** more of these as I make progress on the ones above
 
