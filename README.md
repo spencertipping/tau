@@ -76,45 +76,6 @@ Broadly:
 5. Γ routing
 
 
-### Fall 2022 deliverables
-Ordered by descending priority, give or take. Time estimates are 80% CI.
-
-**Total:** 49.75 days, out of 60.4 days left this year. >80% chance it all gets done, assuming no major setbacks.
-
-If we drop data science, we're down to 34.75 days and a >95% chance the remainder is done.
-
-+ **Done so far:** 3.25/49.75 days
-+ **Dropped:** 0.25 days (I canceled these tasks as being unnecessary)
-+ **Over/under:** 0.25 days ahead of schedule
-
-
-### Execution log
-+ 2022.1102: -1.75 = 48 (0.75 ahead)
-+ 2022.1104: -1.5 = 46.5 (0.25 ahead)
-
-
-### Next-sprint plan
-**Total:** 17 days; goal = 2022.1120
-
-+ [ ] **Primary:** browser-enabled multiway chat = webapp core
-  + [ ] Native websocket server -- later we'll also want JSON/REST API
-  + [ ] WASM/websocket Φ
-  + [ ] Basic DOM -- textbox in → div/pre out
-  + [ ] WebGL proof of concept (small mirror of linux/xframe stuff)
-+ [ ] **Background:** GL enhancements
-  + [ ] Define the operation space more precisely
-  + [ ] Z-order blending
-  + [ ] Arc rendering
-  + [ ] GL images
-+ [ ] **Background:** π₀
-  + [ ] **Think:** ξ API design
-  + [ ] **Think:** γ API design
-  + [ ] Generative tests
-  + [ ] Performance tests
-
-**TODO:** more of these as I make progress on the ones above
-
-
 ### Fall 2022 list
 + [ ] **15 days:** Web stuff
   + [ ] **3 days:** WASM/websocket Φ
