@@ -15,8 +15,6 @@
 
 #include "../tau.hh"
 
-#if τdefines_π
-
 
 using namespace τ;
 using namespace std;
@@ -56,14 +54,3 @@ int main(int argc, char **argv)
 
 
 #include "../tau/end.hh"
-
-
-#else
-
-int main(int argc, char **argv)
-{
-  std::cout << "no π on this platform" << std::endl;
-  return 0;
-}
-
-#endif
