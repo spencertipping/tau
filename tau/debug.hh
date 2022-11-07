@@ -47,7 +47,7 @@
 #   include <sstream>
 
 #   define τassert_begin try {
-#   define τassert_end   } catch (std::string const &e)         \
+#   define τassert_end   } catch (std::string const e)          \
                            { std::cerr << "FAIL: "              \
                                        << e << std::endl; }
 
