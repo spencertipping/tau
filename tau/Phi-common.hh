@@ -11,6 +11,9 @@ namespace τ
 {
 
 
+struct Φ;
+
+
 struct ΦΘ
 {
   Θp h;

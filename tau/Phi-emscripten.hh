@@ -5,9 +5,9 @@
 #include "arch.hh"
 
 #if τplatform == τplatform_wasm
-# include <emscripten.h>
+# include <emscripten/emscripten.h>
 #else
-# define EM_ASM(x)
+# define EM_ASM(...)
 # define EM_JS(...)
 #endif
 
@@ -24,6 +24,23 @@
 
 namespace τ
 {
+
+
+template<class O>
+struct Φf  // boundary FD-like wrapper, e.g. websocket or GL context
+{
+  Φ  &f;
+  λg  w;
+  O   o;
+
+  Φf(Φf const&) = delete;
+  Φf(Φf &&)     = delete;
+
+  template<class... T> Φf(Φ&, T...);
+  ~Φf();
+
+  void init();
+};
 
 
 struct Φ : public Φb

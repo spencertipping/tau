@@ -36,9 +36,6 @@ inline void Φnb(uN fd)
 }
 
 
-struct Φ;
-
-
 template<class O>
 struct Φf  // FD container for Φ, behavior determined by O
 {
