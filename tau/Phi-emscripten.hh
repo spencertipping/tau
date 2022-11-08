@@ -4,8 +4,11 @@
 
 #include "arch.hh"
 
+#include <stdio.h>
+
 #if τplatform == τplatform_wasm
 # include <emscripten/emscripten.h>
+# include <emscripten/websocket.h>
 #else
 # define EM_ASM(...)
 # define EM_JS(...)
@@ -24,6 +27,10 @@
 
 namespace τ
 {
+
+
+// TODO: what's the main eventing model here? Do we need flow control?
+// Callbacks should flip state bits that allow main-thread to continue.
 
 
 template<class O>
