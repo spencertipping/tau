@@ -2,8 +2,6 @@
 
 #include "../tau.hh"
 
-#if τdefines_γ
-
 
 #include <cstring>
 #include <xcb/xproto.h>
@@ -324,14 +322,3 @@ int main(int argc, char **argv)
 
 
 #include "../tau/end.hh"
-
-
-#else
-
-int main()
-{
-  std::cerr << "γ not defined" << std::endl;
-  return 1;
-}
-
-#endif

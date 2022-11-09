@@ -46,23 +46,25 @@ $ sudo apt install -y \
        libpango1.0-dev libcairo2-dev
 ```
 
-**TODO:** dockerize build process
+**TODO:** dockerize native build process
 
 
 ## Priority queue
 Narrowly:
 
++ HTTP/websocket φ
++ WASM Φ
 + π₀ γ API
   + γ/λ interfacing
   + ξ API
+
+Later on:
+
 + π₀ GC finalizers + natives
-+ π₀ define-function (likely just using frame variables)
 + π₀ REPL
   + π₀/Φ integration
   + Read-and-execute source
 + UTF9 indexed-structure support
-+ WASM Φ
-+ Websocket φ
 + π₁ stdlib
   + π₁ native function intent declarations
   + π₁ intent execution

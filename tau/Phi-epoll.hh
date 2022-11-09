@@ -37,7 +37,7 @@ inline void Φnb(uN fd)
 
 
 template<class O>
-struct Φf  // FD container for Φ, behavior determined by O
+struct Φf  // FD container for Φ, behavior determined by O (an o9)
 {
   Φ  &f;
   λg  w;
@@ -81,10 +81,10 @@ struct Φ : public Φb
 {
   sletc Φen = 256;  // number of events per epoll_wait call
 
-  iNc             efd;        // epoll control FD
-  M<uN, S<void*>> fs;         // who's listening for each FD
-  S<void*>        nfs;        // non-monitored files
-  epoll_event     ev[Φen];    // inbound epoll event buffer
+  iNc             efd;      // epoll control FD
+  M<uN, S<void*>> fs;       // who's listening for each FD
+  S<void*>        nfs;      // non-monitored files
+  epoll_event     ev[Φen];  // inbound epoll event buffer
 
 
   Φ(Φ&)  = delete;

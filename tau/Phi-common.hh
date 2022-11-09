@@ -18,6 +18,8 @@ struct ΦΘ
 {
   Θp h;
   λi l;
+
+  // NOTE: PQ<ΦΘ> is a maxheap, so < == lower priority == later deadline
   bool operator<(ΦΘ const &x) const { return h > x.h; }
 };
 

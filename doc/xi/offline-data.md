@@ -41,3 +41,4 @@ As discussed in [Γ](../Gamma.md), we can create [Φ](../Phi.md)s connected via 
 
 
 ## Sorting
+A γ that accepts unsorted, τ-delimited data and sorts within that cycle. The sorter can dynamically create more γs for disk-backed mergesort, so it needs γ₀ access.
