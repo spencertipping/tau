@@ -54,7 +54,7 @@ bool operator>>(i9 v, Φf<o9fdr> &w)
   while (w.wo < v.size())
   {
     if (!w.ep) while (!w.wa()) w.w.y(λs::ΦO);
-    if ((w.wn = write(w.fd(), v.begin() + w.wo, v.size() - w.wo)) == -1)
+    if ((w.wn = write(w.fd(), v.data() + w.wo, v.size() - w.wo)) == -1)
     { if ((w.we = errno) != EAGAIN)
         return false; }
     else
@@ -79,7 +79,7 @@ namespace ξ
 {
   return *new ϝ(f, "fd_out", ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
     { Φf<o9fdr> o{g.f, fd};
-      for (let x : f) if (!(x >> o)) break; });
+      for (let x : f) if (x.real() && !(x >> o)) break; });
 }
 
 

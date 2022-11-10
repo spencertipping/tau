@@ -107,8 +107,7 @@ struct xframe_
 ϝ &text_size(Φ &f)
 {
   return *new ϝ(f, "text_size", ϝ::ξι, [](ϝ &f)
-    {
-      int w, h;
+    { int w, h;
       let cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
       let cl = cairo_create(cs);
       cairo_surface_destroy(cs);

@@ -4,7 +4,8 @@ Higher-order abstraction over [φ](phi.md) and λ to create composable operators
 The boot γ within each [Φ](Phi.md), [γ₀](gamma0.md), accepts commands to construct γ components and tie them together.
 
 + [γ design](gamma-design.md)
-+ [γ authoring](gamma-authoring.md)
 + [γ topologies](gamma-topologies.md)
+
+γs aren't written directly; they use ϝ instead. See [γ topologies](gamma-topologies.md) for details.
 
 [Γ](Gamma.md) unifies all Φs.
