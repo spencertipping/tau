@@ -52,9 +52,12 @@ $ sudo apt install -y \
 ## Priority queue
 Narrowly:
 
-+ HTTP/websocket φ
++ HTTP/websocket γ
+  + π₀ bindings to create γs (ϝs)
 + WASM Φ
-+ π₀ γ API
+  + Simple: any event-thread can call in and run λs, then `setTimeout()` to schedule next
++ π₀-hosted γ API
+  + Add π₀ heap to Φ
   + γ/λ interfacing
   + ξ API
 
