@@ -334,8 +334,9 @@ struct o9t : virtual o9V
 
   // TODO: template magic to cache o9s
 
+  u9t           t;
   T<X...> const xs;
-  o9t(X... xs_) : xs(std::make_tuple(xs_...)) {}
+  o9t(X... xs_) : t(u9t::tuple), xs(std::make_tuple(xs_...)) {}
 
   template<uN i = 0>
   typename std::enable_if<i == sizeof...(X), uN>::type
@@ -356,7 +357,7 @@ struct o9t : virtual o9V
   template<uN i = 0>
   typename std::enable_if<i < sizeof...(X), bool>::type
   write_(ζp m, bool f) const
-    { if (!i) m += u9ws(m, 0, u9t::tuple, isize<0>());
+    { if (!i) m += u9ws(m, 0, t, isize<0>());
       auto o = o9(std::get<i>(xs));
       A(!o.write(m), "o9t internal error");
       return write_<i + 1>(m + o.size(), f || u9ts_f(R<u8>(m, 0))); }
@@ -364,6 +365,9 @@ struct o9t : virtual o9V
   uN write(ζp m) const
     { if (write_<0>(m, false)) m[0] |= u9f;
       return 0; }
+
+  o9t &m() { t = u9t::map; return *this; }
+  o9t &s() { t = u9t::set; return *this; }
 };
 
 

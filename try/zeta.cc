@@ -32,6 +32,8 @@ void try_small_ζ()
     A(t << ys, "ζ rejected second ys");
     A(t << o9box(ys), "ζ rejected boxed ys");
     A(t << o9t("foo", std::string("bar")), "ζ rejected thing");
+    A(t << ys.m(), "ζ rejected .m()");
+    A(t << ys.s(), "ζ rejected .s()");
     t.wω();
     cout << "t write-closed" << endl;
     return 0;
@@ -51,6 +53,9 @@ void try_small_ζ()
     cout << "received " << i9{*t} << endl;
     A(i9{*t}.verify() == i9v::valid, "verify() failed: " << i9{*t} << " = " << i9{*t}.verify());
     ++t;
+
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify() == i9v::valid, "verify() failed: " << i9{*t} << " = " << i9{*t}.verify()); ++t;
+    cout << "received " << i9{*t} << endl; A(i9{*t}.verify() == i9v::valid, "verify() failed: " << i9{*t} << " = " << i9{*t}.verify()); ++t;
 
     let z = *t;
     A(z == ζωp, "z should be ζωp, got " << z);

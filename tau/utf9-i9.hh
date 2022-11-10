@@ -492,7 +492,7 @@ O &operator<<(O &s, i9 const &x)
     s << "{";
     for (auto i = 0; b + i < e;)
     { if (i) s << ", ";
-      let k = i9{b + i}; s << k << ":"; i += k.osize();
+      let k = i9{b + i}; s << k << ":"; if (b + (i += k.osize()) >= e) break;
       let v = i9{b + i}; s << v;        i += v.osize(); }
     return s << "}"; }
 
