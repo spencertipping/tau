@@ -83,9 +83,10 @@ namespace ξ
 }
 
 
-ϝ &fd_io(Φ &f, fd_t fd)
+ϝ &fd_io(Φ &f, fd_t fd, ϝξ t = ϝ::ξΦ)
 {
-  return *new ϝ(f, "fd_io", ϝ::ξΦ,
+  // TODO: close-on-quit option
+  return *new ϝ(f, "fd_io", t,
                 [&, fd](ϝ &f, γ &g) { Φf<o9fdr> o{g.f, fd}; for (let x : f) if (!(x >> o)) break; },
                 [&, fd](ϝ &f, γ &g) { Φf<o9fdr> i{g.f, fd}; while (f << i); });
 }

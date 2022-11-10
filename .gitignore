@@ -8,3 +8,4 @@ try/pi-design
 try/*.o
 try/*.js
 try/*.wasm
+try/http
