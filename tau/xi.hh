@@ -20,6 +20,8 @@
 # include "xi/linux/xframe.hh"
 #elif τplatform == τplatform_wasm
 # warning TODO: wasm ξ includes
+#elif
+# warning no native ξ definitions for this platform
 #endif
 
 

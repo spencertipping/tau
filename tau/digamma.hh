@@ -42,6 +42,9 @@ struct ϝ;
 typedef F<void(ϝ&)> ϝxf;
 
 
+// TODO: how do we share information across λs?
+// We should probably have some ϝ-level or γ-level UTF9 state sharing
+
 struct ϝ
 {
   sletc ξι  = 0x001210;
