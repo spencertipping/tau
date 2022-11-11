@@ -15,7 +15,7 @@ int hello(int argc, char **argv)
   tcp_server(f, argc ? atoi(argv[0]) : 3000)
     | io<i9, fd_t>(f, [&](i9 x)
       { let fd = Sc<u9_scoped<u9_Φ, fd_t>>(x[0]).x;
-        fd_io(f, fd, ϝ::ξΘ) | http1(f);
+        fd_io(f, fd, ϝ::ξΘ) | http1(f) | stream_out(f, cout);
         return fd; })
     | stream_out(f, cout);
 

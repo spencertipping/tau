@@ -37,7 +37,25 @@ void http1_parser(ϝ &f, http1_state &s)
   for (let x : f.α())
     if (x.real())
     {
-      std::cout << "HTTP << " << x << std::endl;
+      A(x.type() == u9t::bytes,
+        "non-bytes " << x.type() << " into http1_parser");
+      if (s.rb.size() + x.size() > s.rb.capacity())
+      {
+        s.c = http1_cstate::http_done;
+        f.α() << "HTTP/1.1 413 Payload Too Large\r\nConnection: close\r\n\r\n";
+        f.α().ω();
+        break;
+      }
+
+      s.rb.append(Sc<Bv>(x));
+
+      let e = s.rb.find(Bv{Rc<u8c*>("\r\n\r\n")});
+      if (e != std::string::npos)
+      {
+        f.β() << Bv{s.rb.data(), e};
+        // TODO: figure out what type of request this is
+      }
+
       // TODO: append to b and parse HTTP request
       // TODO: decode websocket packets
       // TODO: report connection metrics on ε
@@ -63,7 +81,7 @@ void http1_monitor(ϝ &f, http1_state &s)
       || s.c == http1_cstate::ws_upgrading)
   {
     s.c = http1_cstate::http_done;
-    f.α() << "408 Request Timeout\r\nConnection: close\r\n\r\n";
+    f.α() << "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\n\r\n";
     f.α().ω();
   }
 }
