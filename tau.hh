@@ -7,6 +7,7 @@
 
 
 #include "tau/numerics.hh"
+#include "tau/strings.hh"
 #include "tau/shd.hh"
 
 

@@ -5,6 +5,7 @@
 #include <iterator>
 
 
+#include "strings.hh"
 #include "types.hh"
 #include "utf9-types.hh"
 #include "utf9.hh"
@@ -23,42 +24,13 @@ namespace τ
 
 #if τdebug_iostream
 struct π0afr;
-struct π0cs7;
-
 O &operator<<(O &, π0afr const&);
-O &operator<<(O &, π0cs7 const&);
 #endif
-
-
-struct π0cs7  // 7-bit ASCII char set, used to split things
-{
-  u64 c1;
-  u64 c2;
-
-  constexpr π0cs7(chc *cs)
-    : c1(0), c2(0)
-    { for (ch c; c = *cs++;)
-        if (c >= 0 && c < 64) c1 |= 1ull << c;
-        else if (c >= 64)     c2 |= 1ull << c - 64; }
-
-  bool operator[](ch c) const
-    { return c >= 0 && (c < 64 ? c1 & 1ull << c : c2 & 1ull << c - 64); }
-
-  V<St> split(Stc &s) const
-    { V<St> r;
-      for (uN i = 0; i < s.size(); ++i)
-      { while (i < s.size() && (*this)[s[i]]) ++i;
-        uN j = i;
-        while (j < s.size() && !(*this)[s[j]]) ++j;
-        r.push_back(s.substr(i, j - i));
-        i = j - 1; }
-      return r; }
-};
 
 
 struct π0afr  // π₀ asm frame
 {
-  sletc  c7fs = π0cs7(" |[]");
+  sletc  c7fs = cs7(" |[]");
   sc uNc fω   = -1;
 
   V<St> vs;   // variables, positionally mapped to frame offsets
@@ -89,11 +61,11 @@ struct π0afr  // π₀ asm frame
 
 struct π0asm
 {
-  sletc c7ws = π0cs7(" \t\n");           // whitespace
-  sletc c7ni = π0cs7(" \t\n[]|'\\\"#");  // non-ident
-  sletc c7nc = π0cs7(" \t\n[]'");        // non-[ident]-continuation
-  sletc c7sc = π0cs7("(){},");           // single-char idents
-  sletc c7in = π0cs7("0123456789");      // integer
+  sletc c7ws = cs7(" \t\n");           // whitespace
+  sletc c7ni = cs7(" \t\n[]|'\\\"#");  // non-ident
+  sletc c7nc = cs7(" \t\n[]'");        // non-[ident]-continuation
+  sletc c7sc = cs7("(){},");           // single-char idents
+  sletc c7in = cs7("0123456789");      // integer
 
   typedef V<π0b> π0blk;  // code block
 
@@ -215,11 +187,6 @@ O &operator<<(O &s, π0afr const &f)
   s << "| ";
   for (let &v : f.vs) s << v << " ";
   return s << "|";
-}
-
-O &operator<<(O &s, π0cs7 const &c)
-{
-  TODO("<<cs7");
 }
 #endif
 

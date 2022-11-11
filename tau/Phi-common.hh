@@ -4,6 +4,7 @@
 
 #include "types.hh"
 #include "Lambda.hh"
+#include "pi0.hh"
 
 #include "begin.hh"
 
@@ -29,6 +30,7 @@ struct Φb  // base Φ
   Λ        l;
   PQ<ΦΘ>   h;
   Θp const t0 = now();
+  π0h      ph;
 
   Φb(Φb&)  = delete;
   Φb(Φb&&) = delete;

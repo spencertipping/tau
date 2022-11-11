@@ -68,16 +68,16 @@ namespace ξ
 {
 
 
-ϝ &fd_in(Φ &f, fd_t fd)
+ϝ &fd_in(Φ &f, fd_t fd, ϝξ t = ϝ::ξΦ)
 {
-  return *new ϝ(f, "fd_in", ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
+  return *new ϝ(f, "fd_in", t, [&, fd](ϝ &f, γ &g)
     { Φf<o9fdr> i{g.f, fd}; while (f << i); });
 }
 
 
-ϝ &fd_out(Φ &f, fd_t fd)
+ϝ &fd_out(Φ &f, fd_t fd, ϝξ t = ϝ::ξΦ)
 {
-  return *new ϝ(f, "fd_out", ϝ::ξΦ, [&, fd](ϝ &f, γ &g)
+  return *new ϝ(f, "fd_out", t, [&, fd](ϝ &f, γ &g)
     { Φf<o9fdr> o{g.f, fd};
       for (let x : f) if (x.real() && !(x >> o)) break; });
 }
@@ -86,6 +86,11 @@ namespace ξ
 ϝ &fd_io(Φ &f, fd_t fd, ϝξ t = ϝ::ξΦ)
 {
   // TODO: close-on-quit option
+  // TODO: this should encapsulate fd_in and fd_out
+  // TODO: flags to customize behavior
+  // TODO: fsync() on τ
+  // TODO: monitoring to ε
+  // TODO: fcntl from δ
   return *new ϝ(f, "fd_io", t,
                 [&, fd](ϝ &f, γ &g) { Φf<o9fdr> o{g.f, fd}; for (let x : f) if (!(x >> o)) break; },
                 [&, fd](ϝ &f, γ &g) { Φf<o9fdr> i{g.f, fd}; while (f << i); });
