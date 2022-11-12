@@ -183,13 +183,13 @@ template<o9simple T, class... Ts> inline o9v<T, V, Ts...> o9(V<T, Ts...> const&)
 template<o9simple T, class... Ts> inline o9v<T, S, Ts...> o9(S<T, Ts...> const&);
 
 template<o9mapped K, o9simple T, class... Ts>
-inline o9m<K, T> o9(M<K, T, Ts...> const&);
+inline o9m<K, T, Ts...> o9(M<K, T, Ts...> const&);
 
 template<o9coll T, class... Ts> inline o9vc<T, V, Ts...> o9(V<T, Ts...> const&);
 template<o9coll T, class... Ts> inline o9vc<T, S, Ts...> o9(S<T, Ts...> const&);
 
 template<o9mapped K, o9coll T, class... Ts>
-inline o9mc<K, T> o9(M<K, T, Ts...> const&);
+inline o9mc<K, T, Ts...> o9(M<K, T, Ts...> const&);
 
 
 template<o9fixed T>

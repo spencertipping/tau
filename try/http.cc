@@ -19,6 +19,7 @@ int hello(int argc, char **argv)
         return fd; })
     | stream_out(f, cout);
 
+  cout << "http listening" << endl;
   f.go();
   return 0;
 }
