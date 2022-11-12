@@ -46,6 +46,12 @@ enum class http1_sstate  // what the client expects next from us
 };
 
 
+// TODO: redo this with OOP so we don't have functions scattered all over
+// the place.
+//
+// TODO: decouple client and server states; no need for them to share the
+// same struct.
+
 struct http1_state
 {
   http1_cstate c;
