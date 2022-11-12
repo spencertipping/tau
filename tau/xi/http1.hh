@@ -79,6 +79,8 @@ void http1_fail(ϝ &f, http1_state &s, chc *m = "HTTP/1.1 400 Bad Request")
 }
 
 
+// TODO: port the below to https://en.cppreference.com/w/cpp/regex
+
 void http1_parse_request(ϝ &f, http1_state &s, uN e)
 {
   sletc hws    = cs7(" \t\r\n");  // header whitespace (disallowed)
