@@ -34,7 +34,6 @@ enum class http1_cstate  // what we expect next from the client
 enum class http1_sstate  // what the client expects next from us
 {
   http_init,
-  e_http_res,
   e_http_body,
   http_done,
 
@@ -54,6 +53,7 @@ struct http1_state
   Θp           t0;   // base time for this request
   ΔΘ           rd;   // request-complete deadline (from now)
   B            rb;   // request buffer
+  B            rws;  // receiving websocket reassembly buffer
   B            wsk;  // websocket key
   uN           cbl;  // client body length (remaining)
 };
@@ -180,6 +180,9 @@ void http1_parse_request(ϝ &f, http1_state &s, uN e)
 
 void http1_parser(ϝ &f, http1_state &s)
 {
+  // TODO: rewrite the logic below; we need to be a lot more careful about
+  // how we delineate between "inbound data" and "buffered data"
+
   for (let x : f.α())
     if (x.real())
     {
@@ -261,6 +264,15 @@ void http1_parser(ϝ &f, http1_state &s)
         break;
       }
 
+      case http1_cstate::e_ws_init:
+      case http1_cstate::e_ws_init_pong:
+      {
+        // At this point s.rb may contain the beginnings of a websocket
+        // frame, so
+        break;
+      }
+
+
       // TODO: decode websocket packets
       // TODO: report connection metrics on ε
 
@@ -279,11 +291,24 @@ void http1_parser(ϝ &f, http1_state &s)
 
 void http1_reply(ϝ &f, http1_state &s)
 {
+  // HTTP replies take a few forms depending on what's being sent:
+  //
+  // (200, {headers}, b"body")  ← atomic reply
+  // (200, {headers}, length)   ← start of streaming reply
+  // (200, {headers}, -1)       ← streaming, chunked
+  //   b"data"...               ← streaming data
+  // ()                         ← end of stream
+  //
+  // ("ws", 2, b"data")         ← atomic websocket reply (binary)
+  // ("ws", 2)                  ← begin streaming
+  //   b"data"...               ← data
+  // ()                         ← end of data (fin)
+  // ("ws", 8)                  ← close
+  // ("ws", 9)                  ← ping
+  // ("ws", 10)                 ← pong
+
   for (let x : f.β())
-    TODO("http1_reply");
-  // TODO: define schema for HTTP replies
-  // TODO: how do we send files?
-  // TODO: websocket replies
+    TODO("http reply");
 }
 
 
@@ -337,7 +362,6 @@ O &operator<<(O &s, http1_sstate t)
   switch (t)
   {
   case http1_sstate::http_init:      return s << "h1/i";
-  case http1_sstate::e_http_res:     return s << "h1/E[res]";
   case http1_sstate::e_http_body:    return s << "h1/E[b]";
   case http1_sstate::http_done:      return s << "h1∅";
 
