@@ -111,7 +111,6 @@ void http1_parse_request(ϝ &f, http1_state &s, uN e)
 
     St hlc; hlc.resize(hn.size());
     std::transform(hn.begin(), hn.end(), hlc.begin(), [](u8 c) { return std::tolower(c); });
-    std::cout << "header: " << hlc << std::endl;
     if (hs.contains(hlc)) return http1_fail(f, s, "HTTP/1.1 400 Bad Request -- duplicated header");
 
     hs[hlc] = hv;
@@ -220,7 +219,6 @@ void http1_parser(ϝ &f, http1_state &s)
 
       case http1_cstate::e_http_body:
       {
-        std::cout << "e_http_body" << std::endl;
         // If any data is in s.rb, process that first; it's leftover
         // buffered data from the request. Then process x if we have
         // anything there. Finally, if x has leftovers, stash those
