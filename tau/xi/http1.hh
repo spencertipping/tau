@@ -11,6 +11,10 @@ namespace τ::ξ
 {
 
 
+// TODO: rewrite the code below; we want a stream state-machine in
+// each direction.
+
+
 #if τdebug_iostream
 struct http1_state;
 O &operator<<(O&, http1_state const&);
