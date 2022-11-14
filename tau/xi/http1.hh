@@ -11,8 +11,12 @@ namespace τ::ξ
 {
 
 
-// TODO: rewrite the code below; we want a stream state-machine in
-// each direction.
+// TODO: rewrite the code below; the receiving side should be a streaming
+// state machine, the sending side should just be templates plus _maybe_
+// a pong-responder?
+//
+// NOTE: it appears browsers do not currently send pings, and auto-reply
+// to pongs
 
 
 #if τdebug_iostream
