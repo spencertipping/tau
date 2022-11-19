@@ -158,8 +158,6 @@ void π0abi1_u9_vector(π0abi &a)
 
 void π0abi1_u9_number(π0abi &a)
 {
-  typedef bool b;
-
 #define a1sc(t) a.def(">"#t,    I{ i.dpush(i.dpop().template at<t>(0)); });
 #define a1vc(t) a.def(">"#t"s", I{                              \
       π0hnf f{i.h, 2};                                          \
@@ -170,6 +168,7 @@ void π0abi1_u9_number(π0abi &a)
       for (uN i = 0; i < k; ++i)                                \
         y.template set<t>(i, x.template at<t>(i)); });
 
+  typedef bool b;
   a1sc(b);   a1vc(b);
 
   a1sc(i8);  a1vc(i8);   a1sc(u8);  a1vc(u8);
