@@ -30,7 +30,7 @@ struct Φb  // base Φ
   Λ        l;
   PQ<ΦΘ>   h;
   Θp const t0 = now();
-  π0h      ph;
+  π0h      ph{64, {65536, 0}};
 
   Φb(Φb&)  = delete;
   Φb(Φb&&) = delete;

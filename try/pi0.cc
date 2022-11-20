@@ -29,7 +29,7 @@ int asmrun(St const &src)
   π0h   h{};
   π0asm a{π0abi1()}; a << src;
   π0int i{π0abi1(), a.build(), h};
-  i.run(0);
+  i.run();
   return 0;
 }
 
@@ -48,7 +48,7 @@ St input(char *x)
 int main(int argc, char **argv)
 {
   τassert_begin;
-  for (uN i = 1; i < argc; ++i) asmrun(input(argv[i]));
+  for (iN i = 1; i < argc; ++i) asmrun(input(argv[i]));
   τassert_end;
 }
 

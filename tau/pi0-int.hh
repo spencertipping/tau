@@ -37,7 +37,7 @@ struct π0int : π0sv
   ~π0int() { while (dv != &d) spop(); }
 
 
-  π0int &run(uN l)
+  π0int &run(uN l = 0)
     { let n = r.size();
       r.push_back(l);
       while (r.size() > n) step();

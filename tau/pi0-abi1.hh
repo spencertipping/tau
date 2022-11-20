@@ -422,6 +422,9 @@ void π0abi1_debug(π0abi &a)
   π0abi1_u9_structure(a);
   π0abi1_u9_quote(a);
 
+  // TODO: γ/ϝ API
+  // TODO: ξ API
+
 # if τdebug
   π0abi1_debug(a);
 # endif

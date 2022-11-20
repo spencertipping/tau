@@ -11,6 +11,7 @@
 #include "xi/digamma.hh"
 #include "xi/debug.hh"
 #include "xi/textio.hh"
+#include "xi/pi0.hh"
 
 
 #if τplatform == τplatform_linux
