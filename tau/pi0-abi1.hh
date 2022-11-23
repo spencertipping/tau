@@ -87,8 +87,8 @@ void π0abi1_quote(π0abi &a)
     .def("i32", I{ i.dpush(Sc<i32>(n)); })
     .def("i64", I{ i.dpush(Sc<i64>(n)); })
 
-    .def("utf8", I{ i.dpush(i9{Cc<ζp>(i.p.q.data() + n)}); })
-    .def("sym",  I{ i.dpush(i9{Cc<ζp>(i.p.q.data() + n)}); });
+    .def("utf8", I{ i.dpush(i9{Cc<ζp>(i.p->q.data() + n)}); })
+    .def("sym",  I{ i.dpush(i9{Cc<ζp>(i.p->q.data() + n)}); });
 }
 
 

@@ -22,24 +22,18 @@ namespace τ
 
 struct π0int : π0sv
 {
-  π0abi const &a;   // ABI (native functions)
-  π0pgm const  p;   // bytecode program
-  π0h         &h;   // data stack + local frames
-  V<π0bi>      r;   // return stack
-  π0hdf        f;   // frame stack
-  π0hds        d;   // base data stack
-  π0hgs        g;   // globals
-  π0sv        *dv;  // current data stack view
+  π0abi const     &a;   // ABI (native functions)
+  SP<π0pgm const>  p;   // bytecode program
+  π0h             &h;
+  V<π0bi>          r;   // return stack
+  π0hdf            f;   // frame stack
+  π0hds            d;   // base data stack
+  π0hgs            g;   // globals
+  π0sv            *dv;  // current data stack view
 
-  // TODO: define the relationship between multiple λs that use
-  // the same program -- do they use different interpreters?
-  //
-  // The frame stack is at issue; we may want an interpreter to
-  // have multiple λ contexts or something.
-
-  π0int(π0abi const &a_, π0pgm &&p_, π0h &h_)
-    : a(a_), p(std::move(p_)), h(h_), f(h), d(h), g(h), dv(&d)
-    { A(p.a.v() == a.v(), "π₀ ABI mismatch: " << p.a.v() << " ≠ " << a.v()); }
+  π0int(π0abi const &a_, SP<π0pgm const> p_, π0h &h_)
+    : a(a_), p(p_), h(h_), f(h), d(h), g(h), dv(&d)
+    { A(p->a.v() == a.v(), "π₀ ABI mismatch: " << p->a.v() << " ≠ " << a.v()); }
 
   ~π0int() { while (dv != &d) spop(); }
 
@@ -85,11 +79,11 @@ struct π0int : π0sv
 
 #if τπ0debug_bounds_checks
   π0int &step()
-  { let [fi, x] = p.p.at(r.back()++);
+  { let [fi, x] = p->p.at(r.back()++);
     a.f.at(fi)(*this, x); return *this; }
 #else
   π0int &step()
-  { let [fi, x] = p.p[r.back()++];
+  { let [fi, x] = p->p[r.back()++];
     a.f[fi](*this, x); return *this; }
 #endif
 };
@@ -98,13 +92,13 @@ struct π0int : π0sv
 #if τdebug_iostream
 O &operator<<(O &s, π0int const &i)
 {
-  s << "π₀i qs=" << i.p.q.size()
+  s << "π₀i qs=" << i.p->q.size()
     << " r=";
   if (!i.r.empty())
   { for (iN j = i.r.size() - 1; j >= 0; --j)
       s << i.r[j] << " ";
-    let [fi, x] = i.p.p[i.r.back()];
-    s << " " << i.p.a.n[fi] << "'" << x; }
+    let [fi, x] = i.p->p[i.r.back()];
+    s << " " << i.p->a.n[fi] << "'" << x; }
   s << std::endl;
   for (uN j = 0; j < i.size(); ++j)
     s << "  [" << j << "]\t" << i[j] << std::endl;

@@ -174,10 +174,10 @@ struct π0asm
     return *this; }
 
 
-  π0pgm build()
+  SP<π0pgm> build()
   { A(bs.size() == 1, "π₀asm::build |bs| = " << bs.size());
     *this << f("]", 0);
-    return π0pgm{a, qh, bs.back()}; }
+    return SP<π0pgm>(new π0pgm{a, qh, bs.back()}); }
 };
 
 
