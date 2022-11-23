@@ -12,8 +12,9 @@ namespace τ::ξ
 
 ϝ &pi0(Φ &f, Stc &n, ϝξ t, SP<π0pgm const> p)
 {
-  // TODO: bind ϝ into π₀int for ϝ API
-  return *new ϝ(f, n, t, [&](ϝ &g) { π0int(π0abi1(), p, f.ph).run(); });
+  return *new ϝ(f, n, t, [&](ϝ &g)
+    { // TODO: bind ϝ into π₀int for ϝ API (as a global)
+      π0int(π0abi1(), p, f.ph, SP<π0hgs>(new π0hgs{f.ph})).run(); });
 }
 
 

@@ -24,15 +24,16 @@ struct π0int : π0sv
 {
   π0abi const     &a;   // ABI (native functions)
   SP<π0pgm const>  p;   // bytecode program
-  π0h             &h;
+  π0h             &h;   // shared heap
+  SP<π0hgs>        g;   // shared globals
+
   V<π0bi>          r;   // return stack
   π0hdf            f;   // frame stack
   π0hds            d;   // base data stack
-  π0hgs            g;   // globals
   π0sv            *dv;  // current data stack view
 
-  π0int(π0abi const &a_, SP<π0pgm const> p_, π0h &h_)
-    : a(a_), p(p_), h(h_), f(h), d(h), g(h), dv(&d)
+  π0int(π0abi const &a_, SP<π0pgm const> p_, π0h &h_, SP<π0hgs> g_)
+    : a(a_), p(p_), h(h_), g(g_), f(h), d(h), dv(&d)
     { A(p->a.v() == a.v(), "π₀ ABI mismatch: " << p->a.v() << " ≠ " << a.v()); }
 
   ~π0int() { while (dv != &d) spop(); }
@@ -43,6 +44,12 @@ struct π0int : π0sv
       r.push_back(l);
       while (r.size() > n) step();
       return *this; }
+
+
+  π0int fork() const { return π0int{a, p, h, g}; }
+
+
+  π0hgs &gs() const { return *g; }
 
 
   // Stack-view accessors, used by bytecode functions

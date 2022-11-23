@@ -28,7 +28,7 @@ int asmrun(St const &src)
 {
   π0h   h{};
   π0asm a{π0abi1()}; a << src;
-  π0int i{π0abi1(), a.build(), h};
+  π0int i{π0abi1(), a.build(), h, SP<π0hgs>(new π0hgs{h})};
   i.run();
   return 0;
 }
