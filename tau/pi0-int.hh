@@ -31,8 +31,11 @@ struct π0int : π0sv
   π0hgs        g;   // globals
   π0sv        *dv;  // current data stack view
 
-  // TODO: add globals
-  // TODO: add shared ownership of program?
+  // TODO: define the relationship between multiple λs that use
+  // the same program -- do they use different interpreters?
+  //
+  // The frame stack is at issue; we may want an interpreter to
+  // have multiple λ contexts or something.
 
   π0int(π0abi const &a_, π0pgm &&p_, π0h &h_)
     : a(a_), p(std::move(p_)), h(h_), f(h), d(h), g(h), dv(&d)
