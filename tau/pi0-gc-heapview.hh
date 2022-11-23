@@ -38,8 +38,25 @@ struct π0hv  // heap view: a part of the root set
 };
 
 
-struct π0hds : virtual π0hv,  // data-stack heap view
-               virtual π0sv
+struct π0hgs : public virtual π0hv  // global set
+{
+  M<St, π0r> s;
+
+  π0hgs()             = delete;
+  π0hgs(π0hgs const&) = delete;
+  π0hgs(π0hgs&&)      = delete;
+  π0hgs(π0h &h_) : π0hv(h_) {}
+
+  void mark() { for (let  &[_, v] : s)     h.mark(v); }
+  void move() { for (auto &[_, v] : s) v = h.move(v); }
+
+  π0r &operator[](Stc &k) { return s[k]; }
+  π0hgs        &x(Stc &k) { s.erase(k); return *this; }
+};
+
+
+struct π0hds : public virtual π0hv,  // data-stack heap view
+               public virtual π0sv
 {
   V<π0r> s;
 
@@ -48,13 +65,13 @@ struct π0hds : virtual π0hv,  // data-stack heap view
   π0hds(π0hds&&)      = delete;
   π0hds(π0h &h_) : π0hv(h_) {}
 
-  void mark() { for (let   x : s)     π0hv::h.mark(x); }
-  void move() { for (auto &x : s) x = π0hv::h.move(x); }
+  void mark() { for (let   x : s)     h.mark(x); }
+  void move() { for (auto &x : s) x = h.move(x); }
 
   π0sv *up() const { return nullptr; }
 
   void                operator<<(π0r x)      { s.push_back(x); }
-  template<O9 T> void operator<<(T const &x) { *this << (π0hv::h << x); }
+  template<O9 T> void operator<<(T const &x) { *this << (h << x); }
 
   i9 operator[](uN i) const { return s.at(s.size() - i - 1); }
   void     drop(uN n = 1)   { s.resize(s.size() - n); }
@@ -62,12 +79,12 @@ struct π0hds : virtual π0hv,  // data-stack heap view
 };
 
 
-struct π0hss : virtual π0hv,  // split-stack heap view
-               virtual π0sv
+struct π0hss : public virtual π0hv,  // split-stack heap view
+               public virtual π0sv
 {
-  π0sv const &d;              // base data stack
-  uN          n;              // number of elements "deleted"
-  V<π0r>      s;              // elements we've added
+  π0sv const &d;  // base data stack
+  uN          n;  // number of elements "deleted"
+  V<π0r>      s;  // elements we've added
 
   π0hss()             = delete;
   π0hss(π0hss const&) = delete;
@@ -76,13 +93,13 @@ struct π0hss : virtual π0hv,  // split-stack heap view
 
   // NOTE: no need to mark/move d, since it's an independent
   // member of h.vs
-  void mark() { for (let   x : s)     π0hv::h.mark(x); }
-  void move() { for (auto &x : s) x = π0hv::h.move(x); }
+  void mark() { for (let   x : s)     h.mark(x); }
+  void move() { for (auto &x : s) x = h.move(x); }
 
   π0sv *up() const { return Cc<π0sv*>(&d); }
 
   void                operator<<(π0r x)      { s.push_back(x); }
-  template<O9 T> void operator<<(T const &x) { *this << (π0hv::h << x); }
+  template<O9 T> void operator<<(T const &x) { *this << (h << x); }
 
   i9 operator[](uN i) const
     { return i < s.size() ? i9{s.at(s.size() - i - 1)} : d[i - s.size() + n]; }
@@ -96,7 +113,7 @@ struct π0hss : virtual π0hv,  // split-stack heap view
 };
 
 
-struct π0hdf : virtual π0hv  // stack-of-frames heap view
+struct π0hdf : public virtual π0hv  // stack-of-frames heap view
 {
   V<π0r> d;  // all frames concatenated together
   V<uN>  n;  // first variable within each frame
@@ -106,8 +123,8 @@ struct π0hdf : virtual π0hv  // stack-of-frames heap view
   π0hdf(π0hdf&&)      = delete;
   π0hdf(π0h &h_) : π0hv(h_) {}
 
-  void mark() { for (let   x : d)     π0hv::h.mark(x); }
-  void move() { for (auto &x : d) x = π0hv::h.move(x); }
+  void mark() { for (let   x : d)     h.mark(x); }
+  void move() { for (auto &x : d) x = h.move(x); }
 
   π0r &operator[](uN i) { return d[n.back() + i]; }
 
@@ -116,7 +133,7 @@ struct π0hdf : virtual π0hv  // stack-of-frames heap view
 };
 
 
-struct π0hnf : virtual π0hv  // native frame heap view
+struct π0hnf : public virtual π0hv  // native frame heap view
 {
   V<i9*>       v;
   V<V<i9>*>    s;
@@ -131,19 +148,19 @@ struct π0hnf : virtual π0hv  // native frame heap view
   void mark()
     { std::shuffle(v.begin(), v.end(), std::default_random_engine(now().time_since_epoch().count()));
       std::shuffle(s.begin(), s.end(), std::default_random_engine(now().time_since_epoch().count()));
-      for (let x : v) π0hv::h.mark(x->a);
+      for (let x : v) h.mark(x->a);
       for (let x : s)
       { std::shuffle(x->begin(), x->end(), std::default_random_engine(now().time_since_epoch().count()));
-        for (let y : *x) π0hv::h.mark(y); } }
+        for (let y : *x) h.mark(y); } }
 #else
   void mark()
-    { for (let x : v)                  π0hv::h.mark(x->a);
-      for (let x : s) for (let y : *x) π0hv::h.mark(y); }
+    { for (let x : v)                  h.mark(x->a);
+      for (let x : s) for (let y : *x) h.mark(y); }
 #endif
 
   void move()
-    { for (let   x : v)                 x->a = π0hv::h.move(x->a);
-      for (let   x : s) for (auto &y : *x) y = π0hv::h.move(y);
+    { for (let   x : v)                 x->a = h.move(x->a);
+      for (let   x : s) for (auto &y : *x) y = h.move(y);
       for (auto &x : f)                    x(); }
 
   template<class... Xs> π0hnf &operator()(i9 *x,         Xs... xs) { v.push_back(x);                        return (*this)(xs...); }
@@ -153,7 +170,7 @@ struct π0hnf : virtual π0hv  // native frame heap view
 };
 
 
-struct π0hgl : virtual π0hv  // GC lock (asserts that no GC will happen)
+struct π0hgl : public virtual π0hv  // GC lock (asserts that no GC will happen)
 {
   π0hgl(π0h &h_) : π0hv(h_) {}
   void mark() { A(0, "GC during lock"); }

@@ -28,10 +28,14 @@ struct π0int : π0sv
   V<π0bi>      r;   // return stack
   π0hdf        f;   // frame stack
   π0hds        d;   // base data stack
+  π0hgs        g;   // globals
   π0sv        *dv;  // current data stack view
 
+  // TODO: add globals
+  // TODO: add shared ownership of program?
+
   π0int(π0abi const &a_, π0pgm &&p_, π0h &h_)
-    : a(a_), p(std::move(p_)), h(h_), f(h), d(h), dv(&d)
+    : a(a_), p(std::move(p_)), h(h_), f(h), d(h), g(h), dv(&d)
     { A(p.a.v() == a.v(), "π₀ ABI mismatch: " << p.a.v() << " ≠ " << a.v()); }
 
   ~π0int() { while (dv != &d) spop(); }
