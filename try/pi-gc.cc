@@ -206,7 +206,7 @@ void try_asm()
   a << "i32'3 [i32'4 :out] . _ :out";
 
   π0h   h{};
-  π0int i{π0abi1(), a.build(), h};
+  π0int i{π0abi1(), a.build(), h, SP<π0hgs>(new π0hgs{h})};
   i.run(0);
   i32 x = Sc<i32>(i.dpop());
   A(x == 3, "expected 3, got " << x);
@@ -231,7 +231,7 @@ int asmrun(char *src)
 {
   π0h   h{};
   π0asm a{π0abi1()}; a << St{src};
-  π0int i{π0abi1(), a.build(), h};
+  π0int i{π0abi1(), a.build(), h, SP<π0hgs>(new π0hgs(h))};
   i.run(0);
   return 0;
 }
@@ -241,7 +241,7 @@ int asmdebug(char *src)
 {
   π0h   h{};
   π0asm a{π0abi1()}; a << St{src};
-  π0int i{π0abi1(), a.build(), h};
+  π0int i{π0abi1(), a.build(), h, SP<π0hgs>(new π0hgs(h))};
 
   cout << "input program:" << endl;
   cout << i.p << endl;

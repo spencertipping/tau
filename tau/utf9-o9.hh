@@ -465,6 +465,10 @@ struct o9flag : virtual o9V
 template<O9 T> struct o9_<o9flag<T>> { sletc v = true; };
 
 
+template<class T> auto o9ptr(T* x)
+{ return o9(u9_scoped<u9_build, T*>{u9_build::istruct, x}); }
+
+
 template<O9 T>
 uN operator<<(B &i, T const &x)
 {
