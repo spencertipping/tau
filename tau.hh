@@ -31,4 +31,8 @@
 #include "tau/xi.hh"
 
 
+// NOTE: load ABIs last because they refer to everything else
+#include "tau/pi0-abi1.hh"
+
+
 #endif

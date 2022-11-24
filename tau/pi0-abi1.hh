@@ -7,10 +7,14 @@
 #include "utf9-i9.hh"
 #include "utf9-types.hh"
 #include "utf9.hh"
+
 #include "pi0-types.hh"
 #include "pi0-gc.hh"
 #include "pi0-abi.hh"
 #include "pi0-int.hh"
+
+#include "digamma.hh"
+
 
 #include "begin.hh"
 
