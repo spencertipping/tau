@@ -60,6 +60,15 @@ void π0abi1_frame(π0abi &a)
 }
 
 
+void π0abi1_global(π0abi &a)
+{
+  a .def("%@", I{ i << i.gs()[i.dpop()]; })
+    .def("%=", I{ let s = i.dpop(); i.gs()[s] = i.dpop(); })
+    .def("%_", I{ i.gs().x(i.dpop()); })
+    .def("%?", I{ i.dpush(i.gs().i(i.dpop())); });
+}
+
+
 void π0abi1_control(π0abi &a)
 {
   a .def(".",  I{ i.r.push_back(Sc<π0bi>(i.dpop())); })
@@ -411,8 +420,10 @@ void π0abi1_debug(π0abi &a)
   π0abi1_blocks(a);
   π0abi1_stack(a);
   π0abi1_frame(a);
+  π0abi1_global(a);
   π0abi1_control(a);
   π0abi1_quote(a);
+
   π0abi1_u9_general(a);
   π0abi1_u9_vector(a);
   π0abi1_u9_number(a);

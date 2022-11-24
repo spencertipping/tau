@@ -40,7 +40,7 @@ struct π0hv  // heap view: a part of the root set
 
 struct π0hgs : public virtual π0hv  // global set
 {
-  M<St, π0r> s;
+  M<u9_symbol, π0r> s;
 
   π0hgs()             = delete;
   π0hgs(π0hgs const&) = delete;
@@ -50,8 +50,9 @@ struct π0hgs : public virtual π0hv  // global set
   void mark() { for (let  &[_, v] : s)     h.mark(v); }
   void move() { for (auto &[_, v] : s) v = h.move(v); }
 
-  π0r &operator[](Stc &k) { return s[k]; }
-  π0hgs        &x(Stc &k) { s.erase(k); return *this; }
+  π0r &operator[](u9_symbol const &k) { return s[k]; }
+  π0hgs        &x(u9_symbol const &k) { s.erase(k); return *this; }
+  bool          i(u9_symbol const &k) { return s.contains(k); }
 };
 
 
