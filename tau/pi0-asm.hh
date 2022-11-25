@@ -84,45 +84,58 @@ struct π0asm
   π0asm &begin() { bs.push_back(π0blk{}); return *this; }
   π0asm &end()
   { auto b = std::move(bs.back()); bs.pop_back();
-    *this << f("[", b.size() + 1);
+    f("[", b.size() + 1);
     for (let &x : b) *this << x;
-    *this << f("]", 0);
+    f("]", 0);
     return *this; }
 
   π0asm &fbegin(Stc &vs)
   { fs.push_back(π0afr(vs));
-    *this << f("[|", fs.back().vs.size());
+    f("[|", fs.back().vs.size());
     return *this; }
 
   π0asm &fend()
   { fs.pop_back();
-    *this << f("|]");
+    f("|]");
     return *this; }
 
 
-  π0b f(Stc &n, uN k = 0)
+  π0asm &f(Stc &n, uN k = 0)
     { A(!n.empty(), "π₀asm f(\"\")");
       if (!fs.empty())
       { let a = fs.back()[n];
-        if (a != π0afr::fω) return π0b{fn.at("&@'"), a};
+        if (a != π0afr::fω) return *this << π0b{fn.at("&@'"), a};
         if (n.ends_with('='))
         { let b = fs.back()[n.substr(0, n.size() - 1)];
-          if (b != π0afr::fω) return π0b{fn.at("&='"), b}; } }
-      if (fn.contains(n)) return π0b{fn.at(n), k};
+          if (b != π0afr::fω) return *this << π0b{fn.at("&='"), b}; } }
+      if (fn.contains(n)) return *this << π0b{fn.at(n), k};
       if (c7in[n[0]])
-      { std::stringstream s{n};
-        i64 x;
-        s >> x;
+      { i64 x = 0;
+        if (n.starts_with("0x"))
+          for (uN i = 2; i < n.size(); ++i)
+            x = x << 4 | St{"0123456789abcdef"}.find(n[i]);
+        else
+          std::stringstream{n} >> x;
         A(!oi<i32>(x), "int literal overflow: " << x << " from " << n);
-        return π0b{fn.at(oi<i16>(x) ? "i32" : oi<i8>(x) ? "i16" : "i8"), x}; }
-      A(0, "π₀asm: " << n << " is not defined"); }
+        return *this << π0b{fn.at(oi<i16>(x) ? "i32" : oi<i8>(x) ? "i16" : "i8"), x}; }
+
+      A(fn.contains("sym"), "no sym literal fn in π₀asm (infinite loop)");
+      A(fn.contains("%@"),  "no %@ fn in π₀asm (infinite loop)");
+      A(fn.contains("."),   "no . fn in π₀asm (infinite loop)");
+
+      // Otherwise, interpret the name as a global _function_ that is
+      // expected to exist by this point.
+      f("sym", qh << o9(u9_symbol::str(n)));
+      f("%@");
+      f(".");
+      return *this; }
 
 
   π0asm &operator<<(π0b b) { bs.back().push_back(b); return *this; }
   π0asm &operator<<(Stc &s)
   { for (uN i = 0; i < s.size(); ++i)
       if      (c7ws[s[i]]) continue;
-      else if (c7sc[s[i]]) *this << f(s.substr(i, 1), 0);
+      else if (c7sc[s[i]]) f(s.substr(i, 1), 0);
       else if (c7ni[s[i]])
         switch (s[i])
         {
@@ -132,7 +145,7 @@ struct π0asm
         case '\'':
         { uN j = i + 1;
           while (j < s.size() && !c7ni[s[j]]) ++j;
-          *this << f("sym", qh << o9(u9_symbol::str(s.substr(i + 1, j - i - 1))));
+          f("sym", qh << o9(u9_symbol::str(s.substr(i + 1, j - i - 1))));
           i = j - 1;
           break; }
         case '"':
@@ -148,7 +161,7 @@ struct π0asm
               TA(*this, "π₀asm unknown string escape: " << s[i]);
               }
             else x.push_back(s[i]);
-          *this << f("utf8", qh << o9(x));
+          f("utf8", qh << o9(x));
           break; }
         case '|':
         { if (i + 1 < s.size() && s[i + 1] == ']') { fend(); end(); ++i; }
@@ -156,7 +169,7 @@ struct π0asm
           { uN j = i + 1;
             while (j < s.size() && s[j] != '|') ++j;
             fbegin(s.substr(i + 1, j - i - 1));
-            *this << f("[|", fs.back().vs.size());
+            f("[|", fs.back().vs.size());
             i = j; }
           break; }
         TA(*this, "π₀asm<< ni " << s[i]);
@@ -169,14 +182,14 @@ struct π0asm
         if (j < s.size() && s[j] == '\'')
           for (i = j++; j < s.size() && c7in[s[j]]; ++j)
             x *= 10, x += s[j] - '0';
-        *this << f(n, x);
+        f(n, x);
         i = j - 1; }
     return *this; }
 
 
   SP<π0pgm> build()
   { A(bs.size() == 1, "π₀asm::build |bs| = " << bs.size());
-    *this << f("]", 0);
+    f("]", 0);
     return SP<π0pgm>(new π0pgm{a, qh, bs.back()}); }
 };
 

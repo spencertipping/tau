@@ -42,9 +42,6 @@ struct ϝ;
 typedef F<void(ϝ&)> ϝxf;
 
 
-// TODO: how do we share information across λs?
-// We should probably have some ϝ-level or γ-level UTF9 state sharing
-
 struct ϝ
 {
   sletc ξι  = 0x001210;
@@ -131,6 +128,14 @@ struct ϝ
 // important: prevents attempted coercion of Φf into an o9
 template<class O>
 ic bool operator<<(ϝ &f, Φf<O> &x) { return f.φο() << x; }
+
+
+#if τdebug_iostream
+O &operator<<(O &s, ϝ const &x)
+{
+  TODO("<<ϝ");
+}
+#endif
 
 
 }

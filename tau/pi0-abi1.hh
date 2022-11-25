@@ -66,7 +66,7 @@ void π0abi1_frame(π0abi &a)
 
 void π0abi1_global(π0abi &a)
 {
-  a .def("%@", I{ i << i.gs()[i.dpop()]; })
+  a .def("%@", I{ let k = i.dpop(); let v = i.gs()[k]; A(i.h(v).exists(), "undefined global " << k); i << v; })
     .def("%=", I{ let s = i.dpop(); i.gs()[s] = i.dpop(); })
     .def("%_", I{ i.gs().x(i.dpop()); })
     .def("%?", I{ i.dpush(i.gs().i(i.dpop())); });
@@ -388,6 +388,35 @@ void π0abi1_u9_quote(π0abi &a)
 }
 
 
+void π0abi1_ϝ(π0abi &a)
+{
+  // TODO: move u9_symbols into globals
+  a .def("ϝ:", I{
+      Stc ϝn = i.dpop();
+      ϝξ  ϝt = Sc<ϝξ>(i.dpop());
+      let l  = i.bpop();
+      i.dpush(o9ptr(new ϝ(*Sc<Φ*>(i.h(i.gs()[u9_symbol::str("Φ")])), ϝn, ϝt, [&](ϝ &d)
+        { π0int j = i.fork();
+          j.dpush(o9ptr(&d));
+          j.run(l); }))); })
+    .def("ϝλc", I{
+        let l = i.bpop();
+        Sc<ϝ*>(i.dpop())->λc([&, l](ϝ &d) { i.fork().dpush(o9ptr(&d)).run(l); });
+      })
+    .def("ϝxc", I{
+        let l = i.bpop();
+        Sc<ϝ*>(i.dpop())->xf([&, l](ϝ &d) { i.fork().dpush(o9ptr(&d)).run(l); });
+      })
+    .def("ϝγ", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->g)); })
+    .def("ϝι", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->φι())); })
+    .def("ϝο", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->φο())); })
+    .def("ϝα", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->α())); })
+    .def("ϝβ", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->β())); })
+    .def("ϝδ", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->δ())); })
+    .def("ϝε", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->ε())); });
+}
+
+
 #if τdebug
 void π0abi1_debug(π0abi &a)
 {
@@ -435,8 +464,7 @@ void π0abi1_debug(π0abi &a)
   π0abi1_u9_structure(a);
   π0abi1_u9_quote(a);
 
-  // TODO: γ/ϝ API
-  // TODO: ξ API
+  π0abi1_ϝ(a);
 
 # if τdebug
   π0abi1_debug(a);

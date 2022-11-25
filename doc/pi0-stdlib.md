@@ -243,6 +243,19 @@ All of these operators automatically distribute across vectors.
 + `fi [...] φ.`: for each element
 
 
+## ϝ API
++ `"name" 0x1234 [ϝ* → ...] ϝ:`: create ϝ, return `ϝ*`
++ `ϝ* ϝγ`: return γ for ϝ
++ `ϝ* [...] ϝλc`: create λ for ϝ
++ `ϝ* [...] ϝxc`: create finalizer λ for ϝ
++ `ϝ* ϝα`: return α φ for ϝ
++ `ϝ* ϝβ`: return β φ for ϝ
++ `ϝ* ϝδ`: return δ φ for ϝ
++ `ϝ* ϝε`: return ε φ for ϝ
++ `ϝ* ϝι`: return ι φ for ϝ
++ `ϝ* ϝο`: return ο φ for ϝ
+
+
 ## π₀ interpreter API
 You can use π₀ to create a sub-interpreter, effectively allowing you to JIT code. This sub-interpreter can also catch what would normally be fatal exceptions, e.g. for incorrect numeric casts or bounds errors.
 
