@@ -76,6 +76,12 @@ void π0abi1_global(π0abi &a)
 void π0abi1_control(π0abi &a)
 {
   a .def(".",  I{ i.r.push_back(Sc<π0bi>(i.dpop())); })
+    .def("?",  I{
+        let e = i[0];
+        let t = i[1];
+        let c = i[2];
+        i.drop(3);
+        i << (Sc<bool>(c) ? t : e); })
     .def("?.", I{
         let e = i.bpop();
         let t = i.bpop();
@@ -100,6 +106,7 @@ void π0abi1_quote(π0abi &a)
     .def("i32", I{ i.dpush(Sc<i32>(n)); })
     .def("i64", I{ i.dpush(Sc<i64>(n)); })
 
+    // TODO: reference these, don't copy (since they're immutable)
     .def("utf8", I{ i.dpush(i9{Cc<ζp>(i.p->q.data() + n)}); })
     .def("sym",  I{ i.dpush(i9{Cc<ζp>(i.p->q.data() + n)}); });
 }
