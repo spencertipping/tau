@@ -41,12 +41,12 @@ void π0abi1_stack(π0abi &a)
     .def("^",  I{ i << i[n ? n : 1]; })
     .def("^^", I{ i << i[2]; })
     .def("_",  I{ i.drop(n ? n : 1); })
-    .def("%",  I
-         { let a = i[0];
-           let b = i[1];
-           i.drop(2);
-           i << a;
-           i << b; });
+    .def("%",  I{
+        let a = i[0];
+        let b = i[1];
+        i.drop(2);
+        i << a;
+        i << b; });
 }
 
 
@@ -58,9 +58,9 @@ void π0abi1_frame(π0abi &a)
     .def("&@'", I{ i << i.fi(n); })
     .def("&='", I{ i.fi(n) = i.pop(); })
     .def("&@",  I{ i << i.fi(Sc<uN>(i.dpop())); })
-    .def("&=",  I
-         { let v = Sc<uN>(i.dpop());
-           i.fi(v) = i.pop(); });
+    .def("&=",  I{
+        let v = Sc<uN>(i.dpop());
+        i.fi(v) = i.pop(); });
 }
 
 
@@ -76,17 +76,17 @@ void π0abi1_global(π0abi &a)
 void π0abi1_control(π0abi &a)
 {
   a .def(".",  I{ i.r.push_back(Sc<π0bi>(i.dpop())); })
-    .def("?.", I
-         { let e = i.bpop();
-           let t = i.bpop();
-           let c = i.dpop().b();
-           i.run(c ? t : e); })
-    .def("?!", I
-         { let c = i.bpop();
-           let b = i.bpop();
-         loop:
-           i.run(c);
-           if (i.dpop().b()) { i.run(b); goto loop; }})
+    .def("?.", I{
+        let e = i.bpop();
+        let t = i.bpop();
+        let c = i.dpop().b();
+        i.run(c ? t : e); })
+    .def("?!", I{
+        let c = i.bpop();
+        let b = i.bpop();
+      loop:
+        i.run(c);
+        if (i.dpop().b()) { i.run(b); goto loop; }})
     .def(".^", I{ i.r.resize(i.r.size() - n - 1); });
 }
 
@@ -316,14 +316,14 @@ void π0abi1_u9_nrange(π0abi &a)
 
 void π0abi1_u9_tuple(π0abi &a)
 {
-  a .def(">>t", I{
-      uNc k = Sc<iN>(i.dpop());
-      π0hnf f{i.h, 0};
-      V<i9> xs; xs.reserve(k); f(&xs);
-      for (uN j = 0; j < k; ++j) xs.push_back(i.pop());
-      i.dpush(xs); })
-    .def("t@", I{ let k = Sc<uN>(i.dpop()); i.dpush(i.dpop()[k]); })
+  a .def("t@", I{ let k = Sc<uN>(i.dpop()); i.dpush(i.dpop()[k]); })
     .def("t#", I{ i.dpush(i.dpop().len()); })
+    .def(">>t", I{
+        uNc k = Sc<iN>(i.dpop());
+        π0hnf f{i.h, 0};
+        V<i9> xs; xs.reserve(k); f(&xs);
+        for (uN j = 0; j < k; ++j) xs.push_back(i.pop());
+        i.dpush(xs); })
     .def("t++", I{
         let k = i9{i[0]}.len() + i9{i[1]}.len();
         π0hnf f{i.h, 0};
@@ -384,8 +384,7 @@ void π0abi1_u9_quote(π0abi &a)
     .def("b$", I{
         let x = i.dpop();
         let j = i9{x.data()};
-        i.dpush(j.verify(x.size()) == i9v::valid ? j : i9_none());
-      });
+        i.dpush(j.verify(x.size()) == i9v::valid ? j : i9_none()); });
 }
 
 
@@ -400,13 +399,12 @@ void π0abi1_debug(π0abi &a)
     .def(":out",   I{ std::cout << i[0] << std::endl; })
     .def(":spush", I{ i.spush(); })
     .def(":spop",  I{ i.spop(); })
-    .def(":data",  I
-         { for (uN j = 0; j < i.size(); ++j)
-             std::cout << "[" << j << "]\t" << i[j] << std::endl; })
+    .def(":data",  I{
+        for (uN j = 0; j < i.size(); ++j)
+          std::cout << "[" << j << "]\t" << i[j] << std::endl; })
     .def(":cout", I{
         let x = i.dpop();
-        std::cout << Stv{Rc<chc*>(x.data()), x.size()};
-      });
+        std::cout << Stv{Rc<chc*>(x.data()), x.size()}; });
 }
 #endif
 
