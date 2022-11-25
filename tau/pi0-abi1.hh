@@ -399,9 +399,9 @@ void π0abi1_ϝ(π0abi &a)
 {
   // TODO: move u9_symbols into globals
   a .def("ϝ:", I{
-      Stc ϝn = i.dpop();
-      ϝξ  ϝt = Sc<ϝξ>(i.dpop());
       let l  = i.bpop();
+      ϝξ  ϝt = Sc<ϝξ>(i.dpop());
+      Stc ϝn = i.dpop();
       i.dpush(o9ptr(new ϝ(*Sc<Φ*>(i.h(i.gs()[u9_symbol::str("Φ")])), ϝn, ϝt, [&](ϝ &d)
         { π0int j = i.fork();
           j.dpush(o9ptr(&d));
@@ -420,7 +420,25 @@ void π0abi1_ϝ(π0abi &a)
     .def("ϝα", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->α())); })
     .def("ϝβ", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->β())); })
     .def("ϝδ", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->δ())); })
-    .def("ϝε", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->ε())); });
+    .def("ϝε", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->ε())); })
+    .def("ϝιi", I{ i.dpush(o9(Sc<ϝ*>(i.dpop())->ιi())); })
+    .def("ϝοi", I{ i.dpush(o9(Sc<ϝ*>(i.dpop())->οi())); })
+    .def("ϝ|", I{
+        let b = Sc<ϝ*>(i.dpop());
+        let a = Sc<ϝ*>(i.dpop());
+        *a | *b; })
+    .def("ϝ&", I{
+        let b = Sc<ϝ*>(i.dpop());
+        let a = Sc<ϝ*>(i.dpop());
+        *a & *b; })
+    .def("ϝ^", I{
+        let b = Sc<ϝ*>(i.dpop());
+        let a = Sc<ϝ*>(i.dpop());
+        *a ^ *b; })
+    .def("ϝ=", I{
+        let bi = Sc<uN>(i.dpop()); let b = Sc<ϝ*>(i.dpop());
+        let ai = Sc<uN>(i.dpop()); let a = Sc<ϝ*>(i.dpop());
+        a->g(ai, b->g, bi); });
 }
 
 

@@ -255,6 +255,12 @@ All of these operators automatically distribute across vectors.
 + `ϝ* ϝε`: return ε φ for ϝ
 + `ϝ* ϝι`: return ι φ for ϝ
 + `ϝ* ϝο`: return ο φ for ϝ
++ `ϝ* ϝιi`: return φ index of default input for ϝ
++ `ϝ* ϝοi`: return φ index of default output for ϝ
++ `a b ϝ|`: pipe ϝ `a` to ϝ `b`
++ `a b ϝ&`
++ `a b ϝ^`
++ `a ai b bi ϝ=`: φ-connect numbered ports
 
 
 ## π₀ interpreter API

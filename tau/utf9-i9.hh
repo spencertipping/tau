@@ -132,15 +132,15 @@ struct i9
 
 
   uf8  code()    const { return R<u8>(a, 0); }
-  bool flagged() const { return u9ts_f(code()); }
-  u9s  stype()   const { return u9ts_s(code()); }
+  bool flagged() const { return a ? u9ts_f(code()) : false; }
+  u9s  stype()   const { return a ? u9ts_s(code()) : u9s::v8; }
   u9t  type()    const { return a ? u9ts_t(code()) : u9t::none; }
   i9   next()    const { return a + osize(); }
-  i9   first()   const { return data(); }
+  i9   first()   const { return a ? data() : nullptr; }
   i9   second()  const { return first().next(); }
   ks   keys()    const { return ks{a}; }
   fs   flags()   const { return flagged() ? fs{a} : fs{0}; }
-  uN   osize()   const { return u9rs(a, 0); }
+  uN   osize()   const { return a ? u9rs(a, 0) : 0; }
 
   // NOTE: iteration supported only for collections of UTF9 objects, and
   // indexes require .second() if you want to traverse elements

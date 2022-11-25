@@ -26,6 +26,7 @@ namespace fs = std::filesystem;
 
 int asmrun(St const &src)
 {
+  // TODO: bind Φ here by creating a π₀
   π0h   h{};
   π0asm a{π0abi1()}; a << src;
   π0int i{π0abi1(), a.build(), h, SP<π0hgs>(new π0hgs{h})};
