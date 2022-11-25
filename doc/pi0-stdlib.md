@@ -217,30 +217,30 @@ All of these operators automatically distribute across vectors.
 
 ## γ
 ### λ
-+ `[...] λc`: create λ, return `λi`
-+ `li λx`
-+ `λy`: yield out
-+ `dt Θd`
-+ `t Θt`
++ `γ* [...] λc`: create λ, return `λi`
++ `γ* li λx`
++ `γ* λy`: yield out
++ `γ* dt Θd`: sleep nanoseconds
++ `γ* t Θt`: sleep until nanosecond timestamp
 
 
 ### Low-level φ
-+ `x fi >φ`: write element to φ (returns bool)
-+ `x fi >=φ`: non-connect-blocking write to φ (returns bool)
-+ `fi <φ`: read element from φ (returns `ω` on EOF)
-+ `fi φ>?`: is φ writable
-+ `fi φ<?`: is φ readable
-+ `fi φω?`: is φ closed
++ `x φ >φ`: write element to φ (returns bool)
++ `x φ >=φ`: non-connect-blocking write to φ (returns bool)
++ `φ <φ`: read element from φ (returns `ω` on EOF)
++ `φ φ>?`: is φ writable
++ `φ φ<?`: is φ readable
++ `φ φω?`: is φ closed
 
 
 ### Circular iteration
-+ `τ>t`: _τ_-delineated cycle to tuple
-+ `τ>s`: to set
-+ `τ>m`: to map (elements are coerced to pairs, defaulting to `t`)
++ `φ τ>t`: _τ_-delineated cycle to tuple
++ `φ τ>s`: to set
++ `φ τ>m`: to map (elements are coerced to pairs, defaulting to `t`)
 
 
 ### Iteration
-+ `fi [...] φ.`: for each element
++ `φ [...] φ.`: for each element
 
 
 ## ϝ API
