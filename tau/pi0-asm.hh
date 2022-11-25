@@ -70,10 +70,11 @@ struct π0asm
   typedef V<π0b> π0blk;  // code block
 
   π0abi const &a;
-  M<St, π0fi>  fn;  // string index of ABI functions
-  B            qh;  // static quoted values
-  V<π0afr>     fs;  // stack of frames
-  V<π0blk>     bs;  // stack of blocks
+  M<St, π0fi>      fn;   // string index of ABI functions
+  M<u9_symbol, uN> qhi;  // quoted-symbol offset index (within qh)
+  B                qh;   // static quoted values
+  V<π0afr>         fs;   // stack of frames
+  V<π0blk>         bs;   // stack of blocks
 
   π0asm(π0abi const &a_) : a(a_)
   { fs.push_back(π0afr{});
@@ -98,6 +99,11 @@ struct π0asm
   { fs.pop_back();
     f("|]");
     return *this; }
+
+
+  uN qs(u9_symbol const &k)
+    { if (!qhi.contains(k)) qhi[k] = qh << o9(k);
+      return qhi.at(k); }
 
 
   π0asm &f(Stc &n, uN k = 0)
@@ -125,7 +131,7 @@ struct π0asm
 
       // Otherwise, interpret the name as a global _function_ that is
       // expected to exist by this point.
-      f("sym", qh << o9(u9_symbol::str(n)));
+      f("sym", qs(u9_symbol::str(n)));
       f("%@");
       f(".");
       return *this; }
@@ -145,7 +151,7 @@ struct π0asm
         case '\'':
         { uN j = i + 1;
           while (j < s.size() && !c7ni[s[j]]) ++j;
-          f("sym", qh << o9(u9_symbol::str(s.substr(i + 1, j - i - 1))));
+          f("sym", qs(u9_symbol::str(s.substr(i + 1, j - i - 1))));
           i = j - 1;
           break; }
         case '"':
