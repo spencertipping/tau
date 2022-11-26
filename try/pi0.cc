@@ -24,13 +24,11 @@ namespace fs = std::filesystem;
 #include "../tau/begin.hh"
 
 
-int asmrun(St const &src)
+int asmrun(π0asm &a)
 {
-  // TODO: bind Φ here by creating a π₀
-  π0h   h{};
-  π0asm a{π0abi1()}; a << src;
-  π0int i{π0abi1(), a.build(), h, SP<π0hgs>(new π0hgs{h})};
-  i.run();
+  Φ f;
+  ξ::pi0(f, "main", ϝ::ξΦ, a.build());
+  f.go();
   return 0;
 }
 
@@ -49,7 +47,9 @@ St input(char *x)
 int main(int argc, char **argv)
 {
   τassert_begin;
-  for (iN i = 1; i < argc; ++i) asmrun(input(argv[i]));
+  π0asm a(π0abi1());
+  for (iN i = 1; i < argc; ++i) a << input(argv[i]);
+  asmrun(a);
   τassert_end;
 }
 

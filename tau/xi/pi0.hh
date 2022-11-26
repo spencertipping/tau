@@ -17,7 +17,7 @@ namespace τ::ξ
 
 ϝ &pi0(Φ &f, Stc &n, ϝξ t, SP<π0pgm const> p, π0bi i = 0)
 {
-  return *new ϝ(f, n, t, [&, i](ϝ &d)
+  return *new ϝ(f, n, t, [&, i, p](ϝ &d)
     { SP<π0hgs> g{new π0hgs(f.ph)};
       (*g)[u9_symbol::str("ϝ₀")] = f.ph << o9ptr(&d);
       (*g)[u9_symbol::str("γ₀")] = f.ph << o9ptr(&d.g);
