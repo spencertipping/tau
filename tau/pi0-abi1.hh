@@ -437,8 +437,8 @@ void π0abi1_φ(π0abi &a)
     .def("φ>ω", I{ i.dpop().template ptr<γφ>()->rω(); })
     .def("φω",  I{ i.dpop().template ptr<γφ>()->ω(); })
     .def("φ.",  I{
-        let f = i.dpop().template ptr<γφ>();
         let b = i.bpop();
+        let f = i.dpop().template ptr<γφ>();
         for (let x : *f) i.dpush(x).run(b); });
 }
 
@@ -450,19 +450,13 @@ void π0abi1_ϝ(π0abi &a)
       let l  = i.bpop();
       ϝξ  ϝt = Sc<ϝξ>(i.dpop());
       Stc ϝn = i.dpop();
-
-      // FIXME: this is wrong; it requires the π₀int to outlive any child
-      // λs
-      i.dpush(o9ptr(new ϝ(π0abi1_iΦ(i), ϝn, ϝt, [&, l](ϝ &d)
-        { π0int j = i.fork();
-          j.dpush(o9ptr(&d));
-          j.run(l); }))); })
+      i.dpush(o9ptr(new ϝ(π0abi1_iΦ(i), ϝn, ϝt, [l, i](ϝ &d) { π0int j{i}; j.dpush(o9ptr(&d)).run(l); }))); })
     .def("ϝλc", I{
         let l = i.bpop();
-        i.dpop().template ptr<ϝ>()->λc([&, l](ϝ &d) { i.fork().dpush(o9ptr(&d)).run(l); }); })
+        i.dpop().template ptr<ϝ>()->λc([l, i](ϝ &d) { π0int j{i}; j.dpush(o9ptr(&d)).run(l); }); })
     .def("ϝxc", I{
         let l = i.bpop();
-        i.dpop().template ptr<ϝ>()->xf([&, l](ϝ &d) { i.fork().dpush(o9ptr(&d)).run(l); }); })
+        i.dpop().template ptr<ϝ>()->xf([l, i](ϝ &d) { π0int j{i}; j.dpush(o9ptr(&d)).run(l); }); })
     .def("ϝγ",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->g)); })
     .def("ϝι",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->φι())); })
     .def("ϝο",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->φο())); })

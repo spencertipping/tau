@@ -32,6 +32,11 @@ struct π0int : π0sv
   π0hds            d;   // base data stack
   π0sv            *dv;  // current data stack view
 
+  // NOTE: this is a fork-constructor, not a copy-constructor (stacks are
+  // empty in the destination)
+  π0int(π0int const &i) : a(i.a), p(i.p), h(i.h), g(i.g), f(h), d(h), dv(&d) {}
+  π0int(π0int      &&i) : a(i.a), p(i.p), h(i.h), g(i.g), f(h), d(h), dv(&d) {}
+
   π0int(π0abi const &a_, SP<π0pgm const> p_, π0h &h_, SP<π0hgs> g_)
     : a(a_), p(p_), h(h_), g(g_), f(h), d(h), dv(&d)
     { A(p->a.v() == a.v(), "π₀ ABI mismatch: " << p->a.v() << " ≠ " << a.v()); }
@@ -44,9 +49,6 @@ struct π0int : π0sv
       r.push_back(l);
       while (r.size() > n) step();
       return *this; }
-
-
-  π0int fork() const { return π0int{a, p, h, g}; }
 
 
   π0hgs &gs() const { return *g; }

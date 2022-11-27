@@ -6,7 +6,7 @@
   "creating λ...\n" :cout
   d [|d| d=
     "inner λ started\n" :cout
-    d ϝι [d ϝο % φ<] φ.
+    d ϝι [d ϝο φ<] φ.
     "inner λ returning\n" :cout
   |] ϝλc
   "inner ϝ done\n" :cout
