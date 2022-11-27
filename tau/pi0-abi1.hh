@@ -404,10 +404,14 @@ void π0abi1_u9_quote(π0abi &a)
   return *i.h(i.gs()[u9_symbol::str("Φ")]).template ptr<Φ>();
 }
 
-
 γ &π0abi1_iγ0(π0int &i)
 {
   return *i.h(i.gs()[u9_symbol::str("γ₀")]).template ptr<γ>();
+}
+
+ϝ &π0abi1_iϝ0(π0int &i)
+{
+  return *i.h(i.gs()[u9_symbol::str("ϝ₀")]).template ptr<ϝ>();
 }
 
 

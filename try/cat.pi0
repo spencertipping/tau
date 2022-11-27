@@ -1,1 +1,10 @@
 0 ξ<f 1 ξ>f ϝ|
+
+
+# trying to splice into stdout below, but it doesn't work
+[|a b|
+  0 ξ<f a=
+  1 ξ>f b=
+  a b ϝ|
+  "ready\n" b ϝα φ< :data
+|] _
