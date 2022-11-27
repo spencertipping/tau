@@ -220,17 +220,21 @@ All of these operators automatically distribute across vectors.
 ### λ
 + `γ* [...] λc`: create λ, return `λi`
 + `γ* li λx`
-+ `γ* λy`: yield out
-+ `γ* dt Θd`: sleep nanoseconds
-+ `γ* t Θt`: sleep until nanosecond timestamp
+
+Some functions don't require a γ object:
+
++ `λy`: yield out
++ `dt Θd`: sleep nanoseconds
++ `t Θt`: sleep until nanosecond timestamp (TODO)
 
 
 ### Low-level φ
-+ `x φ >φ`: write element to φ (returns bool)
-+ `x φ >=φ`: non-connect-blocking write to φ (returns bool)
-+ `φ <φ`: read element from φ (returns `ω` on EOF)
-+ `φ φ>?`: is φ writable
-+ `φ φ<?`: is φ readable
++ `x φ φ<`: write element to φ (returns bool)
++ `x φ φ<=`: non-connect-blocking write to φ (returns bool)
++ `φ φ*`: peek element from φ (returns `ω` on EOF)
++ `φ φ++`: advance φ
++ `φ φ<?`: is φ writable
++ `φ φ*?`: is φ readable
 + `φ φω?`: is φ closed
 
 

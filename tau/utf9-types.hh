@@ -107,6 +107,7 @@ enum class u9_Φ : u9_scoped_t
   heapref = 1,
   heappin = 2,
   fd      = 3,
+  ptr     = 4,
 };
 
 enum class u9_host : u9_scoped_t
@@ -578,9 +579,10 @@ O &operator<<(O &s, u9_Φ const &f)
 {
   switch (f)
   {
-  case u9_Φ::fd: return s << "fd";
+  case u9_Φ::fd:      return s << "fd";
   case u9_Φ::heapref: return s << "heapref";
   case u9_Φ::heappin: return s << "heappin";
+  case u9_Φ::ptr:     return s << "ptr";
     TA(s, Sc<uN>(f));
   }
 }

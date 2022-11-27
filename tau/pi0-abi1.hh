@@ -15,8 +15,12 @@
 
 #include "digamma.hh"
 
+#include "xi.hh"
+
 
 #include "begin.hh"
+#include "xi/linux/io.hh"
+#include "xi/linux/tcp.hh"
 
 namespace τ
 {
@@ -395,6 +399,46 @@ void π0abi1_u9_quote(π0abi &a)
 }
 
 
+Φ &π0abi1_iΦ(π0int &i)
+{
+  return *i.h(i.gs()[u9_symbol::str("Φ")]).template ptr<Φ>();
+}
+
+
+γ &π0abi1_iγ0(π0int &i)
+{
+  return *i.h(i.gs()[u9_symbol::str("γ₀")]).template ptr<γ>();
+}
+
+
+void π0abi1_γ(π0abi &a)
+{
+  a .def("λc", I{ TODO("λc"); })
+    .def("λx", I{ TODO("λx"); })
+    .def("λy", I{ π0abi1_iγ0(i).λy(); })
+    .def("Θd", I{ π0abi1_iγ0(i).Θ(Sc<uN>(i.dpop()) * 1ns); });
+}
+
+
+void π0abi1_φ(π0abi &a)
+{
+  a .def("φ<",  I{ let f = i.dpop().template ptr<γφ>(); i.dpush(o9(*f <<  i.dpop())); })
+    .def("φ<=", I{ let f = i.dpop().template ptr<γφ>(); i.dpush(o9(*f <<= i.dpop())); })
+    .def("φ*",  I{ i.dpush(o9(**i.dpop().template ptr<γφ>())); })
+    .def("φ++", I{ ++*i.dpop().template ptr<γφ>(); })
+    .def("φ<?", I{ i.dpush(o9(i.dpop().template ptr<γφ>()->wi())); })
+    .def("φ>?", I{ i.dpush(o9(i.dpop().template ptr<γφ>()->ri())); })
+    .def("φω?", I{ i.dpush(o9(i.dpop().template ptr<γφ>()->ωi())); })
+    .def("φ<ω", I{ i.dpop().template ptr<γφ>()->wω(); })
+    .def("φ>ω", I{ i.dpop().template ptr<γφ>()->rω(); })
+    .def("φω",  I{ i.dpop().template ptr<γφ>()->ω(); })
+    .def("φ.",  I{
+        let f = i.dpop().template ptr<γφ>();
+        let b = i.bpop();
+        for (let x : *f) i.dpush(x).run(b); });
+}
+
+
 void π0abi1_ϝ(π0abi &a)
 {
   // TODO: move u9_symbols into globals
@@ -402,43 +446,66 @@ void π0abi1_ϝ(π0abi &a)
       let l  = i.bpop();
       ϝξ  ϝt = Sc<ϝξ>(i.dpop());
       Stc ϝn = i.dpop();
-      i.dpush(o9ptr(new ϝ(*Sc<Φ*>(i.h(i.gs()[u9_symbol::str("Φ")])), ϝn, ϝt, [&](ϝ &d)
+      i.dpush(o9ptr(new ϝ(π0abi1_iΦ(i), ϝn, ϝt, [&](ϝ &d)
         { π0int j = i.fork();
           j.dpush(o9ptr(&d));
           j.run(l); }))); })
     .def("ϝλc", I{
         let l = i.bpop();
-        Sc<ϝ*>(i.dpop())->λc([&, l](ϝ &d) { i.fork().dpush(o9ptr(&d)).run(l); });
-      })
+        i.dpop().template ptr<ϝ>()->λc([&, l](ϝ &d) { i.fork().dpush(o9ptr(&d)).run(l); }); })
     .def("ϝxc", I{
         let l = i.bpop();
-        Sc<ϝ*>(i.dpop())->xf([&, l](ϝ &d) { i.fork().dpush(o9ptr(&d)).run(l); });
-      })
-    .def("ϝγ", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->g)); })
-    .def("ϝι", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->φι())); })
-    .def("ϝο", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->φο())); })
-    .def("ϝα", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->α())); })
-    .def("ϝβ", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->β())); })
-    .def("ϝδ", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->δ())); })
-    .def("ϝε", I{ i.dpush(o9ptr(&Sc<ϝ*>(i.dpop())->ε())); })
-    .def("ϝιi", I{ i.dpush(o9(Sc<ϝ*>(i.dpop())->ιi())); })
-    .def("ϝοi", I{ i.dpush(o9(Sc<ϝ*>(i.dpop())->οi())); })
+        i.dpop().template ptr<ϝ>()->xf([&, l](ϝ &d) { i.fork().dpush(o9ptr(&d)).run(l); }); })
+    .def("ϝγ",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->g)); })
+    .def("ϝι",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->φι())); })
+    .def("ϝο",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->φο())); })
+    .def("ϝα",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->α())); })
+    .def("ϝβ",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->β())); })
+    .def("ϝδ",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->δ())); })
+    .def("ϝε",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->ε())); })
+    .def("ϝιi", I{ i.dpush(o9   ( i.dpop().template ptr<ϝ>()->ιi())); })
+    .def("ϝοi", I{ i.dpush(o9   ( i.dpop().template ptr<ϝ>()->οi())); })
     .def("ϝ|", I{
-        let b = Sc<ϝ*>(i.dpop());
-        let a = Sc<ϝ*>(i.dpop());
+        let b = i.dpop().template ptr<ϝ>();
+        let a = i.dpop().template ptr<ϝ>();
         *a | *b; })
     .def("ϝ&", I{
-        let b = Sc<ϝ*>(i.dpop());
-        let a = Sc<ϝ*>(i.dpop());
+        let b = i.dpop().template ptr<ϝ>();
+        let a = i.dpop().template ptr<ϝ>();
         *a & *b; })
     .def("ϝ^", I{
-        let b = Sc<ϝ*>(i.dpop());
-        let a = Sc<ϝ*>(i.dpop());
+        let b = i.dpop().template ptr<ϝ>();
+        let a = i.dpop().template ptr<ϝ>();
         *a ^ *b; })
     .def("ϝ=", I{
-        let bi = Sc<uN>(i.dpop()); let b = Sc<ϝ*>(i.dpop());
-        let ai = Sc<uN>(i.dpop()); let a = Sc<ϝ*>(i.dpop());
+        let bi = Sc<uN>(i.dpop()); let b = i.dpop().template ptr<ϝ>();
+        let ai = Sc<uN>(i.dpop()); let a = i.dpop().template ptr<ϝ>();
         a->g(ai, b->g, bi); });
+}
+
+
+void π0abi1_ξ(π0abi &a)
+{
+  a .def("ξι",  I{ i.dpush(o9ptr(&ξ::iota(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
+    .def("ξ↑", I{ i.dpush(o9ptr(&ξ::take(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
+    .def("ξ%",  I{ i.dpush(o9ptr(&ξ::splitter(π0abi1_iΦ(i)))); })
+    .def("ξ*",  I{ i.dpush(o9ptr(&ξ::tee(π0abi1_iΦ(i)))); })
+    .def("ξ<>", I{ i.dpush(o9ptr(&ξ::broadcast(π0abi1_iΦ(i)))); })
+
+    .def("ξsc", I{ i.dpush(o9ptr(&ξ::split_chr(π0abi1_iΦ(i), *i.dpop().data()))); })
+
+    .def("ξu9a", I{ i.dpush(o9ptr(&ξ::utf9_asm (π0abi1_iΦ(i)))); })
+    .def("ξu9d", I{ i.dpush(o9ptr(&ξ::utf9_dasm(π0abi1_iΦ(i)))); });
+
+#if τplatform == τplatform_linux
+  a .def("ξ<f",  I{ i.dpush(o9ptr(&ξ::fd_in (π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
+    .def("ξ>f",  I{ i.dpush(o9ptr(&ξ::fd_out(π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
+    .def("ξ<>f", I{ i.dpush(o9ptr(&ξ::fd_io (π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
+
+    .def("ξ<n", I{ i.dpush(o9ptr(&ξ::tcp_server(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
+
+    .def("ξx11", I{ i.dpush(o9ptr(&ξ::xframe(π0abi1_iΦ(i)))); });
+#endif
 }
 
 
@@ -489,7 +556,10 @@ void π0abi1_debug(π0abi &a)
   π0abi1_u9_structure(a);
   π0abi1_u9_quote(a);
 
+  π0abi1_γ(a);
+  π0abi1_φ(a);
   π0abi1_ϝ(a);
+  π0abi1_ξ(a);
 
 # if τdebug
   π0abi1_debug(a);

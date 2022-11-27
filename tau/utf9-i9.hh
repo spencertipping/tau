@@ -184,6 +184,9 @@ struct i9
   bool is_istruct() const { return type() == u9t::build && Sc<u9_build>(*this) == u9_build::istruct; }
 
 
+  template<class T> T* ptr() const { return Rc<T*>(Sc<u9_scoped<u9_Φ, void*>>(*this).x); }
+
+
   template<class T>
   requires u9t_hastype<T> && u9t_is<T, u9fixed.m>::v
     explicit operator T() const;
