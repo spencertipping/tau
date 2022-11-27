@@ -27,7 +27,11 @@ namespace fs = std::filesystem;
 int asmrun(π0asm &a)
 {
   Φ f;
-  ξ::pi0(f, "main", ϝ::ξΦ, a.build());
+  SP<π0pgm const> p = a.build();
+
+  cout << *p << endl;
+
+  ξ::pi0(f, "main", ϝ::ξΦ, p);
   f.go();
   return 0;
 }

@@ -1,3 +1,24 @@
-"foo" 0x000001 [|d| d=
-  [|d| d=
-] ϝ:
+:data
+"starting program\n" :cout
+
+"foo" 0x001210
+[|d| d=
+  "creating λ...\n" :cout
+  d [|d| d=
+    "inner λ started\n" :cout
+    d ϝι [d ϝο % φ<] φ.
+    "inner λ returning\n" :cout
+  |] ϝλc
+  "inner ϝ done\n" :cout
+|] ϝ:
+
+"created ϝ\n" :cout
+
+0 ξ<f % ϝ|
+1 ξ>f   ϝ|
+
+"constructed pipeline; going to block\n" :cout
+
+'ϝ₀ %@ ϝδ φ<  # block forever
+
+"returned from block-forever loop\n" :cout

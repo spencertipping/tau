@@ -450,7 +450,10 @@ void π0abi1_ϝ(π0abi &a)
       let l  = i.bpop();
       ϝξ  ϝt = Sc<ϝξ>(i.dpop());
       Stc ϝn = i.dpop();
-      i.dpush(o9ptr(new ϝ(π0abi1_iΦ(i), ϝn, ϝt, [&](ϝ &d)
+
+      // FIXME: this is wrong; it requires the π₀int to outlive any child
+      // λs
+      i.dpush(o9ptr(new ϝ(π0abi1_iΦ(i), ϝn, ϝt, [&, l](ϝ &d)
         { π0int j = i.fork();
           j.dpush(o9ptr(&d));
           j.run(l); }))); })
@@ -472,19 +475,19 @@ void π0abi1_ϝ(π0abi &a)
     .def("ϝ|", I{
         let b = i.dpop().template ptr<ϝ>();
         let a = i.dpop().template ptr<ϝ>();
-        *a | *b; })
+        i.dpush(o9ptr(&(*a | *b))); })
     .def("ϝ&", I{
         let b = i.dpop().template ptr<ϝ>();
         let a = i.dpop().template ptr<ϝ>();
-        *a & *b; })
+        i.dpush(o9ptr(&(*a & *b))); })
     .def("ϝ^", I{
         let b = i.dpop().template ptr<ϝ>();
         let a = i.dpop().template ptr<ϝ>();
-        *a ^ *b; })
+        i.dpush(o9ptr(&(*a ^ *b))); })
     .def("ϝ=", I{
         let bi = Sc<uN>(i.dpop()); let b = i.dpop().template ptr<ϝ>();
         let ai = Sc<uN>(i.dpop()); let a = i.dpop().template ptr<ϝ>();
-        a->g(ai, b->g, bi); });
+        i.dpush(o9ptr(&(a->g(ai, b->g, bi)))); });
 }
 
 

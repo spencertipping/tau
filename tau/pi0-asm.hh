@@ -175,7 +175,6 @@ struct π0asm
           { uN j = i + 1;
             while (j < s.size() && s[j] != '|') ++j;
             fbegin(s.substr(i + 1, j - i - 1));
-            f("[|", fs.back().vs.size());
             i = j; }
           break; }
         TA(*this, "π₀asm<< ni " << s[i]);

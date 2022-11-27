@@ -80,16 +80,16 @@ struct ϝ
 
 
   λi λc(F<void(ϝ&)> &&f)
-    { return g.λc([&, f = std::move(f)]()
-      { ++r;
-        f(*this);
+    { ++r;  // important: must happen outside the λ, since λs are async
+      return g.λc([&, f = std::move(f)]()
+      { f(*this);
         if (!--r) delete this;
         return 0; }); }
 
   λi λc(F<void(ϝ&, γ&)> &&f)
-    { return g.λc([&, f = std::move(f)]()
-      { ++r;
-        f(*this, g);
+    { ++r;
+      return g.λc([&, f = std::move(f)]()
+      { f(*this, g);
         if (!--r) delete this;
         return 0; }); }
 
