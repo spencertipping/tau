@@ -9,6 +9,14 @@
     d ϝι [d ϝο φ<] φ.
     "inner λ returning\n" :cout
   |] ϝλc
+  "created first λ\n" :cout
+
+  d [
+    "monitor loop starting\n" :cout
+    [:gH :gL 1000000000 Θd] [1 1 i8==] ?!
+    "monitor loop returned\n" :cout
+  ] ϝλc
+
   "inner ϝ done\n" :cout
 |] ϝ:
 
