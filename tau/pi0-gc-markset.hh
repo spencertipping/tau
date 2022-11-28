@@ -85,7 +85,7 @@ struct π0ms
       // and removing any that are properly contained by others.
       V<π0r> rs; rs.reserve(m.size());
       for (let &[k, _] : m) rs.push_back(k);
-      std::sort(rs.begin(), rs.end());
+      std::sort(rs.begin(), rs.end());  // FIXME: already sorted
       for (uN i = 0; i < rs.size(); ++i)
         for (i9 x = rs[i++], e = x.next().a;
              i < rs.size() && rs[i] < e;

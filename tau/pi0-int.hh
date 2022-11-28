@@ -67,6 +67,8 @@ struct π0int : π0sv
   π0int &spop()          { let v = dv; dv = dv->up(); delete v;   return *this; }
 
 
+  // TODO: allocate small objects directly onto the stack
+  // to avoid GC
   template<o9mapped T>
   π0int &dpush(T const &x)
     { let o = o9(x);
