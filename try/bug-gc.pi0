@@ -1,14 +1,6 @@
-# run this </dev/zero >/dev/null in valgrind to observe
-# memory errors around the 250MiB mark (and once again after that)
-#
-# strangely, the problem occurs exactly twice in my run despite
-# many GCs occurring -- maybe just with specific heap sizes?
-
-# it's probably something about writing the φ values into the heap.
-
-0                                                         ξ<f
-"cat" 0x001210 [|d| d= d ϝι [d ϝο φ< λy :dn :gL :gH] φ. |] ϝ: ϝ|
-1                                                         ξ>f ϝ| _
+0                                             ξ<f
+"cat" 0x001210 [|d| d= d ϝι [d ϝο φ< λy] φ. |] ϝ: ϝ|
+1                                             ξ>f ϝ| _
 
 # GC monitor loop
-[1 1 i8==] [:gL :gH 1000000000 Θd] ?!
+[:dn :gL :gH 1000000000 Θd] [1 1 i8== :dn] ?!
