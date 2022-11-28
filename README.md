@@ -47,3 +47,9 @@ $ sudo apt install -y \
 ```
 
 **TODO:** dockerize native build process
+
+
+## Queue
++ GC correctness: fix FIXME comments in `dpush()` and `heap<<`
++ GC performance: optimize data structures in markset, preallocate π₀ho9
++ Heap-free φ splice function
