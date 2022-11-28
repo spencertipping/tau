@@ -507,13 +507,13 @@ void π0abi1_ϝ(π0abi &a)
 
 void π0abi1_ξ(π0abi &a)
 {
-  a .def("ξι",  I{ i.dpush(o9ptr(&ξ::iota(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
-    .def("ξ↑", I{ i.dpush(o9ptr(&ξ::take(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
-    .def("ξ%",  I{ i.dpush(o9ptr(&ξ::splitter(π0abi1_iΦ(i)))); })
-    .def("ξ*",  I{ i.dpush(o9ptr(&ξ::tee(π0abi1_iΦ(i)))); })
-    .def("ξ<>", I{ i.dpush(o9ptr(&ξ::broadcast(π0abi1_iΦ(i)))); })
+  a .def("ξι",   I{ i.dpush(o9ptr(&ξ::iota(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
+    .def("ξ↑",  I{ i.dpush(o9ptr(&ξ::take(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
+    .def("ξ%",   I{ i.dpush(o9ptr(&ξ::splitter(π0abi1_iΦ(i)))); })
+    .def("ξ*",   I{ i.dpush(o9ptr(&ξ::tee(π0abi1_iΦ(i)))); })
+    .def("ξ<>",  I{ i.dpush(o9ptr(&ξ::broadcast(π0abi1_iΦ(i)))); })
 
-    .def("ξsc", I{ i.dpush(o9ptr(&ξ::split_chr(π0abi1_iΦ(i), *i.dpop().data()))); })
+    .def("ξsc",  I{ i.dpush(o9ptr(&ξ::split_chr(π0abi1_iΦ(i), *i.dpop().data()))); })
 
     .def("ξu9a", I{ i.dpush(o9ptr(&ξ::utf9_asm (π0abi1_iΦ(i)))); })
     .def("ξu9d", I{ i.dpush(o9ptr(&ξ::utf9_dasm(π0abi1_iΦ(i)))); });
@@ -523,7 +523,7 @@ void π0abi1_ξ(π0abi &a)
     .def("ξ>f",  I{ i.dpush(o9ptr(&ξ::fd_out(π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
     .def("ξ<>f", I{ i.dpush(o9ptr(&ξ::fd_io (π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
 
-    .def("ξ<n", I{ i.dpush(o9ptr(&ξ::tcp_server(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
+    .def("ξ<n",  I{ i.dpush(o9ptr(&ξ::tcp_server(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
 
     .def("ξx11", I{ i.dpush(o9ptr(&ξ::xframe(π0abi1_iΦ(i)))); });
 #endif
