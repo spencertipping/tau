@@ -1,3 +1,7 @@
+# NOTE: λy is insufficient to yield if we're reading directly
+# from /dev/zero and writing to /dev/null; those bypass epoll(),
+# which may cause problems
+
 0                                             ξ<f
 "cat" 0x001210 [|d| d= d ϝι [d ϝο φ< λy] φ. |] ϝ: ϝ|
 1                                             ξ>f ϝ| _
