@@ -28,9 +28,6 @@ int asmrun(π0asm &a)
 {
   Φ f;
   SP<π0pgm const> p = a.build();
-
-  cout << *p << endl;
-
   ξ::pi0(f, "main", ϝ::ξΦ, p);
   f.go();
   return 0;

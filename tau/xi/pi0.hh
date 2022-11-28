@@ -22,10 +22,7 @@ namespace τ::ξ
       (*g)[u9_symbol::str("ϝ₀")] = f.ph << o9ptr(&d);
       (*g)[u9_symbol::str("γ₀")] = f.ph << o9ptr(&d.g);
       (*g)[u9_symbol::str("Φ")]  = f.ph << o9ptr(&f);
-
-      π0int(π0abi1(), p, f.ph, g).run(i);
-
-      std::cout << "destructing π₀int" << std::endl; });
+      π0int(π0abi1(), p, f.ph, g).run(i); });
 }
 
 

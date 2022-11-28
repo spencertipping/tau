@@ -514,19 +514,23 @@ void π0abi1_ξ(π0abi &a)
 void π0abi1_debug(π0abi &a)
 {
   a .def(":gc",    I{ i.h.gc(); })
-    .def(":gH",    I{ std::cout << i.h.gΘ << std::endl; })
-    .def(":gL",    I{ std::cout << i.h.lss0 << ": " << i.h.gl << std::endl; })
-    .def(":src",   I{ std::cout << i.p << std::endl; })
-    .def(":int",   I{ std::cout << i << std::endl; })
-    .def(":out",   I{ std::cout << i[0] << std::endl; })
+    .def(":gH",    I{ std::cerr << i.h.gΘ << std::endl; })
+    .def(":gL",    I{ std::cerr << i.h.lss0 << ": " << i.h.gl << std::endl; })
+    .def(":src",   I{ std::cerr << i.p << std::endl; })
+    .def(":int",   I{ std::cerr << i << std::endl; })
+    .def(":dn",    I{ std::cerr << "|d| = " << i.dv->size() << std::endl; })
+    .def(":out",   I{ std::cerr << i[0] << std::endl; })
     .def(":spush", I{ i.spush(); })
     .def(":spop",  I{ i.spop(); })
     .def(":data",  I{
         for (uN j = 0; j < i.size(); ++j)
-          std::cout << "[" << j << "]\t" << i[j] << std::endl; })
+          std::cerr << "[" << j << "]\t" << i[j] << std::endl; })
     .def(":cout", I{
         let x = i.dpop();
-        std::cout << Stv{Rc<chc*>(x.data()), x.size()}; });
+        std::cout << Stv{Rc<chc*>(x.data()), x.size()}; })
+    .def(":cerr", I{
+        let x = i.dpop();
+        std::cerr << Stv{Rc<chc*>(x.data()), x.size()}; });
 }
 #endif
 
