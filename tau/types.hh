@@ -43,6 +43,7 @@ enum class λs  // lambda runnability state
 {
   R,           // runnable
   S,           // stopped
+  Y,           // explicitly yielded
   I,           // blocked on read from ζ
   O,           // blocked on write to ζ
   W,           // waiting for a λ
@@ -90,6 +91,7 @@ O &operator<<(O &s, λs t)
   {
   case λs::R:  return s << "R";
   case λs::S:  return s << "S";
+  case λs::Y:  return s << "Y";
   case λs::I:  return s << "I";
   case λs::O:  return s << "O";
   case λs::W:  return s << "W";

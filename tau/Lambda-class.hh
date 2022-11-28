@@ -103,6 +103,10 @@ struct Λ_
   Λ_ &go(F<bool(Λ_&, λi)> const &f = [](Λ_&, λi){ return true; })
     { for (λi t; (t = (*this)()) && f(*this, t); *this << t);
       f(*this, 0);
+      return ry(); }
+
+  Λ_ &ry()  // resume all explicitly-yielded λs
+    { for (auto &[i, s] : ls) if (s.s == λs::Y) r(i);
       return *this; }
 };
 

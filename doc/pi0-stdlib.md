@@ -238,8 +238,8 @@ Some functions don't require a γ object:
 
 
 ### Low-level φ
-**TODO:** heapless splice
-
++ `φa φb φ<>`: splice element from φa to φb (returns bool)
++ `φa φb φ<>=`: non-connect-blocking splice from φa to φb (returns bool)
 + `x φ φ<`: write element to φ (returns bool)
 + `x φ φ<=`: non-connect-blocking write to φ (returns bool)
 + `φ φ*`: peek element from φ (returns `ω` on EOF)

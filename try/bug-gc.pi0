@@ -1,10 +1,13 @@
-# NOTE: λy is insufficient to yield if we're reading directly
-# from /dev/zero and writing to /dev/null; those bypass epoll(),
-# which may cause problems
+# original code: move IO through heap (causes more GC)
+[ 0                                             ξ<f
+  "cat" 0x001210 [|d| d= d ϝι [d ϝο φ< λy] φ. |] ϝ: ϝ|
+  1                                             ξ>f ϝ| _ ] _
 
-0                                             ξ<f
-"cat" 0x001210 [|d| d= d ϝι [d ϝο φ< λy] φ. |] ϝ: ϝ|
-1                                             ξ>f ϝ| _
+# more idiomatic: spliced IO to bypass heap (but still leak memory
+# to test GC)
+[ 0                                                  ξ<f
+  "cat" 0x001210 [|d| d= [λy] [d ϝι d ϝο φ<> :] ?! |] ϝ: ϝ|
+  1                                                  ξ>f ϝ| _ ] .
 
 # GC monitor loop
 [:dn :gL :gH 1000000000 Θd] !!

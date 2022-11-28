@@ -434,17 +434,29 @@ void π0abi1_γ(π0abi &a)
 
 void π0abi1_φ(π0abi &a)
 {
-  a .def("φ<",  I{ let f = i.dpop().template ptr<γφ>(); i.dpush(o9(*f <<  i.dpop())); })
-    .def("φ<=", I{ let f = i.dpop().template ptr<γφ>(); i.dpush(o9(*f <<= i.dpop())); })
-    .def("φ*",  I{ i.dpush(o9(**i.dpop().template ptr<γφ>())); })
-    .def("φ++", I{ ++*i.dpop().template ptr<γφ>(); })
-    .def("φ<?", I{ i.dpush(o9(i.dpop().template ptr<γφ>()->wi())); })
-    .def("φ>?", I{ i.dpush(o9(i.dpop().template ptr<γφ>()->ri())); })
-    .def("φω?", I{ i.dpush(o9(i.dpop().template ptr<γφ>()->ωi())); })
-    .def("φ<ω", I{ i.dpop().template ptr<γφ>()->wω(); })
-    .def("φ>ω", I{ i.dpop().template ptr<γφ>()->rω(); })
-    .def("φω",  I{ i.dpop().template ptr<γφ>()->ω(); })
-    .def("φ.",  I{
+  a .def("φ<>",  I{
+        let b = i.dpop().template ptr<γφ>();
+        let a = i.dpop().template ptr<γφ>();
+        let x = **a;
+        i.dpush(x.exists() && *b << x);
+        ++*a; })
+    .def("φ<>=", I{
+        let b = i.dpop().template ptr<γφ>();
+        let a = i.dpop().template ptr<γφ>();
+        let x = **a;
+        i.dpush(x.exists() && (*b <<= x));
+        ++*a; })
+    .def("φ<",   I{ let f = i.dpop().template ptr<γφ>(); i.dpush(o9(*f <<  i.dpop())); })
+    .def("φ<=",  I{ let f = i.dpop().template ptr<γφ>(); i.dpush(o9(*f <<= i.dpop())); })
+    .def("φ*",   I{ i.dpush(o9(**i.dpop().template ptr<γφ>())); })
+    .def("φ++",  I{ ++*i.dpop().template ptr<γφ>(); })
+    .def("φ<?",  I{ i.dpush(o9(i.dpop().template ptr<γφ>()->wi())); })
+    .def("φ>?",  I{ i.dpush(o9(i.dpop().template ptr<γφ>()->ri())); })
+    .def("φω?",  I{ i.dpush(o9(i.dpop().template ptr<γφ>()->ωi())); })
+    .def("φ<ω",  I{ i.dpop().template ptr<γφ>()->wω(); })
+    .def("φ>ω",  I{ i.dpop().template ptr<γφ>()->rω(); })
+    .def("φω",   I{ i.dpop().template ptr<γφ>()->ω(); })
+    .def("φ.",   I{
         let b = i.bpop();
         let f = i.dpop().template ptr<γφ>();
         for (let x : *f) i.dpush(x).run(b); });

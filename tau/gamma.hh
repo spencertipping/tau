@@ -43,7 +43,7 @@ struct γ
 
   λi  λc(λf &&f_) { let i = f.l.c(std::move(f_), t); return i; }
   γ  &λx(λi i)    {         f.l.x(i);                return *this; }
-  γ  &λy()        {         f.l.y(λs::R);            return *this; }
+  γ  &λy()        {         f.l.y(λs::Y);            return *this; }
 
   γ  &Θ (Θp t)    {         f.Θ(t);                  return *this; }
   γ  &Θ (ΔΘ dt)   {         f.Θ(now() + dt);         return *this; }
