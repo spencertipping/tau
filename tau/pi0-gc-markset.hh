@@ -61,11 +61,14 @@ struct π0ms
   // is, it has exactly one liveness-link from its container and is
   // guaranteed to be inlinable by that container. We return nullptr
   // instead of allocating an o9 to save space.
+
+  // FIXME: faster allocation for these π0ho9 objects
   π0ho9 *claim(π0r f, π0r o)
     { return !m.contains(f)
            ?  nullptr
            :  m[f] ? m[f] : (m[f] = new π0ho9{h, f, o}); }
 
+  // FIXME: unordered map + sorted vector
   auto cb(π0r x) const { return m.lower_bound(x); }
   auto ce()      const { return m.end(); }
 
