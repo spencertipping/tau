@@ -29,6 +29,13 @@ namespace τ
 #define I [](π0int &i, π0fa n)
 
 
+void π0abi1_const(π0abi &a)
+{
+  a .def("t", I{ i.dpush(true);  })
+    .def("f", I{ i.dpush(false); });
+}
+
+
 void π0abi1_blocks(π0abi &a)
 {
   a .def("[",  I{ i.dpush(Sc<π0bi>(i.r.back())); i.r.back() += n; })
@@ -97,6 +104,7 @@ void π0abi1_control(π0abi &a)
       loop:
         i.run(c);
         if (i.dpop().b()) { i.run(b); goto loop; }})
+    .def("!!", I{ let b = i.bpop(); while (1) i.run(b); })
     .def(".^", I{ i.r.resize(i.r.size() - n - 1); });
 }
 
@@ -548,6 +556,7 @@ void π0abi1_debug(π0abi &a)
 
   if (i) return a;
 
+  π0abi1_const(a);
   π0abi1_blocks(a);
   π0abi1_stack(a);
   π0abi1_frame(a);

@@ -36,6 +36,7 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 + `c [t] [e] ?.`: if `c` is true, run `[t]`; else run `[e]`
 + `c t e ?`: if-then-else
 + `[b] [c] ?!`: while `[c]` returns true, do `[b]`
++ `[b] !!`: run `[b]` forever
 + `.^`: pop return stack (used to early-return or break a loop)
 
 

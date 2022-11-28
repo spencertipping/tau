@@ -7,4 +7,4 @@
 1                                             ξ>f ϝ| _
 
 # GC monitor loop
-[:dn :gL :gH 1000000000 Θd] [1 1 i8== :dn] ?!
+[:dn :gL :gH 1000000000 Θd] !!
