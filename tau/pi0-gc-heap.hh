@@ -36,6 +36,8 @@ struct π0h  // a multi-generational heap
   ~π0h();
 
 
+  // TODO: count allocations since last GC so we can preallocate
+  // memory in markset, avoiding new/delete calls
   template<O9 T> π0r operator<<(T const &x)
     { Σa += x.size();
       if (let a = *hs[0] << x) return a;

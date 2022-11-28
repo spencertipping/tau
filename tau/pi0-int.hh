@@ -68,8 +68,11 @@ struct π0int : π0sv
   template<o9mapped T>
   π0int &dpush(T const &x)
     { let r = h << o9(x);
+
+      // FIXME: r can be out of date if h << π0o9r causes a GC
       if (i9{r}.size() <= h.is) *this << r;
       else                      *this << (h << π0o9r(r));
+
       return *this; }
 
   i9   dpop() { let r = h((*dv)[0]); drop(1); return r; }
