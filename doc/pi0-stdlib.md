@@ -38,6 +38,7 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 + `[b] [c] ?!`: while `[c]` returns true, do `[b]`
 + `[b] !!`: run `[b]` forever
 + `.^`: pop return stack (used to early-return or break a loop)
+  + **TODO:** `.^` should return through native loops/constructs; we can acquire a stack-depth check within each native driver and have that bail out when the return stack underflows
 
 
 ### Interpreter control
