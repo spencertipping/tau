@@ -1,0 +1,5 @@
+# this case also leaks memory but doesn't cause GC issues
+"loop" 0x001210 [_ [1 1 i8==] [1 1 i8== :dn :gL :gH] ?!] ϝ: _
+
+# GC monitor loop
+[1 1 i8==] [:gL :gH 1000000000 Θd] ?!

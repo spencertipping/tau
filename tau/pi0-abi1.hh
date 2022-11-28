@@ -515,7 +515,7 @@ void π0abi1_debug(π0abi &a)
 {
   a .def(":gc",    I{ i.h.gc(); })
     .def(":gH",    I{ std::cerr << i.h.gΘ << std::endl; })
-    .def(":gL",    I{ std::cerr << i.h.lss0 << ": " << i.h.gl << std::endl; })
+    .def(":gL",    I{ std::cerr << i.h.Σa << "/" << i.h.lss0 << ": " << i.h.gl << std::endl; })
     .def(":src",   I{ std::cerr << i.p << std::endl; })
     .def(":int",   I{ std::cerr << i << std::endl; })
     .def(":dn",    I{ std::cerr << "|d| = " << i.dv->size() << std::endl; })
