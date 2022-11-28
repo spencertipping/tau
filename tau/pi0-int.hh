@@ -22,6 +22,8 @@ namespace τ
 
 struct π0int : π0sv
 {
+  sletc π0o9r_size = 11;
+
   π0abi const     &a;   // ABI (native functions)
   SP<π0pgm const>  p;   // bytecode program
   π0h             &h;   // shared heap
@@ -67,12 +69,11 @@ struct π0int : π0sv
 
   template<o9mapped T>
   π0int &dpush(T const &x)
-    { let r = h << o9(x);
-
-      // FIXME: r can be out of date if h << π0o9r causes a GC
-      if (i9{r}.size() <= h.is) *this << r;
-      else                      *this << (h << π0o9r(r));
-
+    { let o = o9(x);
+      let s = o.size();  h.res(s <= h.is ? s : s + π0o9r_size);
+      let r = h << o;
+      if (s <= h.is) *this << r;
+      else           *this << (h << π0o9r(r));
       return *this; }
 
   i9   dpop() { let r = h((*dv)[0]); drop(1); return r; }

@@ -519,18 +519,21 @@ void π0abi1_debug(π0abi &a)
     .def(":src",   I{ std::cerr << i.p << std::endl; })
     .def(":int",   I{ std::cerr << i << std::endl; })
     .def(":dn",    I{ std::cerr << "|d| = " << i.dv->size() << std::endl; })
-    .def(":out",   I{ std::cerr << i[0] << std::endl; })
     .def(":spush", I{ i.spush(); })
     .def(":spop",  I{ i.spop(); })
-    .def(":data",  I{
-        for (uN j = 0; j < i.size(); ++j)
-          std::cerr << "[" << j << "]\t" << i[j] << std::endl; })
     .def(":cout", I{
         let x = i.dpop();
         std::cout << Stv{Rc<chc*>(x.data()), x.size()}; })
     .def(":cerr", I{
         let x = i.dpop();
-        std::cerr << Stv{Rc<chc*>(x.data()), x.size()}; });
+        std::cerr << Stv{Rc<chc*>(x.data()), x.size()}; })
+
+    // NOTE: these are used by unit tests, so they need to write to
+    // stdout since that's what lazytest expects
+    .def(":data",  I{
+        for (uN j = 0; j < i.size(); ++j)
+          std::cout << "[" << j << "]\t" << i[j] << std::endl; })
+    .def(":out",   I{ std::cout << i[0] << std::endl; });
 }
 #endif
 

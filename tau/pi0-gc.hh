@@ -22,7 +22,8 @@ void π0h::gc(uN s)
   A(!ms, "gc() within GC");
 
   gΘ.start();
-  ms = new π0ms{*this};
+  ms = new π0ms{*this, 0, an};
+  an = 0;
   for (let v : vs) v->mark();
 
   // TODO: replace this temporary logic with real generational GC

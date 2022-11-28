@@ -27,31 +27,38 @@ struct π0h  // a multi-generational heap
   ΣΘΔ         gΘ;         // GC timer
   uN          lss0;       // last live-set size
   uN          Σa;         // total allocations
+  uN          an;         // allocation count (since last GC)
   Σι          gl;         // live-set size
 
   π0h(uN is_ = 64, Ar<uN, gn> const &s_ = {65536, 1048576})
-    : is(is_), s(s_), ms(nullptr), lss0(0), Σa(0)
+    : is(is_), s(s_), ms(nullptr), lss0(0), Σa(0), an(0)
     { for (uN g = 0; g < gn; ++g) hs[g] = new π0hs(s[g]); }
 
   ~π0h();
 
 
-  // TODO: count allocations since last GC so we can preallocate
-  // memory in markset, avoiding new/delete calls
   template<O9 T> π0r operator<<(T const &x)
-    { Σa += x.size();
+    { let s = x.size();
+      ++an;
+      Σa += s;
       if (let a = *hs[0] << x) return a;
 
       // FIXME: we need to buffer x to a temporary location and
       // make sure it's part of the live set, so any contained references
       // are rewritten correctly
-      gc(x.size());
+#warning unfixed GC bug: reference containers must be rewritten
+
+      gc(s);
       return *hs[0] << x; }
 
 
   uN gen(π0r x) const
     { for (uN i = 0; i < gn; ++i) if (hs[i]->contains(x)) return i;
       return gω; }
+
+
+  void res(uN s)  // make sure we can allocate s bytes without GC
+    { if (s > hs[0]->avail()) gc(s); }
 
 
   // Follow references until we hit something else

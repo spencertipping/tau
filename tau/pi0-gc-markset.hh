@@ -23,6 +23,8 @@ struct π0ms
   Mo<π0r, π0ho9*> m;   // writer for each marked reference
   S<π0r>          t;   // set of true roots
 
+  π0ms(π0h &h_, uN mg_, uN an) : h(h_), mg(mg_) {}
+
   ~π0ms() { for (let &[_, o] : m) delete o; }
 
 
@@ -50,6 +52,9 @@ struct π0ms
   void mi(i9 x) { t.erase(x); me(x); }
 
 
+  π0ho9 *ho9(π0r f, π0r o) { return new π0ho9(h, f, o); }
+
+
   // Attempt to claim f as an inline of o, returning one of two things:
   //
   // + nullptr, if f isn't marked (i.e. nothing refers to it, but it's
@@ -61,12 +66,10 @@ struct π0ms
   // is, it has exactly one liveness-link from its container and is
   // guaranteed to be inlinable by that container. We return nullptr
   // instead of allocating an o9 to save space.
-
-  // FIXME: faster allocation for these π0ho9 objects
   π0ho9 *claim(π0r f, π0r o)
     { return !m.contains(f)
            ?  nullptr
-           :  m[f] ? m[f] : (m[f] = new π0ho9{h, f, o}); }
+           :  m[f] ? m[f] : (m[f] = ho9(f, o)); }
 
   // FIXME: unordered map + sorted vector
   auto cb(π0r x) const { return m.lower_bound(x); }
@@ -103,7 +106,7 @@ struct π0ms
       // TODO: sort true roots by generation; we must always create
       // oldgen pointers before newgen ones
       uN s = 0;
-      for (let x : t) s += (m[x] = new π0ho9{h, x, nullptr})->size();
+      for (let x : t) s += (m[x] = ho9(x, nullptr))->size();
       return s; }
 
 

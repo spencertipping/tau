@@ -28,6 +28,8 @@ struct π0hs  // a single GC heap-space (generation)
     { return h.size() + x.size() > h.capacity()
            ? nullptr
            : h.data() + (h << x); }
+
+  uN avail() const { return h.capacity() - h.size(); }
 };
 
 
