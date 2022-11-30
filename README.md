@@ -50,6 +50,6 @@ $ sudo apt install -y \
 
 
 ## Queue
-+ GC correctness: fix FIXME comments in `dpush()` and `heap<<`
++ GC correctness: fix FIXME comments in `heap<<`
 + GC performance: optimize data structures in markset, preallocate π₀ho9
-+ Heap-free φ splice function
++ Render arc with GL shader

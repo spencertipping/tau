@@ -2,6 +2,8 @@
 #define τπ0abi1_h
 
 
+#include "arch.hh"
+
 #include "../dep/pffft.h"
 
 #include "utf9-i9.hh"
@@ -19,8 +21,11 @@
 
 
 #include "begin.hh"
-#include "xi/linux/io.hh"
-#include "xi/linux/tcp.hh"
+
+#if τplatform == τplatform_linux
+# include "xi/linux/io.hh"
+# include "xi/linux/tcp.hh"
+#endif
 
 namespace τ
 {

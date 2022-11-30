@@ -135,6 +135,8 @@ struct xframe_
 
   // TODO: demultiplex events by which window they belong to
   // otherwise we can't create multiple frames
+  //
+  // TODO: unpack these structs to UTF9 maps for easier use
 
   e | sink<i9>(f, [x](i9 y)
     { if (y.is_istruct())
