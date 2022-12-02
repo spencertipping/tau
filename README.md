@@ -52,4 +52,5 @@ $ sudo apt install -y \
 ## Queue
 + GC correctness: fix FIXME comments in `heap<<`
 + GC performance: optimize data structures in markset, preallocate π₀ho9
++ GC correctness test: make sure ζ values are unflagged, or we trace ζ buffers
 + Render arc with GL shader
