@@ -453,8 +453,8 @@ void π0abi1_φ(π0abi &a)
         let x = **a;
         i.dpush(x.exists() && (*b <<= x));
         ++*a; })
-    .def("φ<",   I{ let f = i.dpop().template ptr<γφ>(); i.dpush(o9(*f <<  i.dpop())); })
-    .def("φ<=",  I{ let f = i.dpop().template ptr<γφ>(); i.dpush(o9(*f <<= i.dpop())); })
+    .def("φ<",   I{ let f = i.dpop().template ptr<γφ>(); let x = i.dpop(); A(!x.flagged(), "φ< flagged");  i.dpush(o9(*f <<  x)); })
+    .def("φ<=",  I{ let f = i.dpop().template ptr<γφ>(); let x = i.dpop(); A(!x.flagged(), "φ<= flagged"); i.dpush(o9(*f <<= x)); })
     .def("φ*",   I{ i.dpush(o9(**i.dpop().template ptr<γφ>())); })
     .def("φ++",  I{ ++*i.dpop().template ptr<γφ>(); })
     .def("φ<?",  I{ i.dpush(o9(i.dpop().template ptr<γφ>()->wi())); })

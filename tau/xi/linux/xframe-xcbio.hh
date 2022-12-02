@@ -94,6 +94,28 @@ namespace ξ
                      "count"_y, e->count).m();
             break; }
 
+          case XCB_CONFIGURE_NOTIFY:
+          { let e = Rc<xcb_configure_notify_event_t*>(a);
+            f << o9t("type"_y,          "configure"_y,
+                     "win"_y,            e->window,
+                     "event"_y,          e->event,
+                     "above_sibling"_y,  e->above_sibling,
+                     "x"_y,              e->x,
+                     "y"_y,              e->y,
+                     "w"_y,              e->width,
+                     "h"_y,              e->height,
+                     "border_width"_y,   e->border_width,
+                     "override_redir"_y, e->override_redirect).m();
+            break; }
+
+          case XCB_MAP_NOTIFY:
+          case XCB_UNMAP_NOTIFY:
+          { let e = Rc<xcb_map_notify_event_t*>(a);
+            f << o9t("type"_y, t == XCB_MAP_NOTIFY ? "map"_y : "unmap"_y,
+                     "win"_y,            e->window,
+                     "override_redir"_y, e->override_redirect).m();
+            break; }
+
           case XCB_BUTTON_PRESS:
           case XCB_BUTTON_RELEASE:
           case XCB_MOTION_NOTIFY:

@@ -97,10 +97,9 @@ u9_symbol keymap_us_meta[128] =
 
   "none"_y, "none"_y, "backspace"_y,                // 20-22
   "tab"_y,                                          // 23
+  "none"_y, "none"_y, "none"_y, "none"_y,           // 24-35
   "none"_y, "none"_y, "none"_y, "none"_y,
-  "none"_y, "none"_y,
   "none"_y, "none"_y, "none"_y, "none"_y,
-  "none"_y,                                         // 24-35
 
   "enter"_y,                                        // 36
   "lctrl"_y,                                        // 37 = left ctrl
@@ -133,18 +132,17 @@ u9_symbol keymap_us_meta[128] =
   "none"_y, "none"_y, "none"_y,                     // ???
   "f11"_y, "f12"_y,                                 // 96 = F12
 
-  // TODO: fill out the rest of these using xev to reverse-engineer
-  // (although I guess they will be thinkpad-specific)
+  "none"_y,  "none"_y,   "none"_y,   "none"_y,      // 97-100
+  "none"_y,  "none"_y,   "none"_y,   "none"_y,      // 101-104
+  "rctrl"_y, "none"_y,   "prtsc"_y,  "ralt"_y,      // 105-108
+  "none"_y,  "home"_y,   "up"_y,     "pgup"_y,      // 109-112
+  "left"_y,  "right"_y,  "end"_y,    "down"_y,      // 113-116
+  "pgdn"_y,  "insert"_y, "delete"_y, "none"_y,      // 117-120
+
   "none"_y, "none"_y, "none"_y, "none"_y,
   "none"_y, "none"_y, "none"_y, "none"_y,
   "none"_y, "none"_y, "none"_y, "none"_y,
-  "none"_y, "none"_y, "none"_y, "none"_y,
-  "none"_y, "none"_y, "none"_y, "none"_y,
-  "none"_y, "none"_y, "none"_y, "none"_y,
-  "none"_y, "none"_y, "none"_y, "none"_y,
-  "none"_y, "none"_y, "none"_y, "none"_y,
-  "none"_y, "none"_y, "none"_y, "none"_y,
-  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y,
 };
 
 
@@ -156,7 +154,7 @@ ch xcb_keycode_ascii(uf8 xcb_keycode, uf16 mods = 0)
 }
 
 
-u9_symbol xcb_keycode_meta(uf8 xcb_keycode)
+u9_symbol const &xcb_keycode_meta(uf8 xcb_keycode)
 {
   return keymap_us_meta[xcb_keycode - 8];
 }
