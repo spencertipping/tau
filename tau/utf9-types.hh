@@ -203,7 +203,6 @@ struct u9_symbol
 };
 
 
-u9_symbol operator""_x(char const *s, unsigned long n) { return u9_symbol::sha(s); }
 u9_symbol operator""_y(char const *s, unsigned long n) { return u9_symbol::str(s); }
 
 

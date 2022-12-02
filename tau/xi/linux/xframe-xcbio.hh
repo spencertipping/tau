@@ -8,6 +8,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 
+#include "xframe-keymap.hh"
 
 #include "../begin.hh"
 
@@ -106,7 +107,7 @@ namespace ξ
                      "event_x"_y,     e->event_x,
                      "event_y"_y,     e->event_y,
                      "state"_y,       e->state,
-                     "same_screen"_y, e->same_screen);
+                     "same_screen"_y, e->same_screen).m();
             break; }
 
           case XCB_ENTER_NOTIFY:
@@ -123,15 +124,19 @@ namespace ξ
                      "event_y"_y,           e->event_y,
                      "state"_y,             e->state,
                      "mode"_y,              e->mode,
-                     "same_screen_focus"_y, e->same_screen_focus);
+                     "same_screen_focus"_y, e->same_screen_focus).m();
             break; }
 
           case XCB_KEY_PRESS:
           case XCB_KEY_RELEASE:
           { let e = Sc<xcb_key_press_event_t*>(x);
+            char ks[2] {0, 0};
+            ks[0] = xcb_keycode_ascii(e->detail, e->state);
             f << o9t("type"_y, t == XCB_KEY_PRESS ? "key_press"_y : "key_release"_y,
                      "t"_y,           e->time,
-                     "k"_y,           e->detail,
+                     "keycode"_y,     e->detail,
+                     "keyascii"_y,    Sc<chc*>(ks),
+                     "keymeta"_y,     xcb_keycode_meta(e->detail),
                      "root"_y,        e->root,
                      "event"_y,       e->event,
                      "child"_y,       e->child,
@@ -140,7 +145,7 @@ namespace ξ
                      "event_x"_y,     e->event_x,
                      "event_y"_y,     e->event_y,
                      "state"_y,       e->state,
-                     "same_screen"_y, e->same_screen);
+                     "same_screen"_y, e->same_screen).m();
             break; }
           }
         }
