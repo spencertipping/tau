@@ -76,14 +76,15 @@ namespace ξ
 
 ϝ &xcb_event_decode(Φ &f)
 {
-  return *new ϝ(f, "xcb_event_decode", ϝ::ξα, [](ϝ &f)
+  return *new ϝ(f, "xcb_event_decode", ϝ::ξι, [](ϝ &f)
     { for (let x : f)
         if (x.is_istruct())
-        { let t = Sc<xcb_generic_event_t*>(x)->response_type & ~0x80;
+        { let a = Sc<xcb_generic_event_t*>(x);
+          let t = a->response_type & ~0x80;
           switch (t)
           {
           case XCB_EXPOSE:
-          { let e = Sc<xcb_expose_event_t*>(x);
+          { let e = Rc<xcb_expose_event_t*>(a);
             f << o9t("type"_y, "expose"_y,
                      "win"_y,   e->window,
                      "x"_y,     e->x,
@@ -96,7 +97,7 @@ namespace ξ
           case XCB_BUTTON_PRESS:
           case XCB_BUTTON_RELEASE:
           case XCB_MOTION_NOTIFY:
-          { let e = Sc<xcb_button_press_event_t*>(x);
+          { let e = Rc<xcb_button_press_event_t*>(a);
             f << o9t("type"_y, t == XCB_BUTTON_PRESS ? "button_press"_y : t == XCB_BUTTON_RELEASE ? "button_release"_y : "motion"_y,
                      "t"_y,           e->time,
                      "root"_y,        e->root,
@@ -112,7 +113,7 @@ namespace ξ
 
           case XCB_ENTER_NOTIFY:
           case XCB_LEAVE_NOTIFY:
-          { let e = Sc<xcb_enter_notify_event_t*>(x);
+          { let e = Rc<xcb_enter_notify_event_t*>(a);
             f << o9t("type"_y, t == XCB_ENTER_NOTIFY ? "enter"_y : "leave"_y,
                      "t"_y,                 e->time,
                      "root"_y,              e->root,
@@ -129,7 +130,7 @@ namespace ξ
 
           case XCB_KEY_PRESS:
           case XCB_KEY_RELEASE:
-          { let e = Sc<xcb_key_press_event_t*>(x);
+          { let e = Rc<xcb_key_press_event_t*>(a);
             char ks[2] {0, 0};
             ks[0] = xcb_keycode_ascii(e->detail, e->state);
             f << o9t("type"_y, t == XCB_KEY_PRESS ? "key_press"_y : "key_release"_y,
@@ -148,8 +149,7 @@ namespace ξ
                      "same_screen"_y, e->same_screen).m();
             break; }
           }
-        }
-    });
+        } });
 }
 
 

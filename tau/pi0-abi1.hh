@@ -21,6 +21,8 @@
 
 
 #include "begin.hh"
+#include "xi/basics.hh"
+#include "xi/linux/xframe-xcbio.hh"
 
 #if τplatform == τplatform_linux
 # include "xi/linux/io.hh"
@@ -520,6 +522,10 @@ void π0abi1_ξ(π0abi &a)
 
     .def("ξsc",  I{ i.dpush(o9ptr(&ξ::split_chr(π0abi1_iΦ(i), *i.dpop().data()))); })
 
+    .def("ξΘr",  I{ i.dpush(o9ptr(&ξ::θr(π0abi1_iΦ(i), Sc<uN>(i.dpop()) * 1ns))); })
+    .def("ξΔθ",  I{ i.dpush(o9ptr(&ξ::Δθ(π0abi1_iΦ(i), Sc<uN>(i.dpop()) * 1ns))); })
+    .def("ξΣθΔ", I{ i.dpush(o9ptr(&ξ::ΣθΔ(π0abi1_iΦ(i)))); })
+
     .def("ξu9a", I{ i.dpush(o9ptr(&ξ::utf9_asm (π0abi1_iΦ(i)))); })
     .def("ξu9d", I{ i.dpush(o9ptr(&ξ::utf9_dasm(π0abi1_iΦ(i)))); });
 
@@ -530,7 +536,8 @@ void π0abi1_ξ(π0abi &a)
 
     .def("ξ<n",  I{ i.dpush(o9ptr(&ξ::tcp_server(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
 
-    .def("ξx11", I{ i.dpush(o9ptr(&ξ::xframe(π0abi1_iΦ(i)))); });
+    .def("ξx11",   I{ i.dpush(o9ptr(&ξ::xframe(π0abi1_iΦ(i)))); })
+    .def("ξ<xcbe", I{ i.dpush(o9ptr(&ξ::xcb_event_decode(π0abi1_iΦ(i)))); });
 #endif
 }
 
