@@ -73,6 +73,81 @@ namespace ξ
 }
 
 
+ϝ &xcb_event_decode(Φ &f)
+{
+  return *new ϝ(f, "xcb_event_decode", ϝ::ξα, [](ϝ &f)
+    { for (let x : f)
+        if (x.is_istruct())
+        { let t = Sc<xcb_generic_event_t*>(x)->response_type & ~0x80;
+          switch (t)
+          {
+          case XCB_EXPOSE:
+          { let e = Sc<xcb_expose_event_t*>(x);
+            f << o9t("type"_y, "expose"_y,
+                     "win"_y,   e->window,
+                     "x"_y,     e->x,
+                     "y"_y,     e->y,
+                     "w"_y,     e->width,
+                     "h"_y,     e->height,
+                     "count"_y, e->count).m();
+            break; }
+
+          case XCB_BUTTON_PRESS:
+          case XCB_BUTTON_RELEASE:
+          case XCB_MOTION_NOTIFY:
+          { let e = Sc<xcb_button_press_event_t*>(x);
+            f << o9t("type"_y, t == XCB_BUTTON_PRESS ? "button_press"_y : t == XCB_BUTTON_RELEASE ? "button_release"_y : "motion"_y,
+                     "t"_y,           e->time,
+                     "root"_y,        e->root,
+                     "event"_y,       e->event,
+                     "child"_y,       e->child,
+                     "root_x"_y,      e->root_x,
+                     "root_y"_y,      e->root_y,
+                     "event_x"_y,     e->event_x,
+                     "event_y"_y,     e->event_y,
+                     "state"_y,       e->state,
+                     "same_screen"_y, e->same_screen);
+            break; }
+
+          case XCB_ENTER_NOTIFY:
+          case XCB_LEAVE_NOTIFY:
+          { let e = Sc<xcb_enter_notify_event_t*>(x);
+            f << o9t("type"_y, t == XCB_ENTER_NOTIFY ? "enter"_y : "leave"_y,
+                     "t"_y,                 e->time,
+                     "root"_y,              e->root,
+                     "event"_y,             e->event,
+                     "child"_y,             e->child,
+                     "root_x"_y,            e->root_x,
+                     "root_y"_y,            e->root_y,
+                     "event_x"_y,           e->event_x,
+                     "event_y"_y,           e->event_y,
+                     "state"_y,             e->state,
+                     "mode"_y,              e->mode,
+                     "same_screen_focus"_y, e->same_screen_focus);
+            break; }
+
+          case XCB_KEY_PRESS:
+          case XCB_KEY_RELEASE:
+          { let e = Sc<xcb_key_press_event_t*>(x);
+            f << o9t("type"_y, t == XCB_KEY_PRESS ? "key_press"_y : "key_release"_y,
+                     "t"_y,           e->time,
+                     "k"_y,           e->detail,
+                     "root"_y,        e->root,
+                     "event"_y,       e->event,
+                     "child"_y,       e->child,
+                     "root_x"_y,      e->root_x,
+                     "root_y"_y,      e->root_y,
+                     "event_x"_y,     e->event_x,
+                     "event_y"_y,     e->event_y,
+                     "state"_y,       e->state,
+                     "same_screen"_y, e->same_screen);
+            break; }
+          }
+        }
+    });
+}
+
+
 }
 }
 

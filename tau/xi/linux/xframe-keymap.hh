@@ -5,46 +5,13 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 
+#include "../../utf9-types.hh"
+
 
 #include "../begin.hh"
 
 namespace τ::ξ
 {
-
-
-// Meta-keys: things that aren't visible characters
-enum class xkm : u8
-{
-  none,
-  esc,
-  home,
-  end,
-  left,
-  right,
-  up,
-  down,
-  tab,
-  enter,
-  backspace,
-  del,
-  insert,
-  lalt,
-  ralt,
-  lctrl,
-  rctrl,
-  lsuper,
-  rsuper,
-  lshift,
-  rshift,
-  f1, f2,  f3,  f4,
-  f5, f6,  f7,  f8,
-  f9, f10, f11, f12,
-  numlock,
-  capslock,
-  scrolllock,
-};
-
-typedef xkm const xkmc;
 
 
 // NOTE: https://stackoverflow.com/questions/18689863/obtain-keyboard-layout-and-keysyms-with-xcb
@@ -119,68 +86,77 @@ chc keymap_us_shift[128] =
 };
 
 
-xkmc keymap_us_meta[128] =
+u9_symbol keymap_us_meta[128] =
 {
   // NOTE: this table's first entry is scancode 8, not 0
-  xkm::none,                                         // 8 is undefined
-  xkm::esc,                                          // 9 is escape
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none, xkm::none,                              // 10-19 are digits
+  "none"_y,                                         // 8 is undefined
+  "esc"_y,                                          // 9 is escape
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y,                               // 10-19 are digits
 
-  xkm::none, xkm::none, xkm::backspace,              // 20-22
-  xkm::tab,                                          // 23
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none, xkm::none,
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none,                                         // 24-35
+  "none"_y, "none"_y, "backspace"_y,                // 20-22
+  "tab"_y,                                          // 23
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y,                                         // 24-35
 
-  xkm::enter,                                        // 36
-  xkm::lctrl,                                        // 37 = left ctrl
+  "enter"_y,                                        // 36
+  "lctrl"_y,                                        // 37 = left ctrl
 
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none, xkm::none, xkm::none, xkm::none,        // 38-49
-  xkm::lshift,                                       // 50 = left shift
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,           // 38-49
+  "lshift"_y,                                       // 50 = left shift
 
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none, xkm::none, xkm::none,                   // 51-61
-  xkm::rshift,                                       // 62 = right shift
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y,                     // 51-61
+  "rshift"_y,                                       // 62 = right shift
 
-  xkm::none,
-  xkm::lalt,
-  xkm::none,                                         // 65 = space
-  xkm::capslock,
-  xkm::f1, xkm::f2, xkm::f3, xkm::f4, xkm::f5,
-  xkm::f6, xkm::f7, xkm::f8, xkm::f9, xkm::f10,      // 76 = F19
+  "none"_y,
+  "lalt"_y,
+  "none"_y,                                         // 65 = space
+  "capslock"_y,
+  "f1"_y, "f2"_y, "f3"_y, "f4"_y, "f5"_y,
+  "f6"_y, "f7"_y, "f8"_y, "f9"_y, "f10"_y,          // 76 = F19
 
-  xkm::numlock,                                      // 77 = num lock
-  xkm::scrolllock,                                   // 78 = scroll lock
+  "numlock"_y,                                      // 77 = num lock
+  "scrolllock"_y,                                   // 78 = scroll lock
 
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none, xkm::none, xkm::none, xkm::none,
-  xkm::none,                                         // 79-91 = numpad
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y,                                         // 79-91 = numpad
 
-  xkm::none, xkm::none, xkm::none,                   // ???
-  xkm::f11, xkm::f12,                                // 96 = F12
+  "none"_y, "none"_y, "none"_y,                     // ???
+  "f11"_y, "f12"_y,                                 // 96 = F12
 
   // TODO: fill out the rest of these using xev to reverse-engineer
   // (although I guess they will be thinkpad-specific)
-  xkm::none,                                         // all else undefined
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
+  "none"_y, "none"_y, "none"_y, "none"_y,
 };
 
 
 ch xcb_keycode_ascii(uf8 xcb_keycode, uf16 mods = 0)
 {
   return mods & XCB_MOD_MASK_SHIFT
-    ? keymap_us_shift[xcb_keycode - 8]
-    : keymap_us      [xcb_keycode - 8];
+       ? keymap_us_shift[xcb_keycode - 8]
+       : keymap_us      [xcb_keycode - 8];
 }
 
 
-xkm xcb_keycode_meta(uf8 xcb_keycode)
+u9_symbol xcb_keycode_meta(uf8 xcb_keycode)
 {
   return keymap_us_meta[xcb_keycode - 8];
 }
