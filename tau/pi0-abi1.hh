@@ -319,6 +319,12 @@ void π0abi1_u9_number(π0abi &a)
 }
 
 
+void π0abi1_u9_string(π0abi &a)
+{
+  // TODO
+}
+
+
 void π0abi1_u9_fft(π0abi &a)
 {
   // TODO
@@ -591,6 +597,7 @@ void π0abi1_debug(π0abi &a)
   π0abi1_u9_general(a);
   π0abi1_u9_vector(a);
   π0abi1_u9_number(a);
+  π0abi1_u9_string(a);
   π0abi1_u9_fft(a);
   π0abi1_u9_nrange(a);
   π0abi1_u9_tuple(a);
