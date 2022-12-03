@@ -478,7 +478,6 @@ void π0abi1_φ(π0abi &a)
 
 void π0abi1_ϝ(π0abi &a)
 {
-  // TODO: move u9_symbols into globals
   a .def("ϝ:", I{
       let l  = i.bpop();
       ϝξ  ϝt = Sc<ϝξ>(i.dpop());
