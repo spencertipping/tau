@@ -250,8 +250,7 @@ int editor(int argc, char **argv)
     { let ke = Rc<xcb_key_press_event_t*>(e);
       if (let a = xcb_keycode_ascii(ke->detail, ke->state))
         if (a == '\b')
-        {
-          if (ex)
+        { if (ex)
           { auto l   = d[ey].substr(0, ex);
             auto nex = ex;
             while (l.size() && (l[-1] & 0xc0) == 0x80) --nex, l.pop_back();

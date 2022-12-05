@@ -535,11 +535,11 @@ void π0abi1_ξ(π0abi &a)
     .def("ξu9d", I{ i.dpush(o9ptr(&ξ::utf9_dasm(π0abi1_iΦ(i)))); });
 
 #if τplatform == τplatform_linux
-  a .def("ξ<f",  I{ i.dpush(o9ptr(&ξ::fd_in (π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
-    .def("ξ>f",  I{ i.dpush(o9ptr(&ξ::fd_out(π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
-    .def("ξ<>f", I{ i.dpush(o9ptr(&ξ::fd_io (π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
+  a .def("ξ<f",    I{ i.dpush(o9ptr(&ξ::fd_in (π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
+    .def("ξ>f",    I{ i.dpush(o9ptr(&ξ::fd_out(π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
+    .def("ξ<>f",   I{ i.dpush(o9ptr(&ξ::fd_io (π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
 
-    .def("ξ<n",  I{ i.dpush(o9ptr(&ξ::tcp_server(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
+    .def("ξ<n",    I{ i.dpush(o9ptr(&ξ::tcp_server(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
 
     .def("ξx11",   I{ i.dpush(o9ptr(&ξ::xframe(π0abi1_iΦ(i)))); })
     .def("ξ<xcbe", I{ i.dpush(o9ptr(&ξ::xcb_event_decode(π0abi1_iΦ(i)))); });
