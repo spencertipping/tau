@@ -19,11 +19,11 @@ namespace τ
 {
 
 
-typedef φ<i9, i9, φ9> γφ;
+typedef φ_<i9, i9, φ9> φ;
 
 template<class T>
 typename std::enable_if<iti<T>::v, bool>::type
-operator>(T &x, γφ &y)
+operator>(T &x, φ &y)
 {
   A(y.l.i(), "iti > φ on λi = 0");
   for (let a : x) if (!(y << a)) return false;
@@ -32,14 +32,14 @@ operator>(T &x, γφ &y)
 
 template<class T>
 typename std::enable_if<iti<T>::v, bool>::type
-operator<(γφ &y, T &x)
+operator<(φ &y, T &x)
 {
   return x > y;
 }
 
 template<class T>
 typename std::enable_if<iti<T>::v, bool>::type
-operator<(γφ &y, T &&x)
+operator<(φ &y, T &&x)
 {
   return x > y;
 }

@@ -14,25 +14,20 @@
 # warning Φemscripten: emulating headers and EM_ macros
 # define EM_ASM(...)
 # define EM_JS(...)
-
 // Enough definitions to enable clang/LSP to understand the emscripten
 // bindings
-# include <cstddef>
-  struct emscripten_fiber_t {};
-  void emscripten_fiber_swap(emscripten_fiber_t*, emscripten_fiber_t*);
-  void emscripten_fiber_init_from_current_context(emscripten_fiber_t*, void*, size_t);
-  void emscripten_fiber_init(emscripten_fiber_t*,
-                             void(*)(void*),
-                             void*,
-                             void*, size_t, void*, size_t);
-
   void emscripten_async_call(void(*)(void*), void*, int);
 #endif
 
 
 #include "types.hh"
+
+#define τassume_emscripten 1
+# include "lambda.hh"
+# include "Lambda.hh"
+#undef τassume_emscripten
+
 #include "phi.hh"
-#include "Lambda.hh"
 #include "utf9.hh"
 
 #include "Phi-common.hh"
@@ -63,20 +58,20 @@ struct Φf  // boundary FD-like wrapper, e.g. websocket or GL context
 
 Φ *Φg = nullptr;
 
-void Φgo(void*);
+void Φstep(void*);
 
 
 struct Φ : public Φb
 {
-  emscripten_fiber_t *main_thread = nullptr;
-  emscripten_fiber_t *go_thread   = nullptr;
-  F<bool(Φ&)>  const *go_f        = nullptr;
-  uN                  nts         = 0;  // number of tracked things
+  F<bool(Φ&)> go_f;
+  uN          nts  = 0;  // number of tracked things
 
-  Φ(Φ &) = delete;
+  Φ(Φ&)  = delete;
   Φ(Φ&&) = delete;
   Φ () { A(!Φg, "cannot define multiple Φs in wasm"); Φg = this; }
   ~Φ() { Φg = nullptr; }
+
+  constexpr bool is_async() { return true; }
 
 
   Φ &operator()()
@@ -84,51 +79,30 @@ struct Φ : public Φb
       std::cout << "Φ() at " << t - t0 << std::endl;
       if (t < hn() && hn() < forever())
       { let dt = (hn() - t) / 1ms;
-        emscripten_async_call(Φgo, this, std::min(dt, Sc<decltype(dt)>(Nl<int>::max()))); }
+        std::cout << "scheduling async in " << dt << " ms" << std::endl;
+        emscripten_async_call(Φstep, this, std::min(dt, Sc<decltype(dt)>(Nl<int>::max()))); }
       while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
   operator bool() const { return nts || hn() != forever(); }
 
-  Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return Sc<bool>(f); })
-    { void *as1 = malloc(λss);
-      void *cs1 = malloc(λss);
-      void *as2 = malloc(λss);
+  Φ &go(F<bool(Φ&)> const& = [](Φ&) { return true; })
+    { A(0, "Φ is async"); return *this; }
 
-      std::cout << "Φ.go" << std::endl;
-
-      go_f = &f;
-      emscripten_fiber_init_from_current_context(main_thread, as2, λss);
-      emscripten_fiber_init(go_thread, Φgo, this, cs1, λss, as1, λss);
-
-      l.go();
-
-      std::cout << "Φ.go pre-swap" << std::endl;
-      emscripten_fiber_swap(main_thread, go_thread);
-      std::cout << "Φ.go post-swap" << std::endl;
-      go_thread   = nullptr;
-      main_thread = nullptr;
-      go_f        = nullptr;
-
-      free(as1);
-      free(cs1);
-      free(as2);
+  Φ &go_async(F<bool(Φ&)> &&f = [](Φ &f) { return Sc<bool>(f); })
+    { go_f = std::move(f);
+      emscripten_async_call(Φstep, this, 0);
       return *this; }
-
-  void go_ret() { emscripten_fiber_swap(go_thread, main_thread); }
 };
 
 
-void Φgo(void *f_)  // invoked by callbacks to advance Φ
+void Φstep(void *f_)  // invoked by callbacks to advance Φ
 {
   Φ &f = *Rc<Φ*>(f_);
-  if (!(*f.go_f)(f))
+  std::cout << "Φstep called" << std::endl;
+  if (f.go_f(f))
   {
-    std::cout << "go_ret" << std::endl;
-    f.go_ret();
-  }
-  else
-  {
+    std::cout << "calling Φ()" << std::endl;
     f();
     f.l.go();
   }

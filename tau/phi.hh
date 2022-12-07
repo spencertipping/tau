@@ -46,7 +46,7 @@ struct φπ  // profiling+timing filter
 
 
 template<class R, class W = R, class F = φι>
-struct φ
+struct φ_
 {
   sletc fnr = 0x1;   // no read-side
   sletc fnw = 0x2;   // no write-side
@@ -55,23 +55,23 @@ struct φ
   sletc fie = 0x10;  // input is ended (closed permanently)
   sletc foe = 0x20;  // output is ended
 
-  Λ          &l;
-  φ<W, R, F> *c {nullptr};  // NOTE: template args may vary; ptr type is a lie
-  u8c         b;
-  u8          fs;
-  ζ<R>       *i {nullptr};
-  ζ<W>       *o {nullptr};
-  λg          cg;
-  λg          xg;
-  F           f;
+  Λ           &l;
+  φ_<W, R, F> *c {nullptr};  // NOTE: template args may vary; ptr type is a lie
+  u8c          b;
+  u8           fs;
+  ζ<R>        *i {nullptr};
+  ζ<W>        *o {nullptr};
+  λg           cg;
+  λg           xg;
+  F            f;
 
 
-  φ(φ &) = delete;
-  φ(φ&&) = delete;
-  φ(Λ &l_, uf8 b_ = ζb0, u8 fs_ = 0)
+  φ_(φ_ &) = delete;
+  φ_(φ_&&) = delete;
+  φ_(Λ &l_, uf8 b_ = ζb0, u8 fs_ = 0)
     : l{l_}, b{b_}, fs{fs_}, cg{l}, xg{l} {}
 
-  ~φ()
+  ~φ_()
     { ω();
       if (c) c->c = nullptr;
       else
@@ -79,7 +79,7 @@ struct φ
         if (o) delete o; } }
 
 
-  φ &operator()(ζ<R> &i_, ζ<W> &o_)
+  φ_ &operator()(ζ<R> &i_, ζ<W> &o_)
     { assert(!i && !o);
       i = &i_;
       o = &o_;
@@ -87,8 +87,8 @@ struct φ
       return *this; }
 
   template<class F2>
-  φ &operator()(φ<W, R, F2> &f)
-    { let p = Rc<φ<W, R, F>*>(&f);
+  φ_ &operator()(φ_<W, R, F2> &f)
+    { let p = Rc<φ_<W, R, F>*>(&f);
       let i = !(fs & fnr) && !(p->fs & fnw) && p->b
             ? new ζ<R>(l, p->b, fs & fli || p->fs & flo ? ζ<R>::fl : 0)
             : nullptr;
@@ -100,11 +100,11 @@ struct φ
       return *this; }
 
 
-  φ &ω()  { rω(); wω();                               fs |= fie | foe; return *this; }
-  φ &rω() { if (i) { i->rω(); rx(); if (!o) xg.w(); } fs |= fie;       return *this; }
-  φ &wω() { if (o) { o->wω();       if (!i) xg.w(); } fs |= foe;       return *this; }
+  φ_ &ω()  { rω(); wω();                               fs |= fie | foe; return *this; }
+  φ_ &rω() { if (i) { i->rω(); rx(); if (!o) xg.w(); } fs |= fie;       return *this; }
+  φ_ &wω() { if (o) { o->wω();       if (!i) xg.w(); } fs |= foe;       return *this; }
 
-  φ &rx()
+  φ_ &rx()
     { if (i) { if (c) c->wω(); i->wω().rω(); }
       return *this; }
 
@@ -115,8 +115,8 @@ struct φ
   bool     ra()   const { return !(fs & fie) && i && i->ra(); }
   bool     wa()   const { return !(fs & foe) && o && o->wa(); }
 
-  φ &wrc() { while (!ri()) cg.y(λs::φc); return *this; }
-  φ &wra() { wrc(); i->wra();            return *this; }
+  φ_ &wrc() { while (!ri()) cg.y(λs::φc); return *this; }
+  φ_ &wra() { wrc(); i->wra();            return *this; }
 
 
   template<class X>  // write, wait for ζ if necessary
@@ -129,12 +129,12 @@ struct φ
   bool operator<<=(X const &x) { return wi() && *this << x; }
 
 
-  φ &operator++() { ++*i;  return *this; }
-  R  operator* () { wra(); return f.r(R(**i), *i); }
+  φ_ &operator++() { ++*i;  return *this; }
+  R   operator* () { wra(); return f.r(R(**i), *i); }
 
 
   struct it
-  { φ    &f;
+  { φ_   &f;
     bool  eof;
     R     operator* ()            const { return *f; }
     bool  operator==(it const &x) const { return eof == x.eof; }
@@ -147,7 +147,7 @@ struct φ
 
 #if τdebug_iostream
 template<class R, class W, class F>
-O &operator<<(O &s, φ<R, W, F> const &f)
+O &operator<<(O &s, φ_<R, W, F> const &f)
 {
   s << "φ[";
   if (f.i) s << *f.i << " "; else s << "∅";

@@ -95,6 +95,8 @@ struct Φ : public Φb
 
   ~Φ() { A(!close(efd), "~Φ close failed (fd leak) " << errno); }
 
+  constexpr bool is_async() { return false; }
+
 
   template<class O>
   bool operator<<(Φf<O> &f)
@@ -134,6 +136,7 @@ struct Φ : public Φb
   operator bool() const
     { return !fs.empty() || !nfs.empty() || hn() != forever(); }
 
+  Φ &go_async() { A(0, "Φ is not async"); return *this; }
   Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return Sc<bool>(f); })
     { l.go();
       while (f(*this)) (*this)(), l.go();
@@ -150,7 +153,7 @@ inline Φf<O>::Φf(Φ &f_, T... xs) : f(f_), w{f.l}, o{rn, re, xs...}
 
 
 template<class R, class W, class F, class O>
-bool operator<<(φ<R, W, F> &f, Φf<O> &r)
+bool operator<<(φ_<R, W, F> &f, Φf<O> &r)
 {
   while (1)
   {

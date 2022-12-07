@@ -46,10 +46,10 @@ namespace τ
 #endif
 
 
-void λy();                 // yield
-void λinit_();             // implementation-specific main λ init
-uN constexpr λss = 65536;  // stack size
-λk           λmk;          // main continuation
+void λy();        // yield
+void λinit_();    // implementation-specific main λ init
+uNc λss = 65536;  // stack size
+λk  λmk;          // main continuation
 
 
 // NOTE: init mechanics used only by λ ctor; not useful to importers

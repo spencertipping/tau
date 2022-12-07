@@ -440,39 +440,39 @@ void π0abi1_φ(π0abi &a)
   a .def("φ:", I{
         let fs = Sc<u8>(i.dpop());
         let ζb = Sc<u8>(i.dpop());
-        i.dpush(o9ptr(new γφ(i.f.l, ζb, fs))); })
+        i.dpush(o9ptr(new φ(i.f.l, ζb, fs))); })
     .def("φ_", I{
-        let f = i.dpop().template ptr<γφ>();
+        let f = i.dpop().template ptr<φ>();
         delete f; })
     .def("φ|", I{
-        let a = i.dpop().template ptr<γφ>();
-        let b = i.dpop().template ptr<γφ>();
+        let a = i.dpop().template ptr<φ>();
+        let b = i.dpop().template ptr<φ>();
         (*a)(*b); })
     .def("φ<>",  I{
-        let b = i.dpop().template ptr<γφ>();
-        let a = i.dpop().template ptr<γφ>();
+        let b = i.dpop().template ptr<φ>();
+        let a = i.dpop().template ptr<φ>();
         let x = **a;
         i.dpush(x.exists() && *b << x);
         ++*a; })
     .def("φ<>=", I{
-        let b = i.dpop().template ptr<γφ>();
-        let a = i.dpop().template ptr<γφ>();
+        let b = i.dpop().template ptr<φ>();
+        let a = i.dpop().template ptr<φ>();
         let x = **a;
         i.dpush(x.exists() && (*b <<= x));
         ++*a; })
-    .def("φ<",   I{ let f = i.dpop().template ptr<γφ>(); let x = i.dpop(); A(!x.flagged(), "φ< flagged");  i.dpush(o9(*f <<  x)); })
-    .def("φ<=",  I{ let f = i.dpop().template ptr<γφ>(); let x = i.dpop(); A(!x.flagged(), "φ<= flagged"); i.dpush(o9(*f <<= x)); })
-    .def("φ*",   I{ i.dpush(o9(**i.dpop().template ptr<γφ>())); })
-    .def("φ++",  I{ ++*i.dpop().template ptr<γφ>(); })
-    .def("φ<?",  I{ i.dpush(o9(i.dpop().template ptr<γφ>()->wi())); })
-    .def("φ>?",  I{ i.dpush(o9(i.dpop().template ptr<γφ>()->ri())); })
-    .def("φω?",  I{ i.dpush(o9(i.dpop().template ptr<γφ>()->ωi())); })
-    .def("φ<ω",  I{ i.dpop().template ptr<γφ>()->wω(); })
-    .def("φ>ω",  I{ i.dpop().template ptr<γφ>()->rω(); })
-    .def("φω",   I{ i.dpop().template ptr<γφ>()->ω(); })
+    .def("φ<",   I{ let f = i.dpop().template ptr<φ>(); let x = i.dpop(); A(!x.flagged(), "φ< flagged");  i.dpush(o9(*f <<  x)); })
+    .def("φ<=",  I{ let f = i.dpop().template ptr<φ>(); let x = i.dpop(); A(!x.flagged(), "φ<= flagged"); i.dpush(o9(*f <<= x)); })
+    .def("φ*",   I{ i.dpush(o9(**i.dpop().template ptr<φ>())); })
+    .def("φ++",  I{ ++*i.dpop().template ptr<φ>(); })
+    .def("φ<?",  I{ i.dpush(o9(i.dpop().template ptr<φ>()->wi())); })
+    .def("φ>?",  I{ i.dpush(o9(i.dpop().template ptr<φ>()->ri())); })
+    .def("φω?",  I{ i.dpush(o9(i.dpop().template ptr<φ>()->ωi())); })
+    .def("φ<ω",  I{ i.dpop().template ptr<φ>()->wω(); })
+    .def("φ>ω",  I{ i.dpop().template ptr<φ>()->rω(); })
+    .def("φω",   I{ i.dpop().template ptr<φ>()->ω(); })
     .def("φ.",   I{
         let b = i.bpop();
-        let f = i.dpop().template ptr<γφ>();
+        let f = i.dpop().template ptr<φ>();
         for (let x : *f) i.dpush(x).run(b); });
 }
 

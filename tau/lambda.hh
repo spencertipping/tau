@@ -5,7 +5,7 @@
 #include "arch.hh"
 #include "lambda-class.hh"
 
-#if τplatform == τplatform_wasm
+#if τplatform == τplatform_wasm || τassume_emscripten
 # include "lambda-emscripten.hh"
 #elif τarch == τarch_linux64
 # include "lambda-boost.hh"
@@ -15,7 +15,7 @@
 
 
 #ifdef τassume_emscripten
-# error τassume_emscripten is not intended for production
+# warning τassume_emscripten is not intended for production
 #endif
 
 
