@@ -33,6 +33,9 @@ namespace τ
 // then invoke the main Φ event loop, since callbacks all happen on
 // the main thread
 
+// .go() can fiber_swap out and then back once all callbacks are done
+// (realistically, .go() is free to never return)
+
 
 template<class O>
 struct Φf  // boundary FD-like wrapper, e.g. websocket or GL context
