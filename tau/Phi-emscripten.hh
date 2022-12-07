@@ -1,5 +1,5 @@
-#ifndef τΦ_emscripten_h
-#define τΦ_emscripten_h
+#ifndef τΦemscripten_h
+#define τΦemscripten_h
 
 
 #include "arch.hh"
@@ -8,10 +8,23 @@
 
 #if τplatform == τplatform_wasm
 # include <emscripten/emscripten.h>
+# include <emscripten/fiber.h>
 # include <emscripten/websocket.h>
 #else
+# warning Φemscripten: emulating headers and EM_ macros
 # define EM_ASM(...)
 # define EM_JS(...)
+
+// Enough definitions to enable clang/LSP to understand the emscripten
+// bindings
+# include <cstddef>
+  struct emscripten_fiber_t {};
+  void emscripten_fiber_swap(emscripten_fiber_t*, emscripten_fiber_t*);
+  void emscripten_fiber_init_from_current_context(emscripten_fiber_t*, void*, size_t);
+  void emscripten_fiber_init(emscripten_fiber_t*,
+                             void(*)(void*),
+                             void*,
+                             void*, size_t, void*, size_t);
 #endif
 
 
@@ -62,6 +75,9 @@ struct Φ : public Φb
   // TODO: what happens if a websocket onmessage callback happens against
   // a full ζ? We can't block the sender.
 
+  emscripten_fiber_t *main_thread = nullptr;
+  emscripten_fiber_t *this_thread = nullptr;
+
   Φ() {}
 
 
@@ -77,7 +93,9 @@ struct Φ : public Φb
         hn() != forever(); }
 
   Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return Sc<bool>(f); })
-    { l.go();
+    { // TODO: fiberswap
+
+      l.go();
       while (f(*this)) (*this)(), l.go();
       return *this; }
 };

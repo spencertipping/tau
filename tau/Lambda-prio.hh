@@ -1,5 +1,5 @@
-#ifndef τΛ_prio_h
-#define τΛ_prio_h
+#ifndef τΛprio_h
+#define τΛprio_h
 
 
 #include <cmath>

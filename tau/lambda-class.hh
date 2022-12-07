@@ -1,12 +1,12 @@
-#ifndef τflux_λ_class_h
-#define τflux_λ_class_h
+#ifndef τλclass_h
+#define τλclass_h
 
 
 #include "arch.hh"
 #include "debug.hh"
 
 
-#if τarch == τarch_wasm64 || τarch == τarch_wasm32
+#if τplatform == τplatform_wasm
 # include <emscripten/fiber.h>
 #elif τassume_emscripten
   // Enough definitions to enable clang/LSP to understand the emscripten
@@ -33,9 +33,7 @@ namespace τ
 {
 
 
-#if τarch == τarch_wasm64                   \
-    || τarch == τarch_wasm32                \
-    || τassume_emscripten
+#if τplatform == τplatform_wasm || τassume_emscripten
   struct λk
   {
     emscripten_fiber_t  k;
@@ -48,10 +46,10 @@ namespace τ
 #endif
 
 
-void λy();                       // yield
-void λinit_();                   // implementation-specific main λ init
-uN const constexpr λss = 65536;  // stack size
-λk                 λmk;          // main continuation
+void λy();                 // yield
+void λinit_();             // implementation-specific main λ init
+uN constexpr λss = 65536;  // stack size
+λk           λmk;          // main continuation
 
 
 // NOTE: init mechanics used only by λ ctor; not useful to importers
