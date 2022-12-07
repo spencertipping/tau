@@ -29,8 +29,9 @@ namespace τ
 {
 
 
-// TODO: what's the main eventing model here? Do we need flow control?
-// Callbacks should flip state bits that allow main-thread to continue.
+// TODO: drive this with callbacks; each one should update state and
+// then invoke the main Φ event loop, since callbacks all happen on
+// the main thread
 
 
 template<class O>
