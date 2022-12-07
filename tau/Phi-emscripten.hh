@@ -25,6 +25,8 @@
                              void(*)(void*),
                              void*,
                              void*, size_t, void*, size_t);
+
+  void emscripten_async_call(void(*)(void*), void*, int);
 #endif
 
 
@@ -40,14 +42,6 @@
 
 namespace τ
 {
-
-
-// TODO: drive this with callbacks; each one should update state and
-// then invoke the main Φ event loop, since callbacks all happen on
-// the main thread
-
-// .go() can fiber_swap out and then back once all callbacks are done
-// (realistically, .go() is free to never return)
 
 
 template<class O>
@@ -67,38 +61,78 @@ struct Φf  // boundary FD-like wrapper, e.g. websocket or GL context
 };
 
 
+Φ *Φg = nullptr;
+
+void Φgo(void*);
+
+
 struct Φ : public Φb
 {
-  // TODO: track active websockets and other async resources, even though
-  // we don't do much with their callbacks
-  //
-  // TODO: what happens if a websocket onmessage callback happens against
-  // a full ζ? We can't block the sender.
-
   emscripten_fiber_t *main_thread = nullptr;
-  emscripten_fiber_t *this_thread = nullptr;
+  emscripten_fiber_t *go_thread   = nullptr;
+  F<bool(Φ&)>  const *go_f        = nullptr;
+  uN                  nts         = 0;  // number of tracked things
 
-  Φ() {}
+  Φ(Φ &) = delete;
+  Φ(Φ&&) = delete;
+  Φ () { A(!Φg, "cannot define multiple Φs in wasm"); Φg = this; }
+  ~Φ() { Φg = nullptr; }
 
 
   Φ &operator()()
     { let t = now();
-      TODO("Φ step");
-      // TODO: setTimeout, but asyncified
+      std::cout << "Φ() at " << t - t0 << std::endl;
+      if (t < hn() && hn() < forever())
+      { let dt = (hn() - t) / 1ms;
+        emscripten_async_call(Φgo, this, std::min(dt, Sc<decltype(dt)>(Nl<int>::max()))); }
+      while (now() >= hn()) l.r(h.top().l), h.pop();
+      return *this; }
 
-    }
-
-  operator bool() const
-    { return // TODO: return true if ∃ active connections
-        hn() != forever(); }
+  operator bool() const { return nts || hn() != forever(); }
 
   Φ &go(F<bool(Φ&)> const &f = [](Φ &f) { return Sc<bool>(f); })
-    { // TODO: fiberswap
+    { void *as1 = malloc(λss);
+      void *cs1 = malloc(λss);
+      void *as2 = malloc(λss);
+
+      std::cout << "Φ.go" << std::endl;
+
+      go_f = &f;
+      emscripten_fiber_init_from_current_context(main_thread, as2, λss);
+      emscripten_fiber_init(go_thread, Φgo, this, cs1, λss, as1, λss);
 
       l.go();
-      while (f(*this)) (*this)(), l.go();
+
+      std::cout << "Φ.go pre-swap" << std::endl;
+      emscripten_fiber_swap(main_thread, go_thread);
+      std::cout << "Φ.go post-swap" << std::endl;
+      go_thread   = nullptr;
+      main_thread = nullptr;
+      go_f        = nullptr;
+
+      free(as1);
+      free(cs1);
+      free(as2);
       return *this; }
+
+  void go_ret() { emscripten_fiber_swap(go_thread, main_thread); }
 };
+
+
+void Φgo(void *f_)  // invoked by callbacks to advance Φ
+{
+  Φ &f = *Rc<Φ*>(f_);
+  if (!(*f.go_f)(f))
+  {
+    std::cout << "go_ret" << std::endl;
+    f.go_ret();
+  }
+  else
+  {
+    f();
+    f.l.go();
+  }
+}
 
 
 }
