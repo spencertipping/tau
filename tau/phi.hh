@@ -90,11 +90,11 @@ struct φ
   φ &operator()(φ<W, R, F2> &f)
     { let p = Rc<φ<W, R, F>*>(&f);
       let i = !(fs & fnr) && !(p->fs & fnw) && p->b
-        ? new ζ<R>(l, p->b, fs & fli || p->fs & flo ? ζ<R>::fl : 0)
-        : nullptr;
+            ? new ζ<R>(l, p->b, fs & fli || p->fs & flo ? ζ<R>::fl : 0)
+            : nullptr;
       let o = !(fs & fnw) && !(p->fs & fnr) && b
-        ? new ζ<W>(l, b,    fs & flo || p->fs & fli ? ζ<W>::fl : 0)
-        : nullptr;
+            ? new ζ<W>(l, b,    fs & flo || p->fs & fli ? ζ<W>::fl : 0)
+            : nullptr;
       (*(c    = p))   (*o, *i);
       (*(c->c = this))(*i, *o);
       return *this; }
