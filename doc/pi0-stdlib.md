@@ -226,6 +226,9 @@ All of these operators automatically distribute across vectors.
 
 
 ## γ
+**TODO:** flatten this to λ and φ; we no longer have γ
+
+
 ### λ
 + `γ* [...] λc`: create λ, return `λi`
 + `γ* li λx`
@@ -257,25 +260,6 @@ Some functions don't require a γ object:
 
 ### Iteration
 + `φ [...] φ.`: for each element
-
-
-## ϝ API
-+ `"name" 0x1234 [ϝ* → ...] ϝ:`: create ϝ, return `ϝ*`
-+ `ϝ* ϝγ`: return γ for ϝ
-+ `ϝ* [...] ϝλc`: create λ for ϝ
-+ `ϝ* [...] ϝxc`: create finalizer λ for ϝ
-+ `ϝ* ϝα`: return α φ for ϝ
-+ `ϝ* ϝβ`: return β φ for ϝ
-+ `ϝ* ϝδ`: return δ φ for ϝ
-+ `ϝ* ϝε`: return ε φ for ϝ
-+ `ϝ* ϝι`: return ι φ for ϝ
-+ `ϝ* ϝο`: return ο φ for ϝ
-+ `ϝ* ϝιi`: return φ index of default input for ϝ
-+ `ϝ* ϝοi`: return φ index of default output for ϝ
-+ `a b ϝ|`: pipe ϝ `a` to ϝ `b`
-+ `a b ϝ&`
-+ `a b ϝ^`
-+ `a ai b bi ϝ=`: φ-connect numbered ports
 
 
 ## π₀ interpreter API

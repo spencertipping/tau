@@ -23,13 +23,6 @@
 #include "tau/pi1.hh"
 #include "tau/pi2.hh"
 
-#include "tau/gamma.hh"
-#include "tau/digamma.hh"
-#include "tau/Gamma.hh"
-#include "tau/Xi.hh"
-
-#include "tau/xi.hh"
-
 
 // NOTE: load ABIs last because they refer to everything else
 #include "tau/pi0-abi1.hh"

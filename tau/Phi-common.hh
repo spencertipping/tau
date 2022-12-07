@@ -6,10 +6,44 @@
 #include "Lambda.hh"
 #include "pi0.hh"
 
+#include "types.hh"
+#include "Lambda.hh"
+#include "phi.hh"
+#include "utf9-i9.hh"
+#include "utf9-o9.hh"
+#include "phi9.hh"
+
 #include "begin.hh"
 
 namespace τ
 {
+
+
+typedef φ<i9, i9, φ9> γφ;
+
+template<class T>
+typename std::enable_if<iti<T>::v, bool>::type
+operator>(T &x, γφ &y)
+{
+  A(y.l.i(), "iti > φ on λi = 0");
+  for (let a : x) if (!(y << a)) return false;
+  return true;
+}
+
+
+template<class T>
+typename std::enable_if<iti<T>::v, bool>::type
+operator<(γφ &y, T &x)
+{
+  return x > y;
+}
+
+template<class T>
+typename std::enable_if<iti<T>::v, bool>::type
+operator<(γφ &y, T &&x)
+{
+  return x > y;
+}
 
 
 struct Φ;
@@ -41,6 +75,24 @@ struct Φb  // base Φ
   Θp   hn() const { return h.empty() ? forever() : h.top().h; }
   ΔΘ   dt() const { return now() - t0; }
 };
+
+
+#if τdebug_iostream
+template<class T>
+O &operator<<(O &s, φ9::φo<T> const &o)
+{
+  s << "φo ";
+  if (o.x.index() == 0) s << std::get<0>(o.x);
+  else                  s << std::get<1>(o.x);
+  return s;
+}
+
+O &operator<<(O &s, φ9 const &f)
+{
+  return s << "φ9[" << f.im << " " << f.om << "+" << f.ohc
+           << "^" << f.ov << (f.b ? " H" : "") << "]";
+}
+#endif
 
 
 }

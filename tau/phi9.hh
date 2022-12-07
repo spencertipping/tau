@@ -4,11 +4,10 @@
 
 #include "types.hh"
 #include "phi.hh"
-#include "Phi.hh"
+#include "utf9.hh"
 
 
 #include "begin.hh"
-#include "utf9-types.hh"
 
 namespace τ
 {
