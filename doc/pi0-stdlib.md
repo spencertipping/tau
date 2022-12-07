@@ -233,7 +233,7 @@ All of these operators automatically distribute across vectors.
 + `t Θt`: sleep until nanosecond timestamp (TODO)
 
 
-### Low-level φ
+## φ
 + `ζb fs φ:`: create φ, return `φ*`
 + `φ* φ_`
 + `φa φb φ|`: connect φa to φb, creating ζs as necessary
@@ -249,13 +249,20 @@ All of these operators automatically distribute across vectors.
 
 
 ### Circular iteration
++ `φ [...] τ.`: for each element in cycle (TODO)
++ `φa φb τ|`: splice one cycle from φa to φb (TODO)
 + `φ τ>t`: _τ_-delineated cycle to tuple
 + `φ τ>s`: to set
 + `φ τ>m`: to map (elements are coerced to pairs, defaulting to `t`)
++ `φa φb [...] τ^φ`: ordered zip → φ (TODO)
 
 
 ### Iteration
 + `φ [...] φ.`: for each element
+
+
+## γ component API
+**TODO:** how should π₀ components be defined? We need automatic λ disposal and φ closure.
 
 
 ## π₀ interpreter API
