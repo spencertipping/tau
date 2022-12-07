@@ -205,8 +205,8 @@ void try_asm()
   π0asm a{π0abi1()};
   a << "i32'3 [i32'4 :out] . _ :out";
 
-  π0h   h{};
-  π0int i{π0abi1(), a.build(), h, SP<π0hgs>(new π0hgs{h})};
+  Φ f;
+  π0int i{π0abi1(), a.build(), f, SP<π0hgs>(new π0hgs{f.ph})};
   i.run(0);
   i32 x = Sc<i32>(i.dpop());
   A(x == 3, "expected 3, got " << x);
@@ -229,9 +229,9 @@ void default_try_stuff()
 
 int asmrun(char *src)
 {
-  π0h   h{};
+  Φ f;
   π0asm a{π0abi1()}; a << St{src};
-  π0int i{π0abi1(), a.build(), h, SP<π0hgs>(new π0hgs(h))};
+  π0int i{π0abi1(), a.build(), f, SP<π0hgs>(new π0hgs(f.ph))};
   i.run(0);
   return 0;
 }
@@ -239,16 +239,16 @@ int asmrun(char *src)
 
 int asmdebug(char *src)
 {
-  π0h   h{};
+  Φ f;
   π0asm a{π0abi1()}; a << St{src};
-  π0int i{π0abi1(), a.build(), h, SP<π0hgs>(new π0hgs(h))};
+  π0int i{π0abi1(), a.build(), f, SP<π0hgs>(new π0hgs(f.ph))};
 
   cout << "input program:" << endl;
   cout << i.p << endl;
-  i.r.push_back(0);
+  i.rs.push_back(0);
 
   uN s = 0;
-  while (!i.r.empty())
+  while (!i.rs.empty())
   { cout << "step " << ++s << endl;
     i.step();
     cout << i << endl; }

@@ -26,11 +26,15 @@ namespace fs = std::filesystem;
 
 int asmrun(St const &src)
 {
-  π0h   h{};
+  Φ f;
   π0asm a{π0abi1()}; a << src;
-  SP<π0hgs> g{new π0hgs{h}};
-  π0int i{π0abi1(), a.build(), h, g};
-  i.run(0);
+  f.l.c([&]() {
+    SP<π0hgs> g{new π0hgs{f.ph}};
+    π0int i{π0abi1(), a.build(), f, g};
+    i.run(0);
+    return 0;
+  });
+  f.go();
   return 0;
 }
 
