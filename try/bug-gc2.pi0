@@ -1,5 +1,0 @@
-# this case also leaks memory but doesn't cause GC issues
-"loop" 0x001210 [_ [t λy] !!] ϝ: _
-
-# GC monitor loop
-[:gL :gH 1000000000 Θd] !!

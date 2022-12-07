@@ -10,6 +10,8 @@
 #include "pi0-abi.hh"
 #include "pi0-pgm.hh"
 
+#include "Phi.hh"
+
 
 #include "begin.hh"
 
@@ -26,30 +28,31 @@ struct π0int : π0sv
 
   π0abi const     &a;   // ABI (native functions)
   SP<π0pgm const>  p;   // bytecode program
-  π0h             &h;   // shared heap
+  Φ               &f;   // shared Φ boundary
+  π0h             &h;   // shared heap (cached from Φ)
   SP<π0hgs>        g;   // shared globals
 
-  V<π0bi>          r;   // return stack
-  π0hdf            f;   // frame stack
-  π0hds            d;   // base data stack
+  V<π0bi>          rs;  // return stack
+  π0hdf            fs;  // frame stack
+  π0hds            ds;  // base data stack
   π0sv            *dv;  // current data stack view
 
   // NOTE: this is a fork-constructor, not a copy-constructor (stacks are
   // empty in the destination)
   π0int(π0int const &i)
-    : a(i.a), p(i.p), h(i.h), g(i.g), f(h), d(h), dv(&d) {}
+    : a(i.a), p(i.p), f(i.f), h(i.h), g(i.g), fs(h), ds(h), dv(&ds) {}
 
-  π0int(π0abi const &a_, SP<π0pgm const> p_, π0h &h_, SP<π0hgs> g_)
-    : a(a_), p(p_), h(h_), g(g_), f(h), d(h), dv(&d)
+  π0int(π0abi const &a_, SP<π0pgm const> p_, Φ &f_, SP<π0hgs> g_)
+    : a(a_), p(p_), f(f_), h(f_.ph), g(g_), fs(h), ds(h), dv(&ds)
     { A(p->a.v() == a.v(), "π₀ ABI mismatch: " << p->a.v() << " ≠ " << a.v()); }
 
-  ~π0int() { while (dv != &d) spop(); }
+  ~π0int() { while (dv != &ds) spop(); }
 
 
   π0int &run(uN l = 0)
-    { let n = r.size();
-      r.push_back(l);
-      while (r.size() > n) step();
+    { let n = rs.size();
+      rs.push_back(l);
+      while (rs.size() > n) step();
       return *this; }
 
 
@@ -83,9 +86,9 @@ struct π0int : π0sv
 
 
   // Frame accessors
-  π0int &fpush(uN s) { f.push(s); return *this; }
-  π0int &fpop()      { f.pop();   return *this; }
-  π0r   &fi(uN i)    { return f[i]; }
+  π0int &fpush(uN s) { fs.push(s); return *this; }
+  π0int &fpop()      { fs.pop();   return *this; }
+  π0r   &fi(uN i)    { return fs[i]; }
 
 
   // Native frames are always created externally because their lifetime
@@ -94,11 +97,11 @@ struct π0int : π0sv
 
 #if τπ0debug_bounds_checks
   π0int &step()
-  { let [fi, x] = p->p.at(r.back()++);
+  { let [fi, x] = p->p.at(rs.back()++);
     a.f.at(fi)(*this, x); return *this; }
 #else
   π0int &step()
-  { let [fi, x] = p->p[r.back()++];
+  { let [fi, x] = p->p[rs.back()++];
     a.f[fi](*this, x); return *this; }
 #endif
 };
@@ -109,10 +112,10 @@ O &operator<<(O &s, π0int const &i)
 {
   s << "π₀i qs=" << i.p->q.size()
     << " r=";
-  if (!i.r.empty())
-  { for (iN j = i.r.size() - 1; j >= 0; --j)
-      s << i.r[j] << " ";
-    let [fi, x] = i.p->p[i.r.back()];
+  if (!i.rs.empty())
+  { for (iN j = i.rs.size() - 1; j >= 0; --j)
+      s << i.rs[j] << " ";
+    let [fi, x] = i.p->p[i.rs.back()];
     s << " " << i.p->a.n[fi] << "'" << x; }
   s << std::endl;
   for (uN j = 0; j < i.size(); ++j)

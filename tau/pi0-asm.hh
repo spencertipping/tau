@@ -125,12 +125,12 @@ struct π0asm
         A(!oi<i32>(x), "int literal overflow: " << x << " from " << n);
         return *this << π0b{fn.at(oi<i16>(x) ? "i32" : oi<i8>(x) ? "i16" : "i8"), x}; }
 
+      // Otherwise, interpret the name as a global _function_ that is
+      // expected to exist by this point.
       A(fn.contains("sym"), "no sym literal fn in π₀asm (infinite loop)");
       A(fn.contains("%@"),  "no %@ fn in π₀asm (infinite loop)");
       A(fn.contains("."),   "no . fn in π₀asm (infinite loop)");
 
-      // Otherwise, interpret the name as a global _function_ that is
-      // expected to exist by this point.
       f("sym", qs(u9_symbol::str(n)));
       f("%@");
       f(".");

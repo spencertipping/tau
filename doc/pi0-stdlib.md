@@ -156,7 +156,7 @@ All of these operators automatically distribute across vectors.
   + `c32imag`, `c64imag`
   + `c32conj`, ...
 + Iteration (integer types)
-  + `[...] n i8.`, ...: for-each in range _0..n-1_
+  + `n [...] i8.`, ...: for-each in range _0..n-1_
 
 
 ### Strings
@@ -225,22 +225,18 @@ All of these operators automatically distribute across vectors.
   + This operator auto-detects the type of `x`
 
 
-## γ
-**TODO:** flatten this to λ and φ; we no longer have γ
-
-
-### λ
-+ `γ* [...] λc`: create λ, return `λi`
-+ `γ* li λx`
-
-Some functions don't require a γ object:
-
+## λ
++ `[...] λ:`: create λ, return `λi`
++ `λi λ_`
 + `λy`: yield out
 + `dt Θd`: sleep nanoseconds
 + `t Θt`: sleep until nanosecond timestamp (TODO)
 
 
 ### Low-level φ
++ `ζb fs φ:`: create φ, return `φ*`
++ `φ* φ_`
++ `φa φb φ|`: connect φa to φb, creating ζs as necessary
 + `φa φb φ<>`: splice element from φa to φb (returns bool)
 + `φa φb φ<>=`: non-connect-blocking splice from φa to φb (returns bool)
 + `x φ φ<`: write element to φ (returns bool)

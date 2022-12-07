@@ -15,12 +15,10 @@
 #include "pi0-abi.hh"
 #include "pi0-int.hh"
 
-#include "digamma.hh"
-
-#include "xi.hh"
+#include "Phi.hh"
 
 
-#include "begin.hh"
+/*
 #include "xi/basics.hh"
 #include "xi/linux/xframe-xcbio.hh"
 
@@ -28,6 +26,10 @@
 # include "xi/linux/io.hh"
 # include "xi/linux/tcp.hh"
 #endif
+*/
+
+
+#include "begin.hh"
 
 namespace τ
 {
@@ -45,8 +47,8 @@ void π0abi1_const(π0abi &a)
 
 void π0abi1_blocks(π0abi &a)
 {
-  a .def("[",  I{ i.dpush(Sc<π0bi>(i.r.back())); i.r.back() += n; })
-    .def("]",  I{ i.r.pop_back(); })
+  a .def("[",  I{ i.dpush(Sc<π0bi>(i.rs.back())); i.rs.back() += n; })
+    .def("]",  I{ i.rs.pop_back(); })
     .def("[|", I{ i.fpush(n); })
     .def("|]", I{ i.fpop(); });
 }
@@ -93,7 +95,7 @@ void π0abi1_global(π0abi &a)
 
 void π0abi1_control(π0abi &a)
 {
-  a .def(".",  I{ i.r.push_back(Sc<π0bi>(i.dpop())); })
+  a .def(".",  I{ i.rs.push_back(i.bpop()); })
     .def("?",  I{
         let e = i[0];
         let t = i[1];
@@ -112,7 +114,9 @@ void π0abi1_control(π0abi &a)
         i.run(c);
         if (i.dpop().b()) { i.run(b); goto loop; }})
     .def("!!", I{ let b = i.bpop(); while (1) i.run(b); })
-    .def(".^", I{ i.r.resize(i.r.size() - n - 1); });
+
+    // FIXME: this is broken with natives
+    .def(".^", I{ i.rs.resize(i.rs.size() - n - 1); });
 }
 
 
@@ -420,34 +424,31 @@ void π0abi1_u9_quote(π0abi &a)
 }
 
 
-Φ &π0abi1_iΦ(π0int &i)
-{
-  return *i.h(i.gs()[u9_symbol::str("Φ")]).template ptr<Φ>();
-}
-
-γ &π0abi1_iγ0(π0int &i)
-{
-  return *i.h(i.gs()[u9_symbol::str("γ₀")]).template ptr<γ>();
-}
-
-ϝ &π0abi1_iϝ0(π0int &i)
-{
-  return *i.h(i.gs()[u9_symbol::str("ϝ₀")]).template ptr<ϝ>();
-}
-
-
 void π0abi1_γ(π0abi &a)
 {
-  a .def("λc", I{ TODO("λc"); })
-    .def("λx", I{ TODO("λx"); })
-    .def("λy", I{ π0abi1_iγ0(i).λy(); })
-    .def("Θd", I{ π0abi1_iγ0(i).Θ(Sc<uN>(i.dpop()) * 1ns); });
+  a .def("λ:", I{
+        let b = i.bpop();
+        i.dpush(i.f.l.c([=, &i]() { π0int(i).run(b); return 0; })); })
+    .def("λ_", I{ i.f.l.x(Sc<λi>(i.dpop())); })
+    .def("λy", I{ i.f.l.y(λs::Y); })
+    .def("Θd", I{ i.f.Θ(now() + Sc<uN>(i.dpop()) * 1ns); });
 }
 
 
 void π0abi1_φ(π0abi &a)
 {
-  a .def("φ<>",  I{
+  a .def("φ:", I{
+        let fs = Sc<u8>(i.dpop());
+        let ζb = Sc<u8>(i.dpop());
+        i.dpush(o9ptr(new γφ(i.f.l, ζb, fs))); })
+    .def("φ_", I{
+        let f = i.dpop().template ptr<γφ>();
+        delete f; })
+    .def("φ|", I{
+        let a = i.dpop().template ptr<γφ>();
+        let b = i.dpop().template ptr<γφ>();
+        (*a)(*b); })
+    .def("φ<>",  I{
         let b = i.dpop().template ptr<γφ>();
         let a = i.dpop().template ptr<γφ>();
         let x = **a;
@@ -473,77 +474,6 @@ void π0abi1_φ(π0abi &a)
         let b = i.bpop();
         let f = i.dpop().template ptr<γφ>();
         for (let x : *f) i.dpush(x).run(b); });
-}
-
-
-void π0abi1_ϝ(π0abi &a)
-{
-  a .def("ϝ:", I{
-      let l  = i.bpop();
-      ϝξ  ϝt = Sc<ϝξ>(i.dpop());
-      Stc ϝn = i.dpop();
-      i.dpush(o9ptr(new ϝ(π0abi1_iΦ(i), ϝn, ϝt, [l, i](ϝ &d) { π0int j{i}; j.dpush(o9ptr(&d)).run(l); }))); })
-    .def("ϝλc", I{
-        let l = i.bpop();
-        i.dpop().template ptr<ϝ>()->λc([l, i](ϝ &d) { π0int j{i}; j.dpush(o9ptr(&d)).run(l); }); })
-    .def("ϝxc", I{
-        let l = i.bpop();
-        i.dpop().template ptr<ϝ>()->xf([l, i](ϝ &d) { π0int j{i}; j.dpush(o9ptr(&d)).run(l); }); })
-    .def("ϝγ",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->g)); })
-    .def("ϝι",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->φι())); })
-    .def("ϝο",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->φο())); })
-    .def("ϝα",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->α())); })
-    .def("ϝβ",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->β())); })
-    .def("ϝδ",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->δ())); })
-    .def("ϝε",  I{ i.dpush(o9ptr(&i.dpop().template ptr<ϝ>()->ε())); })
-    .def("ϝιi", I{ i.dpush(o9   ( i.dpop().template ptr<ϝ>()->ιi())); })
-    .def("ϝοi", I{ i.dpush(o9   ( i.dpop().template ptr<ϝ>()->οi())); })
-    .def("ϝ|", I{
-        let b = i.dpop().template ptr<ϝ>();
-        let a = i.dpop().template ptr<ϝ>();
-        i.dpush(o9ptr(&(*a | *b))); })
-    .def("ϝ&", I{
-        let b = i.dpop().template ptr<ϝ>();
-        let a = i.dpop().template ptr<ϝ>();
-        i.dpush(o9ptr(&(*a & *b))); })
-    .def("ϝ^", I{
-        let b = i.dpop().template ptr<ϝ>();
-        let a = i.dpop().template ptr<ϝ>();
-        i.dpush(o9ptr(&(*a ^ *b))); })
-    .def("ϝ=", I{
-        let bi = Sc<uN>(i.dpop()); let b = i.dpop().template ptr<ϝ>();
-        let ai = Sc<uN>(i.dpop()); let a = i.dpop().template ptr<ϝ>();
-        i.dpush(o9ptr(&(a->g(ai, b->g, bi)))); });
-}
-
-
-void π0abi1_ξ(π0abi &a)
-{
-  a .def("ξι",   I{ i.dpush(o9ptr(&ξ::iota(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
-    .def("ξ↑",  I{ i.dpush(o9ptr(&ξ::take(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
-    .def("ξ%",   I{ i.dpush(o9ptr(&ξ::splitter(π0abi1_iΦ(i)))); })
-    .def("ξ*",   I{ i.dpush(o9ptr(&ξ::tee(π0abi1_iΦ(i)))); })
-    .def("ξ<>",  I{ i.dpush(o9ptr(&ξ::broadcast(π0abi1_iΦ(i)))); })
-
-    .def("ξsc",  I{ i.dpush(o9ptr(&ξ::split_chr(π0abi1_iΦ(i), *i.dpop().data()))); })
-
-    .def("ξΘr",  I{ i.dpush(o9ptr(&ξ::θr(π0abi1_iΦ(i), Sc<uN>(i.dpop()) * 1ns))); })
-    .def("ξΔθ",  I{ i.dpush(o9ptr(&ξ::Δθ(π0abi1_iΦ(i), Sc<uN>(i.dpop()) * 1ns))); })
-    .def("ξΣθΔ", I{ i.dpush(o9ptr(&ξ::ΣθΔ(π0abi1_iΦ(i)))); })
-
-    .def("ξu9a", I{ i.dpush(o9ptr(&ξ::utf9_asm (π0abi1_iΦ(i)))); })
-    .def("ξu9d", I{ i.dpush(o9ptr(&ξ::utf9_dasm(π0abi1_iΦ(i)))); });
-
-#if τplatform == τplatform_linux
-  a .def("ξ<f",    I{ i.dpush(o9ptr(&ξ::fd_in (π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
-    .def("ξ>f",    I{ i.dpush(o9ptr(&ξ::fd_out(π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
-    .def("ξ<>f",   I{ i.dpush(o9ptr(&ξ::fd_io (π0abi1_iΦ(i), Sc<fd_t>(i.dpop())))); })
-
-    .def("ξ<n",    I{ i.dpush(o9ptr(&ξ::tcp_server(π0abi1_iΦ(i), Sc<uN>(i.dpop())))); })
-
-    .def("ξx11",   I{ i.dpush(o9ptr(&ξ::xframe(π0abi1_iΦ(i)))); })
-    .def("ξ<xcbe", I{ i.dpush(o9ptr(&ξ::xcb_event_decode(π0abi1_iΦ(i)))); });
-#endif
 }
 
 
@@ -605,8 +535,6 @@ void π0abi1_debug(π0abi &a)
 
   π0abi1_γ(a);
   π0abi1_φ(a);
-  π0abi1_ϝ(a);
-  π0abi1_ξ(a);
 
 # if τdebug
   π0abi1_debug(a);

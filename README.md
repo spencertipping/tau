@@ -43,7 +43,6 @@ $ sudo apt install -y \
 
 
 ## Queue
-+ **TODO:** delete everything above γ
 + GC correctness: fix FIXME comments in `heap<<`
 + GC performance: optimize data structures in markset, preallocate π₀ho9
-+ Render arc with GL shader
++ π₀ correctness: fix `^_` breaking through native loops, or remove `^_`

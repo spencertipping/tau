@@ -4,7 +4,7 @@
 
 #include "types.hh"
 #include "Lambda.hh"
-#include "pi0.hh"
+#include "pi0-gc.hh"
 
 #include "types.hh"
 #include "Lambda.hh"
@@ -29,7 +29,6 @@ operator>(T &x, γφ &y)
   for (let a : x) if (!(y << a)) return false;
   return true;
 }
-
 
 template<class T>
 typename std::enable_if<iti<T>::v, bool>::type

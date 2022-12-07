@@ -28,7 +28,9 @@ int asmrun(π0asm &a)
 {
   Φ f;
   SP<π0pgm const> p = a.build();
-  ξ::pi0(f, "main", ϝ::ξΦ, p);
+  f.l.c([&]()
+    { π0int(π0abi1(), p, f, SP<π0hgs>(new π0hgs(f.ph))).run();
+      return 0; });
   f.go();
   return 0;
 }
