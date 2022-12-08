@@ -54,7 +54,6 @@ int main(int argc, char **argv)
   τassert_begin;
   for (iN i = 1; i < argc; ++i) a << input(argv[i]);
   asmrun();
-  cout << "exiting normally" << endl;
   τassert_end;
 }
 

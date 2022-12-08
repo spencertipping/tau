@@ -74,23 +74,34 @@ struct Φ : public Φb
   constexpr bool is_async() { return true; }
 
 
-  Φ &operator()()
-    { let t = now();
-      std::cout << "Φ() at " << t - t0 << std::endl;
-      if (t < hn() && hn() < forever())
-      { let dt = (hn() - t) / 1ms;
-        std::cout << "scheduling async in " << dt << " ms" << std::endl;
-        emscripten_async_call(Φstep, this, std::min(dt, Sc<decltype(dt)>(Nl<int>::max()))); }
-      while (now() >= hn()) l.r(h.top().l), h.pop();
+  operator bool() const { return nts || hn() != forever(); }
+
+  Φ &wake()
+    { while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
-  operator bool() const { return nts || hn() != forever(); }
+  Φ &schedule()
+    { let t = now();
+      if (hn() < forever())
+        if (t < hn())
+        { let dt = (hn() - t) / 1ms;
+          emscripten_async_call(Φstep, this, std::min(dt, Sc<decltype(dt)>(Nl<int>::max()))); }
+        else
+          emscripten_async_call(Φstep, this, 0);
+      return *this; }
+
+  Φ &operator()()
+    { wake();
+      l.go();
+      return schedule(); }
+
 
   Φ &go(F<bool(Φ&)> const& = [](Φ&) { return true; })
     { A(0, "Φ is async"); return *this; }
 
   Φ &go_async(F<bool(Φ&)> &&f = [](Φ &f) { return Sc<bool>(f); })
     { go_f = std::move(f);
+      l.go();
       emscripten_async_call(Φstep, this, 0);
       return *this; }
 };
@@ -99,13 +110,7 @@ struct Φ : public Φb
 void Φstep(void *f_)  // invoked by callbacks to advance Φ
 {
   Φ &f = *Rc<Φ*>(f_);
-  std::cout << "Φstep called" << std::endl;
-  if (f.go_f(f))
-  {
-    std::cout << "calling Φ()" << std::endl;
-    f();
-    f.l.go();
-  }
+  if (f.go_f(f)) f();
 }
 
 
