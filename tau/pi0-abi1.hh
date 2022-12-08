@@ -110,12 +110,11 @@ void π0abi1_control(π0abi &a)
     .def("?!", I{
         let c = i.bpop();
         let b = i.bpop();
+        π0rsf r{i};
       loop:
         i.run(c);
-        if (i.dpop().b()) { i.run(b); goto loop; }})
-    .def("!!", I{ let b = i.bpop(); while (1) i.run(b); })
-
-    // FIXME: this is broken with natives
+        if (r && i.dpop().b()) { i.run(b); goto loop; }})
+    .def("!!", I{ let b = i.bpop(); π0rsf r{i}; while (r) i.run(b); })
     .def(".^", I{ i.rs.resize(i.rs.size() - n - 1); });
 }
 
@@ -130,6 +129,8 @@ void π0abi1_quote(π0abi &a)
     .def("i64", I{ i.dpush(Sc<i64>(n)); })
 
     // TODO: reference these, don't copy (since they're immutable)
+    // ...note that there are benefits to copying, e.g. in-place mutable
+    // vectors
     .def("utf8", I{ i.dpush(i9{Cc<ζp>(i.p->q.data() + n)}); })
     .def("sym",  I{ i.dpush(i9{Cc<ζp>(i.p->q.data() + n)}); });
 }
@@ -183,8 +184,9 @@ void π0abi1_u9_vector(π0abi &a)
     .def(#t "s.", I{                                                   \
         π0hnf f{i.h, 1};                                               \
         let g = i.bpop();                                              \
+        π0rsf r{i};                                                    \
         i9 xs = i.dpop(); f(&xs);                                      \
-        for (uN j = 0; j < xs.vn(); ++j)                               \
+        for (uN j = 0; r && j < xs.vn(); ++j)                          \
         { i.dpush(xs.template at<t>(j));                               \
           i.run(g); } })
 
@@ -340,7 +342,8 @@ void π0abi1_u9_nrange(π0abi &a)
 #define a1r(t) a.def(#t ".", I{                 \
       let f = i.bpop();                         \
       let k = i.dpop().template at<t>(0);       \
-      for (t j = 0; j < k; ++j)                 \
+      π0rsf r{i};                               \
+      for (t j = 0; r && j < k; ++j)            \
         i.dpush(j).run(f); });
 
   a1r(i8); a1r(i16); a1r(i32); a1r(i64);
@@ -373,7 +376,8 @@ void π0abi1_u9_tuple(π0abi &a)
         i9    xs = i.dpop();   f(&xs);
         i9    x  = xs.first(); f(&x);
         i9    e;               f([&]() { e = xs.next(); });
-        while (x.a < e.a) { i << x; i.run(g); ++x; } });
+        π0rsf r{i};
+        while (r && x.a < e.a) { i << x; i.run(g); ++x; } });
 }
 
 
@@ -473,7 +477,10 @@ void π0abi1_φ(π0abi &a)
     .def("φ.",   I{
         let b = i.bpop();
         let f = i.dpop().template ptr<φ>();
-        for (let x : *f) i.dpush(x).run(b); });
+        let r = π0rsf(i);
+        for (let x : *f)
+          if (!r) break;
+          else    i.dpush(x).run(b); });
 }
 
 

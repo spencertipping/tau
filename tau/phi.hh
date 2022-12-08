@@ -63,13 +63,13 @@ struct φ_
   ζ<W>        *o {nullptr};
   λg           cg;
   λg           xg;
-  F            f;
+  F            f;  // NOTE: must be placed last due to F erasure
 
 
   φ_(φ_ &) = delete;
   φ_(φ_&&) = delete;
-  φ_(Λ &l_, uf8 b_ = ζb0, u8 fs_ = 0)
-    : l{l_}, b{b_}, fs{fs_}, cg{l}, xg{l} {}
+  φ_(Λ &l_, uf8 b_ = 0, u8 fs_ = 0)
+    : l{l_}, b{b_ ? b_ : ζb0}, fs{fs_}, cg{l}, xg{l} {}
 
   ~φ_()
     { ω();

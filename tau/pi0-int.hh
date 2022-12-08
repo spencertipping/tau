@@ -107,6 +107,16 @@ struct π0int : π0sv
 };
 
 
+struct π0rsf  // π₀int return stack floor
+{
+  π0int const &i;
+  uN           rn;
+
+  π0rsf(π0int &i_) : i(i_), rn(i.rs.size()) {}
+  operator bool() const { return i.rs.size() >= rn; }
+};
+
+
 #if τdebug_iostream
 O &operator<<(O &s, π0int const &i)
 {

@@ -45,4 +45,3 @@ $ sudo apt install -y \
 ## Queue
 + GC correctness: fix FIXME comments in `heap<<`
 + GC performance: optimize data structures in markset, preallocate π₀ho9
-+ π₀ correctness: fix `^_` breaking through native loops, or remove `^_`
