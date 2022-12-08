@@ -261,10 +261,6 @@ All of these operators automatically distribute across vectors.
 + `φ [...] φ.`: for each element
 
 
-## γ component API
-**TODO:** how should π₀ components be defined? We need automatic λ disposal and φ closure.
-
-
 ## π₀ interpreter API
 You can use π₀ to create a sub-interpreter, effectively allowing you to JIT code. This sub-interpreter can also catch what would normally be fatal exceptions, e.g. for incorrect numeric casts or bounds errors.
 

@@ -11,5 +11,11 @@
 
 #include "pi0-abi1.hh"
 
+#if τplatform == τplatform_linux
+# include "pi0-abi2-linux.hh"
+#elif τplatform == τplatform_wasm
+# include "pi0-abi2-wasm.hh"
+#endif
+
 
 #endif

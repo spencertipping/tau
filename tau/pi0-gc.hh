@@ -69,6 +69,23 @@ inline Mo<π0r, π0ho9*>::const_iterator π0h::cb   (π0r r)  const { return ms-
 inline Mo<π0r, π0ho9*>::const_iterator π0h::ce   ()       const { return ms->ce(); }
 
 
+template<O9 T>
+π0r π0h::gcw(uN s, T const &x)
+{
+  // FIXME: this won't quite work because markset will ignore the
+  // non-generational reference. We need to consolidate non-gen refs into
+  // the heap as newgen.
+#warning π₀ GC FIXME: incorporate non-gen refs into newgen
+
+  B t; t.reserve(s);
+  i9 y = t.data() + (t << x);
+  π0hnf f{*this, 1};
+  f(&y);
+  gc(0);
+  return y;
+}
+
+
 }
 
 #include "end.hh"

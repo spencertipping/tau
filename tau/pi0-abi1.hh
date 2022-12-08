@@ -18,17 +18,6 @@
 #include "Phi.hh"
 
 
-/*
-#include "xi/basics.hh"
-#include "xi/linux/xframe-xcbio.hh"
-
-#if τplatform == τplatform_linux
-# include "xi/linux/io.hh"
-# include "xi/linux/tcp.hh"
-#endif
-*/
-
-
 #include "begin.hh"
 
 namespace τ
@@ -515,13 +504,8 @@ void π0abi1_debug(π0abi &a)
 #undef I
 
 
-π0abi const &π0abi1()
+void π0abi1(π0abi &a)
 {
-  static π0abi a;
-  static bool  i = false;
-
-  if (i) return a;
-
   π0abi1_const(a);
   π0abi1_blocks(a);
   π0abi1_stack(a);
@@ -546,7 +530,14 @@ void π0abi1_debug(π0abi &a)
 # if τdebug
   π0abi1_debug(a);
 # endif
+}
 
+
+π0abi const &π0abi1()
+{
+  static π0abi a;
+  static bool  i = false;
+  if (!i) π0abi1(a);
   i = true;
   return a;
 }

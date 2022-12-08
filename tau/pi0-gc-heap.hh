@@ -37,19 +37,14 @@ struct π0h  // a multi-generational heap
   ~π0h();
 
 
+  template<O9 T> π0r gcw(uN, T const&);
+
   template<O9 T> π0r operator<<(T const &x)
     { let s = x.size();
       ++an;
       Σa += s;
       if (let a = *hs[0] << x) return a;
-
-      // FIXME: we need to buffer x to a temporary location and
-      // make sure it's part of the live set, so any contained references
-      // are rewritten correctly
-#warning unfixed GC bug: reference containers must be rewritten
-
-      gc(s);
-      return *hs[0] << x; }
+      return gcw(s, x); }
 
 
   uN gen(π0r x) const
