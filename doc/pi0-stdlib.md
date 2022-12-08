@@ -1,6 +1,8 @@
 # π₀ standard library
 The standard library ships in versions that you can enable per program, so I don't have to be especially careful about backwards compatibility.
 
+See also [π₀ ABI2/linux](pi0-linux.md) and [π₀ ABI2/WASM](pi0-wasm.md).
+
 
 ## Stack manipulation
 Anything complicated will use frames, but it's good to have a few functions to minimize the GC impact of having frame-scoped data.
