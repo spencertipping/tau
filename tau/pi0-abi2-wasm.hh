@@ -21,11 +21,7 @@ void π0abi2_wasm(π0abi &a)
 {
   static π0abi a;
   static bool  i = false;
-  if (!i)
-  {
-    π0abi1(a);
-    π0abi2_wasm(a);
-  }
+  if (!i) π0abi1(a), π0abi2_wasm(a);
   i = true;
   return a;
 }

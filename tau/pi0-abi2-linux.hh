@@ -11,6 +11,12 @@ namespace τ
 {
 
 
+void π0abi2_syscalls(π0abi &a)
+{
+
+}
+
+
 void π0abi2_linux(π0abi &a)
 {
 
@@ -21,11 +27,7 @@ void π0abi2_linux(π0abi &a)
 {
   static π0abi a;
   static bool  i = false;
-  if (!i)
-  {
-    π0abi1(a);
-    π0abi2_linux(a);
-  }
+  if (!i) π0abi1(a), π0abi2_linux(a);
   i = true;
   return a;
 }

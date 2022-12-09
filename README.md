@@ -45,3 +45,4 @@ $ sudo apt install -y \
 ## Queue
 + GC correctness: fix FIXME comments in `heap<<`
 + GC performance: optimize data structures in markset, preallocate π₀ho9
++ [π₁](doc/pi1.md) as a stateful macrocompiler for π₀

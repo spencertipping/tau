@@ -25,9 +25,8 @@ namespace fs = std::filesystem;
 
 
 Φ f;
-π0asm a(π0abi1());
 
-int asmrun()
+int asmrun(π0asm &a)
 {
   f.l.c([&]()
     { π0int(π0abi1(), a.build(), f, SP<π0hgs>(new π0hgs(f.ph))).run();
@@ -52,8 +51,9 @@ St input(char *x)
 int main(int argc, char **argv)
 {
   τassert_begin;
+  π0asm a(π0abi1());
   for (iN i = 1; i < argc; ++i) a << input(argv[i]);
-  asmrun();
+  asmrun(a);
   τassert_end;
 }
 

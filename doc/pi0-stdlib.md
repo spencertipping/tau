@@ -248,6 +248,7 @@ All of these operators automatically distribute across vectors.
 + `φ φ<?`: is φ writable
 + `φ φ*?`: is φ readable
 + `φ φω?`: is φ closed
++ `φ φω`: close write-end of φ
 
 
 ### Circular iteration

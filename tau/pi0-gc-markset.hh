@@ -40,8 +40,12 @@ struct π0ms
   // transparent. As a result, we must mark the exact referent, even if
   // it is itself a reference that points elsewhere. This guarantees
   // that external reference locality is preserved.
+  //
+  // NOTE: off-heap memory is compacted into newgen.
   void me(i9 x)
-    { if (m.contains(x) || h.gen(x) > mg) return;
+    { if (m.contains(x)) return;
+      let hg = h.gen(x);
+      if (hg != π0h::gω && hg > mg) return;
       m[x] = nullptr;
       t.insert(x);
       if (x.is_πref()) mi(h(x));
