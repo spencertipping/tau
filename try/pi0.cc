@@ -4,7 +4,7 @@
 //#define τdebug_iostream 1
 //#define τallow_todo 1
 
-//#define τπ0debug_bounds_checks 1
+#define τπ0debug_bounds_checks 1
 //#define τπ0debug_heapview_shuffle 1
 //#define τdebug_i9st 1
 
@@ -52,17 +52,24 @@ void repl()
 {
   St        l;
   SP<π0hgs> gs(new π0hgs(f.ph));
+  π0asm     a(π0abi1());
+  π0int     i(π0abi1(), nullptr, f, gs);
   cerr << "> " << flush;
   while (1)
   {
     getline(cin, l);
     if (l.empty()) break;
-    π0asm a(π0abi1());
     a << l;
-    let p = a.build();
-    f.l.c([=]()
-      { π0int i(π0abi1(), p, f, gs);
-        i.run();
+    f.l.c([&]()
+      { try
+        {
+          i.p = a.build_repl();
+          i.run();
+        }
+        catch (Stc e)
+        {
+          cout << "! " << e << endl;
+        }
         cout << i << endl;
         cerr << "> " << flush;
         return 0; });

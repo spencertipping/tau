@@ -79,16 +79,24 @@ struct π0asm
   π0asm(π0abi const &a_) : a(a_)
   { fs.push_back(π0afr{});
     bs.push_back(π0blk{});
+    bs.push_back(π0blk{});
     for (uN i = 0; i < a.f.size(); ++i) fn[a.n.at(i)] = i; }
 
 
   π0asm &begin() { bs.push_back(π0blk{}); return *this; }
   π0asm &end()
-  { auto b = std::move(bs.back()); bs.pop_back();
-    f("[", b.size() + 1);
-    for (let &x : b) *this << x;
-    f("]", 0);
-    return *this; }
+    { auto b = std::move(bs.back()); bs.pop_back();
+      f("[", b.size() + 1);
+      for (let &x : b) *this << x;
+      f("]");
+      return *this; }
+
+  π0asm &iend()  // inline-end: don't quote the block
+    { auto b = std::move(bs.back()); bs.pop_back();
+      for (let &x : b) *this << x;
+      f("]");
+      return *this; }
+
 
   π0asm &fbegin(Stc &vs)
   { fs.push_back(π0afr(vs));
@@ -192,10 +200,18 @@ struct π0asm
     return *this; }
 
 
+  SP<π0pgm> build_repl()
+    { A(bs.size() == 2, "π₀asm::build_repl |bs| = " << bs.size());
+      let e = Sc<π0bi>(bs[0].size());
+      iend();
+      let r = SP<π0pgm>(new π0pgm{a, qh, bs.back(), e});
+      begin();
+      return r; }
+
   SP<π0pgm> build()
-  { A(bs.size() == 1, "π₀asm::build |bs| = " << bs.size());
-    f("]", 0);
-    return SP<π0pgm>(new π0pgm{a, qh, bs.back()}); }
+    { A(bs.size() == 2, "π₀asm::build |bs| = " << bs.size());
+      f("]");
+      return SP<π0pgm>(new π0pgm{a, qh, bs.back(), 0}); }
 };
 
 

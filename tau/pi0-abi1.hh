@@ -490,6 +490,7 @@ void π0abi1_debug(π0abi &a)
     .def(":cerr", I{
         let x = i.dpop();
         std::cerr << Stv{Rc<chc*>(x.data()), x.size()}; })
+    .def(":pgm", I{ std::cerr << *i.p << std::endl; })
 
     // NOTE: these are used by unit tests, so they need to write to
     // stdout since that's what lazytest expects

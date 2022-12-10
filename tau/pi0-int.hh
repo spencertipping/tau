@@ -44,14 +44,14 @@ struct π0int : π0sv
 
   π0int(π0abi const &a_, SP<π0pgm const> p_, Φ &f_, SP<π0hgs> g_)
     : a(a_), p(p_), f(f_), h(f_.ph), g(g_), fs(h), ds(h), dv(&ds)
-    { A(p->a.v() == a.v(), "π₀ ABI mismatch: " << p->a.v() << " ≠ " << a.v()); }
+    { if (p) A(p->a.v() == a.v(), "π₀ ABI mismatch: " << p->a.v() << " ≠ " << a.v()); }
 
   ~π0int() { while (dv != &ds) spop(); }
 
 
-  π0int &run(uN l = 0)
+  π0int &run(π0bi l = 0)
     { let n = rs.size();
-      rs.push_back(l);
+      rs.push_back(l ? l : p->e);
       while (rs.size() > n) step();
       return *this; }
 
