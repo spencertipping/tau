@@ -31,8 +31,10 @@ O &operator<<(O &s, π0pgm const &p)
   s << "π₀p ABI=" << p.a.v() << " |q|=" << p.q.size() << std::endl;
   uN i = 0;
   for (let &[f, x] : p.p)
-    s << (i == p.e ? "> " : "  ") << i << "\t" << p.a.n[f] << "\t" << x << std::endl,
-      i++;
+  {
+    s << (i == p.e ? "> " : "  ") << i << "\t" << p.a.n[f] << "\t" << x << std::endl;
+    ++i;
+  }
   return s;
 }
 #endif

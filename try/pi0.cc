@@ -26,14 +26,13 @@ namespace fs = std::filesystem;
 
 Φ f;
 
-int asmrun(π0asm &a)
+void run(π0asm &a)
 {
   f.l.c([&]()
     { π0int(π0abi1(), a.build(), f, SP<π0hgs>(new π0hgs(f.ph))).run();
       return 0; });
   if (f.is_async()) f.go_async();
   else              f.go();
-  return 0;
 }
 
 
@@ -48,15 +47,15 @@ St input(char *x)
 }
 
 
-void repl()
+void repl(π0asm &a)
 {
   St        l;
   SP<π0hgs> gs(new π0hgs(f.ph));
-  π0asm     a(π0abi1());
   π0int     i(π0abi1(), nullptr, f, gs);
-  cerr << "> " << flush;
+
   while (1)
   {
+    cerr << "> " << flush;
     getline(cin, l);
     if (l.empty()) break;
     a << l;
@@ -71,9 +70,10 @@ void repl()
           cout << "! " << e << endl;
         }
         cout << i << endl;
-        cerr << "> " << flush;
         return 0; });
-    f.go();
+    if (f.is_async()) f.go_async();
+    else              f.go();
+    cout << f << endl;
   }
 }
 
@@ -81,14 +81,12 @@ void repl()
 int main(int argc, char **argv)
 {
   τassert_begin;
-  if (argc == 2 && !strcmp(argv[1], "--repl"))
-    repl();
-  else
-  {
-    π0asm a(π0abi1());
-    for (iN i = 1; i < argc; ++i) a << input(argv[i]);
-    asmrun(a);
-  }
+  π0asm a(π0abi1());
+  iN   i = 1;
+  bool r = false;
+  if (argc > 1 && !strcmp(argv[1], "--repl")) r = true, ++i;
+  for (; i < argc; ++i) a << input(argv[i]);
+  r ? repl(a) : run(a);
   τassert_end;
   return 0;
 }
