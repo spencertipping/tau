@@ -48,13 +48,42 @@ St input(char *x)
 }
 
 
+void repl()
+{
+  St        l;
+  SP<π0hgs> gs(new π0hgs(f.ph));
+  cerr << "> " << flush;
+  while (1)
+  {
+    getline(cin, l);
+    if (l.empty()) break;
+    π0asm a(π0abi1());
+    a << l;
+    let p = a.build();
+    f.l.c([=]()
+      { π0int i(π0abi1(), p, f, gs);
+        i.run();
+        cout << i << endl;
+        cerr << "> " << flush;
+        return 0; });
+    f.go();
+  }
+}
+
+
 int main(int argc, char **argv)
 {
   τassert_begin;
-  π0asm a(π0abi1());
-  for (iN i = 1; i < argc; ++i) a << input(argv[i]);
-  asmrun(a);
+  if (argc == 2 && !strcmp(argv[1], "--repl"))
+    repl();
+  else
+  {
+    π0asm a(π0abi1());
+    for (iN i = 1; i < argc; ++i) a << input(argv[i]);
+    asmrun(a);
+  }
   τassert_end;
+  return 0;
 }
 
 
