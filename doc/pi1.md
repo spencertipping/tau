@@ -11,4 +11,5 @@ An intent-aware compiler that produces [π₀](pi0.md) bytecode. π₁ is multil
 + [π₁ modeling](pi1-modeling.md)
 
 
-## Compiler mechanics
+## Topological eigenvectors
+`ni` vectors are implicitly chain-connected; no explicit syntax is required. We may be able to achieve some amount of this for π₁, but it isn't obvious. If we were to do that, we'd "carry" multiple φs around and bundle-connect them in some serial way. So ambient dependencies that we can grab implicitly; we declare the setup and chain the main dataflow.
