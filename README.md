@@ -43,7 +43,6 @@ $ sudo apt install -y \
 
 
 ## Queue
-+ Add init-arg to π₀ `λc`
 + [λ/φ idioms](doc/lambda-phi.md)
 + GC correctness: fix FIXME comments in `heap<<`
 + GC performance: optimize data structures in markset, preallocate π₀ho9
