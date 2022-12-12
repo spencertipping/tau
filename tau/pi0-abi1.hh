@@ -420,8 +420,8 @@ void π0abi1_u9_quote(π0abi &a)
 void π0abi1_γ(π0abi &a)
 {
   a .def("λ:", I{
-        let x = i[0]; i.dpop();
         let b = i.bpop();
+        let x = i[0]; i.dpop();
         i.dpush(i.f.l.c([=, &i]() { π0int j(i); j << x; j.run(b); return 0; })); })
     .def("λ_", I{ i.f.l.x(Sc<λi>(i.dpop())); })
     .def("λy", I{ i.f.l.y(λs::Y); })
