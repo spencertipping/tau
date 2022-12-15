@@ -129,9 +129,12 @@ struct o9st : virtual o9V
   uN isize() const
     { switch (s.t)
       {
-      case u9st::ω: return 1;
-      case u9st::τ: return 1;
-      case u9st::θ: return 1 + sizeof(s.n);
+      case u9st::α:
+      case u9st::ω:
+      case u9st::τ: return 2;
+      case u9st::θ:
+      case u9st::ι:
+      case u9st::κ: return 2 + sizeof(s.n);
         TA(0, Sc<uN>(s.t))
       } }
 
@@ -139,7 +142,9 @@ struct o9st : virtual o9V
   uN write(ζp m) const
     { uN i = u9ws(m, 0, u9t::stream, isize());
       W(m, i, Sc<u8>(s.t));
-      if (s.t == u9st::θ) W(m, i + 1, s.n);
+      W(m, i + 1, s.d);
+
+      if (s.t == u9st::θ) W(m, i + 2, s.n);
       return 0; }
 };
 

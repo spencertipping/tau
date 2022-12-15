@@ -2,6 +2,7 @@
 #define τutf9_i9_h
 
 
+#include <algorithm>
 #include <cstring>
 #include <memory>
 
@@ -206,8 +207,10 @@ struct i9
     { u9tm{u9t::stream}(type());
       return Sc<u9st>(R<u8>(begin(), 0)); }
 
-  u64  θ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 1) : 0; }
-  u64  ι() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::ι ? R<u64>(begin(), 1) : 0; }
+  u8 dim() const { return type() == u9t::stream ? R<u8>(begin(), 1) : 0; }
+
+  u64  θ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 2) : 0; }
+  u64  ι() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::ι ? R<u64>(begin(), 2) : 0; }
   bool τ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::τ; }
 
 
@@ -464,10 +467,18 @@ O &operator<<(O &s, i9 const &x)
 
   case u9t::symbol: return s << Sc<u9_symbol>(x);
   case u9t::stream:
+  { sc chc *exp[10] = {"⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"};
     s << Sc<u9st>(x);
+    if (x.dim() != 1)
+    { V<u8> e; e.reserve(3);
+      for (uN y = x.dim(); y; y /= 10) e.push_back(y % 10);
+      std::reverse(e.begin(), e.end());
+      for (let z : e) s << exp[z]; }
+
     return x.θ() ? s << Sc<f64>(x.θ()) / Sc<f64>(Nl<u64>::max())
          : x.ι() ? s << x.ι()
          : s;
+  }
 
   case u9t::bytes:  return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
   case u9t::utf8:   return s << "\""  << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";

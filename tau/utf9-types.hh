@@ -72,26 +72,28 @@ enum class u9t
 
 enum class u9st
 {
-  ω = 1,
-  τ = 2,
-  θ = 3,
-  ι = 4,
-  κ = 5,
+  α = 1,
+  ω = 2,
+  τ = 3,
+  θ = 4,
+  ι = 5,
+  κ = 6,
 };
 
 
 static_assert(sizeof(int) <= sizeof(u32));
 
-struct u9_stream { u9st t; u64 n; };
+struct u9_stream { u9st t; u8 d; u64 n; };
 
 
-sletc u9ω = u9_stream{u9st::ω, 0};
-sletc u9τ = u9_stream{u9st::τ, 0};
-sletc u9κ = u9_stream{u9st::κ, 0};
+ic u9_stream u9α(u8 d = 1) { return u9_stream{u9st::α, d, 0}; }
+ic u9_stream u9ω(u8 d = 1) { return u9_stream{u9st::ω, d, 0}; }
+ic u9_stream u9τ(u8 d = 1) { return u9_stream{u9st::τ, d, 0}; }
+ic u9_stream u9κ(u8 d = 1) { return u9_stream{u9st::κ, d, 0}; }
 
-ic u9_stream u9θ(u64 x) { return u9_stream{u9st::θ, x}; }
-ic u9_stream u9θ(f64 x) { return u9_stream{u9st::θ, Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
-ic u9_stream u9ι(u64 x) { return u9_stream{u9st::ι, x}; }
+ic u9_stream u9θ(u64 x, u8 d = 1) { return u9_stream{u9st::θ, d, x}; }
+ic u9_stream u9θ(f64 x, u8 d = 1) { return u9_stream{u9st::θ, d ,Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
+ic u9_stream u9ι(u64 x, u8 d = 1) { return u9_stream{u9st::ι, d, x}; }
 
 
 typedef u8 u9_scoped_t;

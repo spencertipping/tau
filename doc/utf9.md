@@ -209,12 +209,17 @@ Semantically, a symbol of zero length is defined to mean `null` or `nil`.
 
 ### Stream state manipulators
 ```
-cb [sb] 01            ← ω
-cb [sb] 02            ← τ
-cb [sb] 03 [theta...] ← θ
-cb [sb] 04 [iota...]  ← ι
-cb [sb] 05            ← κ
+cb [sb] 01 dim            ← α
+cb [sb] 02 dim            ← ω
+cb [sb] 03 dim            ← τ
+cb [sb] 04 dim [theta...] ← θ
+cb [sb] 05 dim [iota...]  ← ι
+cb [sb] 06 dim            ← κ
 ```
+
+`dim` is a single byte describing which dimension is being described. _τ²_, for example, describes a sub-cycle within the larger _τ_-cycle -- sort of like a cross-toroidal orbit.
+
+_α_ indicates beginning-of-stream, is usually optional, and often is not provided.
 
 Here, `theta...` is a big-endian unsigned integer (1, 2, 4, or 8 bytes) that represents the approximate stream angle -- that is, the estimated fraction of items seen so far until the next _τ_.
 

@@ -20,7 +20,7 @@ void try_small_ζ()
   uN xs[] = {1, 2, 3, 5, 8, 13, 21, 34};
   auto ys = o9t("foo", "bar", "bif", 1, 2.0 + 3.0i, 3, 4.5,
                 "bar", 6.7f, "abc",
-                u9ω, u9τ, u9θ(0.5),
+                u9ω(), u9τ(5), u9θ(0.5, 2),
                 5.0 + 8.9i, "bif");
 
   // Small test
@@ -75,8 +75,8 @@ void try_small_ζ()
 void try_tuple()
 {
   Λ l;
-  φ<i9> a(l);
-  φ<i9> b(l);
+  φ_<i9> a(l);
+  φ_<i9> b(l);
 
   let s1 = l.c([&]() {
     V<uN> xs;
@@ -109,11 +109,11 @@ void try_tuple()
 void try_bytes()
 {
   Λ l;
-  φ<i9> a(l);
-  φ<i9> b(l);
+  φ_<i9> a(l);
+  φ_<i9> b(l);
 
   let s1 = l.c([&]() {
-    u8 bs[] = {1, 2, 3, 4, 5, 6, 7, 8};
+    u8 bs[] = {65, 66, 67, 68, 97, 98, 99, 100};
     a << o9t(1, 2, 3, 4,            Bv{bs, sizeof(bs)});
     a << o9t("foo", "bar", true,    Bv{bs, 5});
     a << o9t(1.2, 3.4, "foo", 5, 6, Bv{bs, 1});
@@ -138,8 +138,8 @@ template<class F>
 void bench(int argc)
 {
   Λ l;
-  φ<i9, i9, F> a(l);
-  φ<i9, i9, F> b(l);
+  φ_<i9, i9, F> a(l);
+  φ_<i9, i9, F> b(l);
 
   uNc N = argc == 1
     ? std::is_same<F, φι>::value ? 1 << 28 : 1 << 24
