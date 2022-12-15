@@ -131,10 +131,10 @@ struct o9st : virtual o9V
       {
       case u9st::α:
       case u9st::ω:
-      case u9st::τ: return 2;
+      case u9st::τ:
+      case u9st::κ: return 2;
       case u9st::θ:
-      case u9st::ι:
-      case u9st::κ: return 2 + sizeof(s.n);
+      case u9st::ι: return 2 + sizeof(s.n);
         TA(0, Sc<uN>(s.t))
       } }
 

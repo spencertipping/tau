@@ -477,8 +477,7 @@ O &operator<<(O &s, i9 const &x)
 
     return x.θ() ? s << Sc<f64>(x.θ()) / Sc<f64>(Nl<u64>::max())
          : x.ι() ? s << x.ι()
-         : s;
-  }
+         : s; }
 
   case u9t::bytes:  return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
   case u9t::utf8:   return s << "\""  << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
