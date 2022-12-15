@@ -92,7 +92,7 @@ ic u9_stream u9τ(u8 d = 1) { return u9_stream{u9st::τ, d, 0}; }
 ic u9_stream u9κ(u8 d = 1) { return u9_stream{u9st::κ, d, 0}; }
 
 ic u9_stream u9θ(u64 x, u8 d = 1) { return u9_stream{u9st::θ, d, x}; }
-ic u9_stream u9θ(f64 x, u8 d = 1) { return u9_stream{u9st::θ, d ,Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
+ic u9_stream u9θ(f64 x, u8 d = 1) { return u9_stream{u9st::θ, d, Sc<u64>(x * Sc<f64>(Nl<u64>::max()))}; }
 ic u9_stream u9ι(u64 x, u8 d = 1) { return u9_stream{u9st::ι, d, x}; }
 
 
