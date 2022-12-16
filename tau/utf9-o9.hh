@@ -144,7 +144,7 @@ struct o9st : virtual o9V
       W(m, i, Sc<u8>(s.t));
       W(m, i + 1, s.d);
 
-      if (s.t == u9st::θ) W(m, i + 2, s.n);
+      if (s.t == u9st::θ || s == u9st::ι) W(m, i + 2, s.n);
       return 0; }
 };
 

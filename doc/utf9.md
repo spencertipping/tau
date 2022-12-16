@@ -217,7 +217,7 @@ cb [sb] 05 dim [iota...]  ← ι
 cb [sb] 06 dim            ← κ
 ```
 
-`dim` is a single byte describing which dimension is being described. _τ²_, for example, describes a sub-cycle within the larger _τ_-cycle -- sort of like a cross-toroidal orbit.
+`dim` is a single byte describing which dimension is being described. _τ²_, for example, describes a sub-cycle within the larger _τ_-cycle -- sort of like a cross-toroidal orbit. `dim` begins at 1. Zero is currently reserved.
 
 _α_ indicates beginning-of-stream, is usually optional, and often is not provided.
 
