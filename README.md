@@ -48,4 +48,9 @@ $ sudo apt install -y \
 + GC performance: optimize data structures in markset, preallocate π₀ho9
 + [π₁](doc/pi1.md) as a stateful macrocompiler for π₀
 + Linux stdlib
+  + Text line batching
+  + JSONL batching
+  + JSONRPC batching
+  + Content-Length batching
+  + External process stdio
 + WASM stdlib

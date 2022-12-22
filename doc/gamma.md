@@ -10,6 +10,7 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
   + Inbound HTTP connection ↔ user session
   + User navigation → document OT connection
   + User search/nav action → search prediction
+  + Θ → square/stripe status → kubectl
 + Map/reduce
   + Input file → mapper → sort → combiner → shuffle input
   + Shuffle output → reducer → output
@@ -17,3 +18,7 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
   + CLI → pipeline
   + Sharding → [pipeline]
   + Horizontal scaling → [pipeline]
+
+
+## `φ*` vs `φ|`
+Many operations like JSON encode/decode are 1:1 against φ elements. Those don't require separate output φs; we can fuse their transformations into map-loops to save φ IO. It's fine with me if we restrict this optimization to strict 1:1 operations; filters can drop through φ.
