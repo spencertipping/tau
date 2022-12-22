@@ -4,3 +4,5 @@
 + Topology sections can be created and destroyed at runtime
 + Connections aren't just to input/output
 + Components can claim resources and/or use persistent resources
+
+These idioms are primarily managed by [γ](gamma.md).
