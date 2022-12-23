@@ -54,3 +54,4 @@ $ sudo apt install -y \
   + Content-Length batching
   + External process stdio
 + WASM stdlib
++ π₀ assembler macro definitions

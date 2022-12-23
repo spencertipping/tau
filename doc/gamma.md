@@ -28,3 +28,5 @@ Many operations like JSON encode/decode are 1:1 against φ elements. Those don't
 It would be useful to have a chunk-merged parser for stuff like websockets. Ideally it doesn't involve unrolling each byte into a separate UTF9, although φ allocation is so fast that it probably isn't the end of the world if we do.
 
 **Q:** what does a stream parser look like? Probably just a state machine + an update function. The update function can unroll the input or not, maybe selecting input by a prefix.
+
+If the input is combinable (e.g. string pieces), then maybe we can simplify by implementing `(state, chunk) → (state', n_consumed, [results...])` like a PEG. `state` should probably be a key in function table, or better yet an index into a tuple.
