@@ -23,6 +23,8 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
 ## `φ*` vs `φ|`
 Many operations like JSON encode/decode are 1:1 against φ elements. Those don't require separate output φs; we can fuse their transformations into map-loops to save φ IO. It's fine with me if we restrict this optimization to strict 1:1 operations; filters can drop through φ.
 
+Because π₀ functions are concatenative, we can φ* onto either the left or right side of the λ.
+
 
 ## φ parsing
 It would be useful to have a chunk-merged parser for stuff like websockets. Ideally it doesn't involve unrolling each byte into a separate UTF9, although φ allocation is so fast that it probably isn't the end of the world if we do.
