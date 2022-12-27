@@ -32,3 +32,9 @@ It would be useful to have a chunk-merged parser for stuff like websockets. Idea
 **Q:** what does a stream parser look like? Probably just a state machine + an update function. The update function can unroll the input or not, maybe selecting input by a prefix.
 
 If the input is combinable (e.g. string pieces), then maybe we can simplify by implementing `(state, chunk) → (state', n_consumed, [results...])` like a PEG. `state` should probably be a key in function table, or better yet an index into a tuple.
+
+**Update:** we need `state` to contain a bit more than that; it also needs to hold data, e.g. websocket mask bytes, transfer encoding, or remaining content length. So our actual parse function would go like this:
+
+```
+(state, data, chunk) → (state', data', n_consumed, [results...])
+```
