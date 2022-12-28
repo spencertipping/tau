@@ -36,5 +36,17 @@ If the input is combinable (e.g. string pieces), then maybe we can simplify by i
 **Update:** we need `state` to contain a bit more than that; it also needs to hold data, e.g. websocket mask bytes, transfer encoding, or remaining content length. So our actual parse function would go like this:
 
 ```
-(state, data, chunk) → (state', data', n_consumed, [results...])
+(state, data, chunk, start) → (state', data', n_consumed, [results...])
 ```
+
+`[results...]` are written to the output φ immediately.
+
+
+### State encoding
+Because we're in a stack environment, we encode the parse state like this:
+
+```
+data... state chunk start → data'... state' n_consumed [results...]
+```
+
+`data` is carried over as a stack residual, and can have any number of elements. φ parsing makes no assertion about whether it changes in size.
