@@ -46,6 +46,7 @@ $ sudo apt install -y \
 + [γ](doc/gamma.md)
 + GC correctness: fix FIXME comments in `heap<<`
 + GC performance: optimize data structures in markset, preallocate π₀ho9
++ π₀ performance: stack-allocate small values properly
 + [π₁](doc/pi1.md) as a stateful macrocompiler for π₀
 + Linux stdlib
   + Text line batching
