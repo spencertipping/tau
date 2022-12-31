@@ -13,6 +13,8 @@ A composition of [γ](gamma.md) elements that form an eigenvector within a large
   + User navigation → document OT connection
   + User search/nav action → search prediction
   + Θ → square/stripe status → kubectl
+  + Search indexer
+  + Search query
 + Map/reduce
   + Input file → mapper → sort → combiner → shuffle input
   + Shuffle output → reducer → output

@@ -15,14 +15,15 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
   + InfluxDB metrics upload
   + Metrics profiler
   + Email service endpoint
-  + Search indexer (probably a Γ in practice)
-  + Search query (probably a Γ in practice)
+  + AWS/Azure billing
+  + AWS/Azure DNS
 + Network
-  + SSH server
+  + TCP server: `β → (φ, conninfo) → λ → δ`
+  + SSH server: `β → (φ, conninfo) → λ → δ`
+  + HTTP/WS server: `β → (φ, url, method, headers) → λ → δ`
+  + TCP client
   + SSH client
-  + HTTP/WS server
   + WS client
-  + Connection-level multiplexer
 + File IO
   + Sequential file reader (bytes)
   + Sequential file writer (bytes)
@@ -31,16 +32,20 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
   + UTF9 → bytes
   + Random file reader/writer (bytes)
   + Bytes → lines
+  + SQLite as K/V store
 + Computation
   + All of these are inline-modifiable with `φ*<` and `φ*>`
   + [π₀ 1:1 mapper](gamma-phi-map.md)
   + [π₀ many:many mapper](gamma-phi-map.md)
   + [π₀ streaming parser](gamma-phi-parse.md)
 + Distributed
-  + Data-independent scaling (like `ni S`)
-  + Data-dependent sharding (like `ni S\>`)
+  + Data-independent scaling, runtime-modifiable
+  + Data-dependent sharding, runtime-modifiable
+  + Merge cyclic-sorted streams, runtime-modifiable
+  + Merge unsorted streams, runtime-modifiable
+  + _β_-replication (blocking)
+  + _β_-replication (non-blocking)
   + Sort by π₀ expression
-  + Merge sorted streams
 + Θ
   + `Θr`: periodic _τ_
   + `Θp`: one-time _τ_ at specific deadline
