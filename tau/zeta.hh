@@ -153,7 +153,7 @@ struct ζ
       while (s > b.wa()) { if (rc()) return false; wg.y(λs::O); }
 
       if (li()) l.lock();
-      uNc a = b.alloc(s);
+      let a = b.alloc(s);
 
       // write() returns the _actual_ size written, or 0 if it's the same
       // as .size(), or ζω if nothing was written.

@@ -47,7 +47,9 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
   + _β_-replication (blocking)
   + _β_-replication (non-blocking)
   + Size-batching into cycles
-  + `[τ] → [φ]` striping (via file buffers, probably)
+  + `φ(τ) → φ(φ)` striping (via file buffers, probably)
+  + Forked-process `(φ, pid_fd)`
+  + Process-waiting φ
 + Θ
   + `Θr`: periodic _τ_
   + `Θp`: one-time _τ_ at specific deadline
@@ -59,6 +61,22 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
   + Bounded fractal-forgetful queue
   + Gated queue (use with `Θ?` to rate-limit)
   + Repeat register (emit most-recent value when pinged)
+
+
+## Lifecycle
+γ objects go through three stages:
+
+1. Configuration: created but not fully hooked up
+2. Runtime: hooked up and running
+3. Destruction: manages unhooking and λ/φ destruction
+
+Configuration is when `φ*<` and `φ*>` can be applied to boundary φs. No external changes can be made to a γ during runtime; once _δ_ φ is _ω_, it destroys its λs and disconnects/destroys its φs.
+
+Any of a γ's λs can _ω_ its _δ_ φ. If one does, then the containing Γ control will also observe a _ω_ and should react accordingly. **This does not necessarily mean all γs should be terminated.**
+
+For example, a linear data pipeline should terminate left-to-right: if `b` exits early within `a | b | c`, `a` can be pre-terminated but `c` must be allowed to run. Note that this is more precise than bash/UNIX process management, where `a` waits for `SIGPIPE` before exiting.
+
+Destruction policy is part of Γ polymorphism.
 
 
 ## Encoding
