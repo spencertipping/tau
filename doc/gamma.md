@@ -79,6 +79,10 @@ For example, a linear data pipeline should terminate left-to-right: if `b` exits
 Destruction policy is part of Γ polymorphism.
 
 
+## Data sharing
+Each γ has a separate global-variable scope shared by all of its λs.
+
+
 ## Encoding
 A π₀ map with:
 

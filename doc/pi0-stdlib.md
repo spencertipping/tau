@@ -228,6 +228,8 @@ All of these operators automatically distribute across vectors.
 
 
 ## λ
+**TODO:** global-scope manipulation
+
 + `[...] λ:`: create λ, return `λi`
 + `λi λ_`
 + `λy`: yield out
