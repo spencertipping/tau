@@ -38,14 +38,16 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
   + [π₀ 1:1 mapper](gamma-phi-map.md)
   + [π₀ many:many mapper](gamma-phi-map.md)
   + [π₀ streaming parser](gamma-phi-parse.md)
-+ Distributed
+  + In-memory cyclic sort by π₀ expression
++ Distributed/topology
   + Data-independent scaling, runtime-modifiable
   + Data-dependent sharding, runtime-modifiable
   + Merge cyclic-sorted streams, runtime-modifiable
   + Merge unsorted streams, runtime-modifiable
   + _β_-replication (blocking)
   + _β_-replication (non-blocking)
-  + In-memory cyclic sort by π₀ expression
+  + Size-batching into cycles
+  + `[τ] → [φ]` striping (via file buffers, probably)
 + Θ
   + `Θr`: periodic _τ_
   + `Θp`: one-time _τ_ at specific deadline
