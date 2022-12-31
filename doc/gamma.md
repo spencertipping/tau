@@ -45,7 +45,7 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
   + Merge unsorted streams, runtime-modifiable
   + _β_-replication (blocking)
   + _β_-replication (non-blocking)
-  + Sort by π₀ expression
+  + In-memory cyclic sort by π₀ expression
 + Θ
   + `Θr`: periodic _τ_
   + `Θp`: one-time _τ_ at specific deadline

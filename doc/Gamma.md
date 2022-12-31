@@ -18,6 +18,7 @@ A composition of [γ](gamma.md) elements that form an eigenvector within a large
 + Map/reduce
   + Input file → mapper → sort → combiner → shuffle input
   + Shuffle output → reducer → output
+  + Disk-backed merge sort
 + `ni`/ETL
   + CLI → pipeline
   + Sharding → [pipeline]
