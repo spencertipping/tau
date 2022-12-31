@@ -40,7 +40,7 @@ $ sudo apt install -y \
        libpango1.0-dev libcairo2-dev
 ```
 
-**TODO:** dockerize native build process
+**TODO:** dockerize native build environment
 
 
 ## Queue
