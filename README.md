@@ -1,9 +1,8 @@
 # Tau
-APL + Erlang + bash + Joy + Lisp + FRP + probabilistic Prolog: a Laplace transform for control flow, where most code is data.
+A Laplace transform of control flow, driven by an interpreted concatenative language.
 
-Design notes:
-
-+ [φ](doc/phi.md) and [Φ](doc/Phi.md)
++ [φ](doc/phi.md)
+  + [Φ](doc/Phi.md)
   + [ζ](doc/zeta.md)
   + [Λ](doc/Lambda.md)
   + [UTF9](doc/utf9.md)
@@ -12,6 +11,8 @@ Design notes:
   + [π₁](doc/pi1.md)
   + [π₂](doc/pi2.md)
   + [η](doc/eta.md)
++ [γ](doc/gamma.md)
++ [Γ](doc/Gamma.md)
 
 Production design:
 
@@ -43,7 +44,6 @@ $ sudo apt install -y \
 
 
 ## Queue
-+ [γ](doc/gamma.md)
 + GC correctness: fix FIXME comments in `heap<<`
 + GC performance: optimize data structures in markset, preallocate π₀ho9
 + π₀ performance: stack-allocate small values properly

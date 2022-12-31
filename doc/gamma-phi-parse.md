@@ -1,10 +1,16 @@
-# φ parsing
-It would be useful to have a chunk-merged parser for stuff like websockets. Ideally it doesn't involve unrolling each byte into a separate UTF9, although φ allocation is so fast that it probably isn't the end of the world if we do.
+# φ `»`
+Parsers are nonlinear element transformations that follow a specific execution pattern. We encode them as [γs](gamma.md) that can be pipelined onto the φs of other γs when building [Γs](Gamma.md).
 
-If the input is combinable (e.g. string pieces), then maybe we can simplify by implementing `(state, chunk) → (state', n_consumed, [results...])` like a PEG. In addition to the parse state, it also needs to hold data, e.g. websocket mask bytes, transfer encoding, or remaining content length. So our actual parse function would go like this:
+
+## Parser structure
+It would be useful to have a chunk-merged parser for stuff like websockets. Ideally it doesn't involve unrolling each byte into a separate UTF9, although φ allocation is so fast that it probably isn't the end of the world if we do. Here's a vectorizable parser function signature:
 
 ```
-data... state chunk start → data'... state' n_consumed [results...]
+data... state input → data'... state' output [results...]
 ```
 
-`[results...]` are written to the output φ immediately.
+`[results...]` are written to the output φ immediately, and the parser is terminated if results cannot be written.
+
+
+## String parsing
+`input` and `output` both take the form `(data, offset)`, where `offset` refers to the next byte of data to be processed. This minimizes the performance impact of small parser movements.

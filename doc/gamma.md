@@ -1,38 +1,25 @@
 # γ
 A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The idea is to jointly define (1) polymorphic λ/φ containers, and (2) polysemantic connection operators. τ Laplacian eigenvectors are just π₀ functions that achieve these φ connections, so γ operators are eigenvector constituents.
 
+Multiple γs can be combined to form [Γs](Gamma.md).
 
-## Examples
-+ Asqi
-  + Inbound SSH connection ↔ git process
-  + Inbound HTTP connection ↔ user session
-  + User navigation → document OT connection
-  + User search/nav action → search prediction
-  + Θ → square/stripe status → kubectl
-+ Map/reduce
-  + Input file → mapper → sort → combiner → shuffle input
-  + Shuffle output → reducer → output
-+ `ni`/ETL
-  + CLI → pipeline
-  + Sharding → [pipeline]
-  + Horizontal scaling → [pipeline]
+**TODO:** explain how this combination works; do we tuple up a bunch of piped-together γs first and then Γ-wrap that tuple? (Probably, but worth formalizing; we should take this up in [Γ](Gamma.md).)
 
 
 ## Data transformation
-+ [`φ*` and `φ|`](gamma-phi-map.md)
-+ [`φ=`](gamma-phi-parse.md)
++ [`φ*<` and `φ*>`](gamma-phi-map.md)
++ [`φ»`](gamma-phi-parse.md)
 
 
-## γ state
-We need to represent a few things:
+## Encoding
+A π₀ map with:
 
-1. Individual components
-2. Edits to those components
-3. Pipelines of multiple components
-4. Connection slots for pipelines
++ A set of λ pre/post filters (for `φ*`)
++ A set of boundary φs, each named
++ Once running, a set of λis
++ A finalizer function, or the default `[]`
++ A "control φ" that, when closed, will cause the γ to be destroyed
 
-(4) isn't explicit; it's a property of components that are eigenreactive -- and therefore create new γs that slot into those eigenvector positions.
+Note that γ destruction is a generic process that involves the finalizer function, `λ_`, and `φ_` in that order.
 
-(1) and (2) form the core component API, which creates and configures γs that are stored on the stack. (3) allows polysemantic connections between these components; it deals with "which φs connect to which other φs".
-
-**TODO:** how do we manage φ destruction in a pipeline context? Seems like we need an implicit control channel.
+Each λ receives a mutable reference to the full γ map as its init argument.
