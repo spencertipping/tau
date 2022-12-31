@@ -228,9 +228,8 @@ All of these operators automatically distribute across vectors.
 
 
 ## λ
-**TODO:** global-scope manipulation
-
-+ `[...] λ:`: create λ, return `λi`
++ `x [...] λ:`: create λ in same global scope, return `λi`
++ `x [...] λ∷`: create λ in forked global scope, return `λi`
 + `λi λ_`
 + `λy`: yield out
 + `dt Θd`: sleep nanoseconds
