@@ -127,9 +127,9 @@ struct i9
 
 
   // TODO: create names for UTF9 states and formalize definitions
-  bool   exists() const { return a && a != ζωp; }
-  bool     real() const { return exists() && type() != u9t::stream; }
-  operator   ζp() const { return a; }
+  bool  exists() const { return a && a != ζωp; }
+  bool    real() const { return exists() && type() != u9t::stream; }
+  operator  ζp() const { return a; }
 
 
   uf8  code()    const { return R<u8>(a, 0); }

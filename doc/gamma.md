@@ -4,6 +4,18 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
 γs are typically created within the context of a [Γ](Gamma.md), which manages multiple γs at once and automates their destruction and control-channel multiplexing.
 
 
+## Directional symbols
+We typically describe γ ports spatially to help with Γ layout:
+
+```
+     δ
+     ↓
+α → γ → β
+     ↓
+     ε
+```
+
+
 ## Examples
 + Asqi
   + Single-document OT merge
@@ -18,12 +30,12 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
   + AWS/Azure billing
   + AWS/Azure DNS
 + Network
-  + TCP server: `β → (φ, conninfo) → λ → δ`
-  + SSH server: `β → (φ, conninfo) → λ → δ`
-  + HTTP/WS server: `β → (φ, url, method, headers) → λ → δ`
-  + TCP client
-  + SSH client
-  + WS client
+  + TCP server: `sockinfo ⇒ β → (φ, conninfo) → λ → δ`
+  + SSH server: `sockinfo ⇒ β → (φ, conninfo) → λ → δ`
+  + HTTP/WS server: `sockinfo ⇒ β → (φ, url, method, headers) → λ → δ`
+  + TCP client: `sockinfo ⇒ α`
+  + SSH client: `sockinfo ⇒ α`
+  + WS client: `sockinfo ⇒ α`
 + File IO
   + Sequential file reader (bytes)
   + Sequential file writer (bytes)

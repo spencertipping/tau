@@ -163,7 +163,7 @@ All of these operators automatically distribute across vectors.
 
 ### Strings
 + `>b`: tuple/set/vector/UTF8 to bytes
-+ `>u`: tuple/set/vector/bytes to UTF8
++ `>u`: tuple/set/vector/bytes to UTF8 (non-validating)
 + `u?`: is UTF8 string valid
 + `b#`: byte-length of string
 + `c#`: character length of UTF8 string
@@ -173,6 +173,14 @@ All of these operators automatically distribute across vectors.
 + `s i n c!`: char-substring of `n` chars starting at `i`
 + `s u8 b<>`: byte-split into tuple
 + `s sp c<>`: char-split (where `sp` is a string of any length)
++ `s b b?`: find byte in string (return position or -1)
++ `s c c?`: find char in string (return char-position or -1)
++ `s bs bs?`: find bytes in string (return position or -1)
++ `s cs cs?`: find string in string (return char-position or -1)
++ `s1 s2 b++`: append byte-strings
++ `s1 s2 u++`: append UTF8-strings
++ `(s1, s2, ...) b/++`: join byte-strings
++ `(s1, s2, ...) u/++`: join UTF8-strings
 
 
 ### Tuples
@@ -187,6 +195,7 @@ All of these operators automatically distribute across vectors.
 + `xs [...] t*`: map
 + `xs [...] t%`: filter
 + `([...], [...], ...) t*.`: apply each function to the current stack, entuple results
++ `(t1, t2, ...) t/++`: join tuples
 
 
 ### Sets
