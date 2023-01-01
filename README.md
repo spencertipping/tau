@@ -44,6 +44,8 @@ $ sudo apt install -y \
 
 
 ## Queue
++ GC finalizer functions (as `std::function` objects)
++ Indexed collections
 + GC performance: optimize data structures in markset, preallocate π₀ho9
 + π₀ performance: stack-allocate small values properly
 + [π₁](doc/pi1.md) as a stateful macrocompiler for π₀

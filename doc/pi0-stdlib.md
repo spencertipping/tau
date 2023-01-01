@@ -203,6 +203,8 @@ All of these operators automatically distribute across vectors.
 + `([...], [...], ...) t*.`: apply each function to the current stack, entuple results
 + `(t1, t2, ...) t/++`: join tuples
 
+**TODO:** primitive tuple-sort on `[] → b` ordering function (return permutation vector)
+
 
 ### Sets
 **NOTE:** set elements are stored in hash-order and set operators both deduplicate accordingly, and preserve this ordering.
@@ -238,8 +240,9 @@ All of these operators automatically distribute across vectors.
 
 
 ### Indexes
-+ `x f >i`: index `x` with coverage factor `f`; returns indexed structure
-  + This operator auto-detects the type of `x`
++ `x b >i`: index `x` with `b` bits of approximation; returns indexed structure
+  + This operator auto-detects the type of `x`, which can be `tuple`, `set`, or `map`
+  + **NOTE:** `set` and `map` are currently unimplemented
 
 
 ## λ

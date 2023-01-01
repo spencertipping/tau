@@ -377,6 +377,17 @@ void π0abi1_u9_tuple(π0abi &a)
 }
 
 
+void π0abi1_u9_index(π0abi &a)
+{
+  a .def(">i", I{
+      π0hnf f{i.h, 1};
+      i9  x  = i.dpop();
+      let cf = Sc<uf8>(i.dpop());
+      f(&x);
+      i.dpush(o9it{x, cf}); });
+}
+
+
 void π0abi1_u9_structure(π0abi &a)
 {
   a .def("(", I{ i.dpush(Sc<iN>(1)); i.spush(1); })

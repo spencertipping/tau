@@ -330,12 +330,25 @@ ic uN u9sb(u9s s)  // size of size+control bytes (i.e. prefix)
   }
 }
 
+ic uN u9sib(u9s s)  // size of just the size bytes
+{
+  return u9sb(s) - 1;
+}
+
 ic u9s u9sq(uN s)
 {
   return ou<u32>(s) ? u9s::v64
        : ou<u16>(s) ? u9s::v32
        : ou<u8>(s)  ? u9s::v16
        :              u9s::v8;
+}
+
+ic u9t u9tqu(uN s)  // unsigned int type large enough to hold the value
+{
+  return ou<u32>(s) ? u9t::u64
+       : ou<u16>(s) ? u9t::u32
+       : ou<u8>(s)  ? u9t::u16
+       :              u9t::u8;
 }
 
 

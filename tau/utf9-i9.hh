@@ -185,6 +185,8 @@ struct i9
 
   bool is_istruct() const { return type() == u9t::build && Sc<u9_build>(*this) == u9_build::istruct; }
 
+  bool is_idx()     const { return type() == u9t::index; }
+
 
   template<class T> T* ptr() const { return Rc<T*>(Sc<u9_scoped<u9_Φ, void*>>(*this).x); }
 
@@ -246,10 +248,29 @@ struct i9
     { u9tm{u9t::index, u9t::tuple}(type());
       switch (type())
       {
-      case u9t::index: TODO("i9[uN] u9t::index");
-      case u9t::tuple: { ζp b = data(); while (i--) b += size_of(b); return b; }
+      case u9t::tuple: return tlin(i);
+      case u9t::index:
+      { let ix = first();
+        if (ix.vn() < 4) return second().tlin(i);
+
+        // Two possibilities. One is that the index is evenly spaced,
+        // so we can interpolation-jump straight to the correct element.
+        // This happens with all tuple indexes we currently generate.
+        let Δ = ix.template at<uN>(2) - ix.template at<uN>(0);
+        let n = i / Δ << 1;
+        if (n < ix.vn() - 1
+            && ix.template at<uN>(n) <= i
+            && ix.template at<uN>(n) - i < Δ)
+          return second().tlin(ix.template at<uN>(n) - i,
+                               ix.template at<uN>(n + 1));
+        else
+          TODO("i9[] binsearch; Δ = " << Δ << ", i = " << i << ", n = " << n);
+      }
         TA(0, "i9[uN] requires index or tuple, not " << type())
       } }
+
+  i9 tlin(uN i, uN o = 0) const
+    { ζp b = data() + o; while (i--) b += size_of(b); return b; }
 
   i9 operator[](i9 i) const
     { u9tm{u9t::tuple, u9t::set, u9t::map, u9t::index}(type());

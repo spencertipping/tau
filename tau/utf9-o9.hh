@@ -29,6 +29,8 @@ struct o9V  // o9 virtual base
   virtual ~o9V() {}
   virtual uN size ()     const = 0;
   virtual uN write(ζp m) const = 0;
+
+  static ic uN osize(uN s) { return s + u9sb(u9sq(s)); }
 };
 
 
@@ -70,7 +72,7 @@ struct o9q : virtual o9V  // byte-quoted i9 serialization
 {
   i9 const x;
   o9q(i9 x_) : x(x_) {}
-  uN size ()     const { let s = i9::size_of(x.a); return s + u9sb(u9sq(s)); }
+  uN size ()     const { return osize(x.osize()); }
   uN write(ζp m) const
     { let o = o9i9{x};
       let i = u9ws(m, 0, u9t::bytes, o.size());
@@ -85,7 +87,7 @@ struct o9f : virtual o9V
   sletc s = u9_sizeof<T>::v;
   T x;
   o9f(T x_) : x(x_) {}
-  uN size ()     const { return s + u9sb(u9sq(s)); }
+  uN size ()     const { return osize(s); }
   uN write(ζp m) const { W(m, u9ws(m, 0, u9t_<T>::t, s), x); return 0; }
 };
 
@@ -94,7 +96,7 @@ struct o9f<bool> : virtual o9V
 {
   bool x;
   o9f(bool x_) : x(x_) {}
-  uN size()      const { return 1 + u9sb(u9sq(1)); }
+  uN size()      const { return osize(1); }
   uN write(ζp m) const { W(m, u9ws(m, 0, u9t::b, 1), Sc<u8>(x ? 17 : 1)); return 0; }
 };
 
@@ -113,7 +115,7 @@ struct o9b : virtual o9V
 {
   T x;
   o9b(T x_) : x(x_) {}
-  uN size() const { return x.size() + u9sb(u9sq(x.size())); }
+  uN size() const { return osize(x.size()); }
   uN write(ζp m) const
     { uN i = u9ws(m, 0, u9t_<T>::t, x.size());
       std::memcpy(m + i, x.data(), x.size());
@@ -138,7 +140,7 @@ struct o9st : virtual o9V
         TA(0, Sc<uN>(s.t))
       } }
 
-  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN size() const { return osize(isize()); }
   uN write(ζp m) const
     { uN i = u9ws(m, 0, u9t::stream, isize());
       W(m, i, Sc<u8>(s.t));
@@ -159,7 +161,7 @@ struct o9c : virtual o9V
 
   o9c(u9t const t_, chc *xs_, uN n_) : t(t_), xs(xs_), n(n_) {}
 
-  uN size() const { return n + u9sb(u9sq(n)); }
+  uN size() const { return osize(n); }
   uN write(ζp m) const
     { uN i = u9ws(m, 0, t, n);
       std::memcpy(m + i, xs, n);
@@ -205,7 +207,7 @@ struct o9a : virtual o9V  // vector of fixed
 
   o9a(T const *xs_, uN n_) : xs(xs_), n(n_) {}
 
-  uN size()  const { return isize() + u9sb(u9sq(isize())); }
+  uN size()  const { return osize(isize()); }
   uN isize() const { return u9sizeof(u9t_<T>::t) * n; }
   uN write(ζp m) const
     { uN b = u9ws(m, 0, u9t_<T>::t, isize());
@@ -225,7 +227,7 @@ struct o9v : virtual o9V  // unindexed, unordered tuple/set (simple)
 
   o9v(C<T, Ts...> const &xs_) : xs(xs_) {}
 
-  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN size() const { return osize(isize()); }
   uN isize() const
     { if (!s) for (let &x : xs) s += o9(x).size();
       return s; }
@@ -256,7 +258,7 @@ struct o9vc : virtual o9V  // unindexed, unordered tuple/set (complex)
     { ys.reserve(xs.size());
       for (let &x : xs) ys.push_back(o9(x)); }
 
-  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN size() const { return osize(isize()); }
   uN isize() const
     { if (!s) for (let &y : ys) s += y.size();
       return s; }
@@ -282,7 +284,7 @@ struct o9m : virtual o9V  // unindexed, unordered k/v map
 
   o9m(M<K, V, Ts...> const &xs_) : xs(xs_) {}
 
-  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN size() const { return osize(isize()); }
   uN isize() const
     { if (!s) for (let &[k, v] : xs) s += o9(k).size() + o9(v).size();
       return s; }
@@ -313,7 +315,7 @@ struct o9mc : virtual o9V  // unindexed, unordered k/v map
       vs.reserve(m.size());
       for (let &[k, v] : m) ks.push_back(o9(k)), vs.push_back(o9(v)); }
 
-  uN size() const { return isize() + u9sb(u9sq(isize())); }
+  uN size() const { return osize(isize()); }
   uN isize() const
     { if (!s)
       { for (let &k : ks) s += k.size();
@@ -351,9 +353,7 @@ struct o9t : virtual o9V
   typename std::enable_if<i < sizeof...(X), uN>::type
   isize() const { return o9(std::get<i>(xs)).size() + isize<i + 1>(); }
 
-  uN size() const
-    { let n = isize<0>();
-      return n + u9sb(u9sq(n)); }
+  uN size() const { return osize(isize<0>()); }
 
   template<uN i = 0>
   typename std::enable_if<i == sizeof...(X), bool>::type
@@ -379,10 +379,10 @@ struct o9t : virtual o9V
 template<o9fixed T>
 struct o9vec : virtual o9V  // cleared vector of given size
 {
-  uN n;
+  uNc n;
   o9vec(uN n_) : n(n_) {}
   uN isize()     const { return sizeof(T) * n; }
-  uN size()      const { return isize() + u9sb(u9sq(isize())); }
+  uN size()      const { return osize(isize()); }
   uN write(ζp m) const
     { let i = u9ws(m, 0, u9t_<T>::t, isize());
       std::memset(m + i, 0, isize());
@@ -392,15 +392,83 @@ struct o9vec : virtual o9V  // cleared vector of given size
 template<>
 struct o9vec<bool> : virtual o9V
 {
-  uN n;
+  uNc n;
   o9vec(uN n_) : n(n_) {}
   uN isize()     const { return 1 + (n + 3 >> 3); }
-  uN size()      const { return isize() + u9sb(u9sq(isize())); }
+  uN size()      const { return osize(isize()); }
   uN write(ζp m) const
     { let i = u9ws(m, 0, u9t::b, isize());
       std::memset(m + i, 0, isize());
       W(m, i, Sc<u8>(n & 7));
       return 0; }
+};
+
+struct o9vecsized : virtual o9V
+{
+  uNc       n;
+  u9t const t;
+  o9vecsized(uN n_, u9t t_) : n(n_), t(t_) {}
+  uN size() const { return osize(n); }
+  uN write(ζp m) const
+    { let i = u9ws(m, 0, t, n);
+      std::memset(m + i, 0, n);
+      return 0; }
+};
+
+
+struct o9it : virtual o9V
+{
+  i9  const x;
+  uNc       n;
+  uf8c      b;
+  u9t const t;
+  o9it(i9 x_, uf8 b_)
+    : x(x_), n(x.len() >> b_), b(b_), t(u9tqu(x.osize()))
+    { u9tm{u9t::tuple}(x.type()); }
+
+  uN isize() const { return osize(n * 2 * u9sizeof(t)) + x.osize(); }
+  uN size()  const { return osize(isize()); }
+
+  template<class T>
+  void widx(i9 m) const
+    { let a = ~(Sc<T>(-1) << b);
+      T   i = 0;
+      for (let y : x)
+        if (!(i++ & a))
+        { m.template set<T>(i >> b,     i);
+          m.template set<T>(i >> b | 1, Sc<T>(y.a - x.a)); }
+    }
+
+  uN write(ζp m) const
+    { let i = u9ws(m, 0, u9t::index, isize(), x.flagged());
+      o9vecsized{n * 2 * u9sizeof(t), t}.write(m + i);
+      let v = i9{m + i};
+      switch (t)
+      {
+      case u9t::u8:  widx<u8>(v);  break;
+      case u9t::u16: widx<u16>(v); break;
+      case u9t::u32: widx<u32>(v); break;
+      case u9t::u64: widx<u64>(v); break;
+        TA(0, "o9it::write u9tqu OOB: " << t);
+      }
+      A(!o9i9{x}.write(m + i + v.osize()),
+        "o9it resizing indexed object");
+      return 0; }
+};
+
+
+struct o9idx : virtual o9V
+{
+  i9  const x;
+  uNc       n;
+  uf8c      b;
+  u9s const s;
+  o9idx(i9 x_, uf8 b_)
+    : x(x_), n(x.len() >> b_), b(b_), s(u9sq(x.osize()))
+    { u9tm{u9t::set, u9t::map}(x.type()); }
+
+  // TODO: write, which involves a sort
+
 };
 
 
@@ -427,6 +495,8 @@ template<class... T> struct o9_<o9m<T...>>  { sletc v = true; };
 template<class... T> struct o9_<o9mc<T...>> { sletc v = true; };
 template<class... T> struct o9_<o9t<T...>>  { sletc v = true; };
 template<class T>    struct o9_<o9vec<T>>   { sletc v = true; };
+
+template<>           struct o9_<o9it>       { sletc v = true; };
 
 
 // This one is special due to higher-order second type arg
