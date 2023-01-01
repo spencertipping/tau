@@ -117,6 +117,7 @@ void π0abi1_quote(π0abi &a)
     .def("i16", I{ i.dpush(Sc<i16>(n)); })
     .def("i32", I{ i.dpush(Sc<i32>(n)); })
     .def("i64", I{ i.dpush(Sc<i64>(n)); })
+    .def("iN",  I{ i.dpush(Sc<iN>(n)); })
 
     // TODO: reference these, don't copy (since they're immutable)
     // ...note that there are benefits to copying, e.g. in-place mutable
@@ -183,8 +184,8 @@ void π0abi1_u9_vector(π0abi &a)
 
   typedef bool b; a1vfns(b);
 
-  a1vfns(i8);  a1vfns(i16); a1vfns(i32); a1vfns(i64);
-  a1vfns(u8);  a1vfns(u16); a1vfns(u32); a1vfns(u64);
+  a1vfns(i8);  a1vfns(i16); a1vfns(i32); a1vfns(i64);  a1vfns(iN);
+  a1vfns(u8);  a1vfns(u16); a1vfns(u32); a1vfns(u64);  a1vfns(uN);
   a1vfns(f32); a1vfns(f64);
   a1vfns(c32); a1vfns(c64);
 
@@ -209,8 +210,8 @@ void π0abi1_u9_number(π0abi &a)
 
   a1sc(i8);  a1vc(i8);   a1sc(u8);  a1vc(u8);
   a1sc(i16); a1vc(i16);  a1sc(u16); a1vc(u16);
-  a1sc(i32); a1vc(i32);  a1sc(u32); a1vc(u32);
-  a1sc(i64); a1vc(i64);  a1sc(u64); a1vc(u64);
+  a1sc(i32); a1vc(i32);  a1sc(u32); a1vc(u32);  a1sc(iN); a1sc(uN);
+  a1sc(i64); a1vc(i64);  a1sc(u64); a1vc(u64);  a1vc(iN); a1vc(uN);
 
   a1sc(f32); a1vc(f32);  a1sc(c32); a1vc(c32);
   a1sc(f64); a1vc(f64);  a1sc(c64); a1vc(c64);
@@ -265,8 +266,8 @@ void π0abi1_u9_number(π0abi &a)
 #define a1genu(f, g) f(g, -, n);
 #define a1bitu(f, g) f(g, !, l); f(g, ~, ~);
 
-#define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__);
-#define a1fu(f, ...) f(u8,  __VA_ARGS__); f(u16, __VA_ARGS__); f(u32, __VA_ARGS__); f(u64, __VA_ARGS__);
+#define a1fi(f, ...) f(i8,  __VA_ARGS__); f(i16, __VA_ARGS__); f(i32, __VA_ARGS__); f(i64, __VA_ARGS__); f(iN, __VA_ARGS__);
+#define a1fu(f, ...) f(u8,  __VA_ARGS__); f(u16, __VA_ARGS__); f(u32, __VA_ARGS__); f(u64, __VA_ARGS__); f(uN, __VA_ARGS__);
 #define a1ff(f, ...) f(f32, __VA_ARGS__); f(f64, __VA_ARGS__);
 #define a1fc(f, ...) f(c32, __VA_ARGS__); f(c64, __VA_ARGS__);
 

@@ -69,10 +69,12 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 
 
 ### Vectors
+**NOTE:** we define `uN` and `iN` as aliases for platform-native ints, so you can say `>uNs` to get a vector of native-sized unsigned ints if you want to.
+
 In the functions below, `v` is replaced by a primitive type, e.g. `i8s`. So `i8s#` returns the number of elements in a vector of `i8`s.
 
-+ `xs t >v`: tuple/set/bytes/UTF8 to typed vector
-+ `... x₃ x₂ x₁ n t >>v`: make vector of type `t` (a symbol, see `?t`)
++ `xs >v`: tuple/set/bytes/UTF8 to typed vector
++ `... x₃ x₂ x₁ n >>v`: make typed vector
 + `xs v#`: vector length
 + `xs i v@`: get vector element
 + `xs i n v!`: sub-vector
@@ -82,7 +84,7 @@ In the functions below, `v` is replaced by a primitive type, e.g. `i8s`. So `i8s
 + Native reductions
   + `xs v/+`: sum of elements
   + `xs v/*`: product of elements
-  + `xs v/<`: check for descending order
+  + `xs v/<`: check for ascending order (returns true or false)
   + `xs v/&`: bitwise-and of elements
   + `xs v/|`: bitwise-or of elements
   + `xs v/^`: bitwise-xor of elements
@@ -92,7 +94,7 @@ In the functions below, `v` is replaced by a primitive type, e.g. `i8s`. So `i8s
 All of these operators automatically distribute across vectors.
 
 + Type conversions
-  + `>i8`: saturate on overflow
+  + `>i8`: saturate on overflow (TODO; right now it's undefined)
   + `>i16`
   + `>i32`
   + `>i64`
