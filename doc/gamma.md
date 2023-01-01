@@ -8,12 +8,12 @@ A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The id
 We typically describe γ ports spatially to help with Γ layout:
 
 ```
-     δ
-     ↓
-α → γ → β
-     ↓
-     ε
+  δ
+α γ β
+  ε
 ```
+
+This means we can implicitly connect γs by placing them on screen, like `ni` but more flexible.
 
 
 ## Examples
