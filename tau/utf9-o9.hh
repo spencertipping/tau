@@ -434,9 +434,10 @@ struct o9it : virtual o9V
     { let a = ~(Sc<T>(-1) << b);
       T   i = 0;
       for (let y : x)
-        if (!(i++ & a))
-        { m.template set<T>(i >> b,     i);
-          m.template set<T>(i >> b | 1, Sc<T>(y.a - x.a)); }
+      { if (!(i & a))
+        { m.template set<T>(i >> b - 1,     i);
+          m.template set<T>(i >> b - 1 | 1, Sc<T>(y.a - x.a)); }
+        ++i; }
     }
 
   uN write(ζp m) const

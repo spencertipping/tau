@@ -189,7 +189,7 @@ struct π0asm
         }
       else
       { uN j = i + 1;
-        while (j < s.size() && !c7nc[s[j]]) ++j;
+        while (j < s.size() && !c7nc[s[j]] && !c7sc[s[j]]) ++j;
         let n = s.substr(i, j - i);
         uN  x = 0;
         if (j < s.size() && s[j] == '\'')

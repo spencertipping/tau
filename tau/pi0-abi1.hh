@@ -135,7 +135,8 @@ void π0abi1_u9_general(π0abi &a)
     .def("?S", I{ i.dpush(i.dpop().osize()); })
     .def(":f", I{
         if (i[0].flagged())
-          i << (i.h << π0o9f{i.pop()}); });
+          i << (i.h << π0o9f{i.pop()}); })
+    .def(":h", I{ i.dpush(i.dpop().h()); });
 }
 
 
@@ -351,8 +352,8 @@ void π0abi1_u9_nrange(π0abi &a)
 
 void π0abi1_u9_tuple(π0abi &a)
 {
-  a .def("t@", I{ let k = Sc<uN>(i.dpop()); i.dpush(i.dpop()[k]); })
-    .def("t#", I{ i.dpush(i.dpop().len()); })
+  a .def("t@", I{ let k = Sc<uN>(i.dpop()); i.dpush(i.dpop().as_tuple()[k]); })
+    .def("t#", I{ i.dpush(i.dpop().as_tuple().len()); })
     .def(">>t", I{
         uNc k = Sc<iN>(i.dpop());
         π0hnf f{i.h, 0};
@@ -360,20 +361,51 @@ void π0abi1_u9_tuple(π0abi &a)
         for (uN j = 0; j < k; ++j) xs.push_back(i.pop());
         i.dpush(xs); })
     .def("t++", I{
-        let k = i9{i[0]}.len() + i9{i[1]}.len();
+        let k = i9{i[0]}.as_tuple().len() + i9{i[1]}.as_tuple().len();
         π0hnf f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
-        for (let x : i.dpop()) xs.push_back(x);
-        for (let x : i.dpop()) xs.push_back(x);
+        for (let x : i.dpop().as_tuple()) xs.push_back(x);
+        for (let x : i.dpop().as_tuple()) xs.push_back(x);
         i.dpush(xs); })
     .def("t.", I{
         π0hnf f{i.h, 2};
         let   g  = i.bpop();
-        i9    xs = i.dpop();   f(&xs);
-        i9    x  = xs.first(); f(&x);
-        i9    e;               f([&]() { e = xs.next(); });
+        i9    xs = i.dpop().as_tuple(); f(&xs);
+        i9    x  = xs.first();          f(&x);
+        i9    e;                        f([&]() { e = xs.next(); });
         π0rsf r{i};
-        while (r && x.a < e.a) { i << x; i.run(g); ++x; } });
+        while (r && x.a < e.a) { i << x; i.run(g); ++x; } })
+    .def("t*", I{
+        π0hnf f{i.h, 2};
+        let g  = i.bpop();
+        i9  xs = i.dpop().as_tuple();   f(&xs);
+        i9  x  = xs.first();            f(&x);
+        i9  e;                          f([&]() { e = xs.next(); });
+        V<i9> ys; ys.reserve(xs.len()); f(&ys);
+        π0rsf r{i};
+        while (r && x.a < e.a)
+        { i.dpush(x); i.run(g); ys.push_back(i.dpop()); ++x; }
+        i.dpush(ys); })
+    .def("t%", I{
+        π0hnf f{i.h, 2};
+        let g  = i.bpop();
+        i9  xs = i.dpop().as_tuple();   f(&xs);
+        i9  x  = xs.first();            f(&x);
+        i9  e;                          f([&]() { e = xs.next(); });
+        V<i9> ys; ys.reserve(xs.len()); f(&ys);
+        π0rsf r{i};
+        while (r && x.a < e.a)
+        { i.dpush(x); i.run(g); if (i.dpop().b()) ys.push_back(x); ++x; }
+        i.dpush(ys); })
+    .def("t/++", I{
+        uN k = 0;
+        for (let x : i[0].as_tuple()) k += x.as_tuple().len();
+        π0hnf f{i.h, 0};
+        V<i9> xs; xs.reserve(k); f(&xs);
+        for (let x : i[0].as_tuple())
+          for (let y : x.as_tuple()) xs.push_back(y);
+        i.dpop();
+        i.dpush(xs); });
 }
 
 
@@ -381,10 +413,12 @@ void π0abi1_u9_index(π0abi &a)
 {
   a .def(">i", I{
       π0hnf f{i.h, 1};
-      i9  x  = i.dpop();
-      let cf = Sc<uf8>(i.dpop());
+      let b = Sc<uf8>(i.dpop());
+      i9  x = i.dpop();
       f(&x);
-      i.dpush(o9it{x, cf}); });
+      i.dpush(o9it{x, b}); })
+    .def("i<", I{ i.dpush(i.dpop().first()); })
+    .def("i>", I{ i.dpush(i.dpop().second()); });
 }
 
 
@@ -582,6 +616,7 @@ void π0abi1(π0abi &a)
   π0abi1_u9_fft(a);
   π0abi1_u9_nrange(a);
   π0abi1_u9_tuple(a);
+  π0abi1_u9_index(a);
   π0abi1_u9_structure(a);
   π0abi1_u9_quote(a);
 

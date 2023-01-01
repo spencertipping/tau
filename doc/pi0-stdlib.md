@@ -40,7 +40,6 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 + `[b] [c] ?!`: while `[c]` returns true, do `[b]`
 + `[b] !!`: run `[b]` forever
 + `.^`: pop return stack (used to early-return or break a loop)
-  + **TODO:** `.^` should return through native loops/constructs; we can acquire a stack-depth check within each native driver and have that bail out when the return stack underflows
 
 
 ### Interpreter control
@@ -55,6 +54,7 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 + `?s`: how big is the value? (inner size)
 + `?S`: outer size
 + `:f`: flatten value (inlines all references)
++ `:h`: hash value
 + `$b`: UTF9 → `bytes` (flatten + serialize)
 + `b$`: `bytes` → UTF9 -- deserialize and validate (invalid → `none`)
 + `b$!!`: `bytes` → UTF9 -- deserialize and don't validate (dangerous)
@@ -162,8 +162,8 @@ All of these operators automatically distribute across vectors.
 
 
 ### Strings
-+ `>b`: tuple/set/vector/UTF8 to bytes
-+ `>u`: tuple/set/vector/bytes to UTF8 (non-validating)
++ `>b`: tuple/set/vector/UTF8/symbol to bytes
++ `>u`: tuple/set/vector/bytes/symbol to UTF8 (non-validating)
 + `u?`: is UTF8 string valid
 + `b#`: byte-length of string
 + `c#`: character length of UTF8 string
@@ -185,6 +185,7 @@ All of these operators automatically distribute across vectors.
 
 ### Symbols
 + `@:`: gensym
++ `>@`: bytes/UTF8 to symbol
 
 **TODO:** UTF8/bytes conversions
 
@@ -243,6 +244,8 @@ All of these operators automatically distribute across vectors.
 + `x b >i`: index `x` with `b` bits of approximation; returns indexed structure
   + This operator auto-detects the type of `x`, which can be `tuple`, `set`, or `map`
   + **NOTE:** `set` and `map` are currently unimplemented
++ `i<`: fetch index vector
++ `i>`: fetch indexed object
 
 
 ## λ

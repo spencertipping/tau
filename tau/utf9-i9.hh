@@ -186,6 +186,14 @@ struct i9
   bool is_istruct() const { return type() == u9t::build && Sc<u9_build>(*this) == u9_build::istruct; }
 
   bool is_idx()     const { return type() == u9t::index; }
+  bool is_tuple()   const { return type() == u9t::tuple; }
+  bool is_set()     const { return type() == u9t::set; }
+  bool is_map()     const { return type() == u9t::map; }
+
+
+  i9 as_tuple() const { return is_idx() ? second().as_tuple() : is_tuple() ? *this : i9_none(); }
+  i9 as_set()   const { return is_idx() ? second().as_set()   : is_set()   ? *this : i9_none(); }
+  i9 as_map()   const { return is_idx() ? second().as_map()   : is_map()   ? *this : i9_none(); }
 
 
   template<class T> T* ptr() const { return Rc<T*>(Sc<u9_scoped<u9_Φ, void*>>(*this).x); }
@@ -513,7 +521,7 @@ O &operator<<(O &s, i9 const &x)
 
   case u9t::bytes:  return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
   case u9t::utf8:   return s << "\""  << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
-  case u9t::index:  return s << "i"   << i9{x.begin()};
+  case u9t::index:  return s << "i"   << i9{x.second()};
 
   case u9t::tuple:
   { let b = x.begin();
