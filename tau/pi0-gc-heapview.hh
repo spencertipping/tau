@@ -54,8 +54,6 @@ struct π0hgs : public virtual π0hv  // global set
   π0r &operator[](u9_symbol const &k) { return s[k]; }
   π0hgs        &x(u9_symbol const &k) { s.erase(k); return *this; }
   bool          i(u9_symbol const &k) { return s.contains(k); }
-
-  π0hgs copy() const { return π0hgs{h, s}; }
 };
 
 

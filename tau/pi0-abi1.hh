@@ -420,9 +420,17 @@ void π0abi1_u9_quote(π0abi &a)
 void π0abi1_γ(π0abi &a)
 {
   a .def("λ:", I{
+        π0hnf f{i.h, 1};
         let b = i.bpop();
-        let x = i[0]; i.dpop();
-        i.dpush(i.f.l.c([=, &i]() { π0int j(i); j << x; j.run(b); return 0; })); })
+        i9  x = i[0]; f(&x); i.dpop();
+        i.dpush(i.f.l.c([&]() { π0int j(i); j << x; j.run(b); return 0; })); })
+    .def("λ∷", I{
+        π0hnf f{i.h, 1};
+        let b = i.bpop();
+        i9  x = i[0]; f(&x); i.dpop();
+        i.dpush(i.f.l.c([&]()
+          { π0int j{i, SP<π0hgs>{new π0hgs{i.h, i.g->s}}};
+            j << x; j.run(b); return 0; })); })
     .def("λ_", I{ i.f.l.x(Sc<λi>(i.dpop())); })
     .def("λy", I{ i.f.l.y(λs::Y); })
     .def("Θd", I{ i.f.Θ(now() + Sc<uN>(i.dpop()) * 1ns); });

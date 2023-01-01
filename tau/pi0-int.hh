@@ -39,8 +39,8 @@ struct π0int : π0sv
 
   // NOTE: this is a fork-constructor, not a copy-constructor (stacks are
   // empty in the destination)
-  π0int(π0int const &i)
-    : a(i.a), p(i.p), f(i.f), h(i.h), g(i.g), fs(h), ds(h), dv(&ds) {}
+  π0int(π0int const &i, SP<π0hgs> g_ = nullptr)
+    : a(i.a), p(i.p), f(i.f), h(i.h), g(g_ ? g_ : i.g), fs(h), ds(h), dv(&ds) {}
 
   π0int(π0abi const &a_, SP<π0pgm const> p_, Φ &f_, SP<π0hgs> g_)
     : a(a_), p(p_), f(f_), h(f_.ph), g(g_), fs(h), ds(h), dv(&ds)
