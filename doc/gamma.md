@@ -30,12 +30,12 @@ We typically describe γ ports spatially to help with Γ layout:
   + AWS/Azure billing
   + AWS/Azure DNS
 + Network
-  + TCP server: `sockinfo ⇒ β → (φ, conninfo) → λ → δ`
-  + SSH server: `sockinfo ⇒ β → (φ, conninfo) → λ → δ`
-  + HTTP/WS server: `sockinfo ⇒ β → (φ, url, method, headers) → λ → δ`
-  + TCP client: `sockinfo ⇒ α`
-  + SSH client: `sockinfo ⇒ α`
-  + WS client: `sockinfo ⇒ α`
+  + TCP server: `sockinfo ⇒ β → (φ, conninfo) → λ → α`
+  + SSH server: `sockinfo ⇒ β → (φ, conninfo) → λ → α`
+  + HTTP/WS server: `sockinfo ⇒ β → (φ, url, method, headers) → λ → α`
+  + TCP client: `sockinfo ⇒ δ`
+  + SSH client: `sockinfo ⇒ δ`
+  + WS client: `sockinfo ⇒ δ`
 + File IO
   + Sequential file reader (bytes)
   + Sequential file writer (bytes)

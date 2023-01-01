@@ -6,6 +6,18 @@ A composition of [γ](gamma.md) elements that form an eigenvector within a large
 Γ can be thought of as the control plane for γ pipelines.
 
 
+## Exponential vectors
+τ needs to incorporate its exponential eigenvectors into the steady-state space of Laplacian programs; that is, we can't shell out to an external state manager to create new connections. Instead, components like servers and multiplexers that implement `x → φ` mappings must _λ_-map those φ values, constructing any required γ and Γ, before sending the resulting φs into the `φ → x` port of another γ.
+
+So an exponential steady state is defined like this:
+
+```
+(β :: φ(φ)) → γ... → (α :: φ(φ))
+```
+
+The _α_ consumer receives φs and connects them to newly-created φs on its side -- for example, a multiplexer might accept `(φ, k)` and create a new `k`-bound φ on its side connected to the φ that was provided. That φ lives until either side breaks the connection; a multiplexer would then destroy its `k`-bound φ and unmap `k` from its routing table.
+
+
 ## Examples
 + Asqi
   + Inbound SSH connection ↔ git process
