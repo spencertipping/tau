@@ -180,6 +180,28 @@ struct π0hgl : public virtual π0hv  // GC lock (asserts that no GC will happen
 };
 
 
+struct π0hη : public virtual π0hv   // i9-keyed map
+{
+  M<i9, π0r> s;
+
+  π0hη()            = delete;
+  π0hη(π0hη const&) = delete;
+  π0hη(π0hη &&x) : π0hv(x.h), s(std::move(x.s)) {}
+  π0hη(π0h  &h_) : π0hv(h_) {}
+
+  void mark() { for (let &[k, v] : s) h.mark(k.a), h.mark(v); }
+  void move()
+    { for (auto &[k, v] : s)
+      { // NOTE: modification is safe here because hashing is GC-invariant
+        Cc<i9&>(k).a = h.move(k.a);
+        v            = h.move(v); } }
+
+  π0r &operator[](i9 const &k) { return s[k]; }
+  π0hη         &x(i9 const &k) { s.erase(k); return *this; }
+  bool          i(i9 const &k) { return s.contains(k); }
+};
+
+
 }
 
 #include "end.hh"

@@ -407,6 +407,12 @@ letc u9fixed    = u9numbers | u9tm{u9t::b};
 letc u9atomics  = u9strings | u9numbers | u9tm{u9t::b, u9t::symbol};
 letc u9vectors  = u9numbers | u9tm{u9t::b};
 
+// NOTE: π0hη requires that any hashable type be 100% stable under GC
+// (and general semantics strongly suggest we should do it this way)
+//
+// TODO: expand this to all i9 types once we define stable hashing semantics
+letc u9hashable = u9vectors | u9strings | u9tm{u9t::symbol};
+
 
 // Converible-from: u9cf_<T>::m contains the set of things from which
 // T can be implicitly converted

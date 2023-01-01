@@ -213,6 +213,9 @@ struct i9
   u64  θ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::θ ? R<u64>(begin(), 2) : 0; }
   u64  ι() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::ι ? R<u64>(begin(), 2) : 0; }
   bool τ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::τ; }
+  bool α() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::α; }
+  bool ω() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::ω; }
+  bool κ() const { return type() == u9t::stream && Sc<u9st>(*this) == u9st::κ; }
 
 
   i9 operator*() const
@@ -271,6 +274,13 @@ struct i9
 
       TA(*this, "i9[i9] undefined for " << type());
       } }
+
+
+  u64 h() const
+    { let t = type();
+      u9hashable(t);
+      if (t == u9t::symbol) return std::hash<u9_symbol>{}(*this);
+      return XXH3_64bits_withSeed(data(), size(), Sc<uN>(t)); }
 
 
   bool operator==(uN   x) const { return u9unsigned[type()] && Sc<uN> (*this) == x; }
@@ -528,6 +538,12 @@ O &operator<<(O &s, i9 const &x)
 
 
 }
+
+
+template<>
+struct std::hash<τ::i9>
+{ inline size_t operator()(τ::i9 const x) const { return x.h(); } };
+
 
 #include "end.hh"
 

@@ -183,6 +183,12 @@ All of these operators automatically distribute across vectors.
 + `(s1, s2, ...) u/++`: join UTF8-strings
 
 
+### Symbols
++ `@:`: gensym
+
+**TODO:** UTF8/bytes conversions
+
+
 ### Tuples
 + `... x₃ x₂ x₁ n >>t`: make tuple from elements
 + `t <<t`: flatten tuple to stack, with length on top
@@ -243,6 +249,14 @@ All of these operators automatically distribute across vectors.
 + `λy`: yield out
 + `dt Θd`: sleep nanoseconds
 + `t Θt`: sleep until nanosecond timestamp (TODO)
+
+
+## η
++ `η:`: create η
++ `η* η_`: destroy η
++ `η* v k η=`: create binding in η -- if `k == ω`, then delete binding
++ `η* k η@`: access binding in η
++ `η* k η?`: check for binding existence
 
 
 ## φ

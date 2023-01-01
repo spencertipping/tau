@@ -6,6 +6,7 @@
 
 #include "../dep/pffft.h"
 
+#include "pi0-gc-heapview.hh"
 #include "utf9-i9.hh"
 #include "utf9-types.hh"
 #include "utf9.hh"
@@ -320,6 +321,12 @@ void π0abi1_u9_string(π0abi &a)
 }
 
 
+void π0abi1_u9_symbol(π0abi &a)
+{
+  a .def("@:", I{ i.dpush(u9_symbol::gensym()); });
+}
+
+
 void π0abi1_u9_fft(π0abi &a)
 {
   // TODO
@@ -417,8 +424,13 @@ void π0abi1_u9_quote(π0abi &a)
 }
 
 
-void π0abi1_γ(π0abi &a)
+void π0abi1_λ(π0abi &a)
 {
+  // NOTE: λ: and λ∷ have subtle GC semantics because the lambda body
+  // doesn't run synchronously, so the .dpush() may trigger a GC that
+  // moves the init arg. As a result, we need to make sure it's bound
+  // into a native frame whose lifetime extends until the λ has pushed
+  // it into its own interpreter data stack.
   a .def("λ:", I{
         let f = new π0hnf{i.h, 1};
         let b = i.bpop();
@@ -440,6 +452,27 @@ void π0abi1_γ(π0abi &a)
     .def("λ_", I{ i.f.l.x(Sc<λi>(i.dpop())); })
     .def("λy", I{ i.f.l.y(λs::Y); })
     .def("Θd", I{ i.f.Θ(now() + Sc<uN>(i.dpop()) * 1ns); });
+}
+
+
+void π0abi1_η(π0abi &a)
+{
+  a .def("η:", I{ i.dpush(o9ptr(new π0hη(i.h))); })
+    .def("η_", I{ let y = i.dpop().template ptr<π0hη>(); delete y; })
+    .def("η=", I{
+        let k = i.dpop();
+        let v = i.dpop();
+        let y = i.dpop().template ptr<π0hη>();
+        if (v.ω()) y->x(k);
+        else       (*y)[k] = v.a; })
+    .def("η@", I{
+        let k = i.dpop();
+        let y = i.dpop().template ptr<π0hη>();
+        i << (*y)[k]; })
+    .def("η?", I{
+        let k = i.dpop();
+        let y = i.dpop().template ptr<π0hη>();
+        i.dpush(y->i(k)); });
 }
 
 
@@ -534,13 +567,15 @@ void π0abi1(π0abi &a)
   π0abi1_u9_vector(a);
   π0abi1_u9_number(a);
   π0abi1_u9_string(a);
+  π0abi1_u9_symbol(a);
   π0abi1_u9_fft(a);
   π0abi1_u9_nrange(a);
   π0abi1_u9_tuple(a);
   π0abi1_u9_structure(a);
   π0abi1_u9_quote(a);
 
-  π0abi1_γ(a);
+  π0abi1_λ(a);
+  π0abi1_η(a);
   π0abi1_φ(a);
 
 # if τdebug
