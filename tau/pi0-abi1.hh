@@ -409,6 +409,7 @@ void π0abi1_u9_set(π0abi &a)
         π0hnf f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
         for (uN j = 0; j < k; ++j) xs.push_back(i.dpop());
+        i9_ssort(xs.begin(), xs.end());
         i.dpush(xs);
         i.h(i[0]).retype(u9t::tuple, u9t::set); })
     .def("s?", I{ let s = i.dpop(); i.dpush(s[i.dpop()]); })
@@ -431,18 +432,20 @@ void π0abi1_u9_map(π0abi &a)
         V<i9> xs; xs.reserve(k * 2); f(&xs);
         for (uN j = 0; j < k; ++j) xs.push_back(i[j]), xs.push_back(i[j + k]);
         i.drop(k * 2);
+        i9_msort(xs.begin(), xs.end());
         i.dpush(xs);
         i.h(i[0]).retype(u9t::tuple, u9t::map); })
     .def("^m", I{
         π0hnf f{i.h, 0};
-        let ks = i.dpop().as_tuple(); i9 k = ks.first();
-        let vs = i.dpop().as_tuple(); i9 v = vs.first();
-        let ke = ks.end();
-        let ve = vs.end();
+        let ks = i.dpop().as_tuple();
+        let vs = i.dpop().as_tuple();
         V<i9> m; m.reserve(std::min(ks.len(), vs.len())); f(&m);
-        while (k.a < ke.a && v.a < ve.a)
-        { m.push_back(k); ++k;
-          m.push_back(v); ++v; }
+        for (i9 k = ks.first(), ke = ks.next(),
+                v = vs.first(), ve = vs.next();
+             k.a < ke.a && v.a < ve.a;
+             ++k, ++v)
+          m.push_back(k), m.push_back(v);
+        i9_msort(m.begin(), m.end());
         i.dpush(m);
         i.h(i[0]).retype(u9t::tuple, u9t::map); })
     .def("m@", I{ let k = i.dpop(); i.dpush(i.dpop()[k]); })
@@ -464,6 +467,9 @@ void π0abi1_u9_map(π0abi &a)
         let ks = i.dpop().as_tuple();
         uNc k  = ks.len();
         V<i9> xs; xs.reserve(k * 2); f(&xs);
+
+        // FIXME: optimize; we should sort the keys on hash and then do
+        // a streaming merge against map keys
         for (let x : ks) xs.push_back(m[x]);
         i.dpush(xs); })
     .def("m.", I{

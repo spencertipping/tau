@@ -450,6 +450,35 @@ inline i9 i9_none()         { return i9{i9_statics + 18}; }
 static_assert(sizeof(i9) == sizeof(uN));
 
 
+template<class T>
+void i9_ssort(T s, T e)
+{
+  struct hx { u64 h; i9 x; };
+  let n = std::distance(s, e);
+  V<hx> hs; hs.reserve(n);
+  for (T i = s; i < e; i++) hs.push_back(hx{(*i).h(), *i});
+  std::sort(hs.begin(), hs.end(), [](hx &a, hx &b) { return a.h < b.h; });
+  T i = s;
+  for (let h : hs) *i++ = h.x;
+}
+
+
+template<class T>
+void i9_msort(T s, T e)
+{
+  struct hx { u64 h; i9 k; i9 v; };
+  let n = std::distance(s, e) / 2;
+  V<hx> hs; hs.reserve(n);
+  for (T i = s; i < e;)
+  { let k = *i++;
+    let v = *i++;
+    hs.push_back(hx{k.h(), k, v}); }
+  std::sort(hs.begin(), hs.end(), [](hx &a, hx &b) { return a.h < b.h; });
+  T i = s;
+  for (let h : hs) { *i++ = h.k; *i++ = h.v; }
+}
+
+
 #if τdebug_iostream
 O &operator<<(O &s, i9v x)
 {

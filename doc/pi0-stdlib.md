@@ -245,9 +245,9 @@ All of these operators automatically distribute across vectors.
 + `ks m m<`: multiple map k/v lookup
 + `a b m|`: map union, prefer values from `b`
 + `a b m&`: map intersection, prefer values from `a`
-+ `m [...] m.`: for-each
-+ `m [...] m*`: map
-+ `m [...] m%`: filter
++ `m [...] m.`: for-each (`k v → ...`)
++ `m [...] m*`: map (`k v → v'`)
++ `m [...] m%`: filter (`k v → b`)
 
 
 ### Indexes
