@@ -233,6 +233,7 @@ All of these operators automatically distribute across vectors.
 + `xs [...] s.`: for-each
 + `xs [...] s*`: map
 + `xs [...] s%`: filter
++ **TODO:** operator to ensure hash-ordering
 
 
 ### Maps
@@ -247,6 +248,7 @@ All of these operators automatically distribute across vectors.
 + `m [...] m.`: for-each (`k v → ...`)
 + `m [...] m*`: map (`k v → v'`)
 + `m [...] m%`: filter (`k v → b`)
++ **TODO:** operator to ensure hash-ordering
 
 
 ### Indexes
