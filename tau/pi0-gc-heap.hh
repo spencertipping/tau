@@ -52,8 +52,8 @@ struct π0h  // a multi-generational heap
       return gω; }
 
 
-  void res(uN s)  // make sure we can allocate s bytes without GC
-    { if (s > hs[0]->avail()) gc(s); }
+  // Make sure we can allocate s bytes without GC
+  void res(uN s) { if (s > hs[0]->avail()) gc(s); }
 
 
   // Follow references until we hit something else

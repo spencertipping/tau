@@ -165,6 +165,10 @@ struct i9
         return size() >> u9logsizeof(type()); }
 
 
+  i9 ivec()  const { u9tm{u9t::index}(type()); return first().deref(); }
+  i9 icoll() const { u9tm{u9t::index}(type()); return second().deref(); }
+
+
   template<class T> operator u9_scoped<u9_π,     T>() const { u9tm{u9t::pi}   (type()); return R<u9_scoped<u9_π,     T>>(data(), 0); }
   template<class T> operator u9_scoped<u9_Φ,     T>() const { u9tm{u9t::phi}  (type()); return R<u9_scoped<u9_Φ,     T>>(data(), 0); }
   template<class T> operator u9_scoped<u9_host,  T>() const { u9tm{u9t::host} (type()); return R<u9_scoped<u9_host,  T>>(data(), 0); }
@@ -258,8 +262,8 @@ struct i9
       {
       case u9t::tuple: return tlin(i);
       case u9t::index:
-      { let ix = first();
-        if (ix.vn() < 4) return second().tlin(i);
+      { let ix = ivec();
+        if (ix.vn() < 4) return icoll().tlin(i);
 
         // Two possibilities. One is that the index is evenly spaced,
         // so we can interpolation-jump straight to the correct element.
@@ -269,8 +273,8 @@ struct i9
         if (n < ix.vn() - 1
             && ix.template at<uN>(n) <= i
             && ix.template at<uN>(n) - i < Δ)
-          return second().tlin(ix.template at<uN>(n) - i,
-                               ix.template at<uN>(n + 1));
+          return icoll().tlin(ix.template at<uN>(n) - i,
+                              ix.template at<uN>(n + 1));
         else
           // The other possibility, which we don't currently generate,
           // is an uneven index; we should binary-search it because the
@@ -292,17 +296,20 @@ struct i9
         let u = size();
         uN  j = 0;
         for (; n && j < u; --n, j += i9::size_of(data() + j));
-        return n ? i9_none() : i9{data() + j}; }
+        return n ? i9_tuple_bounds() : i9{data() + j}; }
 
       case u9t::set:
-      { for (let x : *this) if (i == x) return i9_true();
+      { for (let x : *this) if (x == i) return i9_true();
         return i9_false(); }
 
       case u9t::map:
-      { for (let x : keys()) if (i == x) return x.next();
+      { for (let x : keys()) if (x == i) return x.next();
         return i9_no_key(); }
 
-      case u9t::index: TODO("i9[i9] index");
+      case u9t::index:
+      { let h = i.h();
+        TODO("i9[] index");
+      }
 
       TA(*this, "i9[i9] undefined for " << type());
       } }
@@ -310,6 +317,8 @@ struct i9
 
   u64 h() const
     { let t = type();
+
+      // FIXME: expand the range of hashable types
       u9hashable(t);
       if (t == u9t::symbol) return std::hash<u9_symbol>{}(*this);
       return XXH3_64bits_withSeed(data(), size(), Sc<uN>(t)); }
@@ -348,6 +357,16 @@ struct i9
                        << type() << " ≠ " << f);
       *a = *a & 7 | Sc<u8>(t) << 3;
       return *this; }
+
+
+  i9 deref() const { return is_πref() ? (**this).deref() : *this; }
+
+
+  V<i9> &into(V<i9> &xs) const
+    { u9tm{u9t::tuple, u9t::set, u9t::map}(type());
+      xs.reserve(len());
+      for (let x : *this) xs.push_back(x);
+      return xs; }
 
 
   // Vector accessors

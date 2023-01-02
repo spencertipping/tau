@@ -461,17 +461,6 @@ void π0abi1_u9_map(π0abi &a)
         V<i9> xs; xs.reserve(k); f(&xs);
         for (let x : i.dpop().as_map().keys()) xs.push_back(x.next());
         i.dpush(xs); })
-    .def("m<", I{
-        π0hnf f{i.h, 0};
-        let m  = i.dpop();
-        let ks = i.dpop().as_tuple();
-        uNc k  = ks.len();
-        V<i9> xs; xs.reserve(k); f(&xs);
-
-        // FIXME: optimize; we should sort the keys on hash and then do
-        // a streaming merge against map keys
-        for (let x : ks) xs.push_back(m[x]);
-        i.dpush(xs); })
     .def("m.", I{
         π0hnf f{i.h, 2};
         let   g  = i.bpop();
@@ -488,11 +477,11 @@ void π0abi1_u9_index(π0abi &a)
   a .def(">i", I{
       π0hnf f{i.h, 1};
       let b = Sc<uf8>(i.dpop());
-      i9  x = i.dpop();
+      i9  x = i.dpop();  // FIXME: reference this
       f(&x);
-      i.dpush(o9it{x, b}); })
-    .def("i<", I{ i.dpush(i.dpop().first()); })
-    .def("i>", I{ i.dpush(i.dpop().second()); });
+      i.dpush(o9idx{x, b}); })
+    .def("i<", I{ i << i.dpop().ivec(); })
+    .def("i>", I{ i << i.dpop().icoll(); });
 }
 
 

@@ -416,59 +416,86 @@ struct o9vecsized : virtual o9V
 };
 
 
-struct o9it : virtual o9V
-{
-  i9  const x;
-  uNc       n;
-  uf8c      b;
-  u9t const t;
-  o9it(i9 x_, uf8 b_)
-    : x(x_), n(x.len() >> b_), b(b_), t(u9tqu(x.osize()))
-    { u9tm{u9t::tuple}(x.type()); }
-
-  uN isize() const { return osize(n * 2 * u9sizeof(t)) + x.osize(); }
-  uN size()  const { return osize(isize()); }
-
-  template<class T>
-  void widx(i9 m) const
-    { let a = ~(Sc<T>(-1) << b);
-      T   i = 0;
-      for (let y : x)
-      { if (!(i & a))
-        { m.template set<T>(i >> b - 1,     i);
-          m.template set<T>(i >> b - 1 | 1, Sc<T>(y.a - x.a)); }
-        ++i; } }
-
-  uN write(ζp m) const
-    { let i = u9ws(m, 0, u9t::index, isize(), x.flagged());
-      o9vecsized{n * 2 * u9sizeof(t), t}.write(m + i);
-      let v = i9{m + i};
-      switch (t)
-      {
-      case u9t::u8:  widx<u8>(v);  break;
-      case u9t::u16: widx<u16>(v); break;
-      case u9t::u32: widx<u32>(v); break;
-      case u9t::u64: widx<u64>(v); break;
-        TA(0, "o9it::write u9tqu OOB: " << t);
-      }
-      A(!o9i9{x}.write(m + i + v.osize()),
-        "o9it resizing indexed object");
-      return 0; }
-};
-
-
 struct o9idx : virtual o9V
 {
   i9  const x;
   uNc       n;
   uf8c      b;
-  u9s const s;
+  u9t const t;
+
   o9idx(i9 x_, uf8 b_)
-    : x(x_), n(x.len() >> b_), b(b_), s(u9sq(x.osize()))
-    { u9tm{u9t::set, u9t::map}(x.type()); }
+    : x(x_), n(x.len() >> b_), b(b_), t(u9tqu(x.osize())) {}
 
-  // TODO: write, which involves a sort
+  uN isize() const { return osize(n * 2 * u9sizeof(t)) + x.size(); }
+  uN size()  const { return osize(isize()); }
 
+  template<class U>
+  void widx_t(i9 m) const
+    { let a = ~(Sc<U>(-1) << b);
+      let c = x.deref();
+      U   i = 0;
+      for (let y : c)
+      { if (!(i & a))
+        { m.template set<U>(i >> b - 1,     i);
+          m.template set<U>(i >> b - 1 | 1, Sc<U>(y.a - c.a)); }
+        ++i; } }
+
+  template<class U>
+  void widx_s(i9 m) const
+    { u64 h = 0;
+      let c = x.deref();
+      for (let y : c)
+      { let yh = y.h();
+        A(yh >= h, "widx_s h nonascending: " << yh << " < " << h);
+        h = yh; }
+      let a = ~(Sc<U>(-1) << b);
+      U   i = 0;
+      for (let y : c)
+      { if (!(i & a))
+        { m.template set<U>(i >> b - 1,     y.h() >> (sizeof(u64) - sizeof(U)) * 8);
+          m.template set<U>(i >> b - 1 | 1, Sc<U>(y.a - c.a)); }
+        ++i; } }
+
+  template<class U>
+  void widx_m(i9 m) const
+    { u64 h = 0;
+      let c = x.deref();
+      for (let y : c.keys())
+      { let yh = y.h();
+        A(yh >= h, "widx_m h nonascending: " << yh << " < " << h);
+        h = yh; }
+      let a = ~(Sc<U>(-1) << b);
+      U   i = 0;
+      for (let y : c.keys())
+      { if (!(i & a))
+        { m.template set<U>(i >> b - 1,     y.h() >> (sizeof(u64) - sizeof(U)) * 8);
+          m.template set<U>(i >> b - 1 | 1, Sc<U>(y.a - c.a)); }
+        ++i; } }
+
+  template<class U>
+  void widx(i9 m) const
+    { switch (x.type())
+      {
+      case u9t::tuple: widx_t<U>(m); break;
+      case u9t::set:   widx_s<U>(m); break;
+      case u9t::map:   widx_m<U>(m); break;
+        TA(, "o9idx invalid ctype: " << x.type());
+      } }
+
+  uN write(ζp m) const
+    { let i = u9ws(m, 0, u9t::index, isize(), x.flagged());
+      let v = i9{m + i};
+      o9vecsized{n * 2 * u9sizeof(t), t}.write(m + i);
+      A(!o9i9{x}.write(m + i + v.osize()), "o9idx resizing indexed object");
+      switch (t)
+      {
+      case u9t::u8:  widx<u8> (v);  break;
+      case u9t::u16: widx<u16>(v); break;
+      case u9t::u32: widx<u32>(v); break;
+      case u9t::u64: widx<u64>(v); break;
+        TA(0, "o9idx::write u9tqu OOB: " << t);
+      }
+      return 0; }
 };
 
 
@@ -496,7 +523,7 @@ template<class... T> struct o9_<o9mc<T...>> { sletc v = true; };
 template<class... T> struct o9_<o9t<T...>>  { sletc v = true; };
 template<class T>    struct o9_<o9vec<T>>   { sletc v = true; };
 
-template<>           struct o9_<o9it>       { sletc v = true; };
+template<>           struct o9_<o9idx>      { sletc v = true; };
 
 
 // This one is special due to higher-order second type arg

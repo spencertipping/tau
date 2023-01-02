@@ -242,7 +242,6 @@ All of these operators automatically distribute across vectors.
 + `m mk`: tuple of map keys
 + `m mv`: tuple of map values
 + `k  m m@`: map k/v lookup
-+ `ks m m<`: multiple map k/v lookup
 + `a b m|`: map union, prefer values from `b`
 + `a b m&`: map intersection, prefer values from `a`
 + `m [...] m.`: for-each (`k v → ...`)
