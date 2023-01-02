@@ -15,3 +15,11 @@ $ ./pi0 '[ "hi" :out _ ] '\''say-hi %=
 "hi"
 "hi"
 ```
+
+I ran into a bug involving global functions, so let's test those:
+
+```bash
+$ ./pi0 '[ 1 i32+ ] '\''inc %=
+         10 [ inc ] i32. 10 >>t :out _'
+(10,9,8,7,6,5,4,3,2,1)
+```

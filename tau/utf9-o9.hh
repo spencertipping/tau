@@ -227,7 +227,7 @@ struct o9v : virtual o9V  // unindexed, unordered tuple/set (simple)
 
   o9v(C<T, Ts...> const &xs_) : xs(xs_) {}
 
-  uN size() const { return osize(isize()); }
+  uN size()  const { return osize(isize()); }
   uN isize() const
     { if (!s) for (let &x : xs) s += o9(x).size();
       return s; }
@@ -258,7 +258,7 @@ struct o9vc : virtual o9V  // unindexed, unordered tuple/set (complex)
     { ys.reserve(xs.size());
       for (let &x : xs) ys.push_back(o9(x)); }
 
-  uN size() const { return osize(isize()); }
+  uN size()  const { return osize(isize()); }
   uN isize() const
     { if (!s) for (let &y : ys) s += y.size();
       return s; }
@@ -284,7 +284,7 @@ struct o9m : virtual o9V  // unindexed, unordered k/v map
 
   o9m(M<K, V, Ts...> const &xs_) : xs(xs_) {}
 
-  uN size() const { return osize(isize()); }
+  uN size()  const { return osize(isize()); }
   uN isize() const
     { if (!s) for (let &[k, v] : xs) s += o9(k).size() + o9(v).size();
       return s; }
@@ -427,7 +427,7 @@ struct o9idx : virtual o9V
     : x(x_), n(x.deref().len() >> b_), b(b_), t(u9tqu(x.osize()))
     { u9tm{u9t::tuple, u9t::set, u9t::map}(x.deref().type()); }
 
-  uN isize() const { return osize(n * 2 * u9sizeof(t)) + x.size(); }
+  uN isize() const { return osize(n * 2 * u9sizeof(t)) + x.osize(); }
   uN size()  const { return osize(isize()); }
 
   template<class U>
