@@ -323,6 +323,21 @@ struct i9
       return XXH3_64bits_withSeed(data(), size(), Sc<uN>(t)); }
 
 
+  bool is_sord() const
+    { u9tm{u9t::set}(type());
+      u64 h = 0;
+      for (let x : *this)
+      { let xh = x.h(); if (xh < h) return false; h = xh; }
+      return true; }
+
+  bool is_mord() const
+    { u9tm{u9t::map}(type());
+      u64 h = 0;
+      for (let x : keys())
+      { let xh = x.h(); if (xh < h) return false; h = xh; }
+      return true; }
+
+
   bool operator==(uN   x) const { return u9unsigned[type()] && Sc<uN> (*this) == x; }
   bool operator==(i64  x) const { return u9signed[type()]   && Sc<i64>(*this) == x; }
   bool operator==(i32  x) const { return u9signed[type()]   && Sc<i32>(*this) == x; }

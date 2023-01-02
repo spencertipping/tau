@@ -136,7 +136,7 @@ void π0abi1_u9_general(π0abi &a)
 void π0abi1_u9_vector(π0abi &a)
 {
 #define a1vfns(t)                                                      \
-  a .def(">>" #t "s", I{                                               \
+  a .def("»" #t "s", I{                                                \
       uNc k = Sc<iN>(i.dpop());                                        \
       let r = i9{i.h << o9vec<t>{k}};                                  \
       for (uN j = 0; j < k; ++j)                                       \
@@ -347,7 +347,7 @@ void π0abi1_u9_tuple(π0abi &a)
 {
   a .def("t@", I{ let k = Sc<uN>(i.dpop()); i.dpush(i.dpop().as_tuple()[k]); })
     .def("t#", I{ i.dpush(i.dpop().as_tuple().len()); })
-    .def(">>t", I{
+    .def("»t", I{
         uNc k = Sc<iN>(i.dpop());
         π0hnf f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
@@ -404,14 +404,14 @@ void π0abi1_u9_tuple(π0abi &a)
 
 void π0abi1_u9_set(π0abi &a)
 {
-  a .def(">>s", I{
+  a .def("»s", I{
         uNc k = Sc<iN>(i.dpop());
         π0hnf f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
         for (uN j = 0; j < k; ++j) xs.push_back(i.dpop());
         i9_ssort(xs.begin(), xs.end());
         i.dpush(xs);
-        i.h(i[0]).retype(u9t::tuple, u9t::set); })
+        i[0].deref().retype(u9t::tuple, u9t::set); })
     .def("s?", I{ let s = i.dpop(); i.dpush(s[i.dpop()]); })
     .def("s.", I{
         π0hnf f{i.h, 2};
@@ -420,13 +420,20 @@ void π0abi1_u9_set(π0abi &a)
         i9    x  = xs.first();          f(&x);
         i9    e;                        f([&]() { e = xs.next(); });
         π0rsf r{i};
-        while (r && x.a < e.a) { i << x; i.run(g); ++x; } });
+        while (r && x.a < e.a) { i << x; i.run(g); ++x; } })
+    .def("s»", I{
+        if (!i[0].is_sord())
+        { π0hnf f{i.h, 2};
+          V<i9> xs; i.dpop().into(xs); f(&xs);
+          i9_ssort(xs.begin(), xs.end());
+          i.dpush(xs);
+          i[0].deref().retype(u9t::tuple, u9t::set); }});
 }
 
 
 void π0abi1_u9_map(π0abi &a)
 {
-  a .def(">>m", I{
+  a .def("»m", I{
         uNc k = Sc<iN>(i.dpop());
         π0hnf f{i.h, 0};
         V<i9> xs; xs.reserve(k * 2); f(&xs);
@@ -468,7 +475,14 @@ void π0abi1_u9_map(π0abi &a)
         i9    x  = xs.first();        f(&x);
         i9    e;                      f([&]() { e = xs.next(); });
         π0rsf r{i};
-        while (r && x.a < e.a) { i << x; i << ++x; i.run(g); ++x; } });
+        while (r && x.a < e.a) { i << x; i << ++x; i.run(g); ++x; } })
+    .def("m»", I{
+        if (!i[0].is_mord())
+        { π0hnf f{i.h, 2};
+          V<i9> xs; i.dpop().into(xs); f(&xs);
+          i9_msort(xs.begin(), xs.end());
+          i.dpush(xs);
+          i[0].deref().retype(u9t::tuple, u9t::map); }});
 }
 
 

@@ -230,10 +230,10 @@ All of these operators automatically distribute across vectors.
 + `a b s|`: set union
 + `a b s&`: set intersection
 + `a b s-`: set difference (`a - b`)
-+ `xs [...] s.`: for-each
-+ `xs [...] s*`: map
-+ `xs [...] s%`: filter
-+ **TODO:** operator to ensure hash-ordering
++ `s [...] s.`: for-each
++ `s [...] s*`: map
++ `s [...] s%`: filter
++ `s s»`: ensure hash-ordering (required before `>i`)
 
 
 ### Maps
@@ -248,7 +248,7 @@ All of these operators automatically distribute across vectors.
 + `m [...] m.`: for-each (`k v → ...`)
 + `m [...] m*`: map (`k v → v'`)
 + `m [...] m%`: filter (`k v → b`)
-+ **TODO:** operator to ensure hash-ordering
++ `m m»`: ensure hash-ordering (required before `>i`)
 
 
 ### Indexes
