@@ -23,8 +23,8 @@ namespace τ
 
 static u8 i9_statics[] =
 {
-  u9t::b      | u9s::v8, 1, 0,                                    // offset 0 = false
-  u9t::b      | u9s::v8, 1, 1,                                    // offset 3 = true
+  u9t::b      | u9s::v8, 1,  0 | 1,                               // offset 0 = false
+  u9t::b      | u9s::v8, 1, 16 | 1,                               // offset 3 = true
   u9t::symbol | u9s::v8, 1, 0,                                    // offset 6 = null symbol
   u9t::none   | u9s::v8, 1, Sc<u8>(u9_none::key_lookup_missing),  // offset 9 = no key
   u9t::none   | u9s::v8, 1, Sc<u8>(u9_none::tuple_bounds_error),  // offset 12 = tuple OOB
