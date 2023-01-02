@@ -165,10 +165,6 @@ struct i9
         return size() >> u9logsizeof(type()); }
 
 
-  i9 ivec()  const { u9tm{u9t::index}(type()); return first().deref(); }
-  i9 icoll() const { u9tm{u9t::index}(type()); return second().deref(); }
-
-
   template<class T> operator u9_scoped<u9_π,     T>() const { u9tm{u9t::pi}   (type()); return R<u9_scoped<u9_π,     T>>(data(), 0); }
   template<class T> operator u9_scoped<u9_Φ,     T>() const { u9tm{u9t::phi}  (type()); return R<u9_scoped<u9_Φ,     T>>(data(), 0); }
   template<class T> operator u9_scoped<u9_host,  T>() const { u9tm{u9t::host} (type()); return R<u9_scoped<u9_host,  T>>(data(), 0); }
@@ -186,6 +182,7 @@ struct i9
   bool is_π()       const { return type() == u9t::pi; }
   bool is_πref()    const { return is_π() && Sc<u9_π>(*this) == u9_π::ref; }
   ζp   πref()       const { return Sc<u9_scoped<u9_π, ζp>>(*this).x; }
+  i9   deref()      const { return is_πref() ? (**this).deref() : *this; }
 
   bool is_istruct() const { return type() == u9t::build && Sc<u9_build>(*this) == u9_build::istruct; }
 
@@ -194,10 +191,12 @@ struct i9
   bool is_set()     const { return type() == u9t::set; }
   bool is_map()     const { return type() == u9t::map; }
 
+  i9 ivec()  const { u9tm{u9t::index}(type()); return first().deref(); }
+  i9 icoll() const { u9tm{u9t::index}(type()); return second().deref(); }
 
-  i9 as_tuple() const { return is_idx() ? second().as_tuple() : is_tuple() ? *this : i9_none(); }
-  i9 as_set()   const { return is_idx() ? second().as_set()   : is_set()   ? *this : i9_none(); }
-  i9 as_map()   const { return is_idx() ? second().as_map()   : is_map()   ? *this : i9_none(); }
+  i9 as_tuple() const { return is_idx() ? icoll().as_tuple() : is_tuple() ? deref() : i9_none(); }
+  i9 as_set()   const { return is_idx() ? icoll().as_set()   : is_set()   ? deref() : i9_none(); }
+  i9 as_map()   const { return is_idx() ? icoll().as_map()   : is_map()   ? deref() : i9_none(); }
 
 
   template<class T> T* ptr() const { return Rc<T*>(Sc<u9_scoped<u9_Φ, void*>>(*this).x); }
@@ -357,9 +356,6 @@ struct i9
                        << type() << " ≠ " << f);
       *a = *a & 7 | Sc<u8>(t) << 3;
       return *this; }
-
-
-  i9 deref() const { return is_πref() ? (**this).deref() : *this; }
 
 
   V<i9> &into(V<i9> &xs) const
