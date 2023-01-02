@@ -272,6 +272,9 @@ struct i9
           return second().tlin(ix.template at<uN>(n) - i,
                                ix.template at<uN>(n + 1));
         else
+          // The other possibility, which we don't currently generate,
+          // is an uneven index; we should binary-search it because the
+          // indexes might not be uniformly distributed.
           TODO("i9[] binsearch; Δ = " << Δ << ", i = " << i << ", n = " << n);
       }
         TA(0, "i9[uN] requires index or tuple, not " << type())
