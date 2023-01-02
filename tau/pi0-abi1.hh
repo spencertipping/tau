@@ -351,7 +351,7 @@ void π0abi1_u9_tuple(π0abi &a)
         uNc k = Sc<iN>(i.dpop());
         π0hnf f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
-        for (uN j = 0; j < k; ++j) xs.push_back(i.pop());
+        for (uN j = 0; j < k; ++j) xs.push_back(i.dpop());
         i.dpush(xs); })
     .def("t++", I{
         let k = i9{i[0]}.as_tuple().len() + i9{i[1]}.as_tuple().len();
@@ -408,9 +408,18 @@ void π0abi1_u9_set(π0abi &a)
         uNc k = Sc<iN>(i.dpop());
         π0hnf f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
-        for (uN j = 0; j < k; ++j) xs.push_back(i.pop());
+        for (uN j = 0; j < k; ++j) xs.push_back(i.dpop());
         i.dpush(xs);
-        i.h(i[0]).retype(u9t::tuple, u9t::set); });
+        i.h(i[0]).retype(u9t::tuple, u9t::set); })
+    .def("s?", I{ let s = i.dpop(); i.dpush(s[i.dpop()]); })
+    .def("s.", I{
+        π0hnf f{i.h, 2};
+        let   g  = i.bpop();
+        i9    xs = i.dpop().as_tuple(); f(&xs);
+        i9    x  = xs.first();          f(&x);
+        i9    e;                        f([&]() { e = xs.next(); });
+        π0rsf r{i};
+        while (r && x.a < e.a) { i << x; i.run(g); ++x; } });
 }
 
 
@@ -423,10 +432,48 @@ void π0abi1_u9_map(π0abi &a)
         for (uN j = 0; j < k; ++j) xs.push_back(i[j]), xs.push_back(i[j + k]);
         i.drop(k * 2);
         i.dpush(xs);
-        // FIXME: use an o9map emitter
         i.h(i[0]).retype(u9t::tuple, u9t::map); })
-    .def("^m", I{ TODO("^m"); })
-    .def("m@", I{ let k = i.dpop(); i.dpush(i.dpop()[k]); });
+    .def("^m", I{
+        π0hnf f{i.h, 0};
+        let ks = i.dpop().as_tuple(); i9 k = ks.first();
+        let vs = i.dpop().as_tuple(); i9 v = vs.first();
+        let ke = ks.end();
+        let ve = vs.end();
+        V<i9> m; m.reserve(std::min(ks.len(), vs.len())); f(&m);
+        while (k.a < ke.a && v.a < ve.a)
+        { m.push_back(k); ++k;
+          m.push_back(v); ++v; }
+        i.dpush(m);
+        i.h(i[0]).retype(u9t::tuple, u9t::map); })
+    .def("m@", I{ let k = i.dpop(); i.dpush(i.dpop()[k]); })
+    .def("mk", I{
+        uNc k = i[0].as_map().len() >> 1;
+        π0hnf f{i.h, 0};
+        V<i9> xs; xs.reserve(k * 2); f(&xs);
+        for (let x : i.dpop().as_map().keys()) xs.push_back(x);
+        i.dpush(xs); })
+    .def("mv", I{
+        uNc k = i[0].as_map().len() >> 1;
+        π0hnf f{i.h, 0};
+        V<i9> xs; xs.reserve(k * 2); f(&xs);
+        for (let x : i.dpop().as_map().keys()) xs.push_back(x.next());
+        i.dpush(xs); })
+    .def("m<", I{
+        π0hnf f{i.h, 0};
+        let m  = i.dpop();
+        let ks = i.dpop().as_tuple();
+        uNc k  = ks.len();
+        V<i9> xs; xs.reserve(k * 2); f(&xs);
+        for (let x : ks) xs.push_back(m[x]);
+        i.dpush(xs); })
+    .def("m.", I{
+        π0hnf f{i.h, 2};
+        let   g  = i.bpop();
+        i9    xs = i.dpop().as_map(); f(&xs);
+        i9    x  = xs.first();        f(&x);
+        i9    e;                      f([&]() { e = xs.next(); });
+        π0rsf r{i};
+        while (r && x.a < e.a) { i << x; i << ++x; i.run(g); ++x; } });
 }
 
 

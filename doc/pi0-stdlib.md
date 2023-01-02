@@ -226,7 +226,7 @@ All of these operators automatically distribute across vectors.
 
 + `... x₃ x₂ x₁ n >>s`: make set from elements
 + `>s`: tuple/vector/bytes/UTF8 to set
-+ `s x s?`: check set member
++ `x s s?`: check set member
 + `a b s|`: set union
 + `a b s&`: set intersection
 + `a b s-`: set difference (`a - b`)
@@ -246,12 +246,8 @@ All of these operators automatically distribute across vectors.
 + `a b m|`: map union, prefer values from `b`
 + `a b m&`: map intersection, prefer values from `a`
 + `m [...] m.`: for-each
-+ `m [...] mk.`: for-each key
-+ `m [...] mv.`: for-each value
 + `m [...] m*`: map
-+ `m [...] mv*`: map values
 + `m [...] m%`: filter
-+ `m [...] mv%`: filter values
 
 
 ### Indexes
