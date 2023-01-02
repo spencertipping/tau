@@ -111,17 +111,11 @@ void π0abi1_control(π0abi &a)
 
 void π0abi1_quote(π0abi &a)
 {
-  // NOTE: in a later ABI, these should probably be "copy from static";
-  // but for now it's useful to unpack args from bytecode
-  a .def("i8",  I{ i.dpush(Sc<i8>(n)); })
-    .def("i16", I{ i.dpush(Sc<i16>(n)); })
-    .def("i32", I{ i.dpush(Sc<i32>(n)); })
-    .def("i64", I{ i.dpush(Sc<i64>(n)); })
-    .def("iN",  I{ i.dpush(Sc<iN>(n)); })
-
-    // TODO: reference these, don't copy (since they're immutable)
-    // ...note that there are benefits to copying, e.g. in-place mutable
-    // vectors
+  a .def("i8",   I{ i.dpush(Sc<i8>(n)); })
+    .def("i16",  I{ i.dpush(Sc<i16>(n)); })
+    .def("i32",  I{ i.dpush(Sc<i32>(n)); })
+    .def("i64",  I{ i.dpush(Sc<i64>(n)); })
+    .def("iN",   I{ i.dpush(Sc<iN>(n)); })
     .def("utf8", I{ i.dpush(i9{Cc<ζp>(i.p->q.data() + n)}); })
     .def("sym",  I{ i.dpush(i9{Cc<ζp>(i.p->q.data() + n)}); });
 }
@@ -134,9 +128,7 @@ void π0abi1_u9_general(π0abi &a)
     .def("?f", I{ i.dpush(i.dpop().flagged()); })
     .def("?s", I{ i.dpush(i.dpop().size()); })
     .def("?S", I{ i.dpush(i.dpop().osize()); })
-    .def(":f", I{
-        if (i[0].flagged())
-          i << (i.h << π0o9f{i.pop()}); })
+    .def(":f", I{if (i[0].flagged()) i << (i.h << π0o9f{i.pop()}); })
     .def(":h", I{ i.dpush(i.dpop().h()); });
 }
 
@@ -344,8 +336,8 @@ void π0abi1_u9_nrange(π0abi &a)
       for (t j = 0; r && j < k; ++j)            \
         i.dpush(j).run(f); });
 
-  a1r(i8); a1r(i16); a1r(i32); a1r(i64);
-  a1r(u8); a1r(u16); a1r(u32); a1r(u64);
+  a1r(i8); a1r(i16); a1r(i32); a1r(i64); a1r(iN);
+  a1r(u8); a1r(u16); a1r(u32); a1r(u64); a1r(uN);
 
 #undef a1r
 }

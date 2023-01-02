@@ -4,6 +4,18 @@ The standard library ships in versions that you can enable per program, so I don
 See also [π₀ ABI2/linux](pi0-linux.md) and [π₀ ABI2/WASM](pi0-wasm.md).
 
 
+## Argument ordering
+Most commands order their arguments like this:
+
+```
+args... object? [f₁] [f₂]... command
+```
+
+In other words, arguments are deepest on the stack, followed by the object if there is one, followed by any config-level literals (some of which are functions). So `i8.` would be used as `n [f] i8.`, and `φ<` is `x φ φ<`.
+
+Argument order is reversed from infix: `x y f32>` is equivalent to `(y > x)`.
+
+
 ## Stack manipulation
 Anything complicated will use frames, but it's good to have a few functions to minimize the GC impact of having frame-scoped data.
 
@@ -261,10 +273,10 @@ All of these operators automatically distribute across vectors.
 
 ## η
 + `η:`: create η
-+ `η* η_`: destroy η
-+ `η* v k η=`: create binding in η -- if `k == ω`, then delete binding
-+ `η* k η@`: access binding in η
-+ `η* k η?`: check for binding existence
++ `η η_`: destroy η
++ `v k η η=`: create binding in η -- if `k == ω`, then delete binding
++ `k η η@`: access binding in η
++ `k η η?`: check for binding existence
 
 
 ## φ
