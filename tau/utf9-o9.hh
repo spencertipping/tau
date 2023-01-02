@@ -437,8 +437,7 @@ struct o9it : virtual o9V
       { if (!(i & a))
         { m.template set<T>(i >> b - 1,     i);
           m.template set<T>(i >> b - 1 | 1, Sc<T>(y.a - x.a)); }
-        ++i; }
-    }
+        ++i; } }
 
   uN write(ζp m) const
     { let i = u9ws(m, 0, u9t::index, isize(), x.flagged());

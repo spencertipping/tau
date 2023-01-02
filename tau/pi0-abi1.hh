@@ -402,6 +402,34 @@ void π0abi1_u9_tuple(π0abi &a)
 }
 
 
+void π0abi1_u9_set(π0abi &a)
+{
+  a .def(">>s", I{
+        uNc k = Sc<iN>(i.dpop());
+        π0hnf f{i.h, 0};
+        V<i9> xs; xs.reserve(k); f(&xs);
+        for (uN j = 0; j < k; ++j) xs.push_back(i.pop());
+        i.dpush(xs);
+        i.h(i[0]).retype(u9t::tuple, u9t::set); });
+}
+
+
+void π0abi1_u9_map(π0abi &a)
+{
+  a .def(">>m", I{
+        uNc k = Sc<iN>(i.dpop());
+        π0hnf f{i.h, 0};
+        V<i9> xs; xs.reserve(k * 2); f(&xs);
+        for (uN j = 0; j < k; ++j) xs.push_back(i[j]), xs.push_back(i[j + k]);
+        i.drop(k * 2);
+        i.dpush(xs);
+        // FIXME: use an o9map emitter
+        i.h(i[0]).retype(u9t::tuple, u9t::map); })
+    .def("^m", I{ TODO("^m"); })
+    .def("m@", I{ let k = i.dpop(); i.dpush(i.dpop()[k]); });
+}
+
+
 void π0abi1_u9_index(π0abi &a)
 {
   a .def(">i", I{
@@ -498,18 +526,18 @@ void π0abi1_η(π0abi &a)
   a .def("η:", I{ i.dpush(o9ptr(new π0hη(i.h))); })
     .def("η_", I{ let y = i.dpop().template ptr<π0hη>(); delete y; })
     .def("η=", I{
+        let y = i.dpop().template ptr<π0hη>();
         let k = i.dpop();
         let v = i.dpop();
-        let y = i.dpop().template ptr<π0hη>();
         if (v.ω()) y->x(k);
         else       (*y)[k] = v.a; })
     .def("η@", I{
-        let k = i.dpop();
         let y = i.dpop().template ptr<π0hη>();
+        let k = i.dpop();
         i << (*y)[k]; })
     .def("η?", I{
-        let k = i.dpop();
         let y = i.dpop().template ptr<π0hη>();
+        let k = i.dpop();
         i.dpush(y->i(k)); });
 }
 
@@ -609,6 +637,8 @@ void π0abi1(π0abi &a)
   π0abi1_u9_fft(a);
   π0abi1_u9_nrange(a);
   π0abi1_u9_tuple(a);
+  π0abi1_u9_set(a);
+  π0abi1_u9_map(a);
   π0abi1_u9_index(a);
   π0abi1_u9_structure(a);
   π0abi1_u9_quote(a);

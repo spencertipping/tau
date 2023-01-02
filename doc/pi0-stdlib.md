@@ -222,9 +222,9 @@ All of these operators automatically distribute across vectors.
 
 
 ### Sets
-**NOTE:** set elements are stored in hash-order and set operators both deduplicate accordingly, and preserve this ordering.
+**NOTE:** set elements are stored in hash-order and set operators both deduplicate accordingly and preserve this ordering.
 
-+ `... x₃ x₂ x₁ n set`: make set from elements
++ `... x₃ x₂ x₁ n >>s`: make set from elements
 + `>s`: tuple/vector/bytes/UTF8 to set
 + `s x s?`: check set member
 + `a b s|`: set union
@@ -236,13 +236,13 @@ All of these operators automatically distribute across vectors.
 
 
 ### Maps
-+ `... v₃ v₂ v₁ ... k₃ k₂ k₁ n map`: make map from elements
++ `... v₃ v₂ v₁ ... k₃ k₂ k₁ n >>m`: make map from elements
 + `>m`: tuple/set/vector/bytes/UTF8 of pairs → map
-+ `ks vs ^m`: zip tuples/vectors into map
++ `vs ks ^m`: zip tuples/vectors into map
 + `m mk`: tuple of map keys
 + `m mv`: tuple of map values
-+ `m k m@`: map k/v lookup
-+ `m ks m<`: multiple map k/v lookup
++ `k  m m@`: map k/v lookup
++ `ks m m<`: multiple map k/v lookup
 + `a b m|`: map union, prefer values from `b`
 + `a b m&`: map intersection, prefer values from `a`
 + `m [...] m.`: for-each
