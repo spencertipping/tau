@@ -452,13 +452,13 @@ void π0abi1_u9_map(π0abi &a)
     .def("mk", I{
         uNc k = i[0].as_map().len() >> 1;
         π0hnf f{i.h, 0};
-        V<i9> xs; xs.reserve(k * 2); f(&xs);
+        V<i9> xs; xs.reserve(k); f(&xs);
         for (let x : i.dpop().as_map().keys()) xs.push_back(x);
         i.dpush(xs); })
     .def("mv", I{
         uNc k = i[0].as_map().len() >> 1;
         π0hnf f{i.h, 0};
-        V<i9> xs; xs.reserve(k * 2); f(&xs);
+        V<i9> xs; xs.reserve(k); f(&xs);
         for (let x : i.dpop().as_map().keys()) xs.push_back(x.next());
         i.dpush(xs); })
     .def("m<", I{
@@ -466,7 +466,7 @@ void π0abi1_u9_map(π0abi &a)
         let m  = i.dpop();
         let ks = i.dpop().as_tuple();
         uNc k  = ks.len();
-        V<i9> xs; xs.reserve(k * 2); f(&xs);
+        V<i9> xs; xs.reserve(k); f(&xs);
 
         // FIXME: optimize; we should sort the keys on hash and then do
         // a streaming merge against map keys
