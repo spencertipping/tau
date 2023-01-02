@@ -424,7 +424,8 @@ struct o9idx : virtual o9V
   u9t const t;
 
   o9idx(i9 x_, uf8 b_)
-    : x(x_), n(x.deref().len() >> b_), b(b_), t(u9tqu(x.osize())) {}
+    : x(x_), n(x.deref().len() >> b_), b(b_), t(u9tqu(x.osize()))
+    { u9tm{u9t::tuple, u9t::set, u9t::map}(x.deref().type()); }
 
   uN isize() const { return osize(n * 2 * u9sizeof(t)) + x.size(); }
   uN size()  const { return osize(isize()); }
@@ -434,10 +435,11 @@ struct o9idx : virtual o9V
     { let a = ~(Sc<U>(-1) << b);
       let c = x.deref();
       U   i = 0;
+      uN  j = 0;
       for (let y : c)
-      { if (!(i & a))
-        { m.template set<U>(i >> b << 1,     i);
-          m.template set<U>(i >> b << 1 | 1, Sc<U>(y.a - c.a)); }
+      { if (!(i & a) && j + 1 < m.vn())
+        { m.template set<U>(j++, i);
+          m.template set<U>(j++, Sc<U>(y.a - c.a)); }
         ++i; } }
 
   template<class U>
@@ -450,10 +452,11 @@ struct o9idx : virtual o9V
         h = yh; }
       let a = ~(Sc<U>(-1) << b);
       U   i = 0;
+      uN  j = 0;
       for (let y : c)
-      { if (!(i & a))
-        { m.template set<U>(i >> b << 1,     y.h() >> (sizeof(u64) - sizeof(U)) * 8);
-          m.template set<U>(i >> b << 1 | 1, Sc<U>(y.a - c.a)); }
+      { if (!(i & a) && j + 1 < m.vn())
+        { m.template set<U>(j++, y.h() >> (sizeof(u64) - sizeof(U)) * 8);
+          m.template set<U>(j++, Sc<U>(y.a - c.a)); }
         ++i; } }
 
   template<class U>
@@ -466,10 +469,11 @@ struct o9idx : virtual o9V
         h = yh; }
       let a = ~(Sc<U>(-1) << b);
       U   i = 0;
+      uN  j = 0;
       for (let y : c.keys())
-      { if (!(i & a))
-        { m.template set<U>(i >> b << 1,     y.h() >> (sizeof(u64) - sizeof(U)) * 8);
-          m.template set<U>(i >> b << 1 | 1, Sc<U>(y.a - c.a)); }
+      { if (!(i & a) && j + 1 < m.vn())
+        { m.template set<U>(j++, y.h() >> (sizeof(u64) - sizeof(U)) * 8);
+          m.template set<U>(j++, Sc<U>(y.a - c.a)); }
         ++i; } }
 
   template<class U>

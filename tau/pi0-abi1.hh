@@ -477,8 +477,9 @@ void π0abi1_u9_index(π0abi &a)
   a .def(">i", I{
       π0hnf f{i.h, 1};
       let b = Sc<uf8>(i.dpop());
-      i9  x = i.dpop();  // FIXME: reference this
+      i9  x = i[0];
       f(&x);
+      i.dpop();
       i.dpush(o9idx{x, b}); })
     .def("i<", I{ i << i.dpop().ivec(); })
     .def("i>", I{ i << i.dpop().icoll(); });
@@ -653,7 +654,8 @@ void π0abi1_debug(π0abi &a)
     .def(":data",  I{
         for (uN j = 0; j < i.size(); ++j)
           std::cout << "[" << j << "]\t" << i[j] << std::endl; })
-    .def(":out",   I{ std::cout << i[0] << std::endl; });
+    .def(":out",   I{ std::cout << i[0] << std::endl; })
+    .def(":outn",  I{ std::cout << i[0]; });
 }
 #endif
 

@@ -29,10 +29,18 @@ int asmrun(St const &src)
   Φ f;
   π0asm a{π0abi1()}; a << src;
   f.l.c([&]() {
-    SP<π0hgs> g{new π0hgs{f.ph}};
-    π0int i{π0abi1(), a.build(), f, g};
-    i.run(0);
-    return 0;
+    try
+    {
+      SP<π0hgs> g{new π0hgs{f.ph}};
+      π0int i{π0abi1(), a.build(), f, g};
+      i.run(0);
+      return 0;
+    }
+    catch (Stc e)
+    {
+      cerr << "! " << e << endl;
+      _exit(1);
+    }
   });
   f.go();
   return 0;
