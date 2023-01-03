@@ -5,7 +5,7 @@
 
 ## Function definitions
 ```bash
-$ ./pi0 '[ "hi" :out _ ] '\''say-hi %=
+$ ./pi0 '[ "hi" :out ] '\''say-hi %=
          say-hi say-hi :data
          [|n| n= say-hi] 4 % i32.'
 "hi"
@@ -20,7 +20,7 @@ I ran into a bug involving global functions, so let's test those:
 
 ```bash
 $ ./pi0 '[ 1 i32+ ] '\''inc %=
-         10 [ inc ] i32. 10 »t :out _'
+         10 [ inc ] i32. 10 »t :out'
 (10,9,8,7,6,5,4,3,2,1)
 ```
 

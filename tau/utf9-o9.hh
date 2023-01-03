@@ -426,14 +426,14 @@ struct o9idx : virtual o9V
 {
   i9  const x;
   uNc       n;
-  uf8c      b;
+  u8c       b;
   u9t const t;
 
-  o9idx(i9 x_, uf8 b_)
+  o9idx(i9 x_, u8 b_)
     : x(x_), n(x.deref().len() >> b_), b(b_), t(u9tqu(x.osize()))
     { u9tm{u9t::tuple, u9t::set, u9t::map}(x.deref().type()); }
 
-  uN isize() const { return osize(n * 2 * u9sizeof(t)) + x.osize(); }
+  uN isize() const { return osize(n * 2 * u9sizeof(t)) + x.osize() + o9(b).size(); }
   uN size()  const { return osize(isize()); }
 
   template<class U>
@@ -505,6 +505,8 @@ struct o9idx : virtual o9V
       case u9t::u64: widx<u64>(v); break;
         TA(0, "o9idx::write u9tqu OOB: " << t);
       }
+      let c = i9{m + i + v.osize()};
+      o9(b).write(m + i + v.osize() + c.osize());
       return 0; }
 };
 

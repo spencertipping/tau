@@ -234,11 +234,13 @@ Indexes provide `hash → offset` lookups (or, for tuples or `utf8`, `index → 
 Indexes are formatted like this:
 
 ```
-cb [sb] (index-vector) (container)
-        |------------------------| <- data size
+cb [sb] (index-vector) (container) (bits)
+        |-------------------------------| <- data size
                        |
                        |   <- offsets relative to beginning of container
 ```
+
+`bits` is metadata that specifies the number of bits used to skip through the data to construct the index table. This is included so the [π₀ GC](pi0-gc.md) can preserve index resolution.
 
 **NOTE:** the index is placed before the container (1) for cache locality; and (2) because it's typically written as the container itself is being written, to avoid buffering.
 

@@ -211,7 +211,7 @@ All of these operators automatically distribute across vectors.
 + `t «t`: flatten tuple to stack, with length on top
 + `>t`: set/map/vector/bytes/UTF8 to tuple
 + `t t#`: tuple length
-+ `t i t@`: get element from tuple
++ `i t t@`: get element from tuple
 + `t s n t!`: sub-tuple (start + len)
 + `xs ys t++`: append
 + `xs [...] t.`: for-each

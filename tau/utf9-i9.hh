@@ -193,6 +193,7 @@ struct i9
 
   i9 ivec()  const { u9tm{u9t::index}(type()); return first().deref(); }
   i9 icoll() const { u9tm{u9t::index}(type()); return second().deref(); }
+  u8 ibits() const { u9tm{u9t::index}(type()); return Sc<u8>(second().next()); }
 
   i9 as_tuple() const { return is_idx() ? icoll().as_tuple() : is_tuple() ? deref() : i9_none(); }
   i9 as_set()   const { return is_idx() ? icoll().as_set()   : is_set()   ? deref() : i9_none(); }
@@ -253,6 +254,58 @@ struct i9
       return r; }
 
 
+  sletc ib_search_limit = 16;
+  sletc bl_search_limit = 4;
+
+  template<class T>
+  uN iv_bsearch(T x, uN l = 0, uN u = -1) const
+    { if (vn() < 2) return 0;
+      if (u > vn()) u = vn();
+      while (l + 2 < u)
+      { let m = std::midpoint(l, u) & ~Sc<uN>(1);
+        let y = at<T>(m);
+        if      (y == x) return m;
+        else if (y < x)  l = m;
+        else             u = m; }
+      return l; }
+
+  template<class T>
+  uN iv_isearch(T x) const
+    { if (vn() < ib_search_limit) return iv_bsearch(x);
+      uN l = 0, u = vn() - 2;
+      while (l + ib_search_limit < u)
+      { let al = at<T>(l);
+        let au = at<T>(u);
+        let m  = l + ((x - al) * (u - l)) / (au - al) & ~Sc<uN>(1);
+        if (m == l || m == u) return iv_bsearch(x, l, u + 2);
+        let y  = at<T>(m);
+        if      (y == x) return m;
+        else if (y < x)  l = m;
+        else             u = m; }
+      return iv_bsearch(x, l, u + 2); }
+
+
+  uN iv_nsearch(uN i) const
+    { switch (type())
+      {
+      case u9t::u8:  return iv_bsearch<u8> (i);
+      case u9t::u16: return iv_isearch<u16>(i);
+      case u9t::u32: return iv_isearch<u32>(i);
+      case u9t::u64: return iv_isearch<u64>(i);
+        TA(0, "iv_nsearch invalid ivec type " << type());
+      } }
+
+  uN iv_hsearch(u64 h) const
+    { switch (type())
+      {
+      case u9t::u8:  return iv_bsearch<u8> (h >> 56);
+      case u9t::u16: return iv_isearch<u16>(h >> 48);
+      case u9t::u32: return iv_isearch<u32>(h >> 32);
+      case u9t::u64: return iv_isearch<u64>(h);
+        TA(0, "iv_hsearch invalid ivec type " << type());
+      } }
+
+
   // NOTE: can't do vectors here because we don't have enough space
   // to return type information alongside the value; use .at()
   i9 operator[](uN i) const
@@ -261,25 +314,12 @@ struct i9
       {
       case u9t::tuple: return tlin(i);
       case u9t::index:
-      { let ix = ivec();
-        if (ix.vn() < 4) return icoll().tlin(i);
-
-        // Two possibilities. One is that the index is evenly spaced,
-        // so we can interpolation-jump straight to the correct element.
-        // This happens with all tuple indexes we currently generate.
-        let Δ = ix.template at<uN>(2) - ix.template at<uN>(0);
-        let n = i / Δ << 1;
-        if (n < ix.vn() - 1
-            && ix.template at<uN>(n) <= i
-            && ix.template at<uN>(n) - i < Δ)
-          return icoll().tlin(ix.template at<uN>(n) - i,
-                              ix.template at<uN>(n + 1));
-        else
-          // The other possibility, which we don't currently generate,
-          // is an uneven index; we should binary-search it because the
-          // indexes might not be uniformly distributed.
-          TODO("i9[] binsearch; Δ = " << Δ << ", i = " << i << ", n = " << n);
-      }
+      { let ix = ivec(); if (ix.vn() < bl_search_limit) return icoll().tlin(i);
+        let n  = ix.iv_nsearch(i);
+        let k  = ix.at<uN>(n);
+        return k <= i
+             ? icoll().tlin(i - k, ix.at<uN>(n + 1))
+             : icoll().tlin(i); }
         TA(0, "i9[uN] requires index or tuple, not " << type())
       } }
 
@@ -290,26 +330,38 @@ struct i9
     { u9tm{u9t::tuple, u9t::set, u9t::map, u9t::index}(type());
       switch (type())
       {
-      case u9t::tuple:
-      { iN  n = Sc<iN>(i);
-        let u = size();
-        uN  j = 0;
-        for (; n && j < u; --n, j += i9::size_of(data() + j));
-        return n ? i9_tuple_bounds() : i9{data() + j}; }
-
-      case u9t::set:
-      { for (let x : *this) if (x == i) return i9_true();
-        return i9_false(); }
-
-      case u9t::map:
-      { for (let x : keys()) if (x == i) return x.next();
-        return i9_no_key(); }
-
+      case u9t::tuple: return (*this)[Sc<uN>(i)];
+      case u9t::set: { for (let x : *this)  if (x == i) return i9_true(); return i9_false(); }
+      case u9t::map: { for (let x : keys()) if (x == i) return x.next();  return i9_no_key(); }
       case u9t::index:
-      { let h = i.h();
-        TODO("i9[] index");
-      }
-
+      { let h  = i.h();
+        let ix = ivec();
+        let c  = icoll();
+        let ce = c.next();
+        if (ix.vn() < bl_search_limit) return c[i];
+        switch (c.type())
+        {
+        case u9t::tuple: return (*this)[Sc<uN>(i)];
+        case u9t::set:
+        { let k = ix.iv_hsearch(h);
+          for (i9 x = i9{c.data() + ix.at<uN>(k + 1)};
+               x.a < ce.a;
+               ++x)
+          { let xh = x.h();
+            if (xh > h) return i9_false();
+            if (x == i) return i9_true(); }
+          return i9_false(); }
+        case u9t::map:
+        { let k = ix.iv_hsearch(h);
+          for (i9 x = i9{c.data() + ix.at<uN>(k + 1)};
+               x.a < ce.a;
+               ++x, ++x)
+          { let xh = x.h();
+            if (xh > h) return i9_no_key();
+            if (x == i) return x.next(); }
+          return i9_false(); }
+          TA(*this, "i9[i9] undefined for indexed " << c.type());
+        } }
       TA(*this, "i9[i9] undefined for " << type());
       } }
 
@@ -585,7 +637,7 @@ O &operator<<(O &s, i9 const &x)
 
   case u9t::bytes:  return s << "b\"" << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
   case u9t::utf8:   return s << "\""  << Stv(Rc<chc*>(x.begin().a), x.size()) << "\"";
-  case u9t::index:  return s << "i"   << i9{x.second()};
+  case u9t::index:  return s << "i"   << Sc<uN>(x.ibits()) << x.icoll();
 
   case u9t::tuple:
   { let b = x.begin();

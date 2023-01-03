@@ -347,7 +347,7 @@ void π0abi1_u9_nrange(π0abi &a)
 
 void π0abi1_u9_tuple(π0abi &a)
 {
-  a .def("t@", I{ let k = Sc<uN>(i.dpop()); i.dpush(i.dpop().as_tuple()[k]); })
+  a .def("t@", I{ let t = i.dpop().as_tuple(); i.dpush(t[Sc<uN>(i.dpop())]); })
     .def("t#", I{ i.dpush(i.dpop().as_tuple().len()); })
     .def("»t", I{
         uNc k = Sc<iN>(i.dpop());
@@ -500,7 +500,7 @@ void π0abi1_u9_map(π0abi &a)
         i9_msort(m.begin(), m.end());
         i.dpush(m);
         i.h(i[0]).retype(u9t::tuple, u9t::map); })
-    .def("m@", I{ let k = i.dpop(); i.dpush(i.dpop()[k]); })
+    .def("m@", I{ let m = i.dpop(); i.dpush(m[i.dpop()]); })
     .def("m+", I{
         let m = i.dpop();
         let k = i.dpop();
@@ -574,8 +574,8 @@ void π0abi1_u9_index(π0abi &a)
 {
   a .def(">i", I{
       π0hnf f{i.h, 1};
-      let b = Sc<uf8>(i.dpop());
-      i9  x = i[0];
+      let b = Sc<u8>(i.dpop());
+      i9  x = i[0].deref();
       f(&x);
       i.dpop();
       i.dpush(o9idx{x, b}); })
@@ -741,6 +741,7 @@ void π0abi1_debug(π0abi &a)
     .def(":spop",  I{ i.spop(); })
     .def(":cout", I{
         let x = i.dpop();
+        u9strings(x.type());
         std::cout << Stv{Rc<chc*>(x.data()), x.size()}; })
     .def(":cerr", I{
         let x = i.dpop();
@@ -752,8 +753,8 @@ void π0abi1_debug(π0abi &a)
     .def(":data",  I{
         for (uN j = 0; j < i.size(); ++j)
           std::cout << "[" << j << "]\t" << i[j] << std::endl; })
-    .def(":out",   I{ std::cout << i[0] << std::endl; })
-    .def(":outn",  I{ std::cout << i[0]; });
+    .def(":out",   I{ std::cout << i.dpop() << std::endl; })
+    .def(":outn",  I{ std::cout << i.dpop(); });
 }
 #endif
 
