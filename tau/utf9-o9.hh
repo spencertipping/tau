@@ -427,7 +427,7 @@ struct o9vecsized : virtual o9V
 
 struct o9idx : virtual o9V
 {
-  i9       &x;
+  i9 const &x;
   uNc       n;
   u8c       b;
   u9t const t;

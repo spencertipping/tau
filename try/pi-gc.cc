@@ -205,7 +205,7 @@ void try_data_stack_tuple()
 void try_asm()
 {
   πasm a{πabi1()};
-  a << "i32'3 [i32'4 :out] . :out";
+  a << "i32'3 [i32'4 :out] . : :out";
 
   Φ f;
   πint i{πabi1(), a.build(), f, SP<πhgs>(new πhgs{f.ph})};
