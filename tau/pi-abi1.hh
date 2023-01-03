@@ -347,7 +347,7 @@ void πabi1_u9_nrange(πabi &a)
 
 void πabi1_u9_tuple(πabi &a)
 {
-  a .def("t@", I{ let t = i.dpop().deref(); i.dpush(t[Sc<uN>(i.dpop())]); })
+  a .def("t@", I{ let t = i.dpop().deref(); i << t[Sc<uN>(i.dpop())]; })
     .def("t#", I{ i.dpush(i.dpop().as_tuple().len()); })
     .def("»t", I{
         uNc k = Sc<iN>(i.dpop());
@@ -378,8 +378,7 @@ void πabi1_u9_tuple(πabi &a)
         i9   e;                          f([&]() { e = xs.next(); });
         V<i9> ys; ys.reserve(xs.len()); f(&ys);
         πrsf r{i};
-        while (r && x.a < e.a)
-        { i.dpush(x); i.run(g); ys.push_back(i.dpop()); ++x; }
+        while (r && x.a < e.a) { i << x; i.run(g); ys.push_back(i.dpop()); ++x; }
         i.dpush(ys); })
     .def("t%", I{
         πhnf f{i.h, 2};
@@ -389,8 +388,7 @@ void πabi1_u9_tuple(πabi &a)
         i9  e;                          f([&]() { e = xs.next(); });
         V<i9> ys; ys.reserve(xs.len()); f(&ys);
         πrsf r{i};
-        while (r && x.a < e.a)
-        { i.dpush(x); i.run(g); if (i.dpop().b()) ys.push_back(x); ++x; }
+        while (r && x.a < e.a) { i << x; i.run(g); if (i.dpop().b()) ys.push_back(x); ++x; }
         i.dpush(ys); })
     .def("t/++", I{
         uN k = 0;
@@ -415,7 +413,7 @@ void πabi1_u9_set(πabi &a)
         i9_ssort(xs.begin(), xs.end());
         i.dpush(xs);
         i[0].deref().retype(u9t::tuple, u9t::set); })
-    .def("s?", I{ let s = i.dpop().deref(); i.dpush(s[i.dpop()]); })
+    .def("s?", I{ let s = i.dpop().deref(); i << s[i.dpop()]; })
     .def("s+", I{
         let s = i.dpop();
         let x = i.dpop();
@@ -500,7 +498,7 @@ void πabi1_u9_map(πabi &a)
         i9_msort(m.begin(), m.end());
         i.dpush(m);
         i[0].deref().retype(u9t::tuple, u9t::map); })
-    .def("m@", I{ let m = i.dpop().deref(); i.dpush(m[i.dpop()]); })
+    .def("m@", I{ let m = i.dpop().deref(); i << m[i.dpop()]; })
     .def("m+", I{
         let m = i.dpop();
         let k = i.dpop();

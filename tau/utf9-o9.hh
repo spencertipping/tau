@@ -427,12 +427,13 @@ struct o9vecsized : virtual o9V
 
 struct o9idx : virtual o9V
 {
-  i9  const x;
+  i9       &x;
   uNc       n;
   u8c       b;
   u9t const t;
 
-  o9idx(i9 x_, u8 b_)
+  // NOTE: i9& because GC can move the i9 out from under us
+  o9idx(i9 &x_, u8 b_)
     : x(x_), n(x.deref().len() >> b_), b(b_), t(u9tqu(x.osize()))
     { u9tm{u9t::tuple, u9t::set, u9t::map}(x.deref().type()); }
 
