@@ -1,5 +1,5 @@
 # γ
-A [π₀](pi0.md)-hosted abstraction that contains λs and [φs](phi.md). The idea is to jointly define (1) polymorphic λ/φ containers, and (2) polysemantic connection operators. τ Laplacian eigenvectors are just π₀ functions that achieve these φ connections, so γ operators are eigenvector constituents.
+A [π](pi.md)-hosted abstraction that contains λs and [φs](phi.md). The idea is to jointly define (1) polymorphic λ/φ containers, and (2) polysemantic connection operators. τ Laplacian eigenvectors are just π functions that achieve these φ connections, so γ operators are eigenvector constituents.
 
 γs are typically created within the context of a [Γ](Gamma.md), which manages multiple γs at once and automates their destruction and control-channel multiplexing.
 
@@ -47,10 +47,10 @@ This means we can implicitly connect γs by placing them on screen, like `ni` bu
   + SQLite as K/V store
 + Computation
   + All of these are inline-modifiable with `φ*<` and `φ*>`
-  + [π₀ 1:1 mapper](gamma-phi-map.md)
-  + [π₀ many:many mapper](gamma-phi-map.md)
-  + [π₀ streaming parser](gamma-phi-parse.md)
-  + In-memory cyclic sort by π₀ expression
+  + [π 1:1 mapper](gamma-phi-map.md)
+  + [π many:many mapper](gamma-phi-map.md)
+  + [π streaming parser](gamma-phi-parse.md)
+  + In-memory cyclic sort by π expression
 + Distributed/topology
   + Data-independent scaling, runtime-modifiable
   + Data-dependent sharding, runtime-modifiable
@@ -96,7 +96,7 @@ Each γ has a separate global-variable scope shared by all of its λs.
 
 
 ## Encoding
-A π₀ map with:
+A π map with:
 
 + A set of λ pre/post filters (for `φ*`)
 + A set of boundary φs, each named

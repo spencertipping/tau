@@ -3,7 +3,7 @@ Values within [ζ](zeta.md) buffers are stored using the UTF9 protocol, which is
 
 1. Values are immutable once serialized
 2. Serialization claims a length before writing data
-3. Most of UTF9 is fully portable and always big-endian, although there are a few non-portable values, e.g. for oversized heap allocations that don't fit inline into ζ (or anything to do with π₀)
+3. Most of UTF9 is fully portable and always big-endian, although there are a few non-portable values, e.g. for oversized heap allocations that don't fit inline into ζ (or anything to do with π)
 4. Nested values are self-contained and can be accessed just by address
 5. ∃ toplevel stream markers that inform the state of computation without modifying it, and these stream markers may be embedded into other data structures freely
 6. For large data structures, indexes can be generated alongside the value to provide fast lookup
@@ -32,7 +32,7 @@ For example, the binary byte `01101010` (`0x6a`) has type marker `01101` (`0xb`)
 
 
 ### Flags
-Flags have undefined semantics at the UTF9 protocol level. They union upwards; that is, any value that contains a flagged value will itself be flagged. In practice, π₀ uses flags to optimize GC; see [π₀ GC](pi0-gc.md) and [π₀ UTF9](pi0-utf9.md) for details.
+Flags have undefined semantics at the UTF9 protocol level. They union upwards; that is, any value that contains a flagged value will itself be flagged. In practice, π uses flags to optimize GC; see [π GC](pi-gc.md) and [π UTF9](pi-utf9.md) for details.
 
 
 ### Typecodes
@@ -240,7 +240,7 @@ cb [sb] (index-vector) (container) (bits)
                        |   <- offsets relative to beginning of container
 ```
 
-`bits` is metadata that specifies the number of bits used to skip through the data to construct the index table. This is included so the [π₀ GC](pi0-gc.md) can preserve index resolution. It's just a `u8`.
+`bits` is metadata that specifies the number of bits used to skip through the data to construct the index table. This is included so the [π GC](pi-gc.md) can preserve index resolution. It's just a `u8`.
 
 **NOTE:** the index is placed before the container (1) for cache locality; and (2) because it's typically written as the container itself is being written, to avoid buffering.
 
@@ -272,9 +272,9 @@ See [UTF9 build-scope](utf9-build-scope.md) for more details.
 
 
 ### π internals
-These are values reserved for [π₀](pi0.md), in particular its memory allocation mechanics. They are assumed to be opaque to everyone else, and are portable only within a single π₀ instance. See [π₀ GC](pi0-gc.md) for details.
+These are values reserved for [π](pi.md), in particular its memory allocation mechanics. They are assumed to be opaque to everyone else, and are portable only within a single π instance. See [π GC](pi-gc.md) for details.
 
-**NOTE:** π₀ assigns GC semantics to the flag bit. Within the π₀ context, flags cannot be used for any other purpose -- which means π₀ exclusively owns the flag bit when in use.
+**NOTE:** π assigns GC semantics to the flag bit. Within the π context, flags cannot be used for any other purpose -- which means π exclusively owns the flag bit when in use.
 
 
 ### `none`

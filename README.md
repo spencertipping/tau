@@ -7,10 +7,6 @@ A Laplace transform of control flow, driven by an interpreted concatenative lang
   + [Λ](doc/Lambda.md)
   + [UTF9](doc/utf9.md)
 + [π](doc/pi.md)
-  + [π₀](doc/pi0.md)
-  + [π₁](doc/pi1.md)
-  + [π₂](doc/pi2.md)
-  + [η](doc/eta.md)
 + [γ](doc/gamma.md)
 + [Γ](doc/Gamma.md)
 
@@ -44,12 +40,10 @@ $ sudo apt install -y \
 
 
 ## Queue
-+ Rename π₀ to just π
 + Make `i9::deref()` behavior consistent
 + Indexed collections
-+ GC performance: optimize data structures in markset, preallocate π₀ho9
-+ π₀ performance: stack-allocate small values properly
-+ [π₁](doc/pi1.md) as a stateful macrocompiler for π₀
++ GC performance: optimize data structures in markset, preallocate πho9
++ π performance: stack-allocate small values properly
 + Linux stdlib
   + Text line batching
   + JSONL batching
@@ -57,4 +51,4 @@ $ sudo apt install -y \
   + Content-Length batching
   + External process stdio
 + WASM stdlib
-+ π₀ assembler macro definitions
++ π assembler macro definitions

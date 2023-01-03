@@ -1,4 +1,4 @@
-# π₀ GC implementation
+# π GC implementation
 Starting with invariants:
 
 1. Heap objects are stored in [UTF9](utf9.md) format.

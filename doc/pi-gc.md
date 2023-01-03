@@ -1,19 +1,19 @@
-# π₀ GC
-[π₀](pi0.md) was created to solve the "transform things without copying" problem: rather than having γs that consume and produce full UTF9 values, we have functions that refer to parts of those values, copying only what's needed.
+# π GC
+[π](pi.md) was created to solve the "transform things without copying" problem: rather than having γs that consume and produce full UTF9 values, we have functions that refer to parts of those values, copying only what's needed.
 
 Taken to its logical conclusion, we end up with a shared heap that can span all γs within a Φ. All that's needed is a way to drop heap-references into UTF9 values, rewriting them as needed at the Φ boundaries. This is all invisible to the user, who can assume UTF9s are immutable and manipulated as though they were being fully copied at every step.
 
-This page is about GC ideas; see [GC implementation](pi0-gc-impl.md) for the algorithm and invariants.
+This page is about GC ideas; see [GC implementation](pi-gc-impl.md) for the algorithm and invariants.
 
 
 ## UTF9 flagging
 Most UTF9 values are allocated inline: a tuple physically contains its elements, for example. This is convenient from a GC perspective because it means we can just copy the value as a single block without inspecting its contents, and all internal offsets are also preserved. **However,** that's not the whole story.
 
-If we forced these constraints onto all heap-allocated UTF9 values, we'd effectively wind up copying most of the stuff we want to avoid. Instead, we allow references, defined by the [π₀ subtype of UTF9](pi0-utf9.md), which can be dropped into arbitrary locations in UTF9. Functions that work with UTF9 will dereference these, and the GC will transform them as necessary -- just like pointers are updated in traditional mark/sweep collectors.
+If we forced these constraints onto all heap-allocated UTF9 values, we'd effectively wind up copying most of the stuff we want to avoid. Instead, we allow references, defined by the [π subtype of UTF9](pi-utf9.md), which can be dropped into arbitrary locations in UTF9. Functions that work with UTF9 will dereference these, and the GC will transform them as necessary -- just like pointers are updated in traditional mark/sweep collectors.
 
 Every UTF9 value that contains a reference must be transformed, either to rewrite or to inline that reference. We mark UTF9 values using the [flag](utf9.md#flags) bit, which applies upwards. References are flagged, which automatically causes anything that contains them to be flagged as well.
 
-So: un-flagged values can be moved as opaque data, flagged values have internal fields that must be transformed. `π₀h.simplify(i9) → O9` will remove any references and provide an object that can be written to a boundary [Φ](Phi.md).
+So: un-flagged values can be moved as opaque data, flagged values have internal fields that must be transformed. `πh.simplify(i9) → O9` will remove any references and provide an object that can be written to a boundary [Φ](Phi.md).
 
 
 ## GC structure
@@ -43,13 +43,13 @@ Because the live set is open-ended, we'll use a set of virtual pointers that pro
 
 
 ### Data stack
-The simplest abstraction: it's just a series of `π₀r` values in a vector, the back of which is the top of the stack.
+The simplest abstraction: it's just a series of `πr` values in a vector, the back of which is the top of the stack.
 
 
 ### Frame stack
-Internally, two stacks: one of `π₀r` values (the data), and one of `uN`s describing the size of each frame. We resize the data stack by a frame size at a time, but the GC process treats all of the frame data uniformly.
+Internally, two stacks: one of `πr` values (the data), and one of `uN`s describing the size of each frame. We resize the data stack by a frame size at a time, but the GC process treats all of the frame data uniformly.
 
-Because frame registers may not have been initialized, we use `π₀hω` as a null reference that is stable under GC and cannot be used by π₀ bytecode.
+Because frame registers may not have been initialized, we use `πhω` as a null reference that is stable under GC and cannot be used by π bytecode.
 
 
 ### Native frame
@@ -101,13 +101,13 @@ Because UTF9 values are immutable, we will never have oldgen values referring to
 
 
 ### Tenuring
-UTF9 doesn't provide any room for metadata to store details like "how many generations has this object been alive". I could allocate more [π₀ UTF9](pi0-utf9.md) space for this, but for now we just tenure after a single generation. If we have four heaps, the final generation requires the object to live for roughly eight new-gen collection cycles.
+UTF9 doesn't provide any room for metadata to store details like "how many generations has this object been alive". I could allocate more [π UTF9](pi-utf9.md) space for this, but for now we just tenure after a single generation. If we have four heaps, the final generation requires the object to live for roughly eight new-gen collection cycles.
 
 
 ### Resizing
 A single-generation GC is easy to resize: we just apply some function to the live set size and use that for the new-space. Generational GC is different; we usually want the newest generation to be fixed-size and older generations to resize adaptively. The oldest generation tends to take up most of the slack.
 
-This is all generalized in π₀ GC by having a heap-resize function that gets invoked whenever any generation is collected.
+This is all generalized in π GC by having a heap-resize function that gets invoked whenever any generation is collected.
 
 
 ## Contained references

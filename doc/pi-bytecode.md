@@ -1,4 +1,4 @@
-# π₀ bytecode
+# π bytecode
 Exactly like [Joy](https://en.wikipedia.org/wiki/Joy_(programming_language)): we have a very cheap evaluation function that simply proceeds through a list, executing each element in turn. Local scopes are available by pushing/popping them. You can refer upwards to parent scopes if you want to.
 
 There are three stacks: data, return, and frame. Each frame reserves a preallocated local variable space against which you can issue get/set commands to minimize stack manipulation. Function arguments and return values are passed on the stack.
@@ -11,9 +11,9 @@ There are three stacks: data, return, and frame. Each frame reserves a prealloca
 ## Program format
 **TODO:** weaken this a bit. Fully-specialized bytecode is too much; we need interpreters to be forkable (on the C++ side), and we want the full stdlib of functions to be provided at consistent internal offsets. Probably a two-layer indirect vector of `pair<fn, arg>`, for some standardized and small `arg`. This will remove some of the current `F<>` indirection, probably resulting in faster code. We can also code the inner bytecode-delegation loop in assembly without much trouble; the decoder is completely uniform.
 
-Joy models literals and quotations as functions-that-push-values, which I think is correct for π₀ as well. I was initially hesitant because it requires that we customize the bytecode, but let's suppose our bytecode is just function pointers to start with. Then it's simple, and bytecode isn't expected to be portable in any case. Every program is run through the assembler to produce transient bytecode; that's useful because it means the _assembler_ is the invariant format, not the bytecode itself.
+Joy models literals and quotations as functions-that-push-values, which I think is correct for π as well. I was initially hesitant because it requires that we customize the bytecode, but let's suppose our bytecode is just function pointers to start with. Then it's simple, and bytecode isn't expected to be portable in any case. Every program is run through the assembler to produce transient bytecode; that's useful because it means the _assembler_ is the invariant format, not the bytecode itself.
 
-Unlike Joy, π₀ doesn't use runtime lists as an executable format. It does use lists, but data-lists are separate from program-lists. Program-lists are produced ahead of time by the assembler, and take a simple form:
+Unlike Joy, π doesn't use runtime lists as an executable format. It does use lists, but data-lists are separate from program-lists. Program-lists are produced ahead of time by the assembler, and take a simple form:
 
 ```
 f₁ f₂ ... rfn
@@ -33,7 +33,7 @@ Although program-specialized bytecode sounds like a liability due to this comple
 ## Function references
 Joy's `i` function executes lists. Our `i`, called `.`, operates on opaque numbers that are internally bytecode offsets. To reduce the likelihood of errors, these bytecode offsets can be `xor`ed with a key that makes them unlikely to appear by accident -- then the interpreter can hard-fail if it encounters an invalid `.` argument.
 
-**TODO:** allocate a π₀ value prefix for bytecode offsets, since they should be opaque and are non-portable
+**TODO:** allocate a π value prefix for bytecode offsets, since they should be opaque and are non-portable
 
 
 ## Quoting a function

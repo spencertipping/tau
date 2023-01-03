@@ -1,7 +1,7 @@
-# π₀ assembler
+# π assembler
 A stateful object that generates a preloaded bytecode interpreter. This interpreter can be stepped or run until some condition is met. The assembler allows you to incrementally construct lists and set up local variable tables.
 
-Assemblers adapt the [calling convention from C++ to π₀](pi0-native-ffi.md). For example, I might do something like this:
+Assemblers adapt the [calling convention from C++ to π](pi-native-ffi.md). For example, I might do something like this:
 
 ```cpp
 π0asm a;
@@ -17,7 +17,7 @@ The program above produces the list `[3 4 i64+ print]`, which is the main functi
 
 
 ## Local variables
-π₀ is dynamically-scoped and uses local frames to provide access to variables so you don't have to rely on the stack. You create a local frame like this, which will also emit the instruction to push that frame:
+π is dynamically-scoped and uses local frames to provide access to variables so you don't have to rely on the stack. You create a local frame like this, which will also emit the instruction to push that frame:
 
 ```cpp
 a.frame("a", "b", "c", "d")  // push a frame with four locals

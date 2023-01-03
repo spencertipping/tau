@@ -1,7 +1,7 @@
-# π₀ standard library
+# π standard library
 The standard library ships in versions that you can enable per program, so I don't have to be especially careful about backwards compatibility.
 
-See also [π₀ ABI2/linux](pi0-linux.md) and [π₀ ABI2/WASM](pi0-wasm.md).
+See also [π ABI2/linux](pi-linux.md) and [π ABI2/WASM](pi-wasm.md).
 
 
 ## Argument ordering
@@ -142,7 +142,7 @@ All of these operators automatically distribute across vectors.
   + `i8>=`, ...
   + `i8<=`, ...
 + Integer arithmetic
-  + `i8l`, ...: nonzero → 0, 0 → 1 (`l` instead of `!`, which means "substring" in π₀)
+  + `i8l`, ...: nonzero → 0, 0 → 1 (`l` instead of `!`, which means "substring" in π)
   + `u8~`, ...
   + `u8&`, ...
   + `u8|`, ...
@@ -312,8 +312,8 @@ All of these operators automatically distribute across vectors.
 + `φ [...] φ.`: for each element
 
 
-## π₀ interpreter API
-You can use π₀ to create a sub-interpreter, effectively allowing you to JIT code. This sub-interpreter can also catch what would normally be fatal exceptions, e.g. for incorrect numeric casts or bounds errors.
+## π interpreter API
+You can use π to create a sub-interpreter, effectively allowing you to JIT code. This sub-interpreter can also catch what would normally be fatal exceptions, e.g. for incorrect numeric casts or bounds errors.
 
 **TODO:** define this API
 
