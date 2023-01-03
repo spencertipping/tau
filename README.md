@@ -40,6 +40,7 @@ $ sudo apt install -y \
 
 
 ## Queue
++ Automatically refer to `i9`s that are already on the heap
 + Make `i9::deref()` behavior consistent
 + Indexed collections
 + GC performance: optimize data structures in markset, preallocate πho9
