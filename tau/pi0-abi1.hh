@@ -76,7 +76,7 @@ void π0abi1_frame(π0abi &a)
 
 void π0abi1_global(π0abi &a)
 {
-  a .def("%@", I{ let k = i.dpop(); let v = i.gs()[k]; A(i.h(v).exists(), "undefined global " << k); i << v; })
+  a .def("%@", I{ let k = i.dpop(); let v = i.gs()[k]; A(i9{v}.deref().exists(), "undefined global " << k); i << v; })
     .def("%=", I{ let s = i.dpop(); i.gs()[s] = i.dpop(); })
     .def("%_", I{ i.gs().x(i.dpop()); })
     .def("%?", I{ i.dpush(i.gs().i(i.dpop())); });
@@ -486,7 +486,7 @@ void π0abi1_u9_map(π0abi &a)
         i.drop(k * 2);
         i9_msort(xs.begin(), xs.end());
         i.dpush(xs);
-        i.h(i[0]).retype(u9t::tuple, u9t::map); })
+        i[0].deref().retype(u9t::tuple, u9t::map); })
     .def("^m", I{
         π0hnf f{i.h, 0};
         let ks = i.dpop().as_tuple();
@@ -499,7 +499,7 @@ void π0abi1_u9_map(π0abi &a)
           m.push_back(k), m.push_back(v);
         i9_msort(m.begin(), m.end());
         i.dpush(m);
-        i.h(i[0]).retype(u9t::tuple, u9t::map); })
+        i[0].deref().retype(u9t::tuple, u9t::map); })
     .def("m@", I{ let m = i.dpop().deref(); i.dpush(m[i.dpop()]); })
     .def("m+", I{
         let m = i.dpop();
@@ -610,7 +610,7 @@ void π0abi1_u9_structure(π0abi &a)
         for (uN j = 0; j < k; ++j) xs.push_back(i[k - j - 1]);
         i.drop(k);
         i.dpush(xs);
-        i.h(i[0]).retype(u9t::tuple, u9t::map); })
+        i[0].deref().retype(u9t::tuple, u9t::map); })
     .def(",", I{
         let x = i[0];
         i.spop();

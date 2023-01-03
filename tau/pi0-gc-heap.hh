@@ -56,10 +56,6 @@ struct π0h  // a multi-generational heap
   void res(uN s) { if (s > hs[0]->avail()) gc(s); }
 
 
-  // Follow references until we hit something else
-  i9 operator()(i9 x) const { while (x.is_πref()) x = *x; return x; }
-
-
   // Profiling method to track live-set size over time
   uN note_lss(uN lss) { gl << (lss0 = lss); return lss; }
 

@@ -81,7 +81,7 @@ struct π0int : π0sv
       else           *this << (h << π0o9r(r));
       return *this; }
 
-  i9   dpop() { let r = h((*dv)[0]); drop(1); return r; }
+  i9   dpop() { let r = (*dv)[0]; drop(1); return r.deref(); }
   π0bi bpop() { return Sc<π0bi>(dpop()); }
 
 

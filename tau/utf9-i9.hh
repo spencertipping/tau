@@ -314,6 +314,12 @@ struct i9
         TA(0, "iv_hsearch invalid ivec type " << type());
       } }
 
+  i9 tlin(uN i, uN o = 0) const
+    { i9  b = o ? a + o : data();
+      let e = next();
+      while (b.a < e.a && i) --i, ++b;
+      return b.a >= e.a ? i9_tuple_bounds() : b; }
+
 
   // NOTE: can't do vectors here because we don't have enough space
   // to return type information alongside the value; use .at()
@@ -326,20 +332,11 @@ struct i9
       { let ix = ivec(); if (ix.vn() < bl_search_limit) return icoll().tlin(i);
         let n  = ix.iv_nsearch(i);
         let k  = ix.at<uN>(n);
-        std::cout << "i = " << i << ", n = " << n
-                  << ", k = " << k << ", o = " << ix.at<uN>(n + 1)
-                  << std::endl;
         return k <= i
              ? icoll().tlin(i - k, ix.at<uN>(n + 1))
              : icoll().tlin(i); }
         TA(0, "i9[uN] requires index or tuple, not " << type())
       } }
-
-  i9 tlin(uN i, uN o = 0) const
-    { i9  b = data() + o;
-      let e = next();
-      while (b.a < e.a && i) --i, ++b;
-      return b.a >= e.a ? i9_tuple_bounds() : b; }
 
   i9 operator[](i9 i) const
     { u9tm{u9t::tuple, u9t::set, u9t::map, u9t::index}(type());
@@ -369,7 +366,7 @@ struct i9
         { let h  = i.h();
           let ht = htrunc(h, ix.type());
           let k  = ix.iv_hsearch(h);
-          if (ix.at<u64>(k) > ht) return i9_false();
+          if (ix.at<u64>(k) > ht) return i9_no_key();
           for (i9 x = i9{c.a + ix.at<uN>(k + 1)}, e = c.next();
                x.a < e.a && x.h() <= h;
                ++x, ++x)

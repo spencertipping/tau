@@ -44,6 +44,8 @@ $ sudo apt install -y \
 
 
 ## Queue
++ Rename π₀ to just π
++ Make `i9::deref()` behavior consistent
 + Indexed collections
 + GC performance: optimize data structures in markset, preallocate π₀ho9
 + π₀ performance: stack-allocate small values properly

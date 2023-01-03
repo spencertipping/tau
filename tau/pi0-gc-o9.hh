@@ -100,7 +100,7 @@ struct π0ho9 : virtual o9V  // write heap object for GC
       // that refereent hasn't yet been claimed).
       if (!u9coll[r.type()])
       { if (!r.is_πref()) return s = r.size();
-        let t = h.claim(h(r), r.a);
+        let t = h.claim(r.deref(), r.a);
         return s = (t && t->inline_at(r.a) ? t->size() : r.size()); }
       else
       { // We're a collection, so we need to try to claim every marked
@@ -129,7 +129,7 @@ struct π0ho9 : virtual o9V  // write heap object for GC
         // pointer differences to infer the size of other elements. This
         // results in fewer map lookups.
         for (let x : r)
-        { let c = h(x);  // remove all reference layers
+        { let c = x.deref();  // remove all reference layers
           let o = h.claim(c, x.a);
           s += !o ? c.osize()
                   : o->inline_at(x.a) ? o->size() : π0o9r(c).size(); }
@@ -140,7 +140,7 @@ struct π0ho9 : virtual o9V  // write heap object for GC
     { n = m;
       if (!u9coll[r.type()])
       { if (!r.is_πref()) return o9i9{r}.write(m);
-        let t = h.claim(h(r), r.a);
+        let t = h.claim(r.deref(), r.a);
         return t && t->inline_at(r.a) ? t->write(m) : o9i9{r}.write(m); }
       else
       { let i = h.cb(r);
@@ -155,7 +155,7 @@ struct π0ho9 : virtual o9V  // write heap object for GC
         bool f = false;
         uN   x = u9ws(m, 0, r.type(), isize(), false);
         for (let y : r)
-        { let c  = h(y);
+        { let c  = y.deref();
           let o  = h.claim(c, y.a);
           let x0 = x;
           if      (!o)                { let w = o9i9{c}; A(!w .write(m + x), "GC internal error"); x += w .size(); }

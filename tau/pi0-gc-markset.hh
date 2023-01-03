@@ -48,9 +48,9 @@ struct π0ms
       if (hg != π0h::gω && hg > mg) return;
       m[x] = nullptr;
       t.insert(x);
-      if (x.is_πref()) mi(h(x));
+      if (x.is_πref()) mi(x.deref());
       else
-        for (let y : x.flags()) if (y.is_πref()) mi(h(y)); }
+        for (let y : x.flags()) if (y.is_πref()) mi(y.deref()); }
 
   // Mark x as having an internal reference -- i.e. being a false root.
   void mi(i9 x) { t.erase(x); me(x); }
