@@ -80,7 +80,7 @@ $ ./pi0 '
 {1:8, 3:10, 2:9, 4:11, 0:7}
 ```
 
-Test bench for the above:
+Debugging workbench for the above:
 
 ```bash
 $ ./pi0 '
@@ -88,10 +88,36 @@ $ ./pi0 '
   [|n| n= n [] i32. n »s |] '\''ns %=
   [ nt : [7 i32+] t* % ^m ] '\''nm %=
 
-  0 :h 56 % u64>> :out
-  1 :h 56 % u64>> :out
-  2 ns 0 >i : :out
-            : i< :out
-            : i> :out
+  [ "set test" :out
+    2 ns : :out
+      0 >i32 ^ s? :out
+      1 >i32 ^ s? :out
+      2 >i32 ^ s? :out
+    _ ] _
+  [ "map test" :out
+    5 nm : :out
+      0 >i32 ^ m@ :out
+      1 >i32 ^ m@ :out
+      2 >i32 ^ m@ :out
+      3 >i32 ^ m@ :out
+      4 >i32 ^ m@ :out
+    _ ] _
+
+  [ "hashes (verified good)" :out
+    0 >i32 :h 56 % u64>> :out
+    1 >i32 :h 56 % u64>> :out ] _
+
+  [ "iset test" :out
+    2 ns 0 >i : :out : i< :out : i> :out
+      0 >i32 ^ s? :out
+      1 >i32 ^ s? :out
+      2 >i32 ^ s? :out _ ] .
+  [ "imap test" :out
+    5 nm 1 >i : :out : i< :out : i> :out
+      0 >i32 ^ m@ :out
+      1 >i32 ^ m@ :out
+      2 >i32 ^ m@ :out
+      3 >i32 ^ m@ :out
+      4 >i32 ^ m@ :out _ ] .
 '
 ```

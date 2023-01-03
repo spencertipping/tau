@@ -263,6 +263,7 @@ All of these operators automatically distribute across vectors.
   + **NOTE:** `set` and `map` are currently unimplemented
 + `i<`: fetch index vector
 + `i>`: fetch indexed object
++ `i#`: number of bits for index
 
 
 ## λ

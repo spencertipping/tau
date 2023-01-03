@@ -334,32 +334,29 @@ struct i9
       case u9t::set: { for (let x : *this)  if (x == i) return i9_true(); return i9_false(); }
       case u9t::map: { for (let x : keys()) if (x == i) return x.next();  return i9_no_key(); }
       case u9t::index:
-      { let h  = i.h();
-        let ix = ivec();
+      { let ix = ivec();
         let c  = icoll();
-        let ce = c.next();
         if (ix.vn() < bl_search_limit) return c[i];
+        let h = i.h();
         switch (c.type())
         {
         case u9t::tuple: return (*this)[Sc<uN>(i)];
         case u9t::set:
         { let k = ix.iv_hsearch(h);
-          for (i9 x = i9{c.data() + ix.at<uN>(k + 1)};
-               x.a < ce.a;
+          for (i9 x = i9{c.data() + ix.at<uN>(k + 1)}, e = x.next();
+               x.a < e.a;
                ++x)
-          { let xh = x.h();
-            if (xh > h) return i9_false();
-            if (x == i) return i9_true(); }
+          { if (x == i)    return i9_true();
+            if (x.h() > h) return i9_false(); }
           return i9_false(); }
         case u9t::map:
         { let k = ix.iv_hsearch(h);
-          for (i9 x = i9{c.data() + ix.at<uN>(k + 1)};
-               x.a < ce.a;
+          for (i9 x = i9{c.data() + ix.at<uN>(k + 1)}, e = x.next();
+               x.a < e.a;
                ++x, ++x)
-          { let xh = x.h();
-            if (xh > h) return i9_no_key();
-            if (x == i) return x.next(); }
-          return i9_false(); }
+          { if (x == i)    return x.next();
+            if (x.h() > h) return i9_no_key(); }
+          return i9_no_key(); }
           TA(*this, "i9[i9] undefined for indexed " << c.type());
         } }
       TA(*this, "i9[i9] undefined for " << type());
@@ -674,6 +671,8 @@ O &operator<<(O &s, i9 const &x)
   { if (x.is_πref()) return s << "π₀r:" << *x;
     let p = Sc<u9_scoped<u9_π, ζp>>(x);
     return s << "π₀:" << p.t << ":" << p.x; }
+
+  case u9t::none: return s << "none[" << R<u9_none>(x.data(), 0) << "]";
 
   default:
     return s << "i9[" << x.type() << ":" << x.flagged() << ":" << x.size() << "]";

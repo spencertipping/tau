@@ -578,9 +578,10 @@ void π0abi1_u9_index(π0abi &a)
       i9  x = i[0].deref();
       f(&x);
       i.dpop();
-      i.dpush(o9idx{x, b}); })
+      i.dpush(o9idx{x, x.is_map() ? Sc<u8>(b + 1) : b}); })
     .def("i<", I{ i << i.dpop().ivec(); })
-    .def("i>", I{ i << i.dpop().icoll(); });
+    .def("i>", I{ i << i.dpop().icoll(); })
+    .def("i#", I{ i.dpush(i.dpop().ibits()); });
 }
 
 
