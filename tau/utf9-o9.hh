@@ -355,18 +355,21 @@ struct o9t : virtual o9V
 
   uN size() const { return osize(isize<0>()); }
 
-  template<uN i>
-  typename std::enable_if<!sizeof...(X), bool>::type
+  // NOTE: SFINAE applies only when the enable_if<> expression depends
+  // on _function_ template args, so introduce a false dependency here
+  // by testing i >= 0 (always true).
+  template<uN i = 0>
+  typename std::enable_if<sizeof...(X) == 0 and i >= 0, bool>::type
   write_(ζp m, bool f) const
     { u9ws(m, 0, t, isize<0>());
       return false; }
 
   template<uN i = 0>
-  typename std::enable_if<sizeof...(X) && i == sizeof...(X), bool>::type
+  typename std::enable_if<0 < sizeof...(X) and i == sizeof...(X), bool>::type
   write_(ζp m, bool f) const { return f; }
 
   template<uN i = 0>
-  typename std::enable_if<sizeof...(X) && i < sizeof...(X), bool>::type
+  typename std::enable_if<sizeof...(X) != 0 and i < sizeof...(X), bool>::type
   write_(ζp m, bool f) const
     { if (!i) m += u9ws(m, 0, t, isize<0>());
       auto o = o9(std::get<i>(xs));

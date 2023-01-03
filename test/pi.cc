@@ -4,8 +4,8 @@
 //#define τdebug_iostream 1
 //#define τallow_todo 1
 
-//#define τπ0debug_bounds_checks 1
-//#define τπ0debug_heapview_shuffle 1
+//#define τπdebug_bounds_checks 1
+//#define τπdebug_heapview_shuffle 1
 //#define τdebug_i9st 1
 
 
@@ -27,10 +27,10 @@ namespace fs = std::filesystem;
 int asmrun(St const &src)
 {
   Φ f;
-  π0asm a{π0abi1()}; a << src;
+  πasm a{πabi1()}; a << src;
   f.l.c([&]() {
-    SP<π0hgs> g{new π0hgs{f.ph}};
-    π0int i{π0abi1(), a.build(), f, g};
+    SP<πhgs> g{new πhgs{f.ph}};
+    πint i{πabi1(), a.build(), f, g};
     try
     {
       i.run(0);

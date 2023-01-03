@@ -1,5 +1,5 @@
-#ifndef τπ0asm_h
-#define τπ0asm_h
+#ifndef τπasm_h
+#define τπasm_h
 
 
 #include <iterator>
@@ -10,11 +10,11 @@
 #include "utf9-types.hh"
 #include "utf9.hh"
 
-#include "pi0-types.hh"
-#include "pi0-int.hh"
-#include "pi0-gc.hh"
-#include "pi0-abi.hh"
-#include "pi0-pgm.hh"
+#include "pi-types.hh"
+#include "pi-int.hh"
+#include "pi-gc.hh"
+#include "pi-abi.hh"
+#include "pi-pgm.hh"
 
 #include "begin.hh"
 
@@ -23,12 +23,12 @@ namespace τ
 
 
 #if τdebug_iostream
-struct π0afr;
-O &operator<<(O &, π0afr const&);
+struct πafr;
+O &operator<<(O &, πafr const&);
 #endif
 
 
-struct π0afr  // π₀ asm frame
+struct πafr  // π₀ asm frame
 {
   sletc  c7fs = cs7(" |[]");
   sc uNc fω   = -1;
@@ -36,19 +36,19 @@ struct π0afr  // π₀ asm frame
   V<St> vs;   // variables, positionally mapped to frame offsets
   uN    nc;   // number of arg-captures when entering frame
 
-  π0afr() {}
-  π0afr(π0afr &&a) : vs(std::move(a.vs)), nc(a.nc) {}
+  πafr() {}
+  πafr(πafr &&a) : vs(std::move(a.vs)), nc(a.nc) {}
 
-  π0afr(Stc &vs_) : vs(c7fs.split(vs_)) {}
-  π0afr(Il<St> const &vs_)
+  πafr(Stc &vs_) : vs(c7fs.split(vs_)) {}
+  πafr(Il<St> const &vs_)
     { std::copy(vs_.begin(), vs_.end(), std::back_inserter(vs)); }
 
-  π0afr(Stc &p, uN n)  // anonymous variables with prefix
+  πafr(Stc &p, uN n)  // anonymous variables with prefix
     { for (uN i = 0; i < n; ++i)
       { vs.push_back(p);
         vs.back().append(std::to_string(i)); } }
 
-  π0afr &operator=(π0afr const &a)
+  πafr &operator=(πafr const &a)
     { vs = a.vs;
       nc = a.nc;
       return *this; }
@@ -59,7 +59,7 @@ struct π0afr  // π₀ asm frame
 };
 
 
-struct π0asm
+struct πasm
 {
   sletc c7ws = cs7(" \t\n");           // whitespace
   sletc c7ni = cs7(" \t\n[]|'\\\"#");  // non-ident
@@ -67,43 +67,43 @@ struct π0asm
   sletc c7sc = cs7("(){},");           // single-char idents
   sletc c7in = cs7("0123456789");      // integer
 
-  typedef V<π0b> π0blk;  // code block
+  typedef V<πb> πblk;  // code block
 
-  π0abi const &a;
-  M<St, π0fi>      fn;   // string index of ABI functions
+  πabi const &a;
+  M<St, πfi>       fn;   // string index of ABI functions
   M<u9_symbol, uN> qhi;  // quoted-symbol offset index (within qh)
   B                qh;   // static quoted values
-  V<π0afr>         fs;   // stack of frames
-  V<π0blk>         bs;   // stack of blocks
+  V<πafr>          fs;   // stack of frames
+  V<πblk>          bs;   // stack of blocks
 
-  π0asm(π0abi const &a_) : a(a_)
-  { fs.push_back(π0afr{});
-    bs.push_back(π0blk{});
-    bs.push_back(π0blk{});
+  πasm(πabi const &a_) : a(a_)
+  { fs.push_back(πafr{});
+    bs.push_back(πblk{});
+    bs.push_back(πblk{});
     for (uN i = 0; i < a.f.size(); ++i) fn[a.n.at(i)] = i; }
 
 
-  π0asm &begin() { bs.push_back(π0blk{}); return *this; }
-  π0asm &end()
+  πasm &begin() { bs.push_back(πblk{}); return *this; }
+  πasm &end()
     { auto b = std::move(bs.back()); bs.pop_back();
       f("[", b.size() + 1);
       for (let &x : b) *this << x;
       f("]");
       return *this; }
 
-  π0asm &iend()  // inline-end: don't quote the block
+  πasm &iend()  // inline-end: don't quote the block
     { auto b = std::move(bs.back()); bs.pop_back();
       for (let &x : b) *this << x;
       f("]");
       return *this; }
 
 
-  π0asm &fbegin(Stc &vs)
-  { fs.push_back(π0afr(vs));
+  πasm &fbegin(Stc &vs)
+  { fs.push_back(πafr(vs));
     f("[|", fs.back().vs.size());
     return *this; }
 
-  π0asm &fend()
+  πasm &fend()
   { fs.pop_back();
     f("|]");
     return *this; }
@@ -114,15 +114,15 @@ struct π0asm
       return qhi.at(k); }
 
 
-  π0asm &f(Stc &n, uN k = 0)
+  πasm &f(Stc &n, uN k = 0)
     { A(!n.empty(), "π₀asm f(\"\")");
       if (!fs.empty())
       { let a = fs.back()[n];
-        if (a != π0afr::fω) return *this << π0b{fn.at("&@'"), a};
+        if (a != πafr::fω) return *this << πb{fn.at("&@'"), a};
         if (n.ends_with('='))
         { let b = fs.back()[n.substr(0, n.size() - 1)];
-          if (b != π0afr::fω) return *this << π0b{fn.at("&='"), b}; } }
-      if (fn.contains(n)) return *this << π0b{fn.at(n), k};
+          if (b != πafr::fω) return *this << πb{fn.at("&='"), b}; } }
+      if (fn.contains(n)) return *this << πb{fn.at(n), k};
       if (c7in[n[0]])
       { i64 x = 0;
         if (n.starts_with("0x"))
@@ -131,7 +131,7 @@ struct π0asm
         else
           std::stringstream{n} >> x;
         A(!oi<i32>(x), "int literal overflow: " << x << " from " << n);
-        return *this << π0b{fn.at(oi<i16>(x) ? "i32" : oi<i8>(x) ? "i16" : "i8"), x}; }
+        return *this << πb{fn.at(oi<i16>(x) ? "i32" : oi<i8>(x) ? "i16" : "i8"), x}; }
 
       // Otherwise, interpret the name as a global _function_ that is
       // expected to exist by this point.
@@ -145,8 +145,8 @@ struct π0asm
       return *this; }
 
 
-  π0asm &operator<<(π0b b) { bs.back().push_back(b); return *this; }
-  π0asm &operator<<(Stc &s)
+  πasm &operator<<(πb b) { bs.back().push_back(b); return *this; }
+  πasm &operator<<(Stc &s)
   { for (uN i = 0; i < s.size(); ++i)
       if      (c7ws[s[i]]) continue;
       else if (c7sc[s[i]]) f(s.substr(i, 1), 0);
@@ -200,23 +200,23 @@ struct π0asm
     return *this; }
 
 
-  SP<π0pgm> build_repl()
+  SP<πpgm> build_repl()
     { A(bs.size() == 2, "π₀asm::build_repl |bs| = " << bs.size());
-      let e = Sc<π0bi>(bs[0].size());
+      let e = Sc<πbi>(bs[0].size());
       iend();
-      let r = SP<π0pgm>(new π0pgm{a, qh, bs.back(), e});
+      let r = SP<πpgm>(new πpgm{a, qh, bs.back(), e});
       begin();
       return r; }
 
-  SP<π0pgm> build()
+  SP<πpgm> build()
     { A(bs.size() == 2, "π₀asm::build |bs| = " << bs.size());
       f("]");
-      return SP<π0pgm>(new π0pgm{a, qh, bs.back(), 0}); }
+      return SP<πpgm>(new πpgm{a, qh, bs.back(), 0}); }
 };
 
 
 #if τdebug_iostream
-O &operator<<(O &s, π0afr const &f)
+O &operator<<(O &s, πafr const &f)
 {
   s << "| ";
   for (let &v : f.vs) s << v << " ";

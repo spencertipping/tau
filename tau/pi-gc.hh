@@ -1,15 +1,15 @@
-#ifndef τπ0_gc_h
-#define τπ0_gc_h
+#ifndef τπ_gc_h
+#define τπ_gc_h
 
 
 #include "types.hh"
 #include "utf9.hh"
-#include "pi0-types.hh"
+#include "pi-types.hh"
 
-#include "pi0-gc-heapspace.hh"
-#include "pi0-gc-heap.hh"
-#include "pi0-gc-heapview.hh"
-#include "pi0-gc-markset.hh"
+#include "pi-gc-heapspace.hh"
+#include "pi-gc-heap.hh"
+#include "pi-gc-heapview.hh"
+#include "pi-gc-markset.hh"
 
 #include "begin.hh"
 
@@ -17,12 +17,12 @@ namespace τ
 {
 
 
-void π0h::gc(uN s)
+void πh::gc(uN s)
 {
   A(!ms, "gc() within GC");
 
   gΘ.start();
-  ms = new π0ms{*this, 0, an};
+  ms = new πms{*this, 0, an};
   an = 0;
   for (let v : vs) v->mark();
 
@@ -40,16 +40,16 @@ void π0h::gc(uN s)
 }
 
 
-inline π0h::~π0h ()
+inline πh::~πh ()
 {
-  A(vs.empty(), "~π0h vs nonempty (will segfault on ~π0hv)");
-  A(!ms,        "~π0h during GC");
+  A(vs.empty(), "~πh vs nonempty (will segfault on ~πhv)");
+  A(!ms,        "~πh during GC");
   for (uN g = 0; g < gn; ++g) delete hs[g];
 }
 
 
-inline void π0h::mark(π0r x) { if (x) ms->me(x); }
-inline π0r  π0h::move(π0r x) const
+inline void πh::mark(πr x) { if (x) ms->me(x); }
+inline πr   πh::move(πr x) const
 {
   // If the object was never marked, then it's uninvolved in this GC.
   // This happens if we're just collecting newgen and the reference
@@ -64,17 +64,17 @@ inline π0r  π0h::move(π0r x) const
 }
 
 
-inline π0ho9                          *π0h::claim(π0r r, π0r o) { return ms->claim(r, o); }
-inline Mo<π0r, π0ho9*>::const_iterator π0h::cb   (π0r r)  const { return ms->cb(r); }
-inline Mo<π0r, π0ho9*>::const_iterator π0h::ce   ()       const { return ms->ce(); }
+inline πho9                         *πh::claim(πr r, πr o) { return ms->claim(r, o); }
+inline Mo<πr, πho9*>::const_iterator πh::cb   (πr r) const { return ms->cb(r); }
+inline Mo<πr, πho9*>::const_iterator πh::ce   ()     const { return ms->ce(); }
 
 
 template<O9 T>
-π0r π0h::gcw(uN s, T const &x)
+πr πh::gcw(uN s, T const &x)
 {
   B t; t.reserve(s);
   i9 y = t.data() + (t << x);
-  π0hnf f{*this, 1};
+  πhnf f{*this, 1};
   f(&y);
   gc(0);
   return y;

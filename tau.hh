@@ -19,9 +19,7 @@
 
 #include "tau/Phi.hh"
 
-#include "tau/pi0.hh"
-#include "tau/pi1.hh"
-#include "tau/pi2.hh"
+#include "tau/pi.hh"
 
 
 #endif

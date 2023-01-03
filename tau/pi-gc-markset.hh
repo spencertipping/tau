@@ -1,14 +1,14 @@
-#ifndef τπ0_gc_markset_h
-#define τπ0_gc_markset_h
+#ifndef τπ_gc_markset_h
+#define τπ_gc_markset_h
 
 
 #include "debug.hh"
 #include "types.hh"
 #include "utf9.hh"
-#include "pi0-types.hh"
-#include "pi0-gc-heap.hh"
-#include "pi0-gc-heapspace.hh"
-#include "pi0-gc-o9.hh"
+#include "pi-types.hh"
+#include "pi-gc-heap.hh"
+#include "pi-gc-heapspace.hh"
+#include "pi-gc-o9.hh"
 
 #include "begin.hh"
 
@@ -16,20 +16,20 @@ namespace τ
 {
 
 
-struct π0ms
+struct πms
 {
-  π0h            &h;
-  uNc             mg;  // maximum generation being collected
-  Mo<π0r, π0ho9*> m;   // writer for each marked reference
-  S<π0r>          t;   // set of true roots
+  πh            &h;
+  uNc           mg;  // maximum generation being collected
+  Mo<πr, πho9*> m;   // writer for each marked reference
+  S<πr>         t;   // set of true roots
 
-  π0ms(π0h &h_, uN mg_, uN an) : h(h_), mg(mg_) {}
+  πms(πh &h_, uN mg_, uN an) : h(h_), mg(mg_) {}
 
-  ~π0ms() { for (let &[_, o] : m) delete o; }
+  ~πms() { for (let &[_, o] : m) delete o; }
 
 
-  bool contains(π0r x) const { return m.contains(x) && m.at(x); }
-  π0r  at      (π0r x) const { return m.at(x)->n; }
+  bool contains(πr x) const { return m.contains(x) && m.at(x); }
+  πr   at      (πr x) const { return m.at(x)->n; }
 
 
   // Mark x as having an external reference -- i.e. being a true root.
@@ -45,7 +45,7 @@ struct π0ms
   void me(i9 x)
     { if (m.contains(x)) return;
       let hg = h.gen(x);
-      if (hg != π0h::gω && hg > mg) return;
+      if (hg != πh::gω && hg > mg) return;
       m[x] = nullptr;
       t.insert(x);
       if (x.is_πref()) mi(x.deref());
@@ -56,7 +56,7 @@ struct π0ms
   void mi(i9 x) { t.erase(x); me(x); }
 
 
-  π0ho9 *ho9(π0r f, π0r o) { return new π0ho9(h, f, o); }
+  πho9 *ho9(πr f, πr o) { return new πho9(h, f, o); }
 
 
   // Attempt to claim f as an inline of o, returning one of two things:
@@ -70,14 +70,14 @@ struct π0ms
   // is, it has exactly one liveness-link from its container and is
   // guaranteed to be inlinable by that container. We return nullptr
   // instead of allocating an o9 to save space.
-  π0ho9 *claim(π0r f, π0r o)
+  πho9 *claim(πr f, πr o)
     { return !m.contains(f)
            ?  nullptr
            :  m[f] ? m[f] : (m[f] = ho9(f, o)); }
 
   // FIXME: unordered map + sorted vector
-  auto cb(π0r x) const { return m.lower_bound(x); }
-  auto ce()      const { return m.end(); }
+  auto cb(πr x) const { return m.lower_bound(x); }
+  auto ce()     const { return m.end(); }
 
 
   uN plan()
@@ -87,7 +87,7 @@ struct π0ms
       // roots. We haven't yet identified `c` to be a false root of
       // `a`. We do this by iterating through the root set in order
       // and removing any that are properly contained by others.
-      V<π0r> rs; rs.reserve(m.size());
+      V<πr> rs; rs.reserve(m.size());
       for (let &[k, _] : m) rs.push_back(k);
       //std::sort(rs.begin(), rs.end());  // FIXME: already sorted
       for (uN i = 0; i < rs.size(); ++i)
@@ -116,7 +116,7 @@ struct π0ms
 
   // TODO: add generational control to this function; we should break
   // early if we're tenuring some objects to older generations.
-  π0ms &operator>>(B &h_)
+  πms &operator>>(B &h_)
     { // Copy true roots into new heap in the same order we used
       // when calculating sizes.
       for (let x : t) h_ << o9vd{m[x]};

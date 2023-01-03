@@ -1,12 +1,12 @@
-#ifndef τπ0abi_h
-#define τπ0abi_h
+#ifndef τπabi_h
+#define τπabi_h
 
 
 #include "../dep/picosha2.h"
 
 
 #include "types.hh"
-#include "pi0-types.hh"
+#include "pi-types.hh"
 
 #include "begin.hh"
 
@@ -14,14 +14,14 @@ namespace τ
 {
 
 
-struct π0abi
+struct πabi
 {
-  V<π0f>       f;       // function table (π0fi to index)
-  V<St>        n;       // function names, to list disassembly
-  S<St>        ns;      // set of defined names
-  π0av mutable v_ = 0;  // cached version
+  V<πf>       f;       // function table (π0fi to index)
+  V<St>       n;       // function names, to list disassembly
+  S<St>       ns;      // set of defined names
+  πav mutable v_ = 0;  // cached version
 
-  π0av v() const
+  πav v() const
   { if (v_) return v_;
     Stc nul = "\0";
     picosha2::hash256_one_by_one h;
@@ -33,7 +33,7 @@ struct π0abi
     h.get_hash_bytes(r.begin(), r.end());
     return v_ = R<u64>(r.data(), 0); }
 
-  π0abi &def(Stc &n_, π0f f_)
+  πabi &def(Stc &n_, πf f_)
   { A(!v_, "defining " << n_ << " on versioned π₀abi");
     A(ns.emplace(n_).second, "redefining " << n_);
     f.push_back(f_);
@@ -45,7 +45,7 @@ struct π0abi
 
 
 #if τdebug_iostream
-O &operator<<(O &s, π0abi const &a)
+O &operator<<(O &s, πabi const &a)
 {
   TODO("<<π0abi");
 }

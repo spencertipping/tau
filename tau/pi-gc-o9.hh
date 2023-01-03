@@ -1,11 +1,11 @@
-#ifndef τπ0gc_o9_h
-#define τπ0gc_o9_h
+#ifndef τπgc_o9_h
+#define τπgc_o9_h
 
 
 #include "utf9.hh"
 #include "types.hh"
-#include "pi0-types.hh"
-#include "pi0-gc-heap.hh"
+#include "pi-types.hh"
+#include "pi-gc-heap.hh"
 
 #include "begin.hh"
 
@@ -13,18 +13,18 @@ namespace τ
 {
 
 
-struct π0o9f : virtual o9V  // flatten heap object for export
+struct πo9f : virtual o9V  // flatten heap object for export
 {
-  i9                     r;
-  M<π0r, π0o9f*> mutable c;
-  uN             mutable s = 0;
+  i9                    r;
+  M<πr, πo9f*> mutable c;
+  uN            mutable s = 0;
 
   static i9 f(i9 x) { while (x.is_πref()) x = *x; return x; }
 
-  π0o9f(i9 r_) : r(f(r_)) {}
-  ~π0o9f() { for (let &[_, v] : c) delete v; }
+  πo9f(i9 r_) : r(f(r_)) {}
+  ~πo9f() { for (let &[_, v] : c) delete v; }
 
-  π0o9f &operator=(π0o9f &&x)
+  πo9f &operator=(πo9f &&x)
     { r = x.r;
       c = std::move(x.c);
       s = x.s;
@@ -39,7 +39,7 @@ struct π0o9f : virtual o9V  // flatten heap object for export
       // to be a reference, which we can't be due to f() in the ctor.
       for (let x : r)
         if (!x.flagged()) s += x.osize();
-        else              s += (c[x.a] = new π0o9f(x))->size();
+        else              s += (c[x.a] = new πo9f(x))->size();
       return s; }
 
   uN write(ζp m) const
@@ -56,10 +56,10 @@ struct π0o9f : virtual o9V  // flatten heap object for export
 };
 
 
-struct π0o9q : virtual o9V  // quote heap object in bytes
+struct πo9q : virtual o9V  // quote heap object in bytes
 {
-  π0o9f o;
-  π0o9q(i9 r_) : o(r_) {}
+  πo9f o;
+  πo9q(i9 r_) : o(r_) {}
 
   uN size() const { return o.size() + u9sb(u9sq(o.size())); }
   uN write(ζp m) const
@@ -69,15 +69,15 @@ struct π0o9q : virtual o9V  // quote heap object in bytes
 };
 
 
-struct π0ho9 : virtual o9V  // write heap object for GC
+struct πho9 : virtual o9V  // write heap object for GC
 {
-  π0h        &h;
+  πh        &h;
   i9    const r;      // oldspace object
-  π0r mutable o;      // owner, if any (i.e. which i9 is inlining us)
-  π0r mutable n = 0;  // newspace location
+  πr mutable o;      // owner, if any (i.e. which i9 is inlining us)
+  πr mutable n = 0;  // newspace location
   uN  mutable s = 0;  // cached newspace inner size
 
-  π0ho9(π0h &h_, i9 r_, π0r o_) : h(h_), r(r_), o(o_) {}
+  πho9(πh &h_, i9 r_, πr o_) : h(h_), r(r_), o(o_) {}
 
 
   // Always inline objects if they are smaller than the heap's inlining
@@ -86,7 +86,7 @@ struct π0ho9 : virtual o9V  // write heap object for GC
   //
   // Note that roots can be inlined anywhere, at which point they become
   // owned by their inlined location.
-  bool inline_at(π0r x) const
+  bool inline_at(πr x) const
     { if (!o) o = x;
       return r.osize() <= h.is || o == x; }
 
@@ -132,7 +132,7 @@ struct π0ho9 : virtual o9V  // write heap object for GC
         { let c = x.deref();  // remove all reference layers
           let o = h.claim(c, x.a);
           s += !o ? c.osize()
-                  : o->inline_at(x.a) ? o->size() : π0o9r(c).size(); }
+                  : o->inline_at(x.a) ? o->size() : πo9r(c).size(); }
         return s; } }
 
 
@@ -162,7 +162,7 @@ struct π0ho9 : virtual o9V  // write heap object for GC
           else if (o->inline_at(y.a)) {                  A(!o->write(m + x), "GC internal error"); x += o->size(); }
           else
           { A(o->n, "π₀o9 ∅ref");
-            let w = π0o9r(o->n);
+            let w = πo9r(o->n);
             A(!w.write(m + x), "GC internal error"); x += w.size(); }
           f = f || u9ts_f(R<u8>(m, x0)); }
         if (f) m[0] |= u9f;

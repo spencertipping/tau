@@ -1,12 +1,12 @@
-#ifndef τπ0_gc_heap_h
-#define τπ0_gc_heap_h
+#ifndef τπ_gc_heap_h
+#define τπ_gc_heap_h
 
 
 #include "types.hh"
 #include "Sigma.hh"
 #include "shd.hh"
-#include "pi0-types.hh"
-#include "pi0-gc-heapspace.hh"
+#include "pi-types.hh"
+#include "pi-gc-heapspace.hh"
 
 #include "begin.hh"
 
@@ -14,32 +14,32 @@ namespace τ
 {
 
 
-struct π0h  // a multi-generational heap
+struct πh  // a multi-generational heap
 {
   sletc gn = 2;           // number of generations
   sletc gω = Sc<uN>(-1);  // null generation -- off-heap memory
 
   uNc         is;         // auto-inlining size
   Ar<uN, gn>  s;          // size of each generation
-  S<π0hv*>    vs;         // views that comprise the root set
-  π0hs       *hs[gn];     // generations; 0 = newest
-  π0ms       *ms;         // during GC, the mark-set tracker
+  S<πhv*>     vs;         // views that comprise the root set
+  πhs        *hs[gn];     // generations; 0 = newest
+  πms        *ms;         // during GC, the mark-set tracker
   ΣΘΔ         gΘ;         // GC timer
   uN          lss0;       // last live-set size
   uN          Σa;         // total allocations
   uN          an;         // allocation count (since last GC)
   Σι          gl;         // live-set size
 
-  π0h(uN is_ = 64, Ar<uN, gn> const &s_ = {65536, 1048576})
+  πh(uN is_ = 64, Ar<uN, gn> const &s_ = {65536, 1048576})
     : is(is_), s(s_), ms(nullptr), lss0(0), Σa(0), an(0)
-    { for (uN g = 0; g < gn; ++g) hs[g] = new π0hs(s[g]); }
+    { for (uN g = 0; g < gn; ++g) hs[g] = new πhs(s[g]); }
 
-  ~π0h();
+  ~πh();
 
 
-  template<O9 T> π0r gcw(uN, T const&);
+  template<O9 T> πr gcw(uN, T const&);
 
-  template<O9 T> π0r operator<<(T const &x)
+  template<O9 T> πr operator<<(T const &x)
     { let s = x.size();
       ++an;
       Σa += s;
@@ -47,7 +47,7 @@ struct π0h  // a multi-generational heap
       return gcw(s, x); }
 
 
-  uN gen(π0r x) const
+  uN gen(πr x) const
     { for (uN i = 0; i < gn; ++i) if (hs[i]->contains(x)) return i;
       return gω; }
 
@@ -60,13 +60,13 @@ struct π0h  // a multi-generational heap
   uN note_lss(uN lss) { gl << (lss0 = lss); return lss; }
 
 
-  void   gc   (uN s = 0);   // GC to allocate s extra bytes of space
-  void   mark (π0r);        // externally mark a reference
-  π0r    move (π0r) const;  // used by π0hv to translate old → new ext refs
-  π0ho9 *claim(π0r, π0r);   // used by π₀ho9 to mark objects as inlined
+  void  gc   (uN s = 0);  // GC to allocate s extra bytes of space
+  void  mark (πr);        // externally mark a reference
+  πr    move (πr) const;  // used by π0hv to translate old → new ext refs
+  πho9 *claim(πr, πr);    // used by π₀ho9 to mark objects as inlined
 
-  Mo<π0r, π0ho9*>::const_iterator cb(π0r) const;
-  Mo<π0r, π0ho9*>::const_iterator ce()    const;
+  Mo<πr, πho9*>::const_iterator cb(πr) const;
+  Mo<πr, πho9*>::const_iterator ce()   const;
 };
 
 

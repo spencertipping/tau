@@ -1,22 +1,22 @@
 # Literals
 ```bash
-$ ./pi0 '"foo" :out "foo\n" :cout ("foo", "bar") :out {"foo", "bar"} :out'
+$ ./pi '"foo" :out "foo\n" :cout ("foo", "bar") :out {"foo", "bar"} :out'
 "foo"
 foo
 ("foo","bar")
 {"foo":"bar"}
-$ ./pi0 "0 1 2 :data"
+$ ./pi "0 1 2 :data"
 [0]	2
 [1]	1
 [2]	0
-$ ./pi0 "0 ?t 127 ?t 128 ?t 32767 ?t :data"
+$ ./pi "0 ?t 127 ?t 128 ?t 32767 ?t :data"
 [0]	'i16
 [1]	'i16
 [2]	'i8
 [3]	'i8
-$ ./pi0 "32768 ?t 2147483647 ?t :data _ _
-         10 [] i16. 10 »i32s :out
-         10 [] i16. 10 »c32s :out"
+$ ./pi "32768 ?t 2147483647 ?t :data _ _
+        10 [] i16. 10 »i32s :out
+        10 [] i16. 10 »c32s :out"
 [0]	'i32
 [1]	'i32
 9 8 7 6 5 4 3 2 1 0
@@ -26,7 +26,7 @@ $ ./pi0 "32768 ?t 2147483647 ?t :data _ _
 We should also be able to write tuples and maps in fully-packed format:
 
 ```bash
-$ ./pi0 '(1,2,3) :out {1,2,3,4} :out'
+$ ./pi '(1,2,3) :out {1,2,3,4} :out'
 (1,2,3)
 {1:2, 3:4}
 ```

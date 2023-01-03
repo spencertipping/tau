@@ -4,8 +4,8 @@
 //#define τdebug_iostream 1
 //#define τallow_todo 1
 
-//#define τπ0debug_bounds_checks 1
-//#define τπ0debug_heapview_shuffle 1
+//#define τπdebug_bounds_checks 1
+//#define τπdebug_heapview_shuffle 1
 //#define τdebug_i9st 1
 
 
@@ -21,17 +21,19 @@ using namespace std;
 #include "../tau/debug.hh"
 #include "../tau/begin.hh"
 
+#define h(x) (x).deref()
+
 
 void try_simple_gc()
 {
   for (uN is = 0; is < 64; ++is)
   {
-    π0h   h{is, {256, 0}};
-    π0hnf f{h};
+    πh   h{is, {256, 0}};
+    πhnf f{h};
     i9 a = h << o9t(i8(1), i8(2), i8(3));
-    i9 b = h << o9t("foo", π0o9r(a), π0o9r(a), "bar");
+    i9 b = h << o9t("foo", πo9r(a), πo9r(a), "bar");
     i9 c = a;
-    i9 d = h << o9t(true, false, π0o9r(b), π0o9r(a), π0o9r(b));
+    i9 d = h << o9t(true, false, πo9r(b), πo9r(a), πo9r(b));
     i9 e = d.first();
 
     f(&a, &b, &c, &d, &e);
@@ -117,8 +119,8 @@ void try_simple_gc()
 
 void try_data_stack_slow()
 {
-  π0h   h{64, {256, 0}};
-  π0hds s{h};
+  πh   h{64, {256, 0}};
+  πhds s{h};
 
   for (u64 i = 0; i < 100000; ++i) s << o9(i);
   while (s.size() > 1)
@@ -134,8 +136,8 @@ void try_data_stack_slow()
 
 void try_data_stack_fast()
 {
-  π0h   h{64, {65536, 0}};
-  π0hds s{h};
+  πh   h{64, {65536, 0}};
+  πhds s{h};
 
   // Outer loop for better profiling if we want more data
   let ul = 1;
@@ -154,9 +156,9 @@ void try_data_stack_fast()
 
 void try_data_stack_tuple()
 {
-  π0h   h{64, {65536, 0}};
-  π0hds s{h};
-  π0hnf n{h};
+  πh   h{64, {65536, 0}};
+  πhds s{h};
+  πhnf n{h};
 
   V<u32> xs; xs.reserve(1ul << 24);
   for (u32 i = 0; i < 1ul << 24; ++i) xs.push_back(i);
@@ -202,11 +204,11 @@ void try_data_stack_tuple()
 
 void try_asm()
 {
-  π0asm a{π0abi1()};
-  a << "i32'3 [i32'4 :out] . _ :out";
+  πasm a{πabi1()};
+  a << "i32'3 [i32'4 :out] . :out";
 
   Φ f;
-  π0int i{π0abi1(), a.build(), f, SP<π0hgs>(new π0hgs{f.ph})};
+  πint i{πabi1(), a.build(), f, SP<πhgs>(new πhgs{f.ph})};
   i.run(0);
   i32 x = Sc<i32>(i.dpop());
   A(x == 3, "expected 3, got " << x);
@@ -230,8 +232,8 @@ void default_try_stuff()
 int asmrun(char *src)
 {
   Φ f;
-  π0asm a{π0abi1()}; a << St{src};
-  π0int i{π0abi1(), a.build(), f, SP<π0hgs>(new π0hgs(f.ph))};
+  πasm a{πabi1()}; a << St{src};
+  πint i{πabi1(), a.build(), f, SP<πhgs>(new πhgs(f.ph))};
   i.run(0);
   return 0;
 }
@@ -240,8 +242,8 @@ int asmrun(char *src)
 int asmdebug(char *src)
 {
   Φ f;
-  π0asm a{π0abi1()}; a << St{src};
-  π0int i{π0abi1(), a.build(), f, SP<π0hgs>(new π0hgs(f.ph))};
+  πasm a{πabi1()}; a << St{src};
+  πint i{πabi1(), a.build(), f, SP<πhgs>(new πhgs(f.ph))};
 
   cout << "input program:" << endl;
   cout << i.p << endl;

@@ -2,7 +2,7 @@
 try/io
 try/zeta
 try/gamma
-try/pi0
+try/pi
 try/pi-gc
 try/pi-design
 try/*.o

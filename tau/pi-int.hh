@@ -1,14 +1,14 @@
-#ifndef τπ0int_h
-#define τπ0int_h
+#ifndef τπint_h
+#define τπint_h
 
 
 #include "types.hh"
 #include "utf9.hh"
 
-#include "pi0-types.hh"
-#include "pi0-gc.hh"
-#include "pi0-abi.hh"
-#include "pi0-pgm.hh"
+#include "pi-types.hh"
+#include "pi-gc.hh"
+#include "pi-abi.hh"
+#include "pi-pgm.hh"
 
 #include "Phi.hh"
 
@@ -19,106 +19,106 @@ namespace τ
 {
 
 
-// NOTE: π0int : π0sv only for notational purposes; we never use π0int
-// as a stack view within another π0int.
+// NOTE: πint : πsv only for notational purposes; we never use πint
+// as a stack view within another πint.
 
-struct π0int : π0sv
+struct πint : πsv
 {
-  sletc π0o9r_size = 11;
+  sletc πo9r_size = 11;
 
-  π0abi const     &a;   // ABI (native functions)
-  SP<π0pgm const>  p;   // bytecode program
-  Φ               &f;   // shared Φ boundary
-  π0h             &h;   // shared heap (cached from Φ)
-  SP<π0hgs>        g;   // shared globals
+  πabi const     &a;   // ABI (native functions)
+  SP<πpgm const>  p;   // bytecode program
+  Φ              &f;   // shared Φ boundary
+  πh             &h;   // shared heap (cached from Φ)
+  SP<πhgs>        g;   // shared globals
 
-  V<π0bi>          rs;  // return stack
-  π0hdf            fs;  // frame stack
-  π0hds            ds;  // base data stack
-  π0sv            *dv;  // current data stack view
+  V<πbi>          rs;  // return stack
+  πhdf            fs;  // frame stack
+  πhds            ds;  // base data stack
+  πsv            *dv;  // current data stack view
 
   // NOTE: this is a fork-constructor, not a copy-constructor (stacks are
   // empty in the destination)
-  π0int(π0int const &i, SP<π0hgs> g_ = nullptr)
+  πint(πint const &i, SP<πhgs> g_ = nullptr)
     : a(i.a), p(i.p), f(i.f), h(i.h), g(g_ ? g_ : i.g), fs(h), ds(h), dv(&ds) {}
 
-  π0int(π0abi const &a_, SP<π0pgm const> p_, Φ &f_, SP<π0hgs> g_)
+  πint(πabi const &a_, SP<πpgm const> p_, Φ &f_, SP<πhgs> g_)
     : a(a_), p(p_), f(f_), h(f_.ph), g(g_), fs(h), ds(h), dv(&ds)
     { if (p) A(p->a.v() == a.v(), "π₀ ABI mismatch: " << p->a.v() << " ≠ " << a.v()); }
 
-  ~π0int() { while (dv != &ds) spop(); }
+  ~πint() { while (dv != &ds) spop(); }
 
 
-  π0int &run(π0bi l = 0)
+  πint &run(πbi l = 0)
     { let n = rs.size();
       rs.push_back(l ? l : p->e);
       while (rs.size() > n) step();
       return *this; }
 
 
-  π0hgs &gs() const { return *g; }
+  πhgs &gs() const { return *g; }
 
 
   // Stack-view accessors, used by bytecode functions
-  π0sv        *up()     const { return nullptr; }
+  πsv        *up()     const { return nullptr; }
   uN         size()     const { return dv->size(); }
   i9   operator[](uN i) const { return (*dv)[i]; }
-  void operator<<(π0r x)      { *dv << x; }
+  void operator<<(πr x)      { *dv << x; }
   void       drop(uN n)       { dv->drop(n); }
 
-  π0int &spush(uN n = 0) {             dv = new π0hss{h, *dv, n}; return *this; }
-  π0int &spop()          { let v = dv; dv = dv->up(); delete v;   return *this; }
+  πint &spush(uN n = 0) {             dv = new πhss{h, *dv, n}; return *this; }
+  πint &spop()          { let v = dv; dv = dv->up(); delete v;   return *this; }
 
 
   // TODO: allocate small objects directly onto the stack
   // to avoid GC
   template<o9mapped T>
-  π0int &dpush(T const &x)
+  πint &dpush(T const &x)
     { let o = o9(x);
-      let s = o.size();  h.res(s <= h.is ? s : s + π0o9r_size);
+      let s = o.size();  h.res(s <= h.is ? s : s + πo9r_size);
       let r = h << o;
       if (s <= h.is) *this << r;
-      else           *this << (h << π0o9r(r));
+      else           *this << (h << πo9r(r));
       return *this; }
 
   i9   dpop() { let r = (*dv)[0]; drop(1); return r.deref(); }
-  π0bi bpop() { return Sc<π0bi>(dpop()); }
+  πbi bpop() { return Sc<πbi>(dpop()); }
 
 
   // Frame accessors
-  π0int &fpush(uN s) { fs.push(s); return *this; }
-  π0int &fpop()      { fs.pop();   return *this; }
-  π0r   &fi(uN i)    { return fs[i]; }
+  πint &fpush(uN s) { fs.push(s); return *this; }
+  πint &fpop()      { fs.pop();   return *this; }
+  πr   &fi(uN i)    { return fs[i]; }
 
 
   // Native frames are always created externally because their lifetime
   // is managed by the caller
 
 
-#if τπ0debug_bounds_checks
-  π0int &step()
+#if τπdebug_bounds_checks
+  πint &step()
   { let [fi, x] = p->p.at(rs.back()++);
     a.f.at(fi)(*this, x); return *this; }
 #else
-  π0int &step()
+  πint &step()
   { let [fi, x] = p->p[rs.back()++];
     a.f[fi](*this, x); return *this; }
 #endif
 };
 
 
-struct π0rsf  // π₀int return stack floor
+struct πrsf  // π₀int return stack floor
 {
-  π0int const &i;
+  πint const &i;
   uN           rn;
 
-  π0rsf(π0int &i_) : i(i_), rn(i.rs.size()) {}
+  πrsf(πint &i_) : i(i_), rn(i.rs.size()) {}
   operator bool() const { return i.rs.size() >= rn; }
 };
 
 
 #if τdebug_iostream
-O &operator<<(O &s, π0int const &i)
+O &operator<<(O &s, πint const &i)
 {
   s << "π₀i qs=" << i.p->q.size()
     << " r=";

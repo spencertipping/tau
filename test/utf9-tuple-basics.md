@@ -1,7 +1,7 @@
 # Tuple basics
 ```bash
-$ ./pi0 '(1,2,3) (4,5,6) t++ [1 i32+] t* :out
-         (1,2,3,4,5,6) [3 % i32%] t* [2 i32>] t% :out'
+$ ./pi '(1,2,3) (4,5,6) t++ [1 i32+] t* :out
+        (1,2,3,4,5,6) [3 % i32%] t* [2 i32>] t% :out'
 (5,6,7,2,3,4)
 (1,0,1,0)
 ```
@@ -9,14 +9,14 @@ $ ./pi0 '(1,2,3) (4,5,6) t++ [1 i32+] t* :out
 
 ## Indexes
 ```bash
-$ ./pi0 '0 »t : ?S :data'
+$ ./pi '0 »t : ?S :data'
 [0]	2
 [1]	()
-$ ./pi0 '[ :f : :outn " " :cout i< :out ] '\''each   %=
-         [|n| n= n [1 i32+] i32. n »t |]  '\''ntuple %=
-         [ [|b n| n= : b= n ntuple b >i each |]
-           10 % i32. _ ]
-         4 % u8.'
+$ ./pi '[ :f : :outn " " :cout i< :out ] '\''each   %=
+        [|n| n= n [1 i32+] i32. n »t |]  '\''ntuple %=
+        [ [|b n| n= : b= n ntuple b >i each |]
+          10 % i32. _ ]
+        4 % u8.'
 i0() u8[]
 i0(1) 0 2
 i0(2,1) 0 2 1 8
@@ -62,7 +62,7 @@ i3(9,8,7,6,5,4,3,2,1) 0 2
 We also need to make sure that indexed and non-indexed collections behave identically with respect to lookups.
 
 ```bash
-$ ./pi0 '
+$ ./pi '
   [|n| n= n [] i32. n »t  |] '\''nt %=  5 nt :out
   [|n| n= n [] i32. n »s  |] '\''ns %=  5 ns :out
   [nt : [7 i32+] t* % ^m m»] '\''nm %=  5 nm :out
@@ -84,7 +84,7 @@ $ ./pi0 '
 Debugging workbench for the above:
 
 ```sh
-$ ./pi0 '
+$ ./pi '
   [|n| n= n [] i32. n »t |]     '\''ntuple %=
   [|n| n= n [] i32. n »s |]     '\''nset   %=
   [ ntuple : [7 i32+] t* % ^m ] '\''nmap   %=

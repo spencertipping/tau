@@ -4,7 +4,7 @@
 
 #include "types.hh"
 #include "Lambda.hh"
-#include "pi0-gc.hh"
+#include "pi-gc.hh"
 
 #include "types.hh"
 #include "Lambda.hh"
@@ -63,7 +63,7 @@ struct Φb  // base Φ
   Λ        l;
   PQ<ΦΘ>   h;
   Θp const t0 = now();
-  π0h      ph{64, {65536, 0}};
+  πh       ph{64, {65536, 0}};
 
   Φb(Φb&)  = delete;
   Φb(Φb&&) = delete;

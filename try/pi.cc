@@ -4,8 +4,8 @@
 //#define τdebug_iostream 1
 //#define τallow_todo 1
 
-#define τπ0debug_bounds_checks 1
-//#define τπ0debug_heapview_shuffle 1
+#define τπdebug_bounds_checks 1
+//#define τπdebug_heapview_shuffle 1
 //#define τdebug_i9st 1
 
 
@@ -26,10 +26,10 @@ namespace fs = std::filesystem;
 
 Φ f;
 
-void run(π0asm &a)
+void run(πasm &a)
 {
   f.l.c([&]()
-    { π0int(π0abi1(), a.build(), f, SP<π0hgs>(new π0hgs(f.ph))).run();
+    { πint(πabi1(), a.build(), f, SP<πhgs>(new πhgs(f.ph))).run();
       return 0; });
   if (f.is_async()) f.go_async();
   else              f.go();
@@ -48,11 +48,11 @@ St input(char *x)
 }
 
 
-void repl(π0asm &a)
+void repl(πasm &a)
 {
-  St        l;
-  SP<π0hgs> gs(new π0hgs(f.ph));
-  π0int     i(π0abi1(), nullptr, f, gs);
+  St       l;
+  SP<πhgs> gs(new πhgs(f.ph));
+  πint     i(πabi1(), nullptr, f, gs);
 
   while (1)
   {
@@ -82,7 +82,7 @@ void repl(π0asm &a)
 int main(int argc, char **argv)
 {
   τassert_begin;
-  π0asm a(π0abi1());
+  πasm a(πabi1());
   iN   i = 1;
   bool r = false;
   if (argc > 1 && !strcmp(argv[1], "--repl")) r = true, ++i;
