@@ -85,26 +85,25 @@ Debugging workbench for the above:
 
 ```bash
 $ ./pi0 '
-  [|n| n= n [] i32. n »t |] '\''nt %=
-  [|n| n= n [] i32. n »s |] '\''ns %=
-  [ nt : [7 i32+] t* % ^m ] '\''nm %=
+  [|n| n= n [] i32. n »t |]     '\''ntuple %=
+  [|n| n= n [] i32. n »s |]     '\''nset   %=
+  [ ntuple : [7 i32+] t* % ^m ] '\''nmap   %=
 
   [|n b x t T s S m M| x= b= n=
-    n nt   t=  n ns   s=  n nm   m=
-    t b >i T=  s b >i S=  m b >i M=
+    n ntuple t=  n nset s=  n nmap m=
+    t b >i   T=  s b >i S=  m b >i M=
 
     ("t", T i<, T i>) :out
     ("s", S i<, S i>) :out
     ("m", M i<, M i>) :out
 
+    x t t@ :out
+    x T t@ :out
+
     (x t t@, x T t@,
      x s s?, x S s?,
      x m m@, x M m@) :out
   |] '\''test-debug %=
-
-  [ % ns % >i i< ] '\''svi %=
-  [ % nm % >i i< ] '\''mvi %=
-  [ >i32 :h 56 % u64>> ] '\''ehash %=
 
   7 0 7 test-debug
 '
