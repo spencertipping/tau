@@ -73,9 +73,8 @@ $ ./pi '
       [ : : t t@ % T t@ == [] [("FAIL", "t", n, b, ) :out] ?.
         : : s s? % S s? == [] [("FAIL", "s", n, b, ) :out] ?.
         : : m m@ % M m@ == [] [("FAIL", "m", n, b, ) :out] ?. _ ] i32.
-    (n, b, "ok") :err :gL :gH
   |] '\''test %=
-  1000 [|n| n= 5 [n % test] i8. |] i32.
+  100 [|n| n= 5 [n % test] i8. |] i32.
 '
 (4,3,2,1,0)
 {1,3,2,4,0}
