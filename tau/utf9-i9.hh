@@ -336,10 +336,10 @@ struct i9
       } }
 
   i9 tlin(uN i, uN o = 0) const
-    { i9 b = data() + o;
-      for (let e = next(); i; --i, ++b)
-        if (b.a >= e.a) return i9_tuple_bounds();
-      return b; }
+    { i9  b = data() + o;
+      let e = next();
+      while (b.a < e.a && i) --i, ++b;
+      return b.a >= e.a ? i9_tuple_bounds() : b; }
 
   i9 operator[](i9 i) const
     { u9tm{u9t::tuple, u9t::set, u9t::map, u9t::index}(type());

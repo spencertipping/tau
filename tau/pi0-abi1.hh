@@ -347,7 +347,7 @@ void π0abi1_u9_nrange(π0abi &a)
 
 void π0abi1_u9_tuple(π0abi &a)
 {
-  a .def("t@", I{ let t = i.dpop().as_tuple(); i.dpush(t[Sc<uN>(i.dpop())]); })
+  a .def("t@", I{ let t = i.dpop().deref(); i.dpush(t[Sc<uN>(i.dpop())]); })
     .def("t#", I{ i.dpush(i.dpop().as_tuple().len()); })
     .def("»t", I{
         uNc k = Sc<iN>(i.dpop());

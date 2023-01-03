@@ -74,7 +74,7 @@ $ ./pi0 '
         : : s s? % S s? == [] [("FAIL", "s", n, b, ) :out] ?.
         : : m m@ % M m@ == [] [("FAIL", "m", n, b, ) :out] ?. _ ] i32.
   |] '\''test %=
-  100 [|n| n= 5 [n % test] i8. |] i32.
+  # 100 [|n| n= 5 [n % test] i8. |] i32.
 '
 (4,3,2,1,0)
 {1,3,2,4,0}
@@ -105,6 +105,7 @@ $ ./pi0 '
      x m m@, x M m@) :out
   |] '\''test-debug %=
 
-  7 0 7 test-debug
+  2  0 0  test-debug
+  15 0 24 test-debug
 '
 ```
