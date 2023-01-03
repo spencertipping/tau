@@ -129,7 +129,9 @@ void π0abi1_u9_general(π0abi &a)
     .def("?s", I{ i.dpush(i.dpop().size()); })
     .def("?S", I{ i.dpush(i.dpop().osize()); })
     .def(":f", I{if (i[0].flagged()) i << (i.h << π0o9f{i.pop()}); })
-    .def(":h", I{ i.dpush(i.dpop().h()); });
+    .def(":h", I{ i.dpush(i.dpop().h()); })
+    .def("==", I{ i.dpush(i.dpop() == i.dpop()); })
+    .def("≡", I{ i.dpush(i.dpop().deref().a == i.dpop().deref().a); });
 }
 
 

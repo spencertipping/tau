@@ -25,3 +25,13 @@ $ ./pi0 '[ 1 i32+ ] '\''inc %=
 ```
 
 (Update: it was just an `osize`/`isize` mixup in `o9idx`.)
+
+
+## Referential equivalence
+```bash
+$ ./pi0 '"foo" :     ≡
+         "foo" "foo" ≡
+         "foo" "foo" ==
+         "foo" 3     == 4 »bs :out'
+f t f t
+```

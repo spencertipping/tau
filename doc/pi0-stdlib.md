@@ -70,6 +70,8 @@ Mostly enabled with syntax, but we should also have explicit instructions:
 + `$b`: UTF9 → `bytes` (flatten + serialize)
 + `b$`: `bytes` → UTF9 -- deserialize and validate (invalid → `none`)
 + `b$!!`: `bytes` → UTF9 -- deserialize and don't validate (dangerous)
++ `==`: check for equality
++ `≡`: check for referential equality
 
 
 ### Structure literals
