@@ -94,7 +94,7 @@ In the functions below, `v` is replaced by a primitive type, e.g. `i8s`. So `i8s
 + `xs i n v!`: sub-vector
 + `a b v++`: concatenate vectors
 + `xs [...] v.`: vector for-each
-+ `xs [...] v*`: vector elementwise map
++ `xs [...] v*`: vector elementwise map (**FIXME:** ambiguous)
 + Native reductions
   + `xs v/+`: sum of elements
   + `xs v/*`: product of elements
@@ -108,7 +108,7 @@ In the functions below, `v` is replaced by a primitive type, e.g. `i8s`. So `i8s
 All of these operators automatically distribute across vectors.
 
 + Type conversions
-  + `>i8`: saturate on overflow (TODO; right now it's undefined)
+  + `>i8`: saturate on overflow (TODO; right now overflow is undefined)
   + `>i16`
   + `>i32`
   + `>i64`
@@ -207,8 +207,8 @@ All of these operators automatically distribute across vectors.
 
 
 ### Tuples
-+ `... x₃ x₂ x₁ n >>t`: make tuple from elements
-+ `t <<t`: flatten tuple to stack, with length on top
++ `... x₃ x₂ x₁ n »t`: make tuple from elements
++ `t «t`: flatten tuple to stack, with length on top
 + `>t`: set/map/vector/bytes/UTF8 to tuple
 + `t t#`: tuple length
 + `t i t@`: get element from tuple
@@ -226,9 +226,11 @@ All of these operators automatically distribute across vectors.
 ### Sets
 **NOTE:** set elements are stored in hash-order and set operators both deduplicate accordingly and preserve this ordering.
 
-+ `... x₃ x₂ x₁ n >>s`: make set from elements
++ `s∅`: empty set
++ `... x₃ x₂ x₁ n »s`: make set from elements
 + `>s`: tuple/vector/bytes/UTF8 to set
 + `x s s?`: check set member
++ `x s s+`: insert element into set
 + `a b s|`: set union
 + `a b s&`: set intersection
 + `a b s-`: set difference (`a - b`)
@@ -239,12 +241,14 @@ All of these operators automatically distribute across vectors.
 
 
 ### Maps
-+ `... v₃ v₂ v₁ ... k₃ k₂ k₁ n >>m`: make map from elements
++ `m∅`: empty map
++ `... v₃ v₂ v₁ ... k₃ k₂ k₁ n »m`: make map from elements
 + `>m`: tuple/set/vector/bytes/UTF8 of pairs → map
 + `vs ks ^m`: zip tuples/vectors into map
 + `m mk`: tuple of map keys
 + `m mv`: tuple of map values
-+ `k  m m@`: map k/v lookup
++ `k m m@`: map k/v lookup
++ `v k m m+`: insert k/v pair into map
 + `a b m|`: map union, prefer values from `b`
 + `a b m&`: map intersection, prefer values from `a`
 + `m [...] m.`: for-each (`k v → ...`)

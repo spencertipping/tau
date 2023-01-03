@@ -137,9 +137,10 @@ struct π0hdf : public virtual π0hv  // stack-of-frames heap view
 
 struct π0hnf : public virtual π0hv  // native frame heap view
 {
-  V<i9*>       v;
-  V<V<i9>*>    s;
-  V<F<void()>> f;
+  V<i9*>        v;
+  V<V<i9>*>     s;
+  V<M<i9, i9>*> m;
+  V<F<void()>>  f;
 
   π0hnf()             = delete;
   π0hnf(π0hnf const&) = delete;
@@ -156,17 +157,20 @@ struct π0hnf : public virtual π0hv  // native frame heap view
         for (let y : *x) h.mark(y); } }
 #else
   void mark()
-    { for (let x : v)                  h.mark(x->a);
-      for (let x : s) for (let y : *x) h.mark(y); }
+    { for (let x : v)                        h.mark(x->a);
+      for (let x : m) for (let &[k, v] : *x) h.mark(k), h.mark(v);
+      for (let x : s) for (let y : *x)       h.mark(y); }
 #endif
 
   void move()
-    { for (let   x : v)                 x->a = h.move(x->a);
-      for (let   x : s) for (auto &y : *x) y = h.move(y);
-      for (auto &x : f)                    x(); }
+    { for (let   x : v)                         x->a = h.move(x->a);
+      for (let   x : s) for (auto &y : *x)      y    = h.move(y);
+      for (let   x : m) for (auto &[k, v] : *x) Cc<i9&>(k) = h.move(k), v = h.move(v);
+      for (auto &x : f)                         x(); }
 
   template<class... Xs> π0hnf &operator()(i9 *x,         Xs... xs) { v.push_back(x);                        return (*this)(xs...); }
   template<class... Xs> π0hnf &operator()(V<i9> *x,      Xs... xs) { s.push_back(x);                        return (*this)(xs...); }
+  template<class... Xs> π0hnf &operator()(M<i9, i9> *x,  Xs... xs) { m.push_back(x);                        return (*this)(xs...); }
   template<class... Xs> π0hnf &operator()(F<void()> &&x, Xs... xs) { f.push_back(std::move(x)); f.back()(); return (*this)(xs...); }
   π0hnf &operator()() { return *this; }
 };

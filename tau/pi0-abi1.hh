@@ -406,7 +406,8 @@ void π0abi1_u9_tuple(π0abi &a)
 
 void π0abi1_u9_set(π0abi &a)
 {
-  a .def("»s", I{
+  a .def("s∅", I{ i.dpush(o9t().s()); })
+    .def("»s", I{
         uNc k = Sc<iN>(i.dpop());
         π0hnf f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
@@ -415,6 +416,15 @@ void π0abi1_u9_set(π0abi &a)
         i.dpush(xs);
         i[0].deref().retype(u9t::tuple, u9t::set); })
     .def("s?", I{ let s = i.dpop(); i.dpush(s[i.dpop()]); })
+    .def("s+", I{
+        let s = i.dpop();
+        let x = i.dpop();
+        if (s[x]) i << s;
+        else
+        { π0hnf f{i.h, 0};
+          V<i9> xs; s.into(xs, 1); f(&xs); xs.push_back(x);
+          i.dpush(xs);
+          i[0].deref().retype(u9t::tuple, u9t::set); }})
     .def("s.", I{
         π0hnf f{i.h, 2};
         let   g  = i.bpop();
@@ -435,7 +445,8 @@ void π0abi1_u9_set(π0abi &a)
 
 void π0abi1_u9_map(π0abi &a)
 {
-  a .def("»m", I{
+  a .def("m∅", I{ i.dpush(o9t().m()); })
+    .def("»m", I{
         uNc k = Sc<iN>(i.dpop());
         π0hnf f{i.h, 0};
         V<i9> xs; xs.reserve(k * 2); f(&xs);
@@ -458,6 +469,13 @@ void π0abi1_u9_map(π0abi &a)
         i.dpush(m);
         i.h(i[0]).retype(u9t::tuple, u9t::map); })
     .def("m@", I{ let k = i.dpop(); i.dpush(i.dpop()[k]); })
+    .def("m+", I{
+        let m = i.dpop();
+        let k = i.dpop();
+        let v = i.dpop();
+        π0hnf f{i.h, 0};
+        M<i9, i9> xs; m.into(xs); f(&xs); xs[k] = v;
+        i.dpush(xs); })
     .def("mk", I{
         uNc k = i[0].as_map().len() >> 1;
         π0hnf f{i.h, 0};

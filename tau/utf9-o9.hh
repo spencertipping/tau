@@ -355,12 +355,18 @@ struct o9t : virtual o9V
 
   uN size() const { return osize(isize<0>()); }
 
+  template<uN i>
+  typename std::enable_if<!sizeof...(X), bool>::type
+  write_(ζp m, bool f) const
+    { u9ws(m, 0, t, isize<0>());
+      return false; }
+
   template<uN i = 0>
-  typename std::enable_if<i == sizeof...(X), bool>::type
+  typename std::enable_if<sizeof...(X) && i == sizeof...(X), bool>::type
   write_(ζp m, bool f) const { return f; }
 
   template<uN i = 0>
-  typename std::enable_if<i < sizeof...(X), bool>::type
+  typename std::enable_if<sizeof...(X) && i < sizeof...(X), bool>::type
   write_(ζp m, bool f) const
     { if (!i) m += u9ws(m, 0, t, isize<0>());
       auto o = o9(std::get<i>(xs));

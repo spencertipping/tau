@@ -373,11 +373,13 @@ struct i9
       return *this; }
 
 
-  V<i9> &into(V<i9> &xs) const
+  V<i9> &into(V<i9> &xs, uN n = 0) const
     { u9tm{u9t::tuple, u9t::set, u9t::map}(type());
-      xs.reserve(len());
+      xs.reserve(len() + n);
       for (let x : *this) xs.push_back(x);
       return xs; }
+
+  M<i9, i9> &into(M<i9, i9> &xs) const;
 
 
   // Vector accessors
@@ -634,6 +636,19 @@ O &operator<<(O &s, i9 const &x)
 template<>
 struct std::hash<τ::i9>
 { inline size_t operator()(τ::i9 const x) const { return x.h(); } };
+
+
+namespace τ
+{
+
+
+inline M<i9, i9> &i9::into(M<i9, i9> &xs) const
+{ u9tm{u9t::map}(type());
+  for (let x : keys()) xs[x] = x.next();
+  return xs; }
+
+
+}
 
 
 #include "end.hh"
