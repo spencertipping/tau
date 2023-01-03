@@ -40,6 +40,7 @@ $ sudo apt install -y \
 
 
 ## Queue
++ `mmap` for π heaps on linux, so any violations are instant segfaults
 + Make `i9::deref()` behavior consistent
 + Clean up `.dpush()` vs `<<`
   + Automatically refer to `i9`s that are already on the heap
