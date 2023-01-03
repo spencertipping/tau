@@ -10,4 +10,4 @@ if [[ pi0.cc -nt pi0 ]] || find ../tau -newer pi0 | egrep -q .; then
            -lboost_context
 fi
 
-./lazytest *.md | bash
+time ./lazytest *.md | bash

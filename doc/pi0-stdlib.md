@@ -249,8 +249,8 @@ All of these operators automatically distribute across vectors.
 + `m mv`: tuple of map values
 + `k m m@`: map k/v lookup
 + `v k m m+`: insert k/v pair into map
-+ `a b m|`: map union, prefer values from `b`
-+ `a b m&`: map intersection, prefer values from `a`
++ `b a m|`: map union, prefer values from `b`
++ `b a m&`: map intersection, prefer values from `a`
 + `m [...] m.`: for-each (`k v → ...`)
 + `m [...] m*`: map (`k v → v'`)
 + `m [...] m%`: filter (`k v → b`)

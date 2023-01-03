@@ -425,6 +425,38 @@ void π0abi1_u9_set(π0abi &a)
           V<i9> xs; s.into(xs, 1); f(&xs); xs.push_back(x);
           i.dpush(xs);
           i[0].deref().retype(u9t::tuple, u9t::set); }})
+    .def("s|", I{
+        let b = i.dpop(); A(b.is_sord(), "s| b !is_sord: " << b);
+        let a = i.dpop(); A(a.is_sord(), "s| a !is_sord: " << a);
+        π0hnf f{i.h, 0};
+        V<i9> m; m.reserve(a.as_set().len() + b.as_set().len()); f(&m);
+        i9 bx = b.first(); let be = b.next();
+        i9 ax = a.first(); let ae = a.next();
+        while (ax.a < ae.a && bx.a < be.a)
+        { let ah = ax.h();
+          let bh = bx.h();
+          if      (ah < bh) { m.push_back(ax); ++ax; }
+          else if (bh < ah) { m.push_back(bx); ++bx; }
+          else              { m.push_back(bx); ++bx; ++ax; }}
+        while (ax.a < ae.a) { m.push_back(ax); ++ax; }
+        while (bx.a < be.a) { m.push_back(bx); ++bx; }
+        i.dpush(m);
+        i[0].deref().retype(u9t::tuple, u9t::set); })
+    .def("s&", I{
+        let b = i.dpop(); A(b.is_sord(), "s& b !is_sord: " << b);
+        let a = i.dpop(); A(a.is_sord(), "s& a !is_sord: " << a);
+        π0hnf f{i.h, 0};
+        V<i9> m; m.reserve(a.as_set().len() + b.as_set().len()); f(&m);
+        i9 bx = b.first(); let be = b.next();
+        i9 ax = a.first(); let ae = a.next();
+        while (ax.a < ae.a && bx.a < be.a)
+        { let ah = ax.h();
+          let bh = bx.h();
+          if      (ah < bh) ++ax;
+          else if (bh < ah) ++bx;
+          else              { m.push_back(ax); ++ax; ++bx; }}
+        i.dpush(m);
+        i[0].deref().retype(u9t::tuple, u9t::set); })
     .def("s.", I{
         π0hnf f{i.h, 2};
         let   g  = i.bpop();
@@ -476,6 +508,38 @@ void π0abi1_u9_map(π0abi &a)
         π0hnf f{i.h, 0};
         M<i9, i9> xs; m.into(xs); f(&xs); xs[k] = v;
         i.dpush(xs); })
+    .def("m|", I{
+        let b = i.dpop(); A(b.is_mord(), "m| b !is_mord: " << b);
+        let a = i.dpop(); A(a.is_mord(), "m| a !is_mord: " << a);
+        π0hnf f{i.h, 0};
+        V<i9> m; m.reserve(a.as_map().len() + b.as_map().len()); f(&m);
+        i9 bx = b.first(); let be = b.next();
+        i9 ax = a.first(); let ae = a.next();
+        while (ax.a < ae.a && bx.a < be.a)
+        { let ah = ax.h();
+          let bh = bx.h();
+          if      (ah < bh) { m.push_back(ax); m.push_back(++ax); ++ax; }
+          else if (bh < ah) { m.push_back(bx); m.push_back(++bx); ++bx; }
+          else              { m.push_back(bx); m.push_back(++bx); ++bx; ++ax; ++ax; }}
+        while (ax.a < ae.a) { m.push_back(ax); m.push_back(++ax); ++ax; }
+        while (bx.a < be.a) { m.push_back(bx); m.push_back(++bx); ++bx; }
+        i.dpush(m);
+        i[0].deref().retype(u9t::tuple, u9t::map); })
+    .def("m&", I{
+        let b = i.dpop(); A(b.is_mord(), "m& b !is_mord: " << b);
+        let a = i.dpop(); A(a.is_mord(), "m& a !is_mord: " << a);
+        π0hnf f{i.h, 0};
+        V<i9> m; m.reserve(a.as_map().len() + b.as_map().len()); f(&m);
+        i9 bx = b.first(); let be = b.next();
+        i9 ax = a.first(); let ae = a.next();
+        while (ax.a < ae.a && bx.a < be.a)
+        { let ah = ax.h();
+          let bh = bx.h();
+          if      (ah < bh) { ++ax; ++ax; }
+          else if (bh < ah) { ++bx; ++bx; }
+          else              { m.push_back(ax); m.push_back(++ax); ++ax; ++bx; ++bx; }}
+        i.dpush(m);
+        i[0].deref().retype(u9t::tuple, u9t::map); })
     .def("mk", I{
         uNc k = i[0].as_map().len() >> 1;
         π0hnf f{i.h, 0};

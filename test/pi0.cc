@@ -49,6 +49,7 @@ int asmrun(St const &src)
 
 St input(char *x)
 {
+  if (strlen(x) > 255) return St{x};
   fs::path p{x};
   if (!fs::exists(p)) return St{x};
   std::ostringstream s;
