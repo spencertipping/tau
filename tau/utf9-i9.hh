@@ -343,7 +343,7 @@ struct i9
         case u9t::tuple: return (*this)[Sc<uN>(i)];
         case u9t::set:
         { let k = ix.iv_hsearch(h);
-          for (i9 x = i9{c.data() + ix.at<uN>(k + 1)}, e = x.next();
+          for (i9 x = i9{c.a + ix.at<uN>(k + 1)}, e = x.next();
                x.a < e.a;
                ++x)
           { if (x == i)    return i9_true();
@@ -351,7 +351,7 @@ struct i9
           return i9_false(); }
         case u9t::map:
         { let k = ix.iv_hsearch(h);
-          for (i9 x = i9{c.data() + ix.at<uN>(k + 1)}, e = x.next();
+          for (i9 x = i9{c.a + ix.at<uN>(k + 1)}, e = x.next();
                x.a < e.a;
                ++x, ++x)
           { if (x == i)    return x.next();

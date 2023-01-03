@@ -415,7 +415,7 @@ void π0abi1_u9_set(π0abi &a)
         i9_ssort(xs.begin(), xs.end());
         i.dpush(xs);
         i[0].deref().retype(u9t::tuple, u9t::set); })
-    .def("s?", I{ let s = i.dpop(); i.dpush(s[i.dpop()]); })
+    .def("s?", I{ let s = i.dpop().deref(); i.dpush(s[i.dpop()]); })
     .def("s+", I{
         let s = i.dpop();
         let x = i.dpop();
@@ -466,9 +466,9 @@ void π0abi1_u9_set(π0abi &a)
         π0rsf r{i};
         while (r && x.a < e.a) { i << x; i.run(g); ++x; } })
     .def("s»", I{
-        if (!i[0].is_sord())
+        if (!i[0].deref().is_sord())
         { π0hnf f{i.h, 2};
-          V<i9> xs; i.dpop().into(xs); f(&xs);
+          V<i9> xs; i.dpop().deref().into(xs); f(&xs);
           i9_ssort(xs.begin(), xs.end());
           i.dpush(xs);
           i[0].deref().retype(u9t::tuple, u9t::set); }});
@@ -500,7 +500,7 @@ void π0abi1_u9_map(π0abi &a)
         i9_msort(m.begin(), m.end());
         i.dpush(m);
         i.h(i[0]).retype(u9t::tuple, u9t::map); })
-    .def("m@", I{ let m = i.dpop(); i.dpush(m[i.dpop()]); })
+    .def("m@", I{ let m = i.dpop().deref(); i.dpush(m[i.dpop()]); })
     .def("m+", I{
         let m = i.dpop();
         let k = i.dpop();
@@ -561,9 +561,9 @@ void π0abi1_u9_map(π0abi &a)
         π0rsf r{i};
         while (r && x.a < e.a) { i << x; i << ++x; i.run(g); ++x; } })
     .def("m»", I{
-        if (!i[0].is_mord())
+        if (!i[0].deref().is_mord())
         { π0hnf f{i.h, 2};
-          V<i9> xs; i.dpop().into(xs); f(&xs);
+          V<i9> xs; i.dpop().deref().into(xs); f(&xs);
           i9_msort(xs.begin(), xs.end());
           i.dpush(xs);
           i[0].deref().retype(u9t::tuple, u9t::map); }});

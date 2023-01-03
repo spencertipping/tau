@@ -63,9 +63,9 @@ We also need to make sure that indexed and non-indexed collections behave identi
 
 ```bash
 $ ./pi0 '
-  [|n| n= n [] i32. n »t |] '\''nt %=  5 nt :out
-  [|n| n= n [] i32. n »s |] '\''ns %=  5 ns :out
-  [ nt : [7 i32+] t* % ^m ] '\''nm %=  5 nm :out
+  [|n| n= n [] i32. n »t  |] '\''nt %=  5 nt :out
+  [|n| n= n [] i32. n »s  |] '\''ns %=  5 ns :out
+  [nt : [7 i32+] t* % ^m m»] '\''nm %=  5 nm :out
   [|n b t T s S m M| b= n=
     n nt   t=  n ns   s=  n nm   m=
     t b >i T=  s b >i S=  m b >i M=
@@ -83,10 +83,34 @@ $ ./pi0 '
 Debugging workbench for the above:
 
 ```bash
-$ ./pi0 '
+$ valgrind ./pi0 '
   [|n| n= n [] i32. n »t |] '\''nt %=
   [|n| n= n [] i32. n »s |] '\''ns %=
   [ nt : [7 i32+] t* % ^m ] '\''nm %=
+
+  [|n b t T s S m M| b= n=
+    n nt   t=  n ns   s=  n nm   m=
+    t b >i T=  s b >i S=  m b >i M=
+    n [ : : t t@ % T t@ == [] [("FAIL", "t", n, b, ) :out] ?.
+        : : s s? % S s? == [] [("FAIL", "s", n, b, ) :out] ?.
+        : : m m@ % M m@ == [] [("FAIL", "m", n, b, ) :out] ?. _ ] i32.
+  |] '\''test %=
+
+  [|n b t T s S m M| b= n=
+    n nt   t=  n ns   s=  n nm   m=
+    t b >i T=  s b >i S=  m b >i M=
+
+    ("test-lite s", s, S i<, S i>) :out
+    ("test-lite m", m, M i<, M i>) :out
+
+    n [ : : t t@ % T t@ == [] [("FAIL", "t", n, b, ) :out] ?.
+        : : s s? % S s? == [] [("FAIL", "s", n, b, ) :out] ?.
+        : : m m@ % M m@ == [] [("FAIL", "m", n, b, ) :out] ?. _ ] i32.
+  |] '\''test-lite %=
+
+  4 1 test-lite
+
+  2 0 test
 
   [ "set test" :out
     2 ns : :out
@@ -111,13 +135,13 @@ $ ./pi0 '
     2 ns 0 >i : :out : i< :out : i> :out
       0 >i32 ^ s? :out
       1 >i32 ^ s? :out
-      2 >i32 ^ s? :out _ ] .
+      2 >i32 ^ s? :out _ ] _
   [ "imap test" :out
     5 nm 1 >i : :out : i< :out : i> :out
       0 >i32 ^ m@ :out
       1 >i32 ^ m@ :out
       2 >i32 ^ m@ :out
       3 >i32 ^ m@ :out
-      4 >i32 ^ m@ :out _ ] .
+      4 >i32 ^ m@ :out _ ] _
 '
 ```
