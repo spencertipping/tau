@@ -266,9 +266,8 @@ struct i9
       if (u > vn()) u = vn();
       while (l + 2 < u)
       { let m = std::midpoint(l, u) & ~Sc<uN>(1);
-        let y = at<T>(m);
-        if (y < x) l = m;
-        else       u = m; }
+        if (at<T>(m) < x) l = m;
+        else              u = m; }
       return l; }
 
   template<class T>
@@ -279,10 +278,9 @@ struct i9
       { let al = at<T>(l);
         let au = at<T>(u);
         let m  = l + ((x - al) * (u - l)) / (au - al) & ~Sc<uN>(1);
-        if (m == l || m == u) return iv_bsearch(x, l, u + 2);
-        let y  = at<T>(m);
-        if (y < x) l = m;
-        else       u = m; }
+        if (m <= l || m >= u) return iv_bsearch(x, l, u);
+        if (at<T>(m) < x) l = m;
+        else              u = m; }
       return iv_bsearch(x, l, u + 2); }
 
 
@@ -299,7 +297,7 @@ struct i9
   static constexpr u64 htrunc(u64 h, u9t t)
     { switch (t)
       {
-      case u9t::u8: return h >> 56;
+      case u9t::u8:  return h >> 56;
       case u9t::u16: return h >> 48;
       case u9t::u32: return h >> 32;
       case u9t::u64: return h;
@@ -328,6 +326,9 @@ struct i9
       { let ix = ivec(); if (ix.vn() < bl_search_limit) return icoll().tlin(i);
         let n  = ix.iv_nsearch(i);
         let k  = ix.at<uN>(n);
+        std::cout << "i = " << i << ", n = " << n
+                  << ", k = " << k << ", o = " << ix.at<uN>(n + 1)
+                  << std::endl;
         return k <= i
              ? icoll().tlin(i - k, ix.at<uN>(n + 1))
              : icoll().tlin(i); }
@@ -335,7 +336,10 @@ struct i9
       } }
 
   i9 tlin(uN i, uN o = 0) const
-    { ζp b = data() + o; while (i--) b += size_of(b); return b; }
+    { i9 b = data() + o;
+      for (let e = next(); i; --i, ++b)
+        if (b.a >= e.a) return i9_tuple_bounds();
+      return b; }
 
   i9 operator[](i9 i) const
     { u9tm{u9t::tuple, u9t::set, u9t::map, u9t::index}(type());
@@ -348,13 +352,13 @@ struct i9
       { let ix = ivec();
         let c  = icoll();
         if (ix.vn() < bl_search_limit) return c[i];
-        let h  = i.h();
-        let ht = htrunc(h, ix.type());
         switch (c.type())
         {
         case u9t::tuple: return (*this)[Sc<uN>(i)];
         case u9t::set:
-        { let k = ix.iv_hsearch(h);
+        { let h  = i.h();
+          let ht = htrunc(h, ix.type());
+          let k  = ix.iv_hsearch(h);
           if (ix.at<u64>(k) > ht) return i9_false();
           for (i9 x = i9{c.a + ix.at<uN>(k + 1)}, e = c.next();
                x.a < e.a && x.h() <= h;
@@ -362,7 +366,9 @@ struct i9
             if (x == i) return i9_true();
           return i9_false(); }
         case u9t::map:
-        { let k = ix.iv_hsearch(h);
+        { let h  = i.h();
+          let ht = htrunc(h, ix.type());
+          let k  = ix.iv_hsearch(h);
           if (ix.at<u64>(k) > ht) return i9_false();
           for (i9 x = i9{c.a + ix.at<uN>(k + 1)}, e = c.next();
                x.a < e.a && x.h() <= h;

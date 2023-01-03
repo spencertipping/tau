@@ -755,7 +755,9 @@ void π0abi1_debug(π0abi &a)
         for (uN j = 0; j < i.size(); ++j)
           std::cout << "[" << j << "]\t" << i[j] << std::endl; })
     .def(":out",   I{ std::cout << i.dpop() << std::endl; })
-    .def(":outn",  I{ std::cout << i.dpop(); });
+    .def(":outn",  I{ std::cout << i.dpop(); })
+    .def(":err",   I{ std::cerr << i.dpop() << std::endl; })
+    .def(":errn",  I{ std::cerr << i.dpop(); });
 }
 #endif
 
