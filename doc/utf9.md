@@ -240,7 +240,7 @@ cb [sb] (index-vector) (container) (bits)
                        |   <- offsets relative to beginning of container
 ```
 
-`bits` is metadata that specifies the number of bits used to skip through the data to construct the index table. This is included so the [π₀ GC](pi0-gc.md) can preserve index resolution.
+`bits` is metadata that specifies the number of bits used to skip through the data to construct the index table. This is included so the [π₀ GC](pi0-gc.md) can preserve index resolution. It's just a `u8`.
 
 **NOTE:** the index is placed before the container (1) for cache locality; and (2) because it's typically written as the container itself is being written, to avoid buffering.
 

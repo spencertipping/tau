@@ -444,8 +444,8 @@ struct o9idx : virtual o9V
       uN  j = 0;
       for (let y : c)
       { if (!(i & a) && j + 1 < m.vn())
-        { m.template set<U>(j++, i);
-          m.template set<U>(j++, Sc<U>(y.a - c.a)); }
+        { m.set<U>(j++, i);
+          m.set<U>(j++, Sc<U>(y.a - c.a)); }
         ++i; } }
 
   template<class U>
@@ -456,13 +456,13 @@ struct o9idx : virtual o9V
       { let yh = y.h();
         A(yh >= h, "widx_s h nonascending: " << yh << " < " << h);
         h = yh; }
-      let a = ~(Sc<U>(-1) << b);
-      U   i = 0;
+      let a = ~(Sc<uN>(-1) << b);
+      uN  i = 0;
       uN  j = 0;
       for (let y : c)
       { if (!(i & a) && j + 1 < m.vn())
-        { m.template set<U>(j++, y.h() >> (sizeof(u64) - sizeof(U)) * 8);
-          m.template set<U>(j++, Sc<U>(y.a - c.a)); }
+        { m.set<U>(j++, y.h() >> (sizeof(u64) - sizeof(U)) * 8);
+          m.set<U>(j++, Sc<U>(y.a - c.a)); }
         ++i; } }
 
   template<class U>
@@ -473,13 +473,13 @@ struct o9idx : virtual o9V
       { let yh = y.h();
         A(yh >= h, "widx_m h nonascending: " << yh << " < " << h);
         h = yh; }
-      let a = ~(Sc<U>(-1) << b);
-      U   i = 0;
+      let a = ~(Sc<uN>(-1) << b - 1);
+      uN  i = 0;
       uN  j = 0;
       for (let y : c.keys())
       { if (!(i & a) && j + 1 < m.vn())
-        { m.template set<U>(j++, y.h() >> (sizeof(u64) - sizeof(U)) * 8);
-          m.template set<U>(j++, Sc<U>(y.a - c.a)); }
+        { m.set<U>(j++, y.h() >> (sizeof(u64) - sizeof(U)) * 8);
+          m.set<U>(j++, Sc<U>(y.a - c.a)); }
         ++i; } }
 
   template<class U>

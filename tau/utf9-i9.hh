@@ -257,6 +257,9 @@ struct i9
   sletc ib_search_limit = 16;
   sletc bl_search_limit = 4;
 
+  // NOTE: search functions below always return lower bounds; sometimes
+  // the index vector will contain multiple occurrences of the target,
+  // and we need to always choose the lowest.
   template<class T>
   uN iv_bsearch(T x, uN l = 0, uN u = -1) const
     { if (vn() < 2) return 0;
@@ -264,9 +267,8 @@ struct i9
       while (l + 2 < u)
       { let m = std::midpoint(l, u) & ~Sc<uN>(1);
         let y = at<T>(m);
-        if      (y == x) return m;
-        else if (y < x)  l = m;
-        else             u = m; }
+        if (y < x) l = m;
+        else       u = m; }
       return l; }
 
   template<class T>
@@ -279,9 +281,8 @@ struct i9
         let m  = l + ((x - al) * (u - l)) / (au - al) & ~Sc<uN>(1);
         if (m == l || m == u) return iv_bsearch(x, l, u + 2);
         let y  = at<T>(m);
-        if      (y == x) return m;
-        else if (y < x)  l = m;
-        else             u = m; }
+        if (y < x) l = m;
+        else       u = m; }
       return iv_bsearch(x, l, u + 2); }
 
 
@@ -293,6 +294,16 @@ struct i9
       case u9t::u32: return iv_isearch<u32>(i);
       case u9t::u64: return iv_isearch<u64>(i);
         TA(0, "iv_nsearch invalid ivec type " << type());
+      } }
+
+  static constexpr u64 htrunc(u64 h, u9t t)
+    { switch (t)
+      {
+      case u9t::u8: return h >> 56;
+      case u9t::u16: return h >> 48;
+      case u9t::u32: return h >> 32;
+      case u9t::u64: return h;
+        TA(0, "htrunc invalid type: " << t);
       } }
 
   uN iv_hsearch(u64 h) const
@@ -337,25 +348,26 @@ struct i9
       { let ix = ivec();
         let c  = icoll();
         if (ix.vn() < bl_search_limit) return c[i];
-        let h = i.h();
+        let h  = i.h();
+        let ht = htrunc(h, ix.type());
         switch (c.type())
         {
         case u9t::tuple: return (*this)[Sc<uN>(i)];
         case u9t::set:
         { let k = ix.iv_hsearch(h);
-          for (i9 x = i9{c.a + ix.at<uN>(k + 1)}, e = x.next();
-               x.a < e.a;
+          if (ix.at<u64>(k) > ht) return i9_false();
+          for (i9 x = i9{c.a + ix.at<uN>(k + 1)}, e = c.next();
+               x.a < e.a && x.h() <= h;
                ++x)
-          { if (x == i)    return i9_true();
-            if (x.h() > h) return i9_false(); }
+            if (x == i) return i9_true();
           return i9_false(); }
         case u9t::map:
         { let k = ix.iv_hsearch(h);
-          for (i9 x = i9{c.a + ix.at<uN>(k + 1)}, e = x.next();
-               x.a < e.a;
+          if (ix.at<u64>(k) > ht) return i9_false();
+          for (i9 x = i9{c.a + ix.at<uN>(k + 1)}, e = c.next();
+               x.a < e.a && x.h() <= h;
                ++x, ++x)
-          { if (x == i)    return x.next();
-            if (x.h() > h) return i9_no_key(); }
+            if (x == i) return x.next();
           return i9_no_key(); }
           TA(*this, "i9[i9] undefined for indexed " << c.type());
         } }
