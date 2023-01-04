@@ -152,6 +152,8 @@ inline Φf<O>::Φf(Φ &f_, T... xs) : f(f_), w{f.l}, o{rn, re, xs...}
 }
 
 
+// FIXME: we should allow non-φ LHS for this function
+// so we can read into π heap
 template<class R, class W, class F, class O>
 bool operator<<(φ_<R, W, F> &f, Φf<O> &r)
 {
