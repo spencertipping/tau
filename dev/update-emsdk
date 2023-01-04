@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+docker pull emscripten/emsdk
+docker tag emscripten/emsdk:latest registry.128:5000/asqi/emsdk
+docker push registry.128:5000/asqi/emsdk
+
