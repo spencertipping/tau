@@ -60,10 +60,10 @@ struct πint : πsv
 
 
   // Stack-view accessors, used by bytecode functions
-  πsv        *up()     const { return nullptr; }
+  πsv         *up()     const { return nullptr; }
   uN         size()     const { return dv->size(); }
   i9   operator[](uN i) const { return (*dv)[i]; }
-  void operator<<(πr x)      { *dv << x; }
+  void operator<<(πr x)       { *dv << x; }
   void       drop(uN n)       { dv->drop(n); }
 
   πint &spush(uN n = 0) {             dv = new πhss{h, *dv, n}; return *this; }
@@ -81,7 +81,7 @@ struct πint : πsv
       else           *this << (h << πo9r(r));
       return *this; }
 
-  i9   dpop() { let r = (*dv)[0]; drop(1); return r.deref(); }
+  i9  dpop() { let r = (*dv)[0]; drop(1); return r.deref(); }
   πbi bpop() { return Sc<πbi>(dpop()); }
 
 

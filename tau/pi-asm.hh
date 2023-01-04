@@ -67,7 +67,7 @@ struct πasm
   sletc c7sc = cs7("(){},");           // single-char idents
   sletc c7in = cs7("0123456789");      // integer
 
-  typedef V<πb> πblk;  // code block
+  typedef V<πb> πblk;    // code block
 
   πabi const &a;
   M<St, πfi>       fn;   // string index of ABI functions
