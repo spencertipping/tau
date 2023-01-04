@@ -536,16 +536,18 @@ void πabi1_u9_map(πabi &a)
         i.dpush(m);
         i[0].deref().retype(u9t::tuple, u9t::map); })
     .def("mk", I{
-        uNc k = i[0].as_map().len() >> 1;
+        let m = i.dpop().as_map();
+        uNc k = m.len() >> 1;
         πhnf f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
-        for (let x : i.dpop().as_map().keys()) xs.push_back(x);
+        for (let x : m.keys()) xs.push_back(x);
         i.dpush(xs); })
     .def("mv", I{
-        uNc k = i[0].as_map().len() >> 1;
+        let m = i.dpop().as_map();
+        uNc k = m.len() >> 1;
         πhnf f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
-        for (let x : i.dpop().as_map().keys()) xs.push_back(x.next());
+        for (let x : m.keys()) xs.push_back(x.next());
         i.dpush(xs); })
     .def("m.", I{
         πhnf f{i.h, 2};

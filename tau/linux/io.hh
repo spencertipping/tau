@@ -2,8 +2,14 @@
 #define τξlinux_io_h
 
 
-#include "../begin.hh"
+#include <errno.h>
+#include <unistd.h>
 
+
+#include "../types.hh"
+#include "../Phi.hh"
+
+#include "../begin.hh"
 
 namespace τ
 {
@@ -64,40 +70,6 @@ bool operator>>(i9 v, Φf<o9fdr> &w)
 }
 
 
-namespace ξ
-{
-
-
-ϝ &fd_in(Φ &f, fd_t fd, ϝξ t = ϝ::ξΦ)
-{
-  return *new ϝ(f, "fd_in", t, [&, fd](ϝ &f, γ &g)
-    { Φf<o9fdr> i{g.f, fd}; while (f << i); });
-}
-
-
-ϝ &fd_out(Φ &f, fd_t fd, ϝξ t = ϝ::ξΦ)
-{
-  return *new ϝ(f, "fd_out", t, [&, fd](ϝ &f, γ &g)
-    { Φf<o9fdr> o{g.f, fd};
-      for (let x : f) if (x.real() && !(x >> o)) break; });
-}
-
-
-ϝ &fd_io(Φ &f, fd_t fd, ϝξ t = ϝ::ξΦ)
-{
-  // TODO: close-on-quit option
-  // TODO: this should encapsulate fd_in and fd_out
-  // TODO: flags to customize behavior
-  // TODO: fsync() on τ
-  // TODO: monitoring to ε
-  // TODO: fcntl from δ
-  return *new ϝ(f, "fd_io", t,
-                [&, fd](ϝ &f, γ &g) { Φf<o9fdr> o{g.f, fd}; for (let x : f) if (!(x >> o)) break; },
-                [&, fd](ϝ &f, γ &g) { Φf<o9fdr> i{g.f, fd}; while (f << i); });
-}
-
-
-}
 }
 
 #include "../end.hh"

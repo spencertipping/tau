@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "pi-abi1.hh"
+#include "linux/io.hh"
 
 #include "pi-abi-begin.hh"
 
@@ -52,12 +53,12 @@ void πabi2_linux_general(πabi &a)
 
 void πabi2_linux_process(πabi &a)
 {
-  a .def("P:", I{ i.dpush(fork()); })
-    .def("P?", I{ TODO("waitpid"); })
-    .def("P_", I{
+  a .def("X:", I{ i.dpush(fork()); })
+    .def("X?", I{ TODO("waitpid"); })
+    .def("X_", I{
         let s = Sc<int>(i.dpop());
         i.dpush(kill(Sc<int>(i.dpop()), s)); })
-    .def("P=", I{
+    .def("X=", I{
         let c = i.dpop().c_str();
         let a = i.dpop();
         let e = i.dpop();
@@ -70,7 +71,7 @@ void πabi2_linux_process(πabi &a)
         for (j = 0; j < e.as_tuple().len(); ++j) free(es[j]);
         free(c);
         i.dpush(r); })
-    .def("P/=", I{
+    .def("X/=", I{
         let c = i.dpop().c_str();
         let a = i.dpop();
         ch **as = new ch*[a.as_tuple().len()];
@@ -82,11 +83,22 @@ void πabi2_linux_process(πabi &a)
 }
 
 
+void πabi2_linux_φ(πabi &a)
+{
+  a .def("F>", I{
+      Φf<o9fdr> g{i.f, Sc<fd_t>(i.dpop())};
+      TODO("F> is broken");
+      i.dpush(g.o);
+    });
+}
+
+
 void πabi2_linux(πabi &a)
 {
   πabi2_linux_fileio(a);
   πabi2_linux_general(a);
   πabi2_linux_process(a);
+  πabi2_linux_φ(a);
 }
 
 

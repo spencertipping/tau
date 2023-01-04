@@ -6,6 +6,15 @@ $ ./pi '{1,2,3,4,5,6,7,8} m» 0 >i'
 ```
 
 
+## Accessors
+```bash
+$ ./pi '{"foo","bar","bif","baz"} mk :out
+        {1,2,3,4} mv :out'
+("foo","bif")
+(2,4)
+```
+
+
 ## Adding stuff
 ```bash
 $ ./pi 's∅                                         :out
