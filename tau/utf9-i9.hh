@@ -199,6 +199,13 @@ struct i9
   i9 as_set()   const { return is_idx() ? icoll().as_set()   : is_set()   ? deref() : i9_none(); }
   i9 as_map()   const { return is_idx() ? icoll().as_map()   : is_map()   ? deref() : i9_none(); }
 
+  ch *c_str() const
+    { u9tm{u9t::utf8}(type());
+      let r = Rc<ch*>(malloc(size() + 1));
+      std::memcpy(r, data(), size());
+      r[size()] = '\0';
+      return r; }
+
 
   template<class T> T* ptr() const { return Rc<T*>(Sc<u9_scoped<u9_Φ, void*>>(*this).x); }
 
@@ -214,8 +221,11 @@ struct i9
       return Rc<T*>(data() + 1); }
 
 
-  operator St       () const { return St{Rc<ch*>(data()), size()}; }
-  operator Bv       () const { return Bv{data(), size()}; }
+  operator St () const { return St {Rc<ch*>(data()), size()}; }
+  operator Stv() const { return Stv{Rc<ch*>(data()), size()}; }
+  operator B  () const { return B  {data(), size()}; }
+  operator Bv () const { return Bv {data(), size()}; }
+
   operator u9_symbol() const { u9tm{u9t::symbol}(type()); return u9_symbol{B(data(), size())}; }
 
   operator u9st() const

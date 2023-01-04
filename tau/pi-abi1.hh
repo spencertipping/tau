@@ -19,13 +19,10 @@
 #include "Phi.hh"
 
 
-#include "begin.hh"
+#include "pi-abi-begin.hh"
 
 namespace τ
 {
-
-
-#define I [](πint &i, πfa n)
 
 
 void πabi1_const(πabi &a)
@@ -760,9 +757,6 @@ void πabi1_debug(πabi &a)
 #endif
 
 
-#undef I
-
-
 void πabi1(πabi &a)
 {
   πabi1_const(a);
@@ -800,7 +794,7 @@ void πabi1(πabi &a)
 πabi const &πabi1()
 {
   static πabi a;
-  static bool  i = false;
+  static bool i = false;
   if (!i) πabi1(a);
   i = true;
   return a;
@@ -809,7 +803,7 @@ void πabi1(πabi &a)
 
 }
 
-#include "end.hh"
+#include "pi-abi-end.hh"
 
 
 #endif

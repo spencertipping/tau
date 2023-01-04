@@ -29,7 +29,7 @@ namespace fs = std::filesystem;
 void run(πasm &a)
 {
   f.l.c([&]()
-    { πint(πabi1(), a.build(), f, SP<πhgs>(new πhgs(f.ph))).run();
+    { πint(πabi2_linux(), a.build(), f, SP<πhgs>(new πhgs(f.ph))).run();
       return 0; });
   if (f.is_async()) f.go_async();
   else              f.go();
@@ -52,7 +52,7 @@ void repl(πasm &a)
 {
   St       l;
   SP<πhgs> gs(new πhgs(f.ph));
-  πint     i(πabi1(), nullptr, f, gs);
+  πint     i(πabi2_linux(), nullptr, f, gs);
 
   while (1)
   {
@@ -82,7 +82,7 @@ void repl(πasm &a)
 int main(int argc, char **argv)
 {
   τassert_begin;
-  πasm a(πabi1());
+  πasm a(πabi2_linux());
   iN   i = 1;
   bool r = false;
   if (argc > 1 && !strcmp(argv[1], "--repl")) r = true, ++i;
