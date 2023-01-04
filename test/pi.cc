@@ -27,10 +27,10 @@ namespace fs = std::filesystem;
 int asmrun(St const &src)
 {
   Φ f;
-  πasm a{πabi1()}; a << src;
+  πasm a{πabi2_linux()}; a << src;
   f.l.c([&]() {
     SP<πhgs> g{new πhgs{f.ph}};
-    πint i{πabi1(), a.build(), f, g};
+    πint i{πabi2_linux(), a.build(), f, g};
     try
     {
       i.run(0);
