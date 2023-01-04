@@ -152,14 +152,12 @@ inline Φf<O>::Φf(Φ &f_, T... xs) : f(f_), w{f.l}, o{rn, re, xs...}
 }
 
 
-// FIXME: we should allow non-φ LHS for this function
-// so we can read into π heap
-template<class R, class W, class F, class O>
-bool operator<<(φ_<R, W, F> &f, Φf<O> &r)
+template<class T, class O>
+bool Φread(T &x, Φf<O> &r)
 {
   while (1)
   {
-    if      (f << r.o)         return true;
+    if      (x << r.o)         return true;
     else if (!r.ep && !r.ra()) r.w.y(λs::ΦI);
     else                       return false;
   }
