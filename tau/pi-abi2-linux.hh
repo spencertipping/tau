@@ -86,10 +86,12 @@ void πabi2_linux_process(πabi &a)
 void πabi2_linux_φ(πabi &a)
 {
   a .def("F>", I{
-      Φf<o9fdr> g{i.f, Sc<fd_t>(i.dpop())};
-      TODO("F> is broken");
-      i.dpush(g.o);
-    });
+        Φf<o9fdr> g{i.f, Sc<fd_t>(i.dpop())};
+        TODO("FIXME: F> fails with resource unavailable");
+        i.dpush(g.o); })
+    .def("F<", I{
+        Φf<o9fdr> g{i.f, Sc<fd_t>(i.dpop())};
+        i.dpush(i.dpop() >> g); });
 }
 
 

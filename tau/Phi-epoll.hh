@@ -117,7 +117,7 @@ struct Φ : public Φb
         s.erase(&f);
         if (!s.empty()) return true;
         fs.erase(c); }
-      return !close(c); }
+      return true; }
 
 
   Φ &operator()()
