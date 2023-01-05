@@ -43,9 +43,6 @@ struct πh  // a multi-generational heap
     { let s = x.size();
       ++an;
       Σa += s;
-      // FIXME: << ret should have consistent semantics; in φ it
-      // means "did we write successfully"; here it means "tell me where
-      // we wrote the thing"
       if (let a = *hs[0] << x) return a;
       return gcw(s, x); }
 

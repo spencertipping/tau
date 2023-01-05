@@ -370,19 +370,19 @@ void πabi1_u9_tuple(πabi &a)
     .def("t*", I{
         πhnf f{i.h, 2};
         let  g  = i.bpop();
-        i9   xs = i.dpop().as_tuple();   f(&xs);
-        i9   x  = xs.first();            f(&x);
-        i9   e;                          f([&]() { e = xs.next(); });
+        i9   xs = i.dpop().as_tuple();  f(&xs);
+        i9   x  = xs.first();           f(&x);
+        i9   e;                         f([&]() { e = xs.next(); });
         V<i9> ys; ys.reserve(xs.len()); f(&ys);
         πrsf r{i};
         while (r && x.a < e.a) { i << x; i.run(g); ys.push_back(i.dpop()); ++x; }
         i.dpush(ys); })
     .def("t%", I{
         πhnf f{i.h, 2};
-        let g  = i.bpop();
-        i9  xs = i.dpop().as_tuple();   f(&xs);
-        i9  x  = xs.first();            f(&x);
-        i9  e;                          f([&]() { e = xs.next(); });
+        let  g  = i.bpop();
+        i9   xs = i.dpop().as_tuple();  f(&xs);
+        i9   x  = xs.first();           f(&x);
+        i9   e;                         f([&]() { e = xs.next(); });
         V<i9> ys; ys.reserve(xs.len()); f(&ys);
         πrsf r{i};
         while (r && x.a < e.a) { i << x; i.run(g); if (i.dpop().b()) ys.push_back(x); ++x; }
@@ -536,25 +536,25 @@ void πabi1_u9_map(πabi &a)
         i.dpush(m);
         i[0].deref().retype(u9t::tuple, u9t::map); })
     .def("mk", I{
-        let m = i.dpop().as_map();
-        uNc k = m.len() >> 1;
-        πhnf f{i.h, 0};
+        let   m = i.dpop().as_map();
+        uNc   k = m.len() >> 1;
+        πhnf  f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
         for (let x : m.keys()) xs.push_back(x);
         i.dpush(xs); })
     .def("mv", I{
-        let m = i.dpop().as_map();
-        uNc k = m.len() >> 1;
-        πhnf f{i.h, 0};
+        let   m = i.dpop().as_map();
+        uNc   k = m.len() >> 1;
+        πhnf  f{i.h, 0};
         V<i9> xs; xs.reserve(k); f(&xs);
         for (let x : m.keys()) xs.push_back(x.next());
         i.dpush(xs); })
     .def("m.", I{
         πhnf f{i.h, 2};
-        let   g  = i.bpop();
-        i9    xs = i.dpop().as_map(); f(&xs);
-        i9    x  = xs.first();        f(&x);
-        i9    e;                      f([&]() { e = xs.next(); });
+        let  g  = i.bpop();
+        i9   xs = i.dpop().as_map(); f(&xs);
+        i9   x  = xs.first();        f(&x);
+        i9   e;                      f([&]() { e = xs.next(); });
         πrsf r{i};
         while (r && x.a < e.a) { i << x; i << ++x; i.run(g); ++x; } })
     .def("m»", I{

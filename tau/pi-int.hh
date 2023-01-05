@@ -67,7 +67,7 @@ struct πint : πsv
   void       drop(uN n)       { dv->drop(n); }
 
   πint &spush(uN n = 0) {             dv = new πhss{h, *dv, n}; return *this; }
-  πint &spop()          { let v = dv; dv = dv->up(); delete v;   return *this; }
+  πint &spop()          { let v = dv; dv = dv->up(); delete v;  return *this; }
 
 
   // TODO: allocate small objects directly onto the stack
@@ -91,10 +91,6 @@ struct πint : πsv
   πr   &fi(uN i)    { return fs[i]; }
 
 
-  // Native frames are always created externally because their lifetime
-  // is managed by the caller
-
-
 #if τπdebug_bounds_checks
   πint &step()
   { let [fi, x] = p->p.at(rs.back()++);
@@ -110,7 +106,7 @@ struct πint : πsv
 struct πrsf  // π₀int return stack floor
 {
   πint const &i;
-  uN           rn;
+  uN          rn;
 
   πrsf(πint &i_) : i(i_), rn(i.rs.size()) {}
   operator bool() const { return i.rs.size() >= rn; }
@@ -121,11 +117,11 @@ struct πrsf  // π₀int return stack floor
 O &operator<<(O &s, πint const &i)
 {
   s << "π₀i qs=" << i.p->q.size()
-    << " r=";
+    << " r[" << i.rs.size() << "]=";
   if (!i.rs.empty())
   { for (iN j = i.rs.size() - 1; j >= 0; --j)
       s << i.rs[j] << " ";
-    let [fi, x] = i.p->p[i.rs.back()];
+    let &[fi, x] = i.p->p[i.rs.back()];
     s << " " << i.p->a.n[fi] << "'" << x; }
   s << std::endl;
   for (uN j = 0; j < i.size(); ++j)

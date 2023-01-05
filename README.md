@@ -40,13 +40,14 @@ $ sudo apt install -y \
 
 
 ## Queue
-+ `mmap` for π heaps on linux, so any violations are instant segfaults
-+ `<<` implementations should all return success/fail, or all return addresses
-  + This matters because we want zero-copy FD IO into both φs and heap memory
++ Write orthogonal `πint` stack access methods
+  + `πint::?(i9)` method to construct a pointer to large values
+  + `<<` implementations should all return success/fail, or all return addresses (so φ `<<` and `πint <<` work similarly)
 + Make `i9::deref()` behavior consistent
++ `mmap` for π heaps on linux, so any violations are instant segfaults
 + Clean up `.dpush()` vs `<<`
   + Automatically refer to `i9`s that are already on the heap
-+ Indexed collections
++ GC completeness: fix indexed collections on write
 + GC performance: optimize data structures in markset, preallocate πho9
 + π performance: stack-allocate small values properly
 + Linux stdlib
