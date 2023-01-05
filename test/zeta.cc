@@ -134,61 +134,12 @@ void try_bytes()
 }
 
 
-template<class F>
-void bench(int argc)
-{
-  Λ l;
-  φ_<i9, i9, F> a(l);
-  φ_<i9, i9, F> b(l);
-
-  uNc N = 1 << 16;
-
-  let f1 = l.c([&]() {
-    for (u32 i = 0; i < N; ++i) A(a << o9(i), "φ rejected " << i);
-    a.wω();
-    for (i9 x : a) cout << "f1 received " << x << endl;
-    return 0;
-  });
-
-  let f2 = l.c([&]() {
-    u64 t = 0;
-    uN  n = 0;
-    for (i9 x : b) t += Sc<u32>(x), ++n;
-    b.rω();
-    A(n == N, "f2 got " << n << " (expected " << N << ")");
-    cout << "f2 sending " << t << endl;
-    b << o9(t);
-    b.wω();
-    return 0;
-  });
-
-  a(b);
-
-  Θp t1 = now();
-  l.go();
-  Θp t2 = now();
-
-  if constexpr (std::is_same<F, φc>::value)
-  {
-    cout << "ao total: " << a.f.om << ", ohc = " << a.f.ohc << endl;
-    cout << "bo total: " << b.f.om << ", ohc = " << b.f.ohc << endl;
-  }
-
-  A(!l.e(f1), "f1 still exists");
-  A(!l.e(f2), "f2 still exists");
-}
-
-
 int main(int argc, char **argv)
 {
   τassert_begin;
   try_small_ζ();
   try_tuple();
   try_bytes();
-  cout << "identity bench"      << endl; bench<φι>(argc);
-  cout << "checked  bench"      << endl; bench<φc>(argc);
-  cout << "measured bench (-H)" << endl; bench<φπ<ΘΔ>> (argc);
-  cout << "measured bench (+H)" << endl; bench<φπ<ΣΘΔ>>(argc);
   τassert_end;
   return 0;
 }

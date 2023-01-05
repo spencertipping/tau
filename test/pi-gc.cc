@@ -121,11 +121,11 @@ void try_simple_gc()
 
 void try_asm()
 {
-  πasm a{πabi1()};
+  πasm a{πabi2_linux()};
   a << "i32'3 [i32'4 :out] . : :out";
 
   Φ f;
-  πint i{πabi1(), a.build(), f, SP<πhgs>(new πhgs{f.ph})};
+  πint i{πabi2_linux(), a.build(), f, SP<πhgs>(new πhgs{f.ph})};
   i.run(0);
   i32 x = Sc<i32>(i.dpop());
   A(x == 3, "expected 3, got " << x);
