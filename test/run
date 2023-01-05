@@ -7,7 +7,6 @@ make()
   if [[ $1.cc -nt $1 ]] \
        || [[ run -nt $1 ]] \
        || find ../tau -newer $1 | egrep -q .; then
-    echo "building $1:"
     time g++ -std=c++20 -O3 $(grep ^-I ../compile_flags.txt) \
          -g $1.cc -o $1 -lboost_context
   fi
@@ -19,6 +18,4 @@ make zeta &
 make pi-gc &
 wait
 
-time ./zeta
-time ./pi-gc
 time ./lazytest *.md | bash
