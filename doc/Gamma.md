@@ -12,7 +12,7 @@ A composition of [γ](gamma.md) elements that form an eigenvector within a large
 So an exponential steady state is defined like this:
 
 ```
-(β :: φ(φ)) → γ... → (α :: φ(φ))
+(β :: φ((φ, ...))) → γ... → (α :: φ((φ, ...)))
 ```
 
 The _α_ consumer receives φs and connects them to newly-created φs on its side -- for example, a multiplexer might accept `(φ, k)` and create a new `k`-bound φ on its side connected to the φ that was provided. That φ lives until either side breaks the connection; a multiplexer would then destroy its `k`-bound φ and unmap `k` from its routing table.
