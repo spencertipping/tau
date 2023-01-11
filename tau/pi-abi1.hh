@@ -162,7 +162,7 @@ void πabi1_u9_vector(πabi &a)
         πhnf f{i.h, 3};                                                \
         i9 x = i.dpop(); f(&x);                                        \
         i9 y = i.dpop(); f(&y);                                        \
-        i9 z  = i.h << o9vec<t>{x.vn() + y.vn()}; f(&z);               \
+        i9 z = i.h << o9vec<t>{x.vn() + y.vn()}; f(&z);                \
         for (uN j = 0; j < x.vn(); ++j)                                \
           z.template set<t>(j, x.template at<t>(j));                   \
         for (uN j = 0; j < y.vn(); ++j)                                \
@@ -191,14 +191,23 @@ void πabi1_u9_vector(πabi &a)
 void πabi1_u9_number(πabi &a)
 {
 #define a1sc(t) a.def(">"#t,    I{ i.dpush(i.dpop().template at<t>(0)); });
-#define a1vc(t) a.def(">"#t"s", I{                              \
-      πhnf f{i.h, 2};                                           \
-      i9 x = i.pop(); f(&x);                                    \
-      i9 y = i.h << o9vec<t>{x.vn()}; f(&y);                    \
-      i << y;                                                   \
-      let k = x.vn();                                           \
-      for (uN i = 0; i < k; ++i)                                \
-        y.template set<t>(i, x.template at<t>(i)); });
+#define a1vc(t) a.def(">"#t"s", I{                                      \
+    if (u9tm{u9t::tuple, u9t::set, u9t::map}[i[0].deref().type()])      \
+    { πhnf f{i.h, 1};                                                   \
+      i9 x = i.dpop(); f(&x);                                           \
+      i9 y = i.h << o9vec<t>{x.len()};                                  \
+      uN j = 0;                                                         \
+      for (let z : x)                                                   \
+        y.template set<t>(j++, Sc<t>(z));                               \
+      i << y; }                                                         \
+    else                                                                \
+    { πhnf f{i.h, 2};                                                   \
+      i9 x = i.dpop();                f(&x);                            \
+      i9 y = i.h << o9vec<t>{x.vn()}; f(&y);                            \
+      i << y;                                                           \
+      let k = x.vn();                                                   \
+      for (uN i = 0; i < k; ++i)                                        \
+        y.template set<t>(i, x.template at<t>(i)); } });
 
   typedef bool b;
   a1sc(b);   a1vc(b);

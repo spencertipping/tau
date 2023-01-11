@@ -45,6 +45,7 @@ $ sudo apt install -y \
   + `πint::?(i9)` method to construct a pointer to large values
   + `<<` implementations should all return success/fail, or all return addresses (so φ `<<` and `πint <<` work similarly)
 + Make `i9::deref()` behavior consistent
++ Clean up `i9` abstractions: container-iteration, index-aware iteration, etc (what should `.begin()` do for an index?)
 + `mmap` for π heaps on linux, so any violations are instant segfaults
 + Clean up `.dpush()` vs `<<`
   + Automatically refer to `i9`s that are already on the heap

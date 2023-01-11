@@ -37,6 +37,10 @@ struct πh  // a multi-generational heap
   ~πh();
 
 
+  // Buffer a value to a malloc() area, then GC, then return the
+  // buffered value once it's moved onto the heap.
+  //
+  // FIXME: does this even work?
   template<O9 T> πr gcw(uN, T const&);
 
   template<O9 T> πr operator<<(T const &x)
