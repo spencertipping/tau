@@ -35,3 +35,13 @@ $ ./pi '"foo" :     ≡
         "foo" 3     == 4 »bs :out'
 f t f t
 ```
+
+
+## Stack virtualization
+```bash
+$ ./pi '1 2 3 (, _, _ _) :out :out :out :out'
+(3,2,1)
+3
+2
+1
+```

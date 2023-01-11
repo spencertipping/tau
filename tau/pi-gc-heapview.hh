@@ -72,8 +72,7 @@ struct πhds : public virtual πhv,  // data-stack heap view
 
   πsv *up() const { return nullptr; }
 
-  void                operator<<(πr x)      { s.push_back(x); }
-  template<O9 T> void operator<<(T const &x) { *this << (h << x); }
+  void operator<<(πr x) { s.push_back(x); }
 
   i9 operator[](uN i) const { return s.at(s.size() - i - 1); }
   void     drop(uN n = 1)   { s.resize(s.size() - n); }
@@ -100,16 +99,16 @@ struct πhss : public virtual πhv,  // split-stack heap view
 
   πsv *up() const { return Cc<πsv*>(&d); }
 
-  void                operator<<(πr x)      { s.push_back(x); }
-  template<O9 T> void operator<<(T const &x) { *this << (h << x); }
+  void operator<<(πr x) { s.push_back(x); }
 
   i9 operator[](uN i) const
-    { return i < s.size() ? i9{s.at(s.size() - i - 1)} : d[i - s.size() + n]; }
+    { return i < s.size() ? i9{s.at(s.size() - i - 1)}
+                          : d[i - s.size() + n]; }
 
   void drop(uN x = 1)
     { let l = std::min(x, Sc<uN>(s.size()));
       x -= l; s.resize(s.size() - l);
-      n += l; }
+      n += x; }
 
   uN size() const { return d.size() - n + s.size(); }
 };

@@ -24,6 +24,8 @@ namespace τ
 
 struct πint : πsv
 {
+  // NOTE: this can be an upper bound; it must be large enough for a
+  // reference on any architecture
   sletc πo9r_size = 11;
 
   πabi const     &a;   // ABI (native functions)
