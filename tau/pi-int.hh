@@ -72,6 +72,11 @@ struct πint : πsv
 
   // TODO: allocate small objects directly onto the stack
   // to avoid GC
+  //
+  // TODO: specialize this for i9 to push a reference to on-heap
+  // objects that are above the inlining threshold
+  //
+  // TODO: make the above "refer to existing" functionality generic
   template<o9mapped T>
   πint &dpush(T const &x)
     { let o = o9(x);
