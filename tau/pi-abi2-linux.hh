@@ -10,6 +10,8 @@
 #include <cstring>
 #include <memory>
 
+#include <zstd.h>
+
 #include "pi-abi1.hh"
 #include "linux/io.hh"
 

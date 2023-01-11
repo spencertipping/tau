@@ -25,6 +25,10 @@ namespace τ
 {
 
 
+// TODO: use typedef to create index aliases, e.g. the type of integer
+// that is used for tuple/set/bytes indexes
+
+
 void πabi1_const(πabi &a)
 {
   a .def("t", I{ i.dpush(true);  })
@@ -125,10 +129,10 @@ void πabi1_u9_general(πabi &a)
     .def("?f", I{ i.dpush(i.dpop().flagged()); })
     .def("?s", I{ i.dpush(i.dpop().size()); })
     .def("?S", I{ i.dpush(i.dpop().osize()); })
-    .def(":f", I{if (i[0].flagged()) i << (i.h << πo9f{i.pop()}); })
+    .def(":f", I{ if (i[0].deref().flagged()) i << (i.h << πo9f{i.pop()}); })
     .def(":h", I{ i.dpush(i.dpop().h()); })
     .def("==", I{ i.dpush(i.dpop() == i.dpop()); })
-    .def("≡", I{ i.dpush(i.dpop().deref().a == i.dpop().deref().a); });
+    .def("≡", I{ i.dpush(i.dpop().a == i.dpop().a); });
 }
 
 
@@ -136,19 +140,19 @@ void πabi1_u9_vector(πabi &a)
 {
 #define a1vfns(t)                                                      \
   a .def("»" #t "s", I{                                                \
-      uNc k = Sc<iN>(i.dpop());                                        \
+      uNc k = Sc<uN>(i.dpop());                                        \
       let r = i9{i.h << o9vec<t>{k}};                                  \
       for (uN j = 0; j < k; ++j)                                       \
         r.template set<t>(j, i.dpop().template at<t>(0));              \
       i << r; })                                                       \
-    .def(#t "s#", I{ i.dpush(Sc<u64>(i.dpop().vn())); })               \
+    .def(#t "s#", I{ i.dpush(Sc<uN>(i.dpop().vn())); })                \
     .def(#t "s@", I{                                                   \
         uNc k = Sc<iN>(i.dpop());                                      \
         i.dpush(i.dpop().template at<t>(k)); })                        \
     .def(#t "s!", I{                                                   \
         πhnf f{i.h, 2};                                                \
-        uNc sn = Sc<iN>(i.dpop());                                     \
-        uNc si = Sc<iN>(i.dpop());                                     \
+        uNc sn = Sc<uN>(i.dpop());                                     \
+        uNc si = Sc<uN>(i.dpop());                                     \
         i9 s = i.dpop();            f(&s);                             \
         i9 r = i.h << o9vec<t>{sn}; f(&r);                             \
         for (uN j = si; j < sn; ++j)                                   \
