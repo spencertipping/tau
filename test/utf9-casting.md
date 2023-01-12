@@ -10,11 +10,11 @@ $ ./pi "i8'100 >f64 ?t :out"
 ## Vector construction
 ```bash
 $ ./pi '
-  (1,2,3) >i8s  : ?t 2 »t :out
-  (1,2,3) >i16s : ?t 2 »t :out
-  (1,2,3) >i32s : ?t 2 »t :out
-  (1,2,3) >i64s : ?t 2 »t :out
-  (t,f,t) >bs   : ?t 2 »t :out
+  (1,2,3) >i8s  (?t,) :out
+  (1,2,3) >i16s (?t,) :out
+  (1,2,3) >i32s (?t,) :out
+  (1,2,3) >i64s (?t,) :out
+  (t,f,t) >bs   (?t,) :out
 '
 ('i8,1 2 3)
 ('i16,1 2 3)
