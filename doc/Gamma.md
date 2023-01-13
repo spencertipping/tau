@@ -5,6 +5,8 @@ A composition of [γ](gamma.md) elements that form an eigenvector within a large
 
 Γ can be thought of as the control plane for γ pipelines.
 
+**Important:** we need to end up with a system that guarantees γ-existence atomicity. That is, eigenvectors must either exist or not exist, but we shouldn't ever have a state of partial existence, e.g. if a single λ fails.
+
 
 ## Exponential vectors
 τ needs to incorporate its exponential eigenvectors into the steady-state space of Laplacian programs; that is, we can't shell out to an external state manager to create new connections. Instead, components like servers and multiplexers that implement `x → φ` mappings must _λ_-map those φ values, constructing any required γ and Γ, before sending the resulting φs into the `φ → x` port of another γ.
