@@ -41,6 +41,8 @@ $ sudo apt install -y \
 
 
 ## Queue
+**Elephant in the room:** how do we destroy γs arranged into pipelines? While we're at it, what is a γ made of? (It's a big design question that I've begun to tackle in slack)
+
 + Write orthogonal `πint` stack access methods
   + `πint::?(i9)` method to construct a pointer to large values
   + `<<` implementations should all return success/fail, or all return addresses (so φ `<<` and `πint <<` work similarly)
