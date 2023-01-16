@@ -21,5 +21,10 @@ We can define a GC for γs using the φ graph: a γ is live only when there's a 
   + [γ matrix](doc2/gamma.md)
   + [λ vector](doc2/lambda.md)
   + [Λ scheduler](doc2/Lambda.md)
-
-**TODO:** should φ be a port as it is in tau1, or should it be a FIFO like ζ is?
++ [φ vector](doc2/phi.md)
+  + [ζ channel](doc2/zeta.md)
+  + [ζ signal](doc2/zeta-signal.md)
++ [η encoding](doc2/eta.md)
+  + [η₀ container](doc2/eta0.md)
+  + [η₁ API](doc2/eta1.md)
+  + [η symbol](doc2/eta-symbol.md)

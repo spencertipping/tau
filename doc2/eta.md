@@ -6,11 +6,36 @@
 3. Its size is knowable in constant time
 4. Its type is encoded as an integer, where `0` is reserved for η₀
 5. Data is stored native-endian, sizes are stored fixed-endian
+6. Data can be transparently compressed with `zstd`
 
-See [η₀ spec](eta0.md) for the bit-level format.
+Specifications:
+
++ [η₀ spec](eta0.md) for the bit-level format and container-level attributes
++ [η₁ spec](eta1.md) for the user-level API
+
+**TODO:** design Asqi dataflow and make sure we have enough support here
 
 
-## Defined types
-| Code | Description |
-|------|-------------|
-| 1    |             |
+## Primitive user types
+| Code | Description | Spec                       |
+|------|-------------|----------------------------|
+| 1    | `signal`    | [ζ signal](zeta-signal.md) |
+| 2    | `symbol`    | [η symbol](eta-symbol.md)  |
+| 3    | `bytes`     |                            |
+| 4    | `utf8`      |                            |
+| 5    | `int/be`    | Big-endian signed int      |
+| 6    | `uint/be`   | Big-endian unsigned int    |
+| 7    | `float/be`  | Big-endian float           |
+| 8    | `bool`      |                            |
+
+
+## Container types
+| Code | Description | Format                  |
+|------|-------------|-------------------------|
+| 9    | `tuple`     | `x1 x2 ... xn`          |
+| 10   | `set`       | `x1 x2 ... xn`          |
+| 11   | `map`       | `k1 v1 k2 v2 ... kn vn` |
+
+
+## Vector types
+**TODO:** as needed

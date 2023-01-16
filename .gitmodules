@@ -13,3 +13,6 @@
 [submodule "dep/pffft"]
 	path = dep/pffft
 	url = https://bitbucket.org/jpommier/pffft.git
+[submodule "dep/picosha3"]
+	path = dep/picosha3
+	url = https://github.com/yawara/picosha3
