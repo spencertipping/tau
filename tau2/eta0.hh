@@ -22,6 +22,8 @@ enum class η0ft : u8 { s, m, l, d };
 bool η0bc(u8c*, uN);
 
 
+// η₀ structure input reader: decodes the frame and provides .data() and
+// .size(), as well as metadata
 struct η0i
 {
   u8c       *a;   // pointer to control byte
