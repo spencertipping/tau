@@ -2,10 +2,10 @@
 η₀ is the plumbing of [η](eta.md): it's possible to write a GC that knows only about η₀ structure and can rewrite a heap, including references. η₀ frames have a few different formats, all of which are equivalent up to the length of various subfields:
 
 ```
-0tttttss                 data...          ← short frame
-10tttttt fsssssss        data...          ← medium frame
-110fcbbb tttttttt s[b*8] data...          ← long frame
-111hcbbb tttttttt s[b*8] hash... data...  ← disk frame
+0tttttss                             data...  ← short frame
+10tttttt fsssssss                    data...  ← medium frame
+110fcbbb tttttttt s[(b+1)*8]         data...  ← long frame
+111hcbbb tttttttt s[(b+1)*8] hash... data...  ← disk frame
 ```
 
 **TODO:** fix up `disk frame`; we should have boundary hashes for stream syncing (or at least leave room for it)
@@ -26,6 +26,7 @@ If a frame is compressed and hashed, `hash = sha3_256(zstd(data))`.
 
 ## Basic API
 ```cpp
+typedef u8 η0t;
 struct η0i             // input
 {
   η0i(u8c*);           // pointer to frame
@@ -35,7 +36,7 @@ struct η0i             // input
 
   uN   size()  const;  // net size
   u8c* data()  const;  // decoded data
-  uN   type()  const;  // type code
+  η0t  type()  const;  // type code
 
   bool is_e()  const;  // is size exact
   bool is_f()  const;  // is flagged

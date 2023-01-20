@@ -13,7 +13,11 @@ namespace τ
 {
 
 
-// η₀ frame type
+typedef u8 η0t;
+
+
+// η₀ frame type (not exported, just for internal logic):
+// short, medium, long, disk
 enum class η0ft : u8 { s, m, l, d };
 
 
@@ -26,17 +30,18 @@ bool η0bc(u8c*, uN);
 // .size(), as well as metadata
 struct η0i
 {
-  u8c       *a;   // pointer to control byte
-  η0ft const ft;  // frame type (cached)
-  u8c        hs;  // header size -- *a + hs == data
-  u8c        t;   // type ID (cached)
+  u8c  *const a;   // pointer to control byte
+  η0ft  const ft;  // frame type (cached)
+  u8c         hs;  // header size -- *a + hs == data
+  η0t   const t;   // type ID (cached)
 
-  η0i(u8c *a_) : a(a_), ft(decode_ft()), hs(calculate_hs()), t(decode_type()) {}
+  η0i(u8c *a_)
+    : a(a_), ft(decode_ft()), hs(calculate_hs()), t(decode_type()) {}
 
   uN   hsize() const { return hs; }
   uN   osize() const { return hs + size(); }
   u8c *data()  const { return a + hs; }
-  u8   type()  const { return t; }
+  η0t  type()  const { return t; }
   uN   size()  const
     { switch (ft)
       {
@@ -45,7 +50,7 @@ struct η0i
       case η0ft::l:
       case η0ft::d:
       { uN s = 0;
-        for (uN i = 0; i < (*a & 7); ++i) s = s << 8 | a[2 + i];
+        for (uN i = 0; i < (*a & 7) + 1; ++i) s = s << 8 | a[2 + i];
         return s; }
       } }
 
@@ -101,7 +106,7 @@ protected:
       case η0ft::d: return 2 + (*a & 7) + (is_h() ? 32 : 0);
       } }
 
-  u8 decode_type() const
+  η0t decode_type() const
     { switch (ft)
       {
       case η0ft::s: return *a >> 2;
