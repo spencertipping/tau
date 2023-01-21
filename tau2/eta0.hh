@@ -2,6 +2,9 @@
 #define τη0_h
 
 
+#include <memory>
+#include <zstd.h>
+
 #include "../dep/picosha3.h"
 
 
@@ -30,14 +33,9 @@ bool η0bc(u8c*, uN);
 // .size(), as well as metadata
 struct η0i
 {
-  u8c  *const a;   // pointer to control byte
-  η0ft  const ft;  // frame type (cached)
-  u8c         hs;  // header size -- *a + hs == data
-  η0t   const t;   // type ID (cached)
+  η0i(u8c *a_) { *this = a; }
 
-  η0i(u8c *a_)
-    : a(a_), ft(decode_ft()), hs(calculate_hs()), t(decode_type()) {}
-
+  η0ft ftype() const { return ft; }
   uN   hsize() const { return hs; }
   uN   osize() const { return hs + size(); }
   u8c *data()  const { return a + hs; }
@@ -54,6 +52,29 @@ struct η0i
         return s; }
       } }
 
+
+  // Decompression: null if the compressed data exceeds the size limit
+  // NOTE: user must free the result
+  u8 *unzip(uN limit = -1) const
+    { let s = size();
+      A(s >= 8, "η₀ compressed data too small to contain length prefix: " << s);
+      let d  = data();
+      let us = Sc<u64>(d[0]) << 56 | Sc<u64>(d[1]) << 48
+             | Sc<u64>(d[2]) << 40 | Sc<u64>(d[3]) << 32
+             | Sc<u64>(d[4]) << 24 | Sc<u64>(d[5]) << 16
+             | Sc<u64>(d[6]) << 8  | Sc<u64>(d[7]);
+      if (us < limit) return nullptr;
+      let r = Sc<u8*>(malloc(us));
+      if (!r) return nullptr;
+      uNc ds = ZSTD_decompress(r, us, d + 8, s - 8);
+      if (ZSTD_isError(ds))
+      { free(r);
+        A(0, "η₀ corrupt compressed data: " << ZSTD_getErrorName(ds)); }
+      A(ds == us, "η₀ decompressed size mismatch: " << ds << " ≠ " << us);
+      return r; }
+
+
+  // State accessors
   bool is_f() const
     { switch (ft)
       {
@@ -86,11 +107,27 @@ struct η0i
       sha3_256(begin(), end(), hv.begin(), hv.end());
       return !memcmp(data() - 32, hv.data(), 32); }
 
+
+  // Byte-level iteration
   u8c *begin() const { return data(); }
   u8c *end()   const { return data() + size(); }
 
+  η0i &operator=(η0i const &x) { return *this = x.a; }
+  η0i &operator=(u8c *a_)      { a = a_; decode(); return *this; }
+
 
 protected:
+  u8c  *a;   // pointer to control byte
+  η0ft  ft;  // frame type
+  u8    hs;  // header size -- *a + hs == data
+  η0t   t;   // type ID
+
+
+  void decode()
+    { ft = decode_ft();
+      hs = calculate_hs();
+      t  = decode_type(); }
+
   η0ft decode_ft() const
     { if (!(*a & 128))  return η0ft::s;
       if (*a >> 6 == 2) return η0ft::m;
@@ -143,7 +180,7 @@ O &operator<<(O &s, η0ft t)
 
 O &operator<<(O &s, η0i const &i)
 {
-  return s << "η₀[" << i.ft
+  return s << "η₀[" << i.ftype()
            << (i.is_f() ? "F" : "f")
            << (i.is_c() ? "C" : "c")
            << (i.is_h() ? "H" : "h")

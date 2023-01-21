@@ -2,13 +2,13 @@
 η₀ is the plumbing of [η](eta.md): it's possible to write a GC that knows only about η₀ structure and can rewrite a heap, including references. η₀ frames have a few different formats, all of which are equivalent up to the length of various subfields:
 
 ```
-0tttttss                             data...  ← short frame
-10tttttt fsssssss                    data...  ← medium frame
-110fcbbb tttttttt s[(b+1)*8]         data...  ← long frame
-111hcbbb tttttttt s[(b+1)*8] hash... data...  ← disk frame
+0tttttss                              data...  ← short frame
+10tttttt fsssssss                     data...  ← medium frame
+110fcbbb tttttttt s[(b+1)*8]          data...  ← long frame
+111hcbbb tttttttt s[(b+1)*8] sha3[32] data...  ← disk frame
 ```
 
-**TODO:** fix up `disk frame`; we should have boundary hashes for stream syncing (or at least leave room for it)
+**NOTE:** disk frames may be separated by sentinel-encoded boundary frames, which overlap with η₀ frames but are cryptographically detectable given the file header. This encoding enables random access and is beyond the scope of the η₀ spec -- but see [η₀ seekable files](eta0-seekable.md) for details.
 
 + `f` indicates that the frame contains η₀ references
 + `c` indicates that the frame data is `zstd`-compressed
@@ -22,6 +22,14 @@ Short frames don't include `f` because `f = (t == 0)` and they can't contain sub
 If a frame is compressed and hashed, `hash = sha3_256(zstd(data))`.
 
 **NOTE:** short frames must not include padding; the size is assumed to be informative.
+
+
+## Compressed frame data
+Compressed data always begins with the size of the uncompressed data, which is encoded as a 64-bit big-endian unsigned int. So the frame would look like this:
+
+```
+11__1___ T S H? US zstd...
+```
 
 
 ## Basic API
