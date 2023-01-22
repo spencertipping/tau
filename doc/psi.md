@@ -10,7 +10,7 @@
   + `B`
   + `regex`, probably
 
-C++ natives can be moved anywhere within the same π.
+C++ natives can be moved/referenced anywhere within the same π. Although the C++ objects are τ-portable, all except `B` and `regex` hold references to values on the π heap, so they would become invalid outside that context.
 
 
 ## Lifecycle
