@@ -9,7 +9,7 @@ Structurally, Γ keeps track of resources assigned into each [π](pi.md) by keep
 
 
 ## Nonlinear routing
-It's possible to connect a γ to itself. **These connections are always weak.** This and other types of nonlinear routing can be done with a Γ-hosted named resource.
+It's possible to connect a γ to itself, or a later γ's output to an earlier γ's input. **These connections are always weak.** This and other types of nonlinear routing can be done with a Γ-hosted named channel -- basically a single-use variable.
 
 
 ## Building Γs
