@@ -12,3 +12,9 @@ Structurally, γ contains several things:
 **TODO:** add chan direction/weakness/π-locking metadata to the above
 
 **TODO:** specify how γ can be applied (probably to ψ and φ)
+
+
+## Building γs
+A γ tracks input and output state and allows its λ state to be incrementally constructed.
+
+**TODO:** we should remove keying for specific λs; each λ can be atomic and they can exist in a loose set
