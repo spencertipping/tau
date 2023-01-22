@@ -3,6 +3,7 @@
 
 
 #include <memory>
+
 #include <zstd.h>
 
 #include "../dep/picosha3.h"
@@ -26,21 +27,31 @@ enum class η0ft : u8 { s, m, l, d };
 
 // Bounds-check for a η₀ structure at the given address with the specified
 // size bound -- returns true if the structure fits within that bound
+//
+// WARNING: never decode a η₀ from untrusted memory without calling this
+// function first
 bool η0bc(u8c*, uN);
 
 
 // η₀ structure input reader: decodes the frame and provides .data() and
-// .size(), as well as metadata
+// .size(), as well as metadata.
+//
+// NOTE: η₀ .data() and .size() will transparently decompress; if you want
+// compressed data with the length prefix, use .cdata() and .csize().
 struct η0i
 {
-  η0i(u8c *a_) { *this = a; }
+  η0i(u8c *a_) : d(nullptr) { *this = a; }
+  η0i(η0i &&x) : a(x.a), d(x.d), ft(x.ft), hs(x.hs), t(x.t) { x.d = nullptr; }
 
+  ~η0i() { if (d) free(d); }
+
+
+  η0t  type()  const { return t; }
   η0ft ftype() const { return ft; }
   uN   hsize() const { return hs; }
-  uN   osize() const { return hs + size(); }
-  u8c *data()  const { return a + hs; }
-  η0t  type()  const { return t; }
-  uN   size()  const
+  uN   osize() const { return hs + csize(); }
+  u8c *cdata() const { return a + hs; }
+  uN   csize() const
     { switch (ft)
       {
       case η0ft::s: return 1 << (*a & 3);
@@ -52,29 +63,23 @@ struct η0i
         return s; }
       } }
 
+  u8c *data(uN limit = -1) const
+    { if (!is_c()) return cdata();
+      if (!d) d = unzip(limit);
+      return d; }
 
-  // Decompression: null if the compressed data exceeds the size limit
-  // NOTE: user must free the result
-  u8 *unzip(uN limit = -1) const
-    { let s = size();
+  uN size() const
+    { if (!is_c()) return csize();
+      let s = csize();
+      let c = cdata();
       A(s >= 8, "η₀ compressed data too small to contain length prefix: " << s);
-      let d  = data();
-      let us = Sc<u64>(d[0]) << 56 | Sc<u64>(d[1]) << 48
-             | Sc<u64>(d[2]) << 40 | Sc<u64>(d[3]) << 32
-             | Sc<u64>(d[4]) << 24 | Sc<u64>(d[5]) << 16
-             | Sc<u64>(d[6]) << 8  | Sc<u64>(d[7]);
-      if (us < limit) return nullptr;
-      let r = Sc<u8*>(malloc(us));
-      if (!r) return nullptr;
-      uNc ds = ZSTD_decompress(r, us, d + 8, s - 8);
-      if (ZSTD_isError(ds))
-      { free(r);
-        A(0, "η₀ corrupt compressed data: " << ZSTD_getErrorName(ds)); }
-      A(ds == us, "η₀ decompressed size mismatch: " << ds << " ≠ " << us);
-      return r; }
+      return Sc<u64>(c[0]) << 56 | Sc<u64>(c[1]) << 48
+           | Sc<u64>(c[2]) << 40 | Sc<u64>(c[3]) << 32
+           | Sc<u64>(c[4]) << 24 | Sc<u64>(c[5]) << 16
+           | Sc<u64>(c[6]) << 8  | Sc<u64>(c[7]); }
 
 
-  // State accessors
+  // Flags
   bool is_f() const
     { switch (ft)
       {
@@ -104,8 +109,8 @@ struct η0i
     { if (!is_h()) return true;
       auto sha3_256 = picosha3::get_sha3_generator<256>();
       Ar<u8, 32> hv{};
-      sha3_256(begin(), end(), hv.begin(), hv.end());
-      return !memcmp(data() - 32, hv.data(), 32); }
+      sha3_256(cdata(), cdata() + csize(), hv.begin(), hv.end());
+      return !memcmp(cdata() - 32, hv.data(), 32); }
 
 
   // Byte-level iteration
@@ -113,18 +118,31 @@ struct η0i
   u8c *end()   const { return data() + size(); }
 
   η0i &operator=(η0i const &x) { return *this = x.a; }
-  η0i &operator=(u8c *a_)      { a = a_; decode(); return *this; }
+  η0i &operator=(u8c *a_)      { decode(a_); return *this; }
 
 
 protected:
-  u8c  *a;   // pointer to control byte
-  η0ft  ft;  // frame type
-  u8    hs;  // header size -- *a + hs == data
-  η0t   t;   // type ID
+  u8c        *a;   // pointer to control byte
+  u8 mutable *d;   // pointer to decompressed data
+  η0ft        ft;  // frame type
+  u8          hs;  // header size -- *a + hs == data
+  η0t         t;   // type ID
 
 
-  void decode()
-    { ft = decode_ft();
+  // Decompression: null if the compressed data exceeds the size limit
+  u8 *unzip(uN limit = -1) const
+    { let us = size();              if (us >= limit) return nullptr;
+      let r  = Sc<u8*>(malloc(us)); if (!r)          return nullptr;
+      let ds = ZSTD_decompress(r, us, cdata() + 8, csize() - 8);
+      if (ZSTD_isError(ds)) { free(r); A(0, "η₀ corrupt compressed data: " << ZSTD_getErrorName(ds)); }
+      if (ds != us)         { free(r); A(0, "η₀ decompressed size mismatch: " << ds << " ≠ " << us); }
+      return r; }
+
+  void decode(u8c *a_)
+    { a = a_;
+      if (d) free(d);
+      d  = nullptr;
+      ft = decode_ft();
       hs = calculate_hs();
       t  = decode_type(); }
 
@@ -154,7 +172,7 @@ protected:
 };
 
 
-static_assert(sizeof(η0i) <= 2 * sizeof(uN));
+static_assert(sizeof(η0i) <= 3 * sizeof(uN));
 
 
 bool η0bc(u8c *a, uN s)
