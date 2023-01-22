@@ -23,9 +23,6 @@ using namespace std::literals;
 typedef uN      Λr;  // NOTE: this value is never used
 typedef uN      λi;
 typedef uN      λt;
-typedef uN      ζi;
-typedef uN      φi;
-typedef uN      γi;
 typedef F<Λr()> λf;
 
 
@@ -55,6 +52,7 @@ enum class λs  // lambda runnability state
 };
 
 
+// Construct next available key for map
 template<class K, class V>
 inline K ιi(K &c, M<K, V> const &m)
 {
@@ -63,7 +61,7 @@ inline K ιi(K &c, M<K, V> const &m)
 }
 
 
-struct ι
+struct ι  // ranged numeric iteration
 {
   uNc l;
   uNc h;
@@ -100,7 +98,7 @@ O &operator<<(O &s, λs t)
   case λs::ΦO: return s << "ΦO";
   case λs::φc: return s << "φc";
   case λs::φx: return s << "φx";
-  default:     return s << "BOGUS " << Sc<uN>(t);
+    TA(s, "illegal λs " << Sc<uN>(t));
   }
 }
 #endif

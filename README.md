@@ -1,64 +1,40 @@
-# Tau
-A Laplace transform of control flow, driven by an interpreted concatenative language.
+# τ: programming in 𝓛 space
+τ is a runtime system built around temporary steady states. If a bash command like `cat ... | grep ... | gzip > ...` defines a pipeline in a time-invariant way, then τ extends this by adding the ability to modify and extend the pipeline at runtime; that is, each part of the program is time-invariant but there are step changes. ([`ni`](https://github.com/spencertipping/ni) captures some of this, but ultimately falls short.)
 
-+ [φ](doc/phi.md)
-  + [Φ](doc/Phi.md)
-  + [ζ](doc/zeta.md)
-  + [Λ](doc/Lambda.md)
-  + [UTF9](doc/utf9.md)
-+ [π](doc/pi.md)
-+ [γ](doc/gamma.md)
-+ [Γ](doc/Gamma.md)
-
-Production design:
-
-+ [Runtime security](doc/security.md)
+Another way to think of it is that τ is to `ni` what the Laplace transform is to the Fourier transform: we can now describe systems that are locally time-invariant but which nonetheless change over time.
 
 
-## Development setup
-**Warning:** this repo requires a case-sensitive filesystem; it cannot be cloned correctly on case-insensitive MacOS or Windows.
-
-On Ubuntu 22.04:
-
-```sh
-$ sudo dpkg --add-architecture i386
-$ sudo apt update
-$ sudo apt install -y docker.io  # for emsdk builds
-$ sudo apt install -y \
-       build-essential \
-       libboost-fiber-dev libboost-context-dev \
-       libmsgpack-dev \
-       libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev \
-       libxcb-xinput-dev \
-       g++-multilib-i686-linux-gnu \
-       libc6-dbg{,:i386} \
-       libstdc++6-12-dbg{,:i386} \
-       libpango1.0-dev libcairo2-dev \
-       libzstd-dev
+## Compute model
+```
++-------------------------------------------------+
+| τ : Λ, epoll, ψ GC root                         |
+|                                                 |
+| +-------------------------------+               |
+| | π : πh                        |     +-------+ |
+| |                               |     | π     | |
+| | +-------------+     +---+     |     | +---+ | |
+| | | ψ : globals |     | ψ |-----+--ξ--+-| ψ | | |
+| | |             |--μ--|   | ... |     | +---+ | |
+| | | λ₁ λ₂ ...   |     | λ |     |     +-------+ |
+| | +-------------+     +---+     |               |
+| +-------------------------------+               |
++-------------------------------------------------+
 ```
 
-**TODO:** dockerize native build environment
+**NOTE:** all μ/ξ connections have ψ endpoints; this is important for τ GC, explained below.
+
++ [τ](doc/tau.md) is the toplevel compute context, one per UNIX/WASM process
++ [Λ](doc/Lambda.md) is the λ threading manager
++ [λ](doc/lambda.md) is a single cooperative thread
++ [π](doc/pi.md) is a GC'd heap
++ [ψ](doc/psi.md) is a global scope for λs
++ [μ](doc/muxi.md) is a bounded channel that carries pointers to shared memory
++ [ξ](doc/muxi.md) is a bounded channel that carries serialized η values
++ [η](doc/eta.md) is the data format used for μ/ξ messages
+
+τ implements an eager dataflow GC that deallocates ψs as soon as nobody depends on their μ or ξ output. Destroying a ψ frees all of its global resources, including C++ data structures and any other μ/ξ channels, which may in turn cause more ψs to be freed. If all ψs inside a π are destroyed, the π is also destroyed.
+
+This τ GC corresponds to a signal exponentially decaying below the noise floor in the 𝓛 metaphor.
 
 
-## Queue
-**Elephant in the room:** how do we destroy γs arranged into pipelines? While we're at it, what is a γ made of? (It's a big design question that I've begun to tackle in slack)
-
-+ Write orthogonal `πint` stack access methods
-  + `πint::?(i9)` method to construct a pointer to large values
-  + `<<` implementations should all return success/fail, or all return addresses (so φ `<<` and `πint <<` work similarly)
-+ Make `i9::deref()` behavior consistent
-+ Clean up `i9` abstractions: container-iteration, index-aware iteration, etc (what should `.begin()` do for an index?)
-+ `mmap` for π heaps on linux, so any violations are instant segfaults
-+ Clean up `.dpush()` vs `<<`
-  + Automatically refer to `i9`s that are already on the heap
-+ GC completeness: fix indexed collections on write
-+ GC performance: optimize data structures in markset, preallocate πho9
-+ π performance: stack-allocate small values properly
-+ Linux stdlib
-  + Text line batching
-  + JSONL batching
-  + JSONRPC batching
-  + Content-Length batching
-  + External process stdio
-+ WASM stdlib
-+ π assembler macro definitions
+## Language model

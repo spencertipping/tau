@@ -31,6 +31,8 @@ Compressed data always begins with the size of the uncompressed data, which is e
 11__1___ T S H? US zstd...
 ```
 
+...where `US` is the uncompressed size and `zstd...` is the compressed datastream.
+
 
 ## Basic API
 ```cpp
