@@ -1,5 +1,5 @@
-#ifndef τη0_h
-#define τη0_h
+#ifndef τη0i_h
+#define τη0i_h
 
 
 #include <memory>
@@ -10,7 +10,6 @@
 
 
 #include "types.hh"
-
 #include "begin.hh"
 
 namespace τ

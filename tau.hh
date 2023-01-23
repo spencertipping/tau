@@ -2,7 +2,8 @@
 #define τ_h
 
 
-#include "tau/eta0.hh"
+#include "tau/eta0i.hh"
+#include "tau/eta0o.hh"
 
 
 #endif
