@@ -28,8 +28,13 @@ protected:
   η0t  t;  // intended type
   u8   c;  // compression level; 0 = no compression
   bool h;  // if true, add a hash
-  union { void *p; u64 u; i64 i; f64 d; f32 f; St s; bool b; };
+  B    s;
+  union { void *p; u64 u; i64 i; f64 d; f32 f; bool b; };
 };
+
+
+static_assert(sizeof(St)  <= 4 * sizeof(u64));
+static_assert(sizeof(η0o) <= 6 * sizeof(u64));
 
 
 }
