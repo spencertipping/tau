@@ -10,13 +10,11 @@
 
 
 #include "types.hh"
+#include "eta-types.hh"
 #include "begin.hh"
 
 namespace τ
 {
-
-
-typedef u8 η0t;
 
 
 // η₀ frame type (not exported, just for internal logic):
@@ -82,7 +80,7 @@ struct η0i
   bool is_f() const
     { switch (ft)
       {
-      case η0ft::s: return !t;
+      case η0ft::s: return !Sc<u8>(t);
       case η0ft::m: return a[1] & 128;
       case η0ft::l: return *a & 16;
       case η0ft::d: return false;
@@ -163,10 +161,10 @@ protected:
   η0t decode_type() const
     { switch (ft)
       {
-      case η0ft::s: return *a >> 2;
-      case η0ft::m: return *a & 63;
+      case η0ft::s: return Sc<η0t>(*a >> 2);
+      case η0ft::m: return Sc<η0t>(*a & 63);
       case η0ft::l:
-      case η0ft::d: return a[1];
+      case η0ft::d: return Sc<η0t>(a[1]);
       } }
 };
 
@@ -201,7 +199,7 @@ O &operator<<(O &s, η0i const &i)
            << (i.is_f() ? "F" : "f")
            << (i.is_c() ? "C" : "c")
            << (i.is_h() ? "H" : "h")
-           << " t=" << Sc<uN>(i.type())
+           << " t=" << i.type()
            << " s=" << i.size() << "]";
 }
 #endif

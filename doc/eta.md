@@ -26,7 +26,7 @@ Specifications:
 | 5    | `int/be`    | Big-endian signed int      |
 | 6    | `uint/be`   | Big-endian unsigned int    |
 | 7    | `float/be`  | Big-endian float           |
-| 8    | `bool`      |                            |
+| 8    | `boolean`   |                            |
 
 
 ## Container types
