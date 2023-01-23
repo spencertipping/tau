@@ -11,15 +11,11 @@
 
 #include "types.hh"
 #include "eta-types.hh"
+
 #include "begin.hh"
 
 namespace τ
 {
-
-
-// η₀ frame type (not exported, just for internal logic):
-// short, medium, long, disk
-enum class η0ft : u8 { s, m, l, d };
 
 
 // Bounds-check for a η₀ structure at the given address with the specified

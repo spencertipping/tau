@@ -2,6 +2,8 @@
 #define τηtypes_h
 
 
+#include <type_traits>
+
 #include "types.hh"
 #include "begin.hh"
 
@@ -9,6 +11,12 @@ namespace τ
 {
 
 
+// η₀ frame type (not exported, just for internal logic):
+// short, medium, long, disk
+enum class η0ft : u8 { s, m, l, d };
+
+
+// η₀ value type
 enum class η0t : u8
 {
   η0       = 0,
@@ -22,21 +30,28 @@ enum class η0t : u8
   boolean  = 8,
   tuple    = 9,
   set      = 10,
-  map      = 11
+  map      = 11,
+  invalid  = 255
 };
 
 
-template<class T> struct η0nt {};
-template<> struct η0nt<u8>  { sletc t = η0t::uint_be; };
-template<> struct η0nt<u16> { sletc t = η0t::uint_be; };
-template<> struct η0nt<u32> { sletc t = η0t::uint_be; };
-template<> struct η0nt<u64> { sletc t = η0t::uint_be; };
-template<> struct η0nt<i8>  { sletc t = η0t::int_be; };
-template<> struct η0nt<i16> { sletc t = η0t::int_be; };
-template<> struct η0nt<i32> { sletc t = η0t::int_be; };
-template<> struct η0nt<i64> { sletc t = η0t::int_be; };
-template<> struct η0nt<f32> { sletc t = η0t::float_be; };
-template<> struct η0nt<f64> { sletc t = η0t::float_be; };
+template<class T> struct η0at_ { sletc t = η0t::invalid; };
+template<> struct η0at_<u8>    { sletc t = η0t::uint_be; };
+template<> struct η0at_<u16>   { sletc t = η0t::uint_be; };
+template<> struct η0at_<u32>   { sletc t = η0t::uint_be; };
+template<> struct η0at_<u64>   { sletc t = η0t::uint_be; };
+template<> struct η0at_<i8>    { sletc t = η0t::int_be; };
+template<> struct η0at_<i16>   { sletc t = η0t::int_be; };
+template<> struct η0at_<i32>   { sletc t = η0t::int_be; };
+template<> struct η0at_<i64>   { sletc t = η0t::int_be; };
+template<> struct η0at_<f32>   { sletc t = η0t::float_be; };
+template<> struct η0at_<f64>   { sletc t = η0t::float_be; };
+template<> struct η0at_<bool>  { sletc t = η0t::boolean; };
+
+template<class T> concept η0at = η0at_<T>::t != η0t::invalid;
+
+
+typedef union { void *p; u64 u; i64 i; f64 f; bool b; } η0p;
 
 
 #if τdebug_iostream
@@ -56,6 +71,7 @@ O &operator<<(O &s, η0t t)
   case η0t::tuple:    return s << "()";
   case η0t::set:      return s << "set";
   case η0t::map:      return s << "map";
+  case η0t::invalid:  return s << "invalid";
   default:            return s << "t" << Sc<uN>(t);
   }
 }
