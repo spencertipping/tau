@@ -62,22 +62,45 @@ struct η0ts
 // Primitive states for η₀ values
 typedef union { void *p; u64 u; i64 i; f64 f; bool b; } η0p;
 
-// Types that correspond to primitives
+// Primitives
 sletc η0tp = η0ts{η0t::η0, η0t::int_be, η0t::uint_be, η0t::float_be, η0t::boolean};
+
+// Containers
+sletc η0tc = η0ts{η0t::tuple, η0t::set, η0t::map};
 
 
 template<class T> struct η0at_ { sletc t = η0t::invalid; };
-template<> struct η0at_<u8>    { sletc t = η0t::uint_be; };
-template<> struct η0at_<u16>   { sletc t = η0t::uint_be; };
-template<> struct η0at_<u32>   { sletc t = η0t::uint_be; };
-template<> struct η0at_<u64>   { sletc t = η0t::uint_be; };
-template<> struct η0at_<i8>    { sletc t = η0t::int_be; };
-template<> struct η0at_<i16>   { sletc t = η0t::int_be; };
-template<> struct η0at_<i32>   { sletc t = η0t::int_be; };
-template<> struct η0at_<i64>   { sletc t = η0t::int_be; };
-template<> struct η0at_<f32>   { sletc t = η0t::float_be; };
-template<> struct η0at_<f64>   { sletc t = η0t::float_be; };
-template<> struct η0at_<bool>  { sletc t = η0t::boolean; };
+
+#define deft(ct, ηt) template<> struct η0at_<ct> { sletc t = η0t::ηt; };
+
+deft(u8,   uint_be);
+deft(u16,  uint_be);
+deft(u32,  uint_be);
+deft(u64,  uint_be);
+deft(i8,   int_be);
+deft(i16,  int_be);
+deft(i32,  int_be);
+deft(i64,  int_be);
+deft(f32,  float_be);
+deft(f64,  float_be);
+deft(bool, boolean);
+
+deft(B,   bytes);
+deft(Bc,  bytes);
+deft(Bv,  bytes);
+deft(B&,  bytes);
+deft(B&&, bytes);
+deft(Bc&, bytes);
+
+deft(St,   utf8);
+deft(Stc,  utf8);
+deft(Stv,  utf8);
+deft(St&,  utf8);
+deft(St&&, utf8);
+deft(Stc&, utf8);
+
+#undef deft
+
 
 // η₀ assignable-from types (and from primitive)
 template<class T> concept η0at  = η0at_<T>::t != η0t::invalid;

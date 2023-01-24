@@ -32,7 +32,9 @@ struct η0o
   template<η0at T>
   η0o(T x) : c_(0), h_(false), f_(false), fv(false), t_(η0at_<T>::t), cs(nullptr) { *this = x; }
 
-  ~η0o() { del_c(); if (!p()) delete d.s_; }
+  ~η0o()
+    { // Convert to primitive to force resources to be freed
+      t(η0t::uint_be); }
 
 
   // NOTE: works only if the other η₀o is in a valid state
@@ -50,15 +52,20 @@ struct η0o
   η0o &operator=(bool  x) { t(η0t::boolean);  d.p.b = x; return *this; }
   η0o &operator=(void *x) { t(η0t::η0);       d.p.p = x; return *this; }
 
+  η0o &operator=(Stc &x) { t(η0t::utf8);  sd() = Bv{Rc<u8c*>(x.data()), x.size()}; return *this; }
+  η0o &operator=(Bc  &x) { t(η0t::bytes); sd() = x;                                return *this; }
+  η0o &operator=(B  &&x) { t(η0t::bytes); sd() = std::move(x);                     return *this; }
+
+
   η0o &c(u8 c__)   { A(!(c_ = c__) || !η0tp[t_], "cannot compress primitives"); return *this; }
-  η0o &h(bool h__) { A(!(h_ = h__) || !η0tp[t_], "cannot hash primitives"); return *this; }
-  η0o &f(bool f__) { A(!(f_ = f__) || !η0tp[t_], "cannot flag primitives"); return *this; }
+  η0o &h(bool h__) { A(!(h_ = h__) || !η0tp[t_], "cannot hash primitives");     return *this; }
+  η0o &f(bool f__) { A(!(f_ = f__) || !η0tp[t_], "cannot flag primitives");     return *this; }
   η0o &t(η0t t__)
     { if (η0tp[t__])
       { c_ = 0, h_ = false, f_ = false;
-        if (!p()) delete d.s_; }   // transition to primitive
+        if (!p()) del_c(), delete d.s_; }   // transition to primitive
       else
-        if (p()) d.s_ = new B;     // transition to buffered
+        if (p()) d.s_ = new B;              // transition to buffered
       t_ = t__;
       return *this; }
 
@@ -139,7 +146,7 @@ struct η0o
         o += 32; }
 
       if (c_)
-      { W(m, o, Sc<u64>(d.s_->size()));
+      { W(m, o, Sc<u64>(sd().size()));
         o += 8; }
 
       switch (t_)
@@ -188,9 +195,7 @@ protected:
 
   // Verbatim or compressed data to be written into the output after
   // the header
-  Bc &data() const
-    { A(!p(), "no data buffer exists for primitives");
-      return c_ ? cd() : *d.s_; }
+  Bc &data() const { return c_ ? cd() : sd(); }
 
 
   B *cdata() const
