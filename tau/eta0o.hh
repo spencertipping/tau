@@ -38,10 +38,11 @@ struct η0o
       x.cs = nullptr; x.sa = false;  // transfer ownership
       return *this; }
 
-  η0o &operator=(u64  x) { del_s(); t_ = η0t::uint_be;  d.p.u = x; return *this; }
-  η0o &operator=(i64  x) { del_s(); t_ = η0t::int_be;   d.p.i = x; return *this; }
-  η0o &operator=(f64  x) { del_s(); t_ = η0t::float_be; d.p.f = x; return *this; }
-  η0o &operator=(bool x) { del_s(); t_ = η0t::boolean;  d.p.b = x; return *this; }
+  η0o &operator=(u64   x) { del_s(); t_ = η0t::uint_be;  d.p.u = x; return *this; }
+  η0o &operator=(i64   x) { del_s(); t_ = η0t::int_be;   d.p.i = x; return *this; }
+  η0o &operator=(f64   x) { del_s(); t_ = η0t::float_be; d.p.f = x; return *this; }
+  η0o &operator=(bool  x) { del_s(); t_ = η0t::boolean;  d.p.b = x; return *this; }
+  η0o &operator=(void *x) { del_s(); t_ = η0t::η0;       d.p.p = x; return *this; }
 
 
   // Inner size of the fully-encoded frame data: that is, the size that
@@ -69,11 +70,18 @@ struct η0o
       case η0ft::d: return 2 + ubytes(isize()) + (h_ ? 32 : 0) + isize();
       } }
 
+  // Serializes the value into the output buffer, which must be at least
+  // as large as osize().
+  void into(u8 *d) const
+    { TODO("into()");
+    }
+
 
   η0ft ft() const
     { if (!fv)
       { let s = isize();
         let t = Sc<u8>(t_);
+        A(!h_ || !f_, "flagged η₀ cannot be hashed");
         ft_ = h_                                              ? η0ft::d
             : c_ || t >= 64 || isize() >= 128                 ? η0ft::l
             : t >= 32 || s != 1 && s != 2 && s != 4 && s != 8 ? η0ft::m
