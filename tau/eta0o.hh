@@ -26,20 +26,20 @@ namespace τ
 // because you would never want to do this.
 struct η0o
 {
-  η0o() : c_(0), h_(false), f_(false), sa(false), fv(false), t_(η0t::uint_be), d({{0}}), cs(nullptr) {}
+  η0o() : c_(0), h_(false), f_(false), fv(false), t_(η0t::uint_be), d({{0}}), cs(nullptr) {}
   η0o(η0o &&x) { *this = std::move(x); }
 
   template<η0at T>
-  η0o(T x) : c_(0), h_(false), f_(false), sa(false), fv(false), t_(η0at_<T>::t), cs(nullptr) { *this = x; }
+  η0o(T x) : c_(0), h_(false), f_(false), fv(false), t_(η0at_<T>::t), cs(nullptr) { *this = x; }
 
-  ~η0o() { del_s(); }
+  ~η0o() { del_c(); if (!p()) delete d.s_; }
 
 
   // NOTE: works only if the other η₀o is in a valid state
   η0o &operator=(η0o &&x)
-    { c_  = x.c_;  h_ = x.h_; f_ = x.f_; sa = x.sa; fv = x.fv;
+    { c_  = x.c_;  h_ = x.h_; f_ = x.f_; fv = x.fv;
       ft_ = x.ft_; t_ = x.t_; d  = x.d;  cs = x.cs;
-      x.cs = nullptr; x.sa = false;  // transfer ownership
+      x.cs = nullptr; x.t_ = η0t::uint_be;  // transfer ownership
       return *this; }
 
   // TODO: operator=(η0i)
@@ -54,9 +54,13 @@ struct η0o
   η0o &h(bool h__) { A(!(h_ = h__) || !η0tp[t_], "cannot hash primitives"); return *this; }
   η0o &f(bool f__) { A(!(f_ = f__) || !η0tp[t_], "cannot flag primitives"); return *this; }
   η0o &t(η0t t__)
-    { if (η0tp[t__]) del_s(), c_ = 0, h_ = false, f_ = false;
-      else           sd();
-      t_ = t__; return *this; }
+    { if (η0tp[t__])
+      { c_ = 0, h_ = false, f_ = false;
+        if (!p()) delete d.s_; }   // transition to primitive
+      else
+        if (p()) d.s_ = new B;     // transition to buffered
+      t_ = t__;
+      return *this; }
 
   u8   c() const { return c_; }
   bool h() const { return h_; }
@@ -84,7 +88,7 @@ struct η0o
       case η0t::int_be:   return si(d.p.i);
       case η0t::float_be: return sizeof(d.p.f);
       default:
-        return c_ ? 8 + cd().size() : sa ? d.s_->size() : 0;
+        return c_ ? 8 + cd().size() : sd().size();
       } }
 
   // Outer size of the frame once serialized -- i.e. including the frame
@@ -135,7 +139,7 @@ struct η0o
         o += 32; }
 
       if (c_)
-      { W(m, o, Sc<u64>(sd().size()));
+      { W(m, o, Sc<u64>(d.s_->size()));
         o += 8; }
 
       switch (t_)
@@ -171,12 +175,9 @@ struct η0o
 
 
 protected:
-  // FIXME: replace sa with η0tp[t_]
-
   u16         c_ : 5;  // compression level; 0 = no compression
   u16         h_ : 1;  // if true, add a hash
   u16         f_ : 1;  // if true, we're flagged
-  mutable u16 sa : 1;  // if true, *s_ is valid
   mutable u16 fv : 1;  // if true, ft_ is valid
 
   mutable η0ft                     ft_;  // frame type
@@ -189,11 +190,11 @@ protected:
   // the header
   Bc &data() const
     { A(!p(), "no data buffer exists for primitives");
-      return c_ ? cd() : sd(); }
+      return c_ ? cd() : *d.s_; }
 
 
   B *cdata() const
-    { A(sa, "cdata() without sa");
+    { A(!p(), "cdata() on primitive");
       let r  = new B; r->resize(ZSTD_compressBound(d.s_->size()));
       let cr = ZSTD_compress(r   ->data(), r   ->capacity(),
                              d.s_->data(), d.s_->size(), c_);
@@ -204,10 +205,9 @@ protected:
       return r; }
 
 
-  void  del_c() {          if ( cs) delete cs,    cs = nullptr;             }
-  void  del_s() { del_c(); if ( sa) delete d.s_,  sa = false;               }
-  B    &sd   () const {    if (!sa) d.s_ = new B, sa = true;  return *d.s_; }
-  B    &cd   () const {    if (!cs) cs = cdata();             return *cs;   }
+  void  del_c()       { if ( cs) delete cs, cs = nullptr;  }
+  B    &cd   () const { if (!cs) cs = cdata(); return *cs; }
+  B    &sd   () const { A(!p(), "sd() on primitive"); return *d.s_; }
 };
 
 

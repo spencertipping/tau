@@ -89,7 +89,7 @@ void try_strings()
 int main()
 {
   τassert_begin;
-  //try_ints();
+  try_ints();
   try_strings();
   return 0;
   τassert_end;
