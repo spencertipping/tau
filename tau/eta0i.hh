@@ -33,7 +33,7 @@ bool η0bc(u8c*, uN);
 // compressed data with the length prefix, use .cdata() and .csize().
 struct η0i
 {
-  η0i(u8c *a_) : d(nullptr) { *this = a; }
+  η0i(u8c *a_) : d(nullptr) { *this = a_; }
   η0i(η0i &&x) : a(x.a), d(x.d), ft(x.ft), hs(x.hs), t(x.t) { x.d = nullptr; }
 
   ~η0i() { if (d) free(d); }
@@ -52,7 +52,7 @@ struct η0i
       case η0ft::l:
       case η0ft::d:
       { uN s = 0;
-        for (uN i = 0; i < (*a & 7) + 1; ++i) s = s << 8 | a[2 + i];
+        for (int i = 0; i < (*a & 7) + 1; ++i) s = s << 8 | a[2 + i];
         return s; }
       } }
 
@@ -171,9 +171,9 @@ static_assert(sizeof(η0i) <= 3 * sizeof(uN));
 bool η0bc(u8c *a, uN s)
 {
   if (!s)           return false;
-  if (!(*a & 127))  return s >= 1 << (*a & 3);
-  if (*a >> 6 == 2) return s >= 2 && s >= (a[1] & 127);
-  return s >= 2 && s >= 2 + (*a & 7) && s >= η0i(a).osize();
+  if (!(*a & 127))  return s >= 1u << (*a & 3);
+  if (*a >> 6 == 2) return s >= 2u && s >= (a[1] & 127);
+  return s >= 2u && s >= 2u + (*a & 7) && s >= η0i(a).osize();
 }
 
 

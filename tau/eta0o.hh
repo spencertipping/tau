@@ -45,6 +45,12 @@ struct η0o
   η0o &operator=(void *x) { del_s(); t_ = η0t::η0;       d.p.p = x; return *this; }
 
 
+  // TODO: type modification
+  // TODO: flag modification
+  // TODO: compression modification
+  // TODO: byte data modification
+
+
   // Inner size of the fully-encoded frame data: that is, the size that
   // the frame will end up describing.
   uN isize() const
@@ -53,7 +59,7 @@ struct η0o
       case η0t::η0:       return sizeof(d.p.p);
       case η0t::boolean:  return sizeof(d.p.b);
       case η0t::uint_be:  return su(d.p.u);
-      case η0t::int_be:   return su(d.p.i);
+      case η0t::int_be:   return si(d.p.i);
       case η0t::float_be: return sizeof(d.p.f);
       default:
         return c_ && cs ? 8 + cs->size() : sa ? d.s_->size() : 0;
@@ -71,10 +77,55 @@ struct η0o
       } }
 
   // Serializes the value into the output buffer, which must be at least
-  // as large as osize().
-  void into(u8 *d) const
-    { TODO("into()");
-    }
+  // as large as osize(). Note that osize() will change if you modify the
+  // contents of this η₀o.
+  void into(u8 *m, uN as)
+    { A(osize() <= as,
+        "η₀o into() overflow: need " << osize() << " but have " << as);
+
+      let s = isize();
+      let b = ubytes(std::max(Sc<uN>(1), s));
+      uN  o = 0;
+
+      switch (ft())
+      {
+      case η0ft::s:
+        m[o++] = Sc<u8>(t_) << 2 | ubits(s);
+        break;
+      case η0ft::m:
+        m[o++] = 0x80 | Sc<u8>(t_);
+        m[o++] = (f_ ? 0x80 : 0) | s;
+        break;
+      case η0ft::l:
+        m[o++] = 0xc0 | f_ << 4 | (c_ > 0) << 3 | b - 1;
+        m[o++] = Sc<u8>(t_);
+        for (u8 i = 0; i < b; ++i) m[o++] = s >> i*8 & 255;
+        break;
+      case η0ft::d:
+        m[o++] = 0xd0 | h_ << 4 | (c_ > 0) << 3 | b - 1;
+        m[o++] = Sc<u8>(t_);
+        for (u8 i = 0; i < b; ++i) m[o++] = s >> i*8 & 255;
+        break;
+      }
+
+      switch (t_)
+      {
+      case η0t::η0:       *Rc<void**>(m + o) = d.p.p; o += 8; break;
+      case η0t::signal:   TODO("signal into()"); break;
+      case η0t::symbol:   TODO("symbol into()"); break;
+      case η0t::int_be:   TODO("int_be"); break;
+      case η0t::uint_be:  TODO("uint_be"); break;
+      case η0t::float_be: W(m, o, d.p.f); break;
+      case η0t::boolean:  W(m, o, Sc<u8>(d.p.b ? 1 : 0)); break;
+
+      case η0t::bytes:
+      case η0t::utf8:
+      case η0t::tuple:
+      case η0t::set:
+      case η0t::map: memcpy(m + o, c().data(), c().size()); break;
+
+      default: A(0, "η₀o into() with t_ = " << t_);
+      } }
 
 
   η0ft ft() const
