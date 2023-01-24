@@ -58,20 +58,23 @@ struct η0i
       } }
 
   u8c *data(uN limit = -1) const
-    { if (!is_c()) return cdata();
+    { if (!c()) return cdata();
       if (!d) d = unzip(limit);
       return d; }
 
   uN size() const
-    { if (!is_c()) return csize();
+    { if (!c()) return csize();
       let s = csize();
       let c = cdata();
       A(s >= 8, "η₀ compressed data too small to contain length prefix: " << s);
       return R<u64>(c, 0); }
 
+  Bv  const bv(uN limit = -1)  const { return Bv {data(limit),           size()}; }
+  Stv const stv(uN limit = -1) const { return Stv{Rc<chc*>(data(limit)), size()}; }
+
 
   // Flags
-  bool is_f() const
+  bool f() const
     { switch (ft)
       {
       case η0ft::s: return !Sc<u8>(t);
@@ -80,14 +83,14 @@ struct η0i
       case η0ft::d: return false;
       } }
 
-  bool is_c() const
+  bool c() const
     { switch (ft)
       {
       case η0ft::s: case η0ft::m: return false;
       case η0ft::l: case η0ft::d: return a[0] & 8;
       } }
 
-  bool is_h() const
+  bool h() const
     { switch (ft)
       {
       case η0ft::s:
@@ -96,15 +99,15 @@ struct η0i
       case η0ft::d: return *a & 16;
       } }
 
-  bool is_v() const
-    { if (!is_h()) return true;
+  bool v() const
+    { if (!h()) return true;
       auto sha3_256 = picosha3::get_sha3_generator<256>();
       Ar<u8, 32> hv{};
       sha3_256(cdata(), cdata() + csize(), hv.begin(), hv.end());
       return !memcmp(cdata() - 32, hv.data(), 32); }
 
 
-  // Byte-level iteration
+  // Byte-level iteration (over decompressed data)
   u8c *begin() const { return data(); }
   u8c *end()   const { return data() + size(); }
 
@@ -122,8 +125,8 @@ protected:
 
   // Decompression: null if the compressed data exceeds the size limit
   u8 *unzip(uN limit = -1) const
-    { let us = size();              if (us >= limit) return nullptr;
-      let r  = Sc<u8*>(malloc(us)); if (!r)          return nullptr;
+    { let us = size();              A(us <= limit, "unzip() oversized data: " << us << " > " << limit);
+      let r  = Sc<u8*>(malloc(us)); A(r,           "malloc() for decompression failed");
       let ds = ZSTD_decompress(r, us, cdata() + 8, csize() - 8);
       if (ZSTD_isError(ds)) { free(r); A(0, "η₀ corrupt compressed data: " << ZSTD_getErrorName(ds)); }
       if (ds != us)         { free(r); A(0, "η₀ decompressed size mismatch: " << ds << " ≠ " << us); }
@@ -148,8 +151,8 @@ protected:
       {
       case η0ft::s: return 1;
       case η0ft::m: return 2;
-      case η0ft::l: return 2 + (*a & 7);
-      case η0ft::d: return 2 + (*a & 7) + (is_h() ? 32 : 0);
+      case η0ft::l: return 2 + (*a & 7) + 1;
+      case η0ft::d: return 2 + (*a & 7) + 1 + (h() ? 32 : 0);
       } }
 
   η0t decode_type() const
@@ -190,9 +193,9 @@ O &operator<<(O &s, η0ft t)
 O &operator<<(O &s, η0i const &i)
 {
   return s << "η₀[" << i.ftype()
-           << (i.is_f() ? "F" : "f")
-           << (i.is_c() ? "C" : "c")
-           << (i.is_h() ? "H" : "h")
+           << (i.f() ? "F" : "f")
+           << (i.c() ? "C" : "c")
+           << (i.h() ? "H" : "h")
            << " t=" << i.type()
            << " s=" << i.size() << "]";
 }

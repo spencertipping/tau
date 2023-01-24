@@ -10,7 +10,7 @@ using namespace std;
 void test_uint(u64 i)
 {
   u8 buf[64] = {0};
-  η0o o = i; o.into(buf, sizeof(buf));
+  η0o o = i; o.into(buf);
   A(η0bc(buf, sizeof(buf)), "η₀bc failed on " << i);
   η0i r{buf};
   A(r.type() == η0t::uint_be,
@@ -33,7 +33,7 @@ void test_uint(u64 i)
 void test_int(i64 i)
 {
   u8 buf[64] = {0};
-  η0o o = i; o.into(buf, sizeof(buf));
+  η0o o = i; o.into(buf);
   A(η0bc(buf, sizeof(buf)), "η₀bc failed on " << i);
   η0i r{buf};
   A(r.type() == η0t::int_be,
@@ -65,10 +65,29 @@ void try_ints()
 }
 
 
+void try_strings()
+{
+  u8 buf[1024] = {0};
+  η0o o;
+  o.t(η0t::bytes).c(19).h(true) << "fu" << "bar";
+  cout << "output size = " << o.osize() << endl;
+
+  o.into(buf);
+
+  for (uN j = 0; j < o.osize(); ++j)
+    cout << Sc<int>(buf[j]) << " ";
+  cout << endl;
+
+  η0i i = buf;
+  cout << i << " = " << i.stv(64) << ", v = " << i.v() << endl;
+}
+
+
 int main()
 {
   τassert_begin;
-  try_ints();
+  //try_ints();
+  try_strings();
   return 0;
   τassert_end;
 }
