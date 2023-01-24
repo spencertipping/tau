@@ -21,6 +21,9 @@ namespace τ
 
 
 // η₀ structure output stream: incrementally builds an η₀ frame
+//
+// NOTE: primitives cannot be hashed or compressed; this makes sense
+// because you would never want to do this.
 struct η0o
 {
   η0o() : c_(0), h_(false), f_(false), sa(false), fv(false), t_(η0t::uint_be), d({{0}}), cs(nullptr) {}
@@ -32,6 +35,7 @@ struct η0o
   ~η0o() { del_s(); }
 
 
+  // NOTE: works only if the other η₀o is in a valid state
   η0o &operator=(η0o &&x)
     { c_  = x.c_;  h_ = x.h_; f_ = x.f_; sa = x.sa; fv = x.fv;
       ft_ = x.ft_; t_ = x.t_; d  = x.d;  cs = x.cs;
@@ -40,23 +44,23 @@ struct η0o
 
   // TODO: operator=(η0i)
 
-  η0o &operator=(u64   x) { del_s(); t_ = η0t::uint_be;  d.p.u = x; return *this; }
-  η0o &operator=(i64   x) { del_s(); t_ = η0t::int_be;   d.p.i = x; return *this; }
-  η0o &operator=(f64   x) { del_s(); t_ = η0t::float_be; d.p.f = x; return *this; }
-  η0o &operator=(bool  x) { del_s(); t_ = η0t::boolean;  d.p.b = x; return *this; }
-  η0o &operator=(void *x) { del_s(); t_ = η0t::η0;       d.p.p = x; return *this; }
+  η0o &operator=(u64   x) { t(η0t::uint_be);  d.p.u = x; return *this; }
+  η0o &operator=(i64   x) { t(η0t::int_be);   d.p.i = x; return *this; }
+  η0o &operator=(f64   x) { t(η0t::float_be); d.p.f = x; return *this; }
+  η0o &operator=(bool  x) { t(η0t::boolean);  d.p.b = x; return *this; }
+  η0o &operator=(void *x) { t(η0t::η0);       d.p.p = x; return *this; }
 
-  η0o &c(u8 c__)   { c_ = c__; return *this; }
-  η0o &f(bool f__) { f_ = f__; return *this; }
-  η0o &h(bool h__) { h_ = h__; return *this; }
+  η0o &c(u8 c__)   { A(!(c_ = c__) || !η0tp[t_], "cannot compress primitives"); return *this; }
+  η0o &h(bool h__) { A(!(h_ = h__) || !η0tp[t_], "cannot hash primitives"); return *this; }
+  η0o &f(bool f__) { A(!(f_ = f__) || !η0tp[t_], "cannot flag primitives"); return *this; }
   η0o &t(η0t t__)
-    { if (η0tp[t__]) del_s();
+    { if (η0tp[t__]) del_s(), c_ = 0, h_ = false, f_ = false;
       else           sd();
       t_ = t__; return *this; }
 
   u8   c() const { return c_; }
-  bool f() const { return f_; }
   bool h() const { return h_; }
+  bool f() const { return f_; }
   η0t  t() const { return t_; }
   bool p() const { return η0tp[t_]; }  // is our type a primitive
 
@@ -126,7 +130,7 @@ struct η0o
       if (h_)
       { auto sha3_256 = picosha3::get_sha3_generator<256>();
         Ar<u8, 32> hv{};
-        sha3_256(cd().begin(), cd().end(), hv.begin(), hv.end());
+        sha3_256(data().begin(), data().end(), hv.begin(), hv.end());
         memcpy(m + o, hv.data(), 32);
         o += 32; }
 
@@ -143,7 +147,7 @@ struct η0o
       case η0t::boolean:  W(m, o++, Sc<u8>(d.p.b ? 1 : 0));                                 break;
 
       default:
-      { let x = c_ ? cd() : sd();
+      { let x = data();
         memcpy(m + o, x.data(), x.size());
         o += x.size();
         break; }
@@ -167,6 +171,8 @@ struct η0o
 
 
 protected:
+  // FIXME: replace sa with η0tp[t_]
+
   u16         c_ : 5;  // compression level; 0 = no compression
   u16         h_ : 1;  // if true, add a hash
   u16         f_ : 1;  // if true, we're flagged
@@ -175,19 +181,20 @@ protected:
 
   mutable η0ft                     ft_;  // frame type
   η0t                              t_;   // intended type
-
-  // TODO: unpack this; we should write primitives directly into
-  // the output buffer so we can handle compression cases uniformly
-  //
-  // (even though it's ridiculous, we still need to do it for reliability)
-
   union { η0p p; mutable B *s_; }  d;    // primitive or buffered data
   mutable B                       *cs;   // compressed data or null
 
 
+  // Verbatim or compressed data to be written into the output after
+  // the header
+  Bc &data() const
+    { A(!p(), "no data buffer exists for primitives");
+      return c_ ? cd() : sd(); }
+
+
   B *cdata() const
     { A(sa, "cdata() without sa");
-      let r  = new B; r->reserve(ZSTD_compressBound(d.s_->size()));
+      let r  = new B; r->resize(ZSTD_compressBound(d.s_->size()));
       let cr = ZSTD_compress(r   ->data(), r   ->capacity(),
                              d.s_->data(), d.s_->size(), c_);
       if (ZSTD_isError(cr))

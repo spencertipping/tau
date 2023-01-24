@@ -80,6 +80,9 @@ void try_strings()
 
   η0i i = buf;
   cout << i << " = " << i.stv(64) << ", v = " << i.v() << endl;
+
+  cout << "calc = " << picosha3::bytes_to_hex_string(i.sha3()) << endl;
+  cout << "stor = " << picosha3::bytes_to_hex_string(i.stored_sha3()) << endl;
 }
 
 

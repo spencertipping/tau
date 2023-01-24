@@ -31,12 +31,12 @@ Compressed data always begins with the size of the uncompressed data, which is e
 11__1___ T S H? US zstd...
 ```
 
-...where `US` is the uncompressed size and `zstd...` is the compressed datastream.
+...where `US` is the uncompressed size and `zstd...` is the compressed datastream. **NOTE:** `US` is not included in the SHA3 if the frame is hashed.
 
 
 ## Basic API
 ```cpp
-typedef u8 η0t;
+enum class η0t : u8;
 struct η0i             // input
 {
   η0i(u8c*);           // pointer to frame
@@ -44,48 +44,19 @@ struct η0i             // input
   uN   osize() const;  // outer size
   uN   hsize() const;  // header size
 
-  uN   size()  const;  // net size
-  u8c* data()  const;  // decoded data
-  η0t  type()  const;  // type code
+  uN   size() const;   // net size
+  u8c* data() const;   // decoded data
+  η0t  type() const;   // type code
 
-  bool is_e()  const;  // is size exact
-  bool is_f()  const;  // is flagged
-  bool is_c()  const;  // is compressed
-  bool is_h()  const;  // is hashed
+  bool f() const;      // is flagged
+  bool c() const;      // is compressed
+  bool h() const;      // is hashed
+  bool v() const;      // is the data valid against the hash?
 
-  bool is_o()  const;  // is this frame optimally packed?
-  bool is_v()  const;  // is the data valid against the hash?
+  // TODO: do we need this?
+  bool o() const;      // is this frame optimally packed?
 };
 ```
-
-Values can be assembled with a streaming interface (for collections):
-
-```cpp
-struct η0s
-{
-  η0s(η0i, bool f);              // copy, maybe flatten, and optimize
-  η0s(uN   type,
-      bool c,
-      bool h,
-      uN   size = 0);
-
-  η0s &add(u8c *data, uN size);  // plus overloads for other data
-  η0s &end(u8c *data, uN size);  // plus overloads for other data
-  η0s &end();                    // finalizes the stream
-
-  uN osize() const;
-  uN write(u8 *dest);
-};
-```
-
-...or with a simple interface for single values:
-
-```cpp
-template<η0T T>
-uN η0w(η0s&, T const&);  // return osize of value
-```
-
-**FIXME:** there should be a lot of parity between [ζ](zeta.md) and any η₀ writer API; we should be able to stream things into the heap and/or into channels
 
 
 ## References and GC

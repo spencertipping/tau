@@ -69,7 +69,7 @@ struct η0i
       A(s >= 8, "η₀ compressed data too small to contain length prefix: " << s);
       return R<u64>(c, 0); }
 
-  Bv  const bv(uN limit = -1)  const { return Bv {data(limit),           size()}; }
+  Bv  const bv (uN limit = -1) const { return Bv {data(limit),           size()}; }
   Stv const stv(uN limit = -1) const { return Stv{Rc<chc*>(data(limit)), size()}; }
 
 
@@ -99,12 +99,21 @@ struct η0i
       case η0ft::d: return *a & 16;
       } }
 
-  bool v() const
-    { if (!h()) return true;
-      auto sha3_256 = picosha3::get_sha3_generator<256>();
+  bool v() const { return !h() || sha3() == stored_sha3(); }
+
+
+  Ar<u8, 32> sha3() const
+    { auto sha3_256 = picosha3::get_sha3_generator<256>();
       Ar<u8, 32> hv{};
-      sha3_256(cdata(), cdata() + csize(), hv.begin(), hv.end());
-      return !memcmp(cdata() - 32, hv.data(), 32); }
+      let v = Bv{cdata() + 8, csize() - 8};
+      sha3_256(v.begin(), v.end(), hv.begin(), hv.end());
+      return hv; }
+
+  Ar<u8, 32> stored_sha3() const
+    { A(h(), "stored_sha3 on non-hashed frame");
+      Ar<u8, 32> r;
+      memcpy(r.data(), cdata() - 32, 32);
+      return r; }
 
 
   // Byte-level iteration (over decompressed data)
