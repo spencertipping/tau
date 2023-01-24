@@ -10,6 +10,7 @@
 
 
 #include "types.hh"
+#include "numerics.hh"
 #include "eta-types.hh"
 
 #include "begin.hh"
@@ -66,10 +67,7 @@ struct η0i
       let s = csize();
       let c = cdata();
       A(s >= 8, "η₀ compressed data too small to contain length prefix: " << s);
-      return Sc<u64>(c[0]) << 56 | Sc<u64>(c[1]) << 48
-           | Sc<u64>(c[2]) << 40 | Sc<u64>(c[3]) << 32
-           | Sc<u64>(c[4]) << 24 | Sc<u64>(c[5]) << 16
-           | Sc<u64>(c[6]) << 8  | Sc<u64>(c[7]); }
+      return R<u64>(c, 0); }
 
 
   // Flags
