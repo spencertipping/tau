@@ -23,42 +23,86 @@ namespace τ
 // η₀ structure output stream: incrementally builds an η₀ frame
 struct η0o
 {
-  η0o() : c(0), h(false), sa(false), fv(false), t(η0t::uint_be), d({{0}}) {}
+  η0o() : c_(0), h_(false), f_(false), sa(false), fv(false), t_(η0t::uint_be), d({{0}}), cs(nullptr) {}
   η0o(η0o &&x) { *this = std::move(x); }
 
   template<η0at T>
-  η0o(T x) : c(0), h(false), sa(false), fv(false), t(η0at_<T>::t) { *this = x; }
+  η0o(T x) : c_(0), h_(false), f_(false), sa(false), fv(false), t_(η0at_<T>::t), cs(nullptr) { *this = x; }
 
   ~η0o() { del_s(); }
 
 
-  η0o &operator=(η0o &&x) { t = x.t; c = x.c; h = x.h; sa = x.sa; d = x.d; x.sa = false; return *this; }
+  η0o &operator=(η0o &&x)
+    { c_ = x.c_; h_ = x.h_; f_ = x.f_; sa = x.sa;
+      cv = x.cv; fv = x.fv;
+      ft_ = x.ft_; t_ = x.t_; d = x.d; cs = x.cs;
+      x.cs = nullptr; x.sa = false;  // transfer ownership
+      return *this; }
 
-  η0o &operator=(u64 x)  { del_s(); t = η0t::uint_be;  d.p.u = x; return *this; }
-  η0o &operator=(i64 x)  { del_s(); t = η0t::int_be;   d.p.i = x; return *this; }
-  η0o &operator=(f64 x)  { del_s(); t = η0t::float_be; d.p.f = x; return *this; }
-  η0o &operator=(bool x) { del_s(); t = η0t::boolean;  d.p.b = x; return *this; }
+  η0o &operator=(u64  x) { del_s(); t_ = η0t::uint_be;  d.p.u = x; return *this; }
+  η0o &operator=(i64  x) { del_s(); t_ = η0t::int_be;   d.p.i = x; return *this; }
+  η0o &operator=(f64  x) { del_s(); t_ = η0t::float_be; d.p.f = x; return *this; }
+  η0o &operator=(bool x) { del_s(); t_ = η0t::boolean;  d.p.b = x; return *this; }
+
+
+  uN isize() const
+    { switch (t_)
+      {
+      case η0t::η0:       return sizeof(d.p.p);
+      case η0t::boolean:  return sizeof(d.p.b);
+      case η0t::uint_be:  return su(d.p.u);
+      case η0t::int_be:   return su(d.p.i);
+      case η0t::float_be: return sizeof(d.p.f);
+      default:            return sa ? d.s_->size() : 0;
+      } }
+
+  uN osize() const
+    {
+    }
+
+
+  η0ft ft()
+    { if (!fv)
+      { let s = isize();
+        let t = Sc<u8>(t_);
+        ft_ = h_                                              ? η0ft::d
+            : c_ || t >= 64 || isize() >= 128                 ? η0ft::l
+            : t >= 32 || s != 1 && s != 2 && s != 4 && s != 8 ? η0ft::m
+            :                                                   η0ft::s;
+        fv = true; }
+      return ft_; }
 
 
 protected:
-  u16  c  : 5;  // compression level; 0 = no compression
-  u16  h  : 1;  // if true, add a hash
-  u16  sa : 1;  // if true, *s_ is valid
-  u16  fv : 1;  // if true, ft_ is valid
+  u16         c_ : 5;  // compression level; 0 = no compression
+  u16         h_ : 1;  // if true, add a hash
+  u16         f_ : 1;  // if true, we're flagged
+  u16         sa : 1;  // if true, *s_ is valid
+  mutable u16 cv : 1;  // if true, *c_ is valid
+  mutable u16 fv : 1;  // if true, ft_ is valid
 
-  η0ft ft_;     // frame type
-  η0t  t;       // intended type
+  η0ft                     ft_;  // frame type
+  η0t                      t_;   // intended type
+  union { η0p p; B *s_; }  d;    // primitive or buffered data
+  B                       *cs;   // compressed data or null
 
-  union { η0p p; B *s_; } d;
+
+  B *cdata() const { }
 
 
-  bool  has_s() const { return sa; }
-  void  del_s()       { if ( has_s()) delete d.s_,  sa = false; }
-  B    &s    ()       { if (!has_s()) d.s_ = new B, sa = true; return *d.s_; }
+  void  del_c() { delete cs; cs = nullptr; }
+  void  del_s() { if ( sa) delete d.s_,  sa = false; }
+  B    &s    () { if (!sa) d.s_ = new B, sa = true; return *d.s_; }
+  B    &c    () { if (!cs) cs = cdata();            return *cs; }
 };
 
 
-static_assert(sizeof(η0o) <= 2 * sizeof(u64));
+#if τdebug_iostream
+O &operator<<(O &s, η0o const &x)
+{
+  return s << "TODO: << η₀o";
+}
+#endif
 
 
 }

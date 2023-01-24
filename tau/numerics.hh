@@ -26,8 +26,8 @@ static_assert(LE || BE, "unsupported endianness");
 
 
 ic u16 bs16(u16 x) { return      x >> 8   | x                                         << 8; }
-ic u32 bs32(u32 x) { return bs16(x >> 16) | static_cast<u32>(bs16(x & 0xffffull))     << 16; }
-ic u64 bs64(u64 x) { return bs32(x >> 32) | static_cast<u64>(bs32(x & 0xffffffffull)) << 32; }
+ic u32 bs32(u32 x) { return bs16(x >> 16) | Sc<u32>(bs16(x & 0xffffull))     << 16; }
+ic u64 bs64(u64 x) { return bs32(x >> 32) | Sc<u64>(bs32(x & 0xffffffffull)) << 32; }
 
 static_assert(bs16(0x1234u)               == 0x3412u);
 static_assert(bs32(0x12345678u)           == 0x78563412u);
@@ -76,8 +76,8 @@ template<class I, class T = iN> ic bool oi(T x) { return x < Nl<I>::min() || x >
 # pragma clang diagnostic pop
 #endif
 
-template<class I, class T = uN> ic I cou(T x) { assert(!ou<I>(x)); return x; }
-template<class I, class T = uN> ic I coi(T x) { assert(!oi<I>(x)); return x; }
+template<class I, class T = uN> ic I cou(T x) { A(!ou<I>(x), x << " overflows [" << Nl<I>::min() << ", " << Nl<I>::max() << "]"); return x; }
+template<class I, class T = uN> ic I coi(T x) { A(!oi<I>(x), x << " overflows [" << Nl<I>::min() << ", " << Nl<I>::max() << "]"); return x; }
 
 
 // big-endian numeric IO
