@@ -57,7 +57,7 @@ struct η0o
     { switch (t_)
       {
       case η0t::η0:       return sizeof(d.p.p);
-      case η0t::boolean:  return sizeof(d.p.b);
+      case η0t::boolean:  return 1;
       case η0t::uint_be:  return su(d.p.u);
       case η0t::int_be:   return si(d.p.i);
       case η0t::float_be: return sizeof(d.p.f);

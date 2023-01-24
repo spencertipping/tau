@@ -56,10 +56,12 @@ void test_int(i64 i)
 void try_ints()
 {
   for (uN i = 0; i < 1048576; ++i)
-    test_uint(i), test_uint(i << 22), test_uint(i << 44);
+    for (uN j = 0; j < 64; j += 9)
+      test_uint(i << j);
 
   for (iN i = -1048576; i < 1048576; ++i)
-    test_int(i), test_int(i << 22), test_int(i << 44);
+    for (uN j = 0; j < 64; j += 9)
+      test_int(i << j);
 }
 
 
