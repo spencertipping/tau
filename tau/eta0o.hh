@@ -110,7 +110,7 @@ struct η0o
 
       switch (t_)
       {
-      case η0t::η0:       *Rc<void**>(m + o) = d.p.p; o += 8; break;
+      case η0t::η0:       *Rc<void**>(m + o) = d.p.p; o += sizeof(void*); break;
       case η0t::int_be:   for (u8 i = 0; i < s; ++i) m[o++] = d.p.i >> (s - i - 1)*8 & 255; break;
       case η0t::uint_be:  for (u8 i = 0; i < s; ++i) m[o++] = d.p.u >> (s - i - 1)*8 & 255; break;
       case η0t::float_be: W(m, o, d.p.f); break;
