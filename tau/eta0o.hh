@@ -33,9 +33,8 @@ struct η0o
 
 
   η0o &operator=(η0o &&x)
-    { c_ = x.c_; h_ = x.h_; f_ = x.f_; sa = x.sa;
-      cv = x.cv; fv = x.fv;
-      ft_ = x.ft_; t_ = x.t_; d = x.d; cs = x.cs;
+    { c_  = x.c_;  h_ = x.h_; f_ = x.f_; sa = x.sa; fv = x.fv;
+      ft_ = x.ft_; t_ = x.t_; d  = x.d;  cs = x.cs;
       x.cs = nullptr; x.sa = false;  // transfer ownership
       return *this; }
 
@@ -45,6 +44,8 @@ struct η0o
   η0o &operator=(bool x) { del_s(); t_ = η0t::boolean;  d.p.b = x; return *this; }
 
 
+  // Inner size of the fully-encoded frame data: that is, the size that
+  // the frame will end up describing.
   uN isize() const
     { switch (t_)
       {
@@ -53,15 +54,23 @@ struct η0o
       case η0t::uint_be:  return su(d.p.u);
       case η0t::int_be:   return su(d.p.i);
       case η0t::float_be: return sizeof(d.p.f);
-      default:            return sa ? d.s_->size() : 0;
+      default:
+        return c_ && cs ? 8 + cs->size() : sa ? d.s_->size() : 0;
       } }
 
+  // Outer size of the frame once serialized -- i.e. including the frame
+  // header.
   uN osize() const
-    {
-    }
+    { switch (ft())
+      {
+      case η0ft::s: return 1 + isize();
+      case η0ft::m: return 2 + isize();
+      case η0ft::l:
+      case η0ft::d: return 2 + ubytes(isize()) + (h_ ? 32 : 0) + isize();
+      } }
 
 
-  η0ft ft()
+  η0ft ft() const
     { if (!fv)
       { let s = isize();
         let t = Sc<u8>(t_);
@@ -78,22 +87,30 @@ protected:
   u16         h_ : 1;  // if true, add a hash
   u16         f_ : 1;  // if true, we're flagged
   u16         sa : 1;  // if true, *s_ is valid
-  mutable u16 cv : 1;  // if true, *c_ is valid
   mutable u16 fv : 1;  // if true, ft_ is valid
 
-  η0ft                     ft_;  // frame type
+  mutable η0ft             ft_;  // frame type
   η0t                      t_;   // intended type
   union { η0p p; B *s_; }  d;    // primitive or buffered data
   B                       *cs;   // compressed data or null
 
 
-  B *cdata() const { }
+  B *cdata() const
+    { A(sa, "cdata() without sa");
+      let r  = new B; r->reserve(ZSTD_compressBound(d.s_->size()));
+      let cr = ZSTD_compress(r   ->data(), r   ->capacity(),
+                             d.s_->data(), d.s_->size(), c_);
+      if (ZSTD_isError(cr))
+      { delete r;
+        A(0, "η₀ compression error: " << ZSTD_getErrorName(cr)); }
+      r->resize(cr);
+      return r; }
 
 
-  void  del_c() { delete cs; cs = nullptr; }
-  void  del_s() { if ( sa) delete d.s_,  sa = false; }
-  B    &s    () { if (!sa) d.s_ = new B, sa = true; return *d.s_; }
-  B    &c    () { if (!cs) cs = cdata();            return *cs; }
+  void  del_c() {          if ( cs) delete cs,    cs = nullptr;            }
+  void  del_s() { del_c(); if ( sa) delete d.s_,  sa = false;              }
+  B    &s    () {          if (!sa) d.s_ = new B, sa = true;  return *d.s_; }
+  B    &c    () {          if (!cs) cs = cdata();             return *cs;   }
 };
 
 

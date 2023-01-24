@@ -141,24 +141,32 @@ defR(void*) { return Rc<void*>(R<uN>(xs, i)); }
 defW(void*) { W(xs, i, Rc<uN>(x)); }
 
 
-template<class T> ic u8 bu(T x) { return ou<u32>(x) ? 3 : ou<u16>(x) ? 2 : ou<u8>(x) ? 1 : 0; }
-template<class T> ic u8 bi(T x) { return oi<i32>(x) ? 3 : oi<i16>(x) ? 2 : oi<i8>(x) ? 1 : 0; }
+ic u8 bu(u64 x) { return ou<u32>(x) ? 3 : ou<u16>(x) ? 2 : ou<u8>(x) ? 1 : 0; }
+ic u8 bi(i64 x) { return oi<i32>(x) ? 3 : oi<i16>(x) ? 2 : oi<i8>(x) ? 1 : 0; }
 
-template<class T> ic u8 su(T x) { return 1 << bu(x); }
-template<class T> ic u8 si(T x) { return 1 << bi(x); }
+ic u8 su(u64 x) { return 1 << bu(x); }
+ic u8 si(i64 x) { return 1 << bi(x); }
 
 
-template<class T>
-inline constexpr u8 ilog(T x)
+// Bytes required to store an integer
+ic u8 ubytes(u64 x) { u8 r = 0; while (x) x >>= 8, ++r; return r; }
+
+// Bits required to store an integer (i.e. index of highest bit)
+ic u8 ubits(u64 x)
 { u8 i = 0;
-  for (u8 j = sizeof(T) * 4; j; j >>= 1) if (x >> j) i += j, x >>= j;
+  for (u8 j = 32; j; j >>= 1) if (x >> j) i += j, x >>= j;
   return i; }
 
-static_assert(ilog(1) == 0);
-static_assert(ilog(2) == 1);
-static_assert(ilog(4) == 2);
-static_assert(ilog(7) == 2);
-static_assert(ilog(8) == 3);
+static_assert(ubytes(0) == 0);
+static_assert(ubytes(1) == 1);
+static_assert(ubytes(255) == 1);
+static_assert(ubytes(256) == 2);
+
+static_assert(ubits(1) == 0);
+static_assert(ubits(2) == 1);
+static_assert(ubits(4) == 2);
+static_assert(ubits(7) == 2);
+static_assert(ubits(8) == 3);
 
 
 }
