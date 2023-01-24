@@ -99,25 +99,25 @@ struct η0o
       case η0ft::l:
         m[o++] = 0xc0 | f_ << 4 | (c_ > 0) << 3 | b - 1;
         m[o++] = Sc<u8>(t_);
-        for (u8 i = 0; i < b; ++i) m[o++] = s >> i*8 & 255;
+        for (u8 i = 0; i < b; ++i) m[o++] = s >> (b - i - 1)*8 & 255;
         break;
       case η0ft::d:
         m[o++] = 0xd0 | h_ << 4 | (c_ > 0) << 3 | b - 1;
         m[o++] = Sc<u8>(t_);
-        for (u8 i = 0; i < b; ++i) m[o++] = s >> i*8 & 255;
+        for (u8 i = 0; i < b; ++i) m[o++] = s >> (b - i - 1)*8 & 255;
         break;
       }
 
       switch (t_)
       {
       case η0t::η0:       *Rc<void**>(m + o) = d.p.p; o += 8; break;
-      case η0t::signal:   TODO("signal into()"); break;
-      case η0t::symbol:   TODO("symbol into()"); break;
-      case η0t::int_be:   TODO("int_be"); break;
-      case η0t::uint_be:  TODO("uint_be"); break;
+      case η0t::int_be:   for (u8 i = 0; i < s; ++i) m[o++] = d.p.i >> (s - i - 1)*8 & 255; break;
+      case η0t::uint_be:  for (u8 i = 0; i < s; ++i) m[o++] = d.p.u >> (s - i - 1)*8 & 255; break;
       case η0t::float_be: W(m, o, d.p.f); break;
       case η0t::boolean:  W(m, o, Sc<u8>(d.p.b ? 1 : 0)); break;
 
+      case η0t::signal:
+      case η0t::symbol:
       case η0t::bytes:
       case η0t::utf8:
       case η0t::tuple:
