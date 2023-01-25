@@ -15,7 +15,6 @@ namespace τ
 
 
 typedef uN        λi;  // λ identifier
-typedef uN        λt;  // λ tag (for debugging)
 typedef F<void()> λf;  // λ driver function
 
 
