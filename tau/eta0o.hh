@@ -24,6 +24,9 @@ namespace τ
 //
 // NOTE: primitives cannot be hashed or compressed; this makes sense
 // because you would never want to do this.
+//
+// NOTE: in the future we can have this just handle size, delegate
+// contents to higher-level η₁ classes
 struct η0o
 {
   η0o() : c_(0), h_(false), f_(false), fv(false), t_(η0t::uint_be), d({{0}}), cs(nullptr) {}
@@ -219,6 +222,8 @@ protected:
 
 
 // TODO: append for bytes, append _object_ for containers
+// NOTE: probably makes more sense as a η₁ subclassing thing, but we
+// can handle it with explicit polymorphism for now
 inline η0o &operator<<(η0o &o, Bc  &s) { return o.append(s.data(), s.size()); }
 inline η0o &operator<<(η0o &o, Stc &x) { return o.append(Rc<u8c*>(x.data()), x.size()); }
 inline η0o &operator<<(η0o &o, η0o &x)
