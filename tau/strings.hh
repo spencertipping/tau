@@ -17,9 +17,7 @@ namespace τ
 
 struct cs7  // 7-bit ASCII char set, used to split things
 {
-  u64 c1;
-  u64 c2;
-
+  constexpr cs7(u64 c1_, u64 c2_) : c1(c1_), c2(c2_) {}
   constexpr cs7(chc *cs)
     : c1(0), c2(0)
     { for (ch c; c = *cs++;)
@@ -29,7 +27,7 @@ struct cs7  // 7-bit ASCII char set, used to split things
   bool operator[](ch c) const
     { return c >= 0 && (c < 64 ? c1 & 1ull << c : c2 & 1ull << c - 64); }
 
-  V<St> split(Stc &s) const
+  V<St> split(Stc &s) const  // TODO: rewrite in terms of find()
     { V<St> r;
       for (uN i = 0; i < s.size(); ++i)
       { while (i < s.size() && (*this)[s[i]]) ++i;
@@ -38,6 +36,21 @@ struct cs7  // 7-bit ASCII char set, used to split things
         r.push_back(s.substr(i, j - i));
         i = j - 1; }
       return r; }
+
+  V<uN> find(Stc &s) const
+    { V<uN> r;
+      for (uN i = 0; i < s.size(); ++i)
+        if ((*this)[s[i]]) r.push_back(i);
+      return r; }
+
+  constexpr cs7 operator|(cs7 const &x) const { return {c1 | x.c1, c2 | x.c2}; }
+  constexpr cs7 operator&(cs7 const &x) const { return {c1 & x.c1, c2 & x.c2}; }
+  constexpr cs7 operator^(cs7 const &x) const { return {c1 ^ x.c1, c2 ^ x.c2}; }
+  constexpr cs7 operator~()             const { return {~c1, ~c2}; }
+
+protected:
+  u64 c1;
+  u64 c2;
 };
 
 
