@@ -15,9 +15,6 @@ namespace τ
 {
 
 
-inline Bv sBv(chc *x) { return Bv{Rc<u8c*>(x)}; }
-
-
 struct cs7  // 7-bit ASCII char set, used to split things
 {
   u64 c1;
@@ -42,14 +39,6 @@ struct cs7  // 7-bit ASCII char set, used to split things
         i = j - 1; }
       return r; }
 };
-
-
-ic bool ieq(Bv const &a, Bv const &b)
-{
-  return std::equal(a.begin(), a.end(),
-                    b.begin(), b.end(),
-                    [](u8 x, u8 y) { return std::tolower(x) == std::tolower(y); });
-}
 
 
 #if τdebug_iostream
