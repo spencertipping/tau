@@ -3,6 +3,8 @@ A **non-authoritative** summary of data structures, but enough to provide a sens
 
 
 ## Γ and γ
+**FIXME:** we can't name-insert within Γ like is implied by the API; we need to have custom γs that do this name-grabbing perhaps. Right now it's unclear how we grab ξs from `w`.
+
 ```cpp
 struct Γ
 {
