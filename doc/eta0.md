@@ -61,3 +61,5 @@ struct η0i             // input
 
 ## References and GC
 `t == 0` is reserved for η₀ references, which are native-sized, native-endian pointers encoded as short frames. Any value that contains a pointer within its `data...` will have `f = 1`.
+
+**NOTE:** η₀ references are not supported yet.

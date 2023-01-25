@@ -1,20 +1,2 @@
 # γ: ψ compiler
-Mathematically, γ represents a [φ](phi.md)-space matrix of bytecode functions, each of which will be executed as a [λ](lambda.md).
-
-Structurally, γ contains several things:
-
-+ A map of `(k₁, k₂) → (f₁, f₂, ..., fn)` bindings
-+ A map of `k₁ → k₂` left-transforms
-+ A map of `k₁ → k₂` right-transforms
-
-**NOTE:** bindings can have `k₁` and/or `k₂` set to `1` or `0`, respectively, to indicate that the resulting λ should be disconnected for reading or for writing.
-
-**TODO:** add chan direction/weakness/π-locking metadata to the above
-
-**TODO:** specify how γ can be applied (probably to ψ and φ)
-
-
-## Building γs
-A γ tracks input and output state and allows its λ state to be incrementally constructed.
-
-**TODO:** we should remove keying for specific λs; each λ can be atomic and they can exist in a loose set
+γ is a [φ](phi.md) → φ connection matrix using [λ](lambda.md) compute elements to do the transforms. A γ produces a [ψ](psi.md) when applied to a live φ vector.
