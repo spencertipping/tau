@@ -3,20 +3,24 @@ A **non-authoritative** summary of data structures, but enough to provide a sens
 
 
 ## Γ and γ
-**FIXME:** we can't name-insert within Γ like is implied by the API; we need to have custom γs that do this name-grabbing perhaps. Right now it's unclear how we grab ξs from `w`. More specifically, we need to direct-insert named ξs at specific points in the γ pipeline.
-
 ```cpp
 struct Γ
 {
-  M<sym, Sp<ξ>> w;   // named weak ξs
-  V<γ>          g;   // pipeline of γs
+  M<sym, Sp<ξ>> w;      // named weak ξs
+  V<Sp<γ>>      g;      // pipeline of γs
+
+  Sp<ξ> r(Sp<ψ>, sym);  // grab the read-end of a named ξ
+  Sp<ξ> w(Sp<ψ>, sym);  // grab the write-end of a named ξ
 };
 
 struct γ
 {
-  M<Ξi, ξm> i;                // input vector profile (rows)
-  M<ΞI, ξm> o;                // output vector profile (columns)
-  Sp<Ξ> operator()(Ξ&, ψ**);  // apply to Ξ to create resources
+  M<Ξi, ξm> i;  // input vector profile (rows)
+  M<ΞI, ξm> o;  // output vector profile (columns)
+
+  // Apply as a Ξ transform, with the ability to consult Γ for global ξs
+  // If a ψ is created, it will also be returned as a shared ptr
+  P<Sp<Ξ>, Sp<ψ>> operator()(Ξ&, Γ&);
 };
 ```
 
@@ -29,8 +33,8 @@ struct ξ
   ζ     p;  // η value pipe
   virtual ~ξ() {}
 };
-struct ξs : public virtual ξ { Sp<ψ> w; };
-struct ξw : public virtual ξ { Wp<ψ> w; };
+struct ξs : public virtual ξ { Sp<ψ> w; };  // strong ξ
+struct ξw : public virtual ξ { Wp<ψ> w; };  // weak ξ
 
 typedef V<sym> Ξi;  // Ξ → ξ
 typedef V<sym> ΞI;  // ξ → Ξ
@@ -47,10 +51,10 @@ struct Ξ            // Ξ vector
 
   // Extract ξs from input Ξ, using a mixture of Ξ-provided ξs and
   // ones provided via global map
-  M<Ξi, Sp<ξ>> operator()(M<Ξi, ξm> const&, M<sym, Sp<ξ>> const&) const;
+  M<Ξi, Sp<ξ>> operator()(Sp<ψ>, Mc<Ξi, ξm>&, Mc<sym, Sp<ξ>>&) const;
 
   // Construct output Ξ from this, input, and newly-assigned outputs
-  Sp<Ξ> operator()(M<Ξi, ξm> const&, M<ΞI, Sp<ξ>> const&) const;
+  Sp<Ξ> operator()(Sp<ψ>, Mc<Ξi, ξm>&, Mc<ΞI, Sp<ξ>>&) const;
 };
 ```
 
@@ -59,18 +63,14 @@ struct Ξ            // Ξ vector
 
 ## ψ runtime
 ```cpp
-struct ψ;
-typedef F<void(ψ&)> ψc;  // ψ incremental constructor
-typedef F<void(ψ&)> ψd;  // ψ incremental destructor
-
+// Virtual base class for stream operators
 struct ψ
 {
-  V<ψc>        c;
-  V<ψd>        d;
+  τ           &t;  // τ runtime for λ management
   S<λi>        l;  // managed λs
-  M<Ξi, Sp<ξ>> i;  // active input ξs
-  M<Ξi, Wp<ξ>> o;  // output ξs (note weak reference)
-  ~ψ() { for (let f : d) f(*this); }
+  M<Ξi, Sp<ξ>> i;  // active input ξs (strong references)
+  M<Ξi, Wp<ξ>> o;  // active output ξs (weak references)
+  virtual ~ψ() { for (let x : l) t.λx(x); }
 };
 ```
 
