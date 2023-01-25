@@ -12,9 +12,9 @@ struct Γ
 
 struct γ
 {
-  M<Ξi, ξm> i;       // input vector profile (rows)
-  M<ΞI, ξm> o;       // output vector profile (columns)
-  ψ operator()(Ξ&);  // apply to Ξ to create resources
+  M<Ξi, ξm> i;                // input vector profile (rows)
+  M<ΞI, ξm> o;                // output vector profile (columns)
+  Sp<Ξ> operator()(Ξ&, ψ**);  // apply to Ξ to create resources
 };
 ```
 
@@ -45,10 +45,10 @@ struct Ξ            // Ξ vector
 
   // Extract ξs from input Ξ, using a mixture of Ξ-provided ξs and
   // ones provided via global map
-  M<Ξi, Sp<ξ>> operator()(M<Ξi, ξm> const&, M<sym, Sp<ξ>> const&);
+  M<Ξi, Sp<ξ>> operator()(M<Ξi, ξm> const&, M<sym, Sp<ξ>> const&) const;
 
   // Construct output Ξ from this, input, and newly-assigned outputs
-  Sp<Ξ> operator()(M<Ξi, ξm> const&, M<ΞI, Sp<ξ>> const&);
+  Sp<Ξ> operator()(M<Ξi, ξm> const&, M<ΞI, Sp<ξ>> const&) const;
 };
 ```
 
