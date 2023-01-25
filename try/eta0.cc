@@ -83,6 +83,8 @@ void try_strings()
 
   cout << "calc = " << picosha3::bytes_to_hex_string(i.sha3()) << endl;
   cout << "stor = " << picosha3::bytes_to_hex_string(i.stored_sha3()) << endl;
+
+  A(i.v(), "η failed to validate hashed value");
 }
 
 

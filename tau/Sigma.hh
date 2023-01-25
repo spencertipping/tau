@@ -14,7 +14,7 @@ namespace τ
 
 struct Σilog
 {
-  uN operator()(uN x) { return ilog(x); }
+  uN operator()(u64 x) { return ubits(x); }
 };
 
 
