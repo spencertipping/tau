@@ -7,5 +7,7 @@
 
 #include "tau/eta.hh"
 
+#include "tau/tau.hh"
+
 
 #endif

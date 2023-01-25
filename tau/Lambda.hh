@@ -52,10 +52,7 @@ public:
   Λ() {}
 
   bool e (λi i) const { return ls.contains(i); }
-  λs   si(λi i) const { return ls.at(i).s; }
-  uN   n ()     const { return ls.size(); }
   λi   i ()     const { return ri; }
-  bool z ()     const { return !ri; }
 
   λi   c(λf &&f)
     { let i = ιi(ni, ls);
@@ -70,7 +67,7 @@ public:
       return *this; }
 
   Λ  &y(λs s)  // yield currently-running λ with specified yield state
-    { A(!z(), "Λy from main thread");
+    { A(i(), "Λy from main thread");
       r(ri, s);
       λy();
       return *this; }
@@ -85,7 +82,7 @@ public:
   Λt const &operator[](λi i) const { return ls.at(i); }
 
   Λ &operator<<(λi i)  // run λi for one quantum
-    { A(z(), "non-root Λ<<");
+    { A(!ri, "Λ<< from non-main thread");
       auto &l = ls.at(ri = i);
       qΘ.start();
       l.l();
@@ -96,7 +93,7 @@ public:
 
   λi operator()()  // find next λi to run
     { for (let i : rs)
-        if (e(i) && si(i) == λs::R) { rs.erase(i); return i; }
+        if (e(i) && (*this)[i].runnable()) { rs.erase(i); return i; }
       return 0; }
 
   Λ &go()  // run as long as there is stuff to do
