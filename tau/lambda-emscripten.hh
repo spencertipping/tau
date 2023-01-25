@@ -6,6 +6,7 @@
 
 
 #include "types.hh"
+#include "lambda-types.hh"
 
 
 // For interactive development with clang/lsp; this is a nop in production
@@ -35,7 +36,7 @@ void λinvoke(void *λ_)
 
 
 λ::λ() : thisptr(nullptr) {}
-λ::λ(F<void()> &&f_)
+λ::λ(λf &&f_)
   : f      (std::move(f_)),
     is_done(false)
 {

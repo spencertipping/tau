@@ -16,6 +16,7 @@ namespace τ
 {
 
 
+// A single Λ task, which is a λ plus some metadata
 template<class Λp>
 struct Λt
 {
@@ -35,19 +36,21 @@ struct Λt
       ps = x.ps;
       t  = x.t;
       return *this; }
+
+  bool done() const { return l.done(); }
 };
 
 
 // NOTE: managed λs should yield out with Λ.y, not λy() defined by lambda.hh
+
+// FIXME: Λ should not be templated
+
+// FIXME: Λ should hold shared_ptrs to Λt, which should virtualize its
+// priority request system; then τ can create Λt objects and delegate
+// them to Λ for scheduling (but retain pointers)
 template<class Λp>
 struct Λ_
 {
-  M<λi, Λt<Λp>> ls;     // all λs
-  Λp            rq;
-  λi            ni{0};  // next λi (always nonzero for managed λ)
-  λi            ri{0};  // currently running λi (0 = main thread)
-  ΣΘΔ           qΘ;     // quantum time measurement
-
   Λ_(Λ_ &)  = delete;
   Λ_(Λ_ &&) = delete;
   Λ_() : rq{*this} {}
@@ -65,7 +68,8 @@ struct Λ_
       return  i; }
 
   Λ_  &x(λi i)
-    { A(ri != i, "self λx"); A(e(i), "λx !e");
+    { A(ri != i, "self λx");
+      A(e(i), "λx !e");
       ls.erase(i);
       return *this; }
 
@@ -81,6 +85,8 @@ struct Λ_
       if (Λp::λpm(p))         l.p = p;
       if ((l.s = s) == λs::R) rq << i;
       return *this; }
+
+  Λt<Λp> const &operator[](λi i) const { return ls.at(i); }
 
   Λ_ &operator<<(λi i)
     { A(z(), "non-root Λ<<");
@@ -108,6 +114,14 @@ struct Λ_
   Λ_ &ry()  // resume all explicitly-yielded λs
     { for (auto &[i, s] : ls) if (s.s == λs::Y) r(i);
       return *this; }
+
+
+protected:
+  M<λi, Λt<Λp>> ls;     // all λs
+  Λp            rq;     // run queue, priority-ordered
+  λi            ni{0};  // next λi (always nonzero for managed λ)
+  λi            ri{0};  // currently running λi (0 = main thread)
+  ΣΘΔ           qΘ;     // quantum time measurement
 };
 
 

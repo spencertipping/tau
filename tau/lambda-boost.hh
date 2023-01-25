@@ -3,6 +3,7 @@
 
 
 #include "types.hh"
+#include "lambda-types.hh"
 #include "lambda-class.hh"
 
 
@@ -24,7 +25,7 @@ void λm(λbc::continuation &&cc)
 
 
 λ::λ() : k(nullptr), thisptr(nullptr) {}
-λ::λ(F<void()> &&f_)
+λ::λ(λf &&f_)
   : f      (std::move(f_)),
     k      (nullptr),
     is_done(false)

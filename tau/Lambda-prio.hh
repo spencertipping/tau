@@ -40,8 +40,8 @@ struct Λpf            // fair priority scheduler
     Λ_<Λpf> &l;
     bool operator()(λi a, λi b) const
       { let  t  = now();
-        let &la = l.ls.at(a);
-        let &lb = l.ls.at(b);
+        let &la = l[a];
+        let &lb = l[b];
         return la.ps(la.p, t) < lb.ps(lb.p, t); }
   };
 

@@ -68,13 +68,13 @@ struct λ
 {
   // NOTE: don't modify these outside of this module; it's easier not to
   // protect them, but they should be treated as protected
-  F<void()> f;
-  λk        k;
-  bool      is_done;
-  λ       **thisptr;
+  λf     f;
+  λk     k;
+  bool   is_done;
+  λ    **thisptr;
 
   λ();
-  λ(F<void()>&&);
+  λ(λf&&);
   ~λ();
 
   void fin();
