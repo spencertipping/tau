@@ -44,11 +44,13 @@ struct ξm           // ξ metadata
 struct φ            // φ vector
 {
   M<sym, Sp<φ>> f;  // sub-φs
-  M<sym, Up<ξ>> c;  // materialized ξ
+  M<sym, Sp<ξ>> c;  // materialized ξ
   M<φi, ξ> operator()(M<φi, ξm>    const&);
-  Sp<φ>    operator()(M<φI, Up<ξ>> const&);
+  Sp<φ>    operator()(M<φI, Sp<ξ>> const&);
 };
 ```
+
+**NOTE:** a weak ξ is constructed if _either_ endpoint requests weakness.
 
 
 ## ψ runtime
