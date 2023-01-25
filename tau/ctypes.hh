@@ -108,7 +108,7 @@ static_assert(sizeof(c32) == sizeof(f32) * 2);
 
 
 // Standardize our representation of FDs across systems
-typedef uN fd_t;
+typedef int fd_t;
 
 
 template<class T, uN S>    using Ar = std::array<T, S>;
@@ -139,6 +139,7 @@ template<class... T>       using Vi = typename V<T...>::const_iterator;
 template<class... T>       using Wp = std::weak_ptr<T...>;
 
 template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std::vector<T>, C>;
+
 
 template<class T, class U>
 ic auto mp(T &&a, U &&b) { return std::make_pair(std::move(a), std::move(b)); }
@@ -171,8 +172,10 @@ typedef std::basic_string_view<u8> Bv;
 typedef std::string                St;
 typedef std::string_view           Stv;
 
-typedef B  const Bc;
-typedef St const Stc;
+typedef B   const Bc;
+typedef St  const Stc;
+typedef Bv  const Bvc;
+typedef Stv const Stvc;
 
 
 }
