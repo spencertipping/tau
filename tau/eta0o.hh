@@ -67,6 +67,7 @@ struct η0o
       else
         if (p()) d.s_ = new B;              // transition to buffered
       t_ = t__;
+      fv = false;
       return *this; }
 
   u8   c() const { return c_; }
@@ -76,11 +77,11 @@ struct η0o
   bool p() const { return η0tp[t_]; }  // is our type a primitive
 
   // NOTE: append() and iptr() both delete any compressed data
-  η0o &append(u8c *d, uN l) { A(!p(), "cannot append to " << t_);       sd().append(d, l);    del_c(); return *this; }
+  η0o &append(u8c *d, uN l) { A(!p(), "cannot append to " << t_);       sd().append(d, l);    touch(); return *this; }
   η0o &reserve(uN l)        { A(!p(), "cannot reserve against " << t_); sd().reserve(sd().size() + l); return *this; }
   u8  *iptr()
     { A(!p(), "cannot get iptr for " << t_);
-      del_c();
+      touch();
       return sd().data() + sd().size(); }
 
 
@@ -129,12 +130,12 @@ struct η0o
       case η0ft::l:
         m[o++] = 0xc0 | f_ << 4 | (c_ > 0) << 3 | b - 1;
         m[o++] = Sc<u8>(t_);
-        for (u8 i = 0; i < b; ++i) m[o++] = s >> (b - i - 1)*8 & 255;
+        for (u8 i = 0; i < b; ++i) m[o++] = s >> (b - i - 1) * 8 & 255;
         break;
       case η0ft::d:
         m[o++] = 0xe0 | h_ << 4 | (c_ > 0) << 3 | b - 1;
         m[o++] = Sc<u8>(t_);
-        for (u8 i = 0; i < b; ++i) m[o++] = s >> (b - i - 1)*8 & 255;
+        for (u8 i = 0; i < b; ++i) m[o++] = s >> (b - i - 1) * 8 & 255;
         break;
       }
 
@@ -187,18 +188,24 @@ protected:
   u16         f_ : 1;  // if true, we're flagged
   mutable u16 fv : 1;  // if true, ft_ is valid
 
-  mutable η0ft                     ft_;  // frame type
-  η0t                              t_;   // intended type
-  union { η0p p; mutable B *s_; }  d;    // primitive or buffered data
-  mutable B                       *cs;   // compressed data or null
+  mutable η0ft             ft_;  // frame type
+  η0t                      t_;   // intended type
+  union { η0p p; B *s_; }  d;    // primitive or buffered data
+  mutable B               *cs;   // compressed data or null
+
+
+  // Called after data has been modified; erases cached state
+  void touch() { del_c(); fv = false; }
 
 
   // Verbatim or compressed data to be written into the output after
   // the header
-  Bc &data() const { return c_ ? cd() : sd(); }
+  Bc   &data () const { return c_ ? cd() : sd();                    }
+  B    &sd   () const { A(!p(), "sd() on primitive"); return *d.s_; }
+  B    &cd   () const { if (!cs) cs = cdata();        return *cs;   }
+  void  del_c()       { if ( cs) delete cs, cs = nullptr;           }
 
-
-  B *cdata() const
+  B    *cdata() const
     { A(!p(), "cdata() on primitive");
       let r  = new B; r->resize(ZSTD_compressBound(d.s_->size()));
       let cr = ZSTD_compress(r   ->data(), r   ->capacity(),
@@ -208,11 +215,6 @@ protected:
         A(0, "η₀ compression error: " << ZSTD_getErrorName(cr)); }
       r->resize(cr);
       return r; }
-
-
-  void  del_c()       { if ( cs) delete cs, cs = nullptr;  }
-  B    &cd   () const { if (!cs) cs = cdata(); return *cs; }
-  B    &sd   () const { A(!p(), "sd() on primitive"); return *d.s_; }
 };
 
 
