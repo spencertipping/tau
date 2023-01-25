@@ -25,7 +25,7 @@ Another way to think of it is that τ is to `ni` what the Laplace transform is t
 + [Λ](doc/Lambda.md) is the λ threading manager
 + [λ](doc/lambda.md) is a single cooperative thread
 + [ψ](doc/psi.md) is a shared-variable scope for λs
-+ [ξ](doc/xi.md) is a strong bounded channel that carries η values
++ [ξ](doc/xi.md) is a bounded channel that carries η values
 + [η](doc/eta.md) is the data format used for ξ/μ messages
 
 τ implements an eager dataflow GC that deallocates ψs as soon as nobody depends on their ξ outputs. Destroying a ψ frees all of its global resources, including C++ data structures and any other μ/ξ channels, which may in turn cause more ψs to be freed.

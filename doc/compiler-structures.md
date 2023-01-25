@@ -8,6 +8,10 @@ struct Γ
 {
   M<sym, ξ> w;       // named weak ξs
   V<γ>      g;       // pipeline of γs
+
+  // TODO: how do we work named ξs into the intermediate φs in the pipeline?
+  // NOTE: it may help to define disjoint symbol domains, one for φ keys and
+  // one for Γ-level cyclic refs
 };
 
 struct γ
@@ -21,22 +25,28 @@ struct γ
 
 ## φ runtime
 ```cpp
+struct ξ
+{
+  Sp<ψ> ws;  // strong ref to writer
+  Wp<ψ> ww;  // weakref to writer
+  Wp<ψ> r;   // weakref to reader
+  ζ     p;   // η value pipe
+};
+
 typedef V<sym> φi;  // φ → ξ
 typedef V<sym> φI;  // ξ → φ
 struct ξm           // ξ metadata
 {
-  bool i;           // invert data direction (right-to-left)
-  bool w;           // if true, weaken the ξ
+  bool i;           // if true, data moves right to left
+  bool w;           // if true, ξ weakly references its writer
 };
 
 struct φ            // φ vector
 {
   M<sym, Sp<φ>> f;  // sub-φs
-  M<sym, Sp<ξ>> c;  // materialized ξs
-  φ operator[](sym);
-  ξ operator()(sym);
-  M<φi, ξ> operator()(M<φi, ξm> const&);
-  φ        operator()(M<φI, ξ> const&);
+  M<sym, Up<ξ>> c;  // materialized ξ
+  M<φi, ξ> operator()(M<φi, ξm>    const&);
+  Sp<φ>    operator()(M<φI, Up<ξ>> const&);
 };
 ```
 
@@ -53,5 +63,8 @@ struct ψ
   S<λi> l;  // active λs
   φ     i;  // input φ
   φ     o;  // output φ
+  ~ψ() { for (let f : d) f(*this); }
 };
 ```
+
+Note that when ψ is deallocated, it destroys its input and output φs, each of which destroy their ξs, which decreases `shared_ptr` reference counts to writing ψs. This mechanism drives ψ GC.

@@ -2,8 +2,10 @@
 #define τ_h
 
 
-#include "tau/eta0i.hh"
-#include "tau/eta0o.hh"
+#include "tau/lambda.hh"
+#include "tau/Lambda.hh"
+
+#include "tau/eta.hh"
 
 
 #endif
