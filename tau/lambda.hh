@@ -3,6 +3,7 @@
 
 
 #include "arch.hh"
+#include "lambda-types.hh"
 #include "lambda-class.hh"
 
 #if τplatform == τplatform_wasm || τassume_emscripten

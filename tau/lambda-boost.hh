@@ -23,37 +23,35 @@ void λm(λbc::continuation &&cc)
 }
 
 
-template<class T> λ<T>::λ() : k(nullptr), thisptr(nullptr) {}
-template<class T>
-λ<T>::λ(F<T()> &&f_)
+λ::λ() : k(nullptr), thisptr(nullptr) {}
+λ::λ(F<void()> &&f_)
   : f      (std::move(f_)),
     k      (nullptr),
     is_done(false)
 {
   λinit();
-  thisptr  = Rc<λ<T>**>(std::malloc(sizeof(λ<T>**)));
+  thisptr  = Rc<λ**>(std::malloc(sizeof(λ**)));
   *thisptr = this;
 
   if (λmi)
     k = new λbc::continuation(λbc::callcc(
       [t = thisptr](λbc::continuation &&cc) {
         λm(cc.resume());
-        **t << (*t)->f();
+        (*t)->f();
+        (*t)->fin();
         return std::move(*λmk);
       }));
 }
 
 
-template<class T>
-λ<T>::~λ()
+λ::~λ()
 {
   if (k)       delete k;
   if (thisptr) std::free(thisptr);
 }
 
 
-template<class T>
-λ<T> &λ<T>::operator=(λ<T> &&c)
+λ &λ::operator=(λ &&c)
 {
   if (k) delete k;
   thisptr  = c.thisptr;
@@ -61,7 +59,6 @@ template<class T>
   k        = c.k;
   f        = std::move(c.f);
   is_done  = c.is_done;
-  ret      = std::move(c.ret);
 
   c.k       = nullptr;
   c.thisptr = nullptr;
@@ -69,21 +66,16 @@ template<class T>
 }
 
 
-template<class T>
-λ<T> &λ<T>::operator<<(T &&ret_)
+void λ::fin()
 {
   assert(!done());
   assert(!λmi);
   is_done = true;
-  ret     = std::move(ret_);
-
   if (k) { delete k; k = nullptr; }
-  return *this;
 }
 
 
-template<class T>
-λ<T> &λ<T>::operator()()
+λ &λ::operator()()
 {
   assert(!done());
   assert(λmi);
@@ -98,7 +90,8 @@ template<class T>
     auto cc = λbc::callcc(
       [t = thisptr](λbc::continuation &&cc) {
         λm(cc.resume());
-        **t << (*t)->f();
+        (*t)->f();
+        (*t)->fin();
         return std::move(*λmk);
       });
     cc = cc.resume();

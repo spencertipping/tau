@@ -19,8 +19,6 @@ Another way to think of it is that τ is to `ni` what the Laplace transform is t
 +-----------------------------------------+
 ```
 
-**NOTE:** all μ/ξ connections have ψ endpoints; this is important for τ GC, explained below.
-
 + [τ](doc/tau.md) is the toplevel compute context, one per UNIX/WASM process
 + [Λ](doc/Lambda.md) is the λ threading manager
 + [λ](doc/lambda.md) is a single cooperative thread
@@ -28,7 +26,7 @@ Another way to think of it is that τ is to `ni` what the Laplace transform is t
 + [ξ](doc/xi.md) is a bounded channel that carries η values
 + [η](doc/eta.md) is the data format used for ξ/μ messages
 
-τ implements an eager dataflow GC that deallocates ψs as soon as nobody depends on their ξ outputs. Destroying a ψ frees all of its global resources, including C++ data structures and any other μ/ξ channels, which may in turn cause more ψs to be freed.
+τ implements an eager dataflow GC that deallocates ψs as soon as nobody depends on their ξ outputs. Destroying a ψ frees all of its global resources, including C++ data structures and any ξs, which may in turn cause more ψs to be freed.
 
 This τ GC corresponds to a signal exponentially decaying below the noise floor in the 𝓛 metaphor.
 

@@ -24,35 +24,33 @@ namespace τ
 bool  λsx;    // if true, free stacks
 
 
-template<class T>
 void λinvoke(void *λ_)
 {
-  auto f(*Rc<λ<T>**>(λ_));
-  *f << f->f();
+  auto f(*Rc<λ**>(λ_));
+  f->f();
+  f->fin();
   λsx = true;
   λy();
 }
 
 
-template<class T> λ<T>::λ() : thisptr(nullptr) {}
-template<class T>
-λ<T>::λ(F<T()> &&f_)
+λ::λ() : thisptr(nullptr) {}
+λ::λ(F<void()> &&f_)
   : f      (std::move(f_)),
     is_done(false)
 {
   λinit();
   k.async_stack = std::malloc(λss);
   k.c_stack     = std::malloc(λss);
-  thisptr       = Rc<λ<T>**>(std::malloc(sizeof(λ<T>**)));
+  thisptr       = Rc<λ**>(std::malloc(sizeof(λ**)));
   *thisptr      = this;
-  emscripten_fiber_init(&k.k, &λinvoke<T>, thisptr,
+  emscripten_fiber_init(&k.k, &λinvoke, thisptr,
                         k.c_stack,     λss,
                         k.async_stack, λss);
 }
 
 
-template<class T>
-λ<T>::~λ()
+λ::~λ()
 {
   if (k.async_stack) std::free(k.async_stack);
   if (k.c_stack)     std::free(k.c_stack);
@@ -60,15 +58,13 @@ template<class T>
 }
 
 
-template<class T>
-λ<T> &λ<T>::operator=(λ<T> &&x)
+λ &λ::operator=(λ &&x)
 {
   f             = std::move(x.f);
   k.k           = std::move(x.k.k);
   k.async_stack = x.k.async_stack;
   k.c_stack     = x.k.c_stack;
   is_done       = x.is_done;
-  ret           = std::move(x.ret);
   thisptr       = x.thisptr;
   *thisptr      = this;
 
@@ -80,8 +76,7 @@ template<class T>
 }
 
 
-template<class T>
-λ<T> &λ<T>::operator()()
+λ &λ::operator()()
 {
   assert(!done());
   assert(λthis == &λmk);
@@ -93,12 +88,11 @@ template<class T>
 }
 
 
-template<class T>
-λ<T> &λ<T>::operator<<(T &&r_)
+void λ::fin()
 {
+  assert(!done());
+  assert(λthis != &λmk);
   is_done = true;
-  ret     = std::move(r_);
-  return *this;
 }
 
 

@@ -19,14 +19,14 @@ namespace τ
 template<class Λp>
 struct Λt
 {
-  λ<Λr>           l;
+  λ               l;
   λs              s;
   typename Λp::p  p;   // priority
   typename Λp::ps ps;  // priority state
   λt              t;   // tag (for debugging/tracking)
 
   Λt() {}
-  Λt(λf &&f, λt t_ = 0) : l(λ<Λr>(std::move(f))), s(λs::S), t(t_) {}
+  Λt(λf &&f, λt t_ = 0) : l(λ(std::move(f))), s(λs::S), t(t_) {}
 
   Λt &operator=(Λt &&x)
     { l  = std::move(x.l);

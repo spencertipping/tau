@@ -8,10 +8,6 @@ struct Γ
 {
   M<sym, ξ> w;       // named weak ξs
   V<γ>      g;       // pipeline of γs
-
-  // TODO: how do we work named ξs into the intermediate φs in the pipeline?
-  // NOTE: it may help to define disjoint symbol domains, one for φ keys and
-  // one for Γ-level cyclic refs
 };
 
 struct γ
@@ -45,7 +41,7 @@ struct φ            // φ vector
 {
   M<sym, Sp<φ>> f;  // sub-φs
   M<sym, Sp<ξ>> c;  // materialized ξ
-  M<φi, ξ> operator()(M<φi, ξm>    const&);
+  M<φi, ξ> operator()(M<φi, ξm>    const&, M<sym, ξ> const&);
   Sp<φ>    operator()(M<φI, Sp<ξ>> const&);
 };
 ```

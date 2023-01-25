@@ -25,6 +25,7 @@
 
 
 #include "types.hh"
+#include "lambda-types.hh"
 
 
 #include "begin.hh"
@@ -63,26 +64,24 @@ void λinit()
 }
 
 
-template<class T>
 struct λ
 {
-  F<T()> f;
-  λk     k;
-  bool   is_done;
-  T      ret;
-  λ<T> **thisptr;
+  // NOTE: don't modify these outside of this module; it's easier not to
+  // protect them, but they should be treated as protected
+  F<void()> f;
+  λk        k;
+  bool      is_done;
+  λ       **thisptr;
 
   λ();
-  λ(F<T()>&&);
+  λ(F<void()>&&);
   ~λ();
 
-  bool     done()   const {                  return is_done; }
-  T const &result() const { assert(is_done); return ret; };
+  void fin();
+  bool done() const { return is_done; }
 
-  λ<T> &operator=(λ<T> &&);
-  λ    &operator()();
-  λ    &operator<<(T&&);
-  λ    &operator<<(T const &);
+  λ &operator=(λ&&);
+  λ &operator()();
 };
 
 
