@@ -6,43 +6,49 @@ A **non-authoritative** summary of data structures, but enough to provide a sens
 ```cpp
 struct Γ
 {
-  M<sym, ξ> w;       // named weak ξs
-  V<γ>      g;       // pipeline of γs
+  M<sym, Sp<ξ>> w;   // named weak ξs
+  V<γ>          g;   // pipeline of γs
 };
 
 struct γ
 {
-  M<φi, ξm> i;       // input vector profile (rows)
-  M<φI, ξm> o;       // output vector profile (columns)
-  ψ operator()(φ&);  // apply to φ to create resources
+  M<Ξi, ξm> i;       // input vector profile (rows)
+  M<ΞI, ξm> o;       // output vector profile (columns)
+  ψ operator()(Ξ&);  // apply to Ξ to create resources
 };
 ```
 
 
-## φ runtime
+## Ξ runtime
 ```cpp
 struct ξ
 {
-  Sp<ψ> ws;  // strong ref to writer
-  Wp<ψ> ww;  // weakref to writer
-  Wp<ψ> r;   // weakref to reader
-  ζ     p;   // η value pipe
+  Wp<ψ> r;  // weak ref to reader
+  ζ     p;  // η value pipe
+  virtual ~ξ() {}
 };
+struct ξs : public virtual ξ { Sp<ψ> w; };
+struct ξw : public virtual ξ { Wp<ψ> w; };
 
-typedef V<sym> φi;  // φ → ξ
-typedef V<sym> φI;  // ξ → φ
+typedef V<sym> Ξi;  // Ξ → ξ
+typedef V<sym> ΞI;  // ξ → Ξ
 struct ξm           // ξ metadata
 {
   bool i;           // if true, data moves right to left
   bool w;           // if true, ξ weakly references its writer
 };
 
-struct φ            // φ vector
+struct Ξ            // Ξ vector
 {
-  M<sym, Sp<φ>> f;  // sub-φs
+  M<sym, Sp<Ξ>> f;  // sub-Ξs
   M<sym, Sp<ξ>> c;  // materialized ξ
-  M<φi, ξ> operator()(M<φi, ξm>    const&, M<sym, ξ> const&);
-  Sp<φ>    operator()(M<φI, Sp<ξ>> const&);
+
+  // Extract ξs from input Ξ, using a mixture of Ξ-provided ξs and
+  // ones provided via global map
+  M<Ξi, Sp<ξ>> operator()(M<Ξi, ξm> const&, M<sym, Sp<ξ>> const&);
+
+  // Construct output Ξ from this, input, and newly-assigned outputs
+  Sp<Ξ> operator()(M<Ξi, ξm> const&, M<ΞI, Sp<ξ>> const&);
 };
 ```
 
@@ -54,15 +60,16 @@ struct φ            // φ vector
 struct ψ;
 typedef F<void(ψ&)> ψc;  // ψ incremental constructor
 typedef F<void(ψ&)> ψd;  // ψ incremental destructor
+
 struct ψ
 {
-  V<ψc> c;
-  V<ψd> d;
-  S<λi> l;  // active λs
-  φ     i;  // input φ
-  φ     o;  // output φ
+  V<ψc>        c;
+  V<ψd>        d;
+  S<λi>        l;  // managed λs
+  M<Ξi, Sp<ξ>> i;  // active input ξs
+  M<Ξi, Wp<ξ>> o;  // output ξs (note weak reference)
   ~ψ() { for (let f : d) f(*this); }
 };
 ```
 
-Note that when ψ is deallocated, it destroys its input and output φs, each of which destroy their ξs, which decreases `shared_ptr` reference counts to writing ψs. This mechanism drives ψ GC.
+Note that when ψ is deallocated, input ξs are also dereferenced, which decreases `shared_ptr` reference counts to writing ψs. This mechanism drives ψ GC.

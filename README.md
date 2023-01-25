@@ -34,7 +34,7 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 ## Language model
 τ programs are written as a series of compositional dataflow equations that involve associative channel-vector transformations. There are three main ideas:
 
-+ [φ](doc/phi.md): a vector of channels (really a map)
++ [Ξ](doc/Xi.md): a vector of channels (really a map)
 + [γ](doc/gamma.md): ψ-colocated resources
 + [Γ](doc/Gamma.md): τ-colocated resources
 
