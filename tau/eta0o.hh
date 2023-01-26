@@ -115,7 +115,7 @@ struct η0o
       case η0ft::s: return 1 + isize();
       case η0ft::m: return 2 + isize();
       case η0ft::l:
-      case η0ft::d: return 2 + ubytes(isize()) + (h_ ? 32 : 0) + isize();
+      case η0ft::d: return 2 + std::max(Sc<u8>(1), ubytes(isize())) + (h_ ? 32 : 0) + isize();
       } }
 
   // Serializes the value into the output buffer, which must be at least
@@ -174,7 +174,10 @@ struct η0o
       }
 
       let os = osize();
-      A(o == os, "η0o::into() size mismatch: " << o << " ≠ " << os); }
+      A(o == os,
+        "η₀o::into() size mismatch " << o << " ≠ " << os
+          << "; c=" << c_ << " f=" << f_ << " h=" << h_
+          << " ft=" << ft() << " is=" << isize()); }
 
 
   η0ft ft() const

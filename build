@@ -8,7 +8,7 @@ which=${1:-eta0}
 #-lxcb -lX11 -lGL -lX11-xcb \
 
 exec \
-  g++ $(<compile_flags.txt) -g -O0 try/$which.cc -o try/$which \
+  g++ $(<compile_flags.txt) -g -O3 try/$which.cc -o try/$which \
       -lboost_context -lzstd
 
 # TODO: re-enable emsdk builds as below

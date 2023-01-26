@@ -208,7 +208,7 @@ O &operator<<(O &s, η0i const &i)
            << (i.c() ? "C" : "c")
            << (i.h() ? "H" : "h")
            << " t=" << i.type()
-           << " s=" << i.size() << "]";
+           << " S=" << i.osize() << "]";
 }
 #endif
 

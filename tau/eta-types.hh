@@ -63,6 +63,7 @@ struct η0ts
 typedef union { void *p; u64 u; i64 i; f64 f; bool b; } η0p;
 
 sletc η0tp = η0ts{η0t::η0, η0t::int_be, η0t::uint_be, η0t::float_be, η0t::boolean};
+sletc η0tb = η0ts{η0t::bytes, η0t::utf8};
 sletc η0tc = η0ts{η0t::tuple, η0t::set, η0t::map};
 
 
