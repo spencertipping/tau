@@ -156,7 +156,7 @@ void tuple_bench()
   for (uN i = 0; i < 10; ++i)
   {
     η0o o;
-    o.t(η0t::tuple);
+    o.t(η0t::tuple).reserve(1048576 * 64);  // .reserve() saves about 5% off the runtime
     for (uN j = 0; j < 1048576; ++j) o << j;
     o.into(d);
   }

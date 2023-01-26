@@ -81,9 +81,11 @@ struct η0o
   η0t  t() const { return t_; }
   bool p() const { return η0tp[t_]; }  // is our type a primitive
 
+
   // NOTE: append() and iptr() both delete any compressed data
-  η0o &append(u8c *d, uN l) { A(!p(), "cannot append to " << t_); sd().append(d, l);            touch(); return *this; }
-  u8  *iptr  (uN l)
+  η0o &reserve(uN l)         { A(!p(), "cannot reserve "   << t_); sd().reserve(sd().size() + l);         return *this; }
+  η0o &append (u8c *d, uN l) { A(!p(), "cannot append to " << t_); sd().append(d, l);            touch(); return *this; }
+  u8  *iptr   (uN l)
     { A(!p(), "cannot get iptr for " << t_);
       touch();
       auto &s = sd();
@@ -230,6 +232,7 @@ protected:
 
 
 inline η0o &operator<<(η0o &o, η0o const &x) { x.into(o.iptr(x.osize())); return o; }
+inline η0o &operator<<(η0o &o, η0i const &x) { return o.append(x.odata(), x.osize()); }
 
 inline η0o &operator<<(η0o &o, Bc &x)
 { return η0tc[o.t()]
@@ -243,7 +246,6 @@ inline η0o &operator<<(η0o &o, Stc &x)
 
 template<η0atp T>
 η0o &operator<<(η0o &o, T x) { return o << η0o(x); }
-
 
 
 #if τdebug_iostream

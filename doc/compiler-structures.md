@@ -11,6 +11,13 @@ struct Γ
 
   Sp<ξ> r(Sp<ψ>, sym);  // grab the read-end of a named ξ
   Sp<ξ> w(Sp<ψ>, sym);  // grab the write-end of a named ξ
+
+  // NOTE: w[] doesn't get populated until (), which effectively finalizes
+  // the Γ
+  Sp<Ξ> operator()(Ξ const&) const;
+  Γ     operator| (Γ const&) const;
+  Γ    &operator<<(Sp<γ>);
+  Γ    &operator>>(Sp<γ>);
 };
 
 struct γ
@@ -20,7 +27,7 @@ struct γ
 
   // Apply as a Ξ transform, with the ability to consult Γ for global ξs
   // ψ is created and referred to indirectly via the resulting Ξ
-  Sp<Ξ> operator()(Ξ const&, Γ&);
+  virtual Sp<Ξ> operator()(Ξ const&, Γ&) const = 0;
 };
 ```
 
@@ -54,7 +61,7 @@ struct Ξ            // Ξ vector
   M<Ξi, Sp<ξ>> operator()(Sp<ψ>, Mc<Ξi, ξm>&, Mc<sym, Sp<ξ>>&) const;
 
   // Construct output Ξ from this, input, and newly-assigned outputs
-  Sp<Ξ> operator()(Sp<ψ>, Mc<Ξi, ξm>&, Mc<ΞI, Sp<ξ>>&) const;
+  Sp<Ξ>        operator()(Sp<ψ>, Mc<Ξi, ξm>&, Mc<ΞI,  Sp<ξ>>&) const;
 };
 ```
 
