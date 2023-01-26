@@ -65,6 +65,8 @@ struct γsize : public virtual γ
 };
 ```
 
+A lot of this hinges on the Ξ interface, which I think can be fairly open-ended. Ξ is fully erased by pipeline runtime, so no need to optimize nor standardize it much.
+
 
 ## Ξ runtime
 ```cpp
@@ -115,15 +117,22 @@ struct Ξ            // Ξ vector
 
 ## ψ runtime
 ```cpp
+struct ξi { Sp<ξ> c; /* ... */ };
+struct ξo { Wp<ξ> c; /* ... */ };
+
 // Virtual base class for stream operators
 struct ψ
 {
-  τ           &t;  // τ runtime for λ management
-  S<λi>        l;  // managed λs
-  M<Ξi, Sp<ξ>> i;  // active input ξs (strong references)
-  M<Ξi, Wp<ξ>> o;  // active output ξs (weak references)
+  τ     &t;  // τ runtime for λ management
+  S<λi>  l;  // managed λs
+  ξi     i;
+  ξo     o;
   virtual ~ψ() { for (let x : l) t.λx(x); }
 };
 ```
 
 Note that when ψ is deallocated, input ξs are also dereferenced, which decreases `shared_ptr` reference counts to writing ψs. This mechanism drives ψ GC.
+
+**NOTE:** in practice, most ψ won't have `M<>` to track their ξs. Instead, they can just define instance variables -- the main thing is that we need reader-ξ and writer-ξ types to avoid any `Sp` vs `Wp` confusion.
+
+**NOTE:** "closing" a ξ is just clearing its pointer; this has all of the right semantics, including the weak pointer being cleared automatically. So ξi and ξo can mediate the open/closed semantics for us, leaving just the queue as the remaining piece.
