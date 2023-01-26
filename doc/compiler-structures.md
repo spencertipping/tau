@@ -7,8 +7,8 @@ A **non-authoritative** summary of data structures, but enough to provide a sens
 struct Γ
 {
   τ             &t;
-  M<sym, Sp<ξ>> *w;     // named weak ξs
-  V<Sp<γ>>       g;     // pipeline of γs
+  V<Sp<γ>>       g;     // pipeline of γs, applied sequentially
+  M<sym, Sp<ξ>> *w;     // named weak ξs (transient during operator())
 
   // Called from inside (), which populates *w and then erases it at the end
   Sp<ξ> r(Sp<ψ>, sym);  // grab the read-end of a named ξ
@@ -24,6 +24,8 @@ struct Γ
 
 struct γ
 {
+  virtual ~γ() {}
+
   // Apply as a Ξ transform, with the ability to consult Γ for global ξs
   // ψ is created and referred to indirectly via the resulting Ξ
   virtual Sp<Ξ> operator()(Ξ const&, Γ&) const = 0;
