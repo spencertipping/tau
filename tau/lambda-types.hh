@@ -27,10 +27,8 @@ enum class λs : u8  // lambda runnability state
   O,   // blocked on write to ζ
   W,   // waiting for a λ
   Θ,   // waiting for a time
-  ΦI,  // blocked on read from fd
-  ΦO,  // blocked on write to fd
-  φc,  // waiting for φc on a φ
-  φx,  // waiting for φx on a φ
+  τI,  // blocked on read from fd
+  τO,  // blocked on write to fd
 };
 
 
@@ -46,10 +44,8 @@ O &operator<<(O &s, λs t)
   case λs::O:  return s << "O";
   case λs::W:  return s << "W";
   case λs::Θ:  return s << "Θ";
-  case λs::ΦI: return s << "ΦI";
-  case λs::ΦO: return s << "ΦO";
-  case λs::φc: return s << "φc";
-  case λs::φx: return s << "φx";
+  case λs::τI: return s << "τI";
+  case λs::τO: return s << "τO";
     TA(s, "illegal λs " << Sc<uN>(t));
   }
 }

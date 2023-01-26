@@ -39,7 +39,7 @@ inline void τnb(uN fd)
 
 
 template<class O>
-struct τf  // FD container for Φ, behavior determined by O (an o9)
+struct τf  // FD container for τ, behavior determined by O (an o9)
 {
   τ  &t;
   λg  w;
@@ -81,12 +81,12 @@ O &operator<<(O&, τf<fO> const&);
 
 struct τ : public τb
 {
-  sletc Φen = 256;  // number of events per epoll_wait call
+  sletc τen = 256;  // number of events per epoll_wait call
 
   iNc             efd;      // epoll control FD
   M<uN, S<void*>> fs;       // who's listening for each FD
   S<void*>        nfs;      // non-monitored files
-  epoll_event     ev[Φen];  // inbound epoll event buffer
+  epoll_event     ev[τen];  // inbound epoll event buffer
 
 
   τ(τ&)  = delete;
@@ -126,7 +126,7 @@ struct τ : public τb
     { let t = now();
       if (t < hn() && (!fs.empty() || hn() < forever()))
       { let dt = (hn() - t) / 1ms;
-        let n  = epoll_wait(efd, ev, Φen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
+        let n  = epoll_wait(efd, ev, τen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
         A(n != -1, "epoll_wait error " << errno);
         for (iN i = 0; i < n; ++i)
           for (let f : fs.at(ev[i].data.fd))
@@ -138,7 +138,7 @@ struct τ : public τb
   operator bool() const
     { return !fs.empty() || !nfs.empty() || hn() != forever(); }
 
-  τ &go_async() { A(0, "Φ is not async"); return *this; }
+  τ &go_async() { A(0, "τ is not async"); return *this; }
   τ &go(F<bool(τ&)> const &f = [](τ &f) { return Sc<bool>(f); })
     { l.go();
       while (f(*this)) (*this)(), l.go();
@@ -161,7 +161,7 @@ bool τread(T &x, τf<O> &r)
   while (1)
   {
     if      (x << r.o)         return true;
-    else if (!r.ep && !r.ra()) r.w.y(λs::ΦI);
+    else if (!r.ep && !r.ra()) r.w.y(λs::τI);
     else                       return false;
   }
 }
@@ -170,13 +170,13 @@ bool τread(T &x, τf<O> &r)
 #ifdef τdebug_iostream
 O &operator<<(O &s, τΘ const &h)
 {
-  return s << "ΦΘ:" << h.h << ":" << h.l;
+  return s << "τΘ:" << h.h << ":" << h.l;
 }
 
 template<class fO>
 O &operator<<(O &s, τf<fO> const &f)
 {
-  return s << "Φf[" << f.o.fd << ":" << f.ep
+  return s << "τf[" << f.o.fd << ":" << f.ep
            << " r=" << f.rn << " " << f.re
            << " w=" << f.wn << " " << f.we << "]";
 }
@@ -186,7 +186,7 @@ O &operator<<(O &s, τ &t)
   V<τΘ> hs;
   while (!t.h.empty()) hs.push_back(t.h.top()), t.h.pop();
   for (let &h : hs) t.h.push(h);
-  s << "Φ efd=" << t.efd << " Θ=";
+  s << "τ efd=" << t.efd << " Θ=";
   for (let &h : hs) s << h << " ";
   s << "; fds=";
   for (let &[fd, l] : t.fs) s << fd << ":" << l.size() << " ";
