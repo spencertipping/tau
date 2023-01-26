@@ -94,8 +94,9 @@ struct Ξ            // Ξ vector
 
   Ξ copy() const;   // shallow copy
 
-  Sp<ξ> operator()(Ξi, ξm, Mc<sym, Sp<ξ>>&) const;
-  Sp<Ξ> operator()(Ξi, ΞI, Sp<ξ>)           const;
+  Sp<ξ> i()(Ξi, ξm)        const;  // input-side of a ξ
+  Sp<ξ> o()(ΞI, ξm)        const;  // output-side of a ξ
+  Sp<Ξ> x()(Ξi, ΞI, Sp<ξ>) const;  // replace a ξ
 
   // Extract ξs from input Ξ, using a mixture of Ξ-provided ξs and
   // ones provided via global map; ψ is set as the ξ endpoint
@@ -125,9 +126,25 @@ struct ψ
 {
   τ     &t;  // τ runtime for λ management
   S<λi>  l;  // managed λs
-  ξi     i;
-  ξo     o;
-  virtual ~ψ() { for (let x : l) t.λx(x); }
+  virtual ~ψ() { for (let x : l) λx(x); }
+
+  λi   λc(λf&&);
+  void λx(λi);
+};
+```
+
+Example single-stream operator:
+
+```cpp
+struct ψf : public virtual ψ
+{
+  ξi i;
+  ξo o;
+  F<void(ξi&, ξo&)> f;
+
+  ψf(Sp<ξ> i_, Sp<ξ> o_, F<void(ξi&, ξo&) &&f_)
+    : i(i_), o(o_), f(std::move(f_))
+    { λc([&]() { f(i, o); }); }
 };
 ```
 
