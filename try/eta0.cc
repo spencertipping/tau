@@ -146,6 +146,41 @@ void try_large_tuples()
   cout << tests << " large tuples all good" << endl;
 }
 
+
+void tuple_bench()
+{
+  B buf; buf.reserve(1048576 * 64);
+  let d = buf.data();
+
+  let t0 = now();
+  for (uN i = 0; i < 10; ++i)
+  {
+    η0o o;
+    o.t(η0t::tuple);
+    for (uN j = 0; j < 1048576; ++j) o << j;
+    o.into(d);
+  }
+  let t1 = now();
+
+  cout << "writing 1048576 ints into a tuple: "
+       << (t1 - t0) / 10 << endl;
+
+  let t2 = now();
+  uN t = 0;
+  for (uN i = 0; i < 10; ++i)
+  {
+    η1ti r{d};
+    for (let &x : r) t += Sc<u64>(η1pi{x});
+  }
+  let t3 = now();
+
+  cout << "reading 1048576 ints from a tuple: "
+       << (t3 - t2) / 10
+       << " (total is " << t << ")"
+       << endl;
+}
+
+
 int main()
 {
   τassert_begin;
@@ -153,6 +188,7 @@ int main()
   try_strings();
   try_small_tuples();
   try_large_tuples();
+  tuple_bench();
   return 0;
   τassert_end;
 }

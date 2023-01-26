@@ -70,7 +70,7 @@ struct η1ti : public η1i  // tuple-oriented input (also works for sets)
   {
     u8c *x;
     it  &operator++()                  { x += η0i(x).osize(); return *this; }
-    η0i  operator*()             const { return η0i{x}; }
+    η0i  operator* ()            const { return η0i{x}; }
     bool operator==(it const &y) const { return x == y.x; }
   };
 

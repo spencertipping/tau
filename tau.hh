@@ -4,13 +4,14 @@
 
 #include "tau/numerics.hh"
 #include "tau/strings.hh"
+#include "tau/shd.hh"
 
-//#include "tau/lambda.hh"
-//#include "tau/Lambda.hh"
+#include "tau/lambda.hh"
+#include "tau/Lambda.hh"
 
 #include "tau/eta.hh"
 
-//#include "tau/tau.hh"
+#include "tau/tau.hh"
 
 
 #endif
