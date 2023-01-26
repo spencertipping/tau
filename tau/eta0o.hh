@@ -89,7 +89,7 @@ struct η0o
     { A(!p(), "cannot get iptr for " << t_);
       touch();
       auto &s = sd();
-      s.reserve(s.size() + l);
+      if (s.capacity() < s.size() + l) s.reserve(s.size() + l);
       let r = s.data() + s.size();
       s.resize(s.size() + l, 0);
       return r; }
