@@ -33,11 +33,11 @@ struct η0o
   η0o(η0o &&x) { *this = std::move(x); }
 
   template<η0at T>
-  η0o(T x) : c_(0), h_(false), f_(false), fv(false), t_(η0at_<T>::t), cs(nullptr) { *this = x; }
+  η0o(T x)
+    : c_(0), h_(false), f_(false), fv(false), t_(η0t::uint_be), cs(nullptr)
+    { t(η0at_<T>::t); *this = x; }
 
-  ~η0o()
-    { // Convert to primitive to force resources to be freed
-      t(η0t::uint_be); }
+  ~η0o() { t(η0t::uint_be); }  // Convert to primitive to force resources to be freed
 
 
   // NOTE: works only if the other η₀o is in a valid state
@@ -48,6 +48,8 @@ struct η0o
       return *this; }
 
   // TODO: operator=(η0i)
+
+  η0o &operator=(int   x) { t(η0t::int_be);   d.p.i = x; return *this; }
 
   η0o &operator=(u64   x) { t(η0t::uint_be);  d.p.u = x; return *this; }
   η0o &operator=(i64   x) { t(η0t::int_be);   d.p.i = x; return *this; }
@@ -80,12 +82,15 @@ struct η0o
   bool p() const { return η0tp[t_]; }  // is our type a primitive
 
   // NOTE: append() and iptr() both delete any compressed data
-  η0o &append(u8c *d, uN l) { A(!p(), "cannot append to " << t_);       sd().append(d, l);    touch(); return *this; }
-  η0o &reserve(uN l)        { A(!p(), "cannot reserve against " << t_); sd().reserve(sd().size() + l); return *this; }
-  u8  *iptr()
+  η0o &append(u8c *d, uN l) { A(!p(), "cannot append to " << t_); sd().append(d, l);            touch(); return *this; }
+  u8  *iptr  (uN l)
     { A(!p(), "cannot get iptr for " << t_);
       touch();
-      return sd().data() + sd().size(); }
+      auto &s = sd();
+      s.reserve(s.size() + l);
+      let r = s.data() + s.size();
+      s.resize(s.size() + l, 0);
+      return r; }
 
 
   // Inner size of the fully-encoded frame data: that is, the size that
@@ -221,17 +226,21 @@ protected:
 };
 
 
-// TODO: append for bytes, append _object_ for containers
-// NOTE: probably makes more sense as a η₁ subclassing thing, but we
-// can handle it with explicit polymorphism for now
-inline η0o &operator<<(η0o &o, Bc  &s) { return o.append(s.data(), s.size()); }
-inline η0o &operator<<(η0o &o, Stc &x) { return o.append(Rc<u8c*>(x.data()), x.size()); }
-inline η0o &operator<<(η0o &o, η0o &x)
-{
-  let s = x.osize();
-  x.into(o.reserve(s).iptr());
-  return o;
-}
+inline η0o &operator<<(η0o &o, η0o const &x) { x.into(o.iptr(x.osize())); return o; }
+
+inline η0o &operator<<(η0o &o, Bc &x)
+{ return η0tc[o.t()]
+       ? o << η0o(x)
+       : o.append(x.data(), x.size()); }
+
+inline η0o &operator<<(η0o &o, Stc &x)
+{ return η0tc[o.t()]
+       ? o << η0o(x)
+       : o.append(Rc<u8c*>(x.data()), x.size()); }
+
+template<η0atp T>
+η0o &operator<<(η0o &o, T x) { return o << η0o(x); }
+
 
 
 #if τdebug_iostream

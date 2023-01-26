@@ -127,7 +127,6 @@ template<class T>          using Op = std::optional<T>;
 template<class T, class U> using P  = std::pair<T, U>;
 template<class... T>       using Q  = std::queue<T...>;
 template<class... K>       using S  = std::unordered_set<K...>;
-template<class... K>       using Sc = std::unordered_set<K...> const;
 template<class... K>       using So = std::set<K...>;
 template<class... T>       using Sk = std::stack<T...>;
 template<class... T>       using Sp = std::shared_ptr<T...>;

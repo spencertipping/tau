@@ -19,8 +19,8 @@ struct γ
   M<ΞI, ξm> o;  // output vector profile (columns)
 
   // Apply as a Ξ transform, with the ability to consult Γ for global ξs
-  // If a ψ is created, it will also be returned as a shared ptr
-  P<Sp<Ξ>, Sp<ψ>> operator()(Ξ const&, Γ&);
+  // ψ is created and referred to indirectly via the resulting Ξ
+  Sp<Ξ> operator()(Ξ const&, Γ&);
 };
 ```
 

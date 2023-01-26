@@ -2,12 +2,13 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-which=${1:-zeta}
+which=${1:-eta0}
+
+#-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lharfbuzz -lcairo \
+#-lxcb -lX11 -lGL -lX11-xcb \
 
 exec \
-  g++ $(<compile_flags.txt) try/$which.cc -o try/$which \
-      -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lharfbuzz -lcairo \
-      -lxcb -lX11 -lGL -lX11-xcb \
+  g++ $(<compile_flags.txt) -g -O0 try/$which.cc -o try/$which \
       -lboost_context -lzstd
 
 # TODO: re-enable emsdk builds as below

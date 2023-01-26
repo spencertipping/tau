@@ -44,6 +44,7 @@ struct η0i
   η0ft ftype() const { return ft; }
   uN   hsize() const { return hs; }
   uN   osize() const { return hs + csize(); }
+  u8c *odata() const { return a; }
   u8c *cdata() const { return a + hs; }
   uN   csize() const
     { switch (ft)
@@ -56,6 +57,7 @@ struct η0i
         for (int i = 0; i < (*a & 7) + 1; ++i) s = s << 8 | a[2 + i];
         return s; }
       } }
+
 
   u8c *data(uN limit = -1) const
     { if (!c()) return cdata();

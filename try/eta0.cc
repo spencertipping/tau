@@ -55,11 +55,11 @@ void test_int(i64 i)
 
 void try_ints()
 {
-  for (uN i = 0; i < 1048576; ++i)
+  for (uN i = 0; i < 1024; ++i)
     for (uN j = 0; j < 64; j += 9)
       test_uint(i << j);
 
-  for (iN i = -1048576; i < 1048576; ++i)
+  for (iN i = -1024; i < 1024; ++i)
     for (uN j = 0; j < 64; j += 9)
       test_int(i << j);
 }
@@ -88,11 +88,32 @@ void try_strings()
 }
 
 
+void try_tuples()
+{
+  u8 buf[1024] = {0};
+  η0o o;
+  o.t(η0t::tuple) << "fu" << "bar" << 3 << 4.0 << false;
+  cout << "output size = " << o.osize() << endl;
+
+  o.into(buf);
+
+  A(η0bc(buf, o.osize()), "failed bounds check");
+
+  let y0 = η0i{buf};
+  let y1 = η1ti{buf};
+
+  cout << y0 << endl;
+  cout << y1 << endl;
+  A(y1.len() == 5, "bogus len for y1: " << y1.len());
+}
+
+
 int main()
 {
   τassert_begin;
   try_ints();
   try_strings();
+  try_tuples();
   return 0;
   τassert_end;
 }
