@@ -18,7 +18,7 @@ Here are some approximate definitions; in practice each is a `struct`:
 ```cpp
 typedef M<St, Sp<ξ>> Ξ;
 typedef F<Ξ(Ξ&)>     γ;
-typedef V<γ>         Γ;
+typedef D<γ>         Γ;  // deque so we can prepend
 
 Ξ Γ::operator()(Ξ&);  // apply the whole Γ
 ```
