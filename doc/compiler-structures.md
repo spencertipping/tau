@@ -42,10 +42,25 @@ struct γi : public virtual γ
 
   Sp<Ξ> γ::operator()(Ξ const &c, Γ &g) const
   {
-    auto m = c(i);   // materialize input ξs
-    M<ΞI, Sp<ξ>> n;  // output vector
+    auto m = c(i, *g.w);  // materialize input ξs
+    M<ΞI, Sp<ξ>> n;       // output vector
     for (let &[k, v] : o) n[v] = m[k];
     return c(i, n);
+  }
+};
+```
+
+Similarly, we can implement a single-ξ operator like this:
+
+```cpp
+struct γsize : public virtual γ
+{
+  Ξi i;
+  ΞI o;
+
+  Sp<Ξ> γ::operator()(Ξ const &c, Γ &g) const
+  {
+    return c(i, o, (new ψsize(c(i, {false, false}, *g.w)))->o);
   }
 };
 ```
@@ -74,6 +89,11 @@ struct Ξ            // Ξ vector
 {
   M<sym, Sp<Ξ>> f;  // sub-Ξs
   M<sym, Sp<ξ>> c;  // materialized ξ
+
+  Ξ copy() const;   // shallow copy
+
+  Sp<ξ> operator()(Ξi, ξm, Mc<sym, Sp<ξ>>&) const;
+  Sp<Ξ> operator()(Ξi, ΞI, Sp<ξ>)           const;
 
   // Extract ξs from input Ξ, using a mixture of Ξ-provided ξs and
   // ones provided via global map; ψ is set as the ξ endpoint
