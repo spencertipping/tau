@@ -50,7 +50,7 @@ protected:
 template<class T>
 struct λg
 {
-  λg(Λ &l) : c(new λgc<T>(l)) {}
+  λg(Λ &l) : c(λgc<T>(l)) {}
 
   // Yield until awoken, return the message sent when waking; note that
   // the shared ptr holds λgc in memory until after the return, guaranteeing

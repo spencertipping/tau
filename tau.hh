@@ -9,9 +9,13 @@
 #include "tau/lambda.hh"
 #include "tau/Lambda.hh"
 
-#include "tau/eta.hh"
+#include "tau/zeta.hh"
 
-#include "tau/tau.hh"
+#include "tau/eta.hh"
+#include "tau/xi.hh"
+#include "tau/xiio.hh"
+
+// #include "tau/tau.hh"
 
 
 #endif

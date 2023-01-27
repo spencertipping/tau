@@ -17,18 +17,38 @@ struct ξo;   // a ξ writer, weakly-referenced
 
 struct ξi
 {
-  ξi(Sp<ξ> x_) : x(x_) {}
+  ξi(Sp<ξ> x_) : xs(x_) {}
 
-  ξ::it begin() { return x->begin(); }
-  ξ::it end()   { return x->end(); }
+  void     close()       { xs.reset(); xw.reset(); }
+  η0i operator *() const { let x = lock(); A(x,  "*ξi on closed");            return **x; }
+  ξi &operator++()       { let x = lock(); A(x, "++ξi on closed"); x->next(); return *this; }
+  bool       eof() const
+    { if (let x = lock()) return x->eof();
+      else                return false; }
 
-  void     close()       { x.reset(); }
-  bool       eof() const {            return x->eof(); }
-  η0i operator *() const {            return **x; }
-  ξi &operator++()       { x->next(); return *this; }
+  ξi   &weaken()     { xw = xs; xs.reset(); return *this; }
+  Sp<ξ> lock() const { return xs ? xs : xw.lock(); }
+
+
+  struct it
+  {
+    Sp<ξ> x;  // must hold a strong reference
+    ξ::it i;
+
+    bool operator==(it const &y) const { return i == y.i; }
+    it  &operator++()                  { ++i; return *this; }
+    η0i  operator* () const            { return *i; }
+  };
+
+  it end()   const { return {nullptr, {nullptr}}; }
+  it begin() const
+    { if (let x = lock()) return {x, x->begin()};
+      else                return end(); }
+
 
 protected:
-  Sp<ξ> x;
+  Sp<ξ> xs;
+  Wp<ξ> xw;
 };
 
 
