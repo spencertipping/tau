@@ -59,6 +59,10 @@ struct λg
   T y(λs s) { return c->y(s, c); }
 
   // Wake all blocked λs, returning x from their λg::y() calls.
+  //
+  // NOTE: you can awaken multiple times before the λs are scheduled. If you
+  // do, the last w() argument is used as the wake message and previous values
+  // are discarded.
   void w(T x)  { c->w(x); }
 
 protected:
