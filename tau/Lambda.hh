@@ -22,13 +22,7 @@ struct Λt
   λ  l;
   λs s;
 
-  Λt() {}
   Λt(λf &&f) : l(λ(std::move(f))), s(λs::S) {}
-
-  Λt &operator=(Λt &&x)
-    { l = std::move(x.l);
-      s = x.s;
-      return *this; }
 
   bool done()     const { return l.done(); }
   bool runnable() const { return s == λs::R; }
@@ -38,52 +32,58 @@ struct Λt
 // NOTE: managed λs should yield out with Λ.y, not λy() defined by lambda.hh
 struct Λ
 {
-protected:
-  M<λi, Λt> ls;     // all λs
-  S<λi>     rs;     // run set
-  λi        ni{0};  // next λi (always nonzero for managed λ)
-  λi        ri{0};  // currently running λi (0 = main thread)
-  ΣΘΔ       qΘ;     // quantum time measurement
-
-
-public:
   Λ(Λ &)  = delete;
   Λ(Λ &&) = delete;
   Λ() {}
 
+  // This deserves some explanation. ~Λ causes ~λ, which causes ~λf, which
+  // causes ~ξ, which causes λg::w(), which attempts to wake more λs.
+  //
+  // Well, by that point our data structures are in some undefined state
+  // of deallocation; it's bad. So we set fin here to indicate that the
+  // world is ending, nothing matters from here.
+  ~Λ() { fin = true; }
+
   bool e (λi i) const { return ls.contains(i); }
   λi   i ()     const { return ri; }
 
-  λi   c(λf &&f)
-    { let i = ιi(ni, ls);
-      ls[i] = Λt(std::move(f));
+  λi c(λf &&f)
+    { if (fin) return 0;
+      let i = ιi(ni, ls);
+      ls[i].reset(new Λt(std::move(f)));
       r(i, λs::R);
       return  i; }
 
-  Λ  &x(λi i)
-    { A(ri != i, "self λx");
+  Λ &x(λi i)
+    { if (fin) return *this;
+      A(ri != i, "self λx");
       A(e(i), "λx !e");
       ls.erase(i);
       return *this; }
 
-  Λ  &y(λs s)  // yield currently-running λ with specified yield state
-    { A(i(), "Λy from main thread");
+  Λ &y(λs s)  // yield currently-running λ with specified yield state
+    { if (fin) return *this;
+      A(i(), "Λy from main thread");
       r(ri, s);
       λy();
       return *this; }
 
-  Λ  &r(λi i, λs s = λs::R)  // set λi to runnable, or other state
-    { if (!e(i)) return *this;
-      auto &l = ls.at(i);
+  Λ &r(λi i, λs s = λs::R)  // set λi to runnable, or other state
+    { if (fin || !e(i)) return *this;
+      auto &l = *ls.at(i);
       l.s = s;
       if (l.runnable()) rs.insert(i);
       return *this; }
 
-  Λt const &operator[](λi i) const { return ls.at(i); }
+  Λt const &operator[](λi i) const
+    { A(!fin, "Λ[] fin");
+      return *ls.at(i); }
+
 
   Λ &operator<<(λi i)  // run λi for one quantum
-    { A(!ri, "Λ<< from non-main thread");
-      auto &l = ls.at(ri = i);
+    { if (fin) return *this;
+      A(!ri, "Λ<< from non-main thread");
+      auto &l = *ls.at(ri = i);
       qΘ.start();
       l.l();
       ri = 0;
@@ -92,7 +92,8 @@ public:
       return *this; }
 
   λi operator()()  // find next λi to run
-    { for (let i : rs)
+    { if (fin) return 0;
+      for (let i : rs)
         if (e(i) && (*this)[i].runnable()) { rs.erase(i); return i; }
       return 0; }
 
@@ -101,12 +102,21 @@ public:
       return ry(); }
 
   Λ &ry()  // resume all explicitly-yielded λs
-    { for (auto &[i, s] : ls) if (s.s == λs::Y) r(i);
+    { for (auto &[i, s] : ls) if (s->s == λs::Y) r(i);
       return *this; }
 
-  #if τdebug_iostream
+
+protected:
+  M<λi, Sp<Λt>> ls;           // all λs
+  S<λi>         rs;           // run set
+  ΣΘΔ           qΘ;           // quantum time measurement
+  λi            ni  = 0;      // next λi (always nonzero for managed λ)
+  λi            ri  = 0;      // currently running λi (0 = main thread)
+  bool          fin = false;  // we're done; ignore all requests
+
+#if τdebug_iostream
   friend O &operator<<(O &s, Λ &l);
-  #endif
+#endif
 };
 
 

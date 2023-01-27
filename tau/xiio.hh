@@ -56,9 +56,9 @@ struct ξo
 {
   ξo(Sp<ξ> x_) : x(x_) {}
 
-  void       close()         { if (let y = x.lock()) y->close(); }
-  bool operator<< (η0o const &z) { let y = x.lock(); return y && *y << z; }
-  bool operator<<=(η0o const &z) { let y = x.lock(); return y && (*y <<= z); }
+  void       close()             const { if (let y = x.lock()) y->close(); }
+  bool operator<< (η0o const &z) const {     let y = x.lock(); return y && *y << z; }
+  bool operator<<=(η0o const &z) const {     let y = x.lock(); return y && (*y <<= z); }
 
 protected:
   Wp<ξ> x;
@@ -67,7 +67,9 @@ protected:
 
 struct ξio
 {
-  ξio(Sp<ξ> x_) : x(x_), i_(false), o_(false) {}
+  ξio(Λ &l, uN c) : x(new ξ(l, c)), i_(false), o_(false) {}
+
+  uN capacity() const { return x->capacity(); }
 
   ξi i() { A(!i_, "ξi already claimed"); i_ = true; return ξi{x}; }
   ξo o() { A(!o_, "ξi already claimed"); o_ = true; return ξo{x}; }

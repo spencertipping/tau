@@ -22,16 +22,19 @@ namespace τ
 // will be called when the writer is done.
 struct ξ
 {
-  ξ(Λ &l, uN c) : z(c), b(nullptr), t(0), wc(false), rg{l}, wg{l} {}
+  ξ(Λ &l, uN c) : z(c), b(nullptr), sb(0), t(0), wc(false), rg(l), wg(l) {}
 
   // By this point our instance state won't be accessible to any λs, so
   // all messaging must go through the wake-gates; false means the ξ is
   // closed, so assume it no longer exists.
-  ~ξ() { rg.w(false); wg.w(false); }
+  ~ξ()
+    { rg.w(false); wg.w(false);
+      if (b) delete[] b; }
 
-  uN ra() const { return b ? sb : z.ra(); }
-  uN wa() const { return z.wa(); }
-  uN wt() const { return t; }  // total bytes written
+  uN capacity() const { return z.capacity(); }
+  uN ra()       const { return b ? sb : z.ra(); }
+  uN wa()       const { return z.wa(); }
+  uN wt()       const { return t; }  // total bytes written
 
   bool eof()
     { while (!ra() && !wc) if (!rg.y(λs::ξR)) return true;
@@ -40,7 +43,7 @@ struct ξ
 
   // Writer interface: close() to finalize the write-side, << to write
   // a value
-  void close() { wc = true; rg.w(false); }
+  void close() { wc = true; rg.w(true); }
 
   bool operator<<(η0o const &x)   // blocking write (false on epipe)
     { let s = x.osize();
@@ -73,7 +76,7 @@ struct ξ
     bool        eof()            const { return !y || y->eof(); }
     bool operator==(it const &x) const { return eof() == x.eof(); }
     it  &operator++()       { A(y, "++ξ::end"); y->next(); return *this; }
-    η0i  operator* () const { A(y, "*ξ::end");             return **y; }
+    η0i  operator* () const { A(y,  "*ξ::end");            return **y; }
   };
 
   it begin() { return {this}; }

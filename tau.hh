@@ -14,6 +14,7 @@
 #include "tau/eta.hh"
 #include "tau/xi.hh"
 #include "tau/xiio.hh"
+#include "tau/Xi.hh"
 
 // #include "tau/tau.hh"
 

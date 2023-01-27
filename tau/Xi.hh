@@ -14,17 +14,20 @@ struct Ξ
 {
   Ξ(Λ &l_) : l(l_) {}
 
-  ξi i(Stc &k, uN c) { return at(k, c).i(); }
-  ξo o(Stc &k, uN c) { return at(k, c).o(); }
+  ξi i(Stc &k, uN c) { return at(k, c)->i(); }
+  ξo o(Stc &k, uN c) { return at(k, c)->o(); }
 
-  ξio &at(Stc &k, uN c)
-    { if (!xs.contains(k)) xs[k] = ξio{ms(ξ(l, c))};
+  Sp<ξio> &at(Stc &k, uN c)
+    { if (!xs.contains(k)) xs[k].reset(new ξio(l, c));
+      else
+      { let c0 = xs.at(k)->capacity();
+        A(c <= c0, "ξ capacity mismatch: " << c << " > " << c0); }
       return xs.at(k); }
 
 
 protected:
-  Λ          &l;
-  M<St, ξio>  xs;
+  Λ              &l;
+  M<St, Sp<ξio>>  xs;
 };
 
 

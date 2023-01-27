@@ -1,4 +1,6 @@
 *.~undo-tree~
+
+# TODO: delete these
 try0/io
 try0/zeta
 try0/gamma
@@ -9,4 +11,6 @@ try0/*.o
 try0/*.js
 try0/*.wasm
 try0/http
+
 try/eta0
+try/xi

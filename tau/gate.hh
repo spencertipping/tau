@@ -26,7 +26,7 @@ struct λg;
 template<class T>
 struct λgc
 {
-  λgc(Λ &l_) : l(l_) {}
+  λgc(Λ &l_) : l(l_), m{} {}
 
   // NOTE: by-value Sp<> acquisition here is necessary to ensure λgc lives
   // through this whole function call
@@ -50,7 +50,7 @@ protected:
 template<class T>
 struct λg
 {
-  λg(Λ &l) : c(λgc<T>(l)) {}
+  λg(Λ &l) : c(new λgc<T>(l)) {}
 
   // Yield until awoken, return the message sent when waking; note that
   // the shared ptr holds λgc in memory until after the return, guaranteeing

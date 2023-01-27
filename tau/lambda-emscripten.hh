@@ -27,7 +27,7 @@ bool  λsx;    // if true, free stacks
 
 void λinvoke(void *λ_)
 {
-  auto f(*Rc<λ**>(λ_));
+  auto f(Rc<λ*>(λ_));
   f->f();
   f->fin();
   λsx = true;
@@ -35,7 +35,6 @@ void λinvoke(void *λ_)
 }
 
 
-λ::λ() : thisptr(nullptr) {}
 λ::λ(λf &&f_)
   : f      (std::move(f_)),
     is_done(false)
@@ -43,9 +42,7 @@ void λinvoke(void *λ_)
   λinit();
   k.async_stack = std::malloc(λss);
   k.c_stack     = std::malloc(λss);
-  thisptr       = Rc<λ**>(std::malloc(sizeof(λ**)));
-  *thisptr      = this;
-  emscripten_fiber_init(&k.k, &λinvoke, thisptr,
+  emscripten_fiber_init(&k.k, &λinvoke, this,
                         k.c_stack,     λss,
                         k.async_stack, λss);
 }
@@ -55,25 +52,6 @@ void λinvoke(void *λ_)
 {
   if (k.async_stack) std::free(k.async_stack);
   if (k.c_stack)     std::free(k.c_stack);
-  if (thisptr)       std::free(thisptr);
-}
-
-
-λ &λ::operator=(λ &&x)
-{
-  f             = std::move(x.f);
-  k.k           = std::move(x.k.k);
-  k.async_stack = x.k.async_stack;
-  k.c_stack     = x.k.c_stack;
-  is_done       = x.is_done;
-  thisptr       = x.thisptr;
-  *thisptr      = this;
-
-  x.thisptr       = nullptr;
-  x.k.async_stack = nullptr;
-  x.k.c_stack     = nullptr;
-
-  return *this;
 }
 
 

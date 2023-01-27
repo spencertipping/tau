@@ -24,22 +24,18 @@ void λm(λbc::continuation &&cc)
 }
 
 
-λ::λ() : k(nullptr), thisptr(nullptr) {}
 λ::λ(λf &&f_)
   : f      (std::move(f_)),
     k      (nullptr),
     is_done(false)
 {
   λinit();
-  thisptr  = Rc<λ**>(std::malloc(sizeof(λ**)));
-  *thisptr = this;
-
   if (λmi)
     k = new λbc::continuation(λbc::callcc(
-      [t = thisptr](λbc::continuation &&cc) {
+      [&](λbc::continuation &&cc) {
         λm(cc.resume());
-        (*t)->f();
-        (*t)->fin();
+        f();
+        fin();
         return std::move(*λmk);
       }));
 }
@@ -47,23 +43,7 @@ void λm(λbc::continuation &&cc)
 
 λ::~λ()
 {
-  if (k)       delete k;
-  if (thisptr) std::free(thisptr);
-}
-
-
-λ &λ::operator=(λ &&c)
-{
   if (k) delete k;
-  thisptr  = c.thisptr;
-  *thisptr = this;
-  k        = c.k;
-  f        = std::move(c.f);
-  is_done  = c.is_done;
-
-  c.k       = nullptr;
-  c.thisptr = nullptr;
-  return *this;
 }
 
 
@@ -89,10 +69,10 @@ void λ::fin()
     // this out yet, but cc.resume() at the beginning makes it work reliably.
     k = new λbc::continuation;
     auto cc = λbc::callcc(
-      [t = thisptr](λbc::continuation &&cc) {
+      [&](λbc::continuation &&cc) {
         λm(cc.resume());
-        (*t)->f();
-        (*t)->fin();
+        f();
+        fin();
         return std::move(*λmk);
       });
     cc = cc.resume();
