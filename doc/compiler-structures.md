@@ -37,3 +37,7 @@ This provides enough machinery to do the critical steps:
 
 ## Strong and weak ξ
 ξi can be weakened during the handoff to γ. **Ξ always holds strong references** because otherwise the ξ would be instantly deallocated during Γ construction.
+
+
+## ξ access direction
+Ξ should probably store `M<St, Sp<ξio>>`, where `ξio` keeps track of who has bound the reader and the writer; that way γs must agree about who's reading and who's writing. This is pretty minor but should save a lot of debugging time down the line.
