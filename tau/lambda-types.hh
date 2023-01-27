@@ -14,7 +14,7 @@ namespace τ
 {
 
 
-typedef uN        λi;  // λ identifier
+typedef u64       λi;  // λ identifier
 typedef F<void()> λf;  // λ driver function
 
 
@@ -22,13 +22,12 @@ enum class λs : u8  // lambda runnability state
 {
   R,   // runnable
   S,   // stopped
-  Y,   // explicitly yielded
-  I,   // blocked on read from ζ
-  O,   // blocked on write to ζ
-  W,   // waiting for a λ
+  Y,   // explicitly yielded (for one quantum)
   Θ,   // waiting for a time
-  τI,  // blocked on read from fd
-  τO,  // blocked on write to fd
+  ξR,  // blocked on read from ξ
+  ξW,  // blocked on write to ξ
+  τR,  // blocked on read from fd
+  τW,  // blocked on write to fd
 };
 
 
@@ -40,12 +39,11 @@ O &operator<<(O &s, λs t)
   case λs::R:  return s << "R";
   case λs::S:  return s << "S";
   case λs::Y:  return s << "Y";
-  case λs::I:  return s << "I";
-  case λs::O:  return s << "O";
-  case λs::W:  return s << "W";
   case λs::Θ:  return s << "Θ";
-  case λs::τI: return s << "τI";
-  case λs::τO: return s << "τO";
+  case λs::ξR: return s << "ξR";
+  case λs::ξW: return s << "ξW";
+  case λs::τR: return s << "τR";
+  case λs::τW: return s << "τW";
     TA(s, "illegal λs " << Sc<uN>(t));
   }
 }

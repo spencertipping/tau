@@ -2,6 +2,7 @@
 #define τgate_h
 
 
+#include "ctypes.hh"
 #include "types.hh"
 #include "Lambda.hh"
 
@@ -11,13 +12,57 @@ namespace τ
 {
 
 
-struct λg
+// Λ wake-gate: manage one or more λs that are blocked on some condition,
+// wake all of them when w() is called (and send a message).
+//
+// This class holds a reference to a gate container, which outlasts λg so
+// that all awoken λs will have access to messages being sent to them.
+template<class T>
+struct λg;
+
+
+// Gate container: this contains all of the logic required to send messages
+// and wake λs that are blocked.
+template<class T>
+struct λgc
 {
+  λgc(Λ &l_) : l(l_) {}
+
+  // NOTE: by-value Sp<> acquisition here is necessary to ensure λgc lives
+  // through this whole function call
+  T y(λs s, Sp<λgc<T>> p)
+    { ps.push_back(l.i());
+      l.y(s);
+      return m; }
+
+  void w(T x)
+    { m = x;
+      for (let p : ps) l.r(p);
+      ps.clear(); }
+
+protected:
   Λ     &l;
   V<λi>  ps;
+  T      m;
+};
 
-  λg &y(λs s) { ps.push_back(l.i()); l.y(s); return *this; }
-  λg &w()     { for (let p : ps) l.r(p); if (!ps.empty()) ps.erase(ps.begin(), ps.end()); return *this; }
+
+template<class T>
+struct λg
+{
+  λg(Λ &l) : c(new λgc<T>(l)) {}
+
+  // Yield until awoken, return the message sent when waking; note that
+  // the shared ptr holds λgc in memory until after the return, guaranteeing
+  // that it can safely refer to its message long enough to copy it back to
+  // us.
+  T y(λs s) { return c->y(s, c); }
+
+  // Wake all blocked λs, returning x from their λg::y() calls.
+  void w(T x)  { c->w(x); }
+
+protected:
+  Sp<λgc<T>> c;
 };
 
 

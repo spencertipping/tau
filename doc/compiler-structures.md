@@ -19,11 +19,12 @@ The compiler is made of associative γ objects that construct ψs and return Ξs
 Here are some approximate definitions; in practice each is a `struct`:
 
 ```cpp
-typedef M<St, Sp<ξ>> Ξ;
-typedef F<Ξ(Ξ&)>     γ;
-typedef D<γ>         Γ;  // deque so we can prepend
+struct ξio;            // Sp<ξ> plus "read claimed" and "write claimed"
+typedef M<St, ξio> Ξ;
+typedef F<Ξ(Ξ&)>   γ;
+typedef D<γ>       Γ;  // deque so we can prepend
 
-Ξ Γ::operator()(Ξ&);  // apply the whole Γ
+Ξ Γ::operator()(Ξ&);   // apply the whole Γ
 ```
 
 This provides enough machinery to do the critical steps:
@@ -37,7 +38,3 @@ This provides enough machinery to do the critical steps:
 
 ## Strong and weak ξ
 ξi can be weakened during the handoff to γ. **Ξ always holds strong references** because otherwise the ξ would be instantly deallocated during Γ construction.
-
-
-## ξ access direction
-Ξ should probably store `M<St, Sp<ξio>>`, where `ξio` keeps track of who has bound the reader and the writer; that way γs must agree about who's reading and who's writing. This is pretty minor but should save a lot of debugging time down the line.
