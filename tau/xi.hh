@@ -14,15 +14,12 @@ namespace τ
 {
 
 
-struct ξ;    // η pipe
-struct ξi;   // ξ input (reader)
-struct ξo;   // ξ output (writer)
-struct ξio;  // stateful ξ assembler
-
-
 // η pipe: a circular buffer with Λ-mediated read/write negotiation
 // and endpoint close tracking. We also allocate one-off buffers for
 // values larger than the ζ capacity.
+//
+// ξs will be deleted if nobody wants to read from them, and .close()
+// will be called when the writer is done.
 struct ξ
 {
   ξ(Λ &l, uN c) : z(c), b(nullptr), t(0), wc(false), rg{l}, wg{l} {}
@@ -43,10 +40,7 @@ struct ξ
 
   // Writer interface: close() to finalize the write-side, << to write
   // a value
-  ξ &close()
-    { wc = true;
-      rg.w(false);  // false = no further data
-      return *this; }
+  void close() { wc = true; rg.w(false); }
 
   bool operator<<(η0o const &x)   // blocking write (false on epipe)
     { let s = x.osize();
