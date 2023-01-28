@@ -86,11 +86,10 @@ void try_gamma()
   A(i.inner_ξ().iq()->name() == "∑",
     "bogus name (outside block): " << i.inner_ξ().iq()->name());
 
-  A(ψs == 3, "at start, ψs == " << ψs);
-  L.go();
-  A(ψs == 1, "after go, ψs == " << ψs);
-  i.close();
-  A(ψs == 0, "after close, ψs == " << ψs);
+               A(ψs == 3, "at start, ψs == " << ψs);
+  L.go();      A(ψs == 1, "after go, ψs == " << ψs);
+  i.weaken();  A(ψs == 0, "after weaken(), ψs == " << ψs);
+  i.close();   A(ψs == 0, "after close, ψs == " << ψs);
 
   // By now our λs should be deallocated; all functions should have
   // returned
