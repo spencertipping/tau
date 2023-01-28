@@ -33,6 +33,11 @@ struct Ξ
   Ξ &def (Stc &k, uN c = Ξc0) { at(k, c); return *this; }
 
 
+  // Operate on a subset of ξs, selected by regex against the name.
+  Ξ sel(Re const&);            // construct a sub-Ξ from a regex
+  Ξ sel(Re const&, Ξ const&);  // replace a regex with a Ξ
+
+
   ξo o(Stc &k, Sp<ψ> q, uN c = Ξc0) { return at(k, c)->o(q); }
   ξi i(Stc &k, Sp<ψ> q, uN c = Ξc0)
     { // If the input is requested before the output exists, then this
@@ -41,6 +46,14 @@ struct Ξ
       let h = has(k);
       let r = at(k, c);
       return h ? r->i(q) : r->i(q).weaken(); }
+
+
+  // Copy map entries; we can reasonably assume that Λ is sensible, as
+  // any given C++ process will never have more than one (but we store
+  // it anyway because we might be multithreaded down the line).
+  //
+  // minor TODO: is this a reasonable assumption?
+  Ξ &operator=(Ξ const &x) { xs = x.xs; }
 
 
 protected:
@@ -56,6 +69,22 @@ protected:
         A(c <= c0, "ξ capacity mismatch: " << c << " > " << c0); }
       return xs.at(k); }
 };
+
+
+Ξ Ξ::sel(Re const &r)
+{
+  Ξ x{l};
+  for (let &[k, v] : xs) if (std::regex_match(k, r)) x.xs[k] = v;
+  return x;
+}
+
+Ξ Ξ::sel(Re const &r, Ξ const &x)
+{
+  Ξ y{l};
+  for (let &[k, v] : xs) if (!std::regex_match(k, r)) y.xs[k] = v;
+  for (let &[k, v] : x.xs) y.xs[k] = v;
+  return y;
+}
 
 
 O &operator<<(O &s, Ξ const &x)

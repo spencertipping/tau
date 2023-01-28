@@ -10,14 +10,20 @@ namespace τ
 {
 
 
+// Virtual base for ψ processes
 struct ψ
 {
-  virtual ~ψ() {}
+  ψ(Λ &l_) : l(l_) {}
+  virtual ~ψ() { for (let x : ls) l.x(x); }
 
-  virtual St name() const = 0;
+  Stc &name() const {            return name_; }
+  ψ   &name(Stc &s) { name_ = s; return *this; }
+
 
 protected:
+  Λ    &l;
   S<λi> ls;
+  St    name_;  // name for debugging purposes
 };
 
 

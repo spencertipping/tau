@@ -1,5 +1,5 @@
-#ifndef τΛh
-#define τΛh
+#ifndef τΛ_h
+#define τΛ_h
 
 
 #include "arch.hh"
