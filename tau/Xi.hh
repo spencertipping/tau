@@ -30,7 +30,9 @@ struct Ξ
   // Predefine a pipe so it will be strongly linked to the source ψ, which
   // doesn't yet exist. This is useful when you're constructing a Ξ that
   // has parameter/placeholder ξs that are wired up after Γ instantiation.
-  Ξ &def (Stc &k, uN c = Ξc0) { at(k, c); return *this; }
+  Ξ &def(Stc &k, uN c = Ξc0) { at(k, c); return *this; }
+
+  ξio &operator[](Stc &k) { A(has(k), "Ξ[] !∃: " << k); return *xs.at(k); }
 
 
   // Operate on a subset of ξs, selected by regex against the name.
@@ -48,11 +50,6 @@ struct Ξ
       return h ? r->i(q) : r->i(q).weaken(); }
 
 
-  // Copy map entries; we can reasonably assume that Λ is sensible, as
-  // any given C++ process will never have more than one (but we store
-  // it anyway because we might be multithreaded down the line).
-  //
-  // minor TODO: is this a reasonable assumption?
   Ξ &operator=(Ξ const &x) { xs = x.xs; }
 
 
@@ -61,6 +58,7 @@ protected:
   M<St, Sp<ξio>>  xs;
 
   friend O &operator<<(O&, Ξ const&);
+
 
   Sp<ξio> &at(Stc &k, uN c)
     { if (!xs.contains(k)) xs[k].reset(new ξio(l, c, k));

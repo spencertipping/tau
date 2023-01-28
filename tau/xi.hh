@@ -36,7 +36,8 @@ struct ξ
   uN capacity() const { return z.capacity(); }
   uN ra()       const { return b ? sb : z.ra(); }
   uN wa()       const { return z.wa(); }
-  uN wt()       const { return t; }  // total bytes written
+  uN wt()       const { return t; }   // total bytes written
+  uN extra()    const { return sb; }  // extra bytes allocated right now
 
   bool eof()
     { while (!ra() && !wc) if (!rg.y(λs::ξR)) return true;
@@ -119,7 +120,7 @@ protected:
       return true; }
 
   bool sidecar_write(η0o const &x, uN s, bool nonblock)
-    { while (b)
+    { while (ra() || b)
         if (nonblock || !wg.y(λs::ξW)) return false;
       return write(b = new u8[s], x, sb = s); }
 

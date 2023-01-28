@@ -3,10 +3,8 @@
 
 Another way to think of it is that τ is to `ni` what the Laplace transform is to the Fourier transform: we can now describe systems that are locally time-invariant but which nonetheless change over time.
 
-τ currently uses the v2 compute model, defined below. v3 will be implemented later; see [compute v3](doc/compute-v3.md) for details.
 
-
-## Compute model (v2)
+## Compute model
 ```
 +-----------------------------------------+
 | τ : Λ, epoll, ψ GC root                 |

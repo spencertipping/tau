@@ -74,6 +74,10 @@ struct ξio
   bool can_o() const { return !o_; }
 
 
+  // NOTE: not for pipeline construction
+  ξ &operator*() const { return *x; }
+
+
 protected:
   Sp<ξ> x;
   bool  i_;  // has ξi been claimed?

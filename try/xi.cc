@@ -13,24 +13,37 @@ void try_basic()
   Ξ X(L);
 
   {
-    auto i = X.i("foo", nullptr, 64);
-    auto o = X.o("foo", nullptr, 64);
+    auto i = X.i("foo", nullptr, 16);
+    auto o = X.o("foo", nullptr, 16);
     o.close();
     A(i.eof(), "!ieof");
     i.close();
   }
 
   {
-    auto i = X.i("bar", nullptr, 64);
-    auto o = X.o("bar", nullptr, 64);
+    auto i = X.i("bar", nullptr, 32);
+    auto o = X.o("bar", nullptr, 32);
+    let &c = *X["bar"];
 
     A(o << η0o(57.5), "ξ<<");
     A(o << η0o(58.5), "ξ<<");
     A(o << η0o(59.5), "ξ<<");
 
+    A(!(o <<= (η0o{}.t(η0t::utf8) << "01234567890123456789" << "01234567890123456789")),
+      "ξ<<big didn't block");
+
     let x1 = *i; A(Sc<f64>(η1pi{x1}) == 57.5, "x1 " << η1pi{x1}); ++i;
     let x2 = *i; A(Sc<f64>(η1pi{x2}) == 58.5, "x2 " << η1pi{x2}); ++i;
     let x3 = *i; A(Sc<f64>(η1pi{x3}) == 59.5, "x3 " << η1pi{x3}); ++i;
+
+    A(!c.extra(), "ξ extra nonzero");
+    A(o << (η0o{}.t(η0t::utf8) << "01234567890123456789" << "01234567890123456789"),
+      "ξ<<big");
+    A(c.extra(), "ξ has no extra");
+
+    let x4 = *i; A(x4.stv() == "0123456789012345678901234567890123456789",
+                   "bogus string: " << x4.stv());
+    ++i;
 
     o.close();
     A(i.eof(), "!ieof");
@@ -79,11 +92,48 @@ void try_ints()
 }
 
 
+void try_big()
+{
+  Λ L;
+  Ξ X(L);
+  uN j = 0;
+  uN k = 0;
+
+  {
+    let i = X.i("foo", nullptr, 64);
+    L.c([=, &j]() {
+      for (let x : i)
+        for (let y : η1ti{x})
+          j += Sc<u64>(η1pi{y});
+    });
+  }
+
+  {
+    let o = X.o("foo", nullptr, 64);
+    L.c([=, &k]() {
+      for (u64 i = 0; i < 10000; ++i)
+      {
+        η0o x;
+        x.t(η0t::tuple);
+        for (u64 j = 0; j < i % 100; ++j)
+          x << j, k += j;
+        A(o << x, "write failed: " << x);
+      }
+    });
+  }
+
+  L.go();
+  A(j == k, "some values were lost or repeated; sent " << k << ", received " << j);
+  cout << "try_big ok" << endl;
+}
+
+
 int main()
 {
   τassert_begin;
   try_basic();
   try_ints();
+  try_big();
   return 0;
   τassert_end;
 }
