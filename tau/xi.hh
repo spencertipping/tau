@@ -67,7 +67,7 @@ struct ξ
 
   void next()
     { A(ra(), "++ξ with !ra(), " << z);
-      if (b) b = nullptr, sb = 0;
+      if (b) delete[] b, b = nullptr, sb = 0;
       else   z.free((*(*this)).osize());
       wg.w(true); }  // we are now writable
 
