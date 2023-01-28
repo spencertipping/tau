@@ -34,7 +34,6 @@ protected:
 };
 
 
-
 Sp<γf> iota()
 { return Sp<γf>(new γf("ι", [](ξi i, ξo o)
   { for (u64 i = 0; o << η0o(i); ++i); })); }

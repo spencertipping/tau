@@ -55,12 +55,15 @@ struct Ξ
 
   Λ &l() const { return l_; }
 
+  M<St, Sp<ξio>>::iterator       begin()       { return xs_.begin(); }
+  M<St, Sp<ξio>>::iterator       end()         { return xs_.end(); }
+  M<St, Sp<ξio>>::const_iterator begin() const { return xs_.begin(); }
+  M<St, Sp<ξio>>::const_iterator end()   const { return xs_.end(); }
+
 
 protected:
   Λ              &l_;
   M<St, Sp<ξio>>  xs_;
-
-  friend O &operator<<(O&, Ξ const&);
 
 
   Sp<ξio> &at(Stc &k, uN c)
@@ -92,7 +95,7 @@ O &operator<<(O &s, Ξ const &x)
 {
   s << "Ξ[";
   bool first = true;
-  for (let &[k, io] : x.xs_)
+  for (let &[k, io] : x)
   { if (first) first = false;
     else       s << " ";
     s << k << "|" << (io->can_i() ? "i" : "")
