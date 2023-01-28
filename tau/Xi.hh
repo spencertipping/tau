@@ -12,6 +12,7 @@ namespace τ
 {
 
 
+// Default size of ξs created with Ξ
 sletc Ξc0 = 8192;
 
 
@@ -20,10 +21,12 @@ struct Ξ
   Ξ(Λ &l_)      : l(l_)  {}
   Ξ(Ξ const &x) : l(x.l) { xs = x.xs; }
 
-  Ξ    copy()         const { return *this; }
-  bool has (Stc &k)   const { return xs.contains(k); }
-  Ξ   &rm  (Stc &k)         { xs.erase(k); return *this; }
+  Ξ cp() const { return *this; }
+
+  bool has (Stc &k)   const {                                return xs.contains(k); }
+  Ξ   &rm  (Stc &k)         {                   xs.erase(k); return *this; }
   Ξ   &mv  (Stc &f, Stc &t) { xs[t] = xs.at(f); xs.erase(f); return *this; }
+
 
   ξo o(Stc &k, Sp<ψ> q, uN c = Ξc0) { return at(k, c)->o(q); }
   ξi i(Stc &k, Sp<ψ> q, uN c = Ξc0)
@@ -42,7 +45,7 @@ protected:
   friend O &operator<<(O&, Ξ const&);
 
   Sp<ξio> &at(Stc &k, uN c)
-    { if (!xs.contains(k)) xs[k].reset(new ξio(l, c));
+    { if (!xs.contains(k)) xs[k].reset(new ξio(l, c, k));
       else
       { let c0 = xs.at(k)->capacity();
         A(c <= c0, "ξ capacity mismatch: " << c << " > " << c0); }

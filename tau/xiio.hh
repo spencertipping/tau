@@ -62,7 +62,8 @@ protected:
 
 struct ξio
 {
-  ξio(Λ &l, uN c) : x(new ξ(l, c)), i_(false), o_(false) {}
+  ξio(Λ &l, uN c, Stc &n) : x(new ξ(l, c, n)), i_(false), o_(false) {}
+  ~ξio() { A(!o_ || i_, "ξio " << x->name() << " has no input"); }
 
   uN capacity() const { return x->capacity(); }
 
