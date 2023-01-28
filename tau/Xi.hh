@@ -21,11 +21,11 @@ struct Ξ
   Ξ(Λ &l_)      : l(l_)  {}
   Ξ(Ξ const &x) : l(x.l) { xs = x.xs; }
 
-  Ξ cp() const { return *this; }
 
-  bool has (Stc &k)   const {                                return xs.contains(k); }
-  Ξ   &rm  (Stc &k)         {                   xs.erase(k); return *this; }
-  Ξ   &mv  (Stc &f, Stc &t) { xs[t] = xs.at(f); xs.erase(f); return *this; }
+  bool has(Stc &k)   const {                                return xs.contains(k); }
+  Ξ   &rm (Stc &k)         {                   xs.erase(k); return *this; }
+  Ξ   &mv (Stc &f, Stc &t) { xs[t] = xs.at(f); xs.erase(f); return *this; }
+  Ξ   &ln (Stc &f, Stc &t) { xs[t] = xs.at(f);              return *this; }
 
   // Predefine a pipe so it will be strongly linked to the source ψ, which
   // doesn't yet exist. This is useful when you're constructing a Ξ that
