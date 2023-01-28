@@ -41,6 +41,8 @@ struct ξ
   uN wt()       const { return t; }   // total bytes written
   uN extra()    const { return sb; }  // extra bytes allocated right now
 
+  void resize(uN c)   { z.resize(c); }
+
   bool eof()
     { while (!ra() && !wc) if (!rg.y(λs::ξR)) return true;
       return !ra() && wc; }

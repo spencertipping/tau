@@ -69,8 +69,8 @@ protected:
   Sp<ξio> &at(Stc &k, uN c)
     { if (!xs_.contains(k)) xs_[k].reset(new ξio(l(), c));
       else
-      { let c0 = xs_.at(k)->capacity();
-        A(c <= c0, "ξ capacity mismatch: " << c << " > " << c0); }
+      { auto &x = xs_.at(k)->inner_ξ();
+        x.resize(std::max(c, x.capacity())); }
       return xs_.at(k); }
 };
 

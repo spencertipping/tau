@@ -64,8 +64,22 @@ struct ζ
       else                               { let a = wi; wi += l;            return xs + a; } }
 
 
+  void resize(uN c_)
+    { if (c_ == c) return;
+      A(c_ <= ra(), "cannot resize ζ to be smaller than its contents");
+      let ys = new u8[c_];
+      if (wrapped())
+      { memcpy(ys,             xs + wi, ci - wi);  // (wi..ci)
+        memcpy(ys + (ci - wi), xs,      ri); }     // (0..ri)
+      else
+        memcpy(ys, xs + ri, wi - ri);
+      delete[] xs;
+      xs = ys;
+      c  = c_; }
+
+
 protected:
-  uNc  c;   // capacity in bytes
+  uN   c;   // capacity in bytes
   u8  *xs;  // circular buffer
   uN   ri;  // read index (0..c-1)
   uN   wi;  // write index (0..c-1)
