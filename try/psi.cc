@@ -23,8 +23,7 @@ struct γf : public virtual γ
       Ξ     y = x;
       let i = y.i("main", q);
       let o = y.o("next", q);
-      let g = f;
-      q->name(n).def([=](ψ &q) { g(i, o); });
+      q->name(n).def([=, *this](ψ &q) { f(i, o); });
       return y.mv("next", "main"); }
 
 
