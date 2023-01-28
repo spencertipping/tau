@@ -189,7 +189,6 @@ bool η0bc(u8c *a, uN s)
 }
 
 
-#if τdebug_iostream
 O &operator<<(O &s, η0ft t)
 {
   switch (t)
@@ -210,7 +209,6 @@ O &operator<<(O &s, η0i const &i)
            << " t=" << i.type()
            << " S=" << i.osize() << "]";
 }
-#endif
 
 
 }

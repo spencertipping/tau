@@ -64,7 +64,6 @@ struct Σ0
 };
 
 
-#if τdebug_iostream
 template<class F, class X, uN N, class π>
 O &operator<<(O &s, Σι_<F, X, N, π> const &h)
 {
@@ -81,7 +80,6 @@ O &operator<<(O &s, Σι_<F, X, N, π> const &h)
 
   return s;
 }
-#endif
 
 
 }

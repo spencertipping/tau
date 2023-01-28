@@ -248,12 +248,10 @@ template<η0atp T>
 η0o &operator<<(η0o &o, T x) { return o << η0o(x); }
 
 
-#if τdebug_iostream
 O &operator<<(O &s, η0o const &x)
 {
   return s << "TODO: << η₀o";
 }
-#endif
 
 
 }

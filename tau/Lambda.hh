@@ -114,13 +114,10 @@ protected:
   λi            ri  = 0;      // currently running λi (0 = main thread)
   bool          fin = false;  // we're done; ignore all requests
 
-#if τdebug_iostream
   friend O &operator<<(O &s, Λ &l);
-#endif
 };
 
 
-#if τdebug_iostream
 O &operator<<(O &s, Λt const &l)
 {
   return s << "λ" << l.s << (l.done() ? "=" : "");
@@ -132,7 +129,6 @@ O &operator<<(O &s, Λ &l)
   for (let &[k, v] : l.ls) s << "  " << k << "\t" << v << std::endl;
   return s;
 }
-#endif
 
 
 }

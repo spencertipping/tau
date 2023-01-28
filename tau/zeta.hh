@@ -71,9 +71,7 @@ protected:
   uN   wi;  // write index (0..c-1)
   uN   ci;  // circular index (0..c-1)
 
-#if τdebug_iostream
   friend O &operator<<(O&, ζ const&);
-#endif
 
   // Auto-unwrap if ri hits the upper boundary, auto-defragment
   // if all data is consumed (defrag just means ri = wi = 0)
@@ -83,14 +81,12 @@ protected:
 };
 
 
-#if τdebug_iostream
 O &operator<<(O &s, ζ const &z)
 {
   return s << "ζ[c=" << z.c << " ri=" << z.ri
            << " wi=" << z.wi << " ci=" << z.ci
            << " ra=" << z.ra() << " wa=" << z.wa() << "]";
 }
-#endif
 
 
 }

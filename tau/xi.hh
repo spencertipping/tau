@@ -7,6 +7,7 @@
 #include "types.hh"
 #include "gate.hh"
 #include "Lambda.hh"
+#include "psi.hh"
 
 #include "begin.hh"
 
@@ -22,7 +23,8 @@ namespace τ
 // will be called when the writer is done.
 struct ξ
 {
-  ξ(Λ &l, uN c) : z(c), b(nullptr), sb(0), t(0), wc(false), rg(l), wg(l) {}
+  ξ(Λ &l, uN c)
+    : z(c), b(nullptr), sb(0), t(0), wc(false), w(false), rg(l), wg(l) {}
 
   // By this point our instance state won't be accessible to any λs, so
   // all messaging must go through the wake-gates; false means the ξ is
@@ -83,18 +85,32 @@ struct ξ
   it end()   { return {nullptr}; }
 
 
+  // Endpoint management
+  ξ &iq(Sp<ψ> x) { iqs = x; if (w) weaken(); return *this; }
+  ξ &oq(Sp<ψ> x) { oqw = x;                  return *this; }
+
+  Sp<ψ> iq() { return iqs ? iqs : iqw.lock(); }
+  Sp<ψ> oq() { return             oqw.lock(); }
+
+  // Weaken reference to generating ψ, e.g. for backflowing ξ
+  ξ &weaken() { w = true; iqw = iqs; iqs.reset(); return *this; }
+
+
 protected:
   ζ        z;
-  u8      *b;   // sidecar buffer for large values
-  uN       sb;  // sizeof(*b)
-  u64      t;   // total bytes written
-  bool     wc;  // writer has closed; all blocking reads will fail
-  λg<bool> rg;  // read-gate; false means insta-bail
-  λg<bool> wg;  // write-gate; false means insta-bail
+  u8      *b;    // sidecar buffer for large values
+  uN       sb;   // sizeof(*b)
+  u64      t;    // total bytes written
+  bool     wc;   // writer has closed; all blocking reads will fail
+  bool     w;    // weaken() has been called, always weaken source ψ
+  λg<bool> rg;   // read-gate; false means insta-bail
+  λg<bool> wg;   // write-gate; false means insta-bail
+  Sp<ψ>    iqs;  // input (writer) ψ -- default strong reference
+  Wp<ψ>    iqw;  // input ψ -- optional weak reference
+  Wp<ψ>    oqw;  // output (reader) ψ
 
-#if τdebug_iostream
+
   friend O &operator<<(O&, ξ const&);
-#endif
 
 
   bool pipe_write(η0o const &x, uN s, bool nonblock)
@@ -116,12 +132,10 @@ protected:
 };
 
 
-#if τdebug_iostream
 O &operator<<(O &s, ξ const &y)
 {
   return s << "ξ[" << (y.wc ? "#" : "") << "wt=" << y.wt() << " " << y.z << "]";
 }
-#endif
 
 
 }

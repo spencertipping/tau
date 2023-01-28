@@ -71,12 +71,10 @@ struct τf  // FD container for τ, behavior determined by O (an o9)
 };
 
 
-#if τdebug_iostream
 O &operator<<(O&, τ&);
 
 template<class fO>
 O &operator<<(O&, τf<fO> const&);
-#endif
 
 
 struct τ : public τb
@@ -167,7 +165,6 @@ bool τread(T &x, τf<O> &r)
 }
 
 
-#ifdef τdebug_iostream
 O &operator<<(O &s, τΘ const &h)
 {
   return s << "τΘ:" << h.h << ":" << h.l;
@@ -193,7 +190,6 @@ O &operator<<(O &s, τ &t)
   s << "; nfs=" << t.nfs.size();
   return s << std::endl << t.l << std::endl;
 }
-#endif
 
 
 }

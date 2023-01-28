@@ -31,7 +31,6 @@ enum class λs : u8  // lambda runnability state
 };
 
 
-#if τdebug_iostream
 O &operator<<(O &s, λs t)
 {
   switch (t)
@@ -47,7 +46,6 @@ O &operator<<(O &s, λs t)
     TA(s, "illegal λs " << Sc<uN>(t));
   }
 }
-#endif
 
 
 }

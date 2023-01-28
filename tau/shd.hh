@@ -51,7 +51,6 @@ typedef ΣΘΔ_<Σι> ΣΘΔ;
 typedef ΣΘΔ_<Σ0>  ΘΔ;
 
 
-#if τdebug_iostream
 O &operator<<(O &s, ΔΘ const &t)
 {
   let a = abs(t);
@@ -87,7 +86,6 @@ O &operator<<(O &s, ΘΔ const &w)
            << " Σ=" << w.Σ()
            << " μ=" << w.μ() << "]";
 }
-#endif
 
 
 }

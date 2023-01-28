@@ -17,17 +17,14 @@ struct ξo;   // a ξ writer, weakly-referenced
 
 struct ξi
 {
-  ξi(Sp<ξ> x_) : xs(x_) {}
+  ξi(Sp<ξ> x_) : x(x_) {}
 
-  void     close()       { xs.reset(); xw.reset(); }
-  η0i operator *() const { let x = lock(); A(x,  "*ξi on closed");            return **x; }
-  ξi &operator++()       { let x = lock(); A(x, "++ξi on closed"); x->next(); return *this; }
-  bool       eof() const
-    { if (let x = lock()) return x->eof();
-      else                return false; }
+  void     close()       { x.reset(); }
+  η0i operator *() const { A(x,  "*ξi on closed");            return **x; }
+  ξi &operator++()       { A(x, "++ξi on closed"); x->next(); return *this; }
+  bool       eof() const {                                    return !x || x->eof(); }
 
-  ξi   &weaken()     { xw = xs; xs.reset(); return *this; }
-  Sp<ξ> lock() const { return xs ? xs : xw.lock(); }
+  ξi &weaken() { x->weaken(); return *this; }
 
 
   struct it
@@ -40,15 +37,12 @@ struct ξi
     η0i  operator* () const            { return *i; }
   };
 
+  it begin() const { return x ? it{x, x->begin()} : end(); }
   it end()   const { return {nullptr, {nullptr}}; }
-  it begin() const
-    { if (let x = lock()) return {x, x->begin()};
-      else                return end(); }
 
 
 protected:
-  Sp<ξ> xs;
-  Wp<ξ> xw;
+  Sp<ξ> x;
 };
 
 
@@ -59,6 +53,7 @@ struct ξo
   void       close()             const { if (let y = x.lock()) y->close(); }
   bool operator<< (η0o const &z) const {     let y = x.lock(); return y && *y << z; }
   bool operator<<=(η0o const &z) const {     let y = x.lock(); return y && (*y <<= z); }
+
 
 protected:
   Wp<ξ> x;
@@ -71,13 +66,19 @@ struct ξio
 
   uN capacity() const { return x->capacity(); }
 
-  ξi i() { A(!i_, "ξi already claimed"); i_ = true; return ξi{x}; }
-  ξo o() { A(!o_, "ξi already claimed"); o_ = true; return ξo{x}; }
+  ξi i(Sp<ψ> q) { A(!i_, "ξi already claimed"); i_ = true; x->iq(q); return ξi{x}; }
+  ξo o(Sp<ψ> q) { A(!o_, "ξi already claimed"); o_ = true; x->oq(q); return ξo{x}; }
+
+  bool can_i() const { return !i_; }
+  bool can_o() const { return !o_; }
+
 
 protected:
   Sp<ξ> x;
   bool  i_;  // has ξi been claimed?
   bool  o_;  // has ξo been claimed?
+
+  friend O &operator<<(O&, ξio const&);
 };
 
 

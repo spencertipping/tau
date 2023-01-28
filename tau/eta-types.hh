@@ -105,7 +105,6 @@ template<class T> concept η0at  = η0at_<T>::t != η0t::invalid;
 template<class T> concept η0atp = η0tp[η0at_<T>::t];
 
 
-#if τdebug_iostream
 O &operator<<(O &s, η0t t)
 {
   switch (t)
@@ -141,7 +140,6 @@ O &operator<<(O &s, η0ts x)
   }
   return s << "}";
 }
-#endif
 
 
 }

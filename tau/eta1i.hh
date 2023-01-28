@@ -79,7 +79,6 @@ struct η1ti : public η1i  // tuple-oriented input (also works for sets)
 };
 
 
-#if τdebug_iostream
 O &operator<<(O &s, η1i const &x);
 
 O &operator<<(O &s, η1pi const &x)
@@ -109,7 +108,6 @@ O &operator<<(O &s, η1i const &x)
   else if (η0tb[x.type()]) return s << "\"" << Stv{Rc<chc*>(x.i.data()), x.i.size()} << "\"";
   else                     return s << x.i;
 }
-#endif
 
 
 }
