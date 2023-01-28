@@ -54,31 +54,34 @@ void try_basic()
 void try_ints()
 {
   Λ L;
-  Ξ X(L);
-  uNc N = 1048576;
-  uNc K = 1024;
   u64 j = 0;
   u64 c = 0;
+  uNc N = 1048576;
+  uNc K = 1024;
 
   {
-    let i = X.i("foo", nullptr, K);
-    L.c([=, &j, &c]() {
-      u64 t = 0;
-      for (let x : i) ++c, t += Sc<u64>(η1pi{x});
-      j = t;
-    });
-  }
-  cout << X << endl;
+    Ξ X(L);
 
-  {
-    let o = X.o("foo", nullptr, K);
-    L.c([=]() {
-      for (u64 i = 0; i < N; ++i)
-        A(o << η0o{i}, "failed to write " << i);
-      o.close();
-    });
+    {
+      let i = X.i("foo", nullptr, K);
+      L.c([=, &j, &c]() {
+        u64 t = 0;
+        for (let x : i) ++c, t += Sc<u64>(η1pi{x});
+        j = t;
+      });
+    }
+    cout << X << endl;
+
+    {
+      let o = X.o("foo", nullptr, K);
+      L.c([=]() {
+        for (u64 i = 0; i < N; ++i)
+          A(o << η0o{i}, "failed to write " << i);
+        o.close();
+      });
+    }
+    cout << X << endl;
   }
-  cout << X << endl;
 
   let t0 = now();
   L.go();
@@ -95,31 +98,33 @@ void try_ints()
 void try_big()
 {
   Λ L;
-  Ξ X(L);
   uN j = 0;
   uN k = 0;
 
   {
-    let i = X.i("foo", nullptr, 64);
-    L.c([=, &j]() {
-      for (let x : i)
-        for (let y : η1ti{x})
-          j += Sc<u64>(η1pi{y});
-    });
-  }
+    Ξ X(L);
+    {
+      let i = X.i("foo", nullptr, 64);
+      L.c([=, &j]() {
+        for (let x : i)
+          for (let y : η1ti{x})
+            j += Sc<u64>(η1pi{y});
+      });
+    }
 
-  {
-    let o = X.o("foo", nullptr, 64);
-    L.c([=, &k]() {
-      for (u64 i = 0; i < 10000; ++i)
-      {
-        η0o x;
-        x.t(η0t::tuple);
-        for (u64 j = 0; j < i % 100; ++j)
-          x << j, k += j;
-        A(o << x, "write failed: " << x);
-      }
-    });
+    {
+      let o = X.o("foo", nullptr, 64);
+      L.c([=, &k]() {
+        for (u64 i = 0; i < 10000; ++i)
+        {
+          η0o x;
+          x.t(η0t::tuple);
+          for (u64 j = 0; j < i % 100; ++j)
+            x << j, k += j;
+          A(o << x, "write failed: " << x);
+        }
+      });
+    }
   }
 
   L.go();
