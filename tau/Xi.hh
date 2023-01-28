@@ -27,6 +27,11 @@ struct Ξ
   Ξ   &rm  (Stc &k)         {                   xs.erase(k); return *this; }
   Ξ   &mv  (Stc &f, Stc &t) { xs[t] = xs.at(f); xs.erase(f); return *this; }
 
+  // Predefine a pipe so it will be strongly linked to the source ψ, which
+  // doesn't yet exist. This is useful when you're constructing a Ξ that
+  // has parameter/placeholder ξs that are wired up after Γ instantiation.
+  Ξ &def (Stc &k, uN c = Ξc0) { at(k, c); return *this; }
+
 
   ξo o(Stc &k, Sp<ψ> q, uN c = Ξc0) { return at(k, c)->o(q); }
   ξi i(Stc &k, Sp<ψ> q, uN c = Ξc0)
@@ -59,7 +64,7 @@ O &operator<<(O &s, Ξ const &x)
   bool first = true;
   for (let &[k, io] : x.xs)
   { if (first) first = false;
-    else s << " ";
+    else       s << " ";
     s << k << "|" << (io->can_i() ? "i" : "")
                   << (io->can_o() ? "o" : ""); }
   return s << "]";

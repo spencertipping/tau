@@ -14,6 +14,8 @@ struct ψ
 {
   virtual ~ψ() {}
 
+  virtual St name() const = 0;
+
 protected:
   S<λi> ls;
 };

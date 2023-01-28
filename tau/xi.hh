@@ -24,7 +24,7 @@ namespace τ
 struct ξ
 {
   ξ(Λ &l, uN c, Stc &n_)
-    : z(c), n(n_), b(nullptr), sb(0), t(0), wc(false), w(false), rg(l), wg(l) {}
+    : z(c), b(nullptr), sb(0), t(0), wc(false), w(false), rg(l), wg(l) {}
 
   // By this point our instance state won't be accessible to any λs, so
   // all messaging must go through the wake-gates; false means the ξ is
@@ -33,11 +33,10 @@ struct ξ
     { rg.w(false); wg.w(false);
       if (b) delete[] b; }
 
-  Stc &name()     const { return n; }
-  uN   capacity() const { return z.capacity(); }
-  uN   ra()       const { return b ? sb : z.ra(); }
-  uN   wa()       const { return z.wa(); }
-  uN   wt()       const { return t; }  // total bytes written
+  uN capacity() const { return z.capacity(); }
+  uN ra()       const { return b ? sb : z.ra(); }
+  uN wa()       const { return z.wa(); }
+  uN wt()       const { return t; }  // total bytes written
 
   bool eof()
     { while (!ra() && !wc) if (!rg.y(λs::ξR)) return true;
@@ -99,7 +98,6 @@ struct ξ
 
 protected:
   ζ        z;
-  St       n;    // name of this pipe, for debugging
   u8      *b;    // sidecar buffer for large values
   uN       sb;   // sizeof(*b)
   u64      t;    // total bytes written
@@ -136,7 +134,7 @@ protected:
 
 O &operator<<(O &s, ξ const &y)
 {
-  return s << "ξ" << y.name() << "[" << (y.wc ? "#" : "")
+  return s << "ξ[" << (y.wc ? "#" : "")
            << "wt=" << y.wt() << " " << y.z << "]";
 }
 
