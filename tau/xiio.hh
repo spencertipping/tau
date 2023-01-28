@@ -17,12 +17,17 @@ struct ξo;   // a ξ writer, weakly-referenced
 
 struct ξi
 {
+  ξi() {}
   ξi(Sp<ξ> x_) : x(x_) {}
+
+  ξi &operator=(ξi const &c) { x = c.x; return *this; }
+
 
   void     close()       { x.reset(); }
   η0i operator *() const { A(x,  "*ξi on closed");            return **x; }
   ξi &operator++()       { A(x, "++ξi on closed"); x->next(); return *this; }
   bool       eof() const {                                    return !x || x->eof(); }
+  uN          ra() const {                                    return x ? x->ra() : 0; }
 
   ξi &weaken() { x->weaken(); return *this; }
 
@@ -40,6 +45,8 @@ struct ξi
   it begin() const { return x ? it{x, x->begin()} : end(); }
   it end()   const { return {nullptr, {nullptr}}; }
 
+  ξ &inner_ξ() const { return *x; }
+
 
 protected:
   Sp<ξ> x;
@@ -48,11 +55,17 @@ protected:
 
 struct ξo
 {
+  ξo() {}
   ξo(Sp<ξ> x_) : x(x_) {}
 
-  void       close()             const { if (let y = x.lock()) y->close(); }
-  bool operator<< (η0o const &z) const {     let y = x.lock(); return y && *y << z; }
-  bool operator<<=(η0o const &z) const {     let y = x.lock(); return y && (*y <<= z); }
+  ξo &operator=(ξo const &c) { x = c.x; return *this; }
+
+
+  void                        close()           const { if (let y = x.lock()) y->close(); }
+  template<η0ot T> bool operator<< (T const &z) const {     let y = x.lock(); return y && *y << z; }
+  template<η0ot T> bool operator<<=(T const &z) const {     let y = x.lock(); return y && (*y <<= z); }
+
+  Sp<ξ> inner_ξ() const { return x.lock(); }
 
 
 protected:
@@ -62,20 +75,18 @@ protected:
 
 struct ξio
 {
-  ξio(Λ &l, uN c, Stc &n) : x(new ξ(l, c, n)), i_(false), o_(false) {}
-  ~ξio() { A(!o_ || i_, "ξ→" << (x->oq() ? x->oq()->name() : "???") << " has no input"); }
+  ξio(Λ &l, uN c) : x(new ξ(l, c)), i_(false), o_(false) {}
+  ~ξio() { A(!o_ || i_, "ξ→ has no input"); }
 
   uN capacity() const { return x->capacity(); }
 
-  ξi i(Sp<ψ> q) { A(!i_, "ξi already claimed"); i_ = true; x->iq(q); return ξi{x}; }
-  ξo o(Sp<ψ> q) { A(!o_, "ξi already claimed"); o_ = true; x->oq(q); return ξo{x}; }
+  ξi i(Sp<ψ> q) { A(!i_, "ξi already claimed"); i_ = true; x->oq(q); return ξi{x}; }
+  ξo o(Sp<ψ> q) { A(!o_, "ξi already claimed"); o_ = true; x->iq(q); return ξo{x}; }
 
   bool can_i() const { return !i_; }
   bool can_o() const { return !o_; }
 
-
-  // NOTE: not for pipeline construction
-  ξ &operator*() const { return *x; }
+  ξ &inner_ξ() const { return *x; }
 
 
 protected:

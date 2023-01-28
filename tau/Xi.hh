@@ -18,21 +18,22 @@ sletc Ξc0 = 8192;
 
 struct Ξ
 {
-  Ξ(Λ &l_)      : l(l_)  {}
-  Ξ(Ξ const &x) : l(x.l) { xs = x.xs; }
+  Ξ(Λ &l)       : l_(l)  {}
+  Ξ(Ξ const &x) : l_(x.l()) { xs_ = x.xs_; }
 
 
-  bool has(Stc &k)   const {                                return xs.contains(k); }
-  Ξ   &rm (Stc &k)         {                   xs.erase(k); return *this; }
-  Ξ   &mv (Stc &f, Stc &t) { xs[t] = xs.at(f); xs.erase(f); return *this; }
-  Ξ   &ln (Stc &f, Stc &t) { xs[t] = xs.at(f);              return *this; }
+  bool has(Stc &k)   const {                                   return xs_.contains(k); }
+  Ξ   &rm (Stc &k)         {                     xs_.erase(k); return *this; }
+  Ξ   &mv (Stc &f, Stc &t) { xs_[t] = xs_.at(f); xs_.erase(f); return *this; }
+  Ξ   &ln (Stc &f, Stc &t) { xs_[t] = xs_.at(f);               return *this; }
 
   // Predefine a pipe so it will be strongly linked to the source ψ, which
   // doesn't yet exist. This is useful when you're constructing a Ξ that
   // has parameter/placeholder ξs that are wired up after Γ instantiation.
   Ξ &def(Stc &k, uN c = Ξc0) { at(k, c); return *this; }
 
-  ξio &operator[](Stc &k) { A(has(k), "Ξ[] !∃: " << k); return *xs.at(k); }
+  ξio &operator[](Stc &k)
+    { A(has(k), "Ξ[] !∃: " << k); return *xs_.at(k); }
 
 
   // Operate on a subset of ξs, selected by regex against the name.
@@ -50,37 +51,39 @@ struct Ξ
       return h ? r->i(q) : r->i(q).weaken(); }
 
 
-  Ξ &operator=(Ξ const &x) { xs = x.xs; }
+  Ξ &operator=(Ξ const &x) { xs_ = x.xs_; return *this; }
+
+  Λ &l() const { return l_; }
 
 
 protected:
-  Λ              &l;
-  M<St, Sp<ξio>>  xs;
+  Λ              &l_;
+  M<St, Sp<ξio>>  xs_;
 
   friend O &operator<<(O&, Ξ const&);
 
 
   Sp<ξio> &at(Stc &k, uN c)
-    { if (!xs.contains(k)) xs[k].reset(new ξio(l, c, k));
+    { if (!xs_.contains(k)) xs_[k].reset(new ξio(l(), c));
       else
-      { let c0 = xs.at(k)->capacity();
+      { let c0 = xs_.at(k)->capacity();
         A(c <= c0, "ξ capacity mismatch: " << c << " > " << c0); }
-      return xs.at(k); }
+      return xs_.at(k); }
 };
 
 
 Ξ Ξ::sel(Re const &r)
 {
-  Ξ x{l};
-  for (let &[k, v] : xs) if (std::regex_match(k, r)) x.xs[k] = v;
+  Ξ x{l()};
+  for (let &[k, v] : xs_) if (std::regex_match(k, r)) x.xs_[k] = v;
   return x;
 }
 
 Ξ Ξ::sel(Re const &r, Ξ const &x)
 {
-  Ξ y{l};
-  for (let &[k, v] : xs) if (!std::regex_match(k, r)) y.xs[k] = v;
-  for (let &[k, v] : x.xs) y.xs[k] = v;
+  Ξ y{l()};
+  for (let &[k, v] : xs_) if (!std::regex_match(k, r)) y.xs_[k] = v;
+  for (let &[k, v] : x.xs_) y.xs_[k] = v;
   return y;
 }
 
@@ -89,7 +92,7 @@ O &operator<<(O &s, Ξ const &x)
 {
   s << "Ξ[";
   bool first = true;
-  for (let &[k, io] : x.xs)
+  for (let &[k, io] : x.xs_)
   { if (first) first = false;
     else       s << " ";
     s << k << "|" << (io->can_i() ? "i" : "")

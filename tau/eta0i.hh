@@ -126,6 +126,11 @@ struct η0i
   η0i &operator=(u8c *a_)      { decode(a_); return *this; }
 
 
+  // Copy verbatim into another buffer -- make sure the buffer is
+  // at least osize() bytes long
+  void into(u8 *m) const { memcpy(m, odata(), osize()); }
+
+
 protected:
   u8c        *a;   // pointer to control byte
   u8 mutable *d;   // pointer to decompressed data

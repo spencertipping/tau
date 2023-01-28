@@ -16,7 +16,15 @@ struct γ
 {
   virtual ~γ() {}
   virtual Ξ operator()(Ξ &x) = 0;
+
+  virtual St name() const = 0;
 };
+
+
+O &operator<<(O &s, γ const &g)
+{
+  return s << g.name();
+}
 
 
 }

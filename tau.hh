@@ -15,6 +15,10 @@
 #include "tau/xi.hh"
 #include "tau/xiio.hh"
 #include "tau/Xi.hh"
+#include "tau/psi.hh"
+
+#include "tau/gamma.hh"
+#include "tau/Gamma.hh"
 
 // #include "tau/tau.hh"
 

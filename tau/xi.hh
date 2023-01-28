@@ -7,12 +7,14 @@
 #include "types.hh"
 #include "gate.hh"
 #include "Lambda.hh"
-#include "psi.hh"
 
 #include "begin.hh"
 
 namespace τ
 {
+
+
+struct ψ;
 
 
 // η pipe: a circular buffer with Λ-mediated read/write negotiation
@@ -23,7 +25,7 @@ namespace τ
 // will be called when the writer is done.
 struct ξ
 {
-  ξ(Λ &l, uN c, Stc &n_)
+  ξ(Λ &l, uN c)
     : z(c), b(nullptr), sb(0), t(0), wc(false), w(false), rg(l), wg(l) {}
 
   // By this point our instance state won't be accessible to any λs, so
@@ -48,12 +50,14 @@ struct ξ
   // a value
   void close() { wc = true; rg.w(true); }
 
-  bool operator<<(η0o const &x)   // blocking write (false on epipe)
+  // Blocking write, false if epipe
+  template<η0ot T> bool operator<<(T const &x)
     { let s = x.osize();
       if (s > z.capacity()) return sidecar_write(x, s, false);
       else                  return pipe_write   (x, s, false); }
 
-  bool operator<<=(η0o const &x)  // nonblocking write
+  // Nonblocking write, false if epipe or insufficient space now
+  template<η0ot T> bool operator<<=(T const &x)
     { let s = x.osize();
       if (s > z.capacity()) return sidecar_write(x, s, true);
       else                  return pipe_write   (x, s, true); }
@@ -114,17 +118,17 @@ protected:
   friend O &operator<<(O&, ξ const&);
 
 
-  bool pipe_write(η0o const &x, uN s, bool nonblock)
+  template<η0ot T> bool pipe_write(T const &x, uN s, bool nonblock)
     { while (!write(z.iptr(s), x, s))
         if (nonblock || !wg.y(λs::ξW)) return false;
       return true; }
 
-  bool sidecar_write(η0o const &x, uN s, bool nonblock)
+  template<η0ot T> bool sidecar_write(T const &x, uN s, bool nonblock)
     { while (ra() || b)
         if (nonblock || !wg.y(λs::ξW)) return false;
       return write(b = new u8[s], x, sb = s); }
 
-  bool write(u8 *i, η0o const &x, uN s)
+  template<η0ot T> bool write(u8 *i, T const &x, uN s)
     { if (!i) return false;
       t += s;
       x.into(i);

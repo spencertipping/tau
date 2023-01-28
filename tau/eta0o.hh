@@ -231,8 +231,18 @@ protected:
 };
 
 
-inline η0o &operator<<(η0o &o, η0o const &x) { x.into(o.iptr(x.osize())); return o; }
-inline η0o &operator<<(η0o &o, η0i const &x) { return o.append(x.odata(), x.osize()); }
+template<class T> struct η0ot_ { sletc v = false; };
+
+template<> struct η0ot_<η0o> { sletc v = true; };
+template<> struct η0ot_<η0i> { sletc v = true; };
+
+// The set of types that can output themselves -- i.e. they provide
+// .osize() and .into(u8*)
+template<class T> concept η0ot = η0ot_<T>::v;
+
+
+template<η0ot T>
+T &operator<<(η0o &o, T const &x) { x.into(o.iptr(x.osize())); return o; }
 
 inline η0o &operator<<(η0o &o, Bc &x)
 { return η0tc[o.t()]
