@@ -23,7 +23,7 @@ void try_basic()
   {
     auto i = X.i("bar", nullptr, 32);
     auto o = X.o("bar", nullptr, 32);
-    let &c = *X["bar"];
+    let &c = X["bar"].inner_ξ();
 
     A(o << η0o(57.5), "ξ<<");
     A(o << η0o(58.5), "ξ<<");

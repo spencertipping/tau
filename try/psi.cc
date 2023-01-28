@@ -20,12 +20,11 @@ struct γf : public virtual γ
   Ξ operator()(Ξ &x)
     { ++ψs;
       Sp<ψ> q{new ψ(x.l()), [](ψ*) { --ψs; }};
-      q->name(n);
       Ξ     y = x;
       let i = y.i("main", q);
       let o = y.o("next", q);
       let g = f;
-      q->def([=](ψ &q) { g(i, o); });
+      q->name(n).def([=](ψ &q) { g(i, o); });
       return y.mv("next", "main"); }
 
 
@@ -66,9 +65,9 @@ void try_gamma()
 
     {
       auto g = iota() | take(100) | sum();
-      cout << "Γ = " << g << endl;
       Ξ X(L);
       Y = g(X);
+      cout << X << g << " = " << Y << endl;
     }
 
     i = Y.i("main", nullptr);
