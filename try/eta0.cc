@@ -69,17 +69,21 @@ void try_strings()
 {
   u8 buf[1024] = {0};
   η0o o;
-  o.t(η0t::bytes).c(19).h(true) << "fu" << "bar";
+  o.t(η0t::bytes).h(true) << "fu" << "bar";
+  if (τhas_zstd) o.c(19);
   cout << "output size = " << o.osize() << endl;
 
   o.into(buf);
-
   for (uN j = 0; j < o.osize(); ++j)
     cout << Sc<int>(buf[j]) << " ";
+
+  A(η0bc(buf, sizeof(buf)), "!η0bc()");
   cout << endl;
+  cout << "about to get stringview" << endl;
 
   η0i i = buf;
-  cout << i << " = " << i.stv(64) << ", v = " << i.v() << endl;
+  cout << i << " = " << i.stv(64) << endl;
+  cout << "v = " << i.v() << endl;
 
   cout << "calc = " << picosha3::bytes_to_hex_string(i.sha3()) << endl;
   cout << "stor = " << picosha3::bytes_to_hex_string(i.stored_sha3()) << endl;
@@ -127,12 +131,13 @@ void try_large_tuples()
 
   uN tests = 0;
 
-  for (uN i = 0; i < 80000; i += i % 1997 + 1)
+  for (u64 i = 0; i < 80000; i += i % 1997 + 1)
   {
     ++tests;
     η0o o;
-    o.t(η0t::tuple).c(i % 20).h(i % 3 == 0);
-    for (uN j = 0; j <= i; ++j) o << j;
+    o.t(η0t::tuple).h(i % 3 == 0);
+    if (τhas_zstd) o.c(i % 20);
+    for (u64 j = 0; j <= i; ++j) o << j;
     o.into(d);
 
     A(η0bc(d, c), "η0bc failed for i = " << i);
@@ -153,11 +158,11 @@ void tuple_bench()
   let d = buf.data();
 
   let t0 = now();
-  for (uN i = 0; i < 10; ++i)
+  for (u64 i = 0; i < 10; ++i)
   {
     η0o o;
     o.t(η0t::tuple).reserve(1048576 * 64);  // .reserve() saves about 5% off the runtime
-    for (uN j = 0; j < 1048576; ++j) o << j;
+    for (u64 j = 0; j < 1048576; ++j) o << j;
     o.into(d);
   }
   let t1 = now();
@@ -166,8 +171,8 @@ void tuple_bench()
        << (t1 - t0) / 10 << endl;
 
   let t2 = now();
-  uN t = 0;
-  for (uN i = 0; i < 10; ++i)
+  u64 t = 0;
+  for (u64 i = 0; i < 10; ++i)
   {
     η1ti r{d};
     for (let &x : r) t += Sc<u64>(η1pi{x});

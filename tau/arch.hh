@@ -42,6 +42,7 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 # define τhas_assert_fail      1
 # define τhas_epoll            1
 # define τhas_emscripten_fiber 0
+# define τhas_zstd             1
 # define τhas_fast_exceptions  0  // FIXME: assertions should alert
 # define τplatform             τplatform_linux
 
@@ -57,6 +58,7 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 # define τhas_assert_fail      0
 # define τhas_epoll            0
 # define τhas_emscripten_fiber 1
+# define τhas_zstd             0
 # define τhas_boost_context    0
 # define τhas_fast_exceptions  0
 # define τplatform             τplatform_wasm

@@ -38,54 +38,8 @@ inline void τnb(uN fd)
 }
 
 
-template<class O>
-struct τf  // FD container for τ, behavior determined by O (an o9)
-{
-  τ  &t;
-  λg  w;
-  iN  rn = 1;  // NOTE: not always a real IO value; 1 means "not EOF, not error"
-  iN  re = 0;
-  iN  wn = 1;
-  iN  we = 0;
-  uN  wo = 0;  // write offset, to handle partial writes
-  uN  ep = 0;  // errno from epoll_ctl add, if any
-  O   o;       // important: must be final field
-
-  τf(τf const&) = delete;
-  τf(τf&&)      = delete;
-
-  template<class... T> τf(τ &f_, T...);
-  ~τf();
-
-  void init();
-
-  uN   fd()  const { return o.fd; }
-  bool eof() const { return !rn; }
-  bool ra()  const { return !(rn == -1 && re == EAGAIN); }
-  bool wa()  const { return !(wn == -1 && we == EAGAIN); }
-
-  τf  &reset()     { rn = wn = 1; return *this; }
-
-  iN   rx()  const { return rn == -1 ? re : 0; }
-  iN   wx()  const { return wn == -1 ? we : 0; }
-};
-
-
-O &operator<<(O&, τ&);
-
-template<class fO>
-O &operator<<(O&, τf<fO> const&);
-
-
 struct τ : public τb
 {
-  sletc τen = 256;  // number of events per epoll_wait call
-
-  iNc             efd;      // epoll control FD
-  M<uN, S<void*>> fs;       // who's listening for each FD
-  S<void*>        nfs;      // non-monitored files
-  epoll_event     ev[τen];  // inbound epoll event buffer
-
 
   τ(τ&)  = delete;
   τ(τ&&) = delete;
@@ -141,6 +95,15 @@ struct τ : public τb
     { l.go();
       while (f(*this)) (*this)(), l.go();
       return *this; }
+
+protected:
+  sletc τen = 256;  // number of events per epoll_wait call
+
+  iNc             efd;      // epoll control FD
+  M<uN, S<void*>> fs;       // who's listening for each FD
+  S<void*>        nfs;      // non-monitored files
+  epoll_event     ev[τen];  // inbound epoll event buffer
+
 };
 
 

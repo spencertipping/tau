@@ -4,9 +4,13 @@
 
 #include <memory>
 
-#include <zstd.h>
-
 #include "../dep/picosha3.h"
+
+#include "arch.hh"
+
+#if τhas_zstd
+# include <zstd.h>
+#endif
 
 
 #include "types.hh"
@@ -107,7 +111,7 @@ struct η0i
   Ar<u8, 32> sha3() const
     { auto sha3_256 = picosha3::get_sha3_generator<256>();
       Ar<u8, 32> hv{};
-      let v = Bv{cdata() + 8, csize() - 8};
+      let v = Bv{cdata(), csize()};
       sha3_256(v.begin(), v.end(), hv.begin(), hv.end());
       return hv; }
 
@@ -140,6 +144,7 @@ protected:
 
 
   // Decompression: null if the compressed data exceeds the size limit
+  #if τhas_zstd
   u8 *unzip(uN limit = -1) const
     { let us = size();              A(us <= limit, "unzip() oversized data: " << us << " > " << limit);
       let r  = Sc<u8*>(malloc(us)); A(r,           "malloc() for decompression failed");
@@ -147,6 +152,11 @@ protected:
       if (ZSTD_isError(ds)) { free(r); A(0, "η₀ corrupt compressed data: " << ZSTD_getErrorName(ds)); }
       if (ds != us)         { free(r); A(0, "η₀ decompressed size mismatch: " << ds << " ≠ " << us); }
       return r; }
+  #else
+  u8 *unzip(uN limit = -1) const
+    { A(0, "no zstd on this platform");
+      return nullptr; }
+  #endif
 
   void decode(u8c *a_)
     { a = a_;

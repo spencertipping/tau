@@ -2,9 +2,10 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-which=${1:-zeta}
+which=${1:-eta0}
 
 exec \
-  dev/emsdk em++ -Wno-parentheses -Wno-shift-count-overflow \
-                 -sTOTAL_MEMORY=1024MB \
-                 -std=c++20 -fexceptions -O3 -sASYNCIFY try/$which.cc -o try/$which.js
+  dev/emsdk em++ \
+    -Wno-parentheses -Wno-shift-count-overflow \
+    -sTOTAL_MEMORY=1024MB \
+    -std=c++20 -fexceptions -O3 -sASYNCIFY try/$which.cc -o try/$which.js

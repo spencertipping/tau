@@ -149,7 +149,13 @@ ic u8 si(i64 x) { return 1 << bi(x); }
 
 
 // Bytes required to store an integer
-ic u8 ubytes(u64 x) { u8 r = 0; while (x) x >>= 8, ++r; return r; }
+ic u8 ubytes(u64 x)
+{ u8 r = 0;
+  if (x >> 32) r += 4, x >>= 32;
+  if (x >> 16) r += 2, x >>= 16;
+  if (x >> 8)  r += 1, x >>= 8;
+  if (x) ++r;
+  return r; }
 
 // Bits required to store an integer (i.e. index of highest bit)
 ic u8 ubits(u64 x)

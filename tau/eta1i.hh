@@ -64,7 +64,8 @@ struct η1ti : public η1i  // tuple-oriented input (also works for sets)
            x < i.data() + i.size();
            x += η0i(x).osize())
         if (!j--) return x;
-      A(0, "η₁ti[] OOB"); }
+      A(0, "η₁ti[] OOB");
+      return nullptr; }
 
   struct it
   {

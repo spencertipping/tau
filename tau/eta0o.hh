@@ -2,11 +2,16 @@
 #define τη0o_h
 
 
+#include <memory>
 #include <string>
 
-#include <zstd.h>
-
 #include "../dep/picosha3.h"
+
+#include "arch.hh"
+
+#if τhas_zstd
+# include <zstd.h>
+#endif
 
 
 #include "types.hh"
@@ -49,7 +54,8 @@ struct η0o
 
   // TODO: operator=(η0i)
 
-  η0o &operator=(int   x) { t(η0t::int_be);   d.p.i = x; return *this; }
+  η0o &operator=(int      x) { return *this = Sc<i64>(x); }
+  η0o &operator=(unsigned x) { return *this = Sc<u64>(x); }
 
   η0o &operator=(u64   x) { t(η0t::uint_be);  d.p.u = x; return *this; }
   η0o &operator=(i64   x) { t(η0t::int_be);   d.p.i = x; return *this; }
@@ -151,8 +157,13 @@ struct η0o
 
       if (h_)
       { auto sha3_256 = picosha3::get_sha3_generator<256>();
+        if (c_)  // hash the length prefix
+        { u8 p[8]; W(p, 0, Sc<u64>(sd().size()));
+          sha3_256.process(std::begin(p), std::end(p)); }
         Ar<u8, 32> hv{};
-        sha3_256(data().begin(), data().end(), hv.begin(), hv.end());
+        sha3_256.process(data().begin(), data().end());
+        sha3_256.finish();
+        sha3_256.get_hash_bytes(hv.begin(), hv.end());
         memcpy(m + o, hv.data(), 32);
         o += 32; }
 
@@ -218,7 +229,8 @@ protected:
   B    &cd   () const { if (!cs) cs = cdata();        return *cs;   }
   void  del_c()       { if ( cs) delete cs, cs = nullptr;           }
 
-  B    *cdata() const
+  #if τhas_zstd
+  B *cdata() const
     { A(!p(), "cdata() on primitive");
       let r  = new B; r->resize(ZSTD_compressBound(d.s_->size()));
       let cr = ZSTD_compress(r   ->data(), r   ->capacity(),
@@ -228,6 +240,11 @@ protected:
         A(0, "η₀ compression error: " << ZSTD_getErrorName(cr)); }
       r->resize(cr);
       return r; }
+  #else
+  B *cdata() const
+    { A(0, "no zstd on this platform");
+      return nullptr; }
+  #endif
 };
 
 

@@ -15,3 +15,6 @@ try0/http
 try/eta0
 try/xi
 try/psi
+
+try/*.js
+try/*.wasm

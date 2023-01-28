@@ -54,10 +54,10 @@ void try_basic()
 void try_ints()
 {
   Λ L;
-  u64 j = 0;
-  u64 c = 0;
-  uNc N = 1048576;
-  uNc K = 1024;
+  u64  j = 0;
+  u64  c = 0;
+  u64c N = 1048576 * 16;
+  u64c K = 65536;
 
   {
     Ξ X(L);
@@ -70,7 +70,6 @@ void try_ints()
         j = t;
       });
     }
-    cout << X << endl;
 
     {
       auto o = X.o("foo", nullptr, K);
@@ -80,7 +79,6 @@ void try_ints()
         o.close();
       });
     }
-    cout << X << endl;
   }
 
   let t0 = now();
