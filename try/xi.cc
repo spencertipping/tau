@@ -73,8 +73,8 @@ void try_ints()
     cout << X << endl;
 
     {
-      let o = X.o("foo", nullptr, K);
-      L.c([=]() {
+      auto o = X.o("foo", nullptr, K);
+      L.c([=]() mutable {
         for (u64 i = 0; i < N; ++i)
           A(o << η0o{i}, "failed to write " << i);
         o.close();
@@ -113,8 +113,8 @@ void try_big()
     }
 
     {
-      let o = X.o("foo", nullptr, 64);
-      L.c([=, &k]() {
+      auto o = X.o("foo", nullptr, 64);
+      L.c([=, &k]() mutable {
         for (u64 i = 0; i < 10000; ++i)
         {
           η0o x;

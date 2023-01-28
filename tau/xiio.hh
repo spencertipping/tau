@@ -26,8 +26,9 @@ struct ξi
   void     close()       { x.reset(); }
   η0i operator *() const { A(x,  "*ξi on closed");            return **x; }
   ξi &operator++()       { A(x, "++ξi on closed"); x->next(); return *this; }
-  bool       eof() const {                                    return !x || x->eof(); }
-  uN          ra() const {                                    return x ? x->ra() : 0; }
+
+  bool eof(bool nonblock = false) const
+    { return !x || x->eof(nonblock); }
 
   ξi &weaken() { x->weaken(); return *this; }
 
@@ -61,9 +62,14 @@ struct ξo
   ξo &operator=(ξo const &c) { x = c.x; return *this; }
 
 
-  void                        close()           const { if (let y = x.lock()) y->close(); }
-  template<η0ot T> bool operator<< (T const &z) const {     let y = x.lock(); return y && *y << z; }
-  template<η0ot T> bool operator<<=(T const &z) const {     let y = x.lock(); return y && (*y <<= z); }
+  void close() { if (let y = x.lock()) y->close(); }
+
+  template<η0ot T> bool operator<< (T const &z) { return write(z, false); }
+  template<η0ot T> bool operator<<=(T const &z) { return write(z, true); }
+
+  template<η0ot T> bool write(T const &z, bool nonblock = false)
+    { let y = x.lock(); return y && y->write(z, nonblock); }
+
 
   Sp<ξ> inner_ξ() const { return x.lock(); }
 

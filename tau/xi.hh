@@ -43,8 +43,8 @@ struct ξ
 
   void resize(uN c)   { z.resize(c); }
 
-  bool eof()
-    { while (!ra() && !wc) if (!rg.y(λs::ξR)) return true;
+  bool eof(bool nonblock = false)
+    { while (!ra() && !wc) if (nonblock || !rg.y(λs::ξR)) return true;
       return !ra() && wc; }
 
 
@@ -52,17 +52,14 @@ struct ξ
   // a value
   void close() { wc = true; rg.w(true); }
 
-  // Blocking write, false if epipe
-  template<η0ot T> bool operator<<(T const &x)
+  // Blocking (<<) or nonblocking (<<=) write
+  template<η0ot T> bool write(T const &x, bool nonblock = false)
     { let s = x.osize();
-      if (s > z.capacity()) return sidecar_write(x, s, false);
-      else                  return pipe_write   (x, s, false); }
+      if (s > z.capacity()) return sidecar_write(x, s, nonblock);
+      else                  return pipe_write   (x, s, nonblock); }
 
-  // Nonblocking write, false if epipe or insufficient space now
-  template<η0ot T> bool operator<<=(T const &x)
-    { let s = x.osize();
-      if (s > z.capacity()) return sidecar_write(x, s, true);
-      else                  return pipe_write   (x, s, true); }
+  template<η0ot T> bool operator<< (T const &x) { return write(x, false); }
+  template<η0ot T> bool operator<<=(T const &x) { return write(x, true); }
 
 
   // Reader interface: delete ξ to finalize the read-side, iterator and

@@ -86,7 +86,7 @@ protected:
 {
   Ξ y{l()};
   for (let &[k, v] : xs_) if (!std::regex_match(k, r)) y.xs_[k] = v;
-  for (let &[k, v] : x.xs_) y.xs_[k] = v;
+  for (let &[k, v] : x)   y.xs_[k] = v;
   return y;
 }
 
