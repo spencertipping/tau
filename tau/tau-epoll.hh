@@ -27,29 +27,6 @@ namespace τ
 {
 
 
-// FIXME: new logic can focus on re-entry: we have the Λ-go setup phase,
-// then return Θ when Λ quantum is over. The setup phase creates FD ETs.
-//
-// We can still have the go/go_async split like we do now.
-//
-// τ should provide methods that ET→λg, but shouldn't itself deal with
-// more FD mechanics than that.
-//
-// τ-epoll should be async-callable if epoll() is meant to be called by
-// someone else, or if we want to set its delay to zero. It can yield out
-// when Θ is required.
-
-// We should also have support for fork() and pipe() to connect τs
-// together across processes. This should probably be a builtin because
-// the child process τ will need to reset its state, deleting all existing
-// λs and starting a new Γ.
-//
-// So γ τ::fork(γ), probably.
-
-// NOTE: τ can read ζ→FD zero-copy, although FD→ζ involves the two-step
-// copy through η₀o.
-
-
 struct τ : public τb
 {
   τ(τ&)  = delete;
@@ -60,7 +37,11 @@ struct τ : public τb
       A(efd != -1, "epoll_create1 failure " << errno); }
 
   ~τ()
-    { for (let &[fd, g] : gs) delete g, close(fd);
+    { for (let &[fd, g] : gs)
+      { g->r.w(false);
+        g->w.w(false);
+        delete g;
+        close(fd); }
       A(!close(efd), "~τ close failed (fd leak) " << errno); }
 
 
@@ -73,25 +54,24 @@ struct τ : public τb
   };
 
 
-  // Set nonblocking status for a FD, returning the FD.
+  // Set nonblocking status for a FD, returning the FD. This is done
+  // automatically when a FD is added to the epoll_wait set.
   static fd_t nb(fd_t fd)
     { fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
       return fd; }
 
 
-  λg<bool> *rg(fd_t fd)
-    { if (let g = at(fd)) return &g->r;
-      else                return nullptr; }
-
-  λg<bool> *wg(fd_t fd)
-    { if (let g = at(fd)) return &g->w;
-      else                return nullptr; }
-
+  λg<bool> *rg(fd_t fd) { if (let g = at(fd)) return &g->r; else return nullptr; }
+  λg<bool> *wg(fd_t fd) { if (let g = at(fd)) return &g->w; else return nullptr; }
 
   iN read  (fd_t fd, u8  *b, uN l)       { return gated(rg(fd), λs::τR, &::read,   fd, b, l); }
   iN write (fd_t fd, u8c *b, uN l)       { return gated(wg(fd), λs::τW, &::write,  fd, b, l); }
   iN pread (fd_t fd, u8  *b, uN l, uN o) { return gated(rg(fd), λs::τR, &::pread,  fd, b, l, o); }
   iN pwrite(fd_t fd, u8c *b, uN l, uN o) { return gated(wg(fd), λs::τW, &::pwrite, fd, b, l, o); }
+
+
+  // TODO: fork() with a γ argument to create the new pipeline
+  // use FIFO + multiplexed communication
 
 
   // Close an FD and remove it from the epoll watch set. Also delete
@@ -107,6 +87,9 @@ struct τ : public τb
       return ::close(fd); }
 
 
+  // Call epoll_wait() and invoke all wakeups and Θ-blocked functions.
+  // If nonblock = true, epoll_wait() will have a timeout of zero, making
+  // it nonblocking.
   τ &operator()(bool nonblock = false)
     { epoll_event evs[16];
       while (now() < hn() && (!gs.empty() || hn() != forever()))
@@ -157,12 +140,16 @@ protected:
   // Run a function by repeating it against a gate as long as EAGAIN
   // is returned and the associated fd is gated.
   //
-  // errno is valid when this function returns.
+  // errno represents the syscall's error state when this function
+  // returns.
   template<class F, class... Xs>
   iN gated(λg<bool> *g, λs ys, F *f, Xs... xs)
     { iN r;
-      while ((r = f(xs...)) == -1 && errno == EAGAIN)
-        if (!g || !g->y(ys)) break;
+      iN e = 0;
+      while ((r = f(xs...)) == -1 && (e = errno) == EAGAIN)
+        // NOTE: errno may have been async-reset within g->y, so restore
+        // it here before breaking
+        if (!g || !g->y(ys)) { errno = e; break; }
       return r; }
 };
 

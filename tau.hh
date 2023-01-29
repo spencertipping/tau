@@ -23,7 +23,7 @@
 #include "tau/gamma.hh"
 #include "tau/Gamma.hh"
 
-// #include "tau/tau.hh"
+#include "tau/tau.hh"
 
 
 #endif
