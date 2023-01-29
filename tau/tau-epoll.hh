@@ -17,6 +17,7 @@
 #include "types.hh"
 #include "Lambda.hh"
 #include "gate.hh"
+#include "psi.hh"
 
 #include "tau-common.hh"
 
@@ -27,16 +28,16 @@ namespace τ
 {
 
 
-struct τ : public τb
+struct τe : public τb
 {
-  τ(τ&)  = delete;
-  τ(τ&&) = delete;
-  τ() : τb(), efd(epoll_create1(0))
+  τe(τe&)  = delete;
+  τe(τe&&) = delete;
+  τe() : τb(), efd(epoll_create1(0))
     { // Important: ignore SIGPIPE so we can catch it as an error on FD ops
       signal(SIGPIPE, SIG_IGN);
       A(efd != -1, "epoll_create1 failure " << errno); }
 
-  ~τ()
+  ~τe()
     { for (let &[fd, g] : gs)
       { g->r.w(false);
         g->w.w(false);
@@ -90,21 +91,28 @@ struct τ : public τb
   // Call epoll_wait() and invoke all wakeups and Θ-blocked functions.
   // If nonblock = true, epoll_wait() will have a timeout of zero, making
   // it nonblocking.
-  τ &operator()(bool nonblock = false)
-    { epoll_event evs[16];
-      while (now() < hn() && (!gs.empty() || hn() != forever()))
-      { let dt = (hn() - now()) / 1ms;
+  τe &operator()(bool nonblock = false)
+    { while (now() < hn() && (!gs.empty() || hn() != forever()))
+      { epoll_event evs[16];
+        let dt = (hn() - now()) / 1ms;
         let n  = epoll_wait(efd, evs, sizeof(evs) / sizeof(epoll_event),
                             nonblock ? 0 : std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
         A(n != -1, "epoll_wait error " << errno);
         if (!n) break;
+
         for (int i = 0; i < n; ++i)
         { let f = evs[i].data.fd;
           if (gs.contains(f))
           { let g = at(f);
             if (evs[i].events & EPOLLIN)  g->r.w(true);
             if (evs[i].events & EPOLLOUT) g->w.w(true);
-            if (evs[i].events & EPOLLERR) g->w.w(false); }}}
+            if (evs[i].events & EPOLLERR) g->w.w(false); }}
+
+        // NOTE: continue to poll if we have more events, but don't block
+        // for anything other than the first one -- we need to run another
+        // Λ quantum to consume the events.
+        nonblock = true; }
+
       while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
@@ -112,16 +120,21 @@ struct τ : public τb
   operator bool() const
     { return !gs.empty() || l || hn() != forever(); }
 
-  τ &go(bool               nonblock = false,
-        F<bool(τ&)> const &f        = [](τ &f) { return Sc<bool>(f); })
+  τe &go(bool                nonblock = false,
+         F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); })
     { l.go();
       while (f(*this)) (*this)(nonblock), l.go();
       return *this; }
 
 
+  τe &pin  (Sp<ψ> q) { qs.insert(q); return *this; }
+  τe &unpin(Sp<ψ> q) { qs.erase(q);  return *this; }
+
+
 protected:
   fd_t          efd;  // epoll control FD
   M<fd_t, λgs*> gs;   // edge-triggered gate pairs
+  S<Sp<ψ>>      qs;   // boundary-pinned ψs
 
 
   // Attempt to allocate an epolled gate pair for the given FD, which
@@ -144,8 +157,7 @@ protected:
   // returns.
   template<class F, class... Xs>
   iN gated(λg<bool> *g, λs ys, F *f, Xs... xs)
-    { iN r;
-      iN e = 0;
+    { iN r, e;
       while ((r = f(xs...)) == -1 && (e = errno) == EAGAIN)
         // NOTE: errno may have been async-reset within g->y, so restore
         // it here before breaking

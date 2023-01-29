@@ -131,8 +131,9 @@ O &operator<<(O &s, Λt const &l)
 
 O &operator<<(O &s, Λ &l)
 {
-  s << "Λ λ=" << l.i() << " r="; for (let i : l.rs) s << i << " "; s << std::endl;
-  for (let &[k, v] : l.ls) s << "  " << k << "\t" << v << std::endl;
+  s << "Λ λ=" << l.i() << " r=";
+  for (let i : l.rs) s << i << " "; s << std::endl;
+  for (let &[k, v] : l.ls) s << "  " << k << "\t" << *v << std::endl;
   return s;
 }
 

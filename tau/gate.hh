@@ -63,7 +63,7 @@ struct λg
   // NOTE: you can awaken multiple times before the λs are scheduled. If you
   // do, the last w() argument is used as the wake message and previous values
   // are discarded.
-  void w(T x)  { c->w(x); }
+  void w(T x) { c->w(x); }
 
 protected:
   Sp<λgc<T>> c;
