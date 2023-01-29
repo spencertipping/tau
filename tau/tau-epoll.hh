@@ -2,10 +2,6 @@
 #define τ²epoll_h
 
 
-// TODO: cap the wait-time for files and other non-epollables
-// so we revisit and awaken them
-
-
 #include <algorithm>
 
 #include <errno.h>
@@ -29,130 +25,139 @@ namespace τ
 {
 
 
-// TODO: rework most of this logic; it's pretty convoluted
+// FIXME: new logic can focus on re-entry: we have the Λ-go setup phase,
+// then return Θ when Λ quantum is over. The setup phase creates FD ETs.
+//
+// We can still have the go/go_async split like we do now.
+//
+// τ should provide methods that ET→λg, but shouldn't itself deal with
+// more FD mechanics than that.
+//
+// τ-epoll should be async-callable if epoll() is meant to be called by
+// someone else, or if we want to set its delay to zero. It can yield out
+// when Θ is required.
 
+// We should also have support for fork() and pipe() to connect τs
+// together across processes. This should probably be a builtin because
+// the child process τ will need to reset its state, deleting all existing
+// λs and starting a new Γ.
+//
+// So γ τ::fork(γ), probably.
 
-inline void τnb(uN fd)
-{
-  fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
-}
+// NOTE: τ can read ζ→FD zero-copy, although FD→ζ involves the two-step
+// copy through η₀o.
 
 
 struct τ : public τb
 {
-
   τ(τ&)  = delete;
   τ(τ&&) = delete;
   τ() : τb(), efd(epoll_create1(0))
     { signal(SIGPIPE, SIG_IGN);
       A(efd != -1, "epoll_create1 failure " << errno); }
 
-  ~τ() { A(!close(efd), "~τ close failed (fd leak) " << errno); }
-
-  constexpr bool is_async() { return false; }
-
-
-  template<class O>
-  bool operator<<(τf<O> &f)
-    { epoll_event ev;
-      ev.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
-      let c = ev.data.fd = f.fd();
-      let r = fs.contains(c) || epoll_ctl(efd, EPOLL_CTL_ADD, c, &ev) != -1;
-      if (r) fs[c].emplace(&f);
-      else   nfs.emplace(&f);
-      return r; }
-
-  template<class O>
-  bool x(τf<O> &f)
-    { nfs.erase(&f);
-      let c = f.fd();
-      if (fs.contains(c))
-      { auto &s = fs.at(c);
-        s.erase(&f);
-        if (!s.empty()) return true;
-        fs.erase(c); }
-      return true; }
+  ~τ()
+    { for (let &[fd, g] : gs) delete g, close(fd);
+      A(!close(efd), "~τ close failed (fd leak) " << errno); }
 
 
-  τ &operator()()
-    { let t = now();
-      if (t < hn() && (!fs.empty() || hn() < forever()))
-      { let dt = (hn() - t) / 1ms;
-        let n  = epoll_wait(efd, ev, τen, std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
+  // λg pair: one gate to wait until a file is readable, one for write;
+  // gates return false on error.
+  struct λgs
+  {
+    λg<bool> r;
+    λg<bool> w;
+  };
+
+
+  // Set nonblocking status for a FD, returning the FD.
+  static fd_t nb(fd_t fd)
+    { fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
+      return fd; }
+
+
+  λg<bool> *rg(fd_t fd)
+    { if (let g = at(fd)) return &g->r;
+      else                return nullptr; }
+
+  λg<bool> *wg(fd_t fd)
+    { if (let g = at(fd)) return &g->w;
+      else                return nullptr; }
+
+
+  // FIXME: gated() is not resolved? no idea why, probably function shenanigans
+  iN read (fd_t fd, u8  *b, uN l) { return gated(rg(fd), λs::τR, &::read,  fd, b, l); }
+  iN write(fd_t fd, u8c *b, uN l) { return gated(wg(fd), λs::τW, &::write, fd, b, l); }
+
+
+  // Close an FD and remove it from the epoll watch set. Also delete
+  // its gates after awakening both with false to indicate that any
+  // pending operations should not move forwards.
+  int close(fd_t fd)
+    { if (gs.contains(fd))
+      { let g = gs.at(fd);
+        g->r.w(false);
+        g->w.w(false);
+        delete g;
+        gs.erase(fd); }
+      return ::close(fd); }
+
+
+  τ &operator()(bool nonblock = false)
+    { epoll_event evs[16];
+      while (now() < hn() && (!gs.empty() || hn() < forever()))
+      { let dt = (hn() - now()) / 1ms;
+        let n  = epoll_wait(efd, evs, sizeof(evs) / sizeof(epoll_event),
+                            nonblock ? 0 : std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
         A(n != -1, "epoll_wait error " << errno);
-        for (iN i = 0; i < n; ++i)
-          for (let f : fs.at(ev[i].data.fd))
-            // NOTE: mistyping here is OK, as we just want to issue wakeups
-            Rc<τf<void*>*>(f)->reset().w.w(); }
+        if (!n) break;
+        for (int i = 0; i < n; ++i)
+        { let f = evs[i].data.fd;
+          if (gs.contains(f))
+          { if (evs[i].events & EPOLLIN)  at(f)->r.w(true);
+            if (evs[i].events & EPOLLOUT) at(f)->w.w(true);
+            if (evs[i].events & EPOLLERR) at(f)->w.w(false); }}}
       while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
-  operator bool() const
-    { return !fs.empty() || !nfs.empty() || hn() != forever(); }
 
-  τ &go_async() { A(0, "τ is not async"); return *this; }
-  τ &go(F<bool(τ&)> const &f = [](τ &f) { return Sc<bool>(f); })
+  operator bool() const
+    { return !gs.empty() || l || hn() != forever(); }
+
+  τ &go(bool               nonblock = false,
+        F<bool(τ&)> const &f        = [](τ &f) { return Sc<bool>(f); })
     { l.go();
-      while (f(*this)) (*this)(), l.go();
+      while (f(*this)) (*this)(nonblock), l.go();
       return *this; }
 
+
 protected:
-  sletc τen = 256;  // number of events per epoll_wait call
+  fd_t          efd;  // epoll control FD
+  M<fd_t, λgs*> gs;   // edge-triggered gate pairs
 
-  iNc             efd;      // epoll control FD
-  M<uN, S<void*>> fs;       // who's listening for each FD
-  S<void*>        nfs;      // non-monitored files
-  epoll_event     ev[τen];  // inbound epoll event buffer
 
+  // Attempt to allocate an epolled gate pair for the given FD, which
+  // is set to nonblocking. Return it if successful, return nullptr
+  // if the FD cannot be polled.
+  λgs *at(fd_t fd)
+    { if (!gs.contains(fd))
+      { epoll_event ev;
+        ev.events  = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
+        ev.data.fd = nb(fd);
+        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return nullptr;
+        return gs[fd] = new λgs{l, l}; }
+      return gs.at(fd); }
+
+
+  // Run a function by repeating it against a gate as long as EAGAIN
+  // is returned and the associated fd is gated.
+  template<class... Xs>
+  iN gated(λg<bool> *g, λs ys, int(*f)(Xs...), Xs... xs)
+    { iN r;
+      while ((r = f(xs...)) == -1 && errno == EAGAIN)
+        if (!g || !g->y(ys)) break;
+      return r; }
 };
-
-
-template<class O>
-template<class... T>
-inline τf<O>::τf(τ &t_, T... xs) : t(t_), w{t.l}, o{rn, re, xs...}
-{
-  init();
-}
-
-
-template<class T, class O>
-bool τread(T &x, τf<O> &r)
-{
-  TODO("FIXME: τread() needs operator<< to be updated");
-  while (1)
-  {
-    if      (x << r.o)         return true;
-    else if (!r.ep && !r.ra()) r.w.y(λs::τI);
-    else                       return false;
-  }
-}
-
-
-O &operator<<(O &s, τΘ const &h)
-{
-  return s << "τΘ:" << h.h << ":" << h.l;
-}
-
-template<class fO>
-O &operator<<(O &s, τf<fO> const &f)
-{
-  return s << "τf[" << f.o.fd << ":" << f.ep
-           << " r=" << f.rn << " " << f.re
-           << " w=" << f.wn << " " << f.we << "]";
-}
-
-O &operator<<(O &s, τ &t)
-{
-  V<τΘ> hs;
-  while (!t.h.empty()) hs.push_back(t.h.top()), t.h.pop();
-  for (let &h : hs) t.h.push(h);
-  s << "τ efd=" << t.efd << " Θ=";
-  for (let &h : hs) s << h << " ";
-  s << "; fds=";
-  for (let &[fd, l] : t.fs) s << fd << ":" << l.size() << " ";
-  s << "; nfs=" << t.nfs.size();
-  return s << std::endl << t.l << std::endl;
-}
 
 
 }

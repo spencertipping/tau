@@ -44,6 +44,12 @@ struct τb  // base τ
 };
 
 
+O &operator<<(O &s, τΘ const &h)
+{
+  return s << "τΘ:" << h.h << ":" << h.l;
+}
+
+
 }
 
 #include "end.hh"

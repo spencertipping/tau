@@ -91,6 +91,12 @@ struct Λ
       qΘ.stop();
       return *this; }
 
+  operator bool() const
+    { if (fin) return false;
+      for (let i : rs)
+        if (e(i) && (*this)[i].runnable()) return true;
+      return false; }
+
   λi operator()()  // find next λi to run
     { if (fin) return 0;
       for (let i : rs)
