@@ -72,7 +72,7 @@ linux_link()
   done
 
   if [[ -n $build ]]; then
-    g++ $linux_flags $obj -o $out bin/tau.a ${linux_link[@]}
+    g++ $linux_flags $obj -o $out bin/tau-linux.a ${linux_link[@]}
     echo "linux/link $out"
   fi
 }
@@ -92,8 +92,7 @@ wasm_link()
   done
 
   if [[ -n $build ]]; then
-    dev/emsdk em++ $wasm_flags `find bin/wasm/tau -name '*.o'` \
-              $obj -o $out ${wasm_link[@]}
+    dev/emsdk em++ $wasm_flags $obj -o $out bin/tau-wasm.a ${wasm_link[@]}
     echo "wasm/link $out"
   fi
 }
@@ -106,8 +105,9 @@ compile()
     wasm_cc  $f &
   done
   wait
-  rm -f bin/tau.a
-  ar rcs bin/tau.a `find bin/linux/tau -name '*.o'`
+  rm -f bin/*.a
+  ar rcs bin/tau-linux.a `find bin/linux/tau -name '*.o'`
+  dev/emsdk emar rcs bin/tau-wasm.a `find bin/wasm/tau -name '*.o'`
   echo "compile done"
 }
 
