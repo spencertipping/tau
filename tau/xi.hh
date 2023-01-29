@@ -136,11 +136,7 @@ protected:
 };
 
 
-O &operator<<(O &s, ξ const &y)
-{
-  return s << "ξ[" << (y.wc ? "#" : "")
-           << "wt=" << y.wt() << " " << y.z << "]";
-}
+O &operator<<(O &s, ξ const &y);
 
 
 }

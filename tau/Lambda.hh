@@ -45,62 +45,17 @@ struct Λ
   // world is ending, nothing matters from here.
   ~Λ() { fin = true; }
 
-
   bool e(λi i) const { return ls.contains(i); }
   λi   i()     const { return ri; }
 
+  λi  c(λf &&);
+  Λ  &x(λi);
+  Λ  &y(λs);               // yield currently-running λ with specified yield state
+  Λ  &r(λi, λs = λs::R);   // set λi to runnable, or other state
 
-  λi c(λf &&f)
-    { if (fin) return 0;
-      let i = ιi(ni, ls);
-      ls[i].reset(new Λt(std::move(f)));
-      r(i, λs::R);
-      return  i; }
-
-  Λ &x(λi i)
-    { if (fin) return *this;
-      A(ri != i, "self λx");
-      ls.erase(i);
-      return *this; }
-
-
-  Λ &y(λs s)  // yield currently-running λ with specified yield state
-    { if (fin) return *this;
-      A(i(), "Λy from main thread");
-      r(ri, s);
-      λy();
-      return *this; }
-
-  Λ &r(λi i, λs s = λs::R)  // set λi to runnable, or other state
-    { if (fin || !e(i)) return *this;
-      auto &l = *ls.at(i);
-      l.s = s;
-      if (l.runnable()) rs.insert(i);
-      return *this; }
-
-
-  Λ &operator<<(λi i)  // run λi for one quantum
-    { if (fin) return *this;
-      A(!ri, "Λ<< from non-main thread");
-      rs.erase(i);
-      auto &l = *ls.at(ri = i);
-      qΘ.start();
-      l.run();
-      ri = 0;
-      if (l.done()) ls.erase(i);
-      qΘ.stop();
-      return *this; }
-
-
-  λi operator()() const  // find next λi to run
-    { if (fin) return 0;
-      for (let i : rs) if (e(i) && ls.at(i)->runnable()) return i;
-      return 0; }
-
-  Λ &go()  // run as long as there is stuff to do
-    { for (λi t; (t = (*this)()); *this << t);
-      for (auto &[i, s] : ls) if (s->s == λs::Y) r(i);
-      return *this; }
+  Λ  &operator<<(λi);      // run λi for one quantum
+  λi  operator()() const;  // find next λi to run
+  Λ          &go();        // run as long as there is stuff to do
 
 
 protected:
@@ -111,22 +66,12 @@ protected:
   λi            ri  = 0;      // currently running λi (0 = main thread)
   bool          fin = false;  // we're done; ignore all requests
 
-  friend O &operator<<(O &s, Λ &l);
+  friend O &operator<<(O&, Λ&);
 };
 
 
-O &operator<<(O &s, Λt const &l)
-{
-  return s << "λ" << l.s << (l.done() ? "=" : "");
-}
-
-O &operator<<(O &s, Λ &l)
-{
-  s << "Λ λ=" << l.i() << " r=";
-  for (let i : l.rs) s << i << " "; s << std::endl;
-  for (let &[k, v] : l.ls) s << "  " << k << "\t" << *v << std::endl;
-  return s;
-}
+O &operator<<(O&, Λt const &);
+O &operator<<(O&, Λ&);
 
 
 }

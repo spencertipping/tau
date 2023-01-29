@@ -1,6 +1,6 @@
-#ifndef τλ_boost_h
-#define τλ_boost_h
+#include "arch.hh"
 
+#if τhas_boost_context
 
 #include "types.hh"
 #include "lambda-types.hh"
@@ -20,7 +20,7 @@ bool λmi;  // true if current continuation is main
 
 void λm(λbc::continuation &&cc)
 {
-  if (cc) *λmk = std::move(cc);
+  if (cc) **λmk() = std::move(cc);
 }
 
 
@@ -36,7 +36,7 @@ void λm(λbc::continuation &&cc)
         λm(cc.resume());
         f();
         fin();
-        return std::move(*λmk);
+        return std::move(**λmk());
       }));
 }
 
@@ -73,7 +73,7 @@ void λ::fin()
         λm(cc.resume());
         f();
         fin();
-        return std::move(*λmk);
+        return std::move(**λmk());
       });
     cc = cc.resume();
     if (k) *k = std::move(cc);
@@ -92,21 +92,19 @@ void λ::fin()
 void λy()
 {
   assert(!λmi);
-  assert(*λmk);
-  *λmk = λmk->resume();
+  assert(*λmk());
+  **λmk() = (*λmk())->resume();
 }
 
 
 void λinit_()
 {
   λmi = true;
-  λmk = new λbc::continuation;
+  *λmk() = new λbc::continuation;
 }
 
 
 }
 
 #include "end.hh"
-
-
 #endif

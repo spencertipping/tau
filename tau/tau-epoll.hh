@@ -78,43 +78,13 @@ struct τe : public τb
   // Close an FD and remove it from the epoll watch set. Also delete
   // its gates after awakening both with false to indicate that any
   // pending operations should not move forwards.
-  int close(fd_t fd)
-    { if (gs.contains(fd))
-      { let g = gs.at(fd);
-        g->r.w(false);
-        g->w.w(false);
-        delete g;
-        gs.erase(fd); }
-      return ::close(fd); }
+  int close(fd_t);
 
 
   // Call epoll_wait() and invoke all wakeups and Θ-blocked functions.
   // If nonblock = true, epoll_wait() will have a timeout of zero, making
   // it nonblocking.
-  τe &operator()(bool nonblock = false)
-    { while (now() < hn() && (!gs.empty() || hn() != forever()))
-      { epoll_event evs[16];
-        let dt = (hn() - now()) / 1ms;
-        let n  = epoll_wait(efd, evs, sizeof(evs) / sizeof(epoll_event),
-                            nonblock ? 0 : std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
-        A(n != -1, "epoll_wait error " << errno);
-        if (!n) break;
-
-        for (int i = 0; i < n; ++i)
-        { let f = evs[i].data.fd;
-          if (gs.contains(f))
-          { let g = at(f);
-            if (evs[i].events & EPOLLIN)  g->r.w(true);
-            if (evs[i].events & EPOLLOUT) g->w.w(true);
-            if (evs[i].events & EPOLLERR) g->w.w(false); }}
-
-        // NOTE: continue to poll if we have more events, but don't block
-        // for anything other than the first one -- we need to run another
-        // Λ quantum to consume the events.
-        nonblock = true; }
-
-      while (now() >= hn()) l.r(h.top().l), h.pop();
-      return *this; }
+  τe &operator()(bool nonblock = false);
 
 
   operator bool() const
@@ -132,7 +102,7 @@ struct τe : public τb
 
 
 protected:
-  fd_t          efd;  // epoll control FD
+  fd_t    const efd;  // epoll control FD
   M<fd_t, λgs*> gs;   // edge-triggered gate pairs
   S<Sp<ψ>>      qs;   // boundary-pinned ψs
 
@@ -140,14 +110,7 @@ protected:
   // Attempt to allocate an epolled gate pair for the given FD, which
   // is set to nonblocking. Return it if successful, return nullptr
   // if the FD cannot be polled.
-  λgs *at(fd_t fd)
-    { if (!gs.contains(fd))
-      { epoll_event ev;
-        ev.events  = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
-        ev.data.fd = nb(fd);
-        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return nullptr;
-        return gs[fd] = new λgs{l, l}; }
-      return gs.at(fd); }
+  λgs *at(fd_t);
 
 
   // Run a function by repeating it against a gate as long as EAGAIN

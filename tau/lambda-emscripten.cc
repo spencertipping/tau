@@ -1,6 +1,6 @@
-#ifndef τλ_emscripten_h
-#define τλ_emscripten_h
+#include "arch.hh"
 
+#if τhas_emscripten_fiber
 
 #include <memory>
 
@@ -58,7 +58,7 @@ void λinvoke(void *λ_)
 λ &λ::operator()()
 {
   assert(!done());
-  assert(λthis == &λmk);
+  assert(λthis == λmk());
   λsx   = false;
   let t = λthis;
   λthis = &k;
@@ -70,22 +70,22 @@ void λinvoke(void *λ_)
 void λ::fin()
 {
   assert(!done());
-  assert(λthis != &λmk);
+  assert(λthis != λmk());
   is_done = true;
 }
 
 
 void λy()
 {
-  assert(λthis != &λmk);
+  assert(λthis != λmk());
   let t = λthis;
-  λthis = &λmk;
+  λthis = λmk();
   emscripten_fiber_swap(&t->k, &λthis->k);
 
   if (λsx)
   {
     // FIXME: why does λthis contain disposable stacks if we assigned
-    // it from &λmk above?
+    // it from λmk() above?
     //let s = λthis;
     let s = t;
     if (s->async_stack) { std::free(s->async_stack); s->async_stack = nullptr; }
@@ -96,18 +96,17 @@ void λy()
 
 void λinit_()
 {
-  λmk.async_stack = std::malloc(λss);
-  λmk.c_stack     = nullptr;
-  emscripten_fiber_init_from_current_context(&λmk.k,
-                                             λmk.async_stack,
+  λmk()->async_stack = std::malloc(λss);
+  λmk()->c_stack     = nullptr;
+  emscripten_fiber_init_from_current_context(&λmk()->k,
+                                             λmk()->async_stack,
                                              λss);
-  λthis = &λmk;
+  λthis = λmk();
 }
 
 
 }
 
 #include "end.hh"
-
 
 #endif

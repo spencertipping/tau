@@ -12,6 +12,7 @@
 # include <emscripten/websocket.h>
 #else
 # warning τemscripten: emulating headers and EM_ macros
+# define τassume_emscripten 1
 # define EM_ASM(...)
 # define EM_JS(...)
 // Enough definitions to enable clang/LSP to understand the emscripten
@@ -22,10 +23,8 @@
 
 #include "types.hh"
 
-#define τassume_emscripten 1
-# include "lambda.hh"
-# include "Lambda.hh"
-#undef τassume_emscripten
+#include "lambda.hh"
+#include "Lambda.hh"
 
 #include "gate.hh"
 #include "tau-common.hh"
@@ -38,39 +37,24 @@ namespace τ
 
 
 struct τe;
-τe *τg = nullptr;
 
-void τstep(void*);
+void τset(τe*);
+void τstep(void*);  // invoked by callbacks to advance τ
 
 
 struct τe : public τb
 {
   τe(τe&)  = delete;
   τe(τe&&) = delete;
-  τe () { A(!τg, "cannot define multiple τs in wasm"); τg = this; }
-  ~τe() { τg = nullptr; }
+  τe () { τset(this); }
+  ~τe() { τset(nullptr); }
 
 
   operator bool() const { return nts || hn() != forever(); }
 
-  τe &wake()
-    { while (now() >= hn()) l.r(h.top().l), h.pop();
-      return *this; }
-
-  τe &schedule()
-    { let t = now();
-      if (hn() < forever())
-        if (t < hn())
-        { let dt = (hn() - t) / 1ms;
-          emscripten_async_call(τstep, this, std::min(dt, Sc<decltype(dt)>(Nl<int>::max()))); }
-        else
-          emscripten_async_call(τstep, this, 0);
-      return *this; }
-
-  τe &operator()()
-    { wake();
-      l.go();
-      return schedule(); }
+  τe &wake();
+  τe &schedule();
+  τe &operator()();
 
 
   τe &go(F<bool(τe&)> const& = [](τe&) { return true; })
@@ -90,13 +74,6 @@ protected:
   F<bool(τe&)> go_f;
   uN           nts  = 0;  // number of tracked things
 };
-
-
-void τstep(void *t_)  // invoked by callbacks to advance τ
-{
-  τe &t = *Rc<τe*>(t_);
-  if (t.should_step()) t();
-}
 
 
 }

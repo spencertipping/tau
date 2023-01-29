@@ -9,24 +9,6 @@ namespace τ
 {
 
 
-/*
-
-ζ circular buffer state model
-
-normal state, ci == 0:
-     ri                  wi          c
------|===================|-----------|
-                         |-----------|  <- space for next object
-
-wrapped state, ci != 0:
-     wi            ri           ci   c
-=====|-------------|============|----|
-     |-------------|                    <- space for next object
-                                |xxxx|  <- lost space (this cycle)
-
-*/
-
-
 struct ζ
 {
   ζ(uN c_) : c(c_), xs(new u8[c]), ri(0), wi(0), ci(0) {}
@@ -64,18 +46,7 @@ struct ζ
       else                               { let a = wi; wi += l;            return xs + a; } }
 
 
-  void resize(uN c_)
-    { if (c_ == c) return;
-      A(c_ <= ra(), "cannot resize ζ to be smaller than its contents");
-      let ys = new u8[c_];
-      if (wrapped())
-      { memcpy(ys,             xs + wi, ci - wi);  // (wi..ci)
-        memcpy(ys + (ci - wi), xs,      ri); }     // (0..ri)
-      else
-        memcpy(ys, xs + ri, wi - ri);
-      delete[] xs;
-      xs = ys;
-      c  = c_; }
+  void resize(uN c_);
 
 
 protected:
@@ -95,12 +66,7 @@ protected:
 };
 
 
-O &operator<<(O &s, ζ const &z)
-{
-  return s << "ζ[c=" << z.c << " ri=" << z.ri
-           << " wi=" << z.wi << " ci=" << z.ci
-           << " ra=" << z.ra() << " wa=" << z.wa() << "]";
-}
+O &operator<<(O &s, ζ const &z);
 
 
 }

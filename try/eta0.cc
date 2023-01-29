@@ -2,6 +2,8 @@
 #include "../tau.hh"
 #include "../tau/begin.hh"
 
+#include "../dep/picosha3.h"
+
 
 using namespace τ;
 using namespace std;

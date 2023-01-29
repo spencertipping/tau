@@ -4,20 +4,29 @@ cd "$(dirname "$0")"
 
 #cflags="$(<compile_flags.txt) -O3"
 cflags="$(grep -v ^-I compile_flags.txt) -O3"
-linux_flags="$cflags -flto"
-wasm_flags="$cflags -sTOTAL_MEMORY=1024MB -std=c++20 -fexceptions -sASYNCIFY"
 
-linux_libs=(
+linux_flags="$cflags -flto"
+wasm_flags="$cflags -std=c++20 -fexceptions"
+
+linux_link=(
   #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
   #-lharfbuzz -lcairo
   #-lxcb -lX11 -lGL -lX11-xcb
-  -lboost_context -lzstd
+  -flto
+  -lboost_context
+  -lzstd
 )
-wasm_libs=()
+wasm_link=(
+  -sTOTAL_MEMORY=1024MB
+  -sASYNCIFY
+)
+
+
+mkdir -p bin/{linux,wasm}/{tau,try}
 
 
 rebuild_all=
-for f in tau/*.hh; do
+for f in tau/*.hh build; do
   for o in `find bin -name '*.o'`; do
     if [[ $f -nt $o ]]; then
       rebuild_all=yes
@@ -33,9 +42,9 @@ linux_cc()
   obj=bin/linux/${1%.cc}.o
   if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
     g++ $linux_flags $src -c -o $obj
+    echo "linux/compiled $src"
   fi
 }
-
 
 wasm_cc()
 {
@@ -43,39 +52,73 @@ wasm_cc()
   obj=bin/wasm/${1%.cc}.o
   if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
     dev/emsdk em++ $wasm_flags $src -c -o $obj
+    echo "wasm/compiled $src"
+  fi
+}
+
+
+linux_link()
+{
+  src=$1
+  out=bin/linux/${src%.cc}
+
+  build=
+  for f in $out.o `find bin/linux/tau -name '*.o'`; do
+    if [[ $f -nt $out ]]; then
+      build=yes
+      break
+    fi
+  done
+
+  if [[ -n $build ]]; then
+    g++ $linux_flags `find bin/linux/tau -name '*.o'` \
+        $out.o -o $out ${linux_link[@]}
+    echo "linux/link $out"
+  fi
+}
+
+wasm_link()
+{
+  src=$1
+  out=bin/wasm/${src%.cc}
+
+  build=
+  for f in $out.o `find bin/wasm/tau -name '*.o'`; do
+    if [[ $f -nt $out ]]; then
+      build=yes
+      break
+    fi
+  done
+
+  if [[ -n $build ]]; then
+    dev/emsdk em++ $wasm_flags `find bin/wasm/tau -name '*.o'` \
+              $out.o -o $out ${wasm_link[@]}
+    echo "wasm/link $out"
   fi
 }
 
 
 compile()
 {
-  mkdir -p bin/linux/tau bin/linux/try
-  mkdir -p bin/wasm/tau  bin/linux/try
-
-  for f in tau/*.cc; do
+  for f in tau/*.cc try/*.cc; do
     linux_cc $f &
-    wasm_cc $f &
+    wasm_cc  $f &
   done
-
-  for f in try/*.cc; do
-    linux_cc $f &
-    wasm_cc $f &
-  done
+  wait
+  echo "compile done"
 }
 
 
 link()
 {
   for f in try/*.cc; do
-    g++ $linux_flags `find bin/linux/tau -name '*.o'` \
-        bin/linux/${f%.cc}.o -o bin/linux/${f%.cc} \
-        ${linux_libs[@]} &
-    dev/emsdk em++ $wasm_flags `find bin/wasm/tau -name '*.o'` \
-              bin/wasm/${f.cc}.o -o bin/wasm/${f%.cc}.js \
-              ${wasm_libs[@]} &
+    linux_link $f &
+    wasm_link  $f &
   done
+  wait
+  echo "link done"
 }
 
 
-time compile && wait
-time link    && wait
+time compile
+time link

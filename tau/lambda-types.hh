@@ -2,11 +2,7 @@
 #define τλtypes_h
 
 
-#include "arch.hh"
-#include "debug.hh"
-
 #include "ctypes.hh"
-
 
 #include "begin.hh"
 
@@ -31,21 +27,7 @@ enum class λs : u8  // lambda runnability state
 };
 
 
-O &operator<<(O &s, λs t)
-{
-  switch (t)
-  {
-  case λs::R:  return s << "R";
-  case λs::S:  return s << "S";
-  case λs::Y:  return s << "Y";
-  case λs::Θ:  return s << "Θ";
-  case λs::ξR: return s << "ξR";
-  case λs::ξW: return s << "ξW";
-  case λs::τR: return s << "τR";
-  case λs::τW: return s << "τW";
-    TA(s, "illegal λs " << Sc<uN>(t));
-  }
-}
+O &operator<<(O&, λs);
 
 
 }

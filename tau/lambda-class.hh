@@ -50,18 +50,9 @@ namespace τ
 void λy();        // yield
 void λinit_();    // implementation-specific main λ init
 uNc λss = 65536;  // stack size
-λk  λmk;          // main continuation
+λk *λmk();        // return address of main continuation
 
-
-// NOTE: init mechanics used only by λ ctor; not useful to importers
-// of λ.hh, as they are automatically managed.
-void λinit()
-{
-  static bool called = false;
-  if (called) return;
-  λinit_();
-  called = true;
-}
+void λinit();
 
 
 struct λ

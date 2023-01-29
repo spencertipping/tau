@@ -5,9 +5,6 @@
 #include "types.hh"
 #include "Lambda.hh"
 
-#include "types.hh"
-#include "Lambda.hh"
-
 #include "begin.hh"
 
 namespace τ
@@ -41,10 +38,7 @@ struct τb  // base τ
 };
 
 
-O &operator<<(O &s, τΘ const &h)
-{
-  return s << "τΘ:" << h.h << ":" << h.l;
-}
+O &operator<<(O &s, τΘ const &h);
 
 
 }
