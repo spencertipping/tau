@@ -9,6 +9,8 @@
 #include <signal.h>
 #include <strings.h>
 #include <sys/epoll.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 
@@ -53,7 +55,8 @@ struct τ : public τb
   τ(τ&)  = delete;
   τ(τ&&) = delete;
   τ() : τb(), efd(epoll_create1(0))
-    { signal(SIGPIPE, SIG_IGN);
+    { // Important: ignore SIGPIPE so we can catch it as an error on FD ops
+      signal(SIGPIPE, SIG_IGN);
       A(efd != -1, "epoll_create1 failure " << errno); }
 
   ~τ()
@@ -85,9 +88,10 @@ struct τ : public τb
       else                return nullptr; }
 
 
-  // FIXME: gated() is not resolved? no idea why, probably function shenanigans
-  iN read (fd_t fd, u8  *b, uN l) { return gated(rg(fd), λs::τR, &::read,  fd, b, l); }
-  iN write(fd_t fd, u8c *b, uN l) { return gated(wg(fd), λs::τW, &::write, fd, b, l); }
+  iN read  (fd_t fd, u8  *b, uN l)       { return gated(rg(fd), λs::τR, &::read,   fd, b, l); }
+  iN write (fd_t fd, u8c *b, uN l)       { return gated(wg(fd), λs::τW, &::write,  fd, b, l); }
+  iN pread (fd_t fd, u8  *b, uN l, uN o) { return gated(rg(fd), λs::τR, &::pread,  fd, b, l, o); }
+  iN pwrite(fd_t fd, u8c *b, uN l, uN o) { return gated(wg(fd), λs::τW, &::pwrite, fd, b, l, o); }
 
 
   // Close an FD and remove it from the epoll watch set. Also delete
@@ -105,7 +109,7 @@ struct τ : public τb
 
   τ &operator()(bool nonblock = false)
     { epoll_event evs[16];
-      while (now() < hn() && (!gs.empty() || hn() < forever()))
+      while (now() < hn() && (!gs.empty() || hn() != forever()))
       { let dt = (hn() - now()) / 1ms;
         let n  = epoll_wait(efd, evs, sizeof(evs) / sizeof(epoll_event),
                             nonblock ? 0 : std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
@@ -114,9 +118,10 @@ struct τ : public τb
         for (int i = 0; i < n; ++i)
         { let f = evs[i].data.fd;
           if (gs.contains(f))
-          { if (evs[i].events & EPOLLIN)  at(f)->r.w(true);
-            if (evs[i].events & EPOLLOUT) at(f)->w.w(true);
-            if (evs[i].events & EPOLLERR) at(f)->w.w(false); }}}
+          { let g = at(f);
+            if (evs[i].events & EPOLLIN)  g->r.w(true);
+            if (evs[i].events & EPOLLOUT) g->w.w(true);
+            if (evs[i].events & EPOLLERR) g->w.w(false); }}}
       while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
@@ -151,8 +156,10 @@ protected:
 
   // Run a function by repeating it against a gate as long as EAGAIN
   // is returned and the associated fd is gated.
-  template<class... Xs>
-  iN gated(λg<bool> *g, λs ys, int(*f)(Xs...), Xs... xs)
+  //
+  // errno is valid when this function returns.
+  template<class F, class... Xs>
+  iN gated(λg<bool> *g, λs ys, F *f, Xs... xs)
     { iN r;
       while ((r = f(xs...)) == -1 && errno == EAGAIN)
         if (!g || !g->y(ys)) break;
