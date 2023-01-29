@@ -20,8 +20,8 @@ int cat()
     while (1)
     {
       let r = t.read(0, buf, sizeof(buf));
-      if (r == 0)  { ret = 0; return; }
-      if (r == -1) { ret = 1; return; }
+      if (r == 0)  { ret = 0; t.close(1); return; }
+      if (r == -1) { ret = 1; t.close(1); return; }
       for (iN w = 0; w < r; )
       { let x = t.write(1, buf + w, r - w);
         if (x == -1) { ret = 1; return; }
