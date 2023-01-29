@@ -60,10 +60,11 @@ wasm_cc()
 linux_link()
 {
   src=$1
-  out=bin/linux/${src%.cc}
+  obj=bin/linux/${src%.cc}.o
+  out=bin/$(basename $src .cc)
 
   build=
-  for f in $out.o `find bin/linux/tau -name '*.o'`; do
+  for f in $obj `find bin/linux/tau -name '*.o'`; do
     if [[ $f -nt $out ]]; then
       build=yes
       break
@@ -72,7 +73,7 @@ linux_link()
 
   if [[ -n $build ]]; then
     g++ $linux_flags `find bin/linux/tau -name '*.o'` \
-        $out.o -o $out ${linux_link[@]}
+        $obj -o $out ${linux_link[@]}
     echo "linux/link $out"
   fi
 }
@@ -80,10 +81,11 @@ linux_link()
 wasm_link()
 {
   src=$1
-  out=bin/wasm/${src%.cc}
+  obj=bin/wasm/${src%.cc}.o
+  out=bin/$(basename $src .cc).js
 
   build=
-  for f in $out.o `find bin/wasm/tau -name '*.o'`; do
+  for f in $obj `find bin/wasm/tau -name '*.o'`; do
     if [[ $f -nt $out ]]; then
       build=yes
       break
@@ -92,7 +94,7 @@ wasm_link()
 
   if [[ -n $build ]]; then
     dev/emsdk em++ $wasm_flags `find bin/wasm/tau -name '*.o'` \
-              $out.o -o $out ${wasm_link[@]}
+              $obj -o $out ${wasm_link[@]}
     echo "wasm/link $out"
   fi
 }
