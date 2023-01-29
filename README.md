@@ -43,13 +43,17 @@ See [compiler structures](doc/compiler-structures.md) for a quick rundown of how
 
 ## Linux setup
 ```sh
+$ sudo apt install -y \
+       docker.io build-essential libboost-context-dev libzstd-dev
+```
+
+To get everything in `dev/hackery`, this might be a start (but no promises):
+
+```sh
 $ sudo dpkg --add-architecture i386
-$ sudo apt update
-$ sudo apt install -y docker.io  # for emsdk builds
 $ sudo apt install -y \
        build-essential \
-       libboost-fiber-dev libboost-context-dev \
-       libmsgpack-dev \
+       libboost-context-dev \
        libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev \
        libxcb-xinput-dev \
        g++-multilib-i686-linux-gnu \
