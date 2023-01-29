@@ -39,3 +39,22 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 These are compiler objects, meaning that they don't actually contain live resources. Instead, γ and Γ are functions that take φs as inputs and return φs as outputs, constructing native resources in the process.
 
 See [compiler structures](doc/compiler-structures.md) for a quick rundown of how these structures interact.
+
+
+## Linux setup
+```sh
+$ sudo dpkg --add-architecture i386
+$ sudo apt update
+$ sudo apt install -y docker.io  # for emsdk builds
+$ sudo apt install -y \
+       build-essential \
+       libboost-fiber-dev libboost-context-dev \
+       libmsgpack-dev \
+       libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev \
+       libxcb-xinput-dev \
+       g++-multilib-i686-linux-gnu \
+       libc6-dbg{,:i386} \
+       libstdc++6-12-dbg{,:i386} \
+       libpango1.0-dev libcairo2-dev \
+       libzstd-dev
+```
