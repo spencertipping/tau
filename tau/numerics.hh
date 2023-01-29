@@ -67,8 +67,8 @@ ic f32 ce(f32 const x)
 # pragma clang diagnostic ignored "-Wsign-compare"
 #endif
 
-template<class I, class T = uN> ic bool ou(T x) { return !!(x >> sizeof(I) * 8); }
-template<class I, class T = iN> ic bool oi(T x) { return x < Nl<I>::min() || x > Nl<I>::max(); }
+template<class I, class T = u64> ic bool ou(T x) { return !!(x >> sizeof(I) * 8); }
+template<class I, class T = i64> ic bool oi(T x) { return x < Nl<I>::min() || x > Nl<I>::max(); }
 
 #if defined(__GNUC__)
 # pragma GCC diagnostic pop
@@ -76,8 +76,8 @@ template<class I, class T = iN> ic bool oi(T x) { return x < Nl<I>::min() || x >
 # pragma clang diagnostic pop
 #endif
 
-template<class I, class T = uN> ic I cou(T x) { A(!ou<I>(x), x << " overflows [" << Nl<I>::min() << ", " << Nl<I>::max() << "]"); return x; }
-template<class I, class T = uN> ic I coi(T x) { A(!oi<I>(x), x << " overflows [" << Nl<I>::min() << ", " << Nl<I>::max() << "]"); return x; }
+template<class I, class T = u64> ic I cou(T x) { A(!ou<I>(x), x << " overflows [" << Nl<I>::min() << ", " << Nl<I>::max() << "]"); return x; }
+template<class I, class T = u64> ic I coi(T x) { A(!oi<I>(x), x << " overflows [" << Nl<I>::min() << ", " << Nl<I>::max() << "]"); return x; }
 
 
 // big-endian numeric IO
@@ -150,18 +150,22 @@ ic u8 si(i64 x) { return 1 << bi(x); }
 
 // Bytes required to store an integer
 ic u8 ubytes(u64 x)
-{ u8 r = 0;
+{
+  u8 r = 0;
   if (x >> 32) r += 4, x >>= 32;
   if (x >> 16) r += 2, x >>= 16;
   if (x >> 8)  r += 1, x >>= 8;
   if (x) ++r;
-  return r; }
+  return r;
+}
 
 // Bits required to store an integer (i.e. index of highest bit)
 ic u8 ubits(u64 x)
-{ u8 i = 0;
+{
+  u8 i = 0;
   for (u8 j = 32; j; j >>= 1) if (x >> j) i += j, x >>= j;
-  return i; }
+  return i;
+}
 
 static_assert(ubytes(0) == 0);
 static_assert(ubytes(1) == 1);
