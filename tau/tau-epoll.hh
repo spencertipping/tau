@@ -118,7 +118,7 @@ struct τe : public τb
 
 
   operator bool() const
-    { return !gs.empty() || l || hn() != forever(); }
+    { return !gs.empty() || l() || hn() != forever(); }
 
   τe &go(bool                nonblock = false,
          F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); })

@@ -21,7 +21,7 @@ int cat()
       let r = t.read(0, buf, sizeof(buf));
       if (r == 0)  { ret = 0; return; }
       if (r == -1) { ret = 1; return; }
-      for (uN w = 0; w < r; )
+      for (iN w = 0; w < r; )
       { let x = t.write(1, buf + w, r - w);
         if (x == -1) { ret = 1; return; }
         w += x; }

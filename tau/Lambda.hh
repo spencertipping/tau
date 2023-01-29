@@ -24,6 +24,7 @@ struct Λt
 
   Λt(λf &&f) : l(λ(std::move(f))), s(λs::S) {}
 
+  void run()            {        l(); }
   bool done()     const { return l.done(); }
   bool runnable() const { return s == λs::R; }
 };
@@ -44,8 +45,10 @@ struct Λ
   // world is ending, nothing matters from here.
   ~Λ() { fin = true; }
 
-  bool e (λi i) const { return ls.contains(i); }
-  λi   i ()     const { return ri; }
+
+  bool e(λi i) const { return ls.contains(i); }
+  λi   i()     const { return ri; }
+
 
   λi c(λf &&f)
     { if (fin) return 0;
@@ -57,9 +60,9 @@ struct Λ
   Λ &x(λi i)
     { if (fin) return *this;
       A(ri != i, "self λx");
-      A(e(i), "λx !e");
       ls.erase(i);
       return *this; }
+
 
   Λ &y(λs s)  // yield currently-running λ with specified yield state
     { if (fin) return *this;
@@ -75,40 +78,28 @@ struct Λ
       if (l.runnable()) rs.insert(i);
       return *this; }
 
-  Λt const &operator[](λi i) const
-    { A(!fin, "Λ[] fin");
-      return *ls.at(i); }
-
 
   Λ &operator<<(λi i)  // run λi for one quantum
     { if (fin) return *this;
       A(!ri, "Λ<< from non-main thread");
+      rs.erase(i);
       auto &l = *ls.at(ri = i);
       qΘ.start();
-      l.l();
+      l.run();
       ri = 0;
-      if (l.l.done()) ls.erase(i);
+      if (l.done()) ls.erase(i);
       qΘ.stop();
       return *this; }
 
-  operator bool() const
-    { if (fin) return false;
-      for (let i : rs)
-        if (e(i) && (*this)[i].runnable()) return true;
-      return false; }
 
-  λi operator()()  // find next λi to run
+  λi operator()() const  // find next λi to run
     { if (fin) return 0;
-      for (let i : rs)
-        if (e(i) && (*this)[i].runnable()) { rs.erase(i); return i; }
+      for (let i : rs) if (e(i) && ls.at(i)->runnable()) return i;
       return 0; }
 
   Λ &go()  // run as long as there is stuff to do
     { for (λi t; (t = (*this)()); *this << t);
-      return ry(); }
-
-  Λ &ry()  // resume all explicitly-yielded λs
-    { for (auto &[i, s] : ls) if (s->s == λs::Y) r(i);
+      for (auto &[i, s] : ls) if (s->s == λs::Y) r(i);
       return *this; }
 
 
