@@ -72,8 +72,7 @@ linux_link()
   done
 
   if [[ -n $build ]]; then
-    g++ $linux_flags `find bin/linux/tau -name '*.o'` \
-        $obj -o $out ${linux_link[@]}
+    g++ $linux_flags $obj -o $out bin/tau.a ${linux_link[@]}
     echo "linux/link $out"
   fi
 }
@@ -107,6 +106,8 @@ compile()
     wasm_cc  $f &
   done
   wait
+  rm -f bin/tau.a
+  ar rcs bin/tau.a `find bin/linux/tau -name '*.o'`
   echo "compile done"
 }
 
