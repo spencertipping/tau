@@ -122,5 +122,30 @@ link()
 }
 
 
-time compile
-time link
+local_build()
+{
+  compile
+  link
+}
+
+
+server_build()
+{
+  host=$1
+  path=$2
+  ssh $host mkdir -p $path
+  rsync -a tau try build $host:$path/
+  ssh $host "cd $path && ./build"
+  rsync -a $host:$path/bin ./
+}
+
+
+case ${1:-} in
+  --server)
+    time server_build set.128 /nvme/tau
+    ;;
+
+  *)
+    time local_build
+    ;;
+esac
