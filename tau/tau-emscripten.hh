@@ -37,52 +37,27 @@ namespace τ
 {
 
 
-// TODO: possibly rework this logic; it's less bad than epoll but
-// may still need to be fixed
-
-
-template<class O>
-struct τf  // boundary FD-like wrapper, e.g. websocket or GL context
-{
-  τ  &f;
-  λg  w;
-  O   o;
-
-  τf(τf const&) = delete;
-  τf(τf &&)     = delete;
-
-  template<class... T> τf(τ&, T...);
-  ~τf();
-
-  void init();
-};
-
-
-τ *τg = nullptr;
+struct τe;
+τe *τg = nullptr;
 
 void τstep(void*);
 
 
-struct τ : public τb
+struct τe : public τb
 {
-  F<bool(τ&)> go_f;
-  uN          nts  = 0;  // number of tracked things
-
-  τ(τ&)  = delete;
-  τ(τ&&) = delete;
-  τ () { A(!τg, "cannot define multiple τs in wasm"); τg = this; }
-  ~τ() { τg = nullptr; }
-
-  constexpr bool is_async() { return true; }
+  τe(τe&)  = delete;
+  τe(τe&&) = delete;
+  τe () { A(!τg, "cannot define multiple τs in wasm"); τg = this; }
+  ~τe() { τg = nullptr; }
 
 
   operator bool() const { return nts || hn() != forever(); }
 
-  τ &wake()
+  τe &wake()
     { while (now() >= hn()) l.r(h.top().l), h.pop();
       return *this; }
 
-  τ &schedule()
+  τe &schedule()
     { let t = now();
       if (hn() < forever())
         if (t < hn())
@@ -92,27 +67,35 @@ struct τ : public τb
           emscripten_async_call(τstep, this, 0);
       return *this; }
 
-  τ &operator()()
+  τe &operator()()
     { wake();
       l.go();
       return schedule(); }
 
 
-  τ &go(F<bool(τ&)> const& = [](τ&) { return true; })
+  τe &go(F<bool(τe&)> const& = [](τe&) { return true; })
     { A(0, "τ is async"); return *this; }
 
-  τ &go_async(F<bool(τ&)> &&f = [](τ &f) { return Sc<bool>(f); })
+  τe &go_async(F<bool(τe&)> &&f = [](τe &t) { return Sc<bool>(t); })
     { go_f = std::move(f);
       l.go();
       emscripten_async_call(τstep, this, 0);
       return *this; }
+
+
+  bool should_step() { return go_f(*this); }
+
+
+protected:
+  F<bool(τe&)> go_f;
+  uN           nts  = 0;  // number of tracked things
 };
 
 
-void τstep(void *f_)  // invoked by callbacks to advance τ
+void τstep(void *t_)  // invoked by callbacks to advance τ
 {
-  τ &f = *Rc<τ*>(f_);
-  if (f.go_f(f)) f();
+  τe &t = *Rc<τe*>(t_);
+  if (t.should_step()) t();
 }
 
 

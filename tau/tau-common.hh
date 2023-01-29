@@ -14,9 +14,6 @@ namespace τ
 {
 
 
-struct τ;
-
-
 struct τΘ
 {
   Θp h;

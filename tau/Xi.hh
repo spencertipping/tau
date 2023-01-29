@@ -16,6 +16,12 @@ namespace τ
 sletc Ξc0 = 8192;
 
 
+// TODO: we need a way to collect groups of related ξs under the same
+// name without creating collisions. For example, diagnostic connections
+// for each of a series of pipeline elements. Ξ should be able to express
+// some hierarchy.
+
+
 struct Ξ
 {
   Ξ(Λ &l)       : l_(l)  {}
@@ -37,6 +43,7 @@ struct Ξ
 
 
   // Operate on a subset of ξs, selected by regex against the name.
+  // TODO: replace/augment these with variants that use a function.
   Ξ sel(Re const&);            // construct a sub-Ξ from a regex
   Ξ sel(Re const&, Ξ const&);  // replace a regex with a Ξ
 
