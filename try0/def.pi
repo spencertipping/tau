@@ -1,6 +1,0 @@
-# Function definitions
-[
-  "hello world\n" :cout
-] 'hi %=
-
-[ hi _ ] 10 % i8.

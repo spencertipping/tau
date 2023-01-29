@@ -13,7 +13,7 @@ namespace τ
 
 
 // Default size of ξs created with Ξ
-sletc Ξc0 = 8192;
+letc Ξc0 = 8192;
 
 
 // TODO: we need a way to collect groups of related ξs under the same
@@ -82,33 +82,7 @@ protected:
 };
 
 
-Ξ Ξ::sel(Re const &r)
-{
-  Ξ x{l()};
-  for (let &[k, v] : xs_) if (std::regex_match(k, r)) x.xs_[k] = v;
-  return x;
-}
-
-Ξ Ξ::sel(Re const &r, Ξ const &x)
-{
-  Ξ y{l()};
-  for (let &[k, v] : xs_) if (!std::regex_match(k, r)) y.xs_[k] = v;
-  for (let &[k, v] : x)   y.xs_[k] = v;
-  return y;
-}
-
-
-O &operator<<(O &s, Ξ const &x)
-{
-  s << "Ξ[";
-  bool first = true;
-  for (let &[k, io] : x)
-  { if (first) first = false;
-    else       s << " ";
-    s << k << "|" << (io->can_i() ? "i" : "")
-                  << (io->can_o() ? "o" : ""); }
-  return s << "]";
-}
+O &operator<<(O&, Ξ const&);
 
 
 }

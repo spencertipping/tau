@@ -8,6 +8,7 @@ using namespace τ;
 using namespace std;
 
 
+#if τplatform == τplatform_linux
 int cat()
 {
   τe    t;
@@ -32,6 +33,13 @@ int cat()
   t.go();
   return ret;
 }
+#else
+int cat()
+{
+  cout << "no cat on this platform" << endl;
+  return 1;
+}
+#endif
 
 
 int usage(char**);

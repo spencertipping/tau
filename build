@@ -2,18 +2,80 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-which=${1:-eta0}
+#cflags="$(<compile_flags.txt) -O3"
+cflags="$(grep -v ^-I compile_flags.txt) -O3"
+linux_flags="$cflags -flto"
+wasm_flags="$cflags -sTOTAL_MEMORY=1024MB -std=c++20 -fexceptions -sASYNCIFY"
 
-#-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lharfbuzz -lcairo \
-#-lxcb -lX11 -lGL -lX11-xcb \
+linux_libs=(
+  #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
+  #-lharfbuzz -lcairo
+  #-lxcb -lX11 -lGL -lX11-xcb
+  -lboost_context -lzstd
+)
+wasm_libs=()
 
-exec \
-  g++ $(<compile_flags.txt) -g -O3 try/$which.cc -o try/$which \
-      -lboost_context -lzstd
 
-# TODO: re-enable emsdk builds as below
+rebuild_all=
+for f in tau/*.hh; do
+  for o in `find bin -name '*.o'`; do
+    if [[ $f -nt $o ]]; then
+      rebuild_all=yes
+      break
+    fi
+  done
+done
 
-#dev/emsdk em++ -Wno-parentheses -Wno-shift-count-overflow \
-#  -std=c++20 -O3 -sASYNCIFY try/$which.cc -o try/$which.js &
 
-#wait
+linux_cc()
+{
+  src=$1
+  obj=bin/linux/${1%.cc}.o
+  if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
+    g++ $linux_flags $src -c -o $obj
+  fi
+}
+
+
+wasm_cc()
+{
+  src=$1
+  obj=bin/wasm/${1%.cc}.o
+  if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
+    dev/emsdk em++ $wasm_flags $src -c -o $obj
+  fi
+}
+
+
+compile()
+{
+  mkdir -p bin/linux/tau bin/linux/try
+  mkdir -p bin/wasm/tau  bin/linux/try
+
+  for f in tau/*.cc; do
+    linux_cc $f &
+    wasm_cc $f &
+  done
+
+  for f in try/*.cc; do
+    linux_cc $f &
+    wasm_cc $f &
+  done
+}
+
+
+link()
+{
+  for f in try/*.cc; do
+    g++ $linux_flags `find bin/linux/tau -name '*.o'` \
+        bin/linux/${f%.cc}.o -o bin/linux/${f%.cc} \
+        ${linux_libs[@]} &
+    dev/emsdk em++ $wasm_flags `find bin/wasm/tau -name '*.o'` \
+              bin/wasm/${f.cc}.o -o bin/wasm/${f%.cc}.js \
+              ${wasm_libs[@]} &
+  done
+}
+
+
+time compile && wait
+time link    && wait
