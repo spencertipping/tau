@@ -21,10 +21,7 @@ struct γ
 };
 
 
-O &operator<<(O &s, γ const &g)
-{
-  return s << g.name();
-}
+O &operator<<(O&, γ const&);
 
 
 }

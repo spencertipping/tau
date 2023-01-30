@@ -3,6 +3,6 @@
 
 [ζ loops](zeta-loops.md) describes how these signals are handled by recipients.
 
-+ _α_: ζ has been connected to a writer
++ _α_: ζ has been connected to a writer (used by multiplexers)
 + _τ_: ordering within the ζ has been reset
-+ _ω_: ζ has been disconnected; nothing else can be read
++ _ω_: ζ has been disconnected; nothing else can be read (used by multiplexers)

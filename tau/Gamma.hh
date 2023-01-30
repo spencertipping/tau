@@ -14,7 +14,7 @@ namespace τ
 
 // Base for γ compositions -- you can use this class directly, or you can
 // create derived classes from it
-struct Γ : public virtual γ
+struct Γ
 {
   Γ() {}
   Γ(Sp<γ> x)    { *this << x; }
@@ -48,6 +48,9 @@ struct Γ : public virtual γ
 protected:
   D<Sp<γ>> gs;
 };
+
+
+O &operator<<(O&, Γ const&);
 
 
 template<class T>
