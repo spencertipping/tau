@@ -4,6 +4,7 @@
 
 #include "lambda-types.hh"
 #include "Lambda.hh"
+#include "tau.hh"
 #include "xiio.hh"
 #include "begin.hh"
 
@@ -11,16 +12,25 @@ namespace τ
 {
 
 
+struct ψ;
+
+void ψc_(ψ*);  // notify that a new ψ has been created
+void ψx_(ψ*);  // notify that a ψ has been destroyed
+uN ψn();       // number of live ψs
+
+
 // Virtual base for ψ processes
 struct ψ
 {
   template<class... Xs>
-  ψ(Λ &l_, Xs... xs) : l(l_) { def(xs...); }
+  ψ(τe &t__, Xs... xs) : t_(t__) { def(xs...); ψc_(this); }
 
-  virtual ~ψ() { for (let x : ls) if (l.e(x) && x != l.i()) l.x(x); }
+  virtual ~ψ();
 
-  virtual Stc &name() const {         return n_; }
-  virtual ψ   &name(Stc &s) { n_ = s; return *this; }
+  virtual St name() const {         return n_; }
+  virtual ψ &name(Stc &s) { n_ = s; return *this; }
+
+  τe &t() const { return t_; }
 
 
   // Resource definitions: can be functions, which are λs, or ξi/ξo,
@@ -34,10 +44,7 @@ struct ψ
 
 
   // Creates a new λ and clears any unused λis from our tracked set.
-  λi λc(λf &&f)
-    { for (auto i = ls.begin(); i != ls.end();)
-        if (!l.e(*i)) i = ls.erase(i); else ++i;
-      return l.c(std::move(f)); }
+  λi λc(λf&&);
 
 
   ξi i(Stc &k) const { return i_.at(k); }
@@ -45,12 +52,15 @@ struct ψ
 
 
 protected:
-  Λ        &l;
+  τe       &t_;
   S<λi>     ls;
   M<St, ξi> i_;  // named input ξs
   M<St, ξo> o_;  // named output ξs
   St        n_;  // name for debugging purposes
 };
+
+
+O &operator<<(O&, ψ const&);
 
 
 }

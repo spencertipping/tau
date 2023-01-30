@@ -11,7 +11,6 @@ namespace τ
 
 
 // Virtual base for γ compilers
-// TODO: add τ reference once tau-epoll is fixed up
 struct γ
 {
   virtual ~γ() {}

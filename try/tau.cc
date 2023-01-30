@@ -12,7 +12,7 @@ using namespace std;
 int cat()
 {
   τe    t;
-  Sp<ψ> q(new ψ{t.l});
+  Sp<ψ> q(new ψ{t});
   int   ret = 0;
 
   q->def([&]() {

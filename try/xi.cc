@@ -9,8 +9,8 @@ using namespace std;
 
 void try_basic()
 {
-  Λ L;
-  Ξ X(L);
+  τe T;
+  Ξ X(T);
 
   {
     auto i = X.i("foo", nullptr, 16);
@@ -53,18 +53,18 @@ void try_basic()
 
 void try_ints()
 {
-  Λ L;
+  τe T;
   u64  j = 0;
   u64  c = 0;
   u64c N = 1048576;
   u64c K = 8192;
 
   {
-    Ξ X(L);
+    Ξ X(T);
 
     {
       let i = X.i("foo", nullptr, K);
-      L.c([=, &j, &c]() {
+      T.l().c([=, &j, &c]() {
         u64 t = 0;
         for (let x : i) ++c, t += Sc<u64>(η1pi{x});
         j = t;
@@ -73,7 +73,7 @@ void try_ints()
 
     {
       auto o = X.o("foo", nullptr, K);
-      L.c([=]() mutable {
+      T.l().c([=]() mutable {
         for (u64 i = 0; i < N; ++i)
           A(o << η0o{i}, "failed to write " << i);
         o.close();
@@ -82,7 +82,7 @@ void try_ints()
   }
 
   let t0 = now();
-  L.go();
+  T.go();
   let t1 = now();
 
   cout << "ξ/" << K << " " << N << " ints in " << t1 - t0 << endl;
@@ -95,15 +95,15 @@ void try_ints()
 
 void try_big()
 {
-  Λ L;
+  τe T;
   uN j = 0;
   uN k = 0;
 
   {
-    Ξ X(L);
+    Ξ X(T);
     {
       let i = X.i("foo", nullptr, 64);
-      L.c([=, &j]() {
+      T.l().c([=, &j]() {
         for (let x : i)
           for (let y : η1ti{x})
             j += Sc<u64>(η1pi{y});
@@ -112,7 +112,7 @@ void try_big()
 
     {
       auto o = X.o("foo", nullptr, 64);
-      L.c([=, &k]() mutable {
+      T.l().c([=, &k]() mutable {
         for (u64 i = 0; i < 10000; ++i)
         {
           η0o x;
@@ -125,7 +125,7 @@ void try_big()
     }
   }
 
-  L.go();
+  T.go();
   A(j == k, "some values were lost or repeated; sent " << k << ", received " << j);
   cout << "try_big ok" << endl;
 }

@@ -23,18 +23,23 @@ struct τΘ
 
 struct τb  // base τ
 {
-  Λ        l;
-  PQ<τΘ>   h;
-  Θp const t0 = now();
-
   τb(τb&)  = delete;
   τb(τb&&) = delete;
   τb() {}
 
+  Λ  &l()      { return l_; }
+  ΔΘ  dt(Θp p) { return t0_ - p; }
 
-  void Θ(Θp t)    { while (now() < t) { h.push(τΘ{t, l.i()}); l.y(λs::Θ); } }
-  Θp   hn() const { return h.empty() ? forever() : h.top().h; }
-  ΔΘ   dt() const { return now() - t0; }
+
+  void Θ(Θp t)    { while (now() < t) { h_.push(τΘ{t, l_.i()}); l_.y(λs::Θ); } }
+  Θp   hn() const { return h_.empty() ? forever() : h_.top().h; }
+  ΔΘ   dt() const { return now() - t0_; }
+
+
+protected:
+  Λ        l_;
+  PQ<τΘ>   h_;
+  Θp const t0_ = now();
 };
 
 

@@ -51,7 +51,7 @@ int τe::close(fd_t fd)
     nonblock = true;
   }
 
-  while (now() >= hn()) l.r(h.top().l), h.pop();
+  while (now() >= hn()) l_.r(h_.top().l), h_.pop();
   return *this;
 }
 
@@ -64,7 +64,7 @@ int τe::close(fd_t fd)
     ev.events  = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
     ev.data.fd = nb(fd);
     if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return nullptr;
-    return gs[fd] = new λgs{l, l};
+    return gs[fd] = new λgs{l_, l_};
   }
   return gs.at(fd);
 }

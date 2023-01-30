@@ -19,7 +19,7 @@ struct γf : public virtual γ
 
   Ξ operator()(Ξ &x)
     { ++ψs;
-      Sp<ψ> q{new ψ(x.l()), [](ψ*) { --ψs; }};
+      Sp<ψ> q{new ψ(x.t()), [](ψ*) { --ψs; }};
       Ξ   y = x;
       let i = y.i("main", q);
       let o = y.o("next", q);
@@ -52,18 +52,18 @@ Sp<γf> sum()
 
 void try_gamma()
 {
-  Λ   L;
+  τe  T;
   λi  li = 0;
   u64 t  = 0;
 
   ξi i;
 
   {
-    Ξ Y(L);
+    Ξ Y(T);
 
     {
       auto g = iota() | take(100) | sum();
-      Ξ X(L);
+      Ξ X(T);
       Y = g(X);
       cout << X << g << " = " << Y << endl;
     }
@@ -73,7 +73,7 @@ void try_gamma()
     A(i.inner_ξ().iq()->name() == "∑",
       "bogus name (inside block): " << i.inner_ξ().iq()->name());
 
-    li = L.c([=, &t]()
+    li = T.l().c([=, &t]()
       { A(!i.eof(), "EOF before sum result");
         let x = η1pi{*i};
         t = Sc<u64>(x);
@@ -85,14 +85,14 @@ void try_gamma()
     "bogus name (outside block): " << i.inner_ξ().iq()->name());
 
                A(ψs == 3, "at start, ψs == " << ψs);
-  L.go();      A(ψs == 1, "after go, ψs == " << ψs);
+  T.go();      A(ψs == 1, "after go, ψs == " << ψs);
   i.weaken();  A(ψs == 0, "after weaken(), ψs == " << ψs);
   i.close();   A(ψs == 0, "after close, ψs == " << ψs);
 
   // By now our λs should be deallocated; all functions should have
   // returned
   for (λi j = 0; j <= li; ++j)
-    A(!L.e(j), "Λ.e(" << j << "), " << li << " λs total");
+    A(!T.l().e(j), "Λ.e(" << j << "), " << li << " λs total");
 
   A(t == 100 * 99 / 2, "expected " << (100 * 99 / 2) << ", got " << t);
 }

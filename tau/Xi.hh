@@ -3,6 +3,7 @@
 
 
 #include "Lambda.hh"
+#include "tau.hh"
 #include "psi.hh"
 #include "xiio.hh"
 
@@ -21,11 +22,25 @@ letc Ξc0 = 8192;
 // for each of a series of pipeline elements. Ξ should be able to express
 // some hierarchy.
 
+// Q: does it make sense for Ξ : ξio? Almost certainly not, but it would
+// be one way to get hierarchy as well as a default ξ. Sort of like a
+// default "unit" dimension for a vector space.
+
+// Q: do we want to encourage many-ξs, or do we want multiplexed pairs?
+// It seems like multiplexing should be preferred in many cases -- although
+// we still need enough organizational machinery to route stuff to the
+// multiplexer.
+
 
 struct Ξ
 {
-  Ξ(Λ &l)       : l_(l)  {}
-  Ξ(Ξ const &x) : l_(x.l()) { xs_ = x.xs_; }
+  Ξ(τe &t)      : t_(t)  {}
+  Ξ(Ξ const &x) : t_(x.t()) { xs_ = x.xs_; }
+
+  Ξ &operator=(Ξ const &x) { xs_ = x.xs_; return *this; }
+
+  Λ  &l() const { return t_.l(); }
+  τe &t() const { return t_; }
 
 
   bool has(Stc &k)   const {                                   return xs_.contains(k); }
@@ -44,8 +59,8 @@ struct Ξ
 
   // Operate on a subset of ξs, selected by regex against the name.
   // TODO: replace/augment these with variants that use a function.
-  Ξ sel(Re const&);            // construct a sub-Ξ from a regex
-  Ξ sel(Re const&, Ξ const&);  // replace a regex with a Ξ
+  Ξ sel(Re const&) const;            // construct a sub-Ξ from a regex
+  Ξ sel(Re const&, Ξ const&) const;  // replace a regex with a Ξ
 
 
   ξo o(Stc &k, Sp<ψ> q, uN c = Ξc0) { return at(k, c)->o(q); }
@@ -58,10 +73,6 @@ struct Ξ
       return h ? r->i(q) : r->i(q).weaken(); }
 
 
-  Ξ &operator=(Ξ const &x) { xs_ = x.xs_; return *this; }
-
-  Λ &l() const { return l_; }
-
   M<St, Sp<ξio>>::iterator       begin()       { return xs_.begin(); }
   M<St, Sp<ξio>>::iterator       end()         { return xs_.end(); }
   M<St, Sp<ξio>>::const_iterator begin() const { return xs_.begin(); }
@@ -69,7 +80,7 @@ struct Ξ
 
 
 protected:
-  Λ              &l_;
+  τe             &t_;
   M<St, Sp<ξio>>  xs_;
 
 

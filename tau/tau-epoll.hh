@@ -17,7 +17,6 @@
 #include "types.hh"
 #include "Lambda.hh"
 #include "gate.hh"
-#include "psi.hh"
 
 #include "tau-common.hh"
 
@@ -26,6 +25,9 @@
 
 namespace τ
 {
+
+
+struct ψ;
 
 
 struct τe : public τb
@@ -88,12 +90,12 @@ struct τe : public τb
 
 
   operator bool() const
-    { return !gs.empty() || l() || hn() != forever(); }
+    { return !gs.empty() || l_() || hn() != forever(); }
 
   τe &go(bool                nonblock = false,
          F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); })
-    { l.go();
-      while (f(*this)) (*this)(nonblock), l.go();
+    { l_.go();
+      while (f(*this)) (*this)(nonblock), l_.go();
       return *this; }
 
 

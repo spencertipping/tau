@@ -50,6 +50,22 @@ protected:
 };
 
 
+// A way to explicitly nest a Γ pipeline into a single γ.
+struct γs : public virtual γ
+{
+  γs(Γ const &g__) : g_(g__) {}
+
+  Γ &g() { return g_; }
+
+  Ξ operator()(Ξ &x) { return g_(x); }
+  St name() const { return "[" + g_.name() + "]"; }
+
+
+protected:
+  Γ g_;
+};
+
+
 O &operator<<(O&, Γ const&);
 
 

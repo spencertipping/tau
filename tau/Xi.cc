@@ -5,16 +5,16 @@ namespace τ
 {
 
 
-Ξ Ξ::sel(Re const &r)
+Ξ Ξ::sel(Re const &r) const
 {
-  Ξ x{l()};
+  Ξ x{t()};
   for (let &[k, v] : xs_) if (std::regex_match(k, r)) x.xs_[k] = v;
   return x;
 }
 
-Ξ Ξ::sel(Re const &r, Ξ const &x)
+Ξ Ξ::sel(Re const &r, Ξ const &x) const
 {
-  Ξ y{l()};
+  Ξ y{t()};
   for (let &[k, v] : xs_) if (!std::regex_match(k, r)) y.xs_[k] = v;
   for (let &[k, v] : x)   y.xs_[k] = v;
   return y;
@@ -26,10 +26,12 @@ O &operator<<(O &s, Ξ const &x)
   s << "Ξ[";
   bool first = true;
   for (let &[k, io] : x)
-  { if (first) first = false;
+  {
+    if (first) first = false;
     else       s << " ";
     s << k << "|" << (io->can_i() ? "i" : "")
-      << (io->can_o() ? "o" : ""); }
+      << (io->can_o() ? "o" : "");
+  }
   return s << "]";
 }
 

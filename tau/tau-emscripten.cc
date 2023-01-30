@@ -26,7 +26,7 @@ void τstep(void *t_)
 
 τe &τe::wake()
 {
-  while (now() >= hn()) l.r(h.top().l), h.pop();
+  while (now() >= hn()) l_.r(h_.top().l), h_.pop();
   return *this;
 }
 
@@ -47,7 +47,7 @@ void τstep(void *t_)
 τe &τe::operator()()
 {
   wake();
-  l.go();
+  l_.go();
   return schedule();
 }
 

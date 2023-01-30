@@ -62,7 +62,7 @@ struct τe : public τb
 
   τe &go_async(F<bool(τe&)> &&f = [](τe &t) { return Sc<bool>(t); })
     { go_f = std::move(f);
-      l.go();
+      l_.go();
       emscripten_async_call(τstep, this, 0);
       return *this; }
 
