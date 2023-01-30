@@ -37,7 +37,7 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 + [Γ](doc/Gamma.md): 〈γ〉
 + [φ](doc/phi.md): the language used to assemble γs and Γs
 
-These are compiler objects, meaning that they don't actually contain live resources. Instead, γ and Γ are functions that take φs as inputs and return φs as outputs, constructing native resources in the process.
+These are compiler objects, meaning that they don't actually contain live resources. Instead, γ and Γ are functions that take Ξs as inputs and return Ξs as outputs, constructing native resources in the process.
 
 See [compiler structures](doc/compiler-structures.md) for a quick rundown of how these structures interact.
 
