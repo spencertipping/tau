@@ -1,5 +1,7 @@
 # Γ: τ compiler
-Γ assembles multiple [γs](gamma.md) into a [τ](tau.md)-scale program.
+Γ assembles multiple [γs](gamma.md) into a [τ](tau.md)-scale program. More specifically, Γ = 〈γ〉.
+
+Γ can be used as a γ with `γs`.
 
 
 ## Nonlinear routing

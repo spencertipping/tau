@@ -1,6 +1,8 @@
 # ξ bounded channels
 ξs are one-directional data pipes that cause [λs](lambda.md) to yield if they are blocked (either on sending or receiving). They send and receive atomic [η](eta.md) values.
 
+Each ξ, unless it is weakened, holds a reference to the [ψ](psi.md) that writes into it.
+
 
 ## ξ states
 An open ξ has two paths to destruction:
