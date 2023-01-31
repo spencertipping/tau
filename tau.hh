@@ -27,6 +27,7 @@
 #include "tau/phi.hh"
 #include "tau/phi-fn.hh"
 #include "tau/phi-str.hh"
+#include "tau/phi-ctor.hh"
 
 
 #if τnoexport

@@ -12,96 +12,104 @@ namespace τ
 
 // Preferential alternative
 template<class T>
-struct φa : public virtual φ<T>
+struct φa_ : public virtual φ_<T>
 {
-  φa() {}
-  φa(Il<Sp<φ<T>>> ps_) : ps(ps_) {}
+  template<class... Xs>
+  φa_(Xs... xs) { push(xs...); }
 
   St name() const;
-  φr<T> operator()(φc const &x) const;
+  φr_<T> operator()(φc_ const&) const;
 
-  φa<T> &operator<<(Sp<φ<T>> p) { ps.push_back(p);  return *this; }
-  φa<T> &operator>>(Sp<φ<T>> p) { ps.push_front(p); return *this; }
+  φa_<T> &operator<<(φ<T> p) { ps.push_back(p);  return *this; }
+  φa_<T> &operator>>(φ<T> p) { ps.push_front(p); return *this; }
 
-  D<Sp<φ<T>>> ps;
+  template<class... Xs>
+  φa_<T> &push(φ<T> p, Xs... xs) { *this << p; return push(xs...); }
+  φa_<T> &push()                 {             return *this; }
+
+  D<φ<T>> ps;
 };
 
 
 // Repetition
 template<class T>
-struct φn : public virtual φ<V<T>>
+struct φn_ : public virtual φ_<V<T>>
 {
-  φn(Sp<φ<T>> p_, uN min_ = 0, uN max_ = -1)
+  φn_(φ<T> p_, uN min_ = 0, uN max_ = -1)
     : p(p_), min(min_), max(max_) {}
 
   St name() const;
-  φr<V<T>> operator()(φc const &x) const;
+  φr_<V<T>> operator()(φc_ const&) const;
 
-  Sp<φ<T>> p;
-  uN       min;
-  uN       max;
+  φ<T> p;
+  uN   min;
+  uN   max;
+};
+
+
+// Optional
+template<class T>
+struct φo_ : public virtual φ_<Op<T>>
+{
+  φo_(φ<T> p_) : p(p_) {}
+
+  St name() const { return p->name() + "?"; }
+  φr_<Op<T>> operator()(φc_ const&) const;
+
+  φ<T> p;
 };
 
 
 // Sequential parsing
-template<class... Xs>
-struct φs : public virtual φ<T<Xs...>>
+// TODO: fully generic template for this
+template<class T, class U>
+struct φs_ : public virtual φ_<P<T, U>>
 {
-  template<class T> struct sp { using type = Sp<φ<T>>; };
+  φs_(φ<T> pt_, φ<U> pu_) : pt(pt_), pu(pu_) {}
 
-  φs(typename sp<Xs>::type... ps_) : ps(ps_...) {}
+  St name() const { return pt.name() + " » " + pu.name(); }
+  φr_<P<T, U>> operator()(φc_ const &x)
+    { let s = (*pt)(x);                   if (s.is_f()) return s.template cast<P<T, U>>();
+      let t = (*pu)(x.at(*this).at(s.j)); if (t.is_f()) return t.template cast<P<T, U>>();
+      return x.at(t.j).a(mp(*s.y, *t.y)); }
 
-  St name() const { return "(" + name_<sizeof...(Xs) - 1>() + ")"; }
-
-  // TODO: figure out template logic for this one
-  //φr<T<Xs...>> operator()(φc const &x) const { return parse_<>(x); }
-
-  T<typename sp<Xs>::type...> ps;
-
-
-protected:
-  template<uN i>
-  typename std::enable_if<1 <= i, St>::type
-  name_() const { return name_<i - 1>() + ", " + std::get<i>(ps)->name(); }
-
-  template<uN i>
-  typename std::enable_if<i == 0, St>::type
-  name_() const { return std::get<0>(ps)->name(); }
+  φ<T> pt;
+  φ<U> pu;
 };
 
 
 // Functional transform (map)
 template<class T, class U>
-struct φm : public virtual φ<U>
+struct φm_ : public virtual φ_<U>
 {
-  φm(Sp<φ<T>> p_, F<U(T)> f_) : p(p_), f(f_) {}
+  φm_(φ<T> p_, F<U(T)> f_) : p(p_), f(f_) {}
 
   St name() const { return "f(" + p->name() + ")"; }
-  φr<U> operator()(φc const &x) const
+  φr_<U> operator()(φc_ const &x) const
     { let s = (*p)(x);
       return s.is_f()
            ? s.template cast<U>()
-           : φr<U>{s.x, s.i, s.j, f(*s.y), s.e, s.t}; }
+           : φr_<U>{s.x, s.i, s.j, f(*s.y), s.e, s.t}; }
 
-  Sp<φ<T>> p;
-  F<U(T)>  f;
+  φ<T>    p;
+  F<U(T)> f;
 };
 
 
 // Filter
 template<class T>
-struct φf : public virtual φ<T>
+struct φf_ : public virtual φ_<T>
 {
-  φf(Sp<φ<T>> p_, F<bool(T)> f_) : p(p_), f(f_) {}
+  φf_(φ<T> p_, F<bool(T)> f_) : p(p_), f(f_) {}
 
   St name() const { return "(" + p->name() + " | f)"; }
-  φr<T> operator()(φc const &x) const
+  φr_<T> operator()(φc_ const &x) const
     { let s = (*p)(x);
       return !s.is_a() || f(*s.y)
            ? s
            : x.at(*this).f("predicate rejected", s.j); }
 
-  Sp<φ<T>>   p;
+  φ<T>       p;
   F<bool(T)> f;
 };
 

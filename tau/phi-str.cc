@@ -9,14 +9,14 @@ namespace τ
 
 
 #define F(T) \
-  template struct φd<T>; \
-  template struct φl<T>;
+  template struct φd_<T>; \
+  template struct φl_<T>;
 
 φinst(F)
 
 
 template<class T>
-St φd<T>::name() const
+St φd_<T>::name() const
 {
   St r = "{\n";
   for (let &[k, p] : ps) r += "\"" + k + "\" → " + p->name() + "\n";
@@ -24,7 +24,7 @@ St φd<T>::name() const
 }
 
 template<class T>
-φr<T> φd<T>::operator()(φc const &x) const
+φr_<T> φd_<T>::operator()(φc_ const &x) const
 {
   V<St> ks;
   for (let &[k, p] : ps)
@@ -44,7 +44,7 @@ template<class T>
 
 
 template<class T>
-φr<T> φl<T>::operator()(φc const &x) const
+φr_<T> φl_<T>::operator()(φc_ const &x) const
 {
   return x.l() >= l.size() && x.sub(l.size()) == l
        ? x.a(y, x.i() + l.size())
@@ -52,7 +52,7 @@ template<class T>
 }
 
 
-φr<St> φcs::operator()(φc const &x) const
+φr_<St> φcs_::operator()(φc_ const &x) const
 {
   St r;
   uN i = x.i();

@@ -14,30 +14,30 @@ namespace τ
 
 // Longest-prefix dispatch
 template<class T>
-struct φd : public virtual φ<T>
+struct φd_ : public virtual φ_<T>
 {
   template<class... Xs>
-  φd(Xs... xs) { def(xs...); }
+  φd_(Xs... xs) { def(xs...); }
 
   template<class... Xs>
-  φd &def(Stc &k, Sp<φ<T>> p, Xs... xs) { ps[k] = p; return def(xs...); }
-  φd &def()                             {            return *this; }
+  φd_ &def(Stc &k, φ<T> p, Xs... xs) { ps[k] = p; return def(xs...); }
+  φd_ &def()                         {            return *this; }
 
   St name() const;
-  φr<T> operator()(φc const&) const;
+  φr_<T> operator()(φc_ const&) const;
 
-  M<St, Sp<φ<T>>> ps;
+  M<St, φ<T>> ps;
 };
 
 
 // Literal string, with literal result
 template<class T>
-struct φl : public virtual φ<T>
+struct φl_ : public virtual φ_<T>
 {
-  φl(St l_, T y_) : l(l_), y(y_) {}
+  φl_(St l_, T y_) : l(l_), y(y_) {}
 
   St name() const { return "\"" + l + "\""; }
-  φr<T> operator()(φc const&) const;
+  φr_<T> operator()(φc_ const&) const;
 
   St l;
   T  y;
@@ -45,23 +45,23 @@ struct φl : public virtual φ<T>
 
 
 // Charset: any-of, formed into a string
-struct φcs : public virtual φ<St>
+struct φcs_ : public virtual φ_<St>
 {
-  φcs(chc *cs_) : cs(cs_) {}
+  φcs_(chc *cs_) : cs(cs_) {}
 
   St name() const { return (Ss{} << cs).str(); }
-  φr<St> operator()(φc const&) const;
+  φr_<St> operator()(φc_ const&) const;
 
   cs7 cs;
 };
 
 
 // End of input detector
-struct φE : public virtual φ<bool>
+struct φE_ : public virtual φ_<bool>
 {
-  φE() {}
+  φE_() {}
   St name() const { return "E"; }
-  φr<bool> operator()(φc const &x) const
+  φr_<bool> operator()(φc_ const &x) const
     { return x.i() == x.l()
            ? x.a(true, x.i())
            : x.f<bool>("not eof", x.i()); }

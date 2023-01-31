@@ -7,8 +7,9 @@ namespace τ
 
 
 #define F(T) \
-  template struct φa<T>; \
-  template struct φn<T>;
+  template struct φa_<T>; \
+  template struct φn_<T>; \
+  template struct φo_<T>;
 
 φinst(F)
 
@@ -16,7 +17,7 @@ namespace τ
 // φa<T>
 //
 template<class T>
-St φa<T>::name() const
+St φa_<T>::name() const
 {
   St   r     = "(";
   bool first = true;
@@ -30,9 +31,9 @@ St φa<T>::name() const
 }
 
 template<class T>
-φr<T> φa<T>::operator()(φc const &x) const
+φr_<T> φa_<T>::operator()(φc_ const &x) const
 {
-  φr<T> r;
+  φr_<T> r;
   bool  first = true;
   for (let &p : ps)
   {
@@ -47,16 +48,16 @@ template<class T>
 // φn<T>
 //
 template<class T>
-St φn<T>::name() const
+St φn_<T>::name() const
 {
   return p->name() + (Ss{} << "{" << min << "," << max << "}").str();
 }
 
 template<class T>
-φr<V<T>> φn<T>::operator()(φc const &x) const
+φr_<V<T>> φn_<T>::operator()(φc_ const &x) const
 {
-  V<φr<T>> r;
-  φc y = x;
+  V<φr_<T>> r;
+  φc_ y = x;
   for (uN i = 0; i < max; ++i)
   {
     let s = (*p)(y);
@@ -70,6 +71,16 @@ template<class T>
   V<T> rs;
   for (let &z : r) rs.push_back(*z.y);
   return x.a(rs, r.empty() ? x.i() : r.back().i);
+}
+
+
+// φo<T>
+//
+template<class T>
+φr_<Op<T>> φo_<T>::operator()(φc_ const &x) const
+{
+  let s = (*p)(x);
+  return x.template a<Op<T>>(s.y, s.is_a() ? s.j : x.i());
 }
 
 
