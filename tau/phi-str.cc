@@ -23,7 +23,6 @@ St φd<T>::name() const
   return r + "}";
 }
 
-
 template<class T>
 φr<T> φd<T>::operator()(φc const &x) const
 {

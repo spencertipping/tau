@@ -56,6 +56,18 @@ struct φcs : public virtual φ<St>
 };
 
 
+// End of input detector
+struct φE : public virtual φ<bool>
+{
+  φE() {}
+  St name() const { return "E"; }
+  φr<bool> operator()(φc const &x) const
+    { return x.i() == x.l()
+           ? x.a(true, x.i())
+           : x.f<bool>("not eof", x.i()); }
+};
+
+
 }
 
 #include "end.hh"

@@ -70,6 +70,42 @@ protected:
 };
 
 
+// Functional transform (map)
+template<class T, class U>
+struct φm : public virtual φ<U>
+{
+  φm(Sp<φ<T>> p_, F<U(T)> f_) : p(p_), f(f_) {}
+
+  St name() const { return "f(" + p->name() + ")"; }
+  φr<U> operator()(φc const &x) const
+    { let s = (*p)(x);
+      return s.is_f()
+           ? s.template cast<U>()
+           : φr<U>{s.x, s.i, s.j, f(*s.y), s.e, s.t}; }
+
+  Sp<φ<T>> p;
+  F<U(T)>  f;
+};
+
+
+// Filter
+template<class T>
+struct φf : public virtual φ<T>
+{
+  φf(Sp<φ<T>> p_, F<bool(T)> f_) : p(p_), f(f_) {}
+
+  St name() const { return "(" + p->name() + " | f)"; }
+  φr<T> operator()(φc const &x) const
+    { let s = (*p)(x);
+      return !s.is_a() || f(*s.y)
+           ? s
+           : x.at(*this).f("predicate rejected", s.j); }
+
+  Sp<φ<T>>   p;
+  F<bool(T)> f;
+};
+
+
 }
 
 #include "end.hh"
