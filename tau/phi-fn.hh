@@ -23,7 +23,7 @@ struct φa : public virtual φ<T>
   φa<T> &operator<<(Sp<φ<T>> p) { ps.push_back(p);  return *this; }
   φa<T> &operator>>(Sp<φ<T>> p) { ps.push_front(p); return *this; }
 
-  V<Sp<φ<T>>> ps;
+  D<Sp<φ<T>>> ps;
 };
 
 

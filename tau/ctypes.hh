@@ -128,6 +128,7 @@ template<class... K>       using S  = std::unordered_set<K...>;
 template<class... K>       using So = std::set<K...>;
 template<class... T>       using Sk = std::stack<T...>;
 template<class... T>       using Sp = std::shared_ptr<T...>;
+typedef        std::stringstream Ss;
 template<class... X>       using T  = std::tuple<X...>;
 typedef              std::thread Th;
 template<class... T>       using Up = std::unique_ptr<T...>;

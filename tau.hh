@@ -26,6 +26,12 @@
 
 #include "tau/phi.hh"
 #include "tau/phi-fn.hh"
+#include "tau/phi-str.hh"
+
+
+#if τnoexport
+# error τnoexport flag triggered; something is being exported improperly
+#endif
 
 
 #endif
