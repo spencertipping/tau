@@ -11,9 +11,13 @@ using namespace std;
 
 void try_simple()
 {
-  let p = φa<int>(φl("foo", 1), φl("bar", 2));
-  let q = φparse(p, "foo");
-  cout << "parse result: " << q.value_or(-1) << endl;
+  let p = φn(φa<int>(φl("foo", 1), φl("bar", 2)));
+  let q = φparse(p, "foobarba");
+  if (q.has_value())
+    for (let x : *q)
+      cout << "got a result: " << x << endl;
+  else
+    cout << "parse failed (error)" << endl;
 }
 
 

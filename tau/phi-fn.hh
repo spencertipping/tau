@@ -61,14 +61,14 @@ struct φn_ : public virtual φ_<V<T>>
       φc_ y = x;
       for (uN i = 0; i < max; ++i)
       { let s = (*p)(y);
-        if (s.is_f()) return s.template cast<V<T>>();
+        if (s.is_f()) break;
         r.push_back(s);
         y = y.at(s.j); }
       if (r.size() < min)
         return x.at(*this).template f<V<T>>("too few elements", y.i());
       V<T> rs;
       for (let &z : r) rs.push_back(*z.y);
-      return x.a(rs, r.empty() ? x.i() : r.back().i); }
+      return x.a(rs, r.empty() ? x.i() : r.back().j); }
 
   φ<T> p;
   uN   min;

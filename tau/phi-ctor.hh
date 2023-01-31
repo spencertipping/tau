@@ -21,7 +21,7 @@ inline φ<bool> φE ()       { return φ<bool>{new φE_()}; }
 
 template<class T, class... Xs> φ<T>   φa(Xs... xs) { return φ<T>{new φa_<T>(xs...)}; }
 
-template<class T>          φ<T>       φn(φ<T> p, uN l = 0, uN u = -1) { return φ<T>{new φn_<T>(p, l, u)}; }
+template<class T>          φ<V<T>>    φn(φ<T> p, uN l = 0, uN u = -1) { return φ<V<T>>{new φn_<T>(p, l, u)}; }
 
 template<class T>          φ<T>       φo(φ<T> p)               { return φ<T>{new φo_<T>(p)}; }
 template<class T, class U> φ<P<T, U>> φs(φ<T> p, φ<U> q)       { return φ<P<T, U>>{new φs_<T, U>(p, q)}; }

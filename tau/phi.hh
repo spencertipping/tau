@@ -55,7 +55,7 @@ struct φr_
   template<class U>
   φr_<U> cast() const
     { A(is_f(), "cannot cast φr::a");
-      return *Rc<φr_<U> const*>(this);}
+      return φr_<U>{x, i, j, {}, e, t}; }
 };
 
 
