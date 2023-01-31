@@ -38,7 +38,7 @@ Sp<γf> iota()
   { for (u64 i = 0; o << η0o(i); ++i); })); }
 
 Sp<γf> take(u64 n)
-{ return Sp<γf>(new γf("⌊", [=](ξi i, ξo o) mutable
+{ return Sp<γf>(new γf("↑", [=](ξi i, ξo o) mutable
   { for (let x : i)
       if (!n-- || !(o << x))
       { i.close(); o.close(); break; } })); }
