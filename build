@@ -29,6 +29,7 @@ rebuild_all=
 for f in tau.hh tau/*.hh build; do
   for o in `find bin -name '*.o'`; do
     if [[ $f -nt $o ]]; then
+      find bin -name '*.o' -delete
       rebuild_all=yes
       break
     fi
@@ -137,7 +138,7 @@ server_build()
   ssh $host mkdir -p $path
   rsync -a --delete tau.hh tau try build $host:$path/
   ssh -t $host "cd $path && ./build"
-  rsync -a $host:$path/bin ./
+  rsync -a --delete $host:$path/bin ./
 }
 
 
