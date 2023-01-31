@@ -22,6 +22,18 @@ wasm_link=(
 )
 
 
+build_linux=yes
+build_wasm=yes
+
+while (( $# )); do
+  case $1 in
+    --no-wasm)  build_wasm=;  shift ;;
+    --no-linux) build_linux=; shift ;;
+    *) break ;;
+  esac
+done
+
+
 mkdir -p bin/{linux,wasm}/{tau,try}
 
 
@@ -102,13 +114,13 @@ wasm_link()
 compile()
 {
   for f in tau/*.cc try/*.cc; do
-    linux_cc $f &
-    wasm_cc  $f &
+    [[ -n $build_linux ]] && linux_cc $f &
+    [[ -n $build_wasm  ]] && wasm_cc  $f &
   done
   wait
   rm -f bin/*.a
-  ar rcs bin/tau-linux.a `find bin/linux/tau -name '*.o'`
-  dev/emsdk emar rcs bin/tau-wasm.a `find bin/wasm/tau -name '*.o'`
+  [[ -n $build_linux ]] && ar             rcs bin/tau-linux.a `find bin/linux/tau -name '*.o'`
+  [[ -n $build_wasm  ]] && dev/emsdk emar rcs bin/tau-wasm.a  `find bin/wasm/tau  -name '*.o'`
   echo "compile done"
 }
 
@@ -116,8 +128,8 @@ compile()
 link()
 {
   for f in try/*.cc; do
-    linux_link $f &
-    wasm_link  $f &
+    [[ -n $build_linux ]] && linux_link $f &
+    [[ -n $build_wasm  ]] && wasm_link  $f &
   done
   wait
   echo "link done"
@@ -137,7 +149,10 @@ server_build()
   path=$2
   ssh $host mkdir -p $path
   rsync -a --delete tau.hh tau try build $host:$path/
-  ssh -t $host "cd $path && ./build"
+  args=
+  [[ -z $build_linux ]] && args="$args --no-linux"
+  [[ -z $build_wasm  ]] && args="$args --no-wasm"
+  ssh -t $host "cd $path && ./build $args"
   rsync -a --delete $host:$path/bin ./
 }
 
