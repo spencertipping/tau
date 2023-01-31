@@ -30,6 +30,10 @@ letc Ξc0 = 8192;
 // It seems like multiplexing should be preferred in many cases -- although
 // we still need enough organizational machinery to route stuff to the
 // multiplexer.
+//
+// Whether or not we ultimately use a multiplexer is immaterial; we should
+// be able to hang onto the intermediate ξs easily and not be forced to
+// delegate too early. That means we need some structured organization.
 
 
 struct Ξ
