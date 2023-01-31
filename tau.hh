@@ -30,9 +30,4 @@
 #include "tau/phi-ctor.hh"
 
 
-#if τnoexport
-# error τnoexport flag triggered; something is being exported improperly
-#endif
-
-
 #endif

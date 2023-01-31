@@ -2,6 +2,9 @@
 #define τφstr_h
 
 
+#include <algorithm>
+
+
 #include "types.hh"
 #include "strings.hh"
 #include "phi.hh"
@@ -23,8 +26,21 @@ struct φd_ : public virtual φ_<T>
   φd_ &def(Stc &k, φ<T> p, Xs... xs) { ps[k] = p; return def(xs...); }
   φd_ &def()                         {            return *this; }
 
-  St name() const;
-  φr_<T> operator()(φc_ const&) const;
+
+  St name() const
+    { St r = "{\n";
+      for (let &[k, p] : ps) r += "\"" + k + "\" → " + p->name() + "\n";
+      return r + "}"; }
+
+  φr_<T> operator()(φc_ const &x) const
+    { V<St> ks;
+      for (let &[k, p] : ps)
+        if (k.size() <= x.l() && x.sub(k.size()) == k) ks.push_back(k);
+      std::sort(ks.begin(), ks.end(),
+                [](Stc &a, Stc &b) { return a.size() > b.size(); });
+      for (let &k : ks) { let s = (*ps.at(k))(x); if (s.is_a()) return s; }
+      return x.at(*this).template f<T>("no matching prefix", x.i()); }
+
 
   M<St, φ<T>> ps;
 };
@@ -37,20 +53,27 @@ struct φl_ : public virtual φ_<T>
   φl_(St l_, T y_) : l(l_), y(y_) {}
 
   St name() const { return "\"" + l + "\""; }
-  φr_<T> operator()(φc_ const&) const;
+  φr_<T> operator()(φc_ const &x) const
+    { return x.l() >= l.size() && x.sub(l.size()) == l
+           ? x.a(y, x.i() + l.size())
+           : x.f<T>("literal mismatch", x.i()); }
 
   St l;
   T  y;
 };
 
 
-// Charset: any-of, formed into a string
+// Charset: any-of, formed into a string (NOTE: 7-bit ASCII)
 struct φcs_ : public virtual φ_<St>
 {
   φcs_(chc *cs_) : cs(cs_) {}
 
   St name() const { return (Ss{} << cs).str(); }
-  φr_<St> operator()(φc_ const&) const;
+  φr_<St> operator()(φc_ const &x) const
+    { St r;
+      uN i = x.i();
+      while (i < x.l() && cs[x[i]]) r += x[i];
+      return x.a(r, x.i() + r.size()); }
 
   cs7 cs;
 };

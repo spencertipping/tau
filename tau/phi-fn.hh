@@ -17,8 +17,23 @@ struct φa_ : public virtual φ_<T>
   template<class... Xs>
   φa_(Xs... xs) { push(xs...); }
 
-  St name() const;
-  φr_<T> operator()(φc_ const&) const;
+  St name() const
+    { St   r     = "(";
+      bool first = true;
+      for (let &p : ps)
+      { if (first) first = false;
+        else       r.append(" | ");
+        r.append(p->name()); }
+      return r.append(")"); }
+
+  φr_<T> operator()(φc_ const &x) const
+    { φr_<T> r;
+      bool  first = true;
+      for (let &p : ps)
+      { let s = (*p)(x);
+        if (first || s > r) r = s;
+        if (r.is_a()) return r; }
+      return r; }
 
   φa_<T> &operator<<(φ<T> p) { ps.push_back(p);  return *this; }
   φa_<T> &operator>>(φ<T> p) { ps.push_front(p); return *this; }
@@ -38,8 +53,22 @@ struct φn_ : public virtual φ_<V<T>>
   φn_(φ<T> p_, uN min_ = 0, uN max_ = -1)
     : p(p_), min(min_), max(max_) {}
 
-  St name() const;
-  φr_<V<T>> operator()(φc_ const&) const;
+  St name() const
+    { return p->name() + (Ss{} << "{" << min << "," << max << "}").str(); }
+
+  φr_<V<T>> operator()(φc_ const &x) const
+    { V<φr_<T>> r;
+      φc_ y = x;
+      for (uN i = 0; i < max; ++i)
+      { let s = (*p)(y);
+        if (s.is_f()) return s.template cast<V<T>>();
+        r.push_back(s);
+        y = y.at(s.j); }
+      if (r.size() < min)
+        return x.at(*this).template f<V<T>>("too few elements", y.i());
+      V<T> rs;
+      for (let &z : r) rs.push_back(*z.y);
+      return x.a(rs, r.empty() ? x.i() : r.back().i); }
 
   φ<T> p;
   uN   min;
@@ -54,7 +83,9 @@ struct φo_ : public virtual φ_<Op<T>>
   φo_(φ<T> p_) : p(p_) {}
 
   St name() const { return p->name() + "?"; }
-  φr_<Op<T>> operator()(φc_ const&) const;
+  φr_<Op<T>> operator()(φc_ const &x) const
+    { let s = (*p)(x);
+      return x.template a<Op<T>>(s.y, s.is_a() ? s.j : x.i()); }
 
   φ<T> p;
 };

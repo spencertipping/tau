@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "../tau.hh"
+//#include "../tau/phi-ctor.hh"
 #include "../tau/begin.hh"
 
 
@@ -10,7 +11,9 @@ using namespace std;
 
 void try_simple()
 {
-  let p = φa(φl("foo", 1), φl("bar", 2));
+  let p = φa<int>(φl("foo", 1), φl("bar", 2));
+  let q = φparse(p, "foo");
+  cout << "parse result: " << q.value_or(-1) << endl;
 }
 
 
