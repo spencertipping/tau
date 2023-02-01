@@ -33,3 +33,21 @@ Mathematically, Ξ is a vector of [ξs](xi.md) used as the input and output of [
   + Bundled throughputs
   + Bundled debugs
   + Multiplexed versions of above
+
+Naïvely, it seems like Ξ is defined like this:
+
+```cpp
+struct Ξ
+{
+  ξio f;         // →
+  ξio b;         // ←
+  V<ξio> fs;     // anonymous bundle of → ξs
+  V<ξio> bs;     // anonymous bundle of ← ξs
+  M<St, ξio> t;  // named tap ξs
+  M<St, Ξ> n;    // named bundled Ξs
+};
+```
+
+**NOTE:** we probably want a "full-duplex" shorthand: `ξd = P<ξio, ξio>`.
+
+I don't think we want to split these into piecewise variations; there's no point, and there's shared context -- like, most cables will have a dedicated full-duplex data line. Any cable can accumulate a named Ξ or a separate tap line.
