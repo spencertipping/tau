@@ -29,7 +29,7 @@ while (( $# )); do
   case $1 in
     --no-wasm)  build_wasm=;  shift ;;
     --no-linux) build_linux=; shift ;;
-    *) break ;;
+    *)                        break ;;
   esac
 done
 
