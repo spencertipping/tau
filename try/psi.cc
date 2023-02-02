@@ -20,7 +20,7 @@ struct γf : public virtual γ
   Ξ &operator()(Ξ &x)
     { ++ψs;
       Sp<ψ> q{new ψ(x.t()), [](ψ*) { --ψs; }};
-      auto [i, o] = x.xf(q);
+      auto [i, o] = x.xf(q, 64, 64);
       q->name(n).def([i=i, o=o, *this](ψ &q) { f(i, o); });
       return x; }
 

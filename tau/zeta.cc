@@ -11,7 +11,7 @@ namespace τ
 ζ &ζ::resize(uN c_)
 {
   if (c_ == c) return *this;
-  A(c_ <= ra(),
+  A(c_ >= ra(),
     "cannot resize ζ to be smaller than its contents" <<
     "(c = " << c << ", c_ = " << c_ << ", ra = " << ra());
 
