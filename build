@@ -37,9 +37,14 @@ done
 mkdir -p bin/{linux,wasm}/{tau,try}
 
 
+h_files=( tau.hh `find tau     -name '*.hh'` )
+c_files=(        `find tau try -name '*.cc'` )
+o_files=(        `find bin     -name '*.o'` )
+
+
 rebuild_all=
-for f in tau.hh tau/*.hh build; do
-  for o in `find bin -name '*.o'`; do
+for f in ${h_files[*]} build; do
+  for o in ${o_files[*]}; do
     if [[ $f -nt $o ]]; then
       find bin -name '*.o' -delete
       rebuild_all=yes
@@ -52,7 +57,7 @@ done
 linux_cc()
 {
   src=$1
-  obj=bin/linux/${1%.cc}.o
+  obj=bin/linux/${src%.cc}.o
   if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
     g++ $linux_flags $src -c -o $obj
     echo "linux/compiled $src"
@@ -62,7 +67,7 @@ linux_cc()
 wasm_cc()
 {
   src=$1
-  obj=bin/wasm/${1%.cc}.o
+  obj=bin/wasm/${src%.cc}.o
   if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
     dev/emsdk em++ $wasm_flags $src -c -o $obj
     echo "wasm/compiled $src"
@@ -113,7 +118,7 @@ wasm_link()
 
 compile()
 {
-  for f in tau/*.cc try/*.cc; do
+  for f in ${c_files[*]}; do
     [[ -n $build_linux ]] && linux_cc $f &
     [[ -n $build_wasm  ]] && wasm_cc  $f &
   done
@@ -127,7 +132,7 @@ compile()
 
 link()
 {
-  for f in try/*.cc; do
+  for f in `find try -name '*.cc'`; do
     [[ -n $build_linux ]] && linux_link $f &
     [[ -n $build_wasm  ]] && wasm_link  $f &
   done
