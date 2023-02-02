@@ -10,9 +10,17 @@ namespace τ
 {
 
 
+struct γ;
+
+void γc_(γ*);
+void γd_(γ*);
+uN   γn();
+
+
 // Virtual base for γ compilers
 struct γ
 {
+  γ() {  }
   virtual ~γ() {}
   virtual Ξ &operator()(Ξ &x) = 0;
 

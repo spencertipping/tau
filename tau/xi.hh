@@ -15,6 +15,12 @@ namespace τ
 
 
 struct ψ;
+struct ξ;
+
+
+void ξc_(ξ*);
+void ξd_(ξ*);
+uN   ξn();
 
 
 // η pipe: a circular buffer with Λ-mediated read/write negotiation
@@ -26,14 +32,17 @@ struct ψ;
 struct ξ
 {
   ξ(Λ &l, uN c)
-    : z(c), b(nullptr), sb(0), t(0), wc(false), w(false), rg(l), wg(l) {}
+    : z(c), b(nullptr), sb(0), t(0), wc(false), w(false), rg(l), wg(l)
+    { ξc_(this); }
 
   // By this point our instance state won't be accessible to any λs, so
   // all messaging must go through the wake-gates; false means the ξ is
   // closed, so assume it no longer exists.
   ~ξ()
     { rg.w(false); wg.w(false);
-      if (b) delete[] b; }
+      if (b) delete[] b;
+      ξd_(this); }
+
 
   uN capacity() const { return z.capacity(); }
   uN ra()       const { return b ? sb : z.ra(); }
@@ -113,9 +122,9 @@ protected:
   bool     w;    // weaken() has been called, always weaken source ψ
   λg<bool> rg;   // read-gate; false means insta-bail
   λg<bool> wg;   // write-gate; false means insta-bail
-  Sp<ψ>    iqs;  // input (writer) ψ -- default strong reference
+  Sp<ψ>    iqs;  // input (supplying) ψ -- default strong reference
   Wp<ψ>    iqw;  // input ψ -- optional weak reference
-  Wp<ψ>    oqw;  // output (reader) ψ
+  Wp<ψ>    oqw;  // output (consuming) ψ
 
 
   friend O &operator<<(O&, ξ const&);

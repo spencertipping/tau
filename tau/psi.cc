@@ -7,16 +7,16 @@ namespace τ
 
 static iN ψs_ = 0;
 
-void ψc_(ψ*) { ++ψs_; }
-void ψx_(ψ*) { --ψs_; }
-uN ψn()      { A(ψs_ >= 0, "ψs underflow"); return ψs_; }
+void ψc_(ψ *q) { ++ψs_; }
+void ψx_(ψ *q) { --ψs_; }
+uN ψn()        { A(ψs_ >= 0, "ψs underflow"); return ψs_; }
 
 
 ψ::~ψ()
 {
   Λ &l = t_.l();
-  for (let x : ls)
-    if (l.e(x) && x != l.i()) l.x(x);
+  for (let  x : ls) if (l.e(x) && x != l.i()) l.x(x);
+  for (let &f : df)                           f(*this);
   ψx_(this);
 }
 

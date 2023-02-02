@@ -19,7 +19,7 @@ struct γostream_ : public virtual γ
       q->name(name())
         .def([&s=s, i=i, o=o]() mutable
           { for (let x : i)
-            { s << x << std::endl;
+            { s << η1i{x} << std::endl;
               o << x; }});
       return x; }
 

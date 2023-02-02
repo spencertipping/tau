@@ -57,6 +57,8 @@ struct Λ
   λi  operator()() const;  // find next λi to run
   Λ          &go();        // run as long as there is stuff to do
 
+  uN n() const { return ls.size(); }
+
 
 protected:
   M<λi, Sp<Λt>> ls;           // all λs

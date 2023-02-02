@@ -12,26 +12,26 @@ namespace τ
 {
 
 
-
 static Sp<ψ> ψfd(τe &t, fd_t fd)
 {
-  return {new ψ(t), [=, &t](ψ*) { t.close(fd); }};
+  let r = Sp<ψ>{new ψ(t)};
+  r->xf([&t, fd](ψ&) { t.close(fd); });
+  return r;
 }
 
 
 static Sp<ψ> ψr(Sp<ψ> q, fd_t fd, ξi i, ξo o)
 {
   q->name((Ss{} << "<" << fd).str())
-    .def([=](ψ &q) mutable
+    .def([=]() mutable
       { let s = o.inner_ξ()->capacity() >> 1;
         u8  b[s];
         i.close();
         while (1)
-        { let r = q.t().read(fd, b, s);
+        { let r = q->t().read(fd, b, s);
           if (r <= 0
               || !(o << (η0o{}.t(η0t::bytes) << Bv{b, Sc<uN>(r)})))
             break; }
-        q.t().close(fd);
         o.close(); });
   return q;
 }
@@ -48,12 +48,14 @@ static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i, ξo o)
             let xs = x.data();
             let s  = x.size();
             while (n < s)
-            { let x = q->t().write(fd, xs + n, s - n);
-              if (x == -1) { o <<= η0o(false); goto out; }
-              else           o <<= η0o(x);
-              n += x; } }
-      out:
-        q->t().unpin(q).close(fd); });
+            { let y = q->t().write(fd, xs + n, s - n);
+              if (y == -1) { o <<= η0o(false); goto done; }
+              else           o <<= η0o(y);
+              n += y; } }
+      done:
+        i.close();
+        o.close();
+        q->t().unpin(q); });
   return q;
 }
 

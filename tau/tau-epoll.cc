@@ -30,6 +30,7 @@ int τe::close(fd_t fd)
     let dt = (hn() - now()) / 1ms;
     let n  = epoll_wait(efd, evs, sizeof(evs) / sizeof(epoll_event),
                         nonblock ? 0 : std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
+
     A(n != -1, "epoll_wait error " << errno);
     if (!n) break;
 
@@ -42,6 +43,7 @@ int τe::close(fd_t fd)
         if (evs[i].events & EPOLLIN)  g->r.w(true);
         if (evs[i].events & EPOLLOUT) g->w.w(true);
         if (evs[i].events & EPOLLERR) g->w.w(false);
+        if (evs[i].events & EPOLLHUP) g->r.w(false);
       }
     }
 
@@ -61,7 +63,7 @@ int τe::close(fd_t fd)
   if (!gs.contains(fd))
   {
     epoll_event ev;
-    ev.events  = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET;
+    ev.events  = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLET;
     ev.data.fd = nb(fd);
     if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return nullptr;
     return gs[fd] = new λgs{l_, l_};

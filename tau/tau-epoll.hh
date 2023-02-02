@@ -96,6 +96,8 @@ struct τe : public τb
   τe &pin  (Sp<ψ> q) { qs.insert(q); return *this; }
   τe &unpin(Sp<ψ> q) { qs.erase(q);  return *this; }
 
+  uN pinned() const { return qs.size(); }
+
 
 protected:
   fd_t    const efd;  // epoll control FD
