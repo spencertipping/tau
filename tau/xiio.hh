@@ -82,7 +82,7 @@ protected:
 struct ξd
 {
   ξd(Λ &l_)                   : l(l_), f_(new ξ(l_, 0)), b_(new ξ(l_, 0)) {}
-  ξd(Λ &l_, Sp<ξ> f, Sp<ξ> b) : l(l_), f_(f), b_(b) {}
+  ξd(Λ &l_, Sp<ξ> f, Sp<ξ> b) : l(l_), f_(f),            b_(b)            {}
 
   // Destructively splices this pair along the forward direction, returning
   // the left and right sides of the newly-cut ξ, respectively.
