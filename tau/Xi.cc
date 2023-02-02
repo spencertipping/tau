@@ -7,7 +7,19 @@ namespace τ
 
 O &operator<<(O &s, Ξ const &x)
 {
-  return s << "TODO <<Ξ";
+  s << "Ξ" << x.a_.size() << "(";
+  bool first = true;
+  for (let &[k, _] : x.n_)
+  { if (first) first = false;
+    else       s << " ";
+    s << k; }
+  s << ")[";
+  first = true;
+  for (let &[k, _] : x.x_)
+  { if (first) first = false;
+    else       s << " ";
+    s << k; }
+  return s << "]";
 }
 
 

@@ -22,6 +22,12 @@ struct η1i
 };
 
 
+struct η1si : public η1i  // signal input
+{
+  operator η0sig() const { return Sc<η0sig>(R<u8>(i.data(), 0)); }
+};
+
+
 struct η1pi : public η1i  // primitive input
 {
   bool is_u() const { return i.type() == η0t::uint_be; }
@@ -81,9 +87,9 @@ struct η1ti : public η1i  // tuple-oriented input (also works for sets)
 
 
 O &operator<<(O &s, η1i const &x);
+O &operator<<(O &s, η1si const &x);
 O &operator<<(O &s, η1pi const &x);
 O &operator<<(O &s, η1ti const &x);
-
 
 
 }

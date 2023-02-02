@@ -2,6 +2,9 @@
 #define τη0i_h
 
 
+#include <cstring>
+
+
 #include "types.hh"
 #include "numerics.hh"
 #include "eta-types.hh"

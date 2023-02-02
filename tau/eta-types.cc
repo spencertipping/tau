@@ -6,6 +6,19 @@ namespace τ
 {
 
 
+O &operator<<(O &s, η0sig x)
+{
+  switch (x)
+  {
+  case η0sig::α: return s << "α";
+  case η0sig::κ: return s << "κ";
+  case η0sig::ι: return s << "ι";
+  case η0sig::τ: return s << "τ";
+  case η0sig::ω: return s << "ω";
+  default:       return s << "sig" << Sc<uN>(x);
+  }
+}
+
 O &operator<<(O &s, η0t t)
 {
   switch (t)

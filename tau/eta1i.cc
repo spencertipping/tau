@@ -5,6 +5,11 @@ namespace τ
 {
 
 
+O &operator<<(O &s, η1si const &x)
+{
+  return s << Sc<η0sig>(x);
+}
+
 O &operator<<(O &s, η1pi const &x)
 {
   if      (x.is_f()) return s << Sc<f64>(x);

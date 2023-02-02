@@ -35,6 +35,17 @@ enum class η0t : u8
 };
 
 
+// η₀ signals
+enum class η0sig : u8
+{
+  α = 1,
+  κ = 2,
+  ι = 3,
+  τ = 4,
+  ω = 5
+};
+
+
 // η₀ type set
 struct η0ts
 {
@@ -106,6 +117,7 @@ template<class T> concept η0atp = η0tp[η0at_<T>::t];
 
 
 O &operator<<(O &s, η0t t);
+O &operator<<(O &s, η0sig x);
 O &operator<<(O &s, η0ts x);
 
 

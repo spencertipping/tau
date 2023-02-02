@@ -56,6 +56,8 @@ protected:
   V<Sp<ξd>>     a_;  // anonymous duplex bundle
   M<St, Sp<ξd>> n_;  // named duplexes
   M<St, Sp<Ξ>>  x_;  // named bundles
+
+  friend O &operator<<(O&, Ξ const&);
 };
 
 

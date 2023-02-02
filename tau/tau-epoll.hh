@@ -2,8 +2,6 @@
 #define τ²epoll_h
 
 
-#include <algorithm>
-
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -36,16 +34,13 @@ struct τe : public τb
   τe(τe&&) = delete;
   τe() : τb(), efd(epoll_create1(0))
     { // Important: ignore SIGPIPE so we can catch it as an error on FD ops
+      // TODO: listen for other signals and emit them on a builtin γ
       signal(SIGPIPE, SIG_IGN);
       A(efd != -1, "epoll_create1 failure " << errno); }
 
   ~τe()
-    { for (let &[fd, g] : gs)
-      { g->r.w(false);
-        g->w.w(false);
-        delete g;
-        close(fd); }
-      A(!close(efd), "~τ close failed (fd leak) " << errno); }
+    { for (let &[fd, g] : gs) close(fd);
+      A(!::close(efd), "~τ close failed (fd leak) " << errno); }
 
 
   // λg pair: one gate to wait until a file is readable, one for write;
