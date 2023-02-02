@@ -51,12 +51,16 @@ struct ψ
   ξo o(Stc &k) const { return o_.at(k); }
 
 
+  ψ &xf(F<void(ψ&)> &&f) { df.push_back(std::move(f)); return *this; }
+
+
 protected:
-  τe       &t_;
-  S<λi>     ls;
-  M<St, ξi> i_;  // named input ξs
-  M<St, ξo> o_;  // named output ξs
-  St        n_;  // name for debugging purposes
+  τe            &t_;
+  V<F<void(ψ&)>> df;  // destructor functions
+  S<λi>          ls;  // managed λ IDs
+  M<St, ξi>      i_;  // named input ξs
+  M<St, ξo>      o_;  // named output ξs
+  St             n_;  // name for debugging purposes
 };
 
 

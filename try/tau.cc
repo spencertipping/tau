@@ -34,8 +34,24 @@ int cat()
   t.go();
   return ret;
 }
+
+
+int cat2()
+{
+  τe t;
+  Ξ x{t};
+  (γfr(0) | γfw(1))(x);
+  t.go();
+  return 0;
+}
 #else
 int cat()
+{
+  cout << "no cat on this platform" << endl;
+  return 1;
+}
+
+int cat2()
 {
   cout << "no cat on this platform" << endl;
   return 1;
@@ -47,8 +63,9 @@ int usage(char**);
 int main(int argc, char **argv)
 {
   τassert_begin;
-  if (argc < 2)                return usage(argv);
-  if (!strcmp("cat", argv[1])) return cat();
+  if (argc < 2)                 return usage(argv);
+  if (!strcmp("cat",  argv[1])) return cat();
+  if (!strcmp("cat2", argv[1])) return cat2();
   return 0;
   τassert_end;
 }

@@ -51,9 +51,11 @@ struct η0o
   η0o &operator=(bool  x) { t(η0t::boolean);  d.p.b = x; return *this; }
   η0o &operator=(void *x) { t(η0t::η0);       d.p.p = x; return *this; }
 
-  η0o &operator=(Stc &x) { t(η0t::utf8);  sd() = Bv{Rc<u8c*>(x.data()), x.size()}; return *this; }
-  η0o &operator=(Bc  &x) { t(η0t::bytes); sd() = x;                                return *this; }
-  η0o &operator=(B  &&x) { t(η0t::bytes); sd() = std::move(x);                     return *this; }
+  η0o &operator=(Stvc &x) { t(η0t::utf8);  sd() = Bv{Rc<u8c*>(x.data()), x.size()}; return *this; }
+  η0o &operator=(Stc  &x) { t(η0t::utf8);  sd() = Bv{Rc<u8c*>(x.data()), x.size()}; return *this; }
+  η0o &operator=(Bvc  &x) { t(η0t::bytes); sd() = x;                                return *this; }
+  η0o &operator=(Bc   &x) { t(η0t::bytes); sd() = x;                                return *this; }
+  η0o &operator=(B   &&x) { t(η0t::bytes); sd() = std::move(x);                     return *this; }
 
 
   η0o &c(u8 c__)   { A(!(c_ = c__) || !η0tp[t_], "cannot compress primitives"); return *this; }
@@ -173,12 +175,12 @@ template<class T> concept η0ot = η0ot_<T>::v;
 template<η0ot T>
 T &operator<<(η0o &o, T const &x) { x.into(o.iptr(x.osize())); return o; }
 
-inline η0o &operator<<(η0o &o, Bc &x)
+inline η0o &operator<<(η0o &o, Bvc x)
 { return η0tc[o.t()]
        ? o << η0o(x)
        : o.append(x.data(), x.size()); }
 
-inline η0o &operator<<(η0o &o, Stc &x)
+inline η0o &operator<<(η0o &o, Stvc x)
 { return η0tc[o.t()]
        ? o << η0o(x)
        : o.append(Rc<u8c*>(x.data()), x.size()); }

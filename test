@@ -7,10 +7,17 @@ bin/eta0
 bin/xi
 bin/psi
 sha1=$(bin/tau cat < README.md | sha256sum)
-sha2=$(cat README.md | sha256sum)
+sha2=$(bin/tau cat2 < README.md | sha256sum)
+sha3=$(cat README.md | sha256sum)
 
-if [[ $sha1 != $sha2 ]]; then
+if [[ $sha1 != $sha3 ]]; then
   echo -e "\033[1;31mbin/tau cat corrupts data\033[0;0m"
+  echo
+  exit 1
+fi
+
+if [[ $sha2 != $sha3 ]]; then
+  echo -e "\033[1;31mbin/tau cat2 corrupts data\033[0;0m"
   echo
   exit 1
 fi
