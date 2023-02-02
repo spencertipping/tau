@@ -41,7 +41,8 @@ struct ξ
   uN wt()       const { return t; }   // total bytes written
   uN extra()    const { return sb; }  // extra bytes allocated right now
 
-  void resize(uN c)   { z.resize(c); }
+  ξ &resize(uN c)     { z.resize(c); return *this; }
+  ξ &ensure(uN c)     { z.ensure(c); return *this; }
 
   bool eof(bool nonblock = false)
     { while (!ra() && !wc) if (nonblock || !rg.y(λs::ξR)) return true;
@@ -77,7 +78,7 @@ struct ξ
 
   struct it
   {
-    ξ *const y;  // null for EOF
+    ξ *const y;  // null == EOF
 
     bool        eof()            const { return !y || y->eof(); }
     bool operator==(it const &x) const { return eof() == x.eof(); }
@@ -90,14 +91,17 @@ struct ξ
 
 
   // Endpoint management
-  ξ &iq(Sp<ψ> x) { iqs = x; if (w) weaken(); return *this; }
-  ξ &oq(Sp<ψ> x) { oqw = x;                  return *this; }
+  // NOTE: oq() conditionally weakens the input reference for reasons
+  // outlined in doc/xi.md (ψ GC section)
+  ξ &iq(Sp<ψ> x) { iqs = x; if (w)    weaken(); return *this; }
+  ξ &oq(Sp<ψ> x) { oqw = x; if (!iqs) weaken(); return *this; }
 
   Sp<ψ> iq() { return iqs ? iqs : iqw.lock(); }
   Sp<ψ> oq() { return             oqw.lock(); }
 
   // Weaken reference to generating ψ, e.g. for backflowing ξ
-  ξ &weaken() { w = true; iqw = iqs; iqs.reset(); return *this; }
+  // NOTE: weaken() is, and must be, idempotent
+  ξ &weaken() { if (!w) iqw = iqs, iqs.reset(); w = true; return *this; }
 
 
 protected:

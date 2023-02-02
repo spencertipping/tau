@@ -9,6 +9,28 @@ namespace τ
 {
 
 
+/*
+
+  ζ circular buffer state model
+
+  normal state, ci == 0:
+  |      ri                  wi          c
+  | -----|===================|-----------|
+  |                          |-----------|  ← space for next object
+  |      |<----------------->|              ← ra
+  |<---->|                   |<--------->|  ← wa
+
+  wrapped state, ci != 0:
+  |      wi            ri           ci   c
+  | =====|-------------|============|----|
+  |      |-------------|                    ← space for next object
+  |                                 |xxxx|  ← lost space (this cycle)
+  | |<-->|             |<---------->|       ← ra
+  |      |<----------->|                    ← wa
+
+*/
+
+
 struct ζ
 {
   ζ(uN c_) : c(c_), xs(new u8[c]), ri(0), wi(0), ci(0) {}
@@ -46,7 +68,8 @@ struct ζ
       else                               { let a = wi; wi += l;            return xs + a; } }
 
 
-  void resize(uN c_);
+  ζ &resize(uN);
+  ζ &ensure(uN c_) { return c_ > c ? resize(c_) : *this; }
 
 
 protected:

@@ -23,8 +23,7 @@ struct Γ
   virtual ~Γ() {}
 
 
-  virtual Ξ operator()(Ξ &x)
-    { Ξ y{x}; for (let &g : gs) y = (*g)(y); return y; }
+  virtual Ξ &operator()(Ξ &x) { for (let &g : gs) (*g)(x); return x; }
 
   virtual St name() const
     { St n; for (let &x : gs) n.append(x->name()); return n; }
@@ -57,7 +56,7 @@ struct γs : public virtual γ
 
   Γ &g() { return g_; }
 
-  Ξ operator()(Ξ &x) { return g_(x); }
+  Ξ &operator()(Ξ &x) { return g_(x); }
   St name() const { return "[" + g_.name() + "]"; }
 
 

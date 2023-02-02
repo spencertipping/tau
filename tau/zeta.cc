@@ -1,3 +1,6 @@
+#include <cstring>
+
+
 #include "zeta.hh"
 #include "begin.hh"
 
@@ -5,28 +8,12 @@ namespace τ
 {
 
 
-/*
-
-ζ circular buffer state model
-
-normal state, ci == 0:
-     ri                  wi          c
------|===================|-----------|
-                         |-----------|  <- space for next object
-
-wrapped state, ci != 0:
-     wi            ri           ci   c
-=====|-------------|============|----|
-     |-------------|                    <- space for next object
-                                |xxxx|  <- lost space (this cycle)
-
-*/
-
-
-void ζ::resize(uN c_)
+ζ &ζ::resize(uN c_)
 {
-  if (c_ == c) return;
-  A(c_ <= ra(), "cannot resize ζ to be smaller than its contents");
+  if (c_ == c) return *this;
+  A(c_ <= ra(),
+    "cannot resize ζ to be smaller than its contents" <<
+    "(c = " << c << ", c_ = " << c_ << ", ra = " << ra());
 
   let ys = new u8[c_];
   if (wrapped())
@@ -35,9 +22,16 @@ void ζ::resize(uN c_)
   else
     memcpy(ys, xs + ri, wi - ri);
 
+  let r = ra();
+  ri = ci = 0;
+  wi = r;
+
+  A(ra() == r, "resize() modified ra(): " << r << " → " << ra());
+
   delete[] xs;
   xs = ys;
   c  = c_;
+  return *this;
 }
 
 

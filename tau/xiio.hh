@@ -10,11 +10,7 @@ namespace τ
 {
 
 
-struct ξio;  // a Sp<ξ> container that tracks when read/write are claimed
-struct ξi;   // a ξ reader, strongly-referenced
-struct ξo;   // a ξ writer, weakly-referenced
-
-
+// A ξ reader, strongly-referenced
 struct ξi
 {
   ξi() {}
@@ -27,10 +23,10 @@ struct ξi
   η0i operator *() const { A(x,  "*ξi on closed");            return **x; }
   ξi &operator++()       { A(x, "++ξi on closed"); x->next(); return *this; }
 
-  bool eof(bool nonblock = false) const
-    { return !x || x->eof(nonblock); }
+  bool eof(bool nonblock = false) const { return !x || x->eof(nonblock); }
 
-  ξi &weaken() { x->weaken(); return *this; }
+  ξi &weaken()     { x->weaken(); return *this; }
+  ξi &ensure(uN c) { x->ensure(c); return *this; }
 
 
   struct it
@@ -54,6 +50,7 @@ protected:
 };
 
 
+// A ξ writer, weakly-referenced
 struct ξo
 {
   ξo() {}
@@ -73,34 +70,48 @@ struct ξo
 
   Sp<ξ> inner_ξ() const { return x.lock(); }
 
+  ξo &ensure(uN c) { if (let y = x.lock()) y->ensure(c); return *this; }
+
 
 protected:
   Wp<ξ> x;
 };
 
 
-struct ξio
+// A full-duplex pair
+struct ξd
 {
-  ξio(Λ &l, uN c) : x(new ξ(l, c)), i_(false), o_(false) {}
-  ~ξio() { A(!o_ || i_, "ξ→ has no input"); }
+  ξd(Λ &l_)                   : l(l_), f_(new ξ(l_, 0)), b_(new ξ(l_, 0)) {}
+  ξd(Λ &l_, Sp<ξ> f, Sp<ξ> b) : l(l_), f_(f), b_(b) {}
 
-  uN capacity() const { return x->capacity(); }
+  // Destructively splices this pair along the forward direction, returning
+  // the left and right sides of the newly-cut ξ, respectively.
+  P<ξi, ξo> xf(Sp<ψ> q, uN cl, uN cr)
+    { Sp<ξ> f{new ξ(l, cr)}; f_->oq(q); f->iq(q);
+      let l_ = ξi(f_    ).ensure(cl);
+      let r_ = ξo(f_ = f).ensure(cr);
+      return {l_, r_}; }
 
-  ξi i(Sp<ψ> q) { A(!i_, "ξi already claimed"); i_ = true; x->oq(q); return ξi{x}; }
-  ξo o(Sp<ψ> q) { A(!o_, "ξi already claimed"); o_ = true; x->iq(q); return ξo{x}; }
+  P<ξo, ξi> xb(Sp<ψ> q, uN cl, uN cr)
+    { Sp<ξ> b{new ξ(l, cr)}; b_->oq(q); b->iq(q).weaken();
+      let l_ = ξo(b_    ).ensure(cl);
+      let r_ = ξi(b_ = b).ensure(cr);
+      return {l_, r_}; }
 
-  bool can_i() const { return !i_; }
-  bool can_o() const { return !o_; }
+  Sp<ξ> f() { return f_; }
+  Sp<ξ> b() { return b_; }
 
-  ξ &inner_ξ() const { return *x; }
+
+  ξo fo() { return ξo(f_); }  // →
+  ξi bi() { return ξi(b_); }  // →
+  ξi fi() { return ξi(f_); }  // ←
+  ξo bo() { return ξo(b_); }  // ←
 
 
 protected:
-  Sp<ξ> x;
-  bool  i_;  // has ξi been claimed?
-  bool  o_;  // has ξo been claimed?
-
-  friend O &operator<<(O&, ξio const&);
+  Λ     &l;
+  Sp<ξ>  f_;
+  Sp<ξ>  b_;
 };
 
 

@@ -17,14 +17,12 @@ struct γf : public virtual γ
 
   St name() const { return n; }
 
-  Ξ operator()(Ξ &x)
+  Ξ &operator()(Ξ &x)
     { ++ψs;
       Sp<ψ> q{new ψ(x.t()), [](ψ*) { --ψs; }};
-      Ξ   y = x;
-      let i = y.i("main", q);
-      let o = y.o("next", q);
-      q->name(n).def([=, *this](ψ &q) { f(i, o); });
-      return y.mv("next", "main"); }
+      auto [i, o] = x.xf(q);
+      q->name(n).def([i=i, o=o, *this](ψ &q) { f(i, o); });
+      return x; }
 
 
 protected:
@@ -59,16 +57,15 @@ void try_gamma()
   ξi i;
 
   {
-    Ξ Y(T);
-
+    Ξ X(T);
     {
       auto g = iota() | take(100) | sum();
-      Ξ X(T);
-      Y = g(X);
-      cout << X << g << " = " << Y << endl;
+      cout << X;
+      g(X);
+      cout << g << " = " << X << endl;
     }
 
-    i = Y.i("main", nullptr);
+    i = X.p().fi().ensure(64);
     A(i.inner_ξ().iq(), "disconnected ξ::iq (inside block)");
     A(i.inner_ξ().iq()->name() == "∑",
       "bogus name (inside block): " << i.inner_ξ().iq()->name());

@@ -13,17 +13,17 @@ void try_basic()
   Ξ X(T);
 
   {
-    auto i = X.i("foo", nullptr, 16);
-    auto o = X.o("foo", nullptr, 16);
+    auto i = X.p().fi().ensure(16);
+    auto o = X.p().fo().ensure(16);
     o.close();
     A(i.eof(), "!ieof");
     i.close();
   }
 
   {
-    auto i = X.i("bar", nullptr, 32);
-    auto o = X.o("bar", nullptr, 32);
-    let &c = X["bar"].inner_ξ();
+    auto i = X.p().fi().ensure(32);
+    auto o = X.p().fo().ensure(32);
+    let &c = i.inner_ξ();
 
     A(o << η0o(57.5), "ξ<<");
     A(o << η0o(58.5), "ξ<<");
@@ -63,7 +63,7 @@ void try_ints()
     Ξ X(T);
 
     {
-      let i = X.i("foo", nullptr, K);
+      let i = X.p().fi().ensure(K);
       T.l().c([=, &j, &c]() {
         u64 t = 0;
         for (let x : i) ++c, t += Sc<u64>(η1pi{x});
@@ -72,7 +72,7 @@ void try_ints()
     }
 
     {
-      auto o = X.o("foo", nullptr, K);
+      auto o = X.p().fo().ensure(K);
       T.l().c([=]() mutable {
         for (u64 i = 0; i < N; ++i)
           A(o << η0o{i}, "failed to write " << i);
@@ -102,7 +102,7 @@ void try_big()
   {
     Ξ X(T);
     {
-      let i = X.i("foo", nullptr, 64);
+      let i = X.p().fi().ensure(64);
       T.l().c([=, &j]() {
         for (let x : i)
           for (let y : η1ti{x})
@@ -111,7 +111,7 @@ void try_big()
     }
 
     {
-      auto o = X.o("foo", nullptr, 64);
+      auto o = X.p().fo().ensure(64);
       T.l().c([=, &k]() mutable {
         for (u64 i = 0; i < 10000; ++i)
         {

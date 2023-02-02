@@ -14,7 +14,7 @@ namespace τ
 struct γ
 {
   virtual ~γ() {}
-  virtual Ξ operator()(Ξ &x) = 0;
+  virtual Ξ &operator()(Ξ &x) = 0;
 
   virtual St name() const = 0;
 };
