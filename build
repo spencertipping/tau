@@ -34,7 +34,7 @@ while (( $# )); do
 done
 
 
-mkdir -p bin/{linux,wasm}/{tau,try}
+mkdir -p bin/{linux,wasm}/{tau{,/linux,/wasm,/share},try}
 
 
 h_files=( tau.hh `find tau     -name '*.hh'` )
