@@ -2,11 +2,11 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-#cflags="$(<compile_flags.txt) -O3"
-cflags="$(grep -v ^-I compile_flags.txt) -O3 -g"
+
+cflags="$(<compile_flags.txt) -O3"
 
 linux_flags="$cflags -flto"
-wasm_flags="$cflags -std=c++20 -fexceptions"
+wasm_flags="$cflags -fexceptions"
 
 linux_link=(
   #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
@@ -47,6 +47,7 @@ for f in ${h_files[*]} build; do
   for o in ${o_files[*]}; do
     if [[ $f -nt $o ]]; then
       find bin -name '*.o' -delete
+      echo FULL REBUILD: $f newer than $o
       rebuild_all=yes
       break
     fi
