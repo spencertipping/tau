@@ -25,8 +25,8 @@ struct ξi
 
   bool eof(bool nonblock = false) const { return !x || x->eof(nonblock); }
 
-  ξi &weaken()     { x->weaken(); return *this; }
-  ξi &ensure(uN c) { x->ensure(c); return *this; }
+  ξi &weaken()     { if (x) x->weaken();  return *this; }
+  ξi &ensure(uN c) { if (x) x->ensure(c); return *this; }
 
 
   struct it
@@ -42,7 +42,7 @@ struct ξi
   it begin() const { return x ? it{x, x->begin()} : end(); }
   it end()   const { return {nullptr, {nullptr}}; }
 
-  ξ &inner_ξ() const { return *x; }
+  Sp<ξ> inner_ξ() const { return x; }
 
 
 protected:
@@ -81,19 +81,19 @@ protected:
 // A full-duplex pair
 struct ξd
 {
-  ξd(Λ &l_)                   : l(l_), f_(new ξ(l_, 0)), b_(new ξ(l_, 0)) {}
-  ξd(Λ &l_, Sp<ξ> f, Sp<ξ> b) : l(l_), f_(f),            b_(b)            {}
+  ξd(Λ &l_)                   : l(l_), f_(nullptr), b_(nullptr) {}
+  ξd(Λ &l_, Sp<ξ> f, Sp<ξ> b) : l(l_), f_(f),       b_(b)       {}
 
   // Destructively splices this pair along the forward direction, returning
   // the left and right sides of the newly-cut ξ, respectively.
   P<ξi, ξo> xf(Sp<ψ> q, uN cl, uN cr)
-    { Sp<ξ> f{new ξ(l, cr)}; f_->oq(q); f->iq(q);
+    { Sp<ξ> f{new ξ(l, cr)}; if (f_) f_->oq(q); f->iq(q);
       let l_ = ξi(f_    ).ensure(cl);
       let r_ = ξo(f_ = f).ensure(cr);
       return {l_, r_}; }
 
   P<ξo, ξi> xb(Sp<ψ> q, uN cl, uN cr)
-    { Sp<ξ> b{new ξ(l, cr)}; b_->oq(q); b->iq(q).weaken();
+    { Sp<ξ> b{new ξ(l, cr)}; if (b_) b_->oq(q); b->iq(q).weaken();
       let l_ = ξo(b_    ).ensure(cl);
       let r_ = ξi(b_ = b).ensure(cr);
       return {l_, r_}; }

@@ -66,9 +66,9 @@ void try_gamma()
     }
 
     i = X.p().fi().ensure(64);
-    A(i.inner_ξ().iq(), "disconnected ξ::iq (inside block)");
-    A(i.inner_ξ().iq()->name() == "∑",
-      "bogus name (inside block): " << i.inner_ξ().iq()->name());
+    A(i.inner_ξ()->iq(), "disconnected ξ::iq (inside block)");
+    A(i.inner_ξ()->iq()->name() == "∑",
+      "bogus name (inside block): " << i.inner_ξ()->iq()->name());
 
     li = T.l().c([=, &t]()
       { A(!i.eof(), "EOF before sum result");
@@ -77,9 +77,9 @@ void try_gamma()
         cout << "try_gamma ∑ 0..99 = " << x << endl; });
   }
 
-  A(i.inner_ξ().iq(), "disconnected ξ::iq (outside block)");
-  A(i.inner_ξ().iq()->name() == "∑",
-    "bogus name (outside block): " << i.inner_ξ().iq()->name());
+  A(i.inner_ξ()->iq(), "disconnected ξ::iq (outside block)");
+  A(i.inner_ξ()->iq()->name() == "∑",
+    "bogus name (outside block): " << i.inner_ξ()->iq()->name());
 
                A(ψs == 3, "at start, ψs == " << ψs);
   T.go();      A(ψs == 1, "after go, ψs == " << ψs);
