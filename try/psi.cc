@@ -7,45 +7,22 @@ using namespace τ;
 using namespace std;
 
 
-static uN ψs = 0;
 
+Sp<γ> iota()
+{ return γffn("ι", [](Sp<ψ> q, ξi i, ξo o)
+  { for (u64 i = 0; o << η0o(i); ++i); }); }
 
-struct γf : public virtual γ
-{
-  γf(Stc &n_, F<void(ξi, ξo)> &&f_) : n(n_), f(std::move(f_)) {}
-
-
-  St name() const { return n; }
-
-  Ξ &operator()(Ξ &x)
-    { ++ψs;
-      Sp<ψ> q{new ψ(x.t()), [](ψ*) { --ψs; }};
-      auto [i, o] = x.xf(q, 64, 64);
-      q->name(n).def([i=i, o=o, *this](ψ &q) { f(i, o); });
-      return x; }
-
-
-protected:
-  Stc             n;
-  F<void(ξi, ξo)> f;
-};
-
-
-Sp<γf> iota()
-{ return Sp<γf>(new γf("ι", [](ξi i, ξo o)
-  { for (u64 i = 0; o << η0o(i); ++i); })); }
-
-Sp<γf> take(u64 n)
-{ return Sp<γf>(new γf("↑", [=](ξi i, ξo o) mutable
+Sp<γ> take(u64 n)
+{ return γffn("↑", [=](Sp<ψ> q, ξi i, ξo o) mutable
   { for (let x : i)
       if (!n-- || !(o << x))
-      { i.close(); o.close(); break; } })); }
+      { i.close(); o.close(); break; }}); }
 
-Sp<γf> sum()
-{ return Sp<γf>(new γf("∑", [](ξi i, ξo o)
+Sp<γ> sum()
+{ return γffn("∑", [](Sp<ψ> q, ξi i, ξo o)
   { u64 t = 0;
     for (let x : i) t += Sc<u64>(η1pi{x});
-    o << η0o(t); })); }
+    o << η0o(t); }); }
 
 
 void try_gamma()
@@ -81,10 +58,10 @@ void try_gamma()
   A(i.inner_ξ()->iq()->name() == "∑",
     "bogus name (outside block): " << i.inner_ξ()->iq()->name());
 
-               A(ψs == 3, "at start, ψs == " << ψs);
-  T.go();      A(ψs == 1, "after go, ψs == " << ψs);
-  i.weaken();  A(ψs == 0, "after weaken(), ψs == " << ψs);
-  i.close();   A(ψs == 0, "after close, ψs == " << ψs);
+               A(ψn() == 3, "at start, ψs == " << ψn());
+  T.go();      A(ψn() == 1, "after go, ψs == " << ψn());
+  i.weaken();  A(ψn() == 0, "after weaken(), ψs == " << ψn());
+  i.close();   A(ψn() == 0, "after close, ψs == " << ψn());
 
   // By now our λs should be deallocated; all functions should have
   // returned

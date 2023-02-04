@@ -3,6 +3,7 @@
 
 
 #include "share/io.hh"
+#include "share/topology.hh"
 
 
 #endif
