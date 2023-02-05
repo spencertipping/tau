@@ -9,6 +9,7 @@ namespace τ
 {
 
 
+// Write values into ostream, copying to output
 Sp<γ> γostream(O&);
 
 

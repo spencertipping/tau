@@ -7,17 +7,6 @@ using namespace τ;
 using namespace std;
 
 
-
-Sp<γ> iota()
-{ return γffn("ι", [](Sp<ψ> q, ξi i, ξo o)
-  { for (u64 i = 0; o << η0o(i); ++i); }); }
-
-Sp<γ> take(u64 n)
-{ return γffn("↑", [=](Sp<ψ> q, ξi i, ξo o) mutable
-  { for (let x : i)
-      if (!n-- || !(o << x))
-      { i.close(); o.close(); break; }}); }
-
 Sp<γ> sum()
 { return γffn("∑", [](Sp<ψ> q, ξi i, ξo o)
   { u64 t = 0;
@@ -36,7 +25,7 @@ void try_gamma()
   {
     Ξ X(T);
     {
-      auto g = iota() | take(100) | sum();
+      auto g = γι() | γtake(100) | sum();
       cout << X;
       g(X);
       cout << g << " = " << X << endl;
@@ -72,10 +61,24 @@ void try_gamma()
 }
 
 
+void try_flex()
+{
+  τe T;
+  Ξ X(T);
+  (γonce(η0o(100))
+   | γϊ()
+   | γmap([](η0i i) { u64 n = η1pi{i}; return η0o{}.t(η0t::tuple) << n / 10 << i; })
+   | γflex(γmap([](η0i i) { return η0o(Sc<u64>(η1pi{i}) + 1); }))
+   | γostream(cout))(X);
+  T.go();
+}
+
+
 int main()
 {
   τassert_begin;
   try_gamma();
+  try_flex();
   return 0;
   τassert_end;
 }

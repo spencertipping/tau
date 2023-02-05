@@ -33,6 +33,12 @@ struct Ξ
   M<St, Sp<Ξ>>  &x() { return  x_; }
 
 
+  P<ξo, ξi> pipe(Sp<ψ>, Sp<ψ>, uN = Ξc0);
+  Sp<ψ>     q   (St);
+
+  Ξ empty() { return Ξ{t()}; }
+
+
   P<ξi, ξo> xf(Sp<ψ> q, uN cl = Ξc0, uN cr = Ξc0) { return p_->xf(q, cl, cr); }
   P<ξo, ξi> xb(Sp<ψ> q, uN cl = Ξc0, uN cr = Ξc0) { return p_->xb(q, cl, cr); }
 

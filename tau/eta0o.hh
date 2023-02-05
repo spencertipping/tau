@@ -23,7 +23,8 @@ namespace τ
 struct η0o
 {
   η0o() : c_(0), h_(false), f_(false), fv(false), t_(η0t::uint_be), d({{0}}), cs(nullptr) {}
-  η0o(η0o &&x) { *this = std::move(x); }
+  η0o(η0o const &x) { *this = x; }
+  η0o(η0o &&x)      { *this = std::move(x); }
 
   template<η0at T>
   η0o(T x)
@@ -40,6 +41,12 @@ struct η0o
       x.cs = nullptr; x.t_ = η0t::uint_be;  // transfer ownership
       return *this; }
 
+  η0o &operator=(η0o const &x)
+    { c_  = x.c_;  h_ = x.h_; f_ = x.f_; fv = x.fv;
+      ft_ = x.ft_; t_ = x.t_; d  = x.d;
+      if (x.cs) cs = new B{*x.cs};
+      return *this; }
+
   // TODO: operator=(η0i)
 
   η0o &operator=(int      x) { return *this = Sc<i64>(x); }
@@ -49,6 +56,7 @@ struct η0o
   η0o &operator=(i64   x) { t(η0t::int_be);   d.p.i = x; return *this; }
   η0o &operator=(f64   x) { t(η0t::float_be); d.p.f = x; return *this; }
   η0o &operator=(bool  x) { t(η0t::boolean);  d.p.b = x; return *this; }
+  η0o &operator=(η0sig x) { t(η0t::signal);   d.p.s = x; return *this; }
   η0o &operator=(void *x) { t(η0t::η0);       d.p.p = x; return *this; }
 
   η0o &operator=(Stvc &x) { t(η0t::utf8);  sd() = Bv{Rc<u8c*>(x.data()), x.size()}; return *this; }
@@ -101,6 +109,7 @@ struct η0o
       case η0t::uint_be:  return su(d.p.u);
       case η0t::int_be:   return si(d.p.i);
       case η0t::float_be: return sizeof(d.p.f);
+      case η0t::signal:   return sizeof(d.p.s);
       default:
         return c_ ? 8 + cd().size() : sd().size();
       } }
@@ -173,7 +182,8 @@ template<class T> concept η0ot = η0ot_<T>::v;
 
 
 template<η0ot T>
-T &operator<<(η0o &o, T const &x) { x.into(o.iptr(x.osize())); return o; }
+η0o &operator<<(η0o &o, T const &x)
+{ x.into(o.iptr(x.osize())); return o; }
 
 inline η0o &operator<<(η0o &o, Bvc x)
 { return η0tc[o.t()]

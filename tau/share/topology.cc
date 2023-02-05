@@ -16,10 +16,9 @@ struct γffn_ : public virtual γ
   St name() const { return n; }
 
   Ξ &operator()(Ξ &x)
-    { let q = Sp<ψ>(new ψ(x.t()));
+    { let q = x.q(name());
       let [i, o] = x.xf(q);
-      q->name(name())
-        .def([i=i, o=o, f=f, q=q]() { (*f)(q, i, o); });
+      q->def([i=i, o=o, f=f, q=q]() { (*f)(q, i, o); });
       return x; }
 
 protected:
@@ -35,10 +34,9 @@ struct γbfn_ : public virtual γ
   St name() const { return n; }
 
   Ξ &operator()(Ξ &x)
-    { let q = Sp<ψ>(new ψ(x.t()));
+    { let q = x.q(name());
       let [i, o] = x.xf(q);
-      q->name(name())
-        .def([i=i, o=o, f=f, q=q]() { (*f)(q, o, i); });
+      q->def([i=i, o=o, f=f, q=q]() { (*f)(q, o, i); });
       return x; }
 
 protected:
@@ -47,8 +45,68 @@ protected:
 };
 
 
+struct γcat_ : public virtual γ
+{
+  γcat_(V<Sp<γ>> &&gs_) : gs(std::move(gs_)) {}
+
+  St name() const
+    { Ss r;
+      r << "[";
+      for (let &x : gs) r << "+" << x->name();
+      r << "]";
+      return r.str(); }
+
+  Ξ &operator()(Ξ &x)
+    { V<ξi> rs;
+      for (let &g : gs)
+      { auto y = x.empty();
+        rs.push_back((*g)(y).p().fi()); }
+      let q = x.q(name());
+      let [i, o] = x.xf(q);
+      q->def([rs=std::move(rs), i=i, o=o]() mutable
+        { for (let x : i) if (!(o << x)) goto done;
+          for (auto &r : rs)
+          { for (let x : r) if (!(o << x)) goto done;
+            r.close(); }
+        done:
+          o.close();
+          i.close(); });
+      return x; }
+
+protected:
+  V<Sp<γ>> gs;
+};
+
+
 Sp<γ> γffn(St n, ffn &&f) { return Sp<γ>(new γffn_(n, std::move(f))); }
 Sp<γ> γbfn(St n, bfn &&f) { return Sp<γ>(new γbfn_(n, std::move(f))); }
+
+Sp<γ> γcat(V<Sp<γ>> &&gs) { return Sp<γ>(new γcat_(std::move(gs))); }
+
+Sp<γ> γonce(η0o const &x)
+{
+  return γffn("i", [x=η0o(x)](Sp<ψ>, ξi i, ξo o) mutable
+    { for (let x : i) if (!(o << x)) goto done;
+      o << x;
+    done:
+      o.close(); });
+}
+
+Sp<γ> γeach(F<void(η0i)> &&f, bool tap)
+{
+  return γffn("e", [tap, f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
+    { for (let x : i)
+      { f(η0i(x));
+        if (tap && !(o << x)) break; }
+      o.close(); });
+}
+
+Sp<γ> γmap(F<η0o(η0i)> &&f)
+{
+  return γffn("m", [f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
+    { for (let x : i) if (!(o << f(η0i(x)))) break;
+      o.close(); });
+}
 
 
 }

@@ -28,6 +28,7 @@ protected:
 };
 
 
+// TODO: rework as γffn
 Sp<γ> γostream(O &s) { return Sp<γ>{new γostream_(s)}; }
 
 

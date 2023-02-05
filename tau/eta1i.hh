@@ -19,6 +19,8 @@ struct η1i
   η1i(u8c *a)        : i(a)             {}
 
   η0t type() const { return i.type(); }
+
+  bool is_τ() const;
 };
 
 
@@ -26,6 +28,12 @@ struct η1si : public η1i  // signal input
 {
   operator η0sig() const { return Sc<η0sig>(R<u8>(i.data(), 0)); }
 };
+
+
+inline bool η1i::is_τ() const
+{
+  return type() == η0t::signal && Sc<η0sig>(η1si{i}) == η0sig::τ;
+}
 
 
 struct η1pi : public η1i  // primitive input

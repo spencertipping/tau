@@ -71,9 +71,17 @@ struct η0ts
 
 
 // Primitive states for η₀ values
-typedef union { void *p; u64 u; i64 i; f64 f; bool b; } η0p;
+typedef union
+{
+  u64 u;
+  i64 i;
+  f64 f;
+  bool b;
+  η0sig s;
+  void *p;
+} η0p;
 
-sletc η0tp = η0ts{η0t::η0, η0t::int_be, η0t::uint_be, η0t::float_be, η0t::boolean};
+sletc η0tp = η0ts{η0t::η0, η0t::int_be, η0t::uint_be, η0t::float_be, η0t::boolean, η0t::signal};
 sletc η0tb = η0ts{η0t::bytes, η0t::utf8};
 sletc η0tc = η0ts{η0t::tuple, η0t::set, η0t::map};
 
@@ -82,17 +90,18 @@ template<class T> struct η0at_ { sletc t = η0t::invalid; };
 
 #define deft(ct, ηt) template<> struct η0at_<ct> { sletc t = η0t::ηt; };
 
-deft(u8,   uint_be);
-deft(u16,  uint_be);
-deft(u32,  uint_be);
-deft(u64,  uint_be);
-deft(i8,   int_be);
-deft(i16,  int_be);
-deft(i32,  int_be);
-deft(i64,  int_be);
-deft(f32,  float_be);
-deft(f64,  float_be);
-deft(bool, boolean);
+deft(u8,    uint_be);
+deft(u16,   uint_be);
+deft(u32,   uint_be);
+deft(u64,   uint_be);
+deft(i8,    int_be);
+deft(i16,   int_be);
+deft(i32,   int_be);
+deft(i64,   int_be);
+deft(f32,   float_be);
+deft(f64,   float_be);
+deft(bool,  boolean);
+deft(η0sig, signal);
 
 deft(B,   bytes);
 deft(Bc,  bytes);
@@ -107,6 +116,7 @@ deft(Stv,  utf8);
 deft(St&,  utf8);
 deft(St&&, utf8);
 deft(Stc&, utf8);
+
 
 #undef deft
 

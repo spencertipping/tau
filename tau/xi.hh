@@ -102,6 +102,9 @@ struct ξ
   // Endpoint management
   // NOTE: oq() conditionally weakens the input reference for reasons
   // outlined in doc/xi.md (ψ GC section)
+  //
+  // NOTE: iq() refers to input _to this ξ_ (i.e. the producer)
+  //       oq() to output _from this ξ_ (i.e. the consumer)
   ξ &iq(Sp<ψ> x) { iqs = x; if (w)    weaken(); return *this; }
   ξ &oq(Sp<ψ> x) { oqw = x; if (!iqs) weaken(); return *this; }
 

@@ -33,6 +33,9 @@ struct η0i
   η0i(u8c *a_) : d(nullptr) { *this = a_; }
   η0i(η0i &&x) : a(x.a), d(x.d), ft(x.ft), hs(x.hs), t(x.t) { x.d = nullptr; }
 
+  // NOTE: explicit because this deletes cached unzip
+  explicit η0i(η0i const &i) : d(nullptr) { *this = i.a; }
+
   ~η0i() { if (d) free(d); }
 
 
