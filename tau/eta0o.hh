@@ -44,7 +44,7 @@ struct η0o
   η0o &operator=(η0o const &x)
     { c_  = x.c_;  h_ = x.h_; f_ = x.f_; fv = x.fv;
       ft_ = x.ft_; t_ = x.t_; d  = x.d;
-      if (x.cs) cs = new B{*x.cs};
+      cs = x.cs ? new B{*x.cs} : nullptr;
       return *this; }
 
   // TODO: operator=(η0i)
@@ -162,10 +162,10 @@ protected:
 
   // Verbatim or compressed data to be written into the output after
   // the header
-  Bc   &data () const { return c_ ? cd() : sd();                    }
-  B    &sd   () const { A(!p(), "sd() on primitive"); return *d.s_; }
-  B    &cd   () const { if (!cs) cs = cdata();        return *cs;   }
-  void  del_c()       { if ( cs) delete cs, cs = nullptr;           }
+  Bc   &data () const { return c_ ? cd() : sd();                            }
+  B    &sd   () const { A(!p(), "sd() on primitive " << t()); return *d.s_; }
+  B    &cd   () const { if (!cs) cs = cdata();                return *cs;   }
+  void  del_c()       { if ( cs) delete cs, cs = nullptr;                   }
 
   B *cdata() const;
 };

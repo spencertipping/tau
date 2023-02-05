@@ -47,8 +47,10 @@ void η0o::into(u8 *m) const
   {
     auto sha3_256 = picosha3::get_sha3_generator<256>();
     if (c_)  // hash the length prefix
-    { u8 p[8]; W(p, 0, Sc<u64>(sd().size()));
-      sha3_256.process(std::begin(p), std::end(p)); }
+    {
+      u8 p[8]; W(p, 0, Sc<u64>(sd().size()));
+      sha3_256.process(std::begin(p), std::end(p));
+    }
     Ar<u8, 32> hv{};
     sha3_256.process(data().begin(), data().end());
     sha3_256.finish();
@@ -58,8 +60,10 @@ void η0o::into(u8 *m) const
   }
 
   if (c_)
-  { W(m, o, Sc<u64>(sd().size()));
-    o += 8; }
+  {
+    W(m, o, Sc<u64>(sd().size()));
+    o += 8;
+  }
 
   switch (t_)
   {
@@ -68,6 +72,7 @@ void η0o::into(u8 *m) const
   case η0t::uint_be:  for (u8 i = 0; i < s; ++i) m[o++] = d.p.u >> (s - i - 1)*8 & 255; break;
   case η0t::float_be: W(m, o, d.p.f); o += sizeof(d.p.f);                               break;
   case η0t::boolean:  W(m, o++, Sc<u8>(d.p.b ? 1 : 0));                                 break;
+  case η0t::signal:   W(m, o++, Sc<u8>(d.p.s));                                         break;
   default:
   { let x = data();
     memcpy(m + o, x.data(), x.size());
