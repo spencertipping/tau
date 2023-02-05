@@ -32,6 +32,8 @@ struct Ξ
   M<St, Sp<ξd>> &n() { return  n_; }
   M<St, Sp<Ξ>>  &x() { return  x_; }
 
+  Sp<ξd> p(Sp<ξd> d) { let r = p_; p_ = d; return r; }
+
 
   P<ξo, ξi> pipe(Sp<ψ>, Sp<ψ>, uN = Ξc0);
   Sp<ψ>     q   (St);
