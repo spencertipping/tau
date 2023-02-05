@@ -9,8 +9,8 @@ namespace τ
 {
 
 
-// Write values into ostream, copying to output
-Sp<γ> γostream(O&);
+// Write values into ostream, copying to output; this is tappable
+Sp<γ> γostream(O&, bool = false);
 
 
 }

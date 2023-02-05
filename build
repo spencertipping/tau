@@ -49,7 +49,7 @@ for f in ${h_files[*]} build; do
       find bin -name '*.o' -delete
       echo FULL REBUILD: $f newer than $o
       rebuild_all=yes
-      break
+      break 2
     fi
   done
 done

@@ -64,13 +64,22 @@ void try_gamma()
 void try_flex()
 {
   τe T;
-  Ξ X(T);
-  (γonce(η0o(100))
-   | γϊ()
-   | γmap([](η0i i) { u64 n = η1pi{i}; return η0o{}.t(η0t::tuple) << n / 10 << i; })
-   | γflex(γmap([](η0i i) { return η0o(Sc<u64>(η1pi{i}) + 1); }))
-   | γostream(cout))(X);
+
+  {
+    auto g = γι(10)
+      | γdrop(8)
+      | γmap([](η0i i) { return η0o{}.t(η0t::tuple) << "foo" << i << i; })
+      | γflex(γϊ())
+      | γflex(γτmap([](η0i i) { return (Ss{} << Sc<u64>(η1pi{i}) + 1).str(); }))
+      | γostream(cout);
+
+    cout << "try_flex pipeline = " << g << endl;
+    Ξ X(T);
+    g(X);
+  }
+
   T.go();
+  A(ψn() == 0, "leftover ψs: " << ψn());
 }
 
 

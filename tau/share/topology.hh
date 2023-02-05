@@ -17,7 +17,8 @@ Sp<γ> γcat(V<Sp<γ>>&&);
 Sp<γ> γonce(η0o const&);
 
 Sp<γ> γeach(F<void(η0i)>&&, bool = false);
-Sp<γ> γmap(F<η0o(η0i)>&&);
+Sp<γ> γmap (F<η0o(η0i)>&&);
+Sp<γ> γτmap(F<η0o(η0i)>&&);
 
 
 }

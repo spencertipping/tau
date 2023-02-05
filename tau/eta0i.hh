@@ -55,6 +55,7 @@ struct η0i
       { uN s = 0;
         for (int i = 0; i < (*a & 7) + 1; ++i) s = s << 8 | a[2 + i];
         return s; }
+      default: A(0, "ft OOB"); return -1;
       } }
 
 
@@ -82,6 +83,7 @@ struct η0i
       case η0ft::m: return a[1] & 128;
       case η0ft::l: return *a & 16;
       case η0ft::d: return false;
+      default: A(0, "ft OOB"); return false;
       } }
 
   bool c() const
@@ -89,6 +91,7 @@ struct η0i
       {
       case η0ft::s: case η0ft::m: return false;
       case η0ft::l: case η0ft::d: return a[0] & 8;
+      default: A(0, "ft OOB"); return false;
       } }
 
   bool h() const
@@ -98,6 +101,7 @@ struct η0i
       case η0ft::m:
       case η0ft::l: return false;
       case η0ft::d: return *a & 16;
+      default: A(0, "ft OOB"); return false;
       } }
 
   bool v() const { return !h() || sha3() == stored_sha3(); }
@@ -156,6 +160,7 @@ protected:
       case η0ft::m: return 2;
       case η0ft::l: return 2 + (*a & 7) + 1;
       case η0ft::d: return 2 + (*a & 7) + 1 + (h() ? 32 : 0);
+      default: A(0, "ft OOB"); return 0;
       } }
 
   η0t decode_type() const
@@ -165,6 +170,7 @@ protected:
       case η0ft::m: return Sc<η0t>(*a & 63);
       case η0ft::l:
       case η0ft::d: return Sc<η0t>(a[1]);
+      default: A(0, "ft OOB"); return η0t::invalid;
       } }
 };
 

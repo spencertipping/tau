@@ -7,16 +7,18 @@ namespace τ
 
 
 Sp<γ> γι(uN u)
-{ return γffn("ι", [u](Sp<ψ> q, ξi i, ξo o)
-  { for (u64 i = 0; i < u && o << η0o(i); ++i); }); }
+{ return γffn("ι", [u](Sp<ψ>, ξi I, ξo o)
+  { I.close();
+    for (u64 i = 0; i < u && o << η0o(i); ++i);
+    o.close(); }); }
 
 
 Sp<γ> γϊ()
 { return γffn("ϊ", [](Sp<ψ> q, ξi i, ξo o)
   { for (let x : i)
       if (η0ts{η0t::uint_be, η0t::int_be}[x.type()])
-      { let n = Sc<u64>(η1pi{x});
-        for (uN j = 0; j < n; ++j) if (!(o << η0o{j})) goto done;
+      { let n = Sc<i64>(η1pi{x});
+        for (i64 j = 0; j < n; ++j) if (!(o << η0o{j})) goto done;
         o << η0o(η0sig::τ); }
       else
         if (!(o << x)) goto done;

@@ -43,7 +43,9 @@ struct η0o
 
   η0o &operator=(η0o const &x)
     { c_  = x.c_;  h_ = x.h_; f_ = x.f_; fv = x.fv;
-      ft_ = x.ft_; t_ = x.t_; d  = x.d;
+      ft_ = x.ft_; t_ = x.t_;
+      if (p()) d    = x.d;
+      else     d.s_ = new B{*x.d.s_};
       cs = x.cs ? new B{*x.cs} : nullptr;
       return *this; }
 
@@ -123,6 +125,7 @@ struct η0o
       case η0ft::m: return 2 + isize();
       case η0ft::l:
       case η0ft::d: return 2 + std::max(Sc<u8>(1), ubytes(isize())) + (h_ ? 32 : 0) + isize();
+      default: A(0, "ft() OOB"); return -1;
       } }
 
   // Serializes the value into the output buffer, which must be at least

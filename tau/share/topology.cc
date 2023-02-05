@@ -18,7 +18,10 @@ struct γffn_ : public virtual γ
   Ξ &operator()(Ξ &x)
     { let q = x.q(name());
       let [i, o] = x.xf(q);
-      q->def([i=i, o=o, f=f, q=q]() { (*f)(q, i, o); });
+      q->def([i=i, o=o, f=f, q=q]() mutable
+        { (*f)(q, i, o);
+          o.close();
+          i.close(); });
       return x; }
 
 protected:
@@ -36,7 +39,10 @@ struct γbfn_ : public virtual γ
   Ξ &operator()(Ξ &x)
     { let q = x.q(name());
       let [i, o] = x.xf(q);
-      q->def([i=i, o=o, f=f, q=q]() { (*f)(q, o, i); });
+      q->def([i=i, o=o, f=f, q=q]() mutable
+        { (*f)(q, o, i);
+          o.close();
+          i.close(); });
       return x; }
 
 protected:
@@ -86,10 +92,8 @@ Sp<γ> γcat(V<Sp<γ>> &&gs) { return Sp<γ>(new γcat_(std::move(gs))); }
 Sp<γ> γonce(η0o const &x)
 {
   return γffn("i", [x=η0o(x)](Sp<ψ>, ξi i, ξo o) mutable
-    { for (let x : i) if (!(o << x)) goto done;
-      o << x;
-    done:
-      o.close(); });
+    { for (let x : i) if (!(o << x)) return;
+      o << x; });
 }
 
 Sp<γ> γeach(F<void(η0i)> &&f, bool tap)
@@ -97,15 +101,20 @@ Sp<γ> γeach(F<void(η0i)> &&f, bool tap)
   return γffn("e", [tap, f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
     { for (let x : i)
       { f(η0i(x));
-        if (tap && !(o << x)) break; }
-      o.close(); });
+        if (tap && !(o << x)) break; }});
 }
 
 Sp<γ> γmap(F<η0o(η0i)> &&f)
 {
   return γffn("m", [f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
-    { for (let x : i) if (!(o << f(η0i(x)))) break;
-      o.close(); });
+    { for (let x : i) if (!(o << f(η0i(x)))) break; });
+}
+
+
+Sp<γ> γτmap(F<η0o(η0i)> &&f)
+{
+  return γffn("m", [f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
+    { for (let x : i) if (!(o << f(η0i(x))) || !(o << η0o{η0sig::τ})) break; });
 }
 
 

@@ -43,21 +43,20 @@ struct γflex_ : public virtual γ
         { for (let p : pr)
             if (η1i{p}.is_τ())
             { for (let x : i2)
-                if (η1i{x}.is_τ()) break;
+                if (η1i{x}.is_τ()) { ++i2; break; }
                 else if (!(o2 << x)) goto done; }
             else
               for (let x : i2)
-                if (η1i{x}.is_τ()) break;
+                if (η1i{x}.is_τ()) { ++i2; break; }
                 else
                 { η0o o; o.t(η0t::tuple);
-                  for (let q : p) o << q;
+                  for (let q : η1ti{p}) o << q;
                   o << x;
                   if (!(o2 << o)) goto done; }
         done:
           o2.close();
           i2.close();
-          pr.close();
-        });
+          pr.close(); });
 
       return x; }
 };
