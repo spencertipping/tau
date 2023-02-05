@@ -14,7 +14,7 @@ inline Sp<γ> γffn(St n, F<void(       ξi, ξo)> &&f, F<void(ψ&)> &&xf) { ret
 inline Sp<γ> γffn(St n, F<void(           ξo)> &&f, F<void(ψ&)> &&xf) { return γffn(n, [f=std::move(f)](Sp<ψ>, ξi, ξo o) { f(o); }, std::move(xf)); }
 inline Sp<γ> γffn(St n, F<void(       ξi    )> &&f, F<void(ψ&)> &&xf) { return γffn(n, [f=std::move(f)](Sp<ψ>, ξi i, ξo) { f(i); }, std::move(xf)); }
 
-Sp<γ> γbfn(St, F<void(Sp<ψ>, ξo, ξi)>&&, F<void(ψ&)>&& = [](ψ&){});
+Sp<γ>        γbfn(St,   F<void(Sp<ψ>, ξo, ξi)>&&,   F<void(ψ&)>&& = [](ψ&){});
 inline Sp<γ> γbfn(St n, F<void(       ξo, ξi)> &&f, F<void(ψ&)> &&xf) { return γbfn(n, [f=std::move(f)](Sp<ψ>, ξo o, ξi i) { f(o, i); }, std::move(xf)); }
 inline Sp<γ> γbfn(St n, F<void(           ξi)> &&f, F<void(ψ&)> &&xf) { return γbfn(n, [f=std::move(f)](Sp<ψ>, ξo, ξi i) { f(i); }, std::move(xf)); }
 inline Sp<γ> γbfn(St n, F<void(       ξo    )> &&f, F<void(ψ&)> &&xf) { return γbfn(n, [f=std::move(f)](Sp<ψ>, ξo o, ξi) { f(o); }, std::move(xf)); }
@@ -22,11 +22,16 @@ inline Sp<γ> γbfn(St n, F<void(       ξo    )> &&f, F<void(ψ&)> &&xf) { retu
 Sp<γ> γcat(V<Sp<γ>>&&);
 
 
+Sp<γ> γcap(St = "",
+           F<void(Sp<ψ>, ξo, ξi)>&&
+           = [](Sp<ψ>, ξo o, ξi i) { for (let x : i) if (!(o << x)) break; });
+
+
 template<class T>
 Sp<γ> γonce(T const &k)
 { return γffn("i", [k=η0o(k)](Sp<ψ>, ξi i, ξo o) mutable
-    { for (let x : i) if (!(o << x)) return;
-      o << k; }); }
+  { for (let x : i) if (!(o << x)) return;
+    o << k; }); }
 
 
 Sp<γ> γeach(F<void(η0i)>&&, bool = false);

@@ -14,10 +14,10 @@ namespace τ
 Sp<γ> γflex(Sp<γ>);
 
 
-Sp<γ> γι(uN = -1);
+Sp<γ> γι(u64 = -1);
 Sp<γ> γϊ();
-Sp<γ> γtake(uN);
-Sp<γ> γdrop(uN);
+Sp<γ> γtake(u64);
+Sp<γ> γdrop(u64);
 
 
 }

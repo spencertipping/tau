@@ -6,7 +6,7 @@ namespace τ
 {
 
 
-Sp<γ> γι(uN u)
+Sp<γ> γι(u64 u)
 { return γffn("ι", [u](Sp<ψ>, ξi I, ξo o)
   { I.close();
     for (u64 i = 0; i < u && o << η0o(i); ++i);
