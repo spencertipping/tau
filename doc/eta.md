@@ -16,6 +16,16 @@ Specifications:
 **TODO:** design Asqi dataflow and make sure we have enough support here
 
 
+## API
+**TODO:** design the API more proactively; current `η0o{}` shenanigans are suboptimal, both from a design and an implementation perspective
+
+**TODO:** `std::get<>` destructuring
+
+**NOTE:** η₁ casting is also suboptimal; although it's fine to have different views, we shouldn't have to explicitly cast. Instead, a unified η should do this for us and allow for type-aware iteration.
+
+**NOTE:** we need the ability to store native pointers (in η₀ references) with untyped destructor function references; that means two adjacent `void*`s, most likely, as well as [ξ](xi.md) destructors
+
+
 ## Primitive user types
 | Code | Description | Spec                       |
 |------|-------------|----------------------------|
