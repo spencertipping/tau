@@ -24,6 +24,11 @@ namespace τ
 // TODO: switch to buffer-on-size, not buffer-on-type; then small strings
 // enjoy the same optimizations, and primitives can be compressed
 
+// TODO: remove compressed caching; we can compress when writing, but
+// we don't need to store the compressed string for longer than that
+
+// TODO: remove frame-type caching
+
 struct η0o
 {
   η0o() : c_(0), h_(false), f_(false), fv(false), t_(η0t::uint_be), d({{0}}), cs(nullptr) {}
