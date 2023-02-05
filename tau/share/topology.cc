@@ -8,16 +8,20 @@ namespace τ
 typedef F<void(Sp<ψ>, ξi, ξo)> ffn;
 typedef F<void(Sp<ψ>, ξo, ξi)> bfn;
 
+typedef F<void(ψ&)> fin;
+
 
 struct γffn_ : public virtual γ
 {
-  γffn_(Stc &n_, ffn &&f_) : n(n_), f(new ffn(std::move(f_))) {}
+  γffn_(Stc &n_, ffn &&f_, fin &&xf_)
+    : n(n_), f(new ffn(std::move(f_))), xf(new fin(std::move(xf_))) {}
 
   St name() const { return n; }
 
   Ξ &operator()(Ξ &x)
     { let q = x.q(name());
       let [i, o] = x.xf(q);
+      q->xf([xf=xf](ψ &q) { (*xf)(q); });
       q->def([i=i, o=o, f=f, q=q]() mutable
         { (*f)(q, i, o);
           o.close();
@@ -27,18 +31,21 @@ struct γffn_ : public virtual γ
 protected:
   St      n;
   Sp<ffn> f;
+  Sp<fin> xf;
 };
 
 
 struct γbfn_ : public virtual γ
 {
-  γbfn_(Stc &n_, bfn &&f_) : n(n_), f(new bfn(std::move(f_))) {}
+  γbfn_(Stc &n_, bfn &&f_, fin &&xf_)
+    : n(n_), f(new bfn(std::move(f_))), xf(new fin(std::move(xf_))) {}
 
   St name() const { return n; }
 
   Ξ &operator()(Ξ &x)
     { let q = x.q(name());
-      let [i, o] = x.xf(q);
+      let [o, i] = x.xb(q);
+      q->xf([xf=xf](ψ &q) { (*xf)(q); });
       q->def([i=i, o=o, f=f, q=q]() mutable
         { (*f)(q, o, i);
           o.close();
@@ -48,6 +55,7 @@ struct γbfn_ : public virtual γ
 protected:
   St      n;
   Sp<bfn> f;
+  Sp<fin> xf;
 };
 
 
@@ -84,17 +92,11 @@ protected:
 };
 
 
-Sp<γ> γffn(St n, ffn &&f) { return Sp<γ>(new γffn_(n, std::move(f))); }
-Sp<γ> γbfn(St n, bfn &&f) { return Sp<γ>(new γbfn_(n, std::move(f))); }
+Sp<γ> γffn(St n, ffn &&f, fin &&xf) { return Sp<γ>(new γffn_(n, std::move(f), std::move(xf))); }
+Sp<γ> γbfn(St n, bfn &&f, fin &&xf) { return Sp<γ>(new γbfn_(n, std::move(f), std::move(xf))); }
 
 Sp<γ> γcat(V<Sp<γ>> &&gs) { return Sp<γ>(new γcat_(std::move(gs))); }
 
-Sp<γ> γonce(η0o const &x)
-{
-  return γffn("i", [x=η0o(x)](Sp<ψ>, ξi i, ξo o) mutable
-    { for (let x : i) if (!(o << x)) return;
-      o << x; });
-}
 
 Sp<γ> γeach(F<void(η0i)> &&f, bool tap)
 {
@@ -103,6 +105,7 @@ Sp<γ> γeach(F<void(η0i)> &&f, bool tap)
       { f(η0i(x));
         if (tap && !(o << x)) break; }});
 }
+
 
 Sp<γ> γmap(F<η0o(η0i)> &&f)
 {

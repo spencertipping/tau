@@ -117,7 +117,6 @@ deft(St&,  utf8);
 deft(St&&, utf8);
 deft(Stc&, utf8);
 
-
 #undef deft
 
 
