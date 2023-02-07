@@ -50,7 +50,7 @@ struct η0o
   u8  *sdata()       { return so_ ? so_->data() : si_.data(); }
 
 
-  u8  *iptr(uN l)    { return at_(isize(), l); }
+  u8  *iptr(uN l)    { return at_(ssize(), l); }
 
   void into(u8*) const;
 
@@ -112,7 +112,7 @@ protected:
   B *cdata() const;
 
   u8 *at_(uN i, uN l)
-    { if (isize() < i + l) expand_to(i + l);
+    { if (ssize() < i + l) expand_to(i + l);
       return so_ ? so_->data() + i : si_.data() + i; }
 };
 

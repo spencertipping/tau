@@ -136,27 +136,16 @@ void try_large_tuples()
 
   for (u64 i = 0; i < 80000; i += i % 1997 + 1)
   {
+    cout << "i = " << i << endl;
     ++tests;
     η0o o(η0t::tuple);
     o.h(i % 3 == 0);
     if (τhas_zstd) o.c(i % 20);
     for (u64 j = 0; j <= i; ++j) o << η1o(j);
-
-    cout << "o osize = " << o.osize() << endl;
     o.into(d);
 
     A(η0bc(d, c), "η0bc failed for i = " << i);
     η r{d};
-
-    cout << "i = " << i << ", d buf = ";
-    for (uN j = 0; j < 40; ++j)
-      cout << Sc<uN>(d[j]) << " ";
-    cout << endl;
-
-    cout << "i = " << i << ", r buf = ";
-    for (uN j = 0; j < r.size(); ++j)
-      cout << Sc<uN>(r.data()[j]) << " ";
-    cout << endl;
 
     uN t = 0;
     uN inner = 0;
@@ -182,6 +171,7 @@ void tuple_bench()
   B buf; buf.reserve(1048576 * 64);
   let d = buf.data();
 
+  cout << "starting tuple_bench write loop" << endl;
   let t0 = now();
   for (u64 i = 0; i < 10; ++i)
   {
