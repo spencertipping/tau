@@ -17,7 +17,7 @@ Sp<γ> γϊ()
   { for (let x : i)
       if (η0ts{η0t::uint_be, η0t::int_be}[x.t()])
       { let n = x.pu();
-        for (i64 j = 0; j < n; ++j) if (!(o << η1o(j))) goto done;
+        for (u64 j = 0; j < n; ++j) if (!(o << η1o(j))) goto done;
         if (!(o << η1o(η1sig::τ))) goto done; }
       else
         if (!(o << x)) goto done;

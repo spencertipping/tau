@@ -38,7 +38,7 @@ O &operator<<(O &s, η1pi const &x)
   else if (x.is_u()) return s << Sc<u64>(x);
   else if (x.is_s()) return s << Sc<i64>(x);
   else if (x.is_b()) return s << (x ? "t" : "f");
-  else               return s << "η₁ni NA";
+  else               return s << *x.i_;
 }
 
 O &operator<<(O &s, η1ti const &x)

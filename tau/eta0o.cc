@@ -52,12 +52,9 @@ void η0o::into(u8 *m) const
   if (h_)
   {
     auto sha3_256 = picosha3::get_sha3_generator<256>();
-    Ar<u8, 32> hv{};
     sha3_256.process(d, d + s);
     sha3_256.finish();
-    sha3_256.get_hash_bytes(hv.begin(), hv.end());
-    memcpy(m + o, hv.data(), 32);
-    o += 32;
+    sha3_256.get_hash_bytes(m + o, m + o + 32); o += 32;
   }
 
   memcpy(m + o, d, s);
@@ -73,19 +70,20 @@ void η0o::into(u8 *m) const
 }
 
 
-B *η0o::compress() const
+B *η0o::cdata() const
 {
 #if τhas_zstd
   if (cs_) return cs_;
-  let r  = new B; r->resize(8 + ZSTD_compressBound(isize()));
-  let cr = ZSTD_compress(r->data() + 8, r->capacity() - 8, idata(), isize(), c_);
+  let s  = ssize();
+  let r  = new B; r->resize(8 + ZSTD_compressBound(s));
+  let cr = ZSTD_compress(r->data() + 8, r->capacity() - 8, sdata(), s, c_);
   if (ZSTD_isError(cr))
   {
     delete r;
     A(0, "η₀ compression error: " << ZSTD_getErrorName(cr));
   }
   r->resize(cr + 8);
-  W(r->data(), 0, Sc<u64>(isize()));
+  W(r->data(), 0, Sc<u64>(s));
   return r;
 #else
   A(0, "no zstd on this platform");
@@ -96,7 +94,7 @@ B *η0o::compress() const
 
 O &operator<<(O &s, η0o const &x)
 {
-  return s << "TODO: << η₀o";
+  return s << "TODO: <<η₀o";
 }
 
 

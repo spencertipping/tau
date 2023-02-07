@@ -46,6 +46,8 @@ inline η0o η1o(Bvc  &b) { η0o r(η0t::bytes); memcpy(r.iptr(b.size()), b.data
 
 inline η0o η1o(Ss const &s) { return η1o(s.str()); }
 
+inline η0o η1o(chc *s) { return η1o(Stv{s}); }
+
 
 inline η0o η1t() { return η0o(η0t::tuple); }
 inline η0o η1s() { return η0o(η0t::set); }

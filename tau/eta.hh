@@ -47,16 +47,16 @@ struct η
   bool tM()  const { return t() == η0t::map; }
 
 
-  f64   pf() const { A(tf(), "η::pf on " << t()); return Sc<f64>(η1pi{&i_}); }
-  u64   pu() const { A(tu(), "η::pu on " << t()); return Sc<u64>(η1pi{&i_}); }
-  i64   pi() const { A(ti(), "η::pi on " << t()); return Sc<i64>(η1pi{&i_}); }
-  bool  pb() const { A(tb(), "η::pb on " << t()); return Sc<bool>(η1pi{&i_}); }
-  η1sig ps() const { A(ts(), "η::ps on " << t()); return Sc<η1sig>(η1si{&i_}); }
+  f64   pf() const { A(tf(), "η::pf on " << i_); return Sc<f64>(η1pi{&i_}); }
+  u64   pu() const { A(tu(), "η::pu on " << i_); return Sc<u64>(η1pi{&i_}); }
+  i64   pi() const { A(ti(), "η::pi on " << i_); return Sc<i64>(η1pi{&i_}); }
+  bool  pb() const { A(tb(), "η::pb on " << i_); return Sc<bool>(η1pi{&i_}); }
+  η1sig ps() const { A(ts(), "η::ps on " << i_); return Sc<η1sig>(η1si{&i_}); }
 
 
   // pv = value pointer accessor; pxf = value destructor function accessor
-  template<class T> T *pv()  const { A(ty(), "η::pv on "  << t()); return Rc<T*>(R<void*>(i_.data(), 0)); }
-  template<class T> T *pxf() const { A(ty(), "η::pxf on " << t()); return Rc<T*>(R<void*>(i_.data(), sizeof(void*))); }
+  template<class T> T *pv()  const { A(ty(), "η::pv on "  << i_); return Rc<T*>(R<void*>(i_.data(), 0)); }
+  template<class T> T *pxf() const { A(ty(), "η::pxf on " << i_); return Rc<T*>(R<void*>(i_.data(), sizeof(void*))); }
 
 
   bool α() const { return ts() && ps() == η1sig::α; }
@@ -66,33 +66,36 @@ struct η
   bool ω() const { return ts() && ps() == η1sig::ω; }
 
 
-  Stvc stv() const { return Stvc{Rc<chc*>(i_.data()), i_.size()}; }
-  St   st()  const { return St  {Rc<chc*>(i_.data()), i_.size()}; }
-  Bvc  bv()  const { return Bvc {i_.data(),           i_.size()}; }
-  B    b ()  const { return B   {i_.data(),           i_.size()}; }
+  Stvc stv() const { return Stvc{Rc<chc*>(data()), size()}; }
+  St   st()  const { return St  {Rc<chc*>(data()), size()}; }
+  Bvc  bv()  const { return Bvc {data(),           size()}; }
+  B    b ()  const { return B   {data(),           size()}; }
 
 
+  // Inner (logical, decompressed) data and size; use these when reading
+  // contents
   u8c *data() const { return i_.data(); }
   uN   size() const { return i_.size(); }
 
 
+  // Logical number of items for strings/collections
   uN len() const
     { switch (t())
       {
       case η0t::bytes:
-      case η0t::utf8: return i_.size();
+      case η0t::utf8: return size();  // TODO: decode UTF8 chars
       case η0t::tuple:
       case η0t::set: return η1ti{&i_}.len();
       case η0t::map: return η1ti{&i_}.len() / 2;
       default:
-        A(0, "η::len on " << t());
+        A(0, "η::len on " << i_);
         return 0;
       } }
 
 
   // Structured retrieval
   η operator[](uN i) const
-    { A(t() == η0t::tuple, "η[] on " << t());
+    { A(t() == η0t::tuple, "η[] on " << i_);
       return η1ti{&i_}[i]; }
 
   // TODO: map element retrieval
@@ -110,8 +113,8 @@ struct η
   struct T_
   {
     η const &y;
-    itT begin() { return itT{y.i_.data()}; }
-    itT end()   { return itT{y.i_.data() + y.i_.size()}; }
+    itT begin() { return itT{y.data()}; }
+    itT end()   { return itT{y.data() + y.size()}; }
   };
 
 
@@ -127,8 +130,8 @@ struct η
   struct M_
   {
     η const &y;
-    itM begin() { return itM{y.i_.data()}; }
-    itM end()   { return itM{y.i_.data() + y.i_.size()}; }
+    itM begin() { return itM{y.data()}; }
+    itM end()   { return itM{y.data() + y.size()}; }
   };
 
 
@@ -147,8 +150,9 @@ struct η
   η0i       &y0()       { return i_; }
 
 
-  uN  osize()      const { return y0().osize(); }
-  void into(u8 *m) const { return y0().into(m); }
+  u8c *odata()      const { return y0().odata(); }
+  uN   osize()      const { return y0().osize(); }
+  void into (u8 *m) const { return y0().into(m); }
 
 
 protected:

@@ -16,7 +16,8 @@ namespace τ
 // η₀ frame output container, with small-value optimization
 struct η0o
 {
-  η0o(η0t t) : f_(0), c_(0), h_(0), t_(t), si_({0}), ss_(0), so_(nullptr), cs_(nullptr) {}
+  η0o(η0t t) : f_(0), c_(0), h_(0), t_(t),
+               si_({0}), ss_(0), so_(nullptr), cs_(nullptr) {}
 
   ~η0o()
     { if (so_) delete so_;
@@ -82,15 +83,13 @@ struct η0o
       return *this; }
 
   η0o &expand_to(uN c)
-    { A(c >= isize(), "η₀o::expand_to cannot shrink " << isize() << " to " << c);
-      if (c == isize()) return *this;
+    { A(c >= ssize(), "η₀o::expand_to cannot shrink " << ssize() << " to " << c);
+      if (c == ssize()) return *this;
       touch();
-      if (so_ && c <= is)
-      { memcpy(si_.data(), so_->data(), c);
-        delete so_, so_ = nullptr, ss_ = c; }
-      else if (c > is)
-      { if (!so_) { (so_ = new B)->resize(c); memcpy(so_->data(), si_.data(), ss_); }
-        else      so_->resize(c); }
+      if (c > is)
+        if (!so_) { (so_ = new B)->resize(c); memcpy(so_->data(), si_.data(), ss_); }
+        else      so_->resize(c);
+      else ss_ = c;
       return *this; }
 
 
@@ -109,8 +108,8 @@ protected:
 
   void touch() const { if (cs_) delete cs_, cs_ = nullptr; }
 
-  B *cs()       const { return !c_ ? nullptr : compress(); }
-  B *compress() const;
+  B *cs()    const { return !c_ ? nullptr : cdata(); }
+  B *cdata() const;
 
   u8 *at_(uN i, uN l)
     { if (isize() < i + l) expand_to(i + l);
