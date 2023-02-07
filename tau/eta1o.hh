@@ -13,7 +13,8 @@ namespace τ
 {
 
 
-inline η0o η1o(void *p, void *xf = nullptr)
+template<class T>
+η0o η1o(T *p, void(*xf)(T*) = nullptr)
 {
   η0o r(η0t::η0);
   W(r.iptr(sizeof(void*)), 0, p);
