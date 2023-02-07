@@ -68,7 +68,7 @@ void try_flex()
   {
     auto g = γι(10)
       | γdrop(8)
-      | γmap([](η i) { η0o r(η1t()); return r << η1o("foo") << i << i; })
+      | γmap([](η i) { η0o r(η0t::tuple); r << η1o("foo") << i << i; return r; })
       | γflex(γϊ())
       | γflex(γτmap([](η i) { return η1o(Ss{} << i.pu() + 1); }))
       | γostream(cout);

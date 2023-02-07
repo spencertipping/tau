@@ -19,6 +19,9 @@ struct η0o
   η0o(η0t t) : f_(0), c_(0), h_(0), t_(t),
                si_({0}), ss_(0), so_(nullptr), cs_(nullptr) {}
 
+  η0o(η0o const &o) { *this = o; }
+  η0o(η0o      &&o) { *this = std::move(o); }
+
   ~η0o()
     { if (so_) delete so_;
       if (cs_) delete cs_; }
@@ -32,6 +35,12 @@ struct η0o
   η0o &operator=(η0o const &o)
     { f(o.f()); c(o.c()); h(o.h()); si_ = o.si_; ss_ = o.ss_; clear();
       memcpy(at_(0, o.isize()), o.idata(), o.isize());
+      return *this; }
+
+  η0o &operator=(η0o &&o)
+    { f(o.f()); c(o.c()); h(o.h()); si_ = o.si_; ss_ = o.ss_;
+      so_ = o.so_; cs_ = o.cs_;
+      o.so_ = nullptr; o.cs_ = nullptr;
       return *this; }
 
 
