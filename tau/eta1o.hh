@@ -22,19 +22,30 @@ inline η0o η1o(void *p, void *xf = nullptr)
 }
 
 
-// TODO: size-optimize these
-inline η0o η1o(u64 x) { η0o r(η0t::uint_be); W(r.iptr(8), 0, x); return r; }
-inline η0o η1o(u32 x) { η0o r(η0t::uint_be); W(r.iptr(4), 0, x); return r; }
-inline η0o η1o(u16 x) { η0o r(η0t::uint_be); W(r.iptr(2), 0, x); return r; }
-inline η0o η1o(u8  x) { η0o r(η0t::uint_be); W(r.iptr(1), 0, x); return r; }
+inline η0o η1o(u64 x)
+{ η0o r(η0t::uint_be);
+  if      (ou<u32>(x)) W(r.iptr(8), 0, x);
+  else if (ou<u16>(x)) W(r.iptr(4), 0, Sc<u32>(x));
+  else if (ou<u8>(x))  W(r.iptr(2), 0, Sc<u16>(x));
+  else                 W(r.iptr(1), 0, Sc<u8>(x));
+  return r; }
+inline η0o η1o(u32 x) { return η1o(Sc<u64>(x)); }
+inline η0o η1o(u16 x) { return η1o(Sc<u64>(x)); }
+inline η0o η1o(u8 x)  { return η1o(Sc<u64>(x)); }
 
-inline η0o η1o(i64 x) { η0o r(η0t::int_be);  W(r.iptr(8), 0, x); return r; }
-inline η0o η1o(i32 x) { η0o r(η0t::int_be);  W(r.iptr(4), 0, x); return r; }
-inline η0o η1o(i16 x) { η0o r(η0t::int_be);  W(r.iptr(2), 0, x); return r; }
-inline η0o η1o(i8  x) { η0o r(η0t::int_be);  W(r.iptr(1), 0, x); return r; }
+inline η0o η1o(i64 x)
+{ η0o r(η0t::int_be);
+  if      (oi<i32>(x)) W(r.iptr(8), 0, x);
+  else if (oi<i16>(x)) W(r.iptr(4), 0, Sc<i32>(x));
+  else if (oi<i8>(x))  W(r.iptr(2), 0, Sc<i16>(x));
+  else                 W(r.iptr(1), 0, Sc<i8>(x));
+  return r; }
+inline η0o η1o(i32 x) { return η1o(Sc<i64>(x)); }
+inline η0o η1o(i16 x) { return η1o(Sc<i64>(x)); }
+inline η0o η1o(i8 x)  { return η1o(Sc<i64>(x)); }
 
-inline η0o η1o(f32 x) { η0o r(η0t::float_be); W(r.iptr(8), 0, Sc<f64>(x)); return r; }
 inline η0o η1o(f64 x) { η0o r(η0t::float_be); W(r.iptr(8), 0, x);          return r; }
+inline η0o η1o(f32 x) { return η1o(Sc<f64>(x)); }
 
 inline η0o η1o(bool b) { η0o r(η0t::boolean); W(r.iptr(1), 0, Sc<u8>(b ? 1 : 0)); return r; }
 

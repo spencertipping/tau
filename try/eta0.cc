@@ -136,7 +136,6 @@ void try_large_tuples()
 
   for (u64 i = 0; i < 80000; i += i % 1997 + 1)
   {
-    cout << "i = " << i << endl;
     ++tests;
     η0o o(η0t::tuple);
     o.h(i % 3 == 0);
