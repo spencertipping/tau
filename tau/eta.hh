@@ -23,7 +23,9 @@ struct η
 
   // Explicitly destroy any resources held by this or any structural descendant
   void destroy()
-    { TODO("destroy"); }
+    { if      (f() && η1tc[t()]) for (auto x : T()) x.destroy();
+      else if (ty())
+        if (let f = pxf<void(*)(void*)>()) (*f)(pv<void*>()); }
 
 
   η0t  t() const { return i_.type(); }
