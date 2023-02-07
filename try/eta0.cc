@@ -12,7 +12,7 @@ using namespace std;
 void test_uint(u64 i)
 {
   u8 buf[64] = {0};
-  η0o o = i; o.into(buf);
+  η0o o = η1o(i); o.into(buf);
   A(η0bc(buf, sizeof(buf)), "η₀bc failed on " << i);
   η0i r{buf};
   A(r.type() == η0t::uint_be,
@@ -35,7 +35,7 @@ void test_uint(u64 i)
 void test_int(i64 i)
 {
   u8 buf[64] = {0};
-  η0o o = i; o.into(buf);
+  η0o o = η1o(i); o.into(buf);
   A(η0bc(buf, sizeof(buf)), "η₀bc failed on " << i);
   η0i r{buf};
   A(r.type() == η0t::int_be,
@@ -70,8 +70,8 @@ void try_ints()
 void try_strings()
 {
   u8 buf[1024] = {0};
-  η0o o;
-  o.t(η0t::bytes).h(true) << "fu" << "bar";
+  η0o o(η0t::bytes);
+  o.h(true) << "fu" << "bar";
   if (τhas_zstd) o.c(19);
   cout << "output size = " << o.osize() << endl;
 
@@ -97,8 +97,8 @@ void try_strings()
 void try_small_tuples()
 {
   u8 buf[1024] = {0};
-  η0o o;
-  o.t(η0t::tuple) << "fu" << "bar" << 3 << 4.0 << false;
+  η0o o(η0t::tuple);
+  o << η1o("fu") << η1o("bar") << η1o(3) << η1o(4.0) << η1o(false);
   cout << "output size = " << o.osize() << endl;
 
   o.into(buf);
@@ -107,17 +107,18 @@ void try_small_tuples()
   cout << "BUF = " << Sc<void*>(buf) << endl;
 
   let y0 = η0i{buf};
-  let y1 = η1ti{buf};
+  let y1 = η{buf};
 
-  auto it = y1.begin();
+  auto it = y1.T().begin();
   cout << *it << endl; ++it;
   cout << *it << endl; ++it;
   cout << *it << endl; ++it;
   cout << *it << endl; ++it;
   cout << *it << endl; ++it;
-  A(it == y1.end(),
+  A(it == y1.T().end(),
     "mismatching addresses: "
-      << Sc<void const*>(it.x) << " vs " << Sc<void const*>(y1.end().x));
+    << Sc<void const*>(it.x) << " vs "
+    << Sc<void const*>(y1.T().end().x));
 
   cout << y0 << endl;
   cout << y1 << endl;
@@ -136,16 +137,16 @@ void try_large_tuples()
   for (u64 i = 0; i < 80000; i += i % 1997 + 1)
   {
     ++tests;
-    η0o o;
-    o.t(η0t::tuple).h(i % 3 == 0);
+    η0o o(η0t::tuple);
+    o.h(i % 3 == 0);
     if (τhas_zstd) o.c(i % 20);
-    for (u64 j = 0; j <= i; ++j) o << j;
+    for (u64 j = 0; j <= i; ++j) o << η1o(j);
     o.into(d);
 
     A(η0bc(d, c), "η0bc failed for i = " << i);
-    η1ti r{d};
+    η r{d};
     uN t = 0;
-    for (let &x : r) t += Sc<u64>(η1pi{x});
+    for (let &x : r.T()) t += x.pu();
     A(t == (i * (i + 1)) / 2,
       "summation mismatch for i = " << i << ": " << t << " ≠ " << (i * (i + 1)) / 2);
   }
@@ -162,9 +163,8 @@ void tuple_bench()
   let t0 = now();
   for (u64 i = 0; i < 10; ++i)
   {
-    η0o o;
-    o.t(η0t::tuple).reserve(1048576 * 64);  // .reserve() saves about 5% off the runtime
-    for (u64 j = 0; j < 1048576; ++j) o << j;
+    η0o o(η0t::tuple);
+    for (u64 j = 0; j < 1048576; ++j) o << η1o(j);
     o.into(d);
   }
   let t1 = now();
@@ -176,8 +176,8 @@ void tuple_bench()
   u64 t = 0;
   for (u64 i = 0; i < 10; ++i)
   {
-    η1ti r{d};
-    for (let &x : r) t += Sc<u64>(η1pi{x});
+    η r{d};
+    for (let &x : r.T()) t += x.pu();
   }
   let t3 = now();
 

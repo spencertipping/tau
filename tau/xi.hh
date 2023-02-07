@@ -74,14 +74,14 @@ struct ξ
 
   // Reader interface: delete ξ to finalize the read-side, iterator and
   // unary */next() to read η0s
-  η0i operator*() const
+  η operator*() const
     { A(ra(), "*ξ with !ra(), " << z);
-      return !b ? η0i(z + 0) : η0i(b); }
+      return !b ? η(z + 0) : η(b); }
 
   void next()
     { A(ra(), "++ξ with !ra(), " << z);
       if (b) delete[] b, b = nullptr, sb = 0;
-      else   z.free((*(*this)).osize());
+      else   z.free((*(*this)).y0().osize());
       wg.w(true); }  // we are now writable
 
 
@@ -92,7 +92,7 @@ struct ξ
     bool        eof()            const { return !y || y->eof(); }
     bool operator==(it const &x) const { return eof() == x.eof(); }
     it  &operator++()       { A(y, "++ξ::end"); y->next(); return *this; }
-    η0i  operator* () const { A(y,  "*ξ::end");            return **y; }
+    η    operator* () const { A(y,  "*ξ::end");            return **y; }
   };
 
   it begin() { return {this}; }

@@ -19,7 +19,7 @@ namespace τ
 // size bound -- returns true if the structure fits within that bound
 //
 // WARNING: never decode a η₀ from untrusted memory without calling this
-// function first
+// function first; otherwise you may have segfaults
 bool η0bc(u8c*, uN);
 
 

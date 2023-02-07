@@ -121,26 +121,26 @@ Sp<γ> γcat(V<Sp<γ>> &&gs) { return Sp<γ>(new γcat_(std::move(gs))); }
 Sp<γ> γcap(St n, bfn &&f) { return Sp<γ>(new γcap_(n, std::move(f))); }
 
 
-Sp<γ> γeach(F<void(η0i)> &&f, bool tap)
+Sp<γ> γeach(F<void(η)> &&f, bool tap)
 {
   return γffn("e", [tap, f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
     { for (let x : i)
-      { f(η0i(x));
+      { f(x);
         if (tap && !(o << x)) break; }});
 }
 
 
-Sp<γ> γmap(F<η0o(η0i)> &&f)
+Sp<γ> γmap(F<η0o(η)> &&f)
 {
   return γffn("m", [f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
-    { for (let x : i) if (!(o << f(η0i(x)))) break; });
+    { for (let x : i) if (!(o << f(x))) break; });
 }
 
 
-Sp<γ> γτmap(F<η0o(η0i)> &&f)
+Sp<γ> γτmap(F<η0o(η)> &&f)
 {
   return γffn("M", [f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
-    { for (let x : i) if (!(o << f(η0i(x))) || !(o << η0o{η0sig::τ})) break; });
+    { for (let x : i) if (!(o << f(x)) || !(o << η1o(η1sig::τ))) break; });
 }
 
 

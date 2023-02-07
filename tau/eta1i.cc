@@ -5,9 +5,31 @@ namespace τ
 {
 
 
+uN η1ti::len() const
+{
+  uN l = 0;
+  for (u8c *x = i_->data();
+       x < i_->data() + i_->size();
+       x += η0i(x).osize())
+    ++l;
+  return l;
+}
+
+
+η0i η1ti::operator[](uN i) const
+{
+  for (u8c *x = i_->data();
+       x < i_->data() + i_->size();
+       x += η0i(x).osize())
+    if (!i--) return x;
+  A(0, "η₁ti[] OOB");
+  return nullptr;
+}
+
+
 O &operator<<(O &s, η1si const &x)
 {
-  return s << Sc<η0sig>(x);
+  return s << Sc<η1sig>(x);
 }
 
 O &operator<<(O &s, η1pi const &x)
@@ -26,16 +48,16 @@ O &operator<<(O &s, η1ti const &x)
   for (let y : x)
   { if (first) first = false;
     else       s << ",";
-    s << η1i{y}; }
+    s << η1i{&y}; }
   return s << ")";
 }
 
 O &operator<<(O &s, η1i const &x)
 {
-  if      (η0tc[x.type()]) return s << η1ti{x.i};
-  else if (η0tp[x.type()]) return s << η1pi{x.i};
-  else if (η0tb[x.type()]) return s << "\"" << Stv{Rc<chc*>(x.i.data()), x.i.size()} << "\"";
-  else                     return s << x.i;
+  if      (η1tc[x.type()]) return s << η1ti{x.i_};
+  else if (η1tp[x.type()]) return s << η1pi{x.i_};
+  else if (η1tb[x.type()]) return s << "\"" << Stv{Rc<chc*>(x.i_->data()), x.i_->size()} << "\"";
+  else                     return s << x.i_;
 }
 
 

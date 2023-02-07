@@ -20,7 +20,7 @@ struct ξi
 
 
   void     close()       { x.reset(); }
-  η0i operator *() const { A(x,  "*ξi on closed");            return **x; }
+  η   operator *() const { A(x,  "*ξi on closed");            return **x; }
   ξi &operator++()       { A(x, "++ξi on closed"); x->next(); return *this; }
 
   bool eof(bool nonblock = false) const { return !x || x->eof(nonblock); }
@@ -36,7 +36,7 @@ struct ξi
 
     bool operator==(it const &y) const { return i == y.i; }
     it  &operator++()                  { ++i; return *this; }
-    η0i  operator* () const            { return *i; }
+    η    operator* () const            { return *i; }
   };
 
   it begin() const { return x ? it{x, x->begin()} : end(); }

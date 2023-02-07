@@ -29,9 +29,7 @@ static Sp<ψ> ψr(Sp<ψ> q, fd_t fd, ξi i, ξo o)
         i.close();
         while (1)
         { let r = q->t().read(fd, b, s);
-          if (r <= 0
-              || !(o << (η0o{}.t(η0t::bytes) << Bv{b, Sc<uN>(r)})))
-            break; }
+          if (r <= 0 || !(o << η1o(Bv{b, Sc<uN>(r)}))) break; }
         o.close(); });
   return q;
 }
@@ -43,14 +41,14 @@ static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i, ξo o)
   q->name((Ss{} << ">" << fd).str())
     .def([=]() mutable
       { for (let x : i)
-          if (x.type() == η0t::bytes)
+          if (x.tsb())
           { uN  n  = 0;
             let xs = x.data();
             let s  = x.size();
             while (n < s)
             { let y = q->t().write(fd, xs + n, s - n);
-              if (y == -1) { o <<= η0o(false); goto done; }
-              else           o <<= η0o(y);
+              if (y == -1) { o <<= η1o(false); goto done; }
+              else           o <<= η1o(y);
               n += y; } }
       done:
         i.close();

@@ -34,10 +34,10 @@ Sp<γ> γonce(T const &k)
     o << k; }); }
 
 
-Sp<γ> γeach(F<void(η0i)>&&, bool = false);
+Sp<γ> γeach(F<void(η)>&&, bool = false);
 
-Sp<γ> γmap (F<η0o(η0i)> &&f);
-Sp<γ> γτmap(F<η0o(η0i)> &&f);
+Sp<γ> γmap (F<η0o(η)> &&f);
+Sp<γ> γτmap(F<η0o(η)> &&f);
 
 
 }

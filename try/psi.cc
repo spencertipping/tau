@@ -10,8 +10,8 @@ using namespace std;
 Sp<γ> sum()
 { return γffn("∑", [](Sp<ψ> q, ξi i, ξo o)
   { u64 t = 0;
-    for (let x : i) t += Sc<u64>(η1pi{x});
-    o << η0o(t); }); }
+    for (let x : i) t += x.pu();
+    o << η1o(t); }); }
 
 
 void try_gamma()
@@ -38,8 +38,8 @@ void try_gamma()
 
     li = T.l().c([=, &t]()
       { A(!i.eof(), "EOF before sum result");
-        let x = η1pi{*i};
-        t = Sc<u64>(x);
+        let x = *i;
+        t = x.pu();
         cout << "try_gamma ∑ 0..99 = " << x << endl; });
   }
 
@@ -68,9 +68,9 @@ void try_flex()
   {
     auto g = γι(10)
       | γdrop(8)
-      | γmap([](η0i i) { return η0o{}.t(η0t::tuple) << "foo" << i << i; })
+      | γmap([](η i) { η0o r(η1t()); return r << η1o("foo") << i << i; })
       | γflex(γϊ())
-      | γflex(γτmap([](η0i i) { return (Ss{} << Sc<u64>(η1pi{i}) + 1).str(); }))
+      | γflex(γτmap([](η i) { return η1o(Ss{} << i.pu() + 1); }))
       | γostream(cout);
 
     cout << "try_flex pipeline = " << g << endl;

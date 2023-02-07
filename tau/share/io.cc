@@ -12,7 +12,7 @@ Sp<γ> γostream(O &s, bool tap)
 {
   return γffn("γ»", [&s, tap](Sp<ψ>, ξi i, ξo o) mutable
   { for (let x : i)
-    { s << η1i{x} << std::endl;
+    { s << x << std::endl;
       if (tap && !(o << x)) break; }});
 }
 

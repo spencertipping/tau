@@ -25,19 +25,21 @@ void try_basic()
     auto [i, _2] = X.xf(nullptr, 32, 32);
     let c = i.inner_ξ();
 
-    A(o << η0o(57.5), "ξ<<");
-    A(o << η0o(58.5), "ξ<<");
-    A(o << η0o(59.5), "ξ<<");
+    A(o << η1o(57.5), "ξ<<");
+    A(o << η1o(58.5), "ξ<<");
+    A(o << η1o(59.5), "ξ<<");
 
-    A(!(o <<= (η0o{}.t(η0t::utf8) << "01234567890123456789" << "01234567890123456789")),
+    η0o os(η0t::utf8);
+    A(!(o <<= (os << "01234567890123456789" << "01234567890123456789")),
       "ξ<<big didn't block");
 
-    let x1 = *i; A(Sc<f64>(η1pi{x1}) == 57.5, "x1 " << η1pi{x1}); ++i;
-    let x2 = *i; A(Sc<f64>(η1pi{x2}) == 58.5, "x2 " << η1pi{x2}); ++i;
-    let x3 = *i; A(Sc<f64>(η1pi{x3}) == 59.5, "x3 " << η1pi{x3}); ++i;
+    let x1 = *i; A(x1.pf() == 57.5, "x1 " << x1); ++i;
+    let x2 = *i; A(x2.pf() == 58.5, "x2 " << x2); ++i;
+    let x3 = *i; A(x3.pf() == 59.5, "x3 " << x3); ++i;
 
     A(!c->extra(), "ξ extra nonzero");
-    A(o << (η0o{}.t(η0t::utf8) << "01234567890123456789" << "01234567890123456789"),
+    η0o ot(η0t::utf8);
+    A(o << (ot << "01234567890123456789" << "01234567890123456789"),
       "ξ<<big");
     A(c->extra(), "ξ has no extra");
 
@@ -67,7 +69,7 @@ void try_ints()
         auto [_1, o] = X.xf(nullptr, K, K);
         T.l().c([o=o]() mutable {
           for (u64 i = 0; i < N; ++i)
-            A(o << η0o{i}, "failed to write " << i);
+            A(o << η1o(i), "failed to write " << i);
           o.close();
         });
       }
@@ -76,7 +78,7 @@ void try_ints()
         auto [i, _2] = X.xf(nullptr, K, K);
         T.l().c([i=i, &j, &c]() {
           u64 t = 0;
-          for (let x : i) ++c, t += Sc<u64>(η1pi{x});
+          for (let x : i) ++c, t += x.pu();
           j = t;
         });
       }
@@ -109,10 +111,9 @@ void try_big()
       T.l().c([o=o, &k]() mutable {
         for (u64 i = 0; i < 10000; ++i)
         {
-          η0o x;
-          x.t(η0t::tuple);
+          η0o x(η0t::tuple);
           for (u64 j = 0; j < i % 100; ++j)
-            x << j, k += j;
+            x << η1o(j), k += j;
           A(o << x, "write failed: " << x);
         }
       });
@@ -122,8 +123,8 @@ void try_big()
       auto [i, _2] = X.xf(nullptr, 64, 64);
       T.l().c([i=i, &j]() {
         for (let x : i)
-          for (let y : η1ti{x})
-            j += Sc<u64>(η1pi{y});
+          for (let y : x.T())
+            j += y.pu();
       });
     }
   }
