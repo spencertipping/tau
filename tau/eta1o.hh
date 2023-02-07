@@ -22,6 +22,7 @@ inline η0o η1o(void *p, void *xf = nullptr)
 }
 
 
+// TODO: size-optimize these
 inline η0o η1o(u64 x) { η0o r(η0t::uint_be); W(r.iptr(8), 0, x); return r; }
 inline η0o η1o(u32 x) { η0o r(η0t::uint_be); W(r.iptr(4), 0, x); return r; }
 inline η0o η1o(u16 x) { η0o r(η0t::uint_be); W(r.iptr(2), 0, x); return r; }

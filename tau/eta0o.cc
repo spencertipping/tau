@@ -84,7 +84,7 @@ B *η0o::cdata() const
   }
   r->resize(cr + 8);
   W(r->data(), 0, Sc<u64>(s));
-  return r;
+  return cs_ = r;
 #else
   A(0, "no zstd on this platform");
   return nullptr;
