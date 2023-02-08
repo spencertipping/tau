@@ -8,11 +8,11 @@ namespace τ
 {
 
 
-Sp<γ> γostream(O &s, bool tap)
+Sp<γ> γostream(O &s, St prefix, bool tap)
 {
-  return γffn("γ»", [&s, tap](Sp<ψ>, ξi i, ξo o) mutable
+  return γffn("γ»", [=, &s](Sp<ψ>, ξi i, ξo o) mutable
   { for (let x : i)
-    { s << x << std::endl;
+    { s << prefix << x << std::endl;
       if (tap && !(o << x)) break; }});
 }
 

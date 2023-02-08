@@ -25,7 +25,9 @@ struct ψ
   template<class... Xs>
   ψ(τe &t__, Xs... xs) : t_(t__) { def(xs...); ψc_(this); }
 
-  virtual ~ψ();
+  virtual ~ψ() { destroy(); ψx_(this); }
+
+  virtual void destroy();
 
   virtual St name() const {         return n_; }
   virtual ψ &name(Stc &s) { n_ = s; return *this; }

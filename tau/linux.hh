@@ -6,6 +6,8 @@
 
 
 #include "linux/io.hh"
+#include "linux/fork.hh"
+#include "linux/net.hh"
 
 
 #endif

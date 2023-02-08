@@ -51,6 +51,26 @@ int cat2()
   A(!ψn(),       "ψs escaped cat2: "  << ψn());
   return 0;
 }
+
+
+int exec(int argc, char **argv)
+{
+  τe t;
+  {
+    Ξ x{t};
+    V<St> xs;
+    for (int i = 0; i < argc; ++i) xs.push_back(argv[i]);
+    auto g = γfr(0) | fork_exec(xs, "e") | γfw(1);
+    g(x);
+  }
+  A(!γn(), "γs should not exist here; we have " << γn());
+  t.go();
+  A(!t.l().n(),  "Λ still has λs: "   << t.l().n());
+  A(!ξn(),       "ξs still exist: "   << ξn());
+  A(!t.pinned(), "t still has pins: " << t.pinned());
+  A(!ψn(),       "ψs escaped exec: "  << ψn());
+  return 0;
+}
 #else
 int cat()
 {
@@ -63,6 +83,12 @@ int cat2()
   cout << "no cat on this platform" << endl;
   return 1;
 }
+
+int exec(int, char**)
+{
+  cout << "no exec on this platform" << endl;
+  return 1;
+}
 #endif
 
 
@@ -73,6 +99,7 @@ int main(int argc, char **argv)
   if (argc < 2)                 return usage(argv);
   if (!strcmp("cat",  argv[1])) return cat();
   if (!strcmp("cat2", argv[1])) return cat2();
+  if (!strcmp("exec", argv[1])) return exec(argc - 2, argv + 2);
   return 0;
   τassert_end;
 }

@@ -9,8 +9,9 @@ namespace τ
 {
 
 
-// Write values into ostream, copying to output; this is tappable
-Sp<γ> γostream(O&, bool = false);
+// Write values into ostream, copying to output; this is tappable and allows
+// custom prefixes
+Sp<γ> γostream(O&, St = "", bool = false);
 
 
 }

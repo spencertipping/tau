@@ -45,7 +45,7 @@ inline η0o η1o(i32 x) { return η1o(Sc<i64>(x)); }
 inline η0o η1o(i16 x) { return η1o(Sc<i64>(x)); }
 inline η0o η1o(i8 x)  { return η1o(Sc<i64>(x)); }
 
-inline η0o η1o(f64 x) { η0o r(η0t::float_be); W(r.iptr(8), 0, x);          return r; }
+inline η0o η1o(f64 x) { η0o r(η0t::float_be); W(r.iptr(8), 0, x); return r; }
 inline η0o η1o(f32 x) { return η1o(Sc<f64>(x)); }
 
 inline η0o η1o(bool b) { η0o r(η0t::boolean); W(r.iptr(1), 0, Sc<u8>(b ? 1 : 0)); return r; }

@@ -12,12 +12,13 @@ void ψx_(ψ *q) { --ψs_; }
 uN ψn()        { A(ψs_ >= 0, "ψs underflow"); return ψs_; }
 
 
-ψ::~ψ()
+void ψ::destroy()
 {
   Λ &l = t_.l();
   for (let  x : ls) if (l.e(x) && x != l.i()) l.x(x);
   for (let &f : df)                           f(*this);
-  ψx_(this);
+  ls.clear();
+  df.clear();
 }
 
 

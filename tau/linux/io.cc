@@ -22,13 +22,15 @@ static Sp<ψ> ψfd(τe &t, fd_t fd)
 
 static Sp<ψ> ψr(Sp<ψ> q, fd_t fd, ξi i, ξo o)
 {
+  q->t().reg(fd, true, false);
   q->name((Ss{} << "<" << fd).str())
-    .def([=]() mutable
-      { let s = o.inner_ξ()->capacity() >> 1;
+    .def([fd, i, o, qw=Wp<ψ>{q}, &t=q->t()]() mutable
+      { if (!o.inner_ξ()) return;
+        let s = o.inner_ξ()->capacity() >> 1;
         u8  b[s];
         i.close();
-        while (1)
-        { let r = q->t().read(fd, b, s);
+        while (o.inner_ξ())
+        { let r = t.read(fd, b, s);
           if (r <= 0 || !(o << η1o(Bv{b, Sc<uN>(r)}))) break; }
         o.close(); });
   return q;
@@ -37,23 +39,27 @@ static Sp<ψ> ψr(Sp<ψ> q, fd_t fd, ξi i, ξo o)
 
 static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i, ξo o)
 {
+  q->t().reg(fd, false, true);
   q->t().pin(q);
   q->name((Ss{} << ">" << fd).str())
-    .def([=]() mutable
+    .def([fd, i, o, qw=Wp<ψ>{q}, &t=q->t()]() mutable
       { for (let x : i)
           if (x.tsb())
           { uN  n  = 0;
             let xs = x.data();
             let s  = x.size();
             while (n < s)
-            { let y = q->t().write(fd, xs + n, s - n);
+            { let y = t.write(fd, xs + n, s - n);
               if (y == -1) { o <<= η1o(false); goto done; }
               else           o <<= η1o(y);
-              n += y; } }
+              n += y; }}
       done:
         i.close();
         o.close();
-        q->t().unpin(q); });
+        if (let qs = qw.lock()) t.unpin(qs); },
+      [fd, qw=Wp<ψ>{q}, &t=q->t()]() mutable
+        { t.eg(fd)->y(λs::τE);
+          if (let qs = qw.lock()) t.unpin(qs), qs->destroy(); });
   return q;
 }
 

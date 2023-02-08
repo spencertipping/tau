@@ -46,8 +46,11 @@ struct τe : public τb
   // gates return false on error.
   struct λgs
   {
-    λg<bool> r;
-    λg<bool> w;
+    bool re;     // registered for read events
+    bool we;     // registered for write events
+    λg<bool> r;  // inline read availability, false on error
+    λg<bool> w;  // inline write availability, false on error
+    λg<bool> e;  // out-of-band error reports
   };
 
 
@@ -60,6 +63,7 @@ struct τe : public τb
 
   λg<bool> *rg(fd_t fd) { if (let g = at(fd)) return &g->r; else return nullptr; }
   λg<bool> *wg(fd_t fd) { if (let g = at(fd)) return &g->w; else return nullptr; }
+  λg<bool> *eg(fd_t fd) { if (let g = at(fd)) return &g->e; else return nullptr; }
 
   iN read  (fd_t fd, u8  *b, uN l)       { return gated(rg(fd), λs::τR, &::read,   fd, b, l); }
   iN write (fd_t fd, u8c *b, uN l)       { return gated(wg(fd), λs::τW, &::write,  fd, b, l); }
@@ -67,8 +71,9 @@ struct τe : public τb
   iN pwrite(fd_t fd, u8c *b, uN l, uN o) { return gated(wg(fd), λs::τW, &::pwrite, fd, b, l, o); }
 
 
-  // TODO: fork() with a γ argument to create the new pipeline
-  // use FIFO + multiplexed communication
+  // Register a file descriptor for IO events; this must be called before
+  // using it with any epoll-mediated syscalls.
+  bool reg(fd_t fd, bool r = true, bool w = true);
 
 
   // Close an FD and remove it from the epoll watch set. Also delete
@@ -108,7 +113,7 @@ protected:
   // Attempt to allocate an epolled gate pair for the given FD, which
   // is set to nonblocking. Return it if successful, return nullptr
   // if the FD cannot be polled.
-  λgs *at(fd_t);
+  λgs *at(fd_t fd) { return gs.contains(fd) ? gs.at(fd) : nullptr; }
 
 
   // Run a function by repeating it against a gate as long as EAGAIN
@@ -119,7 +124,8 @@ protected:
   template<class F, class... Xs>
   iN gated(λg<bool> *g, λs ys, F *f, Xs... xs)
     { iN r, e;
-      while ((r = f(xs...)) == -1 && (e = errno) == EAGAIN)
+      while ((r = f(xs...)) == -1 &&
+             ((e = errno) == EAGAIN || e == EINTR))
         // NOTE: errno may have been async-reset within g->y, so restore
         // it here before breaking
         if (!g || !g->y(ys)) { errno = e; break; }

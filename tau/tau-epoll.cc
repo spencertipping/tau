@@ -18,6 +18,11 @@ int τe::close(fd_t fd)
     delete g;
     gs.erase(fd);
   }
+
+  // Explicitly deregister FD from epoll; see
+  // https://idea.popcount.org/2017-03-20-epoll-is-fundamentally-broken-22/
+  epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
+
   return ::close(fd);
 }
 
@@ -27,9 +32,13 @@ int τe::close(fd_t fd)
   while (now() < hn() && (!gs.empty() || hn() != forever()))
   {
     epoll_event evs[16];
+
+    // We may need to retry if epoll is interrupted by SIGCHLD
+  epoll:
     let dt = (hn() - now()) / 1ms;
     let n  = epoll_wait(efd, evs, sizeof(evs) / sizeof(epoll_event),
                         nonblock ? 0 : std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
+    if (n == -1 && errno == EINTR) goto epoll;
 
     A(n != -1, "epoll_wait error " << errno);
     if (!n) break;
@@ -40,10 +49,13 @@ int τe::close(fd_t fd)
       if (gs.contains(f))
       {
         let g = at(f);
-        if (evs[i].events & EPOLLIN)  g->r.w(true);
-        if (evs[i].events & EPOLLOUT) g->w.w(true);
-        if (evs[i].events & EPOLLERR) g->w.w(false);
-        if (evs[i].events & EPOLLHUP) g->r.w(false);
+        let e = evs[i].events;
+
+        // ERR overrides OUT -- don't write if sigpipe
+        // IN overrides HUP -- HUP doens't preclude data being available
+        if (e & (EPOLLIN  | EPOLLHUP)) g->r.w(  e & EPOLLIN);
+        if (e & (EPOLLERR | EPOLLOUT)) g->w.w(!(e & EPOLLERR));
+        if (e & EPOLLERR)              g->e.w(true);
       }
     }
 
@@ -58,17 +70,22 @@ int τe::close(fd_t fd)
 }
 
 
-τe::λgs *τe::at(fd_t fd)
+bool τe::reg(fd_t fd, bool r, bool w)
 {
-  if (!gs.contains(fd))
+  if (gs.contains(fd))
   {
-    epoll_event ev;
-    ev.events  = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLET;
-    ev.data.fd = nb(fd);
-    if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return nullptr;
-    return gs[fd] = new λgs{l_, l_};
+    epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
+    delete gs.at(fd);
+    gs.erase(fd);
   }
-  return gs.at(fd);
+
+  epoll_event ev;
+  ev.events  = (r ? EPOLLIN  | EPOLLHUP : 0)
+             | (w ? EPOLLOUT | EPOLLERR : 0) | EPOLLET;
+  ev.data.fd = nb(fd);
+  if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return false;
+  gs[fd] = new λgs{r, w, l_, l_, l_};
+  return true;
 }
 
 

@@ -20,8 +20,8 @@ uN   γn();
 // Virtual base for γ compilers
 struct γ
 {
-  γ() {  }
-  virtual ~γ() {}
+  γ()          { γc_(this); }
+  virtual ~γ() { γd_(this); }
   virtual Ξ &operator()(Ξ &x) = 0;
 
   virtual St name() const = 0;
