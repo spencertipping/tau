@@ -39,7 +39,7 @@ struct γτfork_ : public virtual γ
   {
     close(lw); close(rr);
     x.t().clear();
-    (*g)(x);
+    (γfr(lr) | g | γfw(rw))(x);
     x.t().go();
     exit(0);
   }
