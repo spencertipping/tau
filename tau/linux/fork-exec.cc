@@ -1,3 +1,6 @@
+#include "../arch.hh"
+#if τplatform == τplatform_linux
+
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
 #endif
@@ -73,3 +76,5 @@ Sp<γ> γfork_exec(Vc<St> &argv, St stderr)
 }
 
 #include "../end.hh"
+
+#endif
