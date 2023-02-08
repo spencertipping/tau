@@ -79,6 +79,10 @@ protected:
 
 
 // A full-duplex pair
+
+// TODO: keep track of whether the duplex is capped; if not, then allow
+// auto-loopback
+
 struct ξd
 {
   ξd(Λ &l_)                   : l(l_), f_(nullptr), b_(nullptr) {}
