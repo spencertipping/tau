@@ -24,6 +24,9 @@ Sp<γ> γfork_exec(Vc<St>&, St);
 
 // fork() into a new τ running the specified γ, which will be connected
 // to the current Ξ via full-duplex in/out (i.e. it's a series connection)
+//
+// The inner γ is expected to connect as a right loop, i.e. it should be
+// an end cap.
 Sp<γ> γτfork(Sp<γ>);
 
 

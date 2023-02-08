@@ -10,6 +10,8 @@
 
 #include "fork.hh"
 #include "io.hh"
+#include "../share.hh"
+
 #include "../Gamma.hh"
 #include "../begin.hh"
 
@@ -39,7 +41,7 @@ struct γτfork_ : public virtual γ
   {
     close(lw); close(rr);
     x.t().clear();
-    (γfr(lr) | g | γfw(rw))(x);
+    (γfr(lr) | γb(γfw(rw)) | g)(x);
     x.t().go();
     exit(0);
   }

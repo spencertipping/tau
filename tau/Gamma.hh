@@ -50,9 +50,9 @@ protected:
 
 
 // A way to explicitly nest a Γ pipeline into a single γ.
-struct γs : public virtual γ
+struct γs_ : public virtual γ
 {
-  γs(Γ const &g__) : g_(g__) {}
+  γs_(Γ const &g__) : g_(g__) {}
 
   Γ &g() { return g_; }
 
@@ -63,6 +63,9 @@ struct γs : public virtual γ
 protected:
   Γ g_;
 };
+
+
+inline Sp<γ> γs(Γ const &g) { return Sp<γ>{new γs_(g)}; }
 
 
 O &operator<<(O&, Γ const&);

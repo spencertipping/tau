@@ -101,6 +101,8 @@ struct ξd
   Sp<ξ> f() { return f_; }
   Sp<ξ> b() { return b_; }
 
+  ξd &swap() { f_.swap(b_); return *this; }
+
 
   ξo fo() { return ξo(f_); }  // →
   ξi bi() { return ξi(b_); }  // →
