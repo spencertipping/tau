@@ -1,11 +1,46 @@
 #include "arch.hh"
 #if τhas_epoll
 
+#include <signal.h>
+#include <sys/wait.h>
+
 #include "tau-epoll.hh"
 #include "begin.hh"
 
 namespace τ
 {
+
+
+void τe::init_signals()
+{
+  // Important: ignore SIGPIPE so we can catch it as an error on FD ops
+  signal(SIGPIPE, SIG_IGN);
+
+  // Effectively ignore all child exits; we don't care about the PIDs
+  // as much as we do the FIFO output that they manage.
+  struct sigaction sa;
+  sa.sa_handler = [](int _) { while (waitpid(-1, &_, WNOHANG) > 0); };
+  sa.sa_flags   = 0;
+  sigaction(SIGCHLD, &sa, nullptr);
+}
+
+
+bool τe::reg(fd_t fd, bool r, bool w)
+{
+  if (gs.contains(fd))
+  {
+    epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
+    delete gs.at(fd);
+    gs.erase(fd);
+  }
+
+  epoll_event ev;
+  ev.events  = (r ? EPOLLIN | EPOLLHUP : 0) | (w ? EPOLLOUT | EPOLLERR : 0) | EPOLLET;
+  ev.data.fd = nb(fd);
+  if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return false;
+  gs[fd] = new λgs{r, w, l_, l_, l_};
+  return true;
+}
 
 
 int τe::close(fd_t fd)
@@ -70,22 +105,13 @@ int τe::close(fd_t fd)
 }
 
 
-bool τe::reg(fd_t fd, bool r, bool w)
+τe &τe::clear()
 {
-  if (gs.contains(fd))
-  {
-    epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
-    delete gs.at(fd);
-    gs.erase(fd);
-  }
-
-  epoll_event ev;
-  ev.events  = (r ? EPOLLIN  | EPOLLHUP : 0)
-             | (w ? EPOLLOUT | EPOLLERR : 0) | EPOLLET;
-  ev.data.fd = nb(fd);
-  if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return false;
-  gs[fd] = new λgs{r, w, l_, l_, l_};
-  return true;
+  qs.clear();
+  for (let &[fd, v] : gs) close(fd), delete v;
+  gs.clear();
+  while (!h_.empty()) h_.pop();
+  return *this;
 }
 
 

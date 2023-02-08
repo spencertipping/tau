@@ -8,10 +8,23 @@ namespace τ
 {
 
 
+inline P<fd_t, fd_t> pipe_()
+{
+  fd_t fds[2];
+  A(!pipe(fds), "pipe() failed: " << strerror(errno));
+  return mp(fds[0], fds[1]);
+}
+
+
 // fork() and exec(), with stdin → γ → stdout. By default stderr is
 // inherited from parent, but you can bind it to a Ξ channel by specifying
 // a key to bind it to.
-Sp<γ> fork_exec(Vc<St>&, St);
+Sp<γ> γfork_exec(Vc<St>&, St);
+
+
+// fork() into a new τ running the specified γ, which will be connected
+// to the current Ξ via full-duplex in/out (i.e. it's a series connection)
+Sp<γ> γτfork(Sp<γ>);
 
 
 }

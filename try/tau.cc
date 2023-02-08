@@ -60,7 +60,7 @@ int exec(int argc, char **argv)
     Ξ x{t};
     V<St> xs;
     for (int i = 0; i < argc; ++i) xs.push_back(argv[i]);
-    auto g = γfr(0) | fork_exec(xs, "e") | γfw(1);
+    auto g = γfr(0) | γfork_exec(xs, "e") | γfw(1);
     g(x);
   }
   A(!γn(), "γs should not exist here; we have " << γn());

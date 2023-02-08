@@ -4,7 +4,6 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <strings.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
@@ -33,13 +32,15 @@ struct τe : public τb
   τe(τe&)  = delete;
   τe(τe&&) = delete;
   τe() : τb(), efd(epoll_create1(0))
-    { // Important: ignore SIGPIPE so we can catch it as an error on FD ops
-      signal(SIGPIPE, SIG_IGN);
-      A(efd != -1, "epoll_create1 failure " << errno); }
+    { A(efd != -1, "epoll_create1 failure " << errno);
+      init_signals(); }
 
   ~τe()
     { for (let &[fd, g] : gs) close(fd);
       A(!::close(efd), "~τ close failed (fd leak) " << errno); }
+
+
+  void init_signals();
 
 
   // λg pair: one gate to wait until a file is readable, one for write;
@@ -102,6 +103,11 @@ struct τe : public τb
   τe &unpin(Sp<ψ> q) { qs.erase(q);  return *this; }
 
   uN pinned() const { return qs.size(); }
+
+
+  // Cancel all ongoing work and unregister all file descriptors, destroying
+  // all active ψs. This prepares the τ for new ψs, e.g. after a fork().
+  τe &clear();
 
 
 protected:
