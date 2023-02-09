@@ -39,12 +39,7 @@ int cat()
 int cat2()
 {
   τe t;
-  {
-    Ξ x{t};
-    (γfr(0) | γfw(1))(x);
-  }
-  A(!γn(), "γs should not exist here; we have " << γn());
-  t.go();
+  (t << (γfr(0) | γfw(1))).go();
   A(!t.l().n(),  "Λ still has λs: "   << t.l().n());
   A(!ξn(),       "ξs still exist: "   << ξn());
   A(!t.pinned(), "t still has pins: " << t.pinned());
@@ -56,11 +51,7 @@ int cat2()
 int xcat()
 {
   τe t;
-  {
-    Ξ x{t};
-    (γfr(0) | γsplit_chr(" \t\n") | γfcat() | γfw(1))(x);
-  }
-  t.go();
+  (t << (γfr(0) | γsplit_chr(" \t\n") | γfcat() | γfw(1))).go();
   A(!ψn(), "ψs escaped xcat: " << ψn());
   return 0;
 }
@@ -89,13 +80,10 @@ int exec(int argc, char **argv)
 int tsv()
 {
   τe t;
-  {
-    Ξ x{t};
-    (γfr(0)
-     | γsplit_chr("\n")
-     | γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); })
-     | γostream(cout))(x);
-  }
+  t << (γfr(0)
+        | γsplit_chr("\n")
+        | γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); })
+        | γostream(cout));
   t.go();
   return 0;
 }

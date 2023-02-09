@@ -2,6 +2,7 @@
 #define τγ_h
 
 
+#include "tau.hh"
 #include "Xi.hh"
 
 #include "begin.hh"

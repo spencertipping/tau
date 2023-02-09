@@ -23,7 +23,7 @@ struct Γ
   virtual ~Γ() {}
 
 
-  virtual Ξ &operator()(Ξ &x) { for (let &g : gs) (*g)(x); return x; }
+  virtual Ξ &operator()(Ξ &x) const { for (let &g : gs) (*g)(x); return x; }
 
   virtual St name() const
     { St n; for (let &x : gs) n.append(x->name()); return n; }
@@ -79,6 +79,22 @@ inline Γ operator|(Sp<γ>    x, Sp<γ>    y) { return Γ{x} << y; }
 inline Γ operator|(Γ const &x, Sp<γ>    y) { return Γ{x} << y; }
 inline Γ operator|(Sp<γ>    x, Γ const &y) { return Γ{x} << y; }
 inline Γ operator|(Γ const &x, Γ const &y) { return Γ{x} << y; }
+
+
+inline τe &operator<<(τe &t, Γ const &g)
+{
+  Ξ x{t};
+  g(x);
+  return t;
+}
+
+
+inline τe &operator<<(τe &t, Sp<γ> &g)
+{
+  Ξ x{t};
+  (*g)(x);
+  return t;
+}
 
 
 }
