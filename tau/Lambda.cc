@@ -6,36 +6,49 @@ namespace τ
 
 
 λi Λ::c(λf &&f)
-{ if (fin) return 0;
+{
+  if (fin) return 0;
   let i = ιi(ni, ls);
   ls[i].reset(new Λt(std::move(f)));
   r(i, λs::R);
-  return i; }
+  return i;
+}
 
 Λ &Λ::x(λi i)
-{ if (fin) return *this;
+{
+  // FIXME: add a "being destroyed" state so we can throw/catch to
+  // fully unwind the λ stack
+  if (fin) return *this;
   A(ri != i, "self λx");
   ls.erase(i);
-  return *this; }
+  return *this;
+}
 
 
 Λ &Λ::y(λs s)
-{ if (fin) return *this;
-  A(i(), "Λy from main thread");
+{
+  if (fin) return *this;
+  A(i(), "Λ::y from main thread");
   r(ri, s);
   λy();
-  return *this; }
+
+  // TODO: throw exception here if the λ is being destroyed
+  return *this;
+}
 
 Λ &Λ::r(λi i, λs s)
-{ if (fin || !e(i)) return *this;
+{
+  if (fin || !e(i)) return *this;
   auto &l = *ls.at(i);
   l.s = s;
   if (l.runnable()) rs.insert(i);
-  return *this; }
+  return *this;
+}
 
 
 Λ &Λ::operator<<(λi i)
-{ if (fin) return *this;
+{
+  if (fin) return *this;
   A(!ri, "Λ<< from non-main thread");
   rs.erase(i);
   auto &l = *ls.at(ri = i);
@@ -44,18 +57,23 @@ namespace τ
   ri = 0;
   if (l.done()) ls.erase(i);
   qΘ.stop();
-  return *this; }
+  return *this;
+}
 
 
 λi Λ::operator()() const
-{ if (fin) return 0;
+{
+  if (fin) return 0;
   for (let i : rs) if (e(i) && ls.at(i)->runnable()) return i;
-  return 0; }
+  return 0;
+}
 
 Λ &Λ::go()
-{ for (λi t; (t = (*this)()); *this << t);
+{
+  for (λi t; (t = (*this)()); *this << t);
   for (auto &[i, s] : ls) if (s->s == λs::Y) r(i);
-  return *this; }
+  return *this;
+}
 
 
 O &operator<<(O &s, Λt const &l)
