@@ -30,6 +30,10 @@ struct γ
 };
 
 
+// FIXME: operator() must be const-qualified to indicate that γ can
+// be reapplied to multiple Ξs
+
+
 // FIXME: struct-wrap Sp<γ> with operators so we don't have Sp<γ> in
 // user code
 
