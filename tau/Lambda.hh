@@ -33,8 +33,8 @@ struct Λt
 // NOTE: managed λs should yield out with Λ.y, not λy() defined by lambda.hh
 struct Λ
 {
-  Λ(Λ &)  = delete;
-  Λ(Λ &&) = delete;
+  Λ(Λ&)  = delete;
+  Λ(Λ&&) = delete;
   Λ() {}
 
   // This deserves some explanation. ~Λ causes ~λ, which causes ~λf, which

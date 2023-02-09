@@ -32,12 +32,11 @@ void λm(λbc::continuation &&cc)
   λinit();
   if (λmi)
     k = new λbc::continuation(λbc::callcc(
-      [&](λbc::continuation &&cc) {
-        λm(cc.resume());
-        f();
-        fin();
-        return std::move(**λmk());
-      }));
+      [&](λbc::continuation &&cc)
+        { λm(cc.resume());
+          f();
+          fin();
+          return std::move(**λmk()); }));
 }
 
 
@@ -69,12 +68,11 @@ void λ::fin()
     // this out yet, but cc.resume() at the beginning makes it work reliably.
     k = new λbc::continuation;
     auto cc = λbc::callcc(
-      [&](λbc::continuation &&cc) {
-        λm(cc.resume());
-        f();
-        fin();
-        return std::move(**λmk());
-      });
+      [&](λbc::continuation &&cc)
+        { λm(cc.resume());
+          f();
+          fin();
+          return std::move(**λmk()); });
     cc = cc.resume();
     if (k) *k = std::move(cc);
   }
@@ -107,4 +105,5 @@ void λinit_()
 }
 
 #include "end.hh"
+
 #endif

@@ -80,7 +80,7 @@ sletc λk_ = Λk_{};
 Λ &Λ::go()
 {
   for (λi t; (t = (*this)()); *this << t);
-  for (auto &[i, s] : ls) if (s->s == λs::Y) r(i);
+  for (let &[i, s] : ls) if (s->s == λs::Y) r(i);
   return *this;
 }
 
