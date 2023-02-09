@@ -24,10 +24,14 @@ struct γ
   γ()          { γc_(this); }
   virtual ~γ() { γd_(this); }
   virtual Ξ &operator()(Ξ &x) = 0;
-  Ξ &operator()(Ξ &&x) { return (*this)(x); }
+          Ξ &operator()(Ξ &&x) { return (*this)(x); }
 
   virtual St name() const = 0;
 };
+
+
+// FIXME: struct-wrap Sp<γ> with operators so we don't have Sp<γ> in
+// user code
 
 
 O &operator<<(O&, γ const&);

@@ -14,6 +14,8 @@ namespace τ
 
 // Base for γ compositions -- you can use this class directly, or you can
 // create derived classes from it
+
+// TODO: replace Γ with a simple left-linked list of γ, adopt γ protocol
 struct Γ
 {
   Γ() {}
