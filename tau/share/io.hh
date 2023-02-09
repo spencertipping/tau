@@ -15,6 +15,7 @@ Sp<γ> γostream(O&, St = "", bool = false);
 
 
 // Split TSV into tuples
+// TODO: split on any delimiter, either into τ or tuple
 Sp<γ> γtsv();
 
 
