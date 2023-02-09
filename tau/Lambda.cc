@@ -40,7 +40,7 @@ sletc λk_ = Λk_{};
 
   // Unwind the λ stack to deallocate its resources, leading to it being
   // destroyed
-  if (e(ri) && ls.at(ri)->s == λs::X) throw λk_;
+  if (ls.at(ri)->s == λs::X) throw λk_;
 
   return *this;
 }
