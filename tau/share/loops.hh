@@ -20,6 +20,10 @@ Sp<γ> γtake(u64);
 Sp<γ> γdrop(u64);
 
 
+// Put a τ after each item
+Sp<γ> γτ();
+
+
 // Collect τ-grouped elements into tuple/set/map/etc
 Sp<γ> γτt(η0t = η0t::tuple);
 
