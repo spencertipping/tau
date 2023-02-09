@@ -63,21 +63,28 @@ inline η0o η1o(chc *s) { return η1o(Stv{s}); }
 
 
 inline η0o η1o(η0o const &x) { return x; }
+inline η0o η1o(η0i const &x)
+{
+  auto r = η0o(x.type());
+  r.c(x.c()).f(x.f()).h(x.h());
+  x.into(r.iptr(x.osize()));
+  return r;
+}
 
 
 inline void η1append(η0o &) {}
 
 template<class X, class... Xs>
-void η1append(η0o &o, X const &x, Xs... xs)
+void η1append(η0o &o, X const &x, Xs const&... xs)
 {
   o << η1o(x);
   η1append(o, xs...);
 }
 
 
-template<class... Xs> η0o η1t(Xs... xs) { η0o r(η0t::tuple); η1append(r, xs...); return r; }
-template<class... Xs> η0o η1s(Xs... xs) { η0o r(η0t::set);   η1append(r, xs...); return r; }
-template<class... Xs> η0o η1m(Xs... xs) { η0o r(η0t::map);   η1append(r, xs...); return r; }
+template<class... Xs> η0o η1t(Xs const&... xs) { η0o r(η0t::tuple); η1append(r, xs...); return r; }
+template<class... Xs> η0o η1s(Xs const&... xs) { η0o r(η0t::set);   η1append(r, xs...); return r; }
+template<class... Xs> η0o η1m(Xs const&... xs) { η0o r(η0t::map);   η1append(r, xs...); return r; }
 
 
 inline η0o &operator<<(η0o &c, η0o const &i)

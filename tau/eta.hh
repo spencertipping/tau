@@ -173,6 +173,9 @@ inline η0o &operator<<(η0o &c, η const &y)
 }
 
 
+inline η0o η1o(η const &x) { return η1o(x.y0()); }
+
+
 O &operator<<(O&, η const&);
 
 

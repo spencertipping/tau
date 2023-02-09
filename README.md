@@ -45,7 +45,8 @@ See [compiler structures](doc/compiler-structures.md) for a quick rundown of how
 ## Linux setup
 ```sh
 $ sudo apt install -y \
-       docker.io build-essential libboost-context-dev libzstd-dev
+       docker.io build-essential \
+       libboost-context-dev libzstd-dev libsqlite3-dev
 ```
 
 To get everything in `dev/hackery`, this might be a start (but no promises):
