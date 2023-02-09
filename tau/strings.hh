@@ -27,9 +27,8 @@ struct cs7  // 7-bit ASCII char set, used to split things
   bool operator[](ch c) const
     { return c >= 0 && (c < 64 ? c1 & 1ull << c : c2 & 1ull << c - 64); }
 
-  V<uN> find(Stc &s) const
-    { V<uN> r;
-      for (uN i = 0; i < s.size(); ++i)
+  V<uN> &find(Stvc &s, V<uN> &r) const
+    { for (uN i = 0; i < s.size(); ++i)
         if ((*this)[s[i]]) r.push_back(i);
       return r; }
 

@@ -14,6 +14,10 @@ namespace τ
 Sp<γ> γostream(O&, St = "", bool = false);
 
 
+// Split TSV into tuples
+Sp<γ> γtsv();
+
+
 }
 
 #include "../end.hh"
