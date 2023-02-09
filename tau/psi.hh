@@ -27,8 +27,6 @@ struct ψ
 
   virtual ~ψ() { destroy(); ψx_(this); }
 
-  virtual void destroy();
-
   virtual St name() const {         return n_; }
   virtual ψ &name(Stc &s) { n_ = s; return *this; }
 
@@ -63,6 +61,11 @@ protected:
   M<St, ξi>      i_;  // named input ξs
   M<St, ξo>      o_;  // named output ξs
   St             n_;  // name for debugging purposes
+
+  // NOTE: using this is dangerous because destructors within λs are not
+  // guaranteed to run (although ~F<...> will happen, so captured objects will
+  // be destructed correctly)
+  virtual void destroy();
 };
 
 

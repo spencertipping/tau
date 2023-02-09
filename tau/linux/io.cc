@@ -57,9 +57,13 @@ static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i, ξo o)
         i.close();
         o.close();
         if (let qs = qw.lock()) t.unpin(qs); },
+
+      // Second λ to detect pipe error before we attempt to write, then
+      // unpin this ψ early. Otherwise we'd hang open even if the ξ side
+      // were to exit.
       [fd, qw=Wp<ψ>{q}, &t=q->t()]() mutable
         { t.eg(fd)->y(λs::τE);
-          if (let qs = qw.lock()) t.unpin(qs), qs->destroy(); });
+          if (let qs = qw.lock()) t.unpin(qs); });
   return q;
 }
 
