@@ -50,8 +50,7 @@ int cat2()
 
 int xcat()
 {
-  τe t;
-  (t << (γfr(0) | γsplit_chr(" \t\n") | γfcat() | γfw(1))).go();
+  (τe{} << (γfr(0) | γsplit_chr(" \t\n") | γfcat() | γfw(1))).go();
   A(!ψn(), "ψs escaped xcat: " << ψn());
   return 0;
 }
@@ -61,11 +60,10 @@ int exec(int argc, char **argv)
 {
   τe t;
   {
-    Ξ x{t};
     V<St> xs;
     for (int i = 0; i < argc; ++i) xs.push_back(argv[i]);
     auto g = γfr(0) | γfork_exec(xs, "e") | γfw(1);
-    g(x);
+    g(Ξ{t});
   }
   A(!γn(), "γs should not exist here; we have " << γn());
   t.go();
@@ -79,12 +77,10 @@ int exec(int argc, char **argv)
 
 int tsv()
 {
-  τe t;
-  t << (γfr(0)
-        | γsplit_chr("\n")
-        | γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); })
-        | γostream(cout));
-  t.go();
+  (τe{} << (γfr(0)
+            | γsplit_chr("\n")
+            | γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); })
+            | γostream(cout))).go();
   return 0;
 }
 #else

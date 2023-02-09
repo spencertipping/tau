@@ -24,6 +24,7 @@ struct γ
   γ()          { γc_(this); }
   virtual ~γ() { γd_(this); }
   virtual Ξ &operator()(Ξ &x) = 0;
+  Ξ &operator()(Ξ &&x) { return (*this)(x); }
 
   virtual St name() const = 0;
 };
