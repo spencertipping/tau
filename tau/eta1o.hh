@@ -87,6 +87,28 @@ template<class... Xs> η0o η1s(Xs const&... xs) { η0o r(η0t::set);   η1appen
 template<class... Xs> η0o η1m(Xs const&... xs) { η0o r(η0t::map);   η1append(r, xs...); return r; }
 
 
+template<class T> η0o η1o(Vc<T> &xs)
+{
+  η0o o(η0t::tuple);
+  for (let &x : xs) o << η1o(x);
+  return o;
+}
+
+template<class T> η0o η1o(S<T> const &xs)
+{
+  η0o o(η0t::set);
+  for (let &x : xs) o << η1o(x);
+  return o;
+}
+
+template<class K, class V> η0o η1o(M<K, V> const &xs)
+{
+  η0o o(η0t::map);
+  for (let &[k, v] : xs) o << η1o(k) << η1o(v);
+  return o;
+}
+
+
 inline η0o &operator<<(η0o &c, η0o const &i)
 {
   A(η1tc[c.t()], "η₀o<<η with " << c.t());

@@ -53,6 +53,19 @@ int cat2()
 }
 
 
+int xcat()
+{
+  τe t;
+  {
+    Ξ x{t};
+    (γfr(0) | γsplit_chr(" \t\n") | γfcat() | γfw(1))(x);
+  }
+  t.go();
+  A(!ψn(), "ψs escaped xcat: " << ψn());
+  return 0;
+}
+
+
 int exec(int argc, char **argv)
 {
   τe t;
@@ -71,6 +84,21 @@ int exec(int argc, char **argv)
   A(!ψn(),       "ψs escaped exec: "  << ψn());
   return 0;
 }
+
+
+int tsv()
+{
+  τe t;
+  {
+    Ξ x{t};
+    (γfr(0)
+     | γsplit_chr("\n")
+     | γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); })
+     | γostream(cout))(x);
+  }
+  t.go();
+  return 0;
+}
 #else
 int cat()
 {
@@ -84,9 +112,21 @@ int cat2()
   return 1;
 }
 
+int xcat()
+{
+  cout << "no xcat on this platform" << endl;
+  return 1;
+}
+
 int exec(int, char**)
 {
   cout << "no exec on this platform" << endl;
+  return 1;
+}
+
+int tsv()
+{
+  cout << "no tsv on this platform" << endl;
   return 1;
 }
 #endif
@@ -99,8 +139,11 @@ int main(int argc, char **argv)
   if (argc < 2)                 return usage(argv);
   if (!strcmp("cat",  argv[1])) return cat();
   if (!strcmp("cat2", argv[1])) return cat2();
+  if (!strcmp("xcat", argv[1])) return xcat();
   if (!strcmp("exec", argv[1])) return exec(argc - 2, argv + 2);
-  return 0;
+  if (!strcmp("tsv",  argv[1])) return tsv();
+  cerr << "no " << argv[1] << " command" << endl;
+  return 1;
   τassert_end;
 }
 

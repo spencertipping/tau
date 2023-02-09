@@ -39,6 +39,17 @@ bin/psi
 test_sha cat README.md
 test_sha tar -c .git
 
+sha_files=( README.md tau.hh `find tau -type f | sort` )
+
+normal_sha=$(echo ${sha_files[@]} | xargs cat | sha256sum)
+xcat_sha=$(  echo ${sha_files[@]} | bin/tau xcat | sha256sum)
+
+if [[ $xcat_sha != $normal_sha ]]; then
+  echo -e "\033[1;31mbin/tau xcat corrupts data\033[0;0m"
+  echo
+  exit 1
+fi
+
 
 echo
 echo -e "\033[1;32mall passed\033[0;0m"

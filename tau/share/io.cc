@@ -19,21 +19,42 @@ Sp<γ> γostream(O &s, St prefix, bool tap)
 }
 
 
-Sp<γ> γtsv()
+Sp<γ> γsplit_chr(cs7 cs)
 {
-  return γffn("γtsv", [](Sp<ψ>, ξi i, ξo o) mutable
-    { V<uN> ts; ts.reserve(64);
+  return γffn("γschr", [cs](Sp<ψ>, ξi i, ξo o) mutable
+    { St b;
       for (let x : i)
         if (x.tsu() || x.tsb())
-        { ts.clear();
-          cs7{"\t"}.find(x.stv(), ts);
-          η0o r(η0t::tuple);
-          for (uN j = 0; j < ts.size() - 1; ++j)
-            r << η1o(x.stv().substr(ts[j] + 1, ts[j + 1] - ts[j]));
-          r << η1o(x.stv().substr(ts.empty() ? 0 : ts.back() + 1));
-          if (!(o << r)) break; }});
+        { b.append(x.stv());
+          let vs = cs.split(Stv{b});
+          for (uN j = 0; j + 1 < vs.size(); ++j)
+            if (!(o << η1o(vs[j]))) return;
+          if (vs.size() > 1) b = vs.back(); }
+        else if (x.τ())
+        { if (!b.empty() && !(o << η1o(b))) return;
+          b.clear();
+          if (!(o << η1o(η1sig::τ))) return; }
+      if (!b.empty()) o << η1o(b); });
 }
 
+
+Sp<γ> γsplit_str(St p)
+{
+  return γffn("γsstr", [p](Sp<ψ>, ξi i, ξo o) mutable
+    { St b;
+      for (let x : i)
+        if (x.tsu() || x.tsb())
+        { b.append(x.stv());
+          let vs = ssplit(p, Stv{b});
+          for (uN j = 0; j + 1 < vs.size(); ++j)
+            if (!(o << η1o(vs[j]))) return;
+          if (vs.size() > 1) b = vs.back(); }
+        else if (x.τ())
+        { if (!b.empty() && !(o << η1o(b))) return;
+          b.clear();
+          if (!(o << η1o(η1sig::τ))) return; }
+      if (!b.empty()) o << η1o(b); });
+}
 
 
 }

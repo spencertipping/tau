@@ -2,6 +2,7 @@
 #define τshare_io_h
 
 #include "../gamma.hh"
+#include "../strings.hh"
 
 #include "../begin.hh"
 
@@ -14,9 +15,8 @@ namespace τ
 Sp<γ> γostream(O&, St = "", bool = false);
 
 
-// Split TSV into tuples
-// TODO: split on any delimiter, either into τ or tuple
-Sp<γ> γtsv();
+Sp<γ> γsplit_chr(cs7);
+Sp<γ> γsplit_str(St);
 
 
 }
