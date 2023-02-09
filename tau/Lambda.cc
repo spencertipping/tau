@@ -5,8 +5,12 @@ namespace τ
 {
 
 
+// TODO: introduce locally-scoped exception type
+
+
 λi Λ::c(λf &&f)
 {
+  // TODO: wrap f in a try/catch here, so we can destroy λs
   if (fin) return 0;
   let i = ιi(ni, ls);
   ls[i].reset(new Λt(std::move(f)));
@@ -19,7 +23,7 @@ namespace τ
   // FIXME: add a "being destroyed" state so we can throw/catch to
   // fully unwind the λ stack
   if (fin) return *this;
-  A(ri != i, "self λx");
+  A(ri != i, "self λx");  // FIXME: self-destroy is acceptable now
   ls.erase(i);
   return *this;
 }
