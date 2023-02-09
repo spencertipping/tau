@@ -62,9 +62,22 @@ inline η0o η1o(Ss const &s) { return η1o(s.str()); }
 inline η0o η1o(chc *s) { return η1o(Stv{s}); }
 
 
-inline η0o η1t() { return η0o(η0t::tuple); }
-inline η0o η1s() { return η0o(η0t::set); }
-inline η0o η1m() { return η0o(η0t::map); }
+inline η0o η1o(η0o const &x) { return x; }
+
+
+inline void η1append(η0o &) {}
+
+template<class X, class... Xs>
+void η1append(η0o &o, X const &x, Xs... xs)
+{
+  o << η1o(x);
+  η1append(o, xs...);
+}
+
+
+template<class... Xs> η0o η1t(Xs... xs) { η0o r(η0t::tuple); η1append(r, xs...); return r; }
+template<class... Xs> η0o η1s(Xs... xs) { η0o r(η0t::set);   η1append(r, xs...); return r; }
+template<class... Xs> η0o η1m(Xs... xs) { η0o r(η0t::map);   η1append(r, xs...); return r; }
 
 
 inline η0o &operator<<(η0o &c, η0o const &i)

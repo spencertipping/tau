@@ -80,8 +80,11 @@ protected:
 
 // A full-duplex pair
 
-// TODO: keep track of whether the duplex is capped; if not, then allow
+// TODO: keep track of whether the duplex is capped; if not, then
 // auto-loopback
+
+// TODO: this should just have one head ξ; a pre-splice is forward,
+// a post-splice is backward; then the end-cap is implied
 
 struct ξd
 {
