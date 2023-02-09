@@ -22,7 +22,7 @@ struct γflex_ : public virtual γ
         { for (let x : i1)
             if (x.tT())
             { let n = x.len();
-              η0o p{η0t::tuple};
+              η0o p(η0t::tuple);
               uN i = 0;
               for (let y : x.T())
                 if (++i < n) p << y;

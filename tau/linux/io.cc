@@ -99,7 +99,9 @@ Sp<γ> γfcat(bool τ)
   return γffn(τ ? "\\<τ" : "\\<", [τ](Sp<ψ> q, ξi i, ξo o) mutable
     { for (let f : i)
       { Ξ x{q->t()};
-        (*γfr(open(f.st().c_str(), O_RDONLY)))(x);
+        let fd = open(f.st().c_str(), O_RDONLY);
+        A(fd != -1, "open(" << f.st() << " failed: " << strerror(errno));
+        (*γfr(fd))(x);
 
         if (τ)
         { for (let b : x.p().fi()) if (!(o << b)) return;
