@@ -1,9 +1,12 @@
 #include "../arch.hh"
 #if τplatform == τplatform_linux
 
+#include <fcntl.h>
+
 #include "../psi.hh"
 #include "../xiio.hh"
 #include "../eta.hh"
+#include "../share.hh"
 
 #include "io.hh"
 #include "../begin.hh"
@@ -89,6 +92,24 @@ protected:
 
 Sp<γ> γfr(fd_t f) { return Sp<γ>{new γfd(f, true)}; }
 Sp<γ> γfw(fd_t f) { return Sp<γ>{new γfd(f, false)}; }
+
+
+Sp<γ> γfcat(bool τ)
+{
+  return γffn(τ ? "\\<τ" : "\\<", [τ](Sp<ψ> q, ξi i, ξo o) mutable
+    { for (let f : i)
+      { Ξ x{q->t()};
+        (*γfr(open(f.st().c_str(), O_RDONLY)))(x);
+
+        if (τ)
+        { for (let b : x.p().fi()) if (!(o << b)) return;
+          if (!(o << η1o(η1sig::τ))) return; }
+        else
+        { η0o c{η0t::bytes};
+          for (let b : x.p().fi())
+            memcpy(c.iptr(b.size()), b.data(), b.size());
+          if (!(o << c)) return; }}});
+}
 
 
 }

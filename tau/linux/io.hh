@@ -14,6 +14,8 @@ namespace τ
 Sp<γ> γfr(fd_t);
 Sp<γ> γfw(fd_t);
 
+Sp<γ> γfcat(bool τ = false);  // == ni \<
+
 
 }
 
