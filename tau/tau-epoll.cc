@@ -19,6 +19,7 @@ void τe::init_signals()
   // Effectively ignore all child exits; we don't care about the PIDs
   // as much as we do the FIFO output that they manage.
   struct sigaction sa;
+  sigemptyset(&sa.sa_mask);
   sa.sa_handler = [](int _) { while (waitpid(-1, &_, WNOHANG) > 0); };
   sa.sa_flags   = 0;
   sigaction(SIGCHLD, &sa, nullptr);
