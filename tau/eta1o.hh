@@ -67,7 +67,7 @@ inline η0o η1o(η0i const &x)
 {
   auto r = η0o(x.type());
   r.c(x.c()).f(x.f()).h(x.h());
-  x.into(r.iptr(x.osize()));
+  memcpy(r.iptr(x.size()), x.data(), x.size());
   return r;
 }
 
