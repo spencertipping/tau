@@ -5,26 +5,28 @@ namespace τ
 {
 
 
-// TODO: introduce locally-scoped exception type
+// Locally-scoped exception used to kill λ threads
+struct Λk_ {};
+
+sletc λk_ = Λk_{};
 
 
 λi Λ::c(λf &&f)
 {
-  // TODO: wrap f in a try/catch here, so we can destroy λs
   if (fin) return 0;
   let i = ιi(ni, ls);
-  ls[i].reset(new Λt(std::move(f)));
+  ls[i].reset(new Λt([f=std::move(f)]()
+    { try         { f(); }
+      catch (Λk_) {} }));
   r(i, λs::R);
   return i;
 }
 
 Λ &Λ::x(λi i)
 {
-  // FIXME: add a "being destroyed" state so we can throw/catch to
-  // fully unwind the λ stack
   if (fin) return *this;
-  A(ri != i, "self λx");  // FIXME: self-destroy is acceptable now
-  ls.erase(i);
+  if (i == ri) throw λk_;
+  else         r(i, λs::X);
   return *this;
 }
 
@@ -36,7 +38,10 @@ namespace τ
   r(ri, s);
   λy();
 
-  // TODO: throw exception here if the λ is being destroyed
+  // Unwind the λ stack to deallocate its resources, leading to it being
+  // destroyed
+  if (e(ri) && ls.at(ri)->s == λs::X) throw λk_;
+
   return *this;
 }
 

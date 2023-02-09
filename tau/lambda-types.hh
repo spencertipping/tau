@@ -18,6 +18,7 @@ enum class λs : u8  // lambda runnability state
 {
   R,   // runnable
   S,   // stopped
+  X,   // destroy
   Y,   // explicitly yielded (for one quantum)
   Θ,   // waiting for a time
   ξR,  // blocked on read from ξ

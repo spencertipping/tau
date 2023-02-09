@@ -26,7 +26,7 @@ struct Λt
 
   void run()            {        l(); }
   bool done()     const { return l.done(); }
-  bool runnable() const { return s == λs::R; }
+  bool runnable() const { return s == λs::R || s == λs::X; }
 };
 
 
