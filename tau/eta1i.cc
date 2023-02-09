@@ -54,10 +54,11 @@ O &operator<<(O &s, η1ti const &x)
 
 O &operator<<(O &s, η1i const &x)
 {
-  if      (η1tc[x.type()]) return s << η1ti{x.i_};
-  else if (η1tp[x.type()]) return s << η1pi{x.i_};
-  else if (η1tb[x.type()]) return s << "\"" << Stv{Rc<chc*>(x.i_->data()), x.i_->size()} << "\"";
-  else                     return s << x.i_;
+  if      (η1tc[x.type()])          return s << η1ti{x.i_};
+  else if (η1tp[x.type()])          return s << η1pi{x.i_};
+  else if (η1tb[x.type()])          return s << "\"" << Stv{Rc<chc*>(x.i_->data()), x.i_->size()} << "\"";
+  else if (x.type() == η0t::signal) return s << η1si{x.i_};
+  else                              return s << x.i_;
 }
 
 
