@@ -10,14 +10,14 @@ namespace τ
 
 
 γ        γffn(St,   F<void(Sp<ψ>, ξi, ξo)>&&,   F<void(ψ&)>&& = [](ψ&){});
-inline γ γffn(St n, F<void(       ξi, ξo)> &&f, F<void(ψ&)> &&xf) { return γffn(n, [f=std::move(f)](Sp<ψ>, ξi i, ξo o) { f(i, o); }, std::move(xf)); }
-inline γ γffn(St n, F<void(           ξo)> &&f, F<void(ψ&)> &&xf) { return γffn(n, [f=std::move(f)](Sp<ψ>, ξi, ξo o) { f(o); }, std::move(xf)); }
-inline γ γffn(St n, F<void(       ξi    )> &&f, F<void(ψ&)> &&xf) { return γffn(n, [f=std::move(f)](Sp<ψ>, ξi i, ξo) { f(i); }, std::move(xf)); }
+inline γ γffn(St n, F<void(       ξi, ξo)> &&f, F<void(ψ&)> &&xf = [](ψ&){}) { return γffn(n, [f=std::move(f)](Sp<ψ>, ξi i, ξo o) { f(i, o); }, std::move(xf)); }
+inline γ γffn(St n, F<void(           ξo)> &&f, F<void(ψ&)> &&xf = [](ψ&){}) { return γffn(n, [f=std::move(f)](Sp<ψ>, ξi, ξo o) { f(o); }, std::move(xf)); }
+inline γ γffn(St n, F<void(       ξi    )> &&f, F<void(ψ&)> &&xf = [](ψ&){}) { return γffn(n, [f=std::move(f)](Sp<ψ>, ξi i, ξo) { f(i); }, std::move(xf)); }
 
 γ        γbfn(St,   F<void(Sp<ψ>, ξo, ξi)>&&,   F<void(ψ&)>&& = [](ψ&){});
-inline γ γbfn(St n, F<void(       ξo, ξi)> &&f, F<void(ψ&)> &&xf) { return γbfn(n, [f=std::move(f)](Sp<ψ>, ξo o, ξi i) { f(o, i); }, std::move(xf)); }
-inline γ γbfn(St n, F<void(           ξi)> &&f, F<void(ψ&)> &&xf) { return γbfn(n, [f=std::move(f)](Sp<ψ>, ξo, ξi i) { f(i); }, std::move(xf)); }
-inline γ γbfn(St n, F<void(       ξo    )> &&f, F<void(ψ&)> &&xf) { return γbfn(n, [f=std::move(f)](Sp<ψ>, ξo o, ξi) { f(o); }, std::move(xf)); }
+inline γ γbfn(St n, F<void(       ξo, ξi)> &&f, F<void(ψ&)> &&xf = [](ψ&){}) { return γbfn(n, [f=std::move(f)](Sp<ψ>, ξo o, ξi i) { f(o, i); }, std::move(xf)); }
+inline γ γbfn(St n, F<void(           ξi)> &&f, F<void(ψ&)> &&xf = [](ψ&){}) { return γbfn(n, [f=std::move(f)](Sp<ψ>, ξo, ξi i) { f(i); }, std::move(xf)); }
+inline γ γbfn(St n, F<void(       ξo    )> &&f, F<void(ψ&)> &&xf = [](ψ&){}) { return γbfn(n, [f=std::move(f)](Sp<ψ>, ξo o, ξi) { f(o); }, std::move(xf)); }
 
 γ γcat(V<γ>&&);
 
