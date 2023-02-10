@@ -5,14 +5,14 @@ namespace τ
 {
 
 
-struct γflex_ : public virtual γ
+struct γflex_ : public virtual γ_
 {
-  Sp<γ> g;
-  γflex_(Sp<γ> g_) : g(g_) {}
+  γ g;
+  γflex_(γ g_) : g(g_) {}
 
-  St name() const { return "[‥" + g->name() + "‥]"; }
+  St name() const { return "[‥" + g.name() + "‥]"; }
 
-  Ξ &operator()(Ξ &x)
+  void operator()(Ξ &x) const
     { Sp<ψ> sq = x.q("[‥");          // split prefix from data
       Sp<ψ> mq = x.q("‥]");          // merge prefix onto result
       let [pw, pr] = x.pipe(sq, mq);  // pipe for prefixes
@@ -35,7 +35,7 @@ struct γflex_ : public virtual γ
           i1.close();
           pw.close(); });
 
-      (*g)(x);
+      g(x);
 
       let [i2, o2] = x.xf(mq);
       mq->def([pr=pr, i2=i2, o2=o2]() mutable
@@ -55,13 +55,11 @@ struct γflex_ : public virtual γ
         done:
           o2.close();
           i2.close();
-          pr.close(); });
-
-      return x; }
+          pr.close(); }); }
 };
 
 
-Sp<γ> γflex(Sp<γ> g) { return Sp<γ>{new γflex_(g)}; }
+γ γflex(γ g) { return new γflex_(g); }
 
 
 }

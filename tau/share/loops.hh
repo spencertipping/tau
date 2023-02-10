@@ -11,21 +11,21 @@ namespace τ
 
 // Flex loop: take an (a → τ[b]) and allow it to apply to the final
 // element of a tuple; carry prior elements along.
-Sp<γ> γflex(Sp<γ>);
+γ γflex(γ);
 
 
-Sp<γ> γι(u64 = -1);
-Sp<γ> γϊ();
-Sp<γ> γtake(u64);
-Sp<γ> γdrop(u64);
+γ γι(u64 = -1);
+γ γϊ();
+γ γtake(u64);
+γ γdrop(u64);
 
 
 // Put a τ after each item
-Sp<γ> γτ();
+γ γτ();
 
 
 // Collect τ-grouped elements into tuple/set/map/etc
-Sp<γ> γτt(η0t = η0t::tuple);
+γ γτt(η0t = η0t::tuple);
 
 
 }

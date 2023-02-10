@@ -10,16 +10,16 @@ namespace τ
 {
 
 
-Sp<γ> γostream(O &s, St prefix, bool tap)
+γ γostream(O &s, St prefix, bool tap)
 {
   return γffn("γ»", [=, &s](Sp<ψ>, ξi i, ξo o) mutable
-  { for (let x : i)
-    { s << prefix << x << std::endl;
-      if (tap && !(o << x)) break; }});
+    { for (let x : i)
+      { s << prefix << x << std::endl;
+        if (tap && !(o << x)) break; }});
 }
 
 
-Sp<γ> γsplit_chr(cs7 cs)
+γ γsplit_chr(cs7 cs)
 {
   return γffn("γschr", [cs](Sp<ψ>, ξi i, ξo o) mutable
     { St b;
@@ -38,7 +38,7 @@ Sp<γ> γsplit_chr(cs7 cs)
 }
 
 
-Sp<γ> γsplit_str(St p)
+γ γsplit_str(St p)
 {
   return γffn("γsstr", [p](Sp<ψ>, ξi i, ξo o) mutable
     { St b;

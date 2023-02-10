@@ -12,25 +12,24 @@
 #include "io.hh"
 #include "../share.hh"
 
-#include "../Gamma.hh"
 #include "../begin.hh"
 
 namespace τ
 {
 
 
-struct γτfork_ : public virtual γ
+struct γτfork_ : public virtual γ_
 {
-  γτfork_(Sp<γ> g_) : g(g_) {}
+  γτfork_(γ g_) : g(g_) {}
 
-  St name() const { return "∷[" + g->name() + "]"; }
-  Ξ &operator()(Ξ&);
+  St name() const { return "∷[" + g.name() + "]"; }
+  void operator()(Ξ&) const;
 
-  Sp<γ> g;
+  γ g;
 };
 
 
-Ξ &γτfork_::operator()(Ξ &x)
+void γτfork_::operator()(Ξ &x) const
 {
   let [lr, lw] = pipe_();
   let [rr, rw] = pipe_();
@@ -50,13 +49,10 @@ struct γτfork_ : public virtual γ
     close(lr); close(rw);
     (γfw(lw) | γfr(rr))(x);
   }
-
-  return x;
 }
 
 
-Sp<γ> γτfork(Sp<γ> g)
-{ return Sp<γ>{new γτfork_{g}}; }
+γ γτfork(γ g) { return new γτfork_{g}; }
 
 
 }

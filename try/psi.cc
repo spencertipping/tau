@@ -7,7 +7,7 @@ using namespace τ;
 using namespace std;
 
 
-Sp<γ> sum()
+γ sum()
 { return γffn("∑", [](Sp<ψ> q, ξi i, ξo o)
   { u64 t = 0;
     for (let x : i) t += x.pu();

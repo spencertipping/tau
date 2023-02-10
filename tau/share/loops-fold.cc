@@ -6,7 +6,7 @@ namespace τ
 {
 
 
-Sp<γ> γτ()
+γ γτ()
 {
   return γffn("γτ", [](Sp<ψ>, ξi i, ξo o) mutable
     { for (let x : i)
@@ -14,7 +14,7 @@ Sp<γ> γτ()
 }
 
 
-Sp<γ> γτt(η0t t)
+γ γτt(η0t t)
 {
   return γffn("γτ»()", [t](Sp<ψ>, ξi i, ξo o) mutable
     { η0o r(t);

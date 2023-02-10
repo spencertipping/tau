@@ -9,17 +9,17 @@ namespace τ
 {
 
 
-Sp<γ> γrfn(St, F<void(Ξ&)>&&);
+γ γrfn(St, F<void(Ξ&)>&&);
 
-Sp<γ> γswap(St);        // swap named ξd and primary
-Sp<γ> γsub(St, Sp<γ>);  // run γ within sub-Ξ
+γ γswap(St);        // swap named ξd and primary
+γ γsub(St, γ);  // run γ within sub-Ξ
 
 
 // Apply a forward-oriented γ to the reverse (backward) pipeline
-Sp<γ> γb(Sp<γ>);
+γ γb(γ);
 
 // Swap forward and backward ξs within the primary ξd
-Sp<γ> γξswap();
+γ γξswap();
 
 
 }

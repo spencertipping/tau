@@ -10,7 +10,6 @@
 
 #include "fork.hh"
 #include "io.hh"
-#include "../Gamma.hh"
 #include "../share.hh"
 
 #include "../begin.hh"
@@ -19,19 +18,19 @@ namespace τ
 {
 
 
-struct γfork_exec_ : public virtual γ
+struct γfork_exec_ : public virtual γ_
 {
   γfork_exec_(Vc<St> &argv_, St stderr_) : argv(argv_), stderr(stderr_) {}
 
   St name() const { return "e[" + argv[0] + "]"; }
-  Ξ &operator()(Ξ&);
+  void operator()(Ξ&) const;
 
   Vc<St> argv;
   St     stderr;
 };
 
 
-Ξ &γfork_exec_::operator()(Ξ &x)
+void γfork_exec_::operator()(Ξ &x) const
 {
   let [lr, lw] = pipe_();
   let [rr, rw] = pipe_();
@@ -64,13 +63,11 @@ struct γfork_exec_ : public virtual γ
     (γfw(lw) | γfr(rr))(x);
     (γswap(stderr) | γfr(er) | γswap(stderr))(x);
   }
-
-  return x;
 }
 
 
-Sp<γ> γfork_exec(Vc<St> &argv, St stderr)
-{ return Sp<γ>{new γfork_exec_(argv, stderr)}; }
+γ γfork_exec(Vc<St> &argv, St stderr)
+{ return new γfork_exec_(argv, stderr); }
 
 
 }

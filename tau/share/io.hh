@@ -12,11 +12,11 @@ namespace τ
 
 // Write values into ostream, copying to output; this is tappable and allows
 // custom prefixes
-Sp<γ> γostream(O&, St = "", bool = false);
+γ γostream(O&, St = "", bool = false);
 
 
-Sp<γ> γsplit_chr(cs7);
-Sp<γ> γsplit_str(St);
+γ γsplit_chr(cs7);
+γ γsplit_str(St);
 
 
 }

@@ -34,7 +34,7 @@ static Sp<sqlite3_stmt> prepare(Sp<sqlite3> db, St sql)
 }
 
 
-Sp<γ> γpkv_get(St filename, St table)
+γ γpkv_get(St filename, St table)
 {
   return γffn(
     "pkv_get(" + filename + ", " + table + ")",
@@ -79,7 +79,7 @@ Sp<γ> γpkv_get(St filename, St table)
 }
 
 
-Sp<γ> γpkv_set(St filename, St table)
+γ γpkv_set(St filename, St table)
 {
   return γffn(
     "pkv_set(" + filename + ", " + table + ")",

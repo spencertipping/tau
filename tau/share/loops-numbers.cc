@@ -6,13 +6,13 @@ namespace τ
 {
 
 
-Sp<γ> γι(u64 u)
+γ γι(u64 u)
 { return γffn("ι", [u](Sp<ψ>, ξi I, ξo o)
   { I.close();
     for (u64 i = 0; i < u && o << η1o(i); ++i); }); }
 
 
-Sp<γ> γϊ()
+γ γϊ()
 { return γffn("ϊ", [](Sp<ψ> q, ξi i, ξo o)
   { for (let x : i)
       if (η0ts{η0t::uint_be, η0t::int_be}[x.t()])
@@ -24,12 +24,12 @@ Sp<γ> γϊ()
   done:; }); }
 
 
-Sp<γ> γtake(u64 n)
+γ γtake(u64 n)
 { return γffn("↑", [=](Sp<ψ> q, ξi i, ξo o) mutable
   { for (let x : i) if (!n-- || !(o << x)) break; }); }
 
 
-Sp<γ> γdrop(u64 n)
+γ γdrop(u64 n)
 { return γffn("↓", [=](Sp<ψ> q, ξi i, ξo o) mutable
   { for (let x : i) if (!n--) break;
     for (let x : i) if (!(o << x)) break; }); }
