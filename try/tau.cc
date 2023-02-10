@@ -9,7 +9,7 @@ using namespace τ;
 using namespace std;
 
 
-#if τplatform == τplatform_linux
+#if τlinux
 int cat()
 {
   τe    t;

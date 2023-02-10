@@ -44,6 +44,7 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 # define τhas_emscripten_fiber 0
 # define τhas_zstd             1
 # define τhas_fast_exceptions  0  // FIXME: assertions should alert
+# define τhas_fds              1
 # define τplatform             τplatform_linux
 
 # if τwordsize == 64
@@ -61,6 +62,7 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 # define τhas_zstd             0
 # define τhas_boost_context    0
 # define τhas_fast_exceptions  0
+# define τhas_fds              0
 # define τplatform             τplatform_wasm
 
 # if τwordsize == 64
@@ -72,6 +74,11 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 #else
 # error unsupported platform
 #endif
+
+
+#define τlinux      (τplatform == τplatform_linux)
+#define τwasm       (τplatform == τplatform_wasm)
+#define τemscripten τwasm
 
 
 #endif

@@ -1,5 +1,5 @@
 #include "../arch.hh"
-#if τplatform == τplatform_linux
+#if τlinux
 
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
