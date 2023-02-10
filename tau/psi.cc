@@ -8,8 +8,8 @@ namespace τ
 static iN ψs_ = 0;
 
 void ψc_(ψ *q) { ++ψs_; }
-void ψx_(ψ *q) { --ψs_; }
-uN ψn()        { A(ψs_ >= 0, "ψs underflow"); return ψs_; }
+void ψx_(ψ *q) { A(--ψs_ >= 0, "ψs underflow"); }
+uN ψn()        { return ψs_; }
 
 
 void ψ::destroy()

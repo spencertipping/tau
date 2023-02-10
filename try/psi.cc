@@ -65,20 +65,16 @@ void try_flex()
 {
   τe T;
 
-  {
-    auto g = γι(10)
-      | γdrop(8)
-      | γmap([](η i) { η0o r(η0t::tuple); r << η1o("foo") << i << i; return r; })
-      | γflex(γϊ())
-      | γflex(γτmap([](η i) { return η1o(Ss{} << i.pu() + 1); }))
-      | γostream(cout);
+  auto g = γι(10)
+    | γdrop(8)
+    | γmap([](η i) { η0o r(η0t::tuple); r << η1o("foo") << i << i; return r; })
+    | γflex(γϊ())
+    | γflex(γτmap([](η i) { return η1o(Ss{} << i.pu() + 1); }))
+    | γostream(cout);
 
-    cout << "try_flex pipeline = " << g << endl;
-    Ξ X(T);
-    g(X);
-  }
+  cout << "try_flex pipeline = " << g << endl;
 
-  T.go();
+  g(T).go();
   A(ψn() == 0, "leftover ψs: " << ψn());
 }
 

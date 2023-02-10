@@ -11,18 +11,10 @@ namespace τ
 {
 
 
-struct γ_;
-
-void γc_(γ_*);
-void γd_(γ_*);
-uN   γn();
-
-
 // Virtual base for γ compilers
 struct γ_
 {
-  γ_()          { γc_(this); }
-  virtual ~γ_() { γd_(this); }
+  virtual ~γ_() {}
 
   virtual void operator()(Ξ &x) const = 0;
   virtual St         name()     const = 0;
@@ -33,8 +25,8 @@ struct γ_
 // of this class
 struct γ
 {
-  γ(Sp<γ_> g_) : g(g_) {}
-  γ(γ_    *g_) : g(g_) {}
+  γ(Sp<γ_> g_) : g(g_) { check(); }
+  γ(γ_    *g_) : g(g_) { check(); }
 
   template<class T>
   Sp<T> as () const { return std::dynamic_pointer_cast<T>(g); }
@@ -49,7 +41,9 @@ struct γ
 
 
 protected:
-  Sp<γ_> g;
+  Sp<γ_> const g;
+
+  void check() { A(g, "∅γ"); }
 };
 
 
@@ -70,7 +64,8 @@ struct Γ_ : public virtual γ_
 
 inline γ operator|(γ a, γ b)
 {
-  if (let h = a.as<Γ_>()) return h->h | (γ(h->t) | b);
+  if (let h = a.as<Γ_>())
+    return h->t ? h->h | (γ(h->t) | b) : h->h | b;
 
   let g = b.as<Γ_>();
   return γ(new Γ_{a, g ? g : ms(Γ_{b, {nullptr}})});

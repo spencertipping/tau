@@ -51,6 +51,7 @@ void γfork_exec_::operator()(Ξ &x) const
     fcntl(2, F_SETFL, fcntl(0, F_GETFL) & ~O_CLOEXEC);
 
     ch *argv_[argv.size() + 1];
+    argv_[0] = Cc<ch*>(argv[0].c_str());
     for (uN i = 1; i < argv.size(); ++i) argv_[i] = Cc<ch*>(argv[i].c_str());
     argv_[argv.size()] = nullptr;
 
@@ -60,8 +61,8 @@ void γfork_exec_::operator()(Ξ &x) const
   else
   {
     close(lr); close(rw); close(ew);
-    (γfw(lw) | γfr(rr))(x);
-    (γswap(stderr) | γfr(er) | γswap(stderr))(x);
+    (γfw(lw) | γfr(rr)
+     | γswap(stderr) | γfr(er) | γswap(stderr))(x);
   }
 }
 

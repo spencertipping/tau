@@ -61,10 +61,8 @@ int exec(int argc, char **argv)
   τe t;
   V<St> xs;
   for (int i = 0; i < argc; ++i) xs.push_back(argv[i]);
-  auto g = γfr(0) | γfork_exec(xs, "e") | γfw(1);
-  g(t);
+  (γfr(0) | γfork_exec(xs, "e") | γfw(1))(t);
 
-  A(!γn(), "γs should not exist here; we have " << γn());
   t.go();
   A(!t.l().n(),  "Λ still has λs: "   << t.l().n());
   A(!ξn(),       "ξs still exist: "   << ξn());
