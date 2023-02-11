@@ -16,7 +16,11 @@ namespace τ
 typedef Sp<void> π;  // TODO
 
 
+// Parser for all τ-defined γs
 φ<γ> φγ();
+
+
+// Parser for π η-transformers
 φ<π> φπ();
 
 

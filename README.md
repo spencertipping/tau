@@ -35,7 +35,8 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 + [Ξ](doc/Xi.md): a vector of channels (really a map)
 + [γ](doc/gamma.md): ψ-colocated resources
 + [Γ](doc/Gamma.md): 〈γ〉
-+ [φ](doc/phi.md): the language used to assemble γs and Γs
++ [φ](doc/phi.md): the parsers used to assemble γs
++ [π](doc/pi.md): the language to assemble τ programs
 
 These are compiler objects, meaning that they don't actually contain live resources. Instead, γ and Γ are functions that take Ξs as inputs and return Ξs as outputs, constructing native resources in the process.
 
