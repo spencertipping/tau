@@ -89,9 +89,9 @@ struct φc_
 
 
 protected:
-  Sp<Stc>   x_;  // input
-  uN        i_;  // input offset
-  St        n_;  // current parser name
+  Sp<Stc>    x_;  // input
+  uN         i_;  // input offset
+  St         n_;  // current parser name
   φc_ const *p_;  // parent context, or nullptr
 
   void trace_(St &into) const

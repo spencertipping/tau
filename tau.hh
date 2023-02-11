@@ -32,5 +32,7 @@
 #include "tau/linux.hh"
 #include "tau/wasm.hh"
 
+#include "tau/phi-gamma.hh"
+
 
 #endif
