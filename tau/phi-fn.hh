@@ -39,8 +39,8 @@ struct φa_ : public virtual φ_<T>
   φa_<T> &operator>>(φ<T> p) { ps.push_front(p); return *this; }
 
   template<class... Xs>
-  φa_<T> &push(φ<T> p, Xs... xs) { *this << p; return push(xs...); }
-  φa_<T> &push()                 {             return *this; }
+  φa_<T> &push(φ<T> p, Xs const&... xs) { *this << p; return push(xs...); }
+  φa_<T> &push()                        {             return *this; }
 
   D<φ<T>> ps;
 };

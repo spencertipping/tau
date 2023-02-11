@@ -20,11 +20,11 @@ template<class T>
 struct φd_ : public virtual φ_<T>
 {
   template<class... Xs>
-  φd_(Xs... xs) { def(xs...); }
+  φd_(Xs const&... xs) { def(xs...); }
 
   template<class... Xs>
-  φd_ &def(Stc &k, φ<T> p, Xs... xs) { ps[k] = p; return def(xs...); }
-  φd_ &def()                         {            return *this; }
+  φd_ &def(Stc &k, φ<T> p, Xs const&... xs) { ps[k] = p; return def(xs...); }
+  φd_ &def()                                {            return *this; }
 
 
   St name() const
