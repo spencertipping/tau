@@ -28,7 +28,7 @@ struct η0o
 
 
   η0o &operator=(η0i const &i)
-    { f(i.f()); c(i.c()); h(i.h()); clear();
+    { t(i.type()); f(i.f()); c(i.c()); h(i.h()); clear();
       memcpy(at_(0, i.size()), i.data(), i.size());
       return *this; }
 
