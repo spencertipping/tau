@@ -9,13 +9,14 @@ namespace τ
 {
 
 
-γ γsplit_chr(cs7 cs)
+γ γsplit_chr(cs7 cs, uN limit)
 {
-  return γffn("γschr", [cs](Sp<ψ>, ξi i, ξo o) mutable
+  return γffn("γschr", [=](Sp<ψ>, ξi i, ξo o) mutable
     { St b;
       for (let x : i)
         if (x.tsu() || x.tsb())
         { b.append(x.stv());
+          if (b.size() > limit) { o << η1o(η1sig::ω); return; }
           let vs = cs.split(Stv{b});
           for (uN j = 0; j + 1 < vs.size(); ++j)
             if (!(o << η1o(vs[j]))) return;
@@ -28,13 +29,14 @@ namespace τ
 }
 
 
-γ γsplit_str(St p)
+γ γsplit_str(St p, uN limit)
 {
-  return γffn("γsstr", [p](Sp<ψ>, ξi i, ξo o) mutable
+  return γffn("γsstr", [=](Sp<ψ>, ξi i, ξo o) mutable
     { St b;
       for (let x : i)
         if (x.tsu() || x.tsb())
         { b.append(x.stv());
+          if (b.size() > limit) { o << η1o(η1sig::ω); return; }
           let vs = ssplit(p, Stv{b});
           for (uN j = 0; j + 1 < vs.size(); ++j)
             if (!(o << η1o(vs[j]))) return;

@@ -9,7 +9,9 @@ C++ gives us the flexibility to define a reasonable DSL for [γ](gamma.md), so w
 
 
 ## `φ<γ>`
-**TODO**
+Simple enough: we just key each γ to a specific prefix and then have each provide a parser that consumes any configuration.
+
+`φ<γ>` should be available within π contexts so we can define map functions that consume ηs and produce γs. It's fine if they are escaped, e.g. with an explicit `γ` prefix.
 
 
 ## `φ<η → η>`
@@ -69,10 +71,10 @@ We can build the full pipeline using some η transforms and the `γflex` connect
 + `map(η) → (repo-path, head-name, head-sha, blob-path, (repo-name, blob-sha))`
 + `γflex(γτ(git_blob_contents)) → (repo-path, head-name, head-sha, blob-path, blob-sha, blob-contents)`
 
-In π, we should be able to say something like this: `«NGhπ(abc(ac)) →Gbπ(abcd(ad)) →τGbc »`. Since our tuple-arrangements all append something to the input tuple, maybe we can have a macro like `π«(ac)` that adds elements. We can also drop the tuple terminators. Then we have:
+In π, we should be able to say something like this: `«NGhπ(abc(ac)) ▶Gbπ(abcd(ad)) ▶τGbc »`. Since our tuple-arrangements all append something to the input tuple, maybe we can have a macro like `π«(ac)` that adds elements. We can also drop the tuple terminators. Then we have:
 
 ```
-«NGhπ+(ac →Gbπ+(ad →τGbc »'
+«NGhπ+(ac ▶Gbπ+(ad ▶τGbc »'
 ```
 
 That looks pretty compact.
@@ -81,14 +83,14 @@ That looks pretty compact.
 ### γ and η grammars (by example)
 + `«` is a leader for `γfr`, which takes some optional configurations:
   + `fd`: integer defaulting to `0`
-  + `N`, `T`, or other input filter
+  + `N`, `T`, or other input filter, defaulting to identity
 + `Gx` is a shortcut for our git operators
 + `π` is a leader for `γffn` via π interpreters
   + `+` is a suffix configuration indicating `() → ()` append
   + `(` begins a tuple
     + `a` and `c` are tuple accessors: lowercase to terminate, uppercase to prefix (e.g. `Ac` would be the `c` element of the `A` sub-tuple)
   + `)` is not written but is implied by end-of-code
-+ `→` is the γ flex adapter
++ `▶` is the γ flex adapter
   + `Gb` = `git_blobs`
   + `π+(ad` as above
 + `»'` is debug-out

@@ -10,8 +10,8 @@ namespace τ
 {
 
 
-γ γsplit_chr(cs7);
-γ γsplit_str(St);
+γ γsplit_chr(cs7, uN limit = -1);
+γ γsplit_str(St,  uN limit = -1);
 
 
 γ γtsv();

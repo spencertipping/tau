@@ -15,10 +15,6 @@ namespace τ
 γ γostream(O&, St = "", bool = false);
 
 
-γ γsplit_chr(cs7);
-γ γsplit_str(St);
-
-
 }
 
 #include "../end.hh"
