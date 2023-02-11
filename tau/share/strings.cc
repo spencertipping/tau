@@ -47,6 +47,13 @@ namespace τ
 }
 
 
+γ γtsv()
+{
+  return γsplit_chr("\n")
+       | γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); });
+}
+
+
 }
 
 #include "../end.hh"

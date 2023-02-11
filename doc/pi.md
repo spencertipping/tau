@@ -40,27 +40,22 @@ Here are some entry points for Asqi that I would like to be able to compose:
 
 ```cpp
 // heads for a repo
-γfr(0)
-| γsplit_chr("\n")
-| git_heads()
-| γostream(std::cout)
+γfr(0) | γsplit_chr("\n") | git_heads() | γostream(std::cout)
 
 // blobs for a revision
-γfr(0)
-| γsplit_chr("\n")
-| γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); })
-| git_blobs()
-| γostream(std::cout)
+γfr(0) | γtsv() | git_blobs() | γostream(std::cout)
 
 // blob contents
-γfr(0)
-| γsplit_chr("\n")
-| γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); })
-| git_blob_contents()
-| γostream(std::cout)
+γfr(0) | γtsv() | git_blob_contents() | γostream(std::cout)
 ```
 
-It should be simple to construct `git_heads() | git_blobs() | git_blob_contents()`, but there's some transformation involved because the signatures are:
+First, these should be a lot easier to write as they are:
+
++ `«NGh»'`
++ `«TGb»'`
++ `«TGbc»'`
+
+It should also be simple to construct `git_heads() | git_blobs() | git_blob_contents()`, but there's some transformation involved because the signatures are:
 
 + `git_heads ∷ repo-path → τ[(repo-path, head-name, head-sha)]`
 + `git_blobs ∷ (repo-path, commit-sha) → τ[(commit-sha, blob-path, blob-sha)]`
@@ -73,3 +68,26 @@ We can build the full pipeline using some η transforms and the `γflex` connect
 + `γflex(git_blobs) → (repo-path, head-name, head-sha, head-sha, blob-path, blob-sha)`
 + `map(η) → (repo-path, head-name, head-sha, blob-path, (repo-name, blob-sha))`
 + `γflex(γτ(git_blob_contents)) → (repo-path, head-name, head-sha, blob-path, blob-sha, blob-contents)`
+
+In π, we should be able to say something like this: `«NGhπ(abc(ac)) →Gbπ(abcd(ad)) →τGbc »`. Since our tuple-arrangements all append something to the input tuple, maybe we can have a macro like `π«(ac)` that adds elements. We can also drop the tuple terminators. Then we have:
+
+```
+«NGhπ+(ac →Gbπ+(ad →τGbc »
+```
+
+That looks pretty compact.
+
+
+### γ and η grammars (by example)
++ `«` is a leader for `γfr`, which takes some optional configurations:
+  + `fd`: integer defaulting to `0`
+  + `N`, `T`, or other input filter
++ `Gx` is a shortcut for our git operators
++ `π` is a leader for `γffn` via π interpreters
+  + `+` is a suffix configuration indicating `() → ()` append
+  + `(` begins a tuple
+    + `a` and `c` are tuple accessors: lowercase to terminate, uppercase to prefix (e.g. `Ac` would be the `c` element of the `A` sub-tuple)
+  + `)` is not written but is implied; all opened tuples are closed at end of π input, which happens at whitespace here (toplevel `[]` allow whitespace in π expressions? not sure)
++ `→` is the γ flex adapter
+  + `Gb` = `git_blobs`
+  + `π+(ad` as above
