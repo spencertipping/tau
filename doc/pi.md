@@ -72,7 +72,7 @@ We can build the full pipeline using some η transforms and the `γflex` connect
 In π, we should be able to say something like this: `«NGhπ(abc(ac)) →Gbπ(abcd(ad)) →τGbc »`. Since our tuple-arrangements all append something to the input tuple, maybe we can have a macro like `π«(ac)` that adds elements. We can also drop the tuple terminators. Then we have:
 
 ```
-«NGhπ+(ac →Gbπ+(ad →τGbc »
+«NGhπ+(ac →Gbπ+(ad →τGbc »'
 ```
 
 That looks pretty compact.
@@ -87,7 +87,23 @@ That looks pretty compact.
   + `+` is a suffix configuration indicating `() → ()` append
   + `(` begins a tuple
     + `a` and `c` are tuple accessors: lowercase to terminate, uppercase to prefix (e.g. `Ac` would be the `c` element of the `A` sub-tuple)
-  + `)` is not written but is implied; all opened tuples are closed at end of π input, which happens at whitespace here (toplevel `[]` allow whitespace in π expressions? not sure)
+  + `)` is not written but is implied by end-of-code
 + `→` is the γ flex adapter
   + `Gb` = `git_blobs`
   + `π+(ad` as above
++ `»'` is debug-out
+
+Whitespace breaks π expressions unless `[]` are used, just like `ni` grammar.
+
+
+### Tuple/map accessors
+I'd like for tuple and map lookups to use overlapping grammars, which is possible if we dual-parse each η expression into separate functions, one for tuples and one for maps. The function is selected based on input type.
+
+This means `(ac` parses into two different expressions:
+
++ `(η[0], η[2])` when η is a tuple
++ `(η["ac"])` when η is a map
+
+In this case `π+` precludes the map interpretation because it forces the input to be a tuple. But in general, expressions can have multiple meanings depending on the values they're applied to; and each such interpretation has a separate parse. A failed parse means that the expression can't be applied to that type.
+
+**NOTE:** this mechanism requires each sub-grammar to be delineated on the same endpoint; all η-type variant parses must agree about where the π expression ends.
