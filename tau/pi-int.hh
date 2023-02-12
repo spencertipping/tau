@@ -11,8 +11,20 @@ namespace τ
 {
 
 
+struct πi;
+
+template<class T> using πf = F<T(πi&)>;
+
+
+struct πv
+{
+
+};
+
+
 struct πi
 {
+  πi() {}
   πi(ξi i__, ξo o__) : i_(i__), o_(o__) {}
 
   η    y () const { return *i_; }

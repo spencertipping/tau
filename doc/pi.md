@@ -39,6 +39,14 @@ There are a number of cases where we have η values that need to be transformed 
   + Creating a map
 
 
+## Evaluation model
+π is a hybrid register and stack machine: we have the "current input" register for the inbound η, and the "current output" stack of `η₀o` that gets folded up at the end, or at infix write operations (`∷`).
+
+Because π can create γs inline, there is no `φ<γ>` parser. Instead, the parser is `φ<π → γ>` with an empty π for toplevel γ construction.
+
+Operators are right-associative infix unless overridden by `[]` groups. For example, `a+b+c` means `a + (b + c)`. `∑abc` and `[a+b]+c` both mean `(a + b) + c`.
+
+
 ## Asqi examples
 Here are some entry points for Asqi that I would like to be able to compose:
 
@@ -119,7 +127,30 @@ In this case `π«` precludes the map interpretation because it forces the input
 We can use upper/lower case to delineate map keys too. If we assume all map keys are canonically lowercase, then `abcDef` means `η["abc"]["def"]`.
 
 
-## Evaluation model
-π is a hybrid register and stack machine: we have the "current input" register for the inbound η, and the "current output" stack of `η₀o` that gets folded up at the end, or at infix write operations (`∷`).
+### Variables
+I don't think variables will be common; ideally we can refer to everything by value and not store quantities. But we can allocate `:` to assign vars.
 
-Because π can create γs inline, there is no `φ<γ>` parser. Instead, the parser is `φ<π → γ>` with an empty π for toplevel γ construction.
+**TODO:** define a letter space for variables: Cyrillic maybe?
+
+
+### String manipulation
+Asqi needs to be able to detect filetypes, which in the simplest case involves looking at the extension of a filename. Bash-style `a#*.` would suffice to reduce a filename `a` to its extension (`*` defaults to greedy, we don't need `#` vs `##`).
+
+
+### Conditionals
+There are two common types of conditionals we might want to apply:
+
+1. One-way check/fail, e.g. "skip blobs larger than 1MB"
+2. Multi-way table delegation, e.g. "switch/case on file extension" or "take the _n_th branch"
+
+These can all be notated with `?` followed by a series of alternatives:
+
+```
+a?1 2             ← booleans: true and false in that order
+[a%3]?1 2 3       ← integers: 0, 1, 2, etc with catch-all at end
+a?foo1 bar2 3     ← strings: choose associated branch with catch-all at end
+```
+
+Note that more than two items eliminates the boolean interpretation.
+
+Also note that strings can be written as `'asdf'` literals to support numbers and special characters.

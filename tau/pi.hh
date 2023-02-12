@@ -15,8 +15,8 @@ namespace τ
 {
 
 
-typedef F<bool(πi&)> πηf;
-typedef F<γ   (πi&)> πγf;
+typedef πf<η0o&&> πηf;
+typedef πf<γ>     πγf;
 
 
 // Parser for all τ-defined γs

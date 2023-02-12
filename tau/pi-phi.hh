@@ -15,13 +15,13 @@ namespace τ
 
 
 template<class T>
-φ<F<T(πi)>> φlift(φ<T> p)
+φ<πf<T>> φlift(φ<T> p)
 {
   // NOTE: we must explicitly specify the lambda type; otherwise C++
   // fails to match it to φm and complains. This seems to me like a C++
   // defect, but there's probably something about function return-type
   // erasure or some such that I don't know about yet.
-  F<F<T(πi)>(T)> f = [](T r) { return [r](πi) { return r; }; };
+  F<πf<T>(T)> f = [](T r) { return [r](πi) { return r; }; };
   return φm(p, f);
 }
 
@@ -35,10 +35,10 @@ template<class T>
 φ<St>    φηmap_key();
 
 
-φ<F<i64(πi)>>   φint();
-φ<F<f64(πi)>>   φfloat();
-φ<F<St(πi)>>    φstr();
-φ<F<η1sig(πi)>> φsig();
+φ<πf<i64>>   φint();
+φ<πf<f64>>   φfloat();
+φ<πf<St>>    φstr();
+φ<πf<η1sig>> φsig();
 
 
 // TODO: named variables

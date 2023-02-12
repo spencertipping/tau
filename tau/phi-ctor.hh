@@ -15,8 +15,8 @@ namespace τ
 template<class T, class... Xs> φ<T> φd(Xs... xs)  { return φ<T>{new φd_<T>(xs...)}; }
 template<class T>              φ<T> φl(St s, T v) { return φ<T>{new φl_<T>(s, v)}; }
 
-inline φ<St>   φcs(chc *s) { return φ<St>{new φcs_(s)}; }
-inline φ<bool> φE ()       { return φ<bool>{new φE_()}; }
+inline φ<St>   φcs(chc *s) { return φ<St>  {new φcs_(s)}; }
+inline φ<bool> φE ()       { return φ<bool>{new φE_ ()}; }
 
 
 template<class T, class... Xs> φ<T>   φa(Xs... xs) { return φ<T>{new φa_<T>(xs...)}; }
