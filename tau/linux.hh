@@ -16,13 +16,15 @@
 #include "phi-str.hh"
 #include "gamma.hh"
 
+#include "pi.hh"
+
 #include "begin.hh"
 
 namespace τ
 {
 
 
-void φlinux(φd_<γ>&);
+void φlinux(φd_<πγf>&);
 
 
 }

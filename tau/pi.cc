@@ -9,13 +9,13 @@ namespace τ
 {
 
 
-φ<γ> φγ()
+φ<πγf> φγ()
 {
-  let r = new φd_<γ>;
+  let r = new φd_<πγf>;
   φshare(*r);
   φlinux(*r);
   φwasm(*r);
-  return Sp<φ_<γ>>(r);
+  return Sp<φ_<πγf>>(r);
 }
 
 

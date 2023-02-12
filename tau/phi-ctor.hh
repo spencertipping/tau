@@ -25,7 +25,7 @@ template<class T>          φ<V<T>>    φn(φ<T> p, uN l = 0, uN u = -1) { retur
 
 template<class T>          φ<T>       φo(φ<T> p)               { return φ<T>{new φo_<T>(p)}; }
 template<class T, class U> φ<P<T, U>> φs(φ<T> p, φ<U> q)       { return φ<P<T, U>>{new φs_<T, U>(p, q)}; }
-template<class T, class U> φ<U>       φm(φ<T> p, F<U(T)> f)    { return φ<T>{new φm_<T, U>(p, f)}; }
+template<class T, class U> φ<U>       φm(φ<T> p, F<U(T)> f)    { return φ<U>{new φm_<T, U>(p, f)}; }
 template<class T>          φ<T>       φf(φ<T> p, F<bool(T)> f) { return φ<T>{new φf_<T>(p, f)}; }
 
 

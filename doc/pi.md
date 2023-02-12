@@ -13,6 +13,8 @@ Simple enough: we just key each γ to a specific prefix and then have each provi
 
 `φ<γ>` should be available within π contexts so we can define map functions that consume ηs and produce γs. It's fine if they are escaped, e.g. with an explicit `γ` prefix.
 
+**NOTE:** we actually define the parser as `φ<π → γ>` because we often use π to create new γs that are then added to the τ environment.
+
 
 ## `φ<η → η>`
 There are a number of cases where we have η values that need to be transformed in a simple way as they move between γs. For example, we might want to rearrange tuple elements or cons up a new tuple by duplicating a value. Other common operations include:
@@ -120,9 +122,4 @@ We can use upper/lower case to delineate map keys too. If we assume all map keys
 ## Evaluation model
 π is a hybrid register and stack machine: we have the "current input" register for the inbound η, and the "current output" stack of `η₀o` that gets folded up at the end, or at infix write operations (`∷`).
 
-We need to have a way to create γs that depend on η inputs, which means all of our `φ<γ>` parsers need a `φ<π → γ>` variant. This, in turn, implies two things:
-
-1. The γ grammar is split into "η-parameterizable" and fixed components
-2. γ parsers are defined indirectly, in terms of abstractions that allow for bifurcated constants
-
-**Q:** should we just have everything be `φ<π → γ>` with a null π context as a default? That would simplify things a lot.
+Because π can create γs inline, there is no `φ<γ>` parser. Instead, the parser is `φ<π → γ>` with an empty π for toplevel γ construction.

@@ -6,6 +6,8 @@
 #include "xiio.hh"
 #include "phi.hh"
 #include "gamma.hh"
+#include "pi-int.hh"
+#include "pi-phi.hh"
 
 #include "begin.hh"
 
@@ -13,15 +15,16 @@ namespace τ
 {
 
 
-typedef Sp<void> π;  // TODO
+typedef F<bool(πi&)> πηf;
+typedef F<γ   (πi&)> πγf;
 
 
 // Parser for all τ-defined γs
-φ<γ> φγ();
+φ<πγf> φγ();
 
 
 // Parser for π η-transformers
-φ<π> φπ();
+φ<πηf> φπ();
 
 
 }

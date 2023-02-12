@@ -5,7 +5,7 @@ namespace τ
 {
 
 
-void φshare(φd_<γ> &f)
+void φshare(φd_<πγf> &f)
 {
   TODO("φshare");
 }

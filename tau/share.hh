@@ -12,6 +12,8 @@
 #include "phi-str.hh"
 #include "gamma.hh"
 
+#include "pi.hh"
+
 
 #include "begin.hh"
 
@@ -19,7 +21,7 @@ namespace τ
 {
 
 
-void φshare(φd_<γ>&);
+void φshare(φd_<πγf>&);
 
 
 }
