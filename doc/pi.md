@@ -74,7 +74,7 @@ We can build the full pipeline using some η transforms and the `γflex` connect
 In π, we should be able to say something like this: `«NGhπ(abc(ac)) ▶Gbπ(abcd(ad)) ▶τGbc »`. Since our tuple-arrangements all append something to the input tuple, maybe we can have a macro like `π«(ac)` that adds elements. We can also drop the tuple terminators. Then we have:
 
 ```
-«NGhπ+(ac ▶Gbπ+(ad ▶τGbc »'
+«NGhπ«(ac ▶Gbπ«(ad ▶τGbc »'
 ```
 
 That looks pretty compact.
@@ -86,16 +86,20 @@ That looks pretty compact.
   + `N`, `T`, or other input filter, defaulting to identity
 + `Gx` is a shortcut for our git operators
 + `π` is a leader for `γffn` via π interpreters
-  + `+` is a suffix configuration indicating `() → ()` append
+  + `«` is a suffix configuration indicating `() → ()` append
   + `(` begins a tuple
     + `a` and `c` are tuple accessors: lowercase to terminate, uppercase to prefix (e.g. `Ac` would be the `c` element of the `A` sub-tuple)
   + `)` is not written but is implied by end-of-code
 + `▶` is the γ flex adapter
   + `Gb` = `git_blobs`
-  + `π+(ad` as above
+  + `π«(ad` as above
 + `»'` is debug-out
 
-Whitespace breaks π expressions unless `[]` are used, just like `ni` grammar.
+Whitespace breaks π expressions unless `[]` are used, just like `ni` grammar. In this case we can pack them all because both `▶` and `»` are unrecognized as π commands:
+
+```
+«NGhπ«(ac▶Gbπ«(ad▶τGbc»'
+```
 
 
 ### Tuple/map accessors
@@ -106,6 +110,19 @@ This means `(ac` parses into two different expressions:
 + `(η[0], η[2])` when η is a tuple
 + `(η["ac"])` when η is a map
 
-In this case `π+` precludes the map interpretation because it forces the input to be a tuple. But in general, expressions can have multiple meanings depending on the values they're applied to; and each such interpretation has a separate parse. A failed parse means that the expression can't be applied to that type.
+In this case `π«` precludes the map interpretation because it forces the input to be a tuple. (Or does it? We can append map k/vs too.) But in general, expressions can have multiple meanings depending on the values they're applied to; and each such interpretation has a separate parse. A failed parse means that the expression can't be applied to that type.
 
 **NOTE:** this mechanism requires each sub-grammar to be delineated on the same endpoint; all η-type variant parses must agree about where the π expression ends.
+
+We can use upper/lower case to delineate map keys too. If we assume all map keys are canonically lowercase, then `abcDef` means `η["abc"]["def"]`.
+
+
+## Evaluation model
+π is a hybrid register and stack machine: we have the "current input" register for the inbound η, and the "current output" stack of `η₀o` that gets folded up at the end, or at infix write operations (`∷`).
+
+We need to have a way to create γs that depend on η inputs, which means all of our `φ<γ>` parsers need a `φ<π → γ>` variant. This, in turn, implies two things:
+
+1. The γ grammar is split into "η-parameterizable" and fixed components
+2. γ parsers are defined indirectly, in terms of abstractions that allow for bifurcated constants
+
+**Q:** should we just have everything be `φ<π → γ>` with a null π context as a default? That would simplify things a lot.
