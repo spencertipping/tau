@@ -44,7 +44,7 @@ There are a number of cases where we have η values that need to be transformed 
 
 Because π can create γs inline, there is no `φ<γ>` parser. Instead, the parser is `φ<π → γ>` with an empty π for toplevel γ construction.
 
-Operators are right-associative infix unless overridden by `[]` groups. For example, `a+b+c` means `a + (b + c)`. `∑abc` and `[a+b]+c` both mean `(a + b) + c`.
+Operators are left-associative unary postfix expressions with arguments on the right. So `a+b` does what you would expect, but `a+b*c` evaluates the `+` before the `*`. Precedence can be modified with `[]`.
 
 
 ## Asqi examples
@@ -136,6 +136,8 @@ I don't think variables will be common; ideally we can refer to everything by va
 ### String manipulation
 Asqi needs to be able to detect filetypes, which in the simplest case involves looking at the extension of a filename. Bash-style `a#*.` would suffice to reduce a filename `a` to its extension (`*` defaults to greedy, we don't need `#` vs `##`).
 
+...or maybe `↓` to drop a regex/glob. So `a↓*.` would do it.
+
 
 ### Conditionals
 There are two common types of conditionals we might want to apply:
@@ -147,10 +149,10 @@ These can all be notated with `?` followed by a series of alternatives:
 
 ```
 a?1 2             ← booleans: true and false in that order
-[a%3]?1 2 3       ← integers: 0, 1, 2, etc with catch-all at end
+a%3?1 2 3         ← integers: 0, 1, 2, etc with catch-all at end
 a?foo1 bar2 3     ← strings: choose associated branch with catch-all at end
 ```
 
 Note that more than two items eliminates the boolean interpretation.
 
-Also note that strings can be written as `'asdf'` literals to support numbers and special characters.
+Also note that strings can be written as `'asdf` or `"asdf"` literals to support numbers and special characters.

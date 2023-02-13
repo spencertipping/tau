@@ -17,12 +17,7 @@ namespace τ
 template<class T>
 φ<πf<T>> φlift(φ<T> p)
 {
-  // NOTE: we must explicitly specify the lambda type; otherwise C++
-  // fails to match it to φm and complains. This seems to me like a C++
-  // defect, but there's probably something about function return-type
-  // erasure or some such that I don't know about yet.
-  F<πf<T>(T)> f = [](T r) { return [r](πi) { return r; }; };
-  return φm(p, f);
+  return φm<T, πf<T>>(p, [](T r) { return [r](πi) { return r; }; });
 }
 
 

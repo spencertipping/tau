@@ -66,16 +66,19 @@ struct φl_ : public virtual φ_<T>
 // Charset: any-of, formed into a string (NOTE: 7-bit ASCII)
 struct φcs_ : public virtual φ_<St>
 {
-  φcs_(chc *cs_) : cs(cs_) {}
+  φcs_(chc *cs_, bool n_ = false, uN limit_ = -1)
+    : cs(cs_), n(n_), l(limit_) {}
 
   St name() const { return (Ss{} << cs).str(); }
   φr_<St> operator()(φc_ const &x) const
     { St r;
-      uN i = x.i();
-      while (i < x.l() && cs[x[i]]) r += x[i];
+      uN i = x.i(), j = 0;
+      while (j < l && i + j < x.l() && cs[x[i]] ^ n) r += x[i + j];
       return x.a(r, x.i() + r.size()); }
 
-  cs7 cs;
+  cs7  cs;
+  bool n;  // if true, negate
+  uN   l;  // limit on number of chars to match
 };
 
 

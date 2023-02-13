@@ -15,7 +15,7 @@ template<class T>
 struct φa_ : public virtual φ_<T>
 {
   template<class... Xs>
-  φa_(Xs... xs) { push(xs...); }
+  φa_(Xs const&... xs) { push(xs...); }
 
   St name() const
     { St   r     = "(";
@@ -98,11 +98,11 @@ struct φs_ : public virtual φ_<P<T, U>>
 {
   φs_(φ<T> pt_, φ<U> pu_) : pt(pt_), pu(pu_) {}
 
-  St name() const { return pt.name() + " » " + pu.name(); }
-  φr_<P<T, U>> operator()(φc_ const &x)
+  St name() const { return pt->name() + " » " + pu->name(); }
+  φr_<P<T, U>> operator()(φc_ const &x) const
     { let s = (*pt)(x);                   if (s.is_f()) return s.template cast<P<T, U>>();
       let t = (*pu)(x.at(*this).at(s.j)); if (t.is_f()) return t.template cast<P<T, U>>();
-      return x.at(t.j).a(mp(*s.y, *t.y)); }
+      return x.a(mp(*s.y, *t.y), t.j); }
 
   φ<T> pt;
   φ<U> pu;
