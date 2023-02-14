@@ -64,15 +64,7 @@ struct Γ_ : public virtual γ_
 };
 
 
-inline γ operator|(γ a, γ b)
-{
-  if (let h = a.as<Γ_>())
-    return h->t ? h->h | (γ(h->t) | b) : h->h | b;
-
-  let g = b.as<Γ_>();
-  return γ(new Γ_{a, g ? g : ms(Γ_{b, {nullptr}})});
-}
-
+γ operator|(γ a, γ b);
 
 O &operator<<(O&, γ const&);
 

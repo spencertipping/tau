@@ -62,6 +62,9 @@ protected:
 };
 
 
+O &operator<<(O&, πv const&);
+
+
 }
 
 #include "end.hh"
