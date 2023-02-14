@@ -30,7 +30,11 @@ If the expression occurs within a `(` tuple context, then we also insert the "pu
 
 
 ### Polymorphic values
-Each π value is either a η or a γ.
+Each π value is either a η or a γ. Pretty straightforward.
+
+
+### Program structure
+A program is a series of `F<bool(πi&)>` functions, sort of like bytecodes but without the coding indirection since we can have closure state. Parsers produce programs that are concatenated together, hence the stack-oriented interpreter design.
 
 
 ## Asqi examples
