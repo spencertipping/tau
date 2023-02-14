@@ -14,6 +14,9 @@ namespace τ
 {
 
 
+// FIXME: do we want this value model, or do we want void(πi&) and mutable
+// manipulation?
+
 template<class T>
 φ<πf<T>> φlift(φ<T> p)
 {
@@ -28,15 +31,6 @@ template<class T>
 
 φ<uN>    φηtuple_key();
 φ<St>    φηmap_key();
-
-
-φ<πf<i64>>   φint();
-φ<πf<f64>>   φfloat();
-φ<πf<St>>    φstr();
-φ<πf<η1sig>> φsig();
-
-
-// TODO: named variables
 
 
 }

@@ -6,12 +6,12 @@ namespace τ
 
 
 #if τwasm
-void φwasm(φd_<πγf> &f)
+void φwasm(φd_<πef> &f)
 {
   // Do nothing for now
 }
 #else
-void φwasm(φd_<πγf>&) {}
+void φwasm(φd_<πef>&) {}
 #endif
 
 

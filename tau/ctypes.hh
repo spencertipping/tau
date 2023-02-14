@@ -148,6 +148,10 @@ template<class T>
 ic auto ms(T &&a) { return std::make_shared<T>(std::forward<T>(a)); }
 
 
+template<class U, class T>
+ic Sp<U> dpc(Sp<T> x) { return std::dynamic_pointer_cast<U>(x); }
+
+
 template<class T, class = void> struct iti_static : std::false_type {};
 template<class T> struct iti_static
 <T, std::void_t<decltype(std::begin(std::declval<T>())),

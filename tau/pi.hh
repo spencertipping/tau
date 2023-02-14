@@ -15,16 +15,24 @@ namespace τ
 {
 
 
-typedef πf<η0o&&> πηf;
-typedef πf<γ>     πγf;
-
-
 // Parser for all τ-defined γs
-φ<πγf> φγ();
+φ<πef> φγ();
+
+template<class... Xs>
+void φγdef(Xs const&... xs)
+{
+  dpc<φd_<πef>>(φγ())->def(xs...);
+}
 
 
 // Parser for π η-transformers
-φ<πηf> φπ();
+φ<πef> φπ();
+
+template<class... Xs>
+void φπdef(Xs const&... xs)
+{
+  dpc<φd_<πef>>(φπ())->def(xs...);
+}
 
 
 }

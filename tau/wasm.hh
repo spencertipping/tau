@@ -21,7 +21,7 @@ namespace τ
 {
 
 
-void φwasm(φd_<πγf>&);
+void φwasm(φd_<πef>&);
 
 
 }

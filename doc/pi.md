@@ -8,43 +8,29 @@ C++ gives us the flexibility to define a reasonable DSL for [γ](gamma.md), so w
 π is a series of [φ](phi.md) parsers that allow γs and [η](eta.md)-transforming functions to be defined from string inputs, ultimately making it possible to write τ programs without compiling code.
 
 
-## `φ<γ>`
-Simple enough: we just key each γ to a specific prefix and then have each provide a parser that consumes any configuration.
-
-`φ<γ>` should be available within π contexts so we can define map functions that consume ηs and produce γs. It's fine if they are escaped, e.g. with an explicit `γ` prefix.
-
-**NOTE:** we actually define the parser as `φ<π → γ>` because we often use π to create new γs that are then added to the τ environment.
-
-
-## `φ<η → η>`
-There are a number of cases where we have η values that need to be transformed in a simple way as they move between γs. For example, we might want to rearrange tuple elements or cons up a new tuple by duplicating a value. Other common operations include:
-
-+ General
-  + Comparing values for equality
-  + Comparing values by order
-  + Checking the type of a value
-  + Checking for τ
-+ Strings
-  + Splitting a string
-  + Regexing a string
-  + Getting length / #occurrences of something
-  + Parsing JSON into η
-  + Encoding η into JSON
-+ Tuples
-  + Entupling a value, possibly more than once
-  + Permuting a tuple: `(a, b, c) → (c, a, (b, c))` etc
-+ Maps
-  + Retrieving a value by key
-  + Checking for a key in a map
-  + Creating a map
-
-
 ## Evaluation model
 π is a hybrid register and stack machine: we have the "current input" register for the inbound η, and the "current output" stack of `η₀o` that gets folded up at the end, or at infix write operations (`∷`).
 
 Because π can create γs inline, there is no `φ<γ>` parser. Instead, the parser is `φ<π → γ>` with an empty π for toplevel γ construction.
 
 Operators are left-associative unary postfix expressions with arguments on the right. So `a+b` does what you would expect, but `a+b*c` evaluates the `+` before the `*`. Precedence can be modified with `[]`.
+
+
+### Parser structure
+A π program is ultimately a function against a mutable interpreter. We probably want the toplevel to return a continue/stop flag when used in a loop context, so `φ<F<bool(πi&)>>`. In general, returning `true` means there's an exceptional condition and execution shouldn't continue.
+
+`πi` keeps a register for current input; this is updated when evaluating operators. For example, `+3` is a postfix polymorphic function that applies to the current input -- so an expression like `1+3` is a series of parsers that can be applied sequentially:
+
++ push `1`
++ transform with `+3` (as a function)
+  + `3` is parsed+pushed
+  + `+` is applied to top two items
+
+If the expression occurs within a `(` tuple context, then we also insert the "push top onto next" instruction afterwards. This instruction is implicit and exists to conserve stack arity.
+
+
+### Polymorphic values
+Each π value is either a η or a γ.
 
 
 ## Asqi examples
@@ -98,7 +84,7 @@ That looks pretty compact.
 + `π` is a leader for `γffn` via π interpreters
   + `«` is a suffix configuration indicating `() → ()` append
   + `(` begins a tuple
-    + `a` and `c` are tuple accessors: lowercase to terminate, uppercase to prefix (e.g. `Ac` would be the `c` element of the `A` sub-tuple)
+    + `a` and `c` are tuple accessors: lowercase to terminate, uppercase as a continuation (so `ac` means two distinct elements, `aC` means the `c` element of the `a` sub-tuple)
   + `)` is not written but is implied by end-of-code
 + `▶` is the γ flex adapter
   + `Gb` = `git_blobs`

@@ -32,6 +32,8 @@ struct γ
   Sp<T> as () const { return std::dynamic_pointer_cast<T>(g); }
   γ_   &get() const { return *g; }
 
+  γ &operator=(γ const &g_) { g = g_.g; check(); return *this; }
+
   St name() const { return g->name(); }
 
   Ξ  &operator()(Ξ &x)   const { (*g)(x); return x; }
@@ -41,7 +43,7 @@ struct γ
 
 
 protected:
-  Sp<γ_> const g;
+  Sp<γ_> g;
 
   void check() { A(g, "∅γ"); }
 };

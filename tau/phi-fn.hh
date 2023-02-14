@@ -92,7 +92,7 @@ struct φo_ : public virtual φ_<Op<T>>
 
 
 // Sequential parsing
-// TODO: fully generic template for this
+// TODO: fully generic template for this so we can use tuples
 template<class T, class U>
 struct φs_ : public virtual φ_<P<T, U>>
 {
