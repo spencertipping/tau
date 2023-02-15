@@ -13,6 +13,10 @@ bool πfn::run(πi &i)
   {
     let j = i.rpeek()++;
     if (j >= fs.size()) return true;
+
+    std::cout << "=================" << std::endl;
+    std::cout << "πi = " << i << std::endl;
+    std::cout << "running " << fs[j] << std::endl;
     if (!fs[j].f(i))    return false;
   }
   return true;

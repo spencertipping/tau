@@ -26,18 +26,23 @@ struct πi
   πi &dpush(T  const &x) { is_.push_back(πv{x}); return *this; }
   πi &dpush(πv const &v) { is_.push_back(v);     return *this; }
   πv &dpeek() { return is_.back(); }
-  πv  dpop()  { let r = is_.back(); is_.pop_back(); return r; }
+  πv  dpop()
+    { A(!is_.empty(), "πi::dpop with empty is_");
+      πv r = std::move(is_.back()); is_.pop_back(); return r; }
 
 
   πi &rpush(uN o)    { rs_.push_back(o); return *this; }
   uN &rpeek()        { return rs_.back(); }
-  uN  rpop()         { let r = rs_.back(); rs_.pop_back(); return r; }
   uN  rdepth() const { return rs_.size(); }
+  uN  rpop()
+    { A(!rs_.empty(), "πi::rpop with empty rs_");
+      let r = rs_.back(); rs_.pop_back(); return r; }
 
 
   η0o &wbegin(η0t t) { os_.push_back(η0o{t}); return os_.back(); }
   bool wend()
-    { let v = os_.back(); os_.pop_back();
+    { A(!os_.empty(), "πi::wend with empty os_");
+      η0o v = std::move(os_.back()); os_.pop_back();
       if (os_.empty()) return o_ << v;
       os_.back() << v;
       return true; }

@@ -10,6 +10,20 @@ namespace τ
 {
 
 
+// Constant name
+template<class T>
+struct φnamed_ : public virtual φ_<T>
+{
+  φnamed_(St name__, φ<T> p_) : name_(name__), p(p_) {}
+
+  St           name()             const { return name_; }
+  φr_<T> operator()(φc_ const &x) const { return (*p)(x); }
+
+  St   name_;
+  φ<T> p;
+};
+
+
 // Preferential alternative
 template<class T>
 struct φa_ : public virtual φ_<T>
@@ -35,8 +49,8 @@ struct φa_ : public virtual φ_<T>
         if (r.is_a()) return r; }
       return r; }
 
-  φa_<T> &operator<<(φ<T> p) { ps.push_back(p);  return *this; }
-  φa_<T> &operator>>(φ<T> p) { ps.push_front(p); return *this; }
+  φa_<T> &operator<<(φ<T> p) { A(p, "φa<<∅"); ps.push_back(p);  return *this; }
+  φa_<T> &operator>>(φ<T> p) { A(p, "φa>>∅"); ps.push_front(p); return *this; }
 
   template<class... Xs>
   φa_<T> &push(φ<T> p, Xs const&... xs) { *this << p; return push(xs...); }

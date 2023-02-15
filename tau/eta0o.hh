@@ -19,8 +19,8 @@ struct η0o
   η0o(η0t t) : f_(0), c_(0), h_(0), t_(t),
                si_({0}), ss_(0), so_(nullptr), cs_(nullptr) {}
 
-  η0o(η0o const &o) { *this = o; }
-  η0o(η0o      &&o) { *this = std::move(o); }
+  η0o(η0o const &o) : so_(nullptr), cs_(nullptr) { *this = o; }
+  η0o(η0o      &&o) : so_(nullptr), cs_(nullptr) { *this = std::move(o); }
 
   ~η0o()
     { if (so_) delete so_;

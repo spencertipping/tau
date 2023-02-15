@@ -25,8 +25,8 @@ struct πv
   bool is_η() const { return v_.index() == 0; }
   bool is_γ() const { return v_.index() == 1; }
 
-  η as_η() const { return η(std::get<0>(v_).data()); }
-  γ as_γ() const { return   std::get<1>(v_); }
+  η as_η() const { A(is_η(), "as_η on γ"); return η(std::get<0>(v_).data()); }
+  γ as_γ() const { A(is_γ(), "as_γ on η"); return   std::get<1>(v_); }
 
 protected:
   Va<B, γ> v_;

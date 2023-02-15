@@ -17,12 +17,12 @@ static φ<St> dq_str()
 
 
 φ<i64> φint_literal()
-{ return φm<St, i64>(φcs("0123456789"),
-                     [](St v) { i64 x; Ss{v} >> x; return x; }); }
+{ return φm<St, i64>(φcs("0123456789-", false, 1),
+                     [](St v) { i64 x = 0; Ss{v} >> x; return x; }); }
 
 φ<f64> φfloat_literal()
-{ return φm<St, f64>(φcs("0123456789.eE+-"),
-                     [](St v) { f64 x; Ss{v} >> x; return x; }); }
+{ return φm<St, f64>(φcs("0123456789.-", false, 1),
+                     [](St v) { f64 x = 0; Ss{v} >> x; return x; }); }
 
 φ<St> φstr_literal()
 { return φa<St>(sq_str(), dq_str()); }
@@ -45,11 +45,11 @@ static φ<St> dq_str()
 
 
 φ<uN> φηtuple_key()
-{ return φm<St, uN>(φcs("abcdefghij", false, 1),
+{ return φm<St, uN>(φcs("abcdefghij", false, 1, 1),
                     [](St k) { return k[0] - 'a'; }); }
 
 φ<St> φηmap_key()
-{ return φcs("abcdefghijklmnopqrstuvwxyz"); }
+{ return φcs("abcdefghijklmnopqrstuvwxyz", false, 1); }
 
 
 }
