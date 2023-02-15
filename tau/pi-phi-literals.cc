@@ -39,10 +39,13 @@ static φ<St> dq_str()
 
 φ<πfn> φπ_literal()
 {
-  return φa<πfn>(φk(φint_literal()),
-                 φk(φfloat_literal()),
-                 φk(φstr_literal()),
-                 φk(φsig_literal()));
+  static φ<πfn> r;
+  if (!r)
+    r = φa<πfn>(φk(φint_literal()),
+                φk(φfloat_literal()),
+                φk(φstr_literal()),
+                φk(φsig_literal()));
+  return r;
 }
 
 
