@@ -47,12 +47,6 @@ struct πi
 
   η0o &wv() { return os_.back(); }
 
-  πv   rv() { return is_.empty() ? *i_ : dpeek(); }
-
-
-  bool is_tuple() { let r = rv(); return r.is_η() && r.as_η().tT(); }
-  bool is_map()   { let r = rv(); return r.is_η() && r.as_η().tM(); }
-
 
   ξi &i() { return i_; }
   ξo &o() { return o_; }

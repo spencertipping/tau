@@ -56,11 +56,11 @@ struct η
   bool tM()  const { return t() == η0t::map; }
 
 
-  f64   pf() const { A(tf(), "η::pf on " << i_); return Sc<f64>(η1pi{&i_}); }
-  u64   pu() const { A(tu(), "η::pu on " << i_); return Sc<u64>(η1pi{&i_}); }
-  i64   pi() const { A(ti(), "η::pi on " << i_); return Sc<i64>(η1pi{&i_}); }
-  bool  pb() const { A(tb(), "η::pb on " << i_); return Sc<bool>(η1pi{&i_}); }
-  η1sig ps() const { A(ts(), "η::ps on " << i_); return Sc<η1sig>(η1si{&i_}); }
+  f64   pf() const { A(tf(),                 "η::pf on " << i_); return Sc<f64>(η1pi{&i_}); }
+  u64   pu() const { A(tu() || ti() || tf(), "η::pu on " << i_); return Sc<u64>(η1pi{&i_}); }
+  i64   pi() const { A(ti() || tu() || tf(), "η::pi on " << i_); return Sc<i64>(η1pi{&i_}); }
+  bool  pb() const { A(tb(),                 "η::pb on " << i_); return Sc<bool>(η1pi{&i_}); }
+  η1sig ps() const { A(ts(),                 "η::ps on " << i_); return Sc<η1sig>(η1si{&i_}); }
 
 
   // pv = value pointer accessor; pxf = value destructor function accessor

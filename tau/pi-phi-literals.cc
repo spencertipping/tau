@@ -7,7 +7,7 @@ namespace τ
 
 static φ<St> sq_str()
 { return φm<P<int, St>, St>(
-    φs(φl("'", 0), φcs("\t\n []\"'\\", true)),
+    φs(φl("'", 0), φcs("\t\n []\"'\\{}()", true)),
     [](auto p) { return std::get<1>(p); }); }
 
 static φ<St> dq_str()
@@ -20,6 +20,8 @@ static φ<St> dq_str()
 { return φm<St, i64>(φcs("0123456789-", false, 1),
                      [](St v) { i64 x = 0; Ss{v} >> x; return x; }); }
 
+// FIXME: floats are parsed preferentially as ints, followed by a float piece.
+// We need to unify these parsers, most likely.
 φ<f64> φfloat_literal()
 { return φm<St, f64>(φcs("0123456789.-", false, 1),
                      [](St v) { f64 x = 0; Ss{v} >> x; return x; }); }
@@ -42,14 +44,6 @@ static φ<St> dq_str()
                  φk(φstr_literal()),
                  φk(φsig_literal()));
 }
-
-
-φ<uN> φηtuple_key()
-{ return φm<St, uN>(φcs("abcdefghij", false, 1, 1),
-                    [](St k) { return k[0] - 'a'; }); }
-
-φ<St> φηmap_key()
-{ return φcs("abcdefghijklmnopqrstuvwxyz", false, 1); }
 
 
 }

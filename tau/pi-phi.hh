@@ -43,11 +43,9 @@ template<class T> φ<πfn> φk(φ<T> p)
 
 φ<πfn>   φπ_literal();
 
-φ<uN>    φηtuple_key();
-φ<St>    φηmap_key();
-
 
 φ<πfn>   φtuple();
+φ<πfn>   φmap();
 φ<πfn>   φηtuple_element();
 φ<πfn>   φηmap_element();
 

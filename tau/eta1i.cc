@@ -43,13 +43,13 @@ O &operator<<(O &s, η1pi const &x)
 
 O &operator<<(O &s, η1ti const &x)
 {
-  s << "(";
+  s << (x.type() == η0t::tuple ? "(" : x.type() == η0t::map ? "{" : "s[");
   bool first = true;
   for (let y : x)
   { if (first) first = false;
     else       s << ",";
     s << η1i{&y}; }
-  return s << ")";
+  return s << (x.type() == η0t::tuple ? ")" : x.type() == η0t::map ? "}" : "]");
 }
 
 O &operator<<(O &s, η1i const &x)

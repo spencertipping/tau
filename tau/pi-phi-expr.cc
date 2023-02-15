@@ -42,6 +42,7 @@ static φ<πfn> φatomd_;
     φatoma() << φπ_literal();
     φatoma() << φatomd_;
     φatomd().def("(", φtuple());
+    φatomd().def("{", φmap());
     φatomd().def("[", φgroup());
   }
   return φN("φπ", φws(φatom_));
