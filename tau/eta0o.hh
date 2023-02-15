@@ -17,10 +17,10 @@ namespace τ
 struct η0o
 {
   η0o(η0t t) : f_(0), c_(0), h_(0), t_(t),
-               si_({0}), ss_(0), so_(nullptr), cs_(nullptr) {}
+               ss_(0), si_({0}), so_(nullptr), cs_(nullptr) {}
 
-  η0o(η0o const &o) : so_(nullptr), cs_(nullptr) { *this = o; }
-  η0o(η0o      &&o) : so_(nullptr), cs_(nullptr) { *this = std::move(o); }
+  η0o(η0o const &o) : ss_(0), so_(nullptr), cs_(nullptr) { *this = o; }
+  η0o(η0o      &&o) : ss_(0), so_(nullptr), cs_(nullptr) { *this = std::move(o); }
 
   ~η0o()
     { if (so_) delete so_;
@@ -33,12 +33,12 @@ struct η0o
       return *this; }
 
   η0o &operator=(η0o const &o)
-    { f(o.f()); c(o.c()); h(o.h()); si_ = o.si_; ss_ = o.ss_; clear();
+    { t(o.t()); f(o.f()); c(o.c()); h(o.h()); si_ = o.si_; ss_ = o.ss_; clear();
       memcpy(at_(0, o.isize()), o.idata(), o.isize());
       return *this; }
 
   η0o &operator=(η0o &&o)
-    { f(o.f()); c(o.c()); h(o.h()); si_ = o.si_; ss_ = o.ss_;
+    { t(o.t()); f(o.f()); c(o.c()); h(o.h()); si_ = o.si_; ss_ = o.ss_;
       so_ = o.so_; cs_ = o.cs_;
       o.so_ = nullptr; o.cs_ = nullptr;
       return *this; }
@@ -52,11 +52,11 @@ struct η0o
 
   uN   osize() const { return isize() + fsize(); }
   uN   isize() const { return cs() ? cs()->size() : ssize(); }
-  uN   ssize() const { return so_ ? so_->size() : ss_; }
+  uN   ssize() const { return so_  ? so_->size()  : ss_; }
 
   u8c *idata() const { return cs() ? cs()->data() : sdata(); }
-  u8c *sdata() const { return so_ ? so_->data() : si_.data(); }
-  u8  *sdata()       { return so_ ? so_->data() : si_.data(); }
+  u8c *sdata() const { return so_  ? so_->data()  : si_.data(); }
+  u8  *sdata()       { return so_  ? so_->data()  : si_.data(); }
 
 
   u8  *iptr(uN l)    { return at_(ssize(), l); }
@@ -109,8 +109,8 @@ protected:
   u8   c_ : 5;
   u8   h_ : 1;
   η0t  t_;
+  u8         ss_;  // inline string size
   Ar<u8, is> si_;  // inline string data
-  uN         ss_;  // inline string size
   B         *so_;  // out-of-line string data
   B mutable *cs_;  // compresed string, or null
 

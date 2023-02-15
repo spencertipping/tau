@@ -22,7 +22,9 @@ using namespace std;
 bool run(πfn f)
 {
   πi i;
-  return f.run(i);
+  let r = f.run(i);
+  cout << i << endl;
+  return r;
 }
 
 
