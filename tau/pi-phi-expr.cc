@@ -24,6 +24,12 @@ static φ<πfn> φatomd_;
 }
 
 
+φ<πfn> φπfn()
+{
+  return φm<πfn, πfn>(φπ(), [](πfn f) { return f.q(); });
+}
+
+
 φ<πfn> φgroup()
 {
   return φm<P<πfn, Op<int>>, πfn>(φs(φπ(), φo(φl("]", 0))),
@@ -44,6 +50,7 @@ static φ<πfn> φatomd_;
     φatomd().def("(", φtuple());
     φatomd().def("{", φmap());
     φatomd().def("[", φgroup());
+    φatomd().def("λ", φπfn());
     φatomd().def(
       "a", φl("", πfn{πinsn{"t[0]", [](πi &i) { i.dpush(i.y()[0]); return πinsn_ok; }}}),
       "b", φl("", πfn{πinsn{"t[1]", [](πi &i) { i.dpush(i.y()[1]); return πinsn_ok; }}}),

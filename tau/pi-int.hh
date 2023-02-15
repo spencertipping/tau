@@ -19,7 +19,7 @@ struct πi
   πi() {}
   πi(ξi i__, ξo o__) : i_(i__), o_(o__) {}
 
-  η    y () const { return *i_; }
+  η    y () const { return i_.eof() ? nullptr : *i_; }
   η0o &ηo()       { return os_.back(); }
 
   template<η0ot T>

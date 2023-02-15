@@ -41,9 +41,12 @@ struct πfn
 
   πfn q() const
     { πfn r;
-      r << πinsn{"[", [n=fs.size()](πi &i) { i.rpeek() += n + 1; return πinsn_ok; }};
+      r << πinsn{"[", [n=fs.size()](πi &i)
+        { i.dpush(η1o(i.rpeek()));
+          i.rpeek() += n + 1;  // n in the function, plus ]
+          return πinsn_ok; }};
       r += *this;
-      r << πinsn{"]", []           (πi &i) { i.rpop(); return πinsn_ok; }};
+      r << πinsn{"]", [](πi &i) { i.rpop(); return πinsn_ok; }};
       return r; }
 
   // Runs this function on the given interpreter, returning true on success

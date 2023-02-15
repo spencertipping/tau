@@ -22,6 +22,7 @@ namespace τ
 
 // Parser for π η-transformers (expressions/programs)
 φ<πfn> φπ();
+φ<πfn> φπfn();
 
 
 // Primary dispatch for γ parser

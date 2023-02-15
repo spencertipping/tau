@@ -31,7 +31,7 @@ using namespace std;
 
 void run(πfn f)
 {
-  (γπ(outify(f)) | γostream(cout))(τe{}).go();
+  (γfr(0) | γtsv() | γπ(outify(f)) | γostream(cout))(τe{}).go();
 }
 
 
@@ -39,7 +39,7 @@ void debug(πfn f)
 {
   outify(f);
   cout << f << endl;
-  (γπ(f, "", [](πi &i, πinsn const &s)
+  (γfr(0) | γtsv() | γπ(f, "", [](πi &i, πinsn const &s)
     { cout << "about to run " << s << " on " << i << endl;
       return true; }) | γostream(cout))(τe{}).go();
 }
