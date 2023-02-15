@@ -7,6 +7,7 @@
 #include "phi-ctor.hh"
 
 #include "pi-int.hh"
+#include "pi-fn.hh"
 
 #include "begin.hh"
 
@@ -14,13 +15,13 @@ namespace τ
 {
 
 
-// FIXME: do we want this value model, or do we want void(πi&) and mutable
-// manipulation?
-
 template<class T>
-φ<πf<T>> φlift(φ<T> p)
+φ<πfn> φconst(φ<T> p)
 {
-  return φm<T, πf<T>>(p, [](T r) { return [r](πi) { return r; }; });
+  return φm<T, πfn>(p, [](T r)
+    { return πinsn{
+        (Ss{} << "const " << r).str(),
+        [r](πi &i) { i.dpush(r); return πinsn_ok; }}; });
 }
 
 

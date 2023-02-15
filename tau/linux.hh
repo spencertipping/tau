@@ -24,7 +24,7 @@ namespace τ
 {
 
 
-void φlinux(φd_<πef>&);
+void φlinux(φd_<πfn>&);
 
 
 }

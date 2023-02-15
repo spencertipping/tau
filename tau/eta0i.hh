@@ -39,6 +39,9 @@ struct η0i
   ~η0i() { if (d) free(d); }
 
 
+  bool exists() const { return a; }
+
+
   η0t  type()  const { return t; }
   η0ft ftype() const { return ft; }
   uN   hsize() const { return hs; }
@@ -143,9 +146,10 @@ protected:
     { a = a_;
       if (d) free(d);
       d  = nullptr;
-      ft = decode_ft();
-      hs = calculate_hs();
-      t  = decode_type(); }
+      if (a)
+      { ft = decode_ft();
+        hs = calculate_hs();
+        t  = decode_type(); } }
 
   η0ft decode_ft() const
     { if (!(*a & 128))  return η0ft::s;

@@ -5,43 +5,12 @@
 #include "eta.hh"
 #include "xiio.hh"
 #include "gamma.hh"
+#include "pi-val.hh"
 
 #include "begin.hh"
 
 namespace τ
 {
-
-
-struct πi;
-struct πv;
-
-template<class T> using πf = F<T(πi&)>;
-
-
-// Evaluation function: escape by returning true
-typedef πf<bool> πef;
-
-
-// Dynamically-typed π value
-struct πv
-{
-  template<η0ot T>
-  πv(T const &x)
-    { B r; r.resize(x.osize());
-      x.into(r.data());
-      v_ = std::move(r); }
-
-  πv(γ g) { v_ = g; }
-
-  bool is_η() const { return v_.index() == 0; }
-  bool is_γ() const { return v_.index() == 1; }
-
-  η as_η() const { return η(std::get<0>(v_).data()); }
-  γ as_γ() const { return   std::get<1>(v_); }
-
-protected:
-  Va<B, γ> v_;
-};
 
 
 // π program interpreter
@@ -53,16 +22,42 @@ struct πi
   η    y () const { return *i_; }
   η0o &ηo()       { return os_.back(); }
 
+  template<η0ot T>
+  πi &dpush(T  const &x) { is_.push_back(πv{x}); return *this; }
+  πi &dpush(πv const &v) { is_.push_back(v);     return *this; }
+  πv &dpeek() { return is_.back(); }
+  πv  dpop()  { let r = is_.back(); is_.pop_back(); return r; }
+
+
+  πi &rpush(uN o)    { rs_.push_back(o); return *this; }
+  uN &rpeek()        { return rs_.back(); }
+  uN  rpop()         { let r = rs_.back(); rs_.pop_back(); return r; }
+  uN  rdepth() const { return rs_.size(); }
+
+
+  η0o &wbegin(η0t t) { os_.push_back(η0o{t}); return os_.back(); }
+  bool wend()
+    { let v = os_.back(); os_.pop_back();
+      if (os_.empty()) return o_ << v;
+      os_.back() << v;
+      return true; }
+
+  η0o &wv() { return os_.back(); }
+
+  πv   rv() { return is_.empty() ? *i_ : dpeek(); }
+
+
+  ξi &i() { return i_; }
+  ξo &o() { return o_; }
+
 
 protected:
-  ξi     i_;
-  ξo     o_;
-  V<πv>  is_;
-  V<η0o> os_;
+  ξi     i_;   // input channel
+  ξo     o_;   // output channel
+  V<πv>  is_;  // data stack
+  V<η0o> os_;  // pending output values
+  V<uN>  rs_;  // return stack
 };
-
-
-O &operator<<(O&, πv const&);
 
 
 }

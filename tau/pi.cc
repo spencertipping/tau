@@ -9,17 +9,17 @@ namespace τ
 {
 
 
-φ<πef> φγ()
+φ<πfn> φγ()
 {
   static bool i = false;
-  static let  r = new φd_<πef>;
+  static let  r = new φd_<πfn>;
   if (!i)
   {
     φshare(*r);
     φlinux(*r);
     φwasm(*r);
   }
-  return Sp<φ_<πef>>(r);
+  return Sp<φ_<πfn>>(r);
 }
 
 

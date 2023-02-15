@@ -21,7 +21,7 @@ namespace τ
 {
 
 
-void φshare(φd_<πef>&);
+void φshare(φd_<πfn>&);
 
 
 }

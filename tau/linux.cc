@@ -6,12 +6,12 @@ namespace τ
 
 
 #if τlinux
-void φlinux(φd_<πef> &f)
+void φlinux(φd_<πfn> &f)
 {
   TODO("φlinux");
 }
 #else
-void φlinux(φd_<πef>&) {}
+void φlinux(φd_<πfn>&) {}
 #endif
 
 

@@ -17,7 +17,7 @@ Operators are left-associative unary postfix expressions with arguments on the r
 
 
 ### Parser structure
-A π program is ultimately a function against a mutable interpreter. We probably want the toplevel to return a continue/stop flag when used in a loop context, so `φ<F<bool(πi&)>>`. In general, returning `true` means there's an exceptional condition and execution shouldn't continue.
+A π program is ultimately a function against a mutable interpreter. We probably want the toplevel to return a continue/stop flag when used in a loop context, so `φ<F<bool(πi&)>>` -- but we wrap this in a program so we can execute multiple instructions. In general, returning `true` means there's an exceptional condition and execution shouldn't continue.
 
 `πi` keeps a register for current input; this is updated when evaluating operators. For example, `+3` is a postfix polymorphic function that applies to the current input -- so an expression like `1+3` is a series of parsers that can be applied sequentially:
 

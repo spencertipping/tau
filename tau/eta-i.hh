@@ -28,6 +28,13 @@ struct η
         if (let f = pxf<void(*)(void*)>()) (*f)(pv<void*>()); }
 
 
+  η &operator=(u8c       *a) { i_ = a;    return *this; }
+  η &operator=(η0i const &i) { i_ = i;    return *this; }
+  η &operator=(η   const &y) { i_ = y.i_; return *this; }
+
+  bool exists() const { return i_.exists(); }
+
+
   η0t  t() const { return i_.type(); }
   u8   c() const { return i_.c(); }
   bool f() const { return i_.f(); }
