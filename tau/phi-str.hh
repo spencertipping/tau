@@ -35,7 +35,7 @@ struct φd_ : public virtual φ_<T>
   φr_<T> operator()(φc_ const &x) const
     { V<St> ks;
       for (let &[k, p] : ps)
-        if (x.i() + k.size() <= x.l() && x.sub(k.size()) == k) ks.push_back(k);
+        if (k.size() <= x.l() && x.sub(k.size()) == k) ks.push_back(k);
       std::sort(ks.begin(), ks.end(),
                 [](Stc &a, Stc &b) { return a.size() > b.size(); });
       // TODO: collect failures

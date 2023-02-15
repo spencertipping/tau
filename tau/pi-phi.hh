@@ -18,21 +18,14 @@ namespace τ
 
 
 // Parser for all τ-defined γs
-φ<πfn>    φγ();
+φ<πfn> φγ();
 
-// Parser for π η-transformers
-φ<πfn>    φπ();
+// Parser for π η-transformers (expressions/programs)
+φ<πfn> φπ();
 
 
 // Primary dispatch for γ parser
 φd_<πfn> &φγd();
-
-
-// Primary alternative for π parser
-φa_<πfn> &φπa();
-
-// Secondary dispatch for π parser
-φd_<πfn> &φπd();
 
 
 // Convert a constant into a πfn that pushes that constant
@@ -65,12 +58,14 @@ template<class T> φ<πfn> φk(φ<T> p)
 
 
 // A value that is parsed independently of the current input type
-φ<πfn>   φπatom();
+φ<πfn>    φatom();
+φa_<πfn> &φatoma();
+φd_<πfn> &φatomd();
 
 
-// TODO: typed expression
-// TODO: generic expression
-// TODO: interpreter-type dispatch parser
+// Postfix operator clause, applied to a value
+φ<πfn>    φop();
+φd_<πfn> &φopd();
 
 
 }

@@ -12,25 +12,36 @@ using namespace std;
 
 πfn parse(St source)
 {
-  let r = (*φπ())(φc_{source});
+  let e = φs(φπ(), φE());
+  let r = (*e)(φc_{source});
   A(r.is_a(),
     "parse failure at offset " << r.j << ": " << r.e << " " << r.t);
-  return r.y.value();
+  return std::get<0>(r.y.value());
 }
 
 
-bool run(πfn f)
+πfn &outify(πfn &f)
 {
-  πi i;
-  let r = f.run(i);
-  cout << i << endl;
-  return r;
+  return f << πinsn{"out", [](πi &i)
+    { if (i.dpeek().is_η()) i.o() << i.dpop().as_η();
+      else                  i.o() << η1o(i.dpop().as_γ().name());
+      return πinsn_ok; }};
 }
 
 
-bool run(St source)
+void run(πfn f)
 {
-  return run(parse(source));
+  (γπ(outify(f)) | γostream(cout))(τe{}).go();
+}
+
+
+void debug(πfn f)
+{
+  outify(f);
+  cout << f << endl;
+  (γπ(f, "", [](πi &i, πinsn const &s)
+    { cout << "about to run " << s << " on " << i << endl;
+      return true; }) | γostream(cout))(τe{}).go();
 }
 
 
@@ -38,13 +49,13 @@ int main(int argc, char **argv)
 {
   τassert_begin;
   A(argc > 1, "usage: " << argv[0] << " command");
-  if (!strcmp(argv[1], "parse"))
-  { cout << parse(argv[2]) << endl;
-    return 0; }
+  if (!strcmp(argv[1], "parse")) { cout << parse(argv[2]) << endl; return 0; }
+  if (!strcmp(argv[1], "debug")) { debug(parse(St{argv[2]}));      return 0; }
 
   if (!strcmp(argv[1], "run")) ++argv, --argc;
 
-  return run(St{argv[1]}) ? 0 : 1;
+  run(parse(St{argv[1]}));
+  return 0;
   τassert_end;
 }
 

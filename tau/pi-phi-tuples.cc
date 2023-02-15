@@ -8,8 +8,10 @@ namespace τ
 φ<πfn> φtuple_element()
 {
   static φ<πfn> r;
-  if (!r) r = φm<πfn, πfn>(φπ(), [](πfn f)
-    { return f << πinsn{"tpush", [](πi &i) { i.wv() << i.dpop().as_η(); return πinsn_ok; }}; });
+  if (!r)
+    r = φm<πfn, πfn>(φπ(), [](πfn f)
+      { return f << πinsn{"tpush", [](πi &i)
+        { i.wv() << i.dpop().as_η(); return πinsn_ok; }}; });
   return r;
 }
 

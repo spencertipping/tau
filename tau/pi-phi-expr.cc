@@ -1,7 +1,4 @@
 #include "pi.hh"
-#include "share.hh"
-#include "linux.hh"
-#include "wasm.hh"
 
 #include "begin.hh"
 
@@ -9,43 +6,45 @@ namespace τ
 {
 
 
-static φ<πfn> φγ_;
-static φ<πfn> φπ_;
-static φ<πfn> φπd_;
+static φ<πfn> φatom_;
+static φ<πfn> φatomd_;
 
-φd_<πfn> &φγd() { if (!φγ_)  φγ_ .reset(new φd_<πfn>); return *dpc<φd_<πfn>>(φγ_); }
-φa_<πfn> &φπa() { if (!φπ_)  φπ_ .reset(new φa_<πfn>); return *dpc<φa_<πfn>>(φπ_); }
-φd_<πfn> &φπd() { if (!φπd_) φπd_.reset(new φd_<πfn>); return *dpc<φd_<πfn>>(φπd_); }
-
-
-φ<πfn> φγ()
-{
-  static bool i = false;
-  if (!i)
-  {
-    φγd();
-    i = true;
-    φshare(φγd());
-    φlinux(φγd());
-    φwasm (φγd());
-  }
-  return φN("φγ", φws(φγ_));
-}
+φa_<πfn> &φatoma() { if (!φatom_)  φatom_ .reset(new φa_<πfn>); return *dpc<φa_<πfn>>(φatom_); }
+φd_<πfn> &φatomd() { if (!φatomd_) φatomd_.reset(new φd_<πfn>); return *dpc<φd_<πfn>>(φatomd_); }
 
 
 φ<πfn> φπ()
 {
+  return φm<P<πfn, V<πfn>>, πfn>(
+    φs(φatom(), φn(φop())),
+    [](auto x)
+      { πfn r = std::get<0>(x);
+        for (let &y : std::get<1>(x)) r += y;
+        return r; });
+}
+
+
+φ<πfn> φgroup()
+{
+  return φm<P<πfn, Op<int>>, πfn>(φs(φπ(), φo(φl("]", 0))),
+                                  [](auto x) { return std::get<0>(x); });
+}
+
+
+φ<πfn> φatom()
+{
   static bool i = false;
   if (!i)
   {
-    φπa();
-    φπd();
+    φatoma();
+    φatomd();
     i = true;
-    φπa() << φπ_literal();
-    φπa() << φπd_;
-    φπd().def("(", φtuple());
+    φatoma() << φπ_literal();
+    φatoma() << φatomd_;
+    φatomd().def("(", φtuple());
+    φatomd().def("[", φgroup());
   }
-  return φN("φπ", φws(φπ_));
+  return φN("φπ", φws(φatom_));
 }
 
 

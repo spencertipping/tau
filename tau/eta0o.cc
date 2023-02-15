@@ -97,8 +97,8 @@ O &operator<<(O &s, η0o const &x)
   return s << "η₀o["
            << (x.f() ? "F" : "f")
            << (x.c() ? "C" : "c")
-           << (x.h() ? "H" : "h")
-           << " " << x.t() << " ssize=" << x.ssize() << "]";
+           << (x.h() ? "H" : "h") << " "
+           << x.t() << " ssize=" << x.ssize() << "]";
 }
 
 

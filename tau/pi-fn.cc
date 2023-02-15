@@ -5,19 +5,16 @@ namespace τ
 {
 
 
-bool πfn::run(πi &i)
+bool πfn::run(πi &i, F<bool(πi&, πinsn const&)> each) const
 {
   let rd = i.rdepth();
   i.rpush(0);
   while (i.rdepth() >= rd)
   {
     let j = i.rpeek()++;
-    if (j >= fs.size()) return true;
-
-    std::cout << "=================" << std::endl;
-    std::cout << "πi = " << i << std::endl;
-    std::cout << "running " << fs[j] << std::endl;
-    if (!fs[j].f(i))    return false;
+    if (j >= fs.size())  return true;
+    if (!each(i, fs[j])) return false;
+    if (!fs[j].f(i))     return false;
   }
   return true;
 }

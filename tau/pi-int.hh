@@ -40,12 +40,10 @@ struct πi
 
 
   η0o &wbegin(η0t t) { os_.push_back(η0o{t}); return os_.back(); }
-  bool wend()
+  πi  &wend()
     { A(!os_.empty(), "πi::wend with empty os_");
-      η0o v = std::move(os_.back()); os_.pop_back();
-      if (os_.empty()) return o_ << v;
-      os_.back() << v;
-      return true; }
+      dpush(std::move(os_.back())); os_.pop_back();
+      return *this; }
 
   η0o &wv() { return os_.back(); }
 

@@ -102,21 +102,6 @@ Whitespace breaks π expressions unless `[]` are used, just like `ni` grammar. I
 ```
 
 
-### Tuple/map accessors
-I'd like for tuple and map lookups to use overlapping grammars, which is possible if we dual-parse each η expression into separate functions, one for tuples and one for maps. The function is selected based on input type.
-
-This means `(ac` parses into two different expressions:
-
-+ `(η[0], η[2])` when η is a tuple
-+ `(η["ac"])` when η is a map
-
-In this case `π«` precludes the map interpretation because it forces the input to be a tuple. (Or does it? We can append map k/vs too.) But in general, expressions can have multiple meanings depending on the values they're applied to; and each such interpretation has a separate parse. A failed parse means that the expression can't be applied to that type.
-
-**NOTE:** this mechanism requires each sub-grammar to be delineated on the same endpoint; all η-type variant parses must agree about where the π expression ends.
-
-We can use upper/lower case to delineate map keys too. If we assume all map keys are canonically lowercase, then `abcDef` means `η["abc"]["def"]`.
-
-
 ### Variables
 I don't think variables will be common; ideally we can refer to everything by value and not store quantities. But we can allocate `:` to assign vars.
 
@@ -127,22 +112,3 @@ I don't think variables will be common; ideally we can refer to everything by va
 Asqi needs to be able to detect filetypes, which in the simplest case involves looking at the extension of a filename. Bash-style `a#*.` would suffice to reduce a filename `a` to its extension (`*` defaults to greedy, we don't need `#` vs `##`).
 
 ...or maybe `↓` to drop a regex/glob. So `a↓*.` would do it.
-
-
-### Conditionals
-There are two common types of conditionals we might want to apply:
-
-1. One-way check/fail, e.g. "skip blobs larger than 1MB"
-2. Multi-way table delegation, e.g. "switch/case on file extension" or "take the _n_th branch"
-
-These can all be notated with `?` followed by a series of alternatives:
-
-```
-a?1 2             ← booleans: true and false in that order
-a%3?1 2 3         ← integers: 0, 1, 2, etc with catch-all at end
-a?foo1 bar2 3     ← strings: choose associated branch with catch-all at end
-```
-
-Note that more than two items eliminates the boolean interpretation.
-
-Also note that strings can be written as `'asdf` or `"asdf"` literals to support numbers and special characters.
