@@ -1,6 +1,8 @@
 #ifndef τπφ_h
 #define τπφ_h
 
+#include "eta.hh"
+
 #include "phi.hh"
 #include "phi-fn.hh"
 #include "phi-str.hh"
@@ -16,12 +18,12 @@ namespace τ
 
 
 template<class T>
-φ<πfn> φconst(φ<T> p)
+φ<πfn> φk(φ<T> p)
 {
   return φm<T, πfn>(p, [](T r)
     { return πinsn{
         (Ss{} << "const " << r).str(),
-        [r](πi &i) { i.dpush(r); return πinsn_ok; }}; });
+        [r](πi &i) { i.dpush(η1o(r)); return πinsn_ok; }}; });
 }
 
 
@@ -30,8 +32,15 @@ template<class T>
 φ<St>    φstr_literal();
 φ<η1sig> φsig_literal();
 
+φ<πfn>   φπ_literal();
+
 φ<uN>    φηtuple_key();
 φ<St>    φηmap_key();
+
+
+// TODO: typed expression
+// TODO: generic expression
+// TODO: interpreter-type dispatch parser
 
 
 }

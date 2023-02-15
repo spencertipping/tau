@@ -35,6 +35,15 @@ static φ<St> dq_str()
                    φl("ω", η1sig::ω)); }
 
 
+φ<πfn> φπ_literal()
+{
+  return φa<πfn>(φk(φint_literal()),
+                 φk(φfloat_literal()),
+                 φk(φstr_literal()),
+                 φk(φsig_literal()));
+}
+
+
 φ<uN> φηtuple_key()
 { return φm<St, uN>(φcs("abcdefghij", false, 1),
                     [](St k) { return k[0] - 'a'; }); }

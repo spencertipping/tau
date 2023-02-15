@@ -19,7 +19,7 @@ sletc πinsn_error = false;
 // Single instruction within a program
 struct πinsn
 {
-  Stc               name;
+  St                name;
   F<πinsn_ret(πi&)> f;
 };
 
