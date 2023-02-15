@@ -73,7 +73,7 @@ struct φcs_ : public virtual φ_<St>
   φr_<St> operator()(φc_ const &x) const
     { St r;
       uN i = x.i(), j = 0;
-      while (j < l && i + j < x.l() && cs[x[i]] ^ n) r += x[i + j];
+      while (j < l && i + j < x.l() && cs[x[i]] ^ n) r += x[i + j++];
       return x.a(r, x.i() + r.size()); }
 
   cs7  cs;
@@ -90,7 +90,7 @@ struct φE_ : public virtual φ_<bool>
   φr_<bool> operator()(φc_ const &x) const
     { return x.i() == x.l()
            ? x.a(true, x.i())
-           : x.f<bool>("not eof", x.i()); }
+           : x.f<bool>((Ss{} << "not eof: " << x.i() << " ≠ " << x.l()).str(), x.i()); }
 };
 
 

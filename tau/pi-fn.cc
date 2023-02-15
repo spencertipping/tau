@@ -12,7 +12,8 @@ bool πfn::run(πi &i)
   while (i.rdepth() >= rd)
   {
     let j = i.rpeek()++;
-    if (!fs[j].f(i)) return false;
+    if (j >= fs.size()) return true;
+    if (!fs[j].f(i))    return false;
   }
   return true;
 }

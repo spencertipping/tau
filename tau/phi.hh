@@ -77,7 +77,7 @@ struct φc_
 
   Stc &x() const { return *x_; }
   uN   i() const { return i_; }
-  uN   l() const { return x_->size() - i_; }
+  uN   l() const { return x_->size(); }
 
   ch operator[](uN i) const { return x_->at(i_ + i); }
   St sub(uN n)        const { return x_->substr(i_, n); }

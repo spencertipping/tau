@@ -18,23 +18,14 @@ namespace τ
 
 
 // Parser for all τ-defined γs
-φ<πfn> φγ();
-
-template<class... Xs>
-void φγdef(Xs const&... xs)
-{
-  dpc<φd_<πfn>>(φγ())->def(xs...);
-}
+φ<πfn>    φγ();
+φd_<πfn> &φγd();
 
 
 // Parser for π η-transformers
-φ<πfn> φπ();
-
-template<class... Xs>
-void φπdef(Xs const&... xs)
-{
-  dpc<φd_<πfn>>(φπ())->def(xs...);
-}
+φ<πfn>    φπ();
+φa_<πfn> &φπa();
+φd_<πfn> &φπd();
 
 
 }

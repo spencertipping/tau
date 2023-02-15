@@ -38,6 +38,14 @@ template<class T>
 φ<St>    φηmap_key();
 
 
+// Whitespace + comments
+φ<πfn>   φws();
+
+
+// A value that is parsed independently of the current input type
+φ<πfn> φπatom();
+
+
 // TODO: typed expression
 // TODO: generic expression
 // TODO: interpreter-type dispatch parser

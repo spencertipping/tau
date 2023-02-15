@@ -3,8 +3,8 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 
-cflags="$(<compile_flags.txt) -O3"
-#cflags="$(<compile_flags.txt) -O0 -g"
+#cflags="$(<compile_flags.txt) -O3"
+cflags="$(<compile_flags.txt) -O0 -g"
 
 linux_flags="$cflags -flto"
 wasm_flags="$cflags -fexceptions"
