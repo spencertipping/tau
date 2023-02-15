@@ -16,15 +16,13 @@ namespace τ
 // η₀ frame output container, with small-value optimization
 struct η0o
 {
-  η0o(η0t t) : f_(0), c_(0), h_(0), t_(t),
-               ss_(0), si_({0}), so_(nullptr), cs_(nullptr) {}
+  η0o(η0t t) : f_(0), c_(0), h_(0), t_(t), cs_(nullptr) {}
 
-  η0o(η0o const &o) : ss_(0), so_(nullptr), cs_(nullptr) { *this = o; }
-  η0o(η0o      &&o) : ss_(0), so_(nullptr), cs_(nullptr) { *this = std::move(o); }
+  η0o(η0o const &o) : cs_(nullptr) { *this = o; }
+  η0o(η0o      &&o) : cs_(nullptr) { *this = std::move(o); }
 
   ~η0o()
-    { if (so_) delete so_;
-      if (cs_) delete cs_; }
+    { if (cs_) delete cs_; }
 
 
   η0o &operator=(η0i const &i)
@@ -33,14 +31,14 @@ struct η0o
       return *this; }
 
   η0o &operator=(η0o const &o)
-    { t(o.t()); f(o.f()); c(o.c()); h(o.h()); si_ = o.si_; ss_ = o.ss_; clear();
+    { t(o.t()); f(o.f()); c(o.c()); h(o.h()); clear();
       memcpy(at_(0, o.isize()), o.idata(), o.isize());
       return *this; }
 
   η0o &operator=(η0o &&o)
-    { t(o.t()); f(o.f()); c(o.c()); h(o.h()); si_ = o.si_; ss_ = o.ss_;
-      so_ = o.so_; cs_ = o.cs_;
-      o.so_ = nullptr; o.cs_ = nullptr;
+    { t(o.t()); f(o.f()); c(o.c()); h(o.h());
+      so_ = std::move(o.so_); cs_ = o.cs_;
+      o.cs_ = nullptr;
       return *this; }
 
 
@@ -52,11 +50,11 @@ struct η0o
 
   uN   osize() const { return isize() + fsize(); }
   uN   isize() const { return cs() ? cs()->size() : ssize(); }
-  uN   ssize() const { return so_  ? so_->size()  : ss_; }
+  uN   ssize() const { return so_.size(); }
 
   u8c *idata() const { return cs() ? cs()->data() : sdata(); }
-  u8c *sdata() const { return so_  ? so_->data()  : si_.data(); }
-  u8  *sdata()       { return so_  ? so_->data()  : si_.data(); }
+  u8c *sdata() const { return so_.data(); }
+  u8  *sdata()       { return so_.data(); }
 
 
   u8  *iptr(uN l)    { return at_(ssize(), l); }
@@ -87,18 +85,14 @@ struct η0o
 
   η0o &clear()
     { touch();
-      if (so_) delete so_, so_ = nullptr;
-      ss_ = 0;
+      so_.clear();
       return *this; }
 
   η0o &expand_to(uN c)
     { A(c >= ssize(), "η₀o::expand_to cannot shrink " << ssize() << " to " << c);
       if (c == ssize()) return *this;
       touch();
-      if (c > is)
-        if (!so_) { (so_ = new B)->resize(c); memcpy(so_->data(), si_.data(), ss_); }
-        else      so_->resize(c);
-      else ss_ = c;
+      so_.resize(c);
       return *this; }
 
 
@@ -109,9 +103,7 @@ protected:
   u8   c_ : 5;
   u8   h_ : 1;
   η0t  t_;
-  u8         ss_;  // inline string size
-  Ar<u8, is> si_;  // inline string data
-  B         *so_;  // out-of-line string data
+  B    so_;        // uncompressed data
   B mutable *cs_;  // compresed string, or null
 
 
@@ -122,7 +114,7 @@ protected:
 
   u8 *at_(uN i, uN l)
     { if (ssize() < i + l) expand_to(i + l);
-      return so_ ? so_->data() + i : si_.data() + i; }
+      return so_.data() + i; }
 };
 
 

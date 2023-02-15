@@ -27,7 +27,16 @@ static φ<πfn> φγ_;
     φlinux(φγd());
     φwasm (φγd());
   }
-  return φN("φγ", φws(φγ_));
+  return φN("φγ", φm<V<πfn>, πfn>(φn(φws(φγ_), 1), [](V<πfn> fs)
+    { πfn r;
+      for (let &x : fs)
+      { r += x;
+        r << πinsn{"γ|", [](πi &i)
+        { let b = i.dpop().as_γ();
+          let a = i.dpop().as_γ();
+          i.dpush(a | b);
+          return πinsn_ok; }}; }
+      return r; }));
 }
 
 
