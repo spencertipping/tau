@@ -57,7 +57,8 @@ static void loops_h(φd_<πfn> &f)
 
 static void pi_h(φd_<πfn> &f)
 {
-  std::cerr << "TODO: γπ" << std::endl;
+  f.def("π", φinsn(φk(φq(φatom())), πf("π", [](η x)
+    { return γπ(*(*φatom())(φc_(x.st())).y, x.st()); })));
 }
 
 
