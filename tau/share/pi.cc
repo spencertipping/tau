@@ -1,7 +1,7 @@
 #include "pi.hh"
-#include "share/topology.hh"
+#include "topology.hh"
 
-#include "begin.hh"
+#include "../begin.hh"
 
 namespace τ
 {
@@ -16,4 +16,4 @@ namespace τ
 
 }
 
-#include "end.hh"
+#include "../end.hh"

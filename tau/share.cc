@@ -1,3 +1,9 @@
+#include "phi.hh"
+#include "phi-str.hh"
+#include "gamma.hh"
+
+#include "pi.hh"
+
 #include "share.hh"
 #include "begin.hh"
 

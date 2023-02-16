@@ -4,15 +4,10 @@
 
 #include "share/io.hh"
 #include "share/loops.hh"
+#include "share/pi.hh"
 #include "share/routing.hh"
 #include "share/strings.hh"
 #include "share/topology.hh"
-
-#include "phi.hh"
-#include "phi-str.hh"
-#include "gamma.hh"
-
-#include "pi.hh"
 
 
 #include "begin.hh"
