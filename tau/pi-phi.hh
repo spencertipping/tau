@@ -36,15 +36,20 @@ namespace τ
 φ<πfn>   φπ_literal();
 
 
-φ<πfn>   φtuple();
-φ<πfn>   φmap();
-φ<πfn>   φηtuple_element();
-φ<πfn>   φηmap_element();
+// Bareword as string, lowercase only
+φ<πfn> φword();
+
+
+φ<πfn> φtuple();
+φ<πfn> φmap();
+φ<πfn> φηtuple_element();
+φ<πfn> φηmap_element();
 
 
 // Whitespace + comments
-φ<πfn>   φws();
-φ<πfn>   φws(φ<πfn>);  // whitespace wrapped around something
+φ<πfn> φws();
+φ<πfn> φws(φ<πfn>);  // whitespace wrapped around something
+
 
 
 // A value that is parsed independently of the current input type
@@ -74,14 +79,14 @@ template<class... Xs>
 
 
 // Convert a constant into a πfn that pushes that constant
-template<class T> φ<πfn> φk(φ<T> p)
-{ return φm<T, πfn>(p, [](T r)
-  { return πinsn{
-      (Ss{} << "const " << r).str(),
-      [r](πi &i) { i.dpush(η1o(r)); }}; }); }
-
-
-φ<πfn> φword();
+template<class T>
+φ<πfn> φk(φ<T> p)
+{
+  return φm<T, πfn>(p, [](T r)
+    { return πinsn{
+        (Ss{} << "const " << r).str(),
+        [r](πi &i) { i.dpush(η1o(r)); }}; });
+}
 
 
 }
