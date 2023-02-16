@@ -18,15 +18,14 @@ namespace τ
 
 
 // Parser for all τ-defined γs
-φ<πfn> φγ();
+φ<πfn>    φγ();
+φ<πfn>    φγ1();
+φd_<πfn> &φγd();
+
 
 // Parser for π η-transformers (expressions/programs)
 φ<πfn> φπ();
 φ<πfn> φπfn();
-
-
-// Primary dispatch for γ parser
-φd_<πfn> &φγd();
 
 
 // Convert a constant into a πfn that pushes that constant
