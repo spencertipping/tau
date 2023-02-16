@@ -90,6 +90,34 @@ struct φn_ : public virtual φ_<V<T>>
 };
 
 
+// Sequence of same-typed thing
+template<class T>
+struct φS_ : public virtual φ_<V<T>>
+{
+  template<class... Xs>
+  φS_(Xs const&... ps_) : ps({ps_...}) {}
+
+  St name() const
+    { Ss r;
+      r << "φs[";
+      for (let &p : ps) r << p->name() << " ";
+      r << "]";
+      return r.str(); }
+
+  φr_<V<T>> operator()(φc_ const &x) const
+    { V<T> r;
+      φc_ y = x.at(*this);
+      for (let &p : ps)
+      { let s = (*p)(y);
+        if (s.is_f()) return s.template cast<V<T>>();
+        r.push_back(*s.y);
+        y = y.at(s.j); }
+      return y.a(r, y.i()); }
+
+  V<φ<T>> ps;
+};
+
+
 // Optional
 template<class T>
 struct φo_ : public virtual φ_<Op<T>>

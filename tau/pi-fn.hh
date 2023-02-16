@@ -19,9 +19,30 @@ sletc πinsn_error = false;
 // Single instruction within a program
 struct πinsn
 {
+  πinsn(St name_, F<πinsn_ret(πi&)> f_) : name(name_), f(f_) {}
+  πinsn(St name_, F<void(πi&)> f_)
+    : name(name_), f([f_](πi &i) { f_(i); return πinsn_ok; }) {}
+
   St                name;
   F<πinsn_ret(πi&)> f;
 };
+
+
+template<class T>
+std::enable_if_t<!std::is_same_v<T, γ>, πinsn>
+πpush(T const &x)
+{ return πinsn((Ss{} << "push " << x).str(), [x](πi &i) { i.dpush(η1o(x)); }); }
+
+inline πinsn πpush(γ x)
+{ return πinsn((Ss{} << "push " << x).str(), [x](πi &i) { i.dpush(x); }); }
+
+
+inline πinsn πf(St n, F<γ(γ)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_γ())); }); }
+inline πinsn πf(St n, F<γ(η)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η())); }); }
+
+inline πinsn πf(St n, F<γ(i64)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().pi())); }); }
+inline πinsn πf(St n, F<γ(η1sig)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().ps())); }); }
+inline πinsn πf(St n, F<γ(St)>    f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st())); }); }
 
 
 // π program/function (which are the same thing)
@@ -43,10 +64,9 @@ struct πfn
     { πfn r;
       r << πinsn{"[", [n=fs.size()](πi &i)
         { i.dpush(η1o(i.rpeek()));
-          i.rpeek() += n + 1;  // n in the function, plus ]
-          return πinsn_ok; }};
+          i.rpeek() += n + 1; }};
       r += *this;
-      r << πinsn{"]", [](πi &i) { i.rpop(); return πinsn_ok; }};
+      r << πinsn{"]", [](πi &i) { i.rpop(); }};
       return r; }
 
   // Runs this function on the given interpreter, returning true on success

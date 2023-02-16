@@ -25,8 +25,7 @@ static φ<πfn> φγ_;
         r << πinsn{"γ|", [](πi &i)
           { let b = i.dpop().as_γ();
             let a = i.dpop().as_γ();
-            i.dpush(a | b);
-            return πinsn_ok; }}; }
+            i.dpush(a | b); }}; }
       return r; }));
 }
 

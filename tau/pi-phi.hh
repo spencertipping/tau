@@ -28,14 +28,6 @@ namespace τ
 φ<πfn> φπfn();
 
 
-// Convert a constant into a πfn that pushes that constant
-template<class T> φ<πfn> φk(φ<T> p)
-{ return φm<T, πfn>(p, [](T r)
-    { return πinsn{
-        (Ss{} << "const " << r).str(),
-        [r](πi &i) { i.dpush(η1o(r)); return πinsn_ok; }}; }); }
-
-
 φ<i64>   φint_literal();
 φ<f64>   φfloat_literal();
 φ<St>    φstr_literal();
@@ -64,6 +56,32 @@ template<class T> φ<πfn> φk(φ<T> p)
 // Postfix operator clause, applied to a value
 φ<πfn>    φop();
 φd_<πfn> &φopd();
+
+
+// Append an instruction
+φ<πfn> φinsn(φ<πfn>, πinsn);
+φ<πfn> φnull(πinsn);
+
+
+template<class... Xs>
+φ<πfn> φπs(Xs const&... ps)
+{
+  return φm<V<πfn>, πfn>(φS<πfn>(ps...), [](V<πfn> fs)
+    { πfn r;
+      for (let &f : fs) r += f;
+      return r; });
+}
+
+
+// Convert a constant into a πfn that pushes that constant
+template<class T> φ<πfn> φk(φ<T> p)
+{ return φm<T, πfn>(p, [](T r)
+  { return πinsn{
+      (Ss{} << "const " << r).str(),
+      [r](πi &i) { i.dpush(η1o(r)); }}; }); }
+
+
+φ<πfn> φword();
 
 
 }

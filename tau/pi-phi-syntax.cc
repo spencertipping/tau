@@ -13,6 +13,12 @@ static φ<πfn> φcomment()
                              [](auto) { return πfn(); }); }
 
 
+φ<πfn> φword()
+{
+  return φk(φcs("abcdefghijklmnopqrstuvwxyz", false, 1));
+}
+
+
 φ<πfn> φws()
 {
   static φ<πfn> r;

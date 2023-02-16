@@ -24,8 +24,7 @@ using namespace std;
 {
   return f << πinsn{"out", [](πi &i)
     { if (i.dpeek().is_η()) i.o() << i.dpop().as_η();
-      else                  i.o() << η1o(i.dpop().as_γ().name());
-      return πinsn_ok; }};
+      else                  i.o() << η1o(i.dpop().as_γ().name()); }};
 }
 
 

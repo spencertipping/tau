@@ -7,8 +7,7 @@ namespace τ
 
 static πinsn φmap_push()
 {
-  return πinsn{"mpush", [](πi &i)
-    { i.wv() << i.dpop().as_η(); return πinsn_ok; }};
+  return πinsn{"mpush", [](πi &i) { i.wv() << i.dpop().as_η(); }};
 }
 
 
@@ -34,9 +33,9 @@ static πinsn φmap_push()
       φs(φn(φmap_element()), φo(φl("}", 0))),
       [](P<V<πfn>, Op<int>> p)
         { πfn r;
-          r << πinsn{"mbegin", [](πi &i) { i.wbegin(η0t::map); return πinsn_ok; }};
+          r << πinsn{"mbegin", [](πi &i) { i.wbegin(η0t::map); }};
           for (let &x : std::get<0>(p)) r += x;
-          r << πinsn{"mend", [](πi &i) { i.wend(); return πinsn_ok; }};
+          r << πinsn{"mend", [](πi &i) { i.wend(); }};
           return r; });
   return r;
 }

@@ -23,8 +23,12 @@ struct φd_ : public virtual φ_<T>
   φd_(Xs const&... xs) { def(xs...); }
 
   template<class... Xs>
-  φd_ &def(Stc &k, φ<T> p, Xs const&... xs) { ps[k] = p; return def(xs...); }
-  φd_ &def()                                {            return *this; }
+  φd_ &def(Stc &k, φ<T> p, Xs const&... xs)
+    { A(!ps.contains(k), *this << ": redefining " << k);
+      ps[k] = p;
+      return def(xs...); }
+
+  φd_ &def() { return *this; }
 
 
   St name() const
