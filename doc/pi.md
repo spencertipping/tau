@@ -80,7 +80,7 @@ In π, we should be able to say something like this: `«NGhπ(abc(ac)) ▶Gbπ(a
 That looks pretty compact.
 
 ```bash
-$ bin/phi "ι10↓8π:('foo yy▶ϊ▶[τπ:y+1]»'"
+$ bin/phi "ι10↓8π:('foo yy▶ϊ▶τπ:y+1»'"
 ("foo",8,0)
 ("foo",8,1)
 ("foo",8,2)
