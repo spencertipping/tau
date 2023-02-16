@@ -80,8 +80,9 @@ static void pi_h(φd_<πfn> &f)
       b << πinsn("ξi:", F<πinsn_ret(πi&)>([](πi &i)
         { let fn = i.dpop().as_η().pu();
           for (let x : i.i())
-          { i.dclear().dpush(x).run(fn);
-            if (!(i.o() << i.dpop().as_η())) return πinsn_error; }
+            if (!x.ts())
+            { i.dclear().dpush(x).run(fn);
+              if (!(i.o() << i.dpop().as_η())) return πinsn_error; }
           return πinsn_ok;
         }));
         return γπ(b, x.st()); })));
@@ -93,10 +94,11 @@ static void pi_h(φd_<πfn> &f)
       b << πinsn("ξi;", F<πinsn_ret(πi&)>([](πi &i)
         { let fn = i.dpop().as_η().pu();
           for (let x : i.i())
-          { i.dclear().dpush(x).run(fn);
-            if (!(i.o() << i.dpop().as_η())
-                || !(i.o() << η1o(η1sig::τ)))
-              return πinsn_error; }
+            if (!x.ts())
+            { i.dclear().dpush(x).run(fn);
+              if (!(i.o() << i.dpop().as_η())
+                  || !(i.o() << η1o(η1sig::τ)))
+                return πinsn_error; }
           return πinsn_ok;
         }));
       return γπ(b, x.st()); })));
@@ -108,12 +110,13 @@ static void pi_h(φd_<πfn> &f)
       b << πinsn("ξi«", F<πinsn_ret(πi&)>([](πi &i)
         { let fn = i.dpop().as_η().pu();
           for (let x : i.i())
-          { i.dclear().dpush(x).run(fn);
-            η0o o(x.t());
-            for (let y : x.T()) o << y;
-            o << i.dpop().as_η();
-            if (!(i.o() << o)) return πinsn_error; }
-          return πinsn_ok; }));
+            if (x.tT())
+            { i.dclear().dpush(x).run(fn);
+              η0o o(x.t());
+              for (let y : x.T()) o << y;
+              o << i.dpop().as_η();
+              if (!(i.o() << o)) return πinsn_error; }
+            return πinsn_ok; }));
       return γπ(b, x.st()); })));
 }
 
