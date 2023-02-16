@@ -52,16 +52,19 @@ static φ<πfn> φatomd_;
     φatomd().def("[", φgroup());
     φatomd().def("λ", φπfn());
     φatomd().def(
-      "a", φl("", πfn{πinsn{"t[0]", [](πi &i) { i.dpush(i.y()[0]); }}}),
-      "b", φl("", πfn{πinsn{"t[1]", [](πi &i) { i.dpush(i.y()[1]); }}}),
-      "c", φl("", πfn{πinsn{"t[2]", [](πi &i) { i.dpush(i.y()[2]); }}}),
-      "d", φl("", πfn{πinsn{"t[3]", [](πi &i) { i.dpush(i.y()[3]); }}}),
-      "e", φl("", πfn{πinsn{"t[4]", [](πi &i) { i.dpush(i.y()[4]); }}}),
-      "f", φl("", πfn{πinsn{"t[5]", [](πi &i) { i.dpush(i.y()[5]); }}}),
-      "g", φl("", πfn{πinsn{"t[6]", [](πi &i) { i.dpush(i.y()[6]); }}}),
-      "h", φl("", πfn{πinsn{"t[7]", [](πi &i) { i.dpush(i.y()[7]); }}}),
-      "i", φl("", πfn{πinsn{"t[8]", [](πi &i) { i.dpush(i.y()[8]); }}}),
-      "j", φl("", πfn{πinsn{"t[9]", [](πi &i) { i.dpush(i.y()[9]); }}}));
+      "a", φnull({"η[0]", [](πi &i) { i.dpush(i.y()[0]); }}),
+      "b", φnull({"η[1]", [](πi &i) { i.dpush(i.y()[1]); }}),
+      "c", φnull({"η[2]", [](πi &i) { i.dpush(i.y()[2]); }}),
+      "d", φnull({"η[3]", [](πi &i) { i.dpush(i.y()[3]); }}),
+      "e", φnull({"η[4]", [](πi &i) { i.dpush(i.y()[4]); }}),
+      "f", φnull({"η[5]", [](πi &i) { i.dpush(i.y()[5]); }}),
+      "g", φnull({"η[6]", [](πi &i) { i.dpush(i.y()[6]); }}),
+      "h", φnull({"η[7]", [](πi &i) { i.dpush(i.y()[7]); }}),
+      "i", φnull({"η[8]", [](πi &i) { i.dpush(i.y()[8]); }}),
+      "j", φnull({"η[9]", [](πi &i) { i.dpush(i.y()[9]); }}));
+
+    φatomd().def(
+      "y", φnull({"η", [](πi &i) { i.dpush(i.y()); }}));
   }
   return φN("φπ", φws(φatom_));
 }
