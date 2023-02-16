@@ -16,8 +16,8 @@ template<class T, class... Xs> φ<T> φd(Xs const&... xs) { return φ<T>{new φd
 template<class T>              φ<T> φl(St s, T v)       { return φ<T>{new φl_<T>(s, v)}; }
 
 inline φ<St>   φcs(chc *s, bool n = false, uN min = 0, uN max = -1) { return φ<St>  {new φcs_(s, n, min, max)}; }
-inline φ<bool> φE ()                                                { return φ<bool>{new φE_ ()}; }
 
+template<class T>              φ<T>       φE(φ<T> p)          { return φ<T>{new φE_<T>(p)}; }
 
 template<class T, class... Xs> φ<T>       φa(Xs const&... xs) { return φ<T>{new φa_<T>(xs...)}; }
 

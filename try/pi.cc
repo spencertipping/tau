@@ -12,11 +12,11 @@ using namespace std;
 
 πfn parse(St source)
 {
-  let e = φs(φπ(), φE());
+  let e = φE(φπ());
   let r = (*e)(φc_{source});
   A(r.is_a(),
     "parse failure at offset " << r.j << ": " << r.e << " " << r.t);
-  return std::get<0>(r.y.value());
+  return *r.y;
 }
 
 

@@ -109,14 +109,19 @@ struct φq_ : public virtual φ_<St>
 
 
 // End of input detector
-struct φE_ : public virtual φ_<bool>
+template<class T>
+struct φE_ : public virtual φ_<T>
 {
-  φE_() {}
-  St name() const { return "E"; }
-  φr_<bool> operator()(φc_ const &x) const
-    { return x.l()
-           ? x.f<bool>((Ss{} << "not eof: " << x.i() << " ≠ " << x.n()).str(), x.i())
-           : x.a(true, x.i()); }
+  φE_(φ<T> p_) : p(p_) {}
+
+  St name() const { return "E" + p->name(); }
+  φr_<T> operator()(φc_ const &x) const
+    { let s = (*p)(x);
+      if (s.is_f())     return s;
+      if (s.j != x.n()) return x.f<T>((Ss{} << "not eof: " << s.j << " ≠ " << x.n()).str(), s.j);
+      return s; }
+
+  φ<T> p;
 };
 
 

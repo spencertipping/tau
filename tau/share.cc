@@ -58,12 +58,12 @@ static void loops_h(φd_<πfn> &f)
 static void pi_h(φd_<πfn> &f)
 {
   // π= one-shot execution
-  f.def("π=", φinsn(φk(φq(φatom())), πf("π=", [](η x)
+  f.def("π=", φinsn(φk(φq(φπ())), πf("π=", [](η x)
     { let f = *(*φatom())(φc_(x.st())).y;
       return γπ(f, x.st()); })));
 
   // π loop over inputs
-  f.def("π*", φinsn(φk(φq(φatom())), πf("π*", [](η x)
+  f.def("π*", φinsn(φk(φq(φπ())), πf("π*", [](η x)
     { let f = *(*φatom())(φc_(x.st())).y;
       πfn b = f.q();
       b << πinsn("ξi*", [](πi &i)
@@ -72,7 +72,7 @@ static void pi_h(φd_<πfn> &f)
       return γπ(b, x.st()); })));
 
   // π 1:1 map
-  f.def("π:", φinsn(φk(φq(φatom())), πf("π:", [](η x)
+  f.def("π:", φinsn(φk(φq(φπ())), πf("π:", [](η x)
     { let f = *(*φatom())(φc_(x.st())).y;
       πfn b = f.q();
       b << πinsn("ξi:", F<πinsn_ret(πi&)>([](πi &i)
@@ -85,7 +85,7 @@ static void pi_h(φd_<πfn> &f)
         return γπ(b, x.st()); })));
 
   // π loop, appending to each input tuple
-  f.def("π«", φinsn(φk(φq(φatom())), πf("π«", [](η x)
+  f.def("π«", φinsn(φk(φq(φπ())), πf("π«", [](η x)
     { let f = *(*φatom())(φc_(x.st())).y;
       πfn b = f.q();
       b << πinsn("ξi«", F<πinsn_ret(πi&)>([](πi &i)

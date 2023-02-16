@@ -79,6 +79,27 @@ In π, we should be able to say something like this: `«NGhπ(abc(ac)) ▶Gbπ(a
 
 That looks pretty compact.
 
+```bash
+$ bin/phi "ι10↓8π:('foo yy▶ϊ▶[τπ:y+1]»'"
+("foo",8,0)
+("foo",8,1)
+("foo",8,2)
+("foo",8,3)
+("foo",8,4)
+("foo",8,5)
+("foo",8,6)
+("foo",8,7)
+("foo",9,0)
+("foo",9,1)
+("foo",9,2)
+("foo",9,3)
+("foo",9,4)
+("foo",9,5)
+("foo",9,6)
+("foo",9,7)
+("foo",9,8)
+```
+
 
 ### γ and η grammars (by example)
 + `«` is a leader for `γfr`, which takes some optional configurations:

@@ -72,6 +72,9 @@ if [[ $(bin/phi "ι↑100»'" | ni ,sr+1) != 4950 ]]; then
 fi
 
 
+./lazytest README.md `find doc -name '*.md'` | bash
+
+
 echo
 echo -e "\033[1;32mall passed\033[0;0m"
 echo
