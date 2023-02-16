@@ -1,8 +1,24 @@
 #include "pi-int.hh"
+#include "pi-fn.hh"
 #include "begin.hh"
 
 namespace τ
 {
+
+
+bool πi::run(uN o, F<bool(πi&, πinsn const&)> each)
+{
+  let rd = rdepth();
+  rpush(o);
+  while (rdepth() >= rd)
+  {
+    let j = rpeek()++;
+    if (j >= f().fs.size())      return true;
+    if (!each(*this, f().fs[j])) return false;
+    if (!f().fs[j].f(*this))     return false;
+  }
+  return true;
+}
 
 
 O &operator<<(O &s, πi const &i)

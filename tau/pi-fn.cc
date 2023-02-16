@@ -5,21 +5,6 @@ namespace τ
 {
 
 
-bool πfn::run(πi &i, F<bool(πi&, πinsn const&)> each) const
-{
-  let rd = i.rdepth();
-  i.rpush(0);
-  while (i.rdepth() >= rd)
-  {
-    let j = i.rpeek()++;
-    if (j >= fs.size())  return true;
-    if (!each(i, fs[j])) return false;
-    if (!fs[j].f(i))     return false;
-  }
-  return true;
-}
-
-
 O &operator<<(O &s, πinsn const &i)
 {
   return s << i.name;

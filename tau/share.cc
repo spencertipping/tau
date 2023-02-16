@@ -57,8 +57,34 @@ static void loops_h(φd_<πfn> &f)
 
 static void pi_h(φd_<πfn> &f)
 {
-  f.def("π", φinsn(φk(φq(φatom())), πf("π", [](η x)
-    { return γπ(*(*φatom())(φc_(x.st())).y, x.st()); })));
+  // π= one-shot execution
+  f.def("π=", φinsn(φk(φq(φatom())), πf("π=", [](η x)
+    { let f = *(*φatom())(φc_(x.st())).y;
+      return γπ(f, x.st()); })));
+
+  // π loop over inputs
+  f.def("π:", φinsn(φk(φq(φatom())), πf("π:", [](η x)
+    { let f = *(*φatom())(φc_(x.st())).y;
+      πfn b = f.q();
+      b << πinsn("ξi:", [](πi &i)
+        { let fn = i.dpop().as_η().pu();
+          for (let x : i.i()) i.dclear().dpush(x).run(fn); });
+      return γπ(b, x.st()); })));
+
+  // π loop, appending to each input tuple
+  f.def("π«", φinsn(φk(φq(φatom())), πf("π«", [](η x)
+    { let f = *(*φatom())(φc_(x.st())).y;
+      πfn b = f.q();
+      b << πinsn("ξi«", F<πinsn_ret(πi&)>([](πi &i)
+        { let fn = i.dpop().as_η().pu();
+          for (let x : i.i())
+          { i.dclear().dpush(x).run(fn);
+            η0o o(x.t());
+            for (let y : x.T()) o << y;
+            o << i.dpop().as_η();
+            if (!(i.o() << o)) return πinsn_error; }
+          return πinsn_ok; }));
+      return γπ(b, x.st()); })));
 }
 
 

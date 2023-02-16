@@ -71,13 +71,6 @@ struct πfn
       r << πinsn{"]", [](πi &i) { i.rpop(); }};
       return r; }
 
-  // Runs this function on the given interpreter, returning true on success
-  // and false on error.
-  //
-  // The "each" function allows you to intercept each program step, modify
-  // program state, and optionally exit the run loop (by returning false).
-  bool run(πi &i, F<bool(πi&, πinsn const&)> each = [](πi&, πinsn const&) { return true; }) const;
-
   V<πinsn> fs;
 };
 

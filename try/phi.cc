@@ -1,3 +1,5 @@
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include "../tau.hh"
@@ -7,23 +9,42 @@
 using namespace τ;
 using namespace std;
 
+namespace fs = std::filesystem;
 
-void try_simple()
+
+void run_gamma(St source)
 {
-  let p = φn(φa<int>(φl("foo", 1), φl("bar", 2)));
-  let q = φparse(p, "foobarba");
-  if (q.has_value())
-    for (let x : *q)
-      cout << "got a result: " << x << endl;
+  let r = (*φγ())(φc_(source));
+  A(r.is_a(),
+    "failed to parse " << source << " at location "
+    << r.j << ": " << r.e << " " << r.t);
+
+  πi i{Sp<πfn>(new πfn(*r.y))};
+  A(i.run(0), "failed to run " << *r.y << "; i = " << i);
+
+  (i.dpop().as_γ())(τe{}).go();
+}
+
+
+St lit_or_file(chc *a)
+{
+  if (fs::exists(fs::path(a)))
+  {
+    ifstream ifs("myfile.txt");
+    St s{istreambuf_iterator<char>(ifs),
+         istreambuf_iterator<char>()};
+    return s;
+  }
   else
-    cout << "parse failed (error)" << endl;
+    return St{a};
 }
 
 
 int main(int argc, char **argv)
 {
   τassert_begin;
-  try_simple();
+  A(argc > 1, "usage: " << argv[0] << " filename-or-source");
+  run_gamma(lit_or_file(argv[1]));
   return 0;
   τassert_end;
 }
