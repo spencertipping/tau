@@ -9,7 +9,8 @@ test_sha()
   local sha1=$("$@" | cat                   | sha256sum); echo -n "1"
   local sha2=$("$@" | bin/tau cat           | sha256sum); echo -n "2"
   local sha3=$("$@" | bin/tau cat2          | sha256sum); echo -n "3"
-  local sha4=$("$@" | bin/tau exec /bin/cat | sha256sum); echo "4"
+  local sha4=$("$@" | bin/phi '«»'          | sha256sum); echo -n "4"
+  local sha5=$("$@" | bin/tau exec /bin/cat | sha256sum); echo "5"
 
   if [[ $sha2 != $sha1 ]]; then
     echo -e "\033[1;31mbin/tau cat corrupts data from $@\033[0;0m"
@@ -24,6 +25,12 @@ test_sha()
   fi
 
   if [[ $sha4 != $sha1 ]]; then
+    echo -e "\033[1;31mbin/phi «» corrupts data from $@\033[0;0m"
+    echo
+    exit 1
+  fi
+
+  if [[ $sha5 != $sha1 ]]; then
     echo -e "\033[1;31mbin/tau exec /bin/cat corrupts data from $@\033[0;0m"
     echo
     exit 1
@@ -46,6 +53,12 @@ xcat_sha=$(  echo ${sha_files[@]} | bin/tau xcat | sha256sum)
 
 if [[ $xcat_sha != $normal_sha ]]; then
   echo -e "\033[1;31mbin/tau xcat corrupts data\033[0;0m"
+  echo
+  exit 1
+fi
+
+if [[ $(bin/phi "ι↑100»'" | ni ,sr+1) != 4950 ]]; then
+  echo -e '\033[1;31mbin/phi ι↑100» returned '$(bin/phi "ι↑100»'" | ni ,sr+1)'\033[0;0m'
   echo
   exit 1
 fi

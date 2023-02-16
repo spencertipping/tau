@@ -20,9 +20,11 @@ static φ<πfn> φγ_;
 {
   return φN("φγ", φm<V<πfn>, πfn>(φn(φws(φγ1()), 1), [](V<πfn> fs)
     { πfn r;
+      bool first = true;
       for (let &x : fs)
       { r += x;
-        r << πinsn{"γ|", [](πi &i)
+        if (first) first = false;
+        else       r << πinsn{"γ|", [](πi &i)
           { let b = i.dpop().as_γ();
             let a = i.dpop().as_γ();
             i.dpush(a | b); }}; }

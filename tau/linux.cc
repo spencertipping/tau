@@ -38,7 +38,7 @@ static void io_h(φd_<πfn> &f)
   f.def("«", φinsn(φO(φatom(), πfn(πpush(0))),
                    πf("«", [](η fd) { return γfr(fd.pu()); })));
 
-  f.def("»", φinsn(φO(φatom(), πfn(πpush(0))),
+  f.def("»", φinsn(φO(φatom(), πfn(πpush(1))),
                    πf("«", [](η fd) { return γfw(fd.pu()); })));
 
   f.def("<",  φnull(πpush(γfcat(false))));
