@@ -57,14 +57,16 @@ static void loops_h(φd_<πfn> &f)
 
 static void pi_h(φd_<πfn> &f)
 {
+  slet p = φπ();
+
   // π= one-shot execution
-  f.def("π=", φinsn(φk(φq(φπ())), πf("π=", [](η x)
-    { let f = *(*φatom())(φc_(x.st())).y;
+  f.def("π=", φinsn(φk(φq(p)), πf("π=", [](η x)
+    { let f = *(*φE(p))(φc_(x.st())).y;
       return γπ(f, x.st()); })));
 
   // π loop over inputs
-  f.def("π*", φinsn(φk(φq(φπ())), πf("π*", [](η x)
-    { let f = *(*φatom())(φc_(x.st())).y;
+  f.def("π*", φinsn(φk(φq(p)), πf("π*", [](η x)
+    { let f = *(*φE(p))(φc_(x.st())).y;
       πfn b = f.q();
       b << πinsn("ξi*", [](πi &i)
         { let fn = i.dpop().as_η().pu();
@@ -72,8 +74,8 @@ static void pi_h(φd_<πfn> &f)
       return γπ(b, x.st()); })));
 
   // π 1:1 map
-  f.def("π:", φinsn(φk(φq(φπ())), πf("π:", [](η x)
-    { let f = *(*φatom())(φc_(x.st())).y;
+  f.def("π:", φinsn(φk(φq(p)), πf("π:", [](η x)
+    { let f = *(*φE(p))(φc_(x.st())).y;
       πfn b = f.q();
       b << πinsn("ξi:", F<πinsn_ret(πi&)>([](πi &i)
         { let fn = i.dpop().as_η().pu();
@@ -84,9 +86,24 @@ static void pi_h(φd_<πfn> &f)
         }));
         return γπ(b, x.st()); })));
 
+  // π 1:1 map with τ after each item
+  f.def("π;", φinsn(φk(φq(p)), πf("π;", [](η x)
+    { let f = *(*φE(p))(φc_(x.st())).y;
+      πfn b = f.q();
+      b << πinsn("ξi;", F<πinsn_ret(πi&)>([](πi &i)
+        { let fn = i.dpop().as_η().pu();
+          for (let x : i.i())
+          { i.dclear().dpush(x).run(fn);
+            if (!(i.o() << i.dpop().as_η())
+                || !(i.o() << η1o(η1sig::τ)))
+              return πinsn_error; }
+          return πinsn_ok;
+        }));
+      return γπ(b, x.st()); })));
+
   // π loop, appending to each input tuple
-  f.def("π«", φinsn(φk(φq(φπ())), πf("π«", [](η x)
-    { let f = *(*φatom())(φc_(x.st())).y;
+  f.def("π«", φinsn(φk(φq(p)), πf("π«", [](η x)
+    { let f = *(*φE(p))(φc_(x.st())).y;
       πfn b = f.q();
       b << πinsn("ξi«", F<πinsn_ret(πi&)>([](πi &i)
         { let fn = i.dpop().as_η().pu();
