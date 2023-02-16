@@ -28,8 +28,6 @@ inline γ γbfn(St n, F<void(       ξo    )> &&f, F<void(ψ&)> &&xf = [](ψ&){}
        = [](Sp<ψ>, ξo o, ξi i) { for (let x : i) if (!(o << x)) break; });
 
 
-// FIXME: this is emitting η₀ refs for some reason, even when used with
-// string inputs
 template<class T>
 γ γonce(T const &k)
 { return γffn("i", [k=η1o(k)](Sp<ψ>, ξi i, ξo o) mutable

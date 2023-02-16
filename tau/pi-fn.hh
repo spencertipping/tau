@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "pi-int.hh"
+#include "strings.hh"
 #include "begin.hh"
 
 namespace τ
@@ -43,6 +44,7 @@ inline πinsn πf(St n, F<γ(η)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(
 inline πinsn πf(St n, F<γ(i64)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().pi())); }); }
 inline πinsn πf(St n, F<γ(η1sig)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().ps())); }); }
 inline πinsn πf(St n, F<γ(St)>    f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st())); }); }
+inline πinsn πf(St n, F<γ(cs7)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st().c_str())); }); }
 
 
 // π program/function (which are the same thing)

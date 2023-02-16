@@ -133,6 +133,24 @@ struct φo_ : public virtual φ_<Op<T>>
 };
 
 
+// Optional with default
+template<class T>
+struct φO_ : public virtual φ_<T>
+{
+  φO_(φ<T> p_, T d_) : p(p_), d(d_) {}
+
+  St name() const { return p->name() + "?_"; }
+  φr_<T> operator()(φc_ const &x) const
+    { let s = (*p)(x);
+      return x.a(
+        s.is_a() ? *s.y : d,
+        s.is_a() ?  s.j : x.i()); }
+
+  φ<T> p;
+  T    d;
+};
+
+
 // Sequential parsing
 // TODO: fully generic template for this so we can use tuples
 template<class T, class U>

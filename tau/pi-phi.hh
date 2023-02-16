@@ -51,8 +51,7 @@ namespace τ
 φ<πfn> φws(φ<πfn>);  // whitespace wrapped around something
 
 
-
-// A value that is parsed independently of the current input type
+// A single value with no suffix operators (unless in a group)
 φ<πfn>    φatom();
 φa_<πfn> &φatoma();
 φd_<πfn> &φatomd();

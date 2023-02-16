@@ -13,14 +13,20 @@ namespace τ
 
 static void io_h(φd_<πfn>&);
 static void loops_h(φd_<πfn>&);
+static void pi_h(φd_<πfn>&);
 static void routing_h(φd_<πfn>&);
+static void strings_h(φd_<πfn>&);
+static void topology_h(φd_<πfn>&);
 
 
 void φshare(φd_<πfn> &f)
 {
   io_h(f);
   loops_h(f);
+  pi_h(f);
   routing_h(f);
+  strings_h(f);
+  topology_h(f);
 }
 
 
@@ -34,11 +40,8 @@ static void loops_h(φd_<πfn> &f)
 {
   f.def("▶", φinsn(φγ1(), πf("▶", γflex)));
 
-  f.def("ι", φm<Op<πfn>, πfn>(φo(φatom()), [](auto f)
-    { πfn r;
-      if (f) r += *f;
-      else   r << πpush(Nl<i64>::max());
-      return r << πf("γι", γι); }));
+  f.def("ι", φinsn(φO(φatom(), πfn(πpush(Nl<i64>::max()))),
+                   πf("γι", γι)));
 
   f.def("ϊ", φnull(πpush(γϊ())));
 
@@ -52,6 +55,12 @@ static void loops_h(φd_<πfn> &f)
 }
 
 
+static void pi_h(φd_<πfn> &f)
+{
+  std::cerr << "TODO: γπ" << std::endl;
+}
+
+
 static void routing_h(φd_<πfn> &f)
 {
   f.def("%",  φinsn(φword(), πf("%", γswap)));
@@ -61,6 +70,32 @@ static void routing_h(φd_<πfn> &f)
     { let g = i.dpop().as_γ();
       let w = i.dpop().as_η().st();
       i.dpush(γsub(w, g)); }}));
+}
+
+
+static void strings_h(φd_<πfn> &f)
+{
+  f.def("N", φnull(πpush(γsplit_chr("\n"))));
+  f.def("T", φnull(πpush(γtsv())));
+
+  f.def("s", φinsn(φatom(), πf("γs", γsplit_chr)));
+  f.def("S", φinsn(φatom(), πf("γS", γsplit_str)));
+
+  f.def("s⌈", φinsn(φπs(φatom(), φatom()), {"γs⌈", [](πi &i)
+    { let cs = i.dpop().as_η().st();
+      let l  = i.dpop().as_η().pu();
+      i.dpush(γsplit_chr_bounded(cs.c_str(), l)); }}));
+
+  f.def("S⌈", φinsn(φπs(φatom(), φatom()), {"γS⌈", [](πi &i)
+    { let p = i.dpop().as_η().st();
+      let l = i.dpop().as_η().pu();
+      i.dpush(γsplit_str_bounded(p, l)); }}));
+}
+
+
+static void topology_h(φd_<πfn> &f)
+{
+  f.def("i", φinsn(φatom(), πf("i", γonce<η>)));
 }
 
 
