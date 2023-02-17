@@ -8,6 +8,7 @@
 #include "eta0o.hh"
 #include "eta1o.hh"
 #include "eta-i.hh"
+#include "eta-json.hh"
 
 
 #endif

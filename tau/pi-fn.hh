@@ -47,12 +47,12 @@ inline πinsn πf(St n, F<γ(St)>    f) { return πinsn(n, [f](πi &i) { i.dpush
 inline πinsn πf(St n, F<γ(cs7)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st().c_str())); }); }
 
 
-inline πinsn πy(St n, F<η(η)>     f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η())); }); }
+template<η0ot T = η> πinsn πy(St n, F<T(η)>     f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η())); }); }
 
-inline πinsn πy(St n, F<η(i64)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().pi())); }); }
-inline πinsn πy(St n, F<η(η1sig)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().ps())); }); }
-inline πinsn πy(St n, F<η(St)>    f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st())); }); }
-inline πinsn πy(St n, F<η(cs7)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st().c_str())); }); }
+template<η0ot T = η> πinsn πy(St n, F<T(i64)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().pi())); }); }
+template<η0ot T = η> πinsn πy(St n, F<T(η1sig)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().ps())); }); }
+template<η0ot T = η> πinsn πy(St n, F<T(St)>    f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st())); }); }
+template<η0ot T = η> πinsn πy(St n, F<T(cs7)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st().c_str())); }); }
 
 
 // π program/function (which are the same thing)

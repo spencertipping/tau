@@ -60,8 +60,7 @@ static φ<πfn> φatomd_;
       "f", φnull({"η[5]", [](πi &i) { i.dpush(i.y()[5]); }}),
       "g", φnull({"η[6]", [](πi &i) { i.dpush(i.y()[6]); }}),
       "h", φnull({"η[7]", [](πi &i) { i.dpush(i.y()[7]); }}),
-      "i", φnull({"η[8]", [](πi &i) { i.dpush(i.y()[8]); }}),
-      "j", φnull({"η[9]", [](πi &i) { i.dpush(i.y()[9]); }}));
+      "i", φnull({"η[8]", [](πi &i) { i.dpush(i.y()[8]); }}));
 
     φatomd().def(
       "y", φnull({"η", [](πi &i) { i.dpush(i.y()); }}));

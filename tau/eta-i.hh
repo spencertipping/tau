@@ -133,7 +133,7 @@ struct η
     u8c *x;
     itM    &operator++()                   { x += η0i{x}.osize(); x += η0i{x}.osize(); return *this; }
     P<η, η> operator* ()             const { return mp(η{x}, η{x + η0i{x}.osize()}); }
-    bool    operator==(itT const &y) const { return x == y.x; }
+    bool    operator==(itM const &y) const { return x == y.x; }
   };
 
   struct M_

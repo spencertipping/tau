@@ -1,3 +1,4 @@
+#include "pi-fn.hh"
 #include "pi.hh"
 
 #include "begin.hh"
@@ -25,6 +26,7 @@ static φ<πfn> binop(φ<πfn> p, St name, F<η0o(η, η)> f)
 static void op_control();
 static void op_bin();
 static void op_debug();
+static void op_string();
 static void op_tuple();
 
 
@@ -39,6 +41,7 @@ static void op_tuple();
     op_control();
     op_bin();
     op_debug();
+    op_string();
     op_tuple();
   }
   return φop_;
@@ -69,19 +72,26 @@ static void op_debug()
 }
 
 
+static void op_string()
+{
+  φopd().def(
+    "j", φnull(πy<η0o>("j", [](η x) { return η1o(ηjson(x)); })),
+    "J", φnull(πy<η0o>("J", [](η x) { return jsonη(x.st()); })));
+}
+
+
 static void op_tuple()
 {
   φopd().def(
-    "A", φnull(πy("A", [](η x) { return x[0]; })),
-    "B", φnull(πy("B", [](η x) { return x[1]; })),
-    "C", φnull(πy("C", [](η x) { return x[2]; })),
-    "D", φnull(πy("D", [](η x) { return x[3]; })),
-    "E", φnull(πy("E", [](η x) { return x[4]; })),
-    "F", φnull(πy("F", [](η x) { return x[5]; })),
-    "G", φnull(πy("G", [](η x) { return x[6]; })),
-    "H", φnull(πy("H", [](η x) { return x[7]; })),
-    "I", φnull(πy("I", [](η x) { return x[8]; })),
-    "J", φnull(πy("J", [](η x) { return x[9]; })));
+    "A", φnull(πy<η>("A", [](η x) { return x[0]; })),
+    "B", φnull(πy<η>("B", [](η x) { return x[1]; })),
+    "C", φnull(πy<η>("C", [](η x) { return x[2]; })),
+    "D", φnull(πy<η>("D", [](η x) { return x[3]; })),
+    "E", φnull(πy<η>("E", [](η x) { return x[4]; })),
+    "F", φnull(πy<η>("F", [](η x) { return x[5]; })),
+    "G", φnull(πy<η>("G", [](η x) { return x[6]; })),
+    "H", φnull(πy<η>("H", [](η x) { return x[7]; })),
+    "I", φnull(πy<η>("I", [](η x) { return x[8]; })));
 }
 
 
