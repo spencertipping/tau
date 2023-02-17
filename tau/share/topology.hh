@@ -24,8 +24,8 @@ inline γ γbfn(St n, F<void(       ξo    )> &&f, F<void(ψ&)> &&xf = [](ψ&){}
 
 
 γ γcap(St = "",
-       F<void(Sp<ψ>, ξo, ξi)>&&
-       = [](Sp<ψ>, ξo o, ξi i) { for (let x : i) if (!(o << x)) break; });
+       F<void(Sp<ψ>, ξi, ξo)>&&
+       = [](Sp<ψ>, ξi i, ξo o) { for (let x : i) if (!(o << x)) break; });
 
 
 template<class T>

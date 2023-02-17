@@ -59,20 +59,20 @@ protected:
 
 struct γcap_ : public virtual γ_
 {
-  γcap_(Stc &n_, bfn &&f_) : n(n_), f(new bfn(std::move(f_))) {}
+  γcap_(Stc &n_, ffn &&f_) : n(n_), f(new ffn(std::move(f_))) {}
 
   St name() const { return "]" + n; }
 
   void operator()(Ξ &x) const
     { let q = x.q(name());
-      q->def([q, f=f, o=x.p().fo(), i=x.p().fi()]() mutable
-        { (*f)(q, o, i);
+      q->def([q, f=f, o=x.p().ro(), i=x.p().ri()]() mutable
+        { (*f)(q, i, o);
           o.close();
           i.close(); }); }
 
 protected:
   St      n;
-  Sp<bfn> f;
+  Sp<ffn> f;
 };
 
 
@@ -91,7 +91,7 @@ struct γcat_ : public virtual γ_
     { V<ξi> rs;
       for (let &g : gs)
       { auto y = x.empty();
-        rs.push_back(g(y).p().fi()); }
+        rs.push_back(g(y).p().ri()); }
       let q = x.q(name());
       let [i, o] = x.xf(q);
       q->def([rs=std::move(rs), i=i, o=o]() mutable
@@ -114,7 +114,7 @@ protected:
 γ γcat(V<γ> &&gs) { return new γcat_(std::move(gs)); }
 
 
-γ γcap(St n, bfn &&f) { return new γcap_(n, std::move(f)); }
+γ γcap(St n, ffn &&f) { return new γcap_(n, std::move(f)); }
 
 
 γ γeach(F<void(η)> &&f, bool tap)

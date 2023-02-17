@@ -31,7 +31,7 @@ void try_gamma()
       cout << g << " = " << X << endl;
     }
 
-    i = X.p().fi().ensure(64);
+    i = X.p().ri().ensure(64);
     A(i.inner_ξ()->iq(), "disconnected ξ::iq (inside block)");
     A(i.inner_ξ()->iq()->name() == "∑",
       "bogus name (inside block): " << i.inner_ξ()->iq()->name());

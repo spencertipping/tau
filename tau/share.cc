@@ -126,9 +126,6 @@ static void pi_h(φd_<πfn> &f)
 
 static void routing_h(φd_<πfn> &f)
 {
-  f.def("%",  φinsn(φword(), πf("%", γswap)));
-  f.def("⇐", φinsn(φγ1(), πf("γ⇐", γb)));
-
   f.def(":", φinsn(φπs(φword(), φγ1()), {":", [](πi &i)
     { let g = i.dpop().as_γ();
       let w = i.dpop().as_η().st();

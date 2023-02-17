@@ -73,24 +73,28 @@ static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i, ξo o)
 
 struct γfd : public virtual γ_
 {
-  γfd(fd_t fd_, bool r_) : fd(fd_), r(r_) {}
+  γfd(fd_t fd_, bool r_, bool b_) : fd(fd_), r(r_), b(b_) {}
 
   St name() const
-    { return (Ss{} << "γfd" << (r ? "<" : ">") << fd).str(); }
+    { return (Ss{} << "γfd" << (r ? "<" : ">") << (b ? "⇐" : "") << fd).str(); }
 
   void operator()(Ξ &x) const
     { let q = ψfd(x.t(), fd);
-      let [i, o] = x.xf(q);
+      ξi i;
+      ξo o;
+      if (b) std::tie(o, i) = x.xb(q);
+      else   std::tie(i, o) = x.xf(q);
       r ? ψr(q, fd, i, o) : ψw(q, fd, i, o); }
 
 protected:
   fd_t const fd;
   bool const r;
+  bool const b;
 };
 
 
-γ γfr(fd_t f) { return new γfd(f, true); }
-γ γfw(fd_t f) { return new γfd(f, false); }
+γ γfr(fd_t f, bool b) { return new γfd(f, true,  b); }
+γ γfw(fd_t f, bool b) { return new γfd(f, false, b); }
 
 
 γ γfcat(bool τ)
@@ -102,11 +106,11 @@ protected:
         A(fd != -1, "open(" << fn << ") failed: " << strerror(errno));
 
         if (τ)
-        { for (let b : γfr(fd)(Ξ{q->t()}).p().fi()) if (!(o << b)) return;
+        { for (let b : γfr(fd)(Ξ{q->t()}).p().ri()) if (!(o << b)) return;
           if (!(o << η1o(η1sig::τ))) return; }
         else
         { η0o c{η0t::bytes};
-          for (let b : γfr(fd)(Ξ{q->t()}).p().fi())
+          for (let b : γfr(fd)(Ξ{q->t()}).p().ri())
             memcpy(c.iptr(b.size()), b.data(), b.size());
           if (!(o << c)) return; }}});
 }

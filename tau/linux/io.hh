@@ -11,8 +11,8 @@ namespace τ
 {
 
 
-γ γfr(fd_t);
-γ γfw(fd_t);
+γ γfr(fd_t, bool b = false);
+γ γfw(fd_t, bool b = false);
 
 γ γfcat(bool τ = false);  // == ni \<
 

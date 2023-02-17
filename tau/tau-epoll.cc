@@ -33,7 +33,7 @@ void τe::init_signals()
 
   // Terminate all children on SIGTERM or SIGINT
   sigemptyset(&sa.sa_mask);
-  sa.sa_handler = [](int) { if (current_t) current_t->term(); };
+  sa.sa_handler = [](int) { if (current_t) current_t->term(); exit(2); };
   sa.sa_flags   = 0;
   sigaction(SIGTERM, &sa, nullptr);
   sigaction(SIGINT,  &sa, nullptr);
@@ -131,8 +131,8 @@ void τe::term()
                         nonblock ? 0 : std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
     if (!fin && n == -1 && errno == EINTR) goto epoll;
 
-    A(n != -1, "epoll_wait error " << errno);
-    if (!n) break;
+    A(fin || n != -1, "epoll_wait error " << errno);
+    if (n <= 0) break;
 
     for (int i = 0; i < n; ++i)
     {

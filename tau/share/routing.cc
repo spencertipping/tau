@@ -39,26 +39,6 @@ protected:
 }
 
 
-struct γswap_ : public virtual γ_
-{
-  γswap_() {}
-  St name() const { return "%"; }
-  void operator()(Ξ &x) const { x.p().swap(); }
-};
-
-
-γ γb(γ g)
-{
-  return γξswap() | g | γξswap();
-}
-
-
-γ γξswap()
-{
-  return γrfn("%", [](Ξ &x) { x.p().swap(); });
-}
-
-
 }
 
 #include "../end.hh"

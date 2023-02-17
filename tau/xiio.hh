@@ -79,13 +79,6 @@ protected:
 
 
 // A full-duplex pair
-
-// TODO: keep track of whether the duplex is capped; if not, then
-// auto-loopback
-
-// TODO: this should just have one head ξ; a pre-splice is forward,
-// a post-splice is backward; then the end-cap is implied
-
 struct ξd
 {
   ξd(Λ &l_)                   : l(l_), f_(nullptr), b_(nullptr) {}
@@ -99,8 +92,11 @@ struct ξd
       let r_ = ξo(f_ = f).ensure(cr);
       return {l_, r_}; }
 
+  // Splices the backward ξ, returning the new ends of the cut pair. Like xf(),
+  // the splice occurs to the left of the duplex end -- that is, we create a
+  // new segment visible at the rightmost end.
   P<ξo, ξi> xb(Sp<ψ> q, uN cl, uN cr)
-    { Sp<ξ> b{new ξ(l, cr)}; if (b_) b_->oq(q); b->iq(q).weaken();
+    { Sp<ξ> b{new ξ(l, cr)}; if (b_) b_->iq(q); b->oq(q);
       let l_ = ξo(b_    ).ensure(cl);
       let r_ = ξi(b_ = b).ensure(cr);
       return {l_, r_}; }
@@ -108,13 +104,9 @@ struct ξd
   Sp<ξ> f() { return f_; }
   Sp<ξ> b() { return b_; }
 
-  ξd &swap() { f_.swap(b_); return *this; }
 
-
-  ξo fo() { return ξo(f_); }  // →
-  ξi bi() { return ξi(b_); }  // →
-  ξi fi() { return ξi(f_); }  // ←
-  ξo bo() { return ξo(b_); }  // ←
+  ξi ri() { return ξi(f_); }  // read from forward ξ
+  ξo ro() { return ξo(b_); }  // write into backward ξ
 
 
 protected:
