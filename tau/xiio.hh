@@ -108,6 +108,9 @@ struct ξd
   ξi ri() { return ξi(f_); }  // read from forward ξ
   ξo ro() { return ξo(b_); }  // write into backward ξ
 
+  ξo lo() { if (!f_) f_.reset(new ξ(l, 0)); return ξo(f_); }  // write into forward ξ (atypical)
+  ξi li() { if (!b_) b_.reset(new ξ(l, 0)); return ξi(b_); }  // read from backward ξ (atypical)
+
 
 protected:
   Λ     &l;
