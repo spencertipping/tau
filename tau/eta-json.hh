@@ -17,7 +17,7 @@ St ηjson(η);
 
 
 // Convert JSON string to η
-η0o jsonη(Stc&);
+η0o jsonη(Stvc&);
 
 
 }

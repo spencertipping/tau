@@ -76,7 +76,7 @@ static void op_string()
 {
   φopd().def(
     "j", φnull(πy<η0o>("j", [](η x) { return η1o(ηjson(x)); })),
-    "J", φnull(πy<η0o>("J", [](η x) { return jsonη(x.st()); })));
+    "J", φnull(πy<η0o>("J", [](η x) { return jsonη(x.stv()); })));
 }
 
 

@@ -70,9 +70,10 @@ static Value to_json(Document &d, η y)
 }
 
 
-η0o jsonη(Stc &j)
+η0o jsonη(Stvc &j)
 {
-  Document d; d.Parse(j.c_str());
+  Document d;
+  d.Parse(j.data(), j.size());
   return from_json(d);
 }
 
