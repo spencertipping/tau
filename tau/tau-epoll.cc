@@ -109,8 +109,9 @@ int τe::close(fd_t fd)
 τe &τe::clear()
 {
   qs.clear();
-  for (let &[fd, v] : gs) close(fd), delete v;
-  gs.clear();
+  V<fd_t> fds;
+  for (let &[fd, g] : gs) fds.push_back(fd);
+  for (let x : fds) close(x);
   while (!h_.empty()) h_.pop();
   return *this;
 }

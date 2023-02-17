@@ -28,6 +28,11 @@ namespace τ
 γ γτt(η0t = η0t::tuple);
 
 
+// Sum in τ groups
+γ Σi();  // ints
+γ Σf();  // floats
+
+
 }
 
 #include "../end.hh"

@@ -28,6 +28,13 @@ using namespace std;
 }
 
 
+// Run with no implicit output
+void nrun(πfn f)
+{
+  γπ(outify(f))(τe{}).go();
+}
+
+
 void run(πfn f)
 {
   (γπ(outify(f)) | γostream(cout))(τe{}).go();
@@ -50,6 +57,7 @@ int main(int argc, char **argv)
   A(argc > 1, "usage: " << argv[0] << " command");
   if (!strcmp(argv[1], "parse")) { cout << parse(argv[2]) << endl; return 0; }
   if (!strcmp(argv[1], "debug")) { debug(parse(St{argv[2]}));      return 0; }
+  if (!strcmp(argv[1], "nrun"))  { nrun(parse(St{argv[2]}));       return 0; }
 
   if (!strcmp(argv[1], "run")) ++argv, --argc;
 

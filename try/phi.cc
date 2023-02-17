@@ -12,7 +12,7 @@ using namespace std;
 namespace fs = std::filesystem;
 
 
-void run_gamma(St source)
+void run_gamma(St source, bool silent = false)
 {
   let r = (*φE(φγ()))(φc_(source));
   A(r.is_a(),
@@ -23,7 +23,10 @@ void run_gamma(St source)
   πi i{Sp<πfn>(new πfn(*r.y))};
   A(i.run(0), "failed to run " << *r.y << "; i = " << i);
 
-  (i.dpop().as_γ() | γostream(std::cout))(τe{}).go();
+  if (silent)
+    i.dpop().as_γ()(τe{}).go();
+  else
+    (i.dpop().as_γ() | γostream(std::cout))(τe{}).go();
 }
 
 
@@ -45,7 +48,8 @@ int main(int argc, char **argv)
 {
   τassert_begin;
   A(argc > 1, "usage: " << argv[0] << " filename-or-source");
-  run_gamma(lit_or_file(argv[1]));
+  if (St{argv[1]} == "nrun") run_gamma(lit_or_file(argv[2]), true);
+  else                       run_gamma(lit_or_file(argv[1]));
   return 0;
   τassert_end;
 }

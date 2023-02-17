@@ -36,7 +36,9 @@ struct τe : public τb
       init_signals(); }
 
   ~τe()
-    { for (let &[fd, g] : gs) close(fd);
+    { V<fd_t> fds;
+      for (let &[fd, g] : gs) fds.push_back(fd);
+      for (let x : fds) close(x);
       A(!::close(efd), "~τ close failed (fd leak) " << errno); }
 
 

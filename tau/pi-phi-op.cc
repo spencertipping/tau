@@ -22,6 +22,7 @@ static φ<πfn> binop(φ<πfn> p, St name, F<η0o(η, η)> f)
 }
 
 
+static void op_control();
 static void op_bin();
 static void op_debug();
 static void op_tuple();
@@ -35,11 +36,19 @@ static void op_tuple();
     φopd();
     i = true;
 
+    op_control();
     op_bin();
     op_debug();
     op_tuple();
   }
   return φop_;
+}
+
+
+static void op_control()
+{
+  φopd().def(
+    "⋄", binop(φπ(), "⋄", [](η a, η b) { return η1o(b); }));
 }
 
 

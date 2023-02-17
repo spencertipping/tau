@@ -15,12 +15,12 @@ static φ<πfn> φatomd_;
 
 φ<πfn> φπ()
 {
-  return φm<P<πfn, V<πfn>>, πfn>(
+  return φN("φπ", φm<P<πfn, V<πfn>>, πfn>(
     φs(φatom(), φn(φop())),
     [](auto x)
       { πfn r = std::get<0>(x);
         for (let &y : std::get<1>(x)) r += y;
-        return r; });
+        return r; }));
 }
 
 
@@ -66,7 +66,7 @@ static φ<πfn> φatomd_;
     φatomd().def(
       "y", φnull({"η", [](πi &i) { i.dpush(i.y()); }}));
   }
-  return φN("φπ", φws(φatom_));
+  return φN("φπ₁", φws(φatom_));
 }
 
 

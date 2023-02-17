@@ -52,6 +52,9 @@ static void loops_h(φd_<πfn> &f)
   f.def("τT", φnull(πpush(γτt(η0t::tuple))));
   f.def("τS", φnull(πpush(γτt(η0t::set))));
   f.def("τM", φnull(πpush(γτt(η0t::map))));
+
+  f.def("Σi", φnull(πpush(Σi())));
+  f.def("Σf", φnull(πpush(Σf())));
 }
 
 
@@ -156,6 +159,7 @@ static void strings_h(φd_<πfn> &f)
 static void topology_h(φd_<πfn> &f)
 {
   f.def("i", φinsn(φatom(), πf("i", γonce<η>)));
+  f.def("⍝", φnull(πpush(γcap("⍝"))));
 }
 
 
