@@ -11,7 +11,7 @@ test_sha()
   local sha3=$("$@" | bin/tau cat2          | sha256sum); echo -n "3"
   local sha4=$("$@" | bin/phi nrun '«»'     | sha256sum); echo -n "4"
   local sha5=$("$@" | bin/phi nrun '«π:y»'  | sha256sum); echo -n "5"
-  #local sha6=$("$@" | bin/phi nrun '«∷π:y»' | sha256sum); echo -n "6"
+  local sha6=$("$@" | bin/phi nrun '«∷[π:y]»' | sha256sum); echo -n "6"
   local sha7=$("$@" | bin/tau exec /bin/cat | sha256sum); echo -n "7"
   echo
 
@@ -39,12 +39,11 @@ test_sha()
     exit 1
   fi
 
-  #if [[ $sha6 != $sha1 ]]; then
-    echo "TODO: fix SHA6"
-    #echo -e "\033[1;31mbin/phi nrun «∷π:y» corrupts data from $@\033[0;0m"
-    #echo
-    #exit 1
-  #fi
+  if [[ $sha6 != $sha1 ]]; then
+    echo -e "\033[1;31mbin/phi nrun «∷π:y» corrupts data from $@\033[0;0m"
+    echo
+    exit 1
+  fi
 
   if [[ $sha7 != $sha1 ]]; then
     echo -e "\033[1;31mbin/tau exec /bin/cat corrupts data from $@\033[0;0m"

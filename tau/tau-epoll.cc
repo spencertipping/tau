@@ -3,6 +3,7 @@
 
 #include <signal.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include "tau-epoll.hh"
 #include "begin.hh"
@@ -11,8 +12,14 @@ namespace τ
 {
 
 
+static τe *current_t = nullptr;
+
+
 void τe::init_signals()
 {
+  // Keep track of the current signal receiver (not elegant, but it works)
+  current_t = this;
+
   // Important: ignore SIGPIPE so we can catch it as an error on FD ops
   signal(SIGPIPE, SIG_IGN);
 
@@ -23,6 +30,13 @@ void τe::init_signals()
   sa.sa_handler = [](int _) { while (waitpid(-1, &_, WNOHANG) > 0); };
   sa.sa_flags   = 0;
   sigaction(SIGCHLD, &sa, nullptr);
+
+  // Terminate all children on SIGTERM or SIGINT
+  sigemptyset(&sa.sa_mask);
+  sa.sa_handler = [](int) { if (current_t) current_t->term(); };
+  sa.sa_flags   = 0;
+  sigaction(SIGTERM, &sa, nullptr);
+  sigaction(SIGINT,  &sa, nullptr);
 }
 
 
@@ -37,12 +51,16 @@ void τe::detach()
     ::close(fd);
     g->r.w(false);
     g->w.w(false);
+    g->e.w(false);
     delete g;
   }
   gs.clear();
 
   // Clear out any time-queue entries
   while (!h_.empty()) h_.pop();
+
+  // Also delete all child pids, as they are probably managed by our parent
+  pids.clear();
 }
 
 
@@ -83,9 +101,26 @@ int τe::close(fd_t fd)
 }
 
 
+int τe::fork()
+{
+  let r = ::fork();
+  if (r) pids.insert(r);
+  return r;
+}
+
+
+void τe::term()
+{
+  for (let p : pids) kill(p, SIGTERM);
+  pids.clear();
+
+  fin = true;
+}
+
+
 τe &τe::operator()(bool nonblock)
 {
-  while (now() < hn() && (!gs.empty() || hn() != forever()))
+  while (!fin && now() < hn() && (!gs.empty() || hn() != forever()))
   {
     epoll_event evs[16];
 
@@ -94,7 +129,7 @@ int τe::close(fd_t fd)
     let dt = (hn() - now()) / 1ms;
     let n  = epoll_wait(efd, evs, sizeof(evs) / sizeof(epoll_event),
                         nonblock ? 0 : std::min(dt, Sc<decltype(dt)>(Nl<int>::max())));
-    if (n == -1 && errno == EINTR) goto epoll;
+    if (!fin && n == -1 && errno == EINTR) goto epoll;
 
     A(n != -1, "epoll_wait error " << errno);
     if (!n) break;

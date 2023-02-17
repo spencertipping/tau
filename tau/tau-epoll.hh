@@ -31,7 +31,7 @@ struct τe : public τb
 {
   τe(τe&)  = delete;
   τe(τe&&) = delete;
-  τe() : τb(), efd(epoll_create1(0))
+  τe() : τb(), efd(epoll_create1(0)), fin(false)
     { A(efd != -1, "epoll_create1 failure " << errno);
       init_signals(); }
 
@@ -91,6 +91,11 @@ struct τe : public τb
   int close(fd_t);
 
 
+  // Fork and track child PID, return result
+  int fork();
+  void term();
+
+
   // Call epoll_wait() and invoke all wakeups and Θ-blocked functions.
   // If nonblock = true, epoll_wait() will have a timeout of zero, making
   // it nonblocking.
@@ -119,9 +124,11 @@ struct τe : public τb
 
 
 protected:
-  fd_t          efd;  // epoll control FD
-  M<fd_t, λgs*> gs;   // edge-triggered gate pairs
-  S<Sp<ψ>>      qs;   // boundary-pinned ψs
+  fd_t          efd;   // epoll control FD
+  M<fd_t, λgs*> gs;    // edge-triggered gate pairs
+  S<Sp<ψ>>      qs;    // boundary-pinned ψs
+  S<pid_t>      pids;  // child pids
+  bool          fin;   // true if we're terminating
 
 
   // Attempt to allocate an epolled gate pair for the given FD, which
