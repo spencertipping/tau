@@ -38,10 +38,16 @@ void γτfork_::operator()(Ξ &x) const
 
   if (!child)
   {
+    // Important: x.t() holds the same epoll() as the original τ, so we
+    // can't modify it by e.g. closing fds that it owns (since that will
+    // remove them from the epoll interest list). Instead, we need to
+    // create a new epoll() for the child process.
+    //
+    // The final step here is to close out the original epoll _without_
+    // modifying the interest list, since it may be destroyed soon.
+    x.t().detach();
     close(lw); close(rr);
-    x.t().clear();
-    (γfr(lr) | γb(γfw(rw)) | g)(x);
-    x.t().go();
+    (γfr(lr) | γb(γfw(rw)) | g)(τe{}).go();
     exit(0);
   }
   else

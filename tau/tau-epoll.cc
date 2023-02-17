@@ -26,6 +26,26 @@ void τe::init_signals()
 }
 
 
+void τe::detach()
+{
+  if (efd != -1) ::close(efd);
+  efd = -1;
+
+  // Close FDs without removing from epoll
+  for (let &[fd, g] : gs)
+  {
+    ::close(fd);
+    g->r.w(false);
+    g->w.w(false);
+    delete g;
+  }
+  gs.clear();
+
+  // Clear out any time-queue entries
+  while (!h_.empty()) h_.pop();
+}
+
+
 bool τe::reg(fd_t fd, bool r, bool w)
 {
   if (gs.contains(fd))

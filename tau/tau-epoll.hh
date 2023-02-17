@@ -39,10 +39,16 @@ struct τe : public τb
     { V<fd_t> fds;
       for (let &[fd, g] : gs) fds.push_back(fd);
       for (let x : fds) close(x);
-      A(!::close(efd), "~τ close failed (fd leak) " << errno); }
+      if (efd != -1) ::close(efd); }
 
 
   void init_signals();
+
+
+  // Closes all managed FDs and the epoll FD, all without modifying the epoll
+  // interest list. This is used in τfork to leave the original epoll intact
+  // and create a new one for the child process.
+  void detach();
 
 
   // λg pair: one gate to wait until a file is readable, one for write;
@@ -113,7 +119,7 @@ struct τe : public τb
 
 
 protected:
-  fd_t    const efd;  // epoll control FD
+  fd_t          efd;  // epoll control FD
   M<fd_t, λgs*> gs;   // edge-triggered gate pairs
   S<Sp<ψ>>      qs;   // boundary-pinned ψs
 
