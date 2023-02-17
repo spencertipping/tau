@@ -20,7 +20,8 @@ letc Ξc0 = 8192;
 // A mutable cable of full-duplex ξ connections
 struct Ξ
 {
-  Ξ(τe &t) : t_(t), p_(new ξd(l())) {}
+  Ξ(τe &t)             : t_(t), p_(new ξd(l()))                           {}
+  Ξ(τe &t, ξi i, ξo o) : t_(t), p_(new ξd(l(), i.inner_ξ(), o.inner_ξ())) {}
   Ξ(Ξ&&)      = delete;
   Ξ(Ξ const&) = delete;
 
