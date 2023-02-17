@@ -23,7 +23,7 @@ void run_gamma(St source)
   πi i{Sp<πfn>(new πfn(*r.y))};
   A(i.run(0), "failed to run " << *r.y << "; i = " << i);
 
-  (i.dpop().as_γ())(τe{}).go();
+  (i.dpop().as_γ() | γostream(std::cout))(τe{}).go();
 }
 
 
