@@ -47,7 +47,6 @@ void γτfork_::operator()(Ξ &x) const
     // modifying the interest list, since it may be destroyed soon.
     x.t().detach();
     close(lw); close(rr);
-    //(γfr(lr) | g | γfw(rw))(τe{}).go();
     (γfr(lr) | γfw(rw, true) | g)(τe{}).go();
     exit(0);
   }
