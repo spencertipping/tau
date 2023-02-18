@@ -57,14 +57,10 @@ struct τe : public τb
   τe &operator()();
 
 
-  τe &go(F<bool(τe&)> const& = [](τe&) { return true; })
-    { A(0, "τ is async"); return *this; }
-
-  τe &go_async(F<bool(τe&)> &&f = [](τe &t) { return Sc<bool>(t); })
+  τe &go(F<bool(τe&)> &&f = [](τe &t) { return Sc<bool>(t); })
     { go_f = std::move(f);
       l_.go();
-      emscripten_async_call(τstep, this, 0);
-      return *this; }
+      return schedule(); }
 
 
   bool should_step() { return go_f(*this); }
