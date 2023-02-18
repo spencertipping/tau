@@ -42,25 +42,31 @@ bool η0bc(u8c *a, uN s)
 
 
 Ar<u8, 32> η0i::sha3() const
-{ auto sha3_256 = picosha3::get_sha3_generator<256>();
+{
+  auto sha3_256 = picosha3::get_sha3_generator<256>();
   Ar<u8, 32> hv{};
   let v = Bv{cdata(), csize()};
   sha3_256(v.begin(), v.end(), hv.begin(), hv.end());
-  return hv; }
+  return hv;
+}
 
 
 #if τhas_zstd
 u8 *η0i::unzip(uN limit) const
-{ let us = size();              A(us <= limit, "unzip() oversized data: " << us << " > " << limit);
+{
+  let us = size();              A(us <= limit, "unzip() oversized data: " << us << " > " << limit);
   let r  = Sc<u8*>(malloc(us)); A(r,           "malloc() for decompression failed");
   let ds = ZSTD_decompress(r, us, cdata() + 8, csize() - 8);
   if (ZSTD_isError(ds)) { free(r); A(0, "η₀ corrupt compressed data: " << ZSTD_getErrorName(ds)); }
   if (ds != us)         { free(r); A(0, "η₀ decompressed size mismatch: " << ds << " ≠ " << us); }
-  return r; }
+  return r;
+}
 #else
 u8 *η0i::unzip(uN limit) const
-{ A(0, "no zstd on this platform");
-  return nullptr; }
+{
+  A(0, "no zstd on this platform");
+  return nullptr;
+}
 #endif
 
 
