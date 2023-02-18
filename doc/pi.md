@@ -115,7 +115,7 @@ $ bin/phi "ι10π:(yy'x)j"
 ### γ and η grammars (by example)
 + `«` is a leader for `γfr`, which takes some optional configurations:
   + `fd`: integer defaulting to `0`
-  + `N`, `T`, or other input filter, defaulting to identity
++ `N` is an input filter, like `T`
 + `Gx` is a shortcut for our git operators
 + `π` is a leader for `γffn` via π interpreters
   + `«` is a suffix configuration indicating `() → ()` append

@@ -8,11 +8,12 @@ namespace τ
 {
 
 
-τe *τg = nullptr;
+static τe *τg = nullptr;
 
 
 void τset(τe *t)
 {
+  A(!τg, "τset multiple; old is " << Rc<void*>(τg));
   τg = t;
 }
 
