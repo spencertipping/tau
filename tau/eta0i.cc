@@ -17,10 +17,27 @@ namespace τ
 
 bool η0bc(u8c *a, uN s)
 {
-  if (!s)           return false;
-  if (!(*a & 127))  return s >= 1u << (*a & 3);
-  if (*a >> 6 == 2) return s >= 2u && s >= (a[1] & 127);
-  return s >= 2u && s >= 2u + (*a & 7) && s >= η0i(a).osize();
+  if (!s)                                           return false;
+  if (!(*a & 127) && s < 1u << (*a & 3))            return false;
+  if (*a >> 6 == 2 && (s < 2u || s < (a[1] & 127))) return false;
+  if (s < 2u || s < 2u + (*a & 7))                  return false;
+
+  let y = η0i(a);
+  if (s < y.osize()) return false;
+  if (η1tc[y.type()])
+  {
+    let  x0 = y.data();
+    let  s  = y.size();
+    u8c *x  = x0;
+    while (x < x0 + s)
+    {
+      if (!η0bc(x, s - (x - x0))) return false;
+      x += η0i(x).osize();
+    }
+    if (x != x0 + s) return false;
+  }
+
+  return true;
 }
 
 

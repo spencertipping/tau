@@ -30,7 +30,7 @@ inline γ γbfn(St n, F<void(       ξo    )> &&f, F<void(ψ&)> &&xf = [](ψ&){}
 
 template<class T>
 γ γonce(T const &k)
-{ return γffn("i", [k=η1o(k)](Sp<ψ>, ξi i, ξo o) mutable
+{ return γffn("i", [k=η1o(k)](Sp<ψ>, ξi i, ξo o)
   { for (let x : i) if (!(o << x)) return;
     o << k; }); }
 
