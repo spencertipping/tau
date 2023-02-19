@@ -57,13 +57,13 @@ static void net_h(φd_<πfn> &f)
 
 static void pkv_h(φd_<πfn> &f)
 {
-  f.def("<@", φinsn(φπs(φatom(), φa<πfn>(φatom(), φword())),
+  f.def("<@", φinsn(φπs(φatom(), φatom()),
                     {"γ<@", [](πi &i)
                       { let t = i.dpop().as_η().st();
                         let f = i.dpop().as_η().st();
                         i.dpush(γpkv_get(f, t)); }}));
 
-  f.def(">@", φinsn(φπs(φatom(), φa<πfn>(φatom(), φword())),
+  f.def(">@", φinsn(φπs(φatom(), φatom()),
                     {"γ>@", [](πi &i)
                       { let t = i.dpop().as_η().st();
                         let f = i.dpop().as_η().st();

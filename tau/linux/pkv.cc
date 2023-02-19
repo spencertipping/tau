@@ -61,20 +61,18 @@ static Sp<sqlite3_stmt> prepare(Sp<sqlite3> db, St sql)
           default: continue;
           }
 
-          let r = sqlite3_step(ps.get());
-          if (r == SQLITE_ROW)
-          {
-            let d = Bvc{
-              Rc<u8c*>(sqlite3_column_blob (ps.get(), 0)),
-              Sc<uN>  (sqlite3_column_bytes(ps.get(), 0))};
-            A(η0bc(d.data(), d.size()),
-              "!η₀bc from sqlite, size = " << d.size());
-            if (!(o << η1t(k, η0i(d.data())))) break;
-          }
-          else if (r == SQLITE_DONE)
-          {
-            if (!(o << η1t(k, η1sig::ω))) break;
-          }
+          for (int r; (r = sqlite3_step(ps.get())) != SQLITE_DONE;)
+            if (r == SQLITE_ROW)
+            {
+              let d = Bvc{
+                Rc<u8c*>(sqlite3_column_blob (ps.get(), 0)),
+                Sc<uN>  (sqlite3_column_bytes(ps.get(), 0))};
+              A(η0bc(d.data(), d.size()),
+                "!η₀bc from sqlite, size = " << d.size());
+              if (!(o << η1t(k, η0i(d.data())))) break;
+            }
+
+          sqlite3_reset(ps.get());
         }});
 }
 
@@ -116,6 +114,8 @@ static Sp<sqlite3_stmt> prepare(Sp<sqlite3> db, St sql)
 
           A(sqlite3_step(ps.get()) == SQLITE_DONE,
             "pkv_set(" << table << ") error: " << sqlite3_errmsg(db.get()));
+          if (!(o << k)) return;
+          sqlite3_reset(ps.get());
         }});
 }
 
