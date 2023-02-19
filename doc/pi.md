@@ -7,6 +7,8 @@ C++ gives us the flexibility to define a reasonable DSL for [γ](gamma.md), so w
 
 π is a series of [φ](phi.md) parsers that allow γs and [η](eta.md)-transforming functions to be defined from string inputs, ultimately making it possible to write τ programs without compiling code.
 
+See [π bindings](pi-bindings.md) for a list of functions available to user code.
+
 
 ## Evaluation model
 π is a hybrid register and stack machine: we have the "current input" register for the inbound η, and the "current output" stack of `η₀o` that gets folded up at the end, or at infix write operations (`∷`).

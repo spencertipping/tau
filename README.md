@@ -42,6 +42,8 @@ These are compiler objects, meaning that they don't actually contain live resour
 
 See [compiler structures](doc/compiler-structures.md) for a quick rundown of how these structures interact.
 
+See [γ bindings](doc/gamma-bindings.md) and [π bindings](doc/pi-bindings.md) for a full description of the parser bindings used to construct γs and π programs.
+
 
 ## Linux setup
 ```sh
