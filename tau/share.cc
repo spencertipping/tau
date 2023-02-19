@@ -15,6 +15,7 @@ static void io_h(φd_<πfn>&);
 static void loops_h(φd_<πfn>&);
 static void pi_h(φd_<πfn>&);
 static void routing_h(φd_<πfn>&);
+static void serde_h(φd_<πfn>&);
 static void strings_h(φd_<πfn>&);
 static void topology_h(φd_<πfn>&);
 
@@ -25,6 +26,7 @@ void φshare(φd_<πfn> &f)
   loops_h(f);
   pi_h(f);
   routing_h(f);
+  serde_h(f);
   strings_h(f);
   topology_h(f);
 }
@@ -130,6 +132,13 @@ static void routing_h(φd_<πfn> &f)
     { let g = i.dpop().as_γ();
       let w = i.dpop().as_η().st();
       i.dpush(γsub(w, g)); }}));
+}
+
+
+static void serde_h(φd_<πfn> &f)
+{
+  f.def("⍕", φnull(πpush(γηbytes())));
+  f.def("⍎", φnull(πpush(γbytesη())));
 }
 
 
