@@ -35,6 +35,7 @@ void φshare(φd_<πfn> &f)
 static void io_h(φd_<πfn> &f)
 {
   f.def("»'", φnull(πpush(γostream(std::cout))));
+  f.def("Z", φinsn(φO(φatom(), πfn(πpush(3))), πf("γZ", γZ)));
 }
 
 

@@ -15,6 +15,10 @@ namespace τ
 γ γostream(O&, St = "", bool = false);
 
 
+// Compress each η with zstd
+γ γZ(u8 l = 3);
+
+
 }
 
 #include "../end.hh"

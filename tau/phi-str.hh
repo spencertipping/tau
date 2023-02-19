@@ -77,17 +77,28 @@ struct φcs_ : public virtual φ_<St>
     : cs(cs_), n(n_), min(min_), max(max_) {}
 
   St name() const { return (Ss{} << cs).str(); }
-  φr_<St> operator()(φc_ const &x) const
-    { St r;
-      uN i = 0;
-      while (i < max && i < x.l() && cs[x[i]] ^ n) r += x[i++];
-      if (i < min) return x.at(*this).f<St>("too few chars", x.i() + i);
-      return x.a(r, x.i() + r.size()); }
+  φr_<St> operator()(φc_ const &x) const;
 
   cs7  cs;
   bool n;    // if true, negate
   uN   min;  // lower limit on number of chars to match
   uN   max;  // upper limit on number of chars to match
+};
+
+
+// UTF-8 encoded character predicate (note: max/min specified as #chars,
+// not #bytes)
+struct φucs_ : public virtual φ_<St>
+{
+  φucs_(F<bool(u64)> f_, uN min_ = 0, uN max_ = -1)
+    : f(f_), min(min_), max(max_) {}
+
+  St name() const { return "φucs"; }
+  φr_<St> operator()(φc_ const &x) const;
+
+  F<bool(u64)> f;
+  uN           min;
+  uN           max;
 };
 
 

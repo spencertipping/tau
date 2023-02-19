@@ -15,7 +15,8 @@ namespace τ
 template<class T, class... Xs> φ<T> φd(Xs const&... xs) { return φ<T>{new φd_<T>(xs...)}; }
 template<class T>              φ<T> φl(St s, T v)       { return φ<T>{new φl_<T>(s, v)}; }
 
-inline φ<St>   φcs(chc *s, bool n = false, uN min = 0, uN max = -1) { return φ<St>  {new φcs_(s, n, min, max)}; }
+inline φ<St> φcs (chc *s, bool n = false, uN min = 0, uN max = -1) { return φ<St>{new φcs_(s, n, min, max)}; }
+inline φ<St> φucs(F<bool(u64)> f,         uN min = 0, uN max = -1) { return φ<St>{new φucs_(f, min, max)}; }
 
 template<class T>              φ<T>       φE(φ<T> p)          { return φ<T>{new φE_<T>(p)}; }
 
@@ -34,6 +35,19 @@ template<class T, class... Xs> φ<V<T>>    φS(Xs const&... p)       { return φ
 
 
 template<class T> φ<T> φN(St n, φ<T> p) { return φ<T>{new φnamed_(n, p)}; }
+
+
+// NOTE: char ranges from
+// https://stackoverflow.com/questions/1366068/whats-the-complete-range-for-chinese-characters-in-unicode
+inline φ<St> φCJK(uN min = 1, uN max = -1)
+{
+  return φucs([](u64 c)
+    { return c >= 0x4e00  && c <= 0x9fcc
+          || c >= 0x3400  && c <= 0x4db5
+          || c >= 0x20000 && c <= 0x2a6df
+          || c >= 0x2a700 && c <= 0x2b734
+          || c >= 0x2b740 && c <= 0x2b81d; }, min, max);
+}
 
 
 // TODO: operator shorthands

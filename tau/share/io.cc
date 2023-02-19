@@ -19,6 +19,18 @@ namespace τ
 }
 
 
+γ γZ(u8 l)
+{
+  return γffn((Ss{} << "γZ" << Sc<uN>(l)).str(), [l](ξi i, ξo o)
+    { for (let x : i)
+        if (x.c() >= l) { if (!(o << x)) return; }
+        else
+        { η0o y(x.t());
+          x.into(y.c(l).iptr(x.osize()));
+          if (!(o << y)) return; }});
+}
+
+
 }
 
 #include "../end.hh"

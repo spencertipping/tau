@@ -1,3 +1,6 @@
+#include <fcntl.h>
+#include <unistd.h>
+
 #include "linux.hh"
 #include "begin.hh"
 
@@ -35,11 +38,11 @@ static void fork_h(φd_<πfn> &f)
 
 static void io_h(φd_<πfn> &f)
 {
-  f.def("«", φinsn(φO(φatom(), πfn(πpush(0))),
-                   πf("«", [](η fd) { return γfr(fd.pu()); })));
+  f.def("«", φinsn(φO(φatom(), πfn(πpush(0))), πf("«", [](η f)
+    { return f.tsu() ? γfr(open(f.st().c_str(), O_RDONLY)) : γfr(f.pu()); })));
 
-  f.def("»", φinsn(φO(φatom(), πfn(πpush(1))),
-                   πf("»", [](η fd) { return γfw(fd.pu()); })));
+  f.def("»", φinsn(φO(φatom(), πfn(πpush(1))), πf("»", [](η f)
+    { return f.tsu() ? γfw(open(f.st().c_str(), O_WRONLY | O_CREAT, 0x600)) : γfw(f.pu()); })));
 
   f.def("<",  φnull(πpush(γfcat(false))));
   f.def("<τ", φnull(πpush(γfcat(true))));

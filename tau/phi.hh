@@ -80,7 +80,7 @@ struct φc_
   uN   l() const { return x_->size() - i_; }
   uN   n() const { return x_->size(); }
 
-  ch operator[](uN i) const { return x_->at(i_ + i); }
+  ch operator[](iN i) const { return x_->at(i_ + i); }
   St sub(uN n)        const { return x_->substr(i_, n); }
   St sub(uN s, uN n)  const { return x_->substr(i_ + s, n); }
 
