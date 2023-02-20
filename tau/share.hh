@@ -7,6 +7,7 @@
 #include "share/pi.hh"
 #include "share/routing.hh"
 #include "share/serde.hh"
+#include "share/sort.hh"
 #include "share/strings.hh"
 #include "share/topology.hh"
 

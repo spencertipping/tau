@@ -55,7 +55,7 @@ uNc λss = 65536;  // stack size
 void λinit();
 
 
-struct λ
+struct λ final
 {
   // NOTE: don't modify these outside of this module; it's easier not to
   // protect them, but they should be treated as protected

@@ -15,7 +15,7 @@ namespace τ
 
 
 // Multi-level η reader with builtin type casting
-struct η
+struct η final
 {
   η(u8c *a)       : i_(a) {}
   η(η0i const &i) : i_(i) {}
@@ -107,7 +107,10 @@ struct η
     { A(t() == η0t::tuple, "η[] on " << i_);
       return η1ti{&i_}[i]; }
 
-  // TODO: map element retrieval
+  η operator[](Stvc &x) const
+    { A(t() == η0t::map, "η[] on " << i_);
+      for (let &[k, v] : M()) if (k == x) return v;
+      return η(nullptr); }
 
 
   // Tuple/set iterator
@@ -149,8 +152,46 @@ struct η
   M_ M() const { return M_{*this}; }
 
 
-  // TODO: equivalence
-  // TODO: ordering
+  int compare(η const &o) const
+    { if (t() != o.t()) return Sc<iN>(t()) - Sc<iN>(o.t());
+      switch (t())
+      {
+      case η0t::boolean:  return pb() - o.pb();
+      case η0t::uint_be:  return pu() > o.pu() ? 1 : pu() < o.pu() ? -1 : 0;
+      case η0t::int_be:   return pi() > o.pi() ? 1 : pi() < o.pi() ? -1 : 0;
+      case η0t::float_be: return pf() > o.pf() ? 1 : pf() < o.pf() ? -1 : 0;
+      case η0t::bytes:
+      case η0t::utf8:
+      { let c = memcmp(data(), o.data(), std::min(size(), o.size()));
+        if (c) return c;
+        return size() > o.size() ? 1 : size() < o.size() ? -1 : 0; }
+      case η0t::signal: return Sc<iN>(ps()) - Sc<iN>(o.ps());
+      case η0t::tuple:
+      { auto a =   T().begin(), ae =   T().end();
+        auto b = o.T().begin(), be = o.T().end();
+        while (a != ae && b != be)
+          if (let c = (*a).compare(*b)) return c;
+          else ++a, ++b;
+        if (a != ae) return 1;
+        if (b != be) return -1;
+        return 0; }
+
+      default:
+        A(0, "cannot compare " << t() << " with " << o.t());
+        return 0;
+      } }
+
+
+  bool operator< (η const &y) const { return compare(y) <  0; }
+  bool operator<=(η const &y) const { return compare(y) <= 0; }
+  bool operator> (η const &y) const { return compare(y) >  0; }
+  bool operator>=(η const &y) const { return compare(y) >= 0; }
+  bool operator==(η const &y) const { return !compare(y); }
+
+  bool operator==(Stvc &x) const { return tsu() && stv() == x; }
+  bool operator==(Bvc  &x) const { return tsb() && bv()  == x; }
+
+
   // TODO: hashing
 
 

@@ -46,6 +46,8 @@ Specifications:
 | 10   | `set`       | `x1 x2 ... xn`          |
 | 11   | `map`       | `k1 v1 k2 v2 ... kn vn` |
 
+**NOTE:** maps are guaranteed to have an even number of elements; otherwise they fail `η₀bc` and are η₁-invalid.
+
 
 ## Vector types
 **TODO:** as needed

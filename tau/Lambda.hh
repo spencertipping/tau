@@ -17,7 +17,7 @@ namespace τ
 
 
 // A single Λ task, which is a λ plus some metadata
-struct Λt
+struct Λt final
 {
   λ  l;
   λs s;
@@ -31,7 +31,7 @@ struct Λt
 
 
 // NOTE: managed λs should yield out with Λ.y, not λy() defined by lambda.hh
-struct Λ
+struct Λ final
 {
   Λ(Λ&)  = delete;
   Λ(Λ&&) = delete;

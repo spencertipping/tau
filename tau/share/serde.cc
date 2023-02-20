@@ -24,7 +24,7 @@ namespace τ
         if (x.tsb())
         { b.append(x.bv());
           uN j = 0;
-          while (η0bc(b.data() + j, b.size() - j))
+          while (η1bc(b.data() + j, b.size() - j))
           { let y = η0i(b.data() + j);
             if (!(o << y)) return;
             j += y.osize(); }

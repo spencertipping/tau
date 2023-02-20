@@ -18,7 +18,7 @@ sletc πinsn_error = false;
 
 
 // Single instruction within a program
-struct πinsn
+struct πinsn final
 {
   πinsn(St name_, F<πinsn_ret(πi&)> f_) : name(name_), f(f_) {}
   πinsn(St name_, F<void(πi&)> f_)
@@ -56,7 +56,7 @@ template<η0ot T = η> πinsn πy(St n, F<T(cs7)>   f) { return πinsn(n, [f](π
 
 
 // π program/function (which are the same thing)
-struct πfn
+struct πfn final
 {
   πfn() {}
   πfn(πinsn const &f) { fs.push_back(f); }

@@ -21,19 +21,35 @@ bool η0bc(u8c *a, uN s)
   if (!(*a & 127) && s < 1u << (*a & 3))            return false;
   if (*a >> 6 == 2 && (s < 2u || s < (a[1] & 127))) return false;
   if (s < 2u || s < 2u + (*a & 7))                  return false;
+  return η0i(a).osize() <= s;
+}
+
+
+bool η1bc(u8c *a, uN s)
+{
+  if (!η0bc(a, s)) return false;
 
   let y = η0i(a);
-  if (s < y.osize()) return false;
   if (η1tc[y.type()])
   {
     let  x0 = y.data();
     let  s  = y.size();
     u8c *x  = x0;
+    uN   n  = 0;  // number of children
+
     while (x < x0 + s)
     {
       if (!η0bc(x, s - (x - x0))) return false;
       x += η0i(x).osize();
+      ++n;
     }
+
+    // Maps must have an even number of children; otherwise k/v lookups will
+    // overflow buffers
+    if (y.type() == η0t::map && n & 1) return false;
+
+    // Child size must exactly equal container size, otherwise tuple lookups
+    // will overflow buffers
     if (x != x0 + s) return false;
   }
 

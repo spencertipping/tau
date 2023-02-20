@@ -23,12 +23,20 @@ namespace τ
 bool η0bc(u8c*, uN);
 
 
+// Bounds-check for a η₁ structure at the given address with the specified
+// size bound.
+//
+// WARNING: never use η₁ accessors on a η₀ from untrusted memory without
+// calling this function first.
+bool η1bc(u8c*, uN);
+
+
 // η₀ structure input reader: decodes the frame and provides .data() and
 // .size(), as well as metadata.
 //
 // NOTE: η₀ .data() and .size() will transparently decompress; if you want
 // compressed data with the length prefix, use .cdata() and .csize().
-struct η0i
+struct η0i final
 {
   η0i(u8c *a_) : d(nullptr) { *this = a_; }
   η0i(η0i &&x) : a(x.a), d(x.d), ft(x.ft), hs(x.hs), t(x.t) { x.d = nullptr; }

@@ -34,7 +34,7 @@ struct φ_
 //   accept ∷ (x, i) → (y, j)
 //   fail   ∷ (x, i) → (e, t, j)
 template<class T>
-struct φr_
+struct φr_ final
 {
   Sp<Stc> x;
   uN      i;
@@ -60,7 +60,7 @@ struct φr_
 
 
 // φ input context: input string and current φ trace
-struct φc_
+struct φc_ final
 {
   // Create a new root context
   φc_(St x__) : x_(new St{x__}), i_(0), n_(""), p_(nullptr) {}
