@@ -4,6 +4,7 @@
 
 #include "share/io.hh"
 #include "share/loops.hh"
+#include "share/mux.hh"
 #include "share/pi.hh"
 #include "share/routing.hh"
 #include "share/serde.hh"

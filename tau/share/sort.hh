@@ -20,6 +20,7 @@ namespace τ
 
 
 // Merge many sorted ξs
+// TODO: use Ξ channels, not γ arguments
 γ γmerge(Vc<γ>&);
 
 
