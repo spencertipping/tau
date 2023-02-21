@@ -9,11 +9,15 @@ namespace τ
 {
 
 
-// TODO: how do we define IO for these?
-// Should we use Ξ channels? (Probably.)
+// Collapse all named duplexes down to a single primary channel. Fanout is
+// on the left, single channel is on the right.
+γ γmux();
 
-γ γmux  (M<St, γ>&);
-γ γdemux(M<St, γ>&);
+
+// Expand primary channel into named duplexes, each with either a
+// special-case γ or a fallback. Fanout is on the right, single channel
+// on the left.
+γ γdemux(M<St, γ>&, γ);
 
 
 }
