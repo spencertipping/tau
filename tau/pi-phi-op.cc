@@ -1,3 +1,5 @@
+#include "../dep/picosha3.h"
+
 #include "pi-fn.hh"
 #include "pi.hh"
 
@@ -26,6 +28,7 @@ static φ<πfn> binop(φ<πfn> p, St name, F<η0o(η, η)> f)
 static void op_control();
 static void op_bin();
 static void op_debug();
+static void op_map();
 static void op_string();
 static void op_tuple();
 
@@ -41,6 +44,7 @@ static void op_tuple();
     op_control();
     op_bin();
     op_debug();
+    op_map();
     op_string();
     op_tuple();
   }
@@ -72,11 +76,34 @@ static void op_debug()
 }
 
 
+static void op_map()
+{
+  φopd().def(
+    "'", binop(φword(), "'", [](η a, η b) { return η1o(a[b.stv()]); }));
+}
+
+
 static void op_string()
 {
   φopd().def(
     "j", φnull(πy<η0o>("j", [](η x) { return η1o(ηjson(x)); })),
-    "J", φnull(πy<η0o>("J", [](η x) { return jsonη(x.stv()); })));
+    "J", φnull(πy<η0o>("J", [](η x) { return jsonη(x.stv()); })),
+    "@", φnull(πy<η0o>("@", [](η x)
+      { auto sha = picosha3::get_sha3_generator<256>();
+        St r; r.resize(32);
+        let v = x.stv();
+        sha(v.begin(), v.end(), r.begin(), r.end());
+        return η1o(r); })),
+    "@@", φnull(πy<η0o>("@@", [](η x)
+      { auto sha = picosha3::get_sha3_generator<256>();
+        St r; r.reserve(64);
+        Ar<u8, 32> h;
+        let v = x.stv();
+        sha(v.begin(), v.end(), h.begin(), h.end());
+        for (uN i = 0; i < 32; ++i)
+        { r.push_back("0123456789abcdef"[h[i] >> 4]);
+          r.push_back("0123456789abcdef"[h[i] & 0x0f]); }
+        return η1o(r); })));
 }
 
 

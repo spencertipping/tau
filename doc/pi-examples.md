@@ -19,3 +19,5 @@ $ bin/phi "ι5<@'/tmp/foo'bar"
 (3,"[3,4]")
 (4,"[4,5]")
 ```
+
+**TODO:** actually design our operators
