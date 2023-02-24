@@ -4,6 +4,14 @@
 Another way to think of it is that τ is to `ni` what the Laplace transform is to the Fourier transform: we can now describe systems that are locally time-invariant but which nonetheless change over time.
 
 
+## TODO
++ HTTP library
+  + HTTP/REST _requests_ are a stream, which can be sub-streamed for WS
+  + Authentication is a fork
++ π scripting
+  + ← for γ assignment, refer to them later
+
+
 ## Compute model
 ```
 +-----------------------------------------+
