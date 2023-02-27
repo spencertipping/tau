@@ -23,11 +23,26 @@ static φ<u64> int_suffix()
                  φl("P", Sc<u64>(1) << 50)); }
 
 
+static φ<i64> e10_literal()
+{ return φm<V<St>, i64>(φre("E(\\d+)"), [](V<St> x)
+  { i64 n; Ss{x[1]} >> n;
+    i64 r = 1;
+    for (iN i = 0; i < n; ++i) r *= 10;
+    return r; }); }
+
+static φ<i64> e2_literal()
+{ return φm<V<St>, i64>(φre("B(\\d+)"), [](V<St> x)
+  { i64 n; Ss{x[1]} >> n; return Sc<i64>(1) << n; }); }
+
+
 φ<i64> φint_literal()
-{ return φm<P<V<St>, Op<u64>>, i64>(
-    φs(φre("-?[0-9]+"), φo(int_suffix())),
-    [](P<V<St>, Op<u64>> v)
-      { i64 x = 0; Ss{std::get<0>(v)[0]} >> x; return x * std::get<1>(v).value_or(1); }); }
+{ return φa<i64>(e10_literal(),
+                 e2_literal(),
+                 φm<P<V<St>, Op<u64>>, i64>(
+                   φs(φre("-?[0-9]+"), φo(int_suffix())),
+                   [](P<V<St>, Op<u64>> v)
+                     { i64 x = 0; Ss{std::get<0>(v)[0]} >> x;
+                       return x * std::get<1>(v).value_or(1); })); }
 
 φ<f64> φfloat_literal()
 { return φm<V<St>, f64>(

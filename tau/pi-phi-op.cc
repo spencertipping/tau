@@ -79,7 +79,7 @@ static void op_debug()
 static void op_map()
 {
   φopd().def(
-    "'", binop(φword(), "'", [](η a, η b) { return η1o(a[b.stv()]); }));
+    "$", binop(φword(), "$", [](η a, η b) { return η1o(a[b.stv()]); }));
 }
 
 

@@ -106,14 +106,13 @@ struct φucs_ : public virtual φ_<St>
 // Regex match, beginning at a minimum number of bytes
 struct φre_ : public virtual φ_<V<St>>
 {
-  φre_(St src_, uN min_ = 0) : src(src_), r("^(?:" + src + ")"), min(min_) {}
+  φre_(St src_) : src(src_), r("^(?:" + src + ")") {}
 
   St name() const { return "/" + src + "/"; }
   φr_<V<St>> operator()(φc_ const&) const;
 
   St src;
   Re r;
-  uN min;
 };
 
 
