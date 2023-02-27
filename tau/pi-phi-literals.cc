@@ -20,14 +20,14 @@ static φ<u64> int_suffix()
                  φl("M", Sc<u64>(1) << 20),
                  φl("G", Sc<u64>(1) << 30),
                  φl("T", Sc<u64>(1) << 40),
-                 φl("P", Sc<u64>(1) << 50),
-                 φl("",  Sc<u64>(1))); }
+                 φl("P", Sc<u64>(1) << 50)); }
 
 
 φ<i64> φint_literal()
-{ return φm<P<V<St>, u64>, i64>(
-    φs(φre("-?[0-9]+"), int_suffix()),
-    [](P<V<St>, u64> v) { i64 x = 0; Ss{std::get<0>(v)[0]} >> x; return x * std::get<1>(v); }); }
+{ return φm<P<V<St>, Op<u64>>, i64>(
+    φs(φre("-?[0-9]+"), φo(int_suffix())),
+    [](P<V<St>, Op<u64>> v)
+      { i64 x = 0; Ss{std::get<0>(v)[0]} >> x; return x * std::get<1>(v).value_or(1); }); }
 
 φ<f64> φfloat_literal()
 { return φm<V<St>, f64>(
