@@ -2,7 +2,7 @@
 #define τlinux_pkv_h
 
 
-#include "../gamma.hh"
+#include "../Gamma.hh"
 #include "../begin.hh"
 
 namespace τ
@@ -11,12 +11,12 @@ namespace τ
 
 // Retrieve elements from a k/v table
 // key → (key, value)
-γ γpkv_get(St filename, St table);
+Γ Γpkv_get(St filename, St table);
 
 
 // Insert/update elements into a k/v table
 // (key, value) → key
-γ γpkv_set(St filename, St table);
+Γ Γpkv_set(St filename, St table);
 
 
 }

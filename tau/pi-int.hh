@@ -4,7 +4,7 @@
 #include "types.hh"
 #include "eta.hh"
 #include "xiio.hh"
-#include "gamma.hh"
+#include "Gamma.hh"
 #include "pi-val.hh"
 
 #include "begin.hh"

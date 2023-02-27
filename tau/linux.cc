@@ -27,25 +27,25 @@ void φlinux(φd_<πfn> &f)
 
 static void fork_h(φd_<πfn> &f)
 {
-  f.def("e", φinsn(φatom(), πf("γe", [](η x)
+  f.def("e", φinsn(φatom(), πf("Γe", [](η x)
     { V<St> argv;
       for (let y : x.T()) argv.push_back(y.st());
-      return γfork_exec(argv, "err"); })));
+      return Γfork_exec(argv, "err"); })));
 
-  f.def("∷", φinsn(φγ1(), πf("∷", γτfork)));
+  f.def("∷", φinsn(φΓ1(), πf("∷", Γτfork)));
 }
 
 
 static void io_h(φd_<πfn> &f)
 {
   f.def("«", φinsn(φO(φatom(), πfn(πpush(0))), πf("«", [](η f)
-    { return f.tsu() ? γfr(open(f.st().c_str(), O_RDONLY)) : γfr(f.pu()); })));
+    { return f.tsu() ? Γfr(open(f.st().c_str(), O_RDONLY)) : Γfr(f.pu()); })));
 
   f.def("»", φinsn(φO(φatom(), πfn(πpush(1))), πf("»", [](η f)
-    { return f.tsu() ? γfw(open(f.st().c_str(), O_WRONLY | O_CREAT, 0x600)) : γfw(f.pu()); })));
+    { return f.tsu() ? Γfw(open(f.st().c_str(), O_WRONLY | O_CREAT, 0x600)) : Γfw(f.pu()); })));
 
-  f.def("<",  φnull(πpush(γfcat(false))));
-  f.def("<τ", φnull(πpush(γfcat(true))));
+  f.def("<",  φnull(πpush(Γfcat(false))));
+  f.def("<τ", φnull(πpush(Γfcat(true))));
 }
 
 
@@ -58,16 +58,16 @@ static void net_h(φd_<πfn> &f)
 static void pkv_h(φd_<πfn> &f)
 {
   f.def("<@", φinsn(φπs(φatom(), φatom()),
-                    {"γ<@", [](πi &i)
+                    {"Γ<@", [](πi &i)
                       { let t = i.dpop().as_η().st();
                         let f = i.dpop().as_η().st();
-                        i.dpush(γpkv_get(f, t)); }}));
+                        i.dpush(Γpkv_get(f, t)); }}));
 
   f.def(">@", φinsn(φπs(φatom(), φatom()),
-                    {"γ>@", [](πi &i)
+                    {"Γ>@", [](πi &i)
                       { let t = i.dpop().as_η().st();
                         let f = i.dpop().as_η().st();
-                        i.dpush(γpkv_set(f, t)); }}));
+                        i.dpush(Γpkv_set(f, t)); }}));
 }
 
 #else

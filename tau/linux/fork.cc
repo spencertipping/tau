@@ -18,18 +18,18 @@ namespace τ
 {
 
 
-struct γτfork_ : public virtual γ_
+struct Γτfork_ : public virtual Γ_
 {
-  γτfork_(γ g_) : g(g_) {}
+  Γτfork_(Γ g_) : g(g_) {}
 
   St name() const { return "∷[" + g.name() + "]"; }
   void operator()(Ξ&) const;
 
-  γ g;
+  Γ g;
 };
 
 
-void γτfork_::operator()(Ξ &x) const
+void Γτfork_::operator()(Ξ &x) const
 {
   let [lr, lw] = pipe_();
   let [rr, rw] = pipe_();
@@ -47,18 +47,18 @@ void γτfork_::operator()(Ξ &x) const
     // modifying the interest list, since it may be destroyed soon.
     x.t().detach();
     close(lw); close(rr);
-    (γfr(lr) | γfw(rw, true) | g)(τe{}).go();
+    (Γfr(lr) | Γfw(rw, true) | g)(τe{}).go();
     exit(0);
   }
   else
   {
     close(lr); close(rw);
-    (γfw(lw) | γfr(rr))(x);
+    (Γfw(lw) | Γfr(rr))(x);
   }
 }
 
 
-γ γτfork(γ g) { return new γτfork_{g}; }
+Γ Γτfork(Γ g) { return new Γτfork_{g}; }
 
 
 }

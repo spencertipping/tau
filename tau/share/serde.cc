@@ -6,9 +6,9 @@ namespace τ
 {
 
 
-γ γηbytes()
+Γ Γηbytes()
 {
-  return γffn("ηb", [](ξi i, ξo o)
+  return Γffn("ηb", [](ξi i, ξo o)
     { for (let x : i)
       { η0o y(η0t::bytes);
         x.into(y.iptr(x.osize()));
@@ -16,9 +16,9 @@ namespace τ
 }
 
 
-γ γbytesη()
+Γ Γbytesη()
 {
-  return γffn("bη", [](ξi i, ξo o)
+  return Γffn("bη", [](ξi i, ξo o)
     { B b;
       for (let x : i)
         if (x.tsb())

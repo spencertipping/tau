@@ -1,6 +1,6 @@
 #include "phi.hh"
 #include "phi-str.hh"
-#include "gamma.hh"
+#include "Gamma.hh"
 
 #include "pi.hh"
 
@@ -34,27 +34,27 @@ void φshare(φd_<πfn> &f)
 
 static void io_h(φd_<πfn> &f)
 {
-  f.def("»'", φnull(πpush(γostream(std::cout))));
-  f.def("Z", φinsn(φO(φatom(), πfn(πpush(3))), πf("γZ", γZ)));
+  f.def("»'", φnull(πpush(Γostream(std::cout))));
+  f.def("Z", φinsn(φO(φatom(), πfn(πpush(3))), πf("ΓZ", ΓZ)));
 }
 
 
 static void loops_h(φd_<πfn> &f)
 {
-  f.def("▶", φinsn(φγ1(), πf("▶", γflex)));
+  f.def("▶", φinsn(φΓ1(), πf("▶", Γflex)));
 
   f.def("ι", φinsn(φO(φatom(), πfn(πpush(Nl<i64>::max()))),
-                   πf("γι", γι)));
+                   πf("Γι", Γι)));
 
-  f.def("ϊ", φnull(πpush(γϊ())));
+  f.def("ϊ", φnull(πpush(Γϊ())));
 
-  f.def("↑", φinsn(φatom(), πf("γ↑", γtake)));
-  f.def("↓", φinsn(φatom(), πf("γ↓", γdrop)));
+  f.def("↑", φinsn(φatom(), πf("Γ↑", Γtake)));
+  f.def("↓", φinsn(φatom(), πf("Γ↓", Γdrop)));
 
-  f.def("τ",  φnull(πpush(γτ())));
-  f.def("τT", φnull(πpush(γτt(η0t::tuple))));
-  f.def("τS", φnull(πpush(γτt(η0t::set))));
-  f.def("τM", φnull(πpush(γτt(η0t::map))));
+  f.def("τ",  φnull(πpush(Γτ())));
+  f.def("τT", φnull(πpush(Γτt(η0t::tuple))));
+  f.def("τS", φnull(πpush(Γτt(η0t::set))));
+  f.def("τM", φnull(πpush(Γτt(η0t::map))));
 
   f.def("Σi", φnull(πpush(Σi())));
   f.def("Σf", φnull(πpush(Σf())));
@@ -68,7 +68,7 @@ static void pi_h(φd_<πfn> &f)
   // π= one-shot execution
   f.def("π=", φinsn(φk(φq(p)), πf("π=", [](η x)
     { let f = *(*φE(p))(φc_(x.st())).y;
-      return γπ(f, x.st()); })));
+      return Γπ(f, x.st()); })));
 
   // π loop over inputs
   f.def("π*", φinsn(φk(φq(p)), πf("π*", [](η x)
@@ -77,7 +77,7 @@ static void pi_h(φd_<πfn> &f)
       b << πinsn("ξi*", [](πi &i)
         { let fn = i.dpop().as_η().pu();
           for (let x : i.i()) i.dclear().dpush(x).run(fn); });
-      return γπ(b, x.st()); })));
+      return Γπ(b, x.st()); })));
 
   // π 1:1 map
   f.def("π:", φinsn(φk(φq(p)), πf("π:", [](η x)
@@ -91,7 +91,7 @@ static void pi_h(φd_<πfn> &f)
               if (!(i.o() << i.dpop().as_η())) return πinsn_error; }
           return πinsn_ok;
         }));
-        return γπ(b, x.st()); })));
+        return Γπ(b, x.st()); })));
 
   // π 1:1 map with τ after each item
   f.def("π;", φinsn(φk(φq(p)), πf("π;", [](η x)
@@ -107,7 +107,7 @@ static void pi_h(φd_<πfn> &f)
                 return πinsn_error; }
           return πinsn_ok;
         }));
-      return γπ(b, x.st()); })));
+      return Γπ(b, x.st()); })));
 
   // π loop, appending to each input tuple
   f.def("π«", φinsn(φk(φq(p)), πf("π«", [](η x)
@@ -123,50 +123,50 @@ static void pi_h(φd_<πfn> &f)
               o << i.dpop().as_η();
               if (!(i.o() << o)) return πinsn_error; }
             return πinsn_ok; }));
-      return γπ(b, x.st()); })));
+      return Γπ(b, x.st()); })));
 }
 
 
 static void routing_h(φd_<πfn> &f)
 {
-  f.def(":", φinsn(φπs(φword(), φγ1()), {":", [](πi &i)
-    { let g = i.dpop().as_γ();
+  f.def(":", φinsn(φπs(φword(), φΓ1()), {":", [](πi &i)
+    { let g = i.dpop().as_Γ();
       let w = i.dpop().as_η().st();
-      i.dpush(γsub(w, g)); }}));
+      i.dpush(Γsub(w, g)); }}));
 }
 
 
 static void serde_h(φd_<πfn> &f)
 {
-  f.def("⍕", φnull(πpush(γηbytes())));
-  f.def("⍎", φnull(πpush(γbytesη())));
+  f.def("⍕", φnull(πpush(Γηbytes())));
+  f.def("⍎", φnull(πpush(Γbytesη())));
 }
 
 
 static void strings_h(φd_<πfn> &f)
 {
-  f.def("N", φnull(πpush(γsplit_chr("\n"))));
-  f.def("T", φnull(πpush(γtsv())));
+  f.def("N", φnull(πpush(Γsplit_chr("\n"))));
+  f.def("T", φnull(πpush(Γtsv())));
 
-  f.def("s", φinsn(φatom(), πf("γs", γsplit_chr)));
-  f.def("S", φinsn(φatom(), πf("γS", γsplit_str)));
+  f.def("s", φinsn(φatom(), πf("Γs", Γsplit_chr)));
+  f.def("S", φinsn(φatom(), πf("ΓS", Γsplit_str)));
 
-  f.def("s⌈", φinsn(φπs(φatom(), φatom()), {"γs⌈", [](πi &i)
+  f.def("s⌈", φinsn(φπs(φatom(), φatom()), {"Γs⌈", [](πi &i)
     { let cs = i.dpop().as_η().st();
       let l  = i.dpop().as_η().pu();
-      i.dpush(γsplit_chr_bounded(cs.c_str(), l)); }}));
+      i.dpush(Γsplit_chr_bounded(cs.c_str(), l)); }}));
 
-  f.def("S⌈", φinsn(φπs(φatom(), φatom()), {"γS⌈", [](πi &i)
+  f.def("S⌈", φinsn(φπs(φatom(), φatom()), {"ΓS⌈", [](πi &i)
     { let p = i.dpop().as_η().st();
       let l = i.dpop().as_η().pu();
-      i.dpush(γsplit_str_bounded(p, l)); }}));
+      i.dpush(Γsplit_str_bounded(p, l)); }}));
 }
 
 
 static void topology_h(φd_<πfn> &f)
 {
-  f.def("i", φinsn(φatom(), πf("i", γonce<η>)));
-  f.def("⍝", φnull(πpush(γcap("⍝"))));
+  f.def("i", φinsn(φatom(), πf("i", Γonce<η>)));
+  f.def("⍝", φnull(πpush(Γcap("⍝"))));
 }
 
 

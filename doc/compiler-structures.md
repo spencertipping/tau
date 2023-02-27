@@ -14,15 +14,15 @@ When ψ depends on inputs, it holds a reference to those `ξi` objects; each of 
 
 
 ## Compiler layer
-The compiler is made of associative γ objects that construct ψs and return Ξs, which hold a hierarchically-named set of ξs.
+The compiler is made of associative Γ objects that construct ψs and return Ξs, which hold a hierarchically-named set of ξs.
 
 Here are some approximate definitions; in practice each is a `struct`:
 
 ```cpp
 struct ξio;            // Sp<ξ> plus "read claimed" and "write claimed"
 typedef M<St, ξio> Ξ;
-typedef F<Ξ(Ξ&)>   γ;
-typedef D<γ>       Γ;  // deque so we can prepend
+typedef F<Ξ(Ξ&)>   Γ;
+typedef D<Γ>       Γ;  // deque so we can prepend
 
 Ξ Γ::operator()(Ξ&);   // apply the whole Γ
 ```
@@ -30,11 +30,11 @@ typedef D<γ>       Γ;  // deque so we can prepend
 This provides enough machinery to do the critical steps:
 
 1. Track ξs by name (Ξ)
-2. Create ψs as necessary to connect ξs together (γ)
-3. Associatively combine γs before they are applied (Γ)
+2. Create ψs as necessary to connect ξs together (Γ)
+3. Associatively combine Γs before they are applied (Γ)
 
 Ξ provides storage for named ξs, all of which are weak.
 
 
 ## Strong and weak ξ
-ξi can be weakened during the handoff to γ. **Ξ always holds strong references** because otherwise the ξ would be instantly deallocated during Γ construction.
+ξi can be weakened during the handoff to Γ. **Ξ always holds strong references** because otherwise the ξ would be instantly deallocated during Γ construction.

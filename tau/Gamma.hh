@@ -1,5 +1,5 @@
-#ifndef τγ_h
-#define τγ_h
+#ifndef τΓ_h
+#define τΓ_h
 
 
 #include "tau.hh"
@@ -11,28 +11,28 @@ namespace τ
 {
 
 
-// Virtual base for γ compilers
-struct γ_
+// Virtual base for Γ compilers
+struct Γ_
 {
-  virtual ~γ_() {}
+  virtual ~Γ_() {}
 
   virtual void operator()(Ξ &x) const = 0;
   virtual St         name()     const = 0;
 };
 
 
-// Public-facing API for γ_: all γs we create and use will be instances
+// Public-facing API for Γ_: all Γs we create and use will be instances
 // of this class
-struct γ
+struct Γ
 {
-  γ(Sp<γ_> g_) : g(g_) { check(); }
-  γ(γ_    *g_) : g(g_) { check(); }
+  Γ(Sp<Γ_> g_) : g(g_) { check(); }
+  Γ(Γ_    *g_) : g(g_) { check(); }
 
   template<class T>
   Sp<T> as () const { return std::dynamic_pointer_cast<T>(g); }
-  γ_   &get() const { return *g; }
+  Γ_   &get() const { return *g; }
 
-  γ &operator=(γ const &g_) { g = g_.g; check(); return *this; }
+  Γ &operator=(Γ const &g_) { g = g_.g; check(); return *this; }
 
   St name() const { return g->name(); }
 
@@ -43,20 +43,20 @@ struct γ
 
 
 protected:
-  Sp<γ_> g;
+  Sp<Γ_> g;
 
-  void check() { A(g, "∅γ"); }
+  void check() { A(g, "∅Γ"); }
 };
 
 
-// Left-linked list of γs, used for compositions, addressed virtually
+// Left-linked list of Γs, used for compositions, addressed virtually
 // unless we're disassembling the list
-struct Γ_ : public virtual γ_
+struct Γs_ : public virtual Γ_
 {
-  Γ_(γ x)           : h(x)       {}
-  Γ_(γ x, Sp<Γ_> y) : h(x), t(y) {}
+  Γs_(Γ x)           : h(x)       {}
+  Γs_(Γ x, Sp<Γ_> y) : h(x), t(y) {}
 
-  γ      const h;
+  Γ      const h;
   Sp<Γ_> const t;
 
   void operator()(Ξ &x) const { h(x); if (t) (*t)(x); }
@@ -64,9 +64,9 @@ struct Γ_ : public virtual γ_
 };
 
 
-γ operator|(γ a, γ b);
+Γ operator|(Γ a, Γ b);
 
-O &operator<<(O&, γ const&);
+O &operator<<(O&, Γ const&);
 
 
 }

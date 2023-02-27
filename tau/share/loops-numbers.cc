@@ -6,17 +6,17 @@ namespace τ
 {
 
 
-γ γι(u64 u)
+Γ Γι(u64 u)
 {
-  return γffn("ι", [u](ξi I, ξo o)
+  return Γffn("ι", [u](ξi I, ξo o)
     { I.close();
       for (u64 i = 0; i < u && o << η1o(i); ++i); });
 }
 
 
-γ γϊ()
+Γ Γϊ()
 {
-  return γffn("ϊ", [](ξi i, ξo o)
+  return Γffn("ϊ", [](ξi i, ξo o)
     { for (let x : i)
         if (η0ts{η0t::uint_be, η0t::int_be}[x.t()])
         { let n = x.pu();
@@ -27,24 +27,24 @@ namespace τ
 }
 
 
-γ γtake(u64 n)
+Γ Γtake(u64 n)
 {
-  return γffn("↑", [=](ξi i, ξo o) mutable
+  return Γffn("↑", [=](ξi i, ξo o) mutable
     { for (let x : i) if (!n-- || !(o << x)) break; });
 }
 
 
-γ γdrop(u64 n)
+Γ Γdrop(u64 n)
 {
-  return γffn("↓", [=](ξi i, ξo o) mutable
+  return Γffn("↓", [=](ξi i, ξo o) mutable
     { for (let x : i) if (!n--) break;
       for (let x : i) if (!(o << x)) break; });
 }
 
 
-γ Σi()
+Γ Σi()
 {
-  return γffn("∑i", [](ξi i, ξo o)
+  return Γffn("∑i", [](ξi i, ξo o)
     { u64 t = 0;
       for (let x : i)
         if (x.τ())
@@ -55,9 +55,9 @@ namespace τ
 }
 
 
-γ Σf()
+Γ Σf()
 {
-  return γffn("∑f", [](ξi i, ξo o)
+  return Γffn("∑f", [](ξi i, ξo o)
     { f64 t = 0;
       for (let x : i)
         if (x.τ())

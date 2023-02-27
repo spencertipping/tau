@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-#include "../gamma.hh"
+#include "../Gamma.hh"
 
 #include "../begin.hh"
 
@@ -13,15 +13,15 @@ namespace τ
 
 
 // Sort current ξ on τ boundaries, using natural η ordering
-γ γsort(uN bufsize  = 64 * 1048576,
+Γ Γsort(uN bufsize  = 64 * 1048576,
         St tmp      = "/tmp/tau-sort-XXXXXXXX",
-        γ  disk_enc = nullptr,
-        γ  disk_dec = nullptr);
+        Γ  disk_enc = nullptr,
+        Γ  disk_dec = nullptr);
 
 
 // Merge many sorted ξs
-// TODO: use Ξ channels, not γ arguments
-γ γmerge(Vc<γ>&);
+// TODO: use Ξ channels, not Γ arguments
+Γ Γmerge(Vc<Γ>&);
 
 
 }

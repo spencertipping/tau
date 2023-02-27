@@ -24,20 +24,20 @@ using namespace std;
 {
   return f << πinsn{"out", [](πi &i)
     { if (i.dpeek().is_η()) i.o() << i.dpop().as_η();
-      else                  i.o() << η1o(i.dpop().as_γ().name()); }};
+      else                  i.o() << η1o(i.dpop().as_Γ().name()); }};
 }
 
 
 // Run with no implicit output
 void nrun(πfn f)
 {
-  γπ(outify(f))(τe{}).go();
+  Γπ(outify(f))(τe{}).go();
 }
 
 
 void run(πfn f)
 {
-  (γπ(outify(f)) | γostream(cout))(τe{}).go();
+  (Γπ(outify(f)) | Γostream(cout))(τe{}).go();
 }
 
 
@@ -45,9 +45,9 @@ void debug(πfn f)
 {
   outify(f);
   cout << f << endl;
-  (γπ(f, "", [](πi &i, πinsn const &s)
+  (Γπ(f, "", [](πi &i, πinsn const &s)
     { cout << "about to run " << s << " on " << i << endl;
-      return true; }) | γostream(cout))(τe{}).go();
+      return true; }) | Γostream(cout))(τe{}).go();
 }
 
 

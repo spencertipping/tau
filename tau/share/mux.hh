@@ -2,7 +2,7 @@
 #define τshare_mux_h
 
 
-#include "../gamma.hh"
+#include "../Gamma.hh"
 #include "../begin.hh"
 
 namespace τ
@@ -11,13 +11,13 @@ namespace τ
 
 // Collapse all named duplexes down to a single primary channel. Fanout is
 // on the left, single channel is on the right.
-γ γmux();
+Γ Γmux();
 
 
 // Expand primary channel into named duplexes, each with either a
-// special-case γ or a fallback. Fanout is on the right, single channel
+// special-case Γ or a fallback. Fanout is on the right, single channel
 // on the left.
-γ γdemux(M<St, γ>&, γ);
+Γ Γdemux(M<St, Γ>&, Γ);
 
 
 }

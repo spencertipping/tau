@@ -5,10 +5,10 @@ namespace τ
 {
 
 
-struct γflex_ : public virtual γ_
+struct Γflex_ : public virtual Γ_
 {
-  γ g;
-  γflex_(γ g_) : g(g_) {}
+  Γ g;
+  Γflex_(Γ g_) : g(g_) {}
 
   St name() const { return "[‥" + g.name() + "‥]"; }
 
@@ -59,7 +59,7 @@ struct γflex_ : public virtual γ_
 };
 
 
-γ γflex(γ g) { return new γflex_(g); }
+Γ Γflex(Γ g) { return new Γflex_(g); }
 
 
 }

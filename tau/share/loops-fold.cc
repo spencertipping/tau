@@ -6,17 +6,17 @@ namespace τ
 {
 
 
-γ γτ()
+Γ Γτ()
 {
-  return γffn("γτ", [](Sp<ψ>, ξi i, ξo o) mutable
+  return Γffn("Γτ", [](Sp<ψ>, ξi i, ξo o) mutable
     { for (let x : i)
         if (!(o << x) || !(o << η1o(η1sig::τ))) break; });
 }
 
 
-γ γτt(η0t t)
+Γ Γτt(η0t t)
 {
-  return γffn("γτ»()", [t](Sp<ψ>, ξi i, ξo o) mutable
+  return Γffn("Γτ»()", [t](Sp<ψ>, ξi i, ξo o) mutable
     { η0o r(t);
       for (let x : i)
         if (x.τ())

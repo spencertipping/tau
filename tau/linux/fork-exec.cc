@@ -18,9 +18,9 @@ namespace τ
 {
 
 
-struct γfork_exec_ : public virtual γ_
+struct Γfork_exec_ : public virtual Γ_
 {
-  γfork_exec_(Vc<St> &argv_, St stderr_) : argv(argv_), stderr(stderr_) {}
+  Γfork_exec_(Vc<St> &argv_, St stderr_) : argv(argv_), stderr(stderr_) {}
 
   St name() const { return "e[" + argv[0] + "]"; }
   void operator()(Ξ&) const;
@@ -30,7 +30,7 @@ struct γfork_exec_ : public virtual γ_
 };
 
 
-void γfork_exec_::operator()(Ξ &x) const
+void Γfork_exec_::operator()(Ξ &x) const
 {
   let [lr, lw] = pipe_();
   let [rr, rw] = pipe_();
@@ -61,14 +61,14 @@ void γfork_exec_::operator()(Ξ &x) const
   else
   {
     close(lr); close(rw); close(ew);
-    (γfw(lw) | γfr(rr)
-     | γswap(stderr) | γfr(er) | γswap(stderr))(x);
+    (Γfw(lw) | Γfr(rr)
+     | Γswap(stderr) | Γfr(er) | Γswap(stderr))(x);
   }
 }
 
 
-γ γfork_exec(Vc<St> &argv, St stderr)
-{ return new γfork_exec_(argv, stderr); }
+Γ Γfork_exec(Vc<St> &argv, St stderr)
+{ return new Γfork_exec_(argv, stderr); }
 
 
 }

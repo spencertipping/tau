@@ -1,11 +1,11 @@
 # π scripting
-C++ gives us the flexibility to define a reasonable DSL for [γ](gamma.md), so we can write `a | b | c` to get a composite pipeline. That's a good start. Unfortunately, C++ also has some limitations:
+C++ gives us the flexibility to define a reasonable DSL for [Γ](gamma.md), so we can write `a | b | c` to get a composite pipeline. That's a good start. Unfortunately, C++ also has some limitations:
 
 1. It has non-instant compile times
-2. Some γs require functions, which are a little verbose
+2. Some Γs require functions, which are a little verbose
 3. We end up copy/pasting the admittedly small scaffold code between hard-coded examples, and writing `if()` dispatch logic to select them
 
-π is a series of [φ](phi.md) parsers that allow γs and [η](eta.md)-transforming functions to be defined from string inputs, ultimately making it possible to write τ programs without compiling code.
+π is a series of [φ](phi.md) parsers that allow Γs and [η](eta.md)-transforming functions to be defined from string inputs, ultimately making it possible to write τ programs without compiling code.
 
 See [π bindings](pi-bindings.md) for a list of functions available to user code.
 
@@ -13,7 +13,7 @@ See [π bindings](pi-bindings.md) for a list of functions available to user code
 ## Evaluation model
 π is a hybrid register and stack machine: we have the "current input" register for the inbound η, and the "current output" stack of `η₀o` that gets folded up at the end, or at infix write operations (`∷`).
 
-Because π can create γs inline, there is no `φ<γ>` parser. Instead, the parser is `φ<π → γ>` with an empty π for toplevel γ construction.
+Because π can create Γs inline, there is no `φ<Γ>` parser. Instead, the parser is `φ<π → Γ>` with an empty π for toplevel Γ construction.
 
 Operators are left-associative unary postfix expressions with arguments on the right. So `a+b` does what you would expect, but `a+b*c` evaluates the `+` before the `*`. Precedence can be modified with `[]`.
 
@@ -32,7 +32,7 @@ If the expression occurs within a `(` tuple context, then we also insert the "pu
 
 
 ### Polymorphic values
-Each π value is either a η or a γ. Pretty straightforward.
+Each π value is either a η or a Γ. Pretty straightforward.
 
 
 ### Program structure
@@ -44,13 +44,13 @@ Here are some entry points for Asqi that I would like to be able to compose:
 
 ```cpp
 // heads for a repo
-γfr(0) | γsplit_chr("\n") | git_heads() | γostream(std::cout)
+Γfr(0) | Γsplit_chr("\n") | git_heads() | Γostream(std::cout)
 
 // blobs for a revision
-γfr(0) | γtsv() | git_blobs() | γostream(std::cout)
+Γfr(0) | Γtsv() | git_blobs() | Γostream(std::cout)
 
 // blob contents
-γfr(0) | γtsv() | git_blob_contents() | γostream(std::cout)
+Γfr(0) | Γtsv() | git_blob_contents() | Γostream(std::cout)
 ```
 
 First, these should be a lot easier to write as they are:
@@ -65,13 +65,13 @@ It should also be simple to construct `git_heads() | git_blobs() | git_blob_cont
 + `git_blobs ∷ (repo-path, commit-sha) → τ[(commit-sha, blob-path, blob-sha)]`
 + `git_blob_contents ∷ (repo-path, blob-sha) → (blob-sha, blob-contents)`
 
-We can build the full pipeline using some η transforms and the `γflex` connector:
+We can build the full pipeline using some η transforms and the `Γflex` connector:
 
 + `git_heads → (repo-path, head-name, head-sha)`
 + `map(η) → (repo-path, head-name, head-sha, (repo-path, head-sha))`
-+ `γflex(git_blobs) → (repo-path, head-name, head-sha, head-sha, blob-path, blob-sha)`
++ `Γflex(git_blobs) → (repo-path, head-name, head-sha, head-sha, blob-path, blob-sha)`
 + `map(η) → (repo-path, head-name, head-sha, blob-path, (repo-name, blob-sha))`
-+ `γflex(γτ(git_blob_contents)) → (repo-path, head-name, head-sha, blob-path, blob-sha, blob-contents)`
++ `Γflex(Γτ(git_blob_contents)) → (repo-path, head-name, head-sha, blob-path, blob-sha, blob-contents)`
 
 In π, we should be able to say something like this: `«NGhπ(abc(ac)) ▶Gbπ(abcd(ad)) ▶τGbc »`. Since our tuple-arrangements all append something to the input tuple, maybe we can have a macro like `π«(ac)` that adds elements. We can also drop the tuple terminators. Then we have:
 
@@ -114,17 +114,17 @@ $ bin/phi "ι10π:(yy'x)j⍕⍎"
 ```
 
 
-### γ and η grammars (by example)
-+ `«` is a leader for `γfr`, which takes some optional configurations:
+### Γ and η grammars (by example)
++ `«` is a leader for `Γfr`, which takes some optional configurations:
   + `fd`: integer defaulting to `0`
 + `N` is an input filter, like `T`
 + `Gx` is a shortcut for our git operators
-+ `π` is a leader for `γffn` via π interpreters
++ `π` is a leader for `Γffn` via π interpreters
   + `«` is a suffix configuration indicating `() → ()` append
   + `(` begins a tuple
     + `a` and `c` are tuple accessors: lowercase to terminate, uppercase as a continuation (so `ac` means two distinct elements, `aC` means the `c` element of the `a` sub-tuple)
   + `)` is not written but is implied by end-of-code
-+ `▶` is the γ flex adapter
++ `▶` is the Γ flex adapter
   + `Gb` = `git_blobs`
   + `π«(ad` as above
 + `»'` is debug-out
@@ -137,9 +137,9 @@ Whitespace breaks π expressions unless `[]` are used, just like `ni` grammar. I
 
 
 ### Variables
-I don't think variables will be common; ideally we can refer to everything by value and not store quantities. But we can allocate `:` to assign vars.
+I don't think variables will be common; ideally we can refer to everything by value and not store quantities. But we can allocate `←` to assign vars.
 
-**TODO:** define a letter space for variables: Cyrillic maybe?
+I'm planning to use Chinese characters for variables.
 
 
 ### String manipulation

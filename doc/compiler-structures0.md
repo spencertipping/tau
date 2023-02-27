@@ -2,12 +2,12 @@
 A **non-authoritative** summary of data structures, but enough to provide a sense for how these things work.
 
 
-## Γ and γ
+## Γ and Γ
 ```cpp
 struct Γ
 {
   τ             &t;
-  V<Sp<γ>>       g;     // pipeline of γs, applied sequentially
+  V<Sp<Γ>>       g;     // pipeline of Γs, applied sequentially
   M<sym, Sp<ξ>> *w;     // named weak ξs (transient during operator())
 
   // Called from inside (), which populates *w and then erases it at the end
@@ -18,13 +18,13 @@ struct Γ
   // the Γ
   Sp<Ξ> operator()(Ξ const&) const;
   Γ     operator| (Γ const&) const;
-  Γ    &operator<<(Sp<γ>);
-  Γ    &operator>>(Sp<γ>);
+  Γ    &operator<<(Sp<Γ>);
+  Γ    &operator>>(Sp<Γ>);
 };
 
-struct γ
+struct Γ
 {
-  virtual ~γ() {}
+  virtual ~Γ() {}
 
   // Apply as a Ξ transform, with the ability to consult Γ for global ξs
   // ψ is created and referred to indirectly via the resulting Ξ
@@ -32,15 +32,15 @@ struct γ
 };
 ```
 
-The goal is to be able to implement `γ::operator()` like this for an identity transform:
+The goal is to be able to implement `Γ::operator()` like this for an identity transform:
 
 ```cpp
-struct γi : public virtual γ
+struct Γi : public virtual Γ
 {
   M<Ξi, ξm> i;  // input shaping matrix
   M<Ξi, ΞI> o;  // output shaping matrix
 
-  Sp<Ξ> γ::operator()(Ξ const &c, Γ &g) const
+  Sp<Ξ> Γ::operator()(Ξ const &c, Γ &g) const
   {
     auto m = c(i, *g.w);  // materialize input ξs
     M<ΞI, Sp<ξ>> n;       // output vector
@@ -53,12 +53,12 @@ struct γi : public virtual γ
 Similarly, we can implement a single-ξ operator like this:
 
 ```cpp
-struct γsize : public virtual γ
+struct Γsize : public virtual Γ
 {
   Ξi i;
   ΞI o;
 
-  Sp<Ξ> γ::operator()(Ξ const &c, Γ &g) const
+  Sp<Ξ> Γ::operator()(Ξ const &c, Γ &g) const
   {
     return c(i, o, (new ψsize(c(i, {false, false}, *g.w)))->o);
   }

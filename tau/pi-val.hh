@@ -2,7 +2,7 @@
 #define τπval_h
 
 
-#include "gamma.hh"
+#include "Gamma.hh"
 #include "eta.hh"
 
 #include "begin.hh"
@@ -20,16 +20,16 @@ struct πv
       x.into(r.data());
       v_ = std::move(r); }
 
-  πv(γ g) { v_ = g; }
+  πv(Γ g) { v_ = g; }
 
   bool is_η() const { return v_.index() == 0; }
-  bool is_γ() const { return v_.index() == 1; }
+  bool is_Γ() const { return v_.index() == 1; }
 
-  η as_η() const { A(is_η(), "as_η on γ"); return η(std::get<0>(v_).data()); }
-  γ as_γ() const { A(is_γ(), "as_γ on η"); return   std::get<1>(v_); }
+  η as_η() const { A(is_η(), "as_η on Γ"); return η(std::get<0>(v_).data()); }
+  Γ as_Γ() const { A(is_Γ(), "as_Γ on η"); return   std::get<1>(v_); }
 
 protected:
-  Va<B, γ> v_;
+  Va<B, Γ> v_;
 };
 
 

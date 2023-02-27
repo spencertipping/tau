@@ -17,10 +17,10 @@ namespace τ
 {
 
 
-// Parser for all τ-defined γs
-φ<πfn>    φγ();
-φ<πfn>    φγ1();
-φd_<πfn> &φγd();
+// Parser for all τ-defined Γs
+φ<πfn>    φΓ();
+φ<πfn>    φΓ1();
+φd_<πfn> &φΓd();
 
 
 // Parser for π η-transformers (expressions/programs)

@@ -34,9 +34,9 @@ static Sp<sqlite3_stmt> prepare(Sp<sqlite3> db, St sql)
 }
 
 
-γ γpkv_get(St filename, St table)
+Γ Γpkv_get(St filename, St table)
 {
-  return γffn(
+  return Γffn(
     "pkv_get(" + filename + ", " + table + ")",
     [filename, table](Sp<ψ>, ξi i, ξo o)
       {
@@ -47,7 +47,7 @@ static Sp<sqlite3_stmt> prepare(Sp<sqlite3> db, St sql)
             ("create table if not exists " + table +
              "(k primary key not null, v blob)").c_str(),
             0, 0, &er) == SQLITE_OK,
-          "γpkv_get create table " << table << " failed: " << er);
+          "Γpkv_get create table " << table << " failed: " << er);
 
         let ps = prepare(db, "select v from " + table + " where k=?");
         for (let k : i)
@@ -77,9 +77,9 @@ static Sp<sqlite3_stmt> prepare(Sp<sqlite3> db, St sql)
 }
 
 
-γ γpkv_set(St filename, St table)
+Γ Γpkv_set(St filename, St table)
 {
-  return γffn(
+  return Γffn(
     "pkv_set(" + filename + ", " + table + ")",
     [filename, table](Sp<ψ>, ξi i, ξo o)
       {
@@ -90,7 +90,7 @@ static Sp<sqlite3_stmt> prepare(Sp<sqlite3> db, St sql)
             ("create table if not exists " + table +
              "(k primary key not null, v blob)").c_str(),
             0, 0, &er) == SQLITE_OK,
-          "γpkv_get create table " << table << " failed: " << er);
+          "Γpkv_get create table " << table << " failed: " << er);
 
         let ps = prepare(db, "insert or replace into " + table + "(k, v) values (?, ?);");
         for (let kv : i)

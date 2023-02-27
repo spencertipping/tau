@@ -10,18 +10,18 @@ namespace τ
 {
 
 
-γ γostream(O &s, St prefix, bool tap)
+Γ Γostream(O &s, St prefix, bool tap)
 {
-  return γffn("γ»", [=, &s](Sp<ψ>, ξi i, ξo o) mutable
+  return Γffn("Γ»", [=, &s](Sp<ψ>, ξi i, ξo o) mutable
     { for (let x : i)
       { s << prefix << x << std::endl;
         if (tap && !(o << x)) break; }});
 }
 
 
-γ γZ(u8 l)
+Γ ΓZ(u8 l)
 {
-  return γffn((Ss{} << "γZ" << Sc<uN>(l)).str(), [l](ξi i, ξo o)
+  return Γffn((Ss{} << "ΓZ" << Sc<uN>(l)).str(), [l](ξi i, ξo o)
     { for (let x : i)
         if (x.c() >= l) { if (!(o << x)) return; }
         else

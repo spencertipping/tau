@@ -1,9 +1,9 @@
 # Ξ: 〈ξ〉
-Mathematically, Ξ is a vector of [ξs](xi.md) used as the input and output of [γ](gamma.md) matrices.
+Mathematically, Ξ is a vector of [ξs](xi.md) used as the input and output of [Γ](gamma.md) matrices.
 
-Ξ ξs can point in either direction. This is important because some γs expect a pair of channels, one pointing each way, to perform some type of negotiation -- for example OT, throughput-dependent compression, or ED25519.
+Ξ ξs can point in either direction. This is important because some Γs expect a pair of channels, one pointing each way, to perform some type of negotiation -- for example OT, throughput-dependent compression, or ED25519.
 
-**For efficiency and semantic reasons, Ξ objects are mutable.** It isn't meaningful to fork a Ξ/γ pipeline, so γs modify the Ξ in place.
+**For efficiency and semantic reasons, Ξ objects are mutable.** It isn't meaningful to fork a Ξ/Γ pipeline, so Γs modify the Ξ in place.
 
 
 ## Half and full duplex
@@ -19,11 +19,11 @@ A Ξ contains several elements:
 4. A series of named Ξs
 
 
-## γ references
-Each γ takes a Ξ and returns a Ξ. In the most trivial case, we have a simple ξ → ξ transformation along the forward direction of the primary duplex channel:
+## Γ references
+Each Γ takes a Ξ and returns a Ξ. In the most trivial case, we have a simple ξ → ξ transformation along the forward direction of the primary duplex channel:
 
 ```
-Ξ[primary] → γf → Ξ[primary]
+Ξ[primary] → Γf → Ξ[primary]
 Ξ[primary] ←------ Ξ[primary]
 ```
 
@@ -42,7 +42,7 @@ Any leftward-pointing ξ holds a weak reference to its ψ producer. This include
 ```
 +------------------------+
 |                        |
-+--> γ₁ --> γ₂ --> γ₃ ---+
++--> Γ₁ --> Γ₂ --> Γ₃ ---+
         ξa     ξb     ξc
 ```
 

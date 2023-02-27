@@ -9,13 +9,13 @@ namespace τ
 {
 
 
-γ γsplit_chr(cs7 cs) { return γsplit_chr_bounded(cs, -1); }
-γ γsplit_str(St  p)  { return γsplit_str_bounded(p,  -1); }
+Γ Γsplit_chr(cs7 cs) { return Γsplit_chr_bounded(cs, -1); }
+Γ Γsplit_str(St  p)  { return Γsplit_str_bounded(p,  -1); }
 
 
-γ γsplit_chr_bounded(cs7 cs, uN limit)
+Γ Γsplit_chr_bounded(cs7 cs, uN limit)
 {
-  return γffn("γschr", [=](Sp<ψ>, ξi i, ξo o) mutable
+  return Γffn("Γschr", [=](Sp<ψ>, ξi i, ξo o) mutable
     { St b;
       for (let x : i)
         if (x.tsu() || x.tsb())
@@ -33,9 +33,9 @@ namespace τ
 }
 
 
-γ γsplit_str_bounded(St p, uN limit)
+Γ Γsplit_str_bounded(St p, uN limit)
 {
-  return γffn("γsstr", [=](Sp<ψ>, ξi i, ξo o) mutable
+  return Γffn("Γsstr", [=](Sp<ψ>, ξi i, ξo o) mutable
     { St b;
       for (let x : i)
         if (x.tsu() || x.tsb())
@@ -53,10 +53,10 @@ namespace τ
 }
 
 
-γ γtsv()
+Γ Γtsv()
 {
-  return γsplit_chr("\n")
-       | γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); });
+  return Γsplit_chr("\n")
+       | Γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); });
 }
 
 

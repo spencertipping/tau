@@ -2,7 +2,7 @@
 #define τlinux_io_h
 
 
-#include "../gamma.hh"
+#include "../Gamma.hh"
 #include "../tau.hh"
 
 #include "../begin.hh"
@@ -11,10 +11,10 @@ namespace τ
 {
 
 
-γ γfr(fd_t, bool b = false);
-γ γfw(fd_t, bool b = false);
+Γ Γfr(fd_t, bool b = false);
+Γ Γfw(fd_t, bool b = false);
 
-γ γfcat(bool τ = false);  // == ni \<
+Γ Γfcat(bool τ = false);  // == ni \<
 
 
 }

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 void run_gamma(St source, bool silent = false)
 {
-  let r = (*φE(φγ()))(φc_(source));
+  let r = (*φE(φΓ()))(φc_(source));
   A(r.is_a(),
     "failed to parse " << source << " at location "
     << r.j << ": " << r.e << " " << r.t << std::endl
@@ -24,9 +24,9 @@ void run_gamma(St source, bool silent = false)
   A(i.run(0), "failed to run " << *r.y << "; i = " << i);
 
   if (silent)
-    i.dpop().as_γ()(τe{}).go();
+    i.dpop().as_Γ()(τe{}).go();
   else
-    (i.dpop().as_γ() | γostream(std::cout))(τe{}).go();
+    (i.dpop().as_Γ() | Γostream(std::cout))(τe{}).go();
 }
 
 

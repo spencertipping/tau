@@ -8,7 +8,7 @@ namespace τ
 #if τwasm
 void φwasm(φd_<πfn> &f)
 {
-  std::cerr << "TODO: wasm γ/φ library" << std::endl;
+  std::cerr << "TODO: wasm Γ/φ library" << std::endl;
 }
 #else
 void φwasm(φd_<πfn>&) {}

@@ -2,15 +2,15 @@
 #define τshare_serde_h
 
 
-#include "../gamma.hh"
+#include "../Gamma.hh"
 #include "../begin.hh"
 
 namespace τ
 {
 
 
-γ γηbytes();  // η → bytes
-γ γbytesη();  // bytes → η
+Γ Γηbytes();  // η → bytes
+Γ Γbytesη();  // bytes → η
 
 
 }

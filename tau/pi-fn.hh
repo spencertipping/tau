@@ -30,21 +30,21 @@ struct πinsn final
 
 
 template<class T>
-std::enable_if_t<!std::is_same_v<T, γ>, πinsn>
+std::enable_if_t<!std::is_same_v<T, Γ>, πinsn>
 πpush(T const &x)
 { return πinsn((Ss{} << "push " << x).str(), [x](πi &i) { i.dpush(η1o(x)); }); }
 
-inline πinsn πpush(γ x)
+inline πinsn πpush(Γ x)
 { return πinsn((Ss{} << "push " << x).str(), [x](πi &i) { i.dpush(x); }); }
 
 
-inline πinsn πf(St n, F<γ(γ)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_γ())); }); }
-inline πinsn πf(St n, F<γ(η)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η())); }); }
+inline πinsn πf(St n, F<Γ(Γ)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_Γ())); }); }
+inline πinsn πf(St n, F<Γ(η)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η())); }); }
 
-inline πinsn πf(St n, F<γ(i64)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().pi())); }); }
-inline πinsn πf(St n, F<γ(η1sig)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().ps())); }); }
-inline πinsn πf(St n, F<γ(St)>    f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st())); }); }
-inline πinsn πf(St n, F<γ(cs7)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st().c_str())); }); }
+inline πinsn πf(St n, F<Γ(i64)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().pi())); }); }
+inline πinsn πf(St n, F<Γ(η1sig)> f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().ps())); }); }
+inline πinsn πf(St n, F<Γ(St)>    f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st())); }); }
+inline πinsn πf(St n, F<Γ(cs7)>   f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η().st().c_str())); }); }
 
 
 template<η0ot T = η> πinsn πy(St n, F<T(η)>     f) { return πinsn(n, [f](πi &i) { i.dpush(f(i.dpop().as_η())); }); }

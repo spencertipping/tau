@@ -71,12 +71,12 @@ static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i, ξo o)
 }
 
 
-struct γfd : public virtual γ_
+struct Γfd : public virtual Γ_
 {
-  γfd(fd_t fd_, bool r_, bool b_) : fd(fd_), r(r_), b(b_) {}
+  Γfd(fd_t fd_, bool r_, bool b_) : fd(fd_), r(r_), b(b_) {}
 
   St name() const
-    { return (Ss{} << "γfd" << (r ? "<" : ">") << (b ? "⇐" : "") << fd).str(); }
+    { return (Ss{} << "Γfd" << (r ? "<" : ">") << (b ? "⇐" : "") << fd).str(); }
 
   void operator()(Ξ &x) const
     { let q = ψfd(x.t(), fd);
@@ -93,24 +93,24 @@ protected:
 };
 
 
-γ γfr(fd_t f, bool b) { return new γfd(f, true,  b); }
-γ γfw(fd_t f, bool b) { return new γfd(f, false, b); }
+Γ Γfr(fd_t f, bool b) { return new Γfd(f, true,  b); }
+Γ Γfw(fd_t f, bool b) { return new Γfd(f, false, b); }
 
 
-γ γfcat(bool τ)
+Γ Γfcat(bool τ)
 {
-  return γffn(τ ? "\\<τ" : "\\<", [τ](Sp<ψ> q, ξi i, ξo o) mutable
+  return Γffn(τ ? "\\<τ" : "\\<", [τ](Sp<ψ> q, ξi i, ξo o) mutable
     { for (let f : i)
       { let fn = f.st();
         let fd = open(fn.c_str(), O_RDONLY);
         A(fd != -1, "open(" << fn << ") failed: " << strerror(errno));
 
         if (τ)
-        { for (let b : γfr(fd)(Ξ{q->t()}).p().ri()) if (!(o << b)) return;
+        { for (let b : Γfr(fd)(Ξ{q->t()}).p().ri()) if (!(o << b)) return;
           if (!(o << η1o(η1sig::τ))) return; }
         else
         { η0o c{η0t::bytes};
-          for (let b : γfr(fd)(Ξ{q->t()}).p().ri())
+          for (let b : Γfr(fd)(Ξ{q->t()}).p().ri())
             memcpy(c.iptr(b.size()), b.data(), b.size());
           if (!(o << c)) return; }}});
 }

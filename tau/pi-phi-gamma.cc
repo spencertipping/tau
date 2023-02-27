@@ -9,46 +9,46 @@ namespace τ
 {
 
 
-static φ<πfn> φγ_;
+static φ<πfn> φΓ_;
 
-φd_<πfn> &φγd()
-{ if (!φγ_) φγ_.reset(new φd_<πfn>);
-  return *dpc<φd_<πfn>>(φγ_); }
+φd_<πfn> &φΓd()
+{ if (!φΓ_) φΓ_.reset(new φd_<πfn>);
+  return *dpc<φd_<πfn>>(φΓ_); }
 
 
-φ<πfn> φγ()
+φ<πfn> φΓ()
 {
-  return φN("φγ", φm<V<πfn>, πfn>(φn(φws(φγ1()), 1), [](V<πfn> fs)
+  return φN("φΓ", φm<V<πfn>, πfn>(φn(φws(φΓ1()), 1), [](V<πfn> fs)
     { πfn r;
       bool first = true;
       for (let &x : fs)
       { r += x;
         if (first) first = false;
-        else       r << πinsn{"γ|", [](πi &i)
-          { let b = i.dpop().as_γ();
-            let a = i.dpop().as_γ();
+        else       r << πinsn{"Γ|", [](πi &i)
+          { let b = i.dpop().as_Γ();
+            let a = i.dpop().as_Γ();
             i.dpush(a | b); }}; }
       return r; }));
 }
 
 
-φ<πfn> φγ1()
+φ<πfn> φΓ1()
 {
   static bool i = false;
   if (!i)
   {
-    φγd();
+    φΓd();
     i = true;
 
-    φγd().def("[", φm<P<πfn, Op<int>>, πfn>(
-      φs(φγ(), φo(φl("]", 0))),
+    φΓd().def("[", φm<P<πfn, Op<int>>, πfn>(
+      φs(φΓ(), φo(φl("]", 0))),
       [](auto x) { return std::get<0>(x); }));
 
-    φshare(φγd());
-    φlinux(φγd());
-    φwasm (φγd());
+    φshare(φΓd());
+    φlinux(φΓd());
+    φwasm (φΓd());
   }
-  return φN("φγ₁", φγ_);
+  return φN("φΓ₁", φΓ_);
 }
 
 

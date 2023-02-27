@@ -1,7 +1,7 @@
 #ifndef τshare_routing_h
 #define τshare_routing_h
 
-#include "../gamma.hh"
+#include "../Gamma.hh"
 
 #include "../begin.hh"
 
@@ -9,10 +9,10 @@ namespace τ
 {
 
 
-γ γrfn(St, F<void(Ξ&)>&&);
+Γ Γrfn(St, F<void(Ξ&)>&&);
 
-γ γswap(St);    // swap named ξd and primary
-γ γsub(St, γ);  // run γ within sub-Ξ
+Γ Γswap(St);    // swap named ξd and primary
+Γ Γsub(St, Γ);  // run Γ within sub-Ξ
 
 
 }

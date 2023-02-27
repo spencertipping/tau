@@ -11,7 +11,7 @@
 
 #include "phi.hh"
 #include "phi-str.hh"
-#include "gamma.hh"
+#include "Gamma.hh"
 
 #include "pi.hh"
 

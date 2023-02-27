@@ -39,7 +39,7 @@ int cat()
 int cat2()
 {
   τe t;
-  (γfr(0) | γfw(1))(t).go();
+  (Γfr(0) | Γfw(1))(t).go();
   A(!t.l().n(),  "Λ still has λs: "   << t.l().n());
   A(!ξn(),       "ξs still exist: "   << ξn());
   A(!t.pinned(), "t still has pins: " << t.pinned());
@@ -50,7 +50,7 @@ int cat2()
 
 int xcat()
 {
-  (γfr(0) | γsplit_chr(" \t\n") | γfcat() | γfw(1))(τe()).go();
+  (Γfr(0) | Γsplit_chr(" \t\n") | Γfcat() | Γfw(1))(τe()).go();
   A(!ψn(), "ψs escaped xcat: " << ψn());
   return 0;
 }
@@ -61,7 +61,7 @@ int exec(int argc, char **argv)
   τe t;
   V<St> xs;
   for (int i = 0; i < argc; ++i) xs.push_back(argv[i]);
-  (γfr(0) | γfork_exec(xs, "e") | γfw(1))(t);
+  (Γfr(0) | Γfork_exec(xs, "e") | Γfw(1))(t);
 
   t.go();
   A(!t.l().n(),  "Λ still has λs: "   << t.l().n());
@@ -74,10 +74,10 @@ int exec(int argc, char **argv)
 
 int tsv()
 {
-  (γfr(0)
-   | γsplit_chr("\n")
-   | γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); })
-   | γostream(cout))(τe()).go();
+  (Γfr(0)
+   | Γsplit_chr("\n")
+   | Γmap([](η x) { return η1o(cs7{"\t"}.split(x.stv())); })
+   | Γostream(cout))(τe()).go();
   return 0;
 }
 #else

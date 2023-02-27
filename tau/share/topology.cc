@@ -11,9 +11,9 @@ typedef F<void(Sp<ψ>, ξo, ξi)> bfn;
 typedef F<void(ψ&)> fin;
 
 
-struct γffn_ : public virtual γ_
+struct Γffn_ : public virtual Γ_
 {
-  γffn_(Stc &n_, ffn &&f_, fin &&xf_)
+  Γffn_(Stc &n_, ffn &&f_, fin &&xf_)
     : n(n_), f(new ffn(std::move(f_))), xf(new fin(std::move(xf_))) {}
 
   St name() const { return n; }
@@ -34,9 +34,9 @@ protected:
 };
 
 
-struct γbfn_ : public virtual γ_
+struct Γbfn_ : public virtual Γ_
 {
-  γbfn_(Stc &n_, bfn &&f_, fin &&xf_)
+  Γbfn_(Stc &n_, bfn &&f_, fin &&xf_)
     : n(n_), f(new bfn(std::move(f_))), xf(new fin(std::move(xf_))) {}
 
   St name() const { return n; }
@@ -57,9 +57,9 @@ protected:
 };
 
 
-struct γcap_ : public virtual γ_
+struct Γcap_ : public virtual Γ_
 {
-  γcap_(Stc &n_, ffn &&f_) : n(n_), f(new ffn(std::move(f_))) {}
+  Γcap_(Stc &n_, ffn &&f_) : n(n_), f(new ffn(std::move(f_))) {}
 
   St name() const { return "]" + n; }
 
@@ -76,9 +76,9 @@ protected:
 };
 
 
-struct γcat_ : public virtual γ_
+struct Γcat_ : public virtual Γ_
 {
-  γcat_(V<γ> &&gs_) : gs(std::move(gs_)) {}
+  Γcat_(V<Γ> &&gs_) : gs(std::move(gs_)) {}
 
   St name() const
     { Ss r;
@@ -104,38 +104,38 @@ struct γcat_ : public virtual γ_
           i.close(); }); }
 
 protected:
-  V<γ> gs;
+  V<Γ> gs;
 };
 
 
-γ γffn(St n, ffn &&f, fin &&xf) { return new γffn_(n, std::move(f), std::move(xf)); }
-γ γbfn(St n, bfn &&f, fin &&xf) { return new γbfn_(n, std::move(f), std::move(xf)); }
+Γ Γffn(St n, ffn &&f, fin &&xf) { return new Γffn_(n, std::move(f), std::move(xf)); }
+Γ Γbfn(St n, bfn &&f, fin &&xf) { return new Γbfn_(n, std::move(f), std::move(xf)); }
 
-γ γcat(V<γ> &&gs) { return new γcat_(std::move(gs)); }
-
-
-γ γcap(St n, ffn &&f) { return new γcap_(n, std::move(f)); }
+Γ Γcat(V<Γ> &&gs) { return new Γcat_(std::move(gs)); }
 
 
-γ γeach(F<void(η)> &&f, bool tap)
+Γ Γcap(St n, ffn &&f) { return new Γcap_(n, std::move(f)); }
+
+
+Γ Γeach(F<void(η)> &&f, bool tap)
 {
-  return γffn("e", [tap, f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
+  return Γffn("e", [tap, f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
     { for (let x : i)
       { f(x);
         if (tap && !(o << x)) break; }});
 }
 
 
-γ γmap(F<η0o(η)> &&f)
+Γ Γmap(F<η0o(η)> &&f)
 {
-  return γffn("m", [f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
+  return Γffn("m", [f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
     { for (let x : i) if (!(o << f(x))) break; });
 }
 
 
-γ γτmap(F<η0o(η)> &&f)
+Γ Γτmap(F<η0o(η)> &&f)
 {
-  return γffn("M", [f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
+  return Γffn("M", [f=std::move(f)](Sp<ψ>, ξi i, ξo o) mutable
     { for (let x : i) if (!(o << f(x)) || !(o << η1o(η1sig::τ))) break; });
 }
 

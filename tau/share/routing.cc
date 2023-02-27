@@ -6,9 +6,9 @@ namespace τ
 {
 
 
-struct γrfn_ : public virtual γ_
+struct Γrfn_ : public virtual Γ_
 {
-  γrfn_(Stc &n_, F<void(Ξ&)> &&f_)
+  Γrfn_(Stc &n_, F<void(Ξ&)> &&f_)
     : n(n_), f(new F<void(Ξ&)>(std::move(f_))) {}
 
   St name() const { return n; }
@@ -20,21 +20,21 @@ protected:
 };
 
 
-γ γrfn(St n, F<void(Ξ&)> &&f)
+Γ Γrfn(St n, F<void(Ξ&)> &&f)
 {
-  return new γrfn_(n, std::move(f));
+  return new Γrfn_(n, std::move(f));
 }
 
-γ γswap(St k)
+Γ Γswap(St k)
 {
-  return γrfn("//" + k, [k](Ξ &x)
+  return Γrfn("//" + k, [k](Ξ &x)
     { x(k);  // create unless ∃
       x.n()[k] = x.p(x.n().at(k)); });
 }
 
-γ γsub(St k, γ g)
+Γ Γsub(St k, Γ g)
 {
-  return γrfn("[" + g.name() + "]@" + k,
+  return Γrfn("[" + g.name() + "]@" + k,
               [k, g](Ξ &x) { g(x[k]); });
 }
 

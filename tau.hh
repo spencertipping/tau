@@ -21,7 +21,7 @@
 #include "tau/tau.hh"
 
 #include "tau/Xi.hh"
-#include "tau/gamma.hh"
+#include "tau/Gamma.hh"
 
 #include "tau/phi.hh"
 #include "tau/phi-fn.hh"

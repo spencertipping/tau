@@ -7,8 +7,8 @@ using namespace τ;
 using namespace std;
 
 
-γ sum()
-{ return γffn("∑", [](Sp<ψ> q, ξi i, ξo o)
+Γ sum()
+{ return Γffn("∑", [](Sp<ψ> q, ξi i, ξo o)
   { u64 t = 0;
     for (let x : i) t += x.pu();
     o << η1o(t); }); }
@@ -25,7 +25,7 @@ void try_gamma()
   {
     Ξ X(T);
     {
-      auto g = γι() | γtake(100) | sum();
+      auto g = Γι() | Γtake(100) | sum();
       cout << X;
       g(X);
       cout << g << " = " << X << endl;
@@ -65,12 +65,12 @@ void try_flex()
 {
   τe T;
 
-  auto g = γι(10)
-    | γdrop(8)
-    | γmap([](η i) { η0o r(η0t::tuple); r << η1o("foo") << i << i; return r; })
-    | γflex(γϊ())
-    | γflex(γτmap([](η i) { return η1o(Ss{} << i.pu() + 1); }))
-    | γostream(cout);
+  auto g = Γι(10)
+    | Γdrop(8)
+    | Γmap([](η i) { η0o r(η0t::tuple); r << η1o("foo") << i << i; return r; })
+    | Γflex(Γϊ())
+    | Γflex(Γτmap([](η i) { return η1o(Ss{} << i.pu() + 1); }))
+    | Γostream(cout);
 
   cout << "try_flex pipeline = " << g << endl;
 

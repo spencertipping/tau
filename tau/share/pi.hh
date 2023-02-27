@@ -2,7 +2,7 @@
 #define τshare_π_h
 
 
-#include "../gamma.hh"
+#include "../Gamma.hh"
 #include "../pi.hh"
 
 #include "topology.hh"
@@ -14,7 +14,7 @@ namespace τ
 
 
 // Run a π program, optionally with a filter
-γ γπ(πfn const&, St = "", F<bool(πi&, πinsn const&)> = [](πi&, πinsn const&) { return true; });
+Γ Γπ(πfn const&, St = "", F<bool(πi&, πinsn const&)> = [](πi&, πinsn const&) { return true; });
 
 
 }

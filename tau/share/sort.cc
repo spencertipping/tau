@@ -5,15 +5,15 @@ namespace τ
 {
 
 
-γ γsort(uN bufsize, St tmp, γ de, γ dd)
+Γ Γsort(uN bufsize, St tmp, Γ de, Γ dd)
 {
-  TODO("γsort");
+  TODO("Γsort");
 }
 
 
-γ γmerge(Vc<γ> &gs)
+Γ Γmerge(Vc<Γ> &gs)
 {
-  TODO("γmerge");
+  TODO("Γmerge");
 }
 
 

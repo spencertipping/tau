@@ -1,5 +1,5 @@
-# γ bindings
-Some γ bindings are platform-specific, but many are shared. They're split here by platform support.
+# Γ bindings
+Some Γ bindings are platform-specific, but many are shared. They're split here by platform support.
 
 
 ## Shared
@@ -8,7 +8,7 @@ Some γ bindings are platform-specific, but many are shared. They're split here 
 
 
 ### Loops
-+ `▶[γ]`: flex connector
++ `▶[Γ]`: flex connector
 + `ι[n?]`: count up to `n`, or forever
 + `ϊ`: ξ[n] → τ[ξ[0..n-1]]
 + `↑[n?]`: take `n`
@@ -30,7 +30,7 @@ Some γ bindings are platform-specific, but many are shared. They're split here 
 
 
 ### Routing
-+ `:x[γ]` apply `γ` to the `x` named sub-Ξ
++ `:x[Γ]` apply `Γ` to the `x` named sub-Ξ
 
 
 ### Strings
@@ -50,7 +50,7 @@ Some γ bindings are platform-specific, but many are shared. They're split here 
 ## Linux-specific
 ### Fork
 + `e[argv]`: exec `argv` and pipe stdin/stdout, binding stderr to `err` named ξ
-+ `∷[γ]`: pipe to/from γ running within a new τ runtime
++ `∷[Γ]`: pipe to/from Γ running within a new τ runtime
 
 
 ### IO
