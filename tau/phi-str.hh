@@ -3,6 +3,7 @@
 
 
 #include <algorithm>
+#include <regex>
 
 
 #include "types.hh"
@@ -77,7 +78,7 @@ struct φcs_ : public virtual φ_<St>
     : cs(cs_), n(n_), min(min_), max(max_) {}
 
   St name() const { return (Ss{} << cs).str(); }
-  φr_<St> operator()(φc_ const &x) const;
+  φr_<St> operator()(φc_ const&) const;
 
   cs7  cs;
   bool n;    // if true, negate
@@ -94,11 +95,25 @@ struct φucs_ : public virtual φ_<St>
     : f(f_), min(min_), max(max_) {}
 
   St name() const { return "φucs"; }
-  φr_<St> operator()(φc_ const &x) const;
+  φr_<St> operator()(φc_ const&) const;
 
   F<bool(u64)> f;
   uN           min;
   uN           max;
+};
+
+
+// Regex match, beginning at a minimum number of bytes
+struct φre_ : public virtual φ_<V<St>>
+{
+  φre_(St src_, uN min_ = 0) : src(src_), r("^(?:" + src + ")"), min(min_) {}
+
+  St name() const { return "/" + src + "/"; }
+  φr_<V<St>> operator()(φc_ const&) const;
+
+  St src;
+  Re r;
+  uN min;
 };
 
 
@@ -119,7 +134,7 @@ struct φq_ : public virtual φ_<St>
 };
 
 
-// End of input detector
+// End of input detector (wraps another parser)
 template<class T>
 struct φE_ : public virtual φ_<T>
 {

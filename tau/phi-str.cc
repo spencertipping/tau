@@ -46,6 +46,18 @@ namespace τ
 }
 
 
+φr_<V<St>> φre_::operator()(φc_ const &x) const
+{
+  std::smatch m;
+  if (!std::regex_search(x.it(0), x.it(x.l()), m, r))
+    return x.at(*this).f<V<St>>("/" + src + "/ failed to match", x.i());
+
+  V<St> y;
+  for (let &x : m) y.push_back(x.str());
+  return x.a(y, x.i() + m[0].length());
+}
+
+
 }
 
 #include "end.hh"

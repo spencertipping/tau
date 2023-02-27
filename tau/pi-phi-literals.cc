@@ -15,16 +15,24 @@ static φ<St> dq_str()
     φs(φs(φl("\"", 0), φcs("\"\\", true)), φl("\"", 0)),
     [](auto t) { return std::get<1>(std::get<0>(t)); }); }
 
+static φ<u64> int_suffix()
+{ return φa<u64>(φl("K", Sc<u64>(1) << 10),
+                 φl("M", Sc<u64>(1) << 20),
+                 φl("G", Sc<u64>(1) << 30),
+                 φl("T", Sc<u64>(1) << 40),
+                 φl("P", Sc<u64>(1) << 50),
+                 φl("",  Sc<u64>(1))); }
+
 
 φ<i64> φint_literal()
-{ return φm<St, i64>(φcs("0123456789-", false, 1),
-                     [](St v) { i64 x = 0; Ss{v} >> x; return x; }); }
+{ return φm<P<V<St>, u64>, i64>(
+    φs(φre("-?[0-9]+"), int_suffix()),
+    [](P<V<St>, u64> v) { i64 x = 0; Ss{std::get<0>(v)[0]} >> x; return x * std::get<1>(v); }); }
 
-// FIXME: floats are parsed preferentially as ints, followed by a float piece.
-// We need to unify these parsers, most likely.
 φ<f64> φfloat_literal()
-{ return φm<St, f64>(φcs("0123456789.-", false, 1),
-                     [](St v) { f64 x = 0; Ss{v} >> x; return x; }); }
+{ return φm<V<St>, f64>(
+    φre(R"(-?(?:[0-9]+\.[0-9]*(?:[eE]?[-+]?[0-9]+)?|\.[0-9]+(?:[eE]?[-+]?[0-9]+)?))"),
+    [](V<St> v) { f64 x = 0; Ss{v[0]} >> x; return x; }); }
 
 φ<St> φstr_literal()
 { return φa<St>(sq_str(), dq_str()); }
@@ -41,8 +49,8 @@ static φ<St> dq_str()
 {
   static φ<πfn> r;
   if (!r)
-    r = φa<πfn>(φk(φint_literal()),
-                φk(φfloat_literal()),
+    r = φa<πfn>(φk(φfloat_literal()),
+                φk(φint_literal()),
                 φk(φstr_literal()),
                 φk(φsig_literal()));
   return r;

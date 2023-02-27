@@ -81,8 +81,10 @@ struct φc_ final
   uN   n() const { return x_->size(); }
 
   ch operator[](iN i) const { return x_->at(i_ + i); }
-  St sub(uN n)        const { return x_->substr(i_, n); }
-  St sub(uN s, uN n)  const { return x_->substr(i_ + s, n); }
+  St sub(uN n)        const { return {x_->data() + i_, n}; }
+  St sub(uN s, uN n)  const { return {x_->data() + i_ + s, n}; }
+
+  St::const_iterator it(uN i) const { return x_->begin() + i; }
 
   φc_ &operator=(φc_ const &x)
     { x_ = x.x_; i_ = x.i_;
