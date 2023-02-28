@@ -5,19 +5,13 @@ namespace τ
 {
 
 
-// Locally-scoped exception used to kill λ threads
-struct Λk_ {};
-
-sletc λk_ = Λk_{};
-
-
 λi Λ::c(λf &&f)
 {
   if (fin) return 0;
   let i = ιi(ni, ls);
   ls[i].reset(new Λt([f=std::move(f)]()
     { try         { f(); }
-      catch (Λk_) {} }));
+      catch (Λx_) {} }));
   r(i, λs::R);
   return i;
 }
@@ -25,7 +19,7 @@ sletc λk_ = Λk_{};
 Λ &Λ::x(λi i)
 {
   if (fin) return *this;
-  if (i == ri) throw λk_;
+  if (i == ri) throw λx_;
   else         r(i, λs::X);
   return *this;
 }
@@ -40,7 +34,7 @@ sletc λk_ = Λk_{};
 
   // Unwind the λ stack to deallocate its resources, leading to it being
   // destroyed
-  if (ls.at(ri)->s == λs::X) throw λk_;
+  if (ls.at(ri)->s == λs::X) throw λx_;
 
   return *this;
 }

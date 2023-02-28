@@ -16,6 +16,11 @@ namespace τ
 {
 
 
+// Exception used to kill λs
+struct Λx_ final {};
+sletc λx_ = Λx_{};
+
+
 // A single Λ task, which is a λ plus some metadata
 struct Λt final
 {

@@ -11,6 +11,8 @@
 
 #include "tau/lambda.hh"
 #include "tau/Lambda.hh"
+#include "tau/gate.hh"
+#include "tau/breaker.hh"
 
 #include "tau/eta.hh"
 
