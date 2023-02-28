@@ -15,10 +15,11 @@ namespace τ
 {
 
 
-static Sp<ψ> ψfd(τe &t, fd_t fd)
+static Sp<ψ> ψfd(τe &t, fd_t fd, bool r_, bool w_)
 {
   let r = Sp<ψ>{new ψ(t)};
   r->xf([&t, fd](ψ&) { t.close(fd); });
+  t.reg(fd, r_, w_);
   return r;
 }
 
@@ -81,10 +82,9 @@ struct Γfd : public virtual Γ_
               << (b ? "⇐" : "") << fd).str(); }
 
   void operator()(Ξ &x) const
-    { let q = ψfd(x.t(), fd);
+    { let q = ψfd(x.t(), fd, r, w);
       ξi i;
       ξo o;
-      q->t().reg(fd, r, w);
       if (b) std::tie(o, i) = x.xb(q);
       else   std::tie(i, o) = x.xf(q);
       if (r) ψr(q, fd, o); else o.close();
