@@ -13,8 +13,8 @@ namespace τ
 {
 
 
-// Static setup ⇒ τe → sock_fd...
-Γ tcp_server(u16, u32 = INADDR_LOOPBACK);
+// Static setup ⇒ () → sock_fd...
+Γ tcp_server(u16 port, u32 = INADDR_LOOPBACK);
 
 
 // (IP, port) → sock_fd

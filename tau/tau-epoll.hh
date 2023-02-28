@@ -79,6 +79,9 @@ struct τe : public τb
   iN pread (fd_t fd, u8  *b, uN l, uN o) { return gated(rg(fd), λs::τR, &::pread,  fd, b, l, o); }
   iN pwrite(fd_t fd, u8c *b, uN l, uN o) { return gated(wg(fd), λs::τW, &::pwrite, fd, b, l, o); }
 
+  fd_t accept(fd_t fd, struct sockaddr *a, socklen_t *l)
+    { return gated(rg(fd), λs::τA, &::accept, fd, a, l); }
+
 
   // Register a file descriptor for IO events; this must be called before
   // using it with any epoll-mediated syscalls.
@@ -92,7 +95,7 @@ struct τe : public τb
 
 
   // Fork and track child PID, return result
-  int fork();
+  int  fork();
   void term();
 
 

@@ -26,6 +26,7 @@ enum class λs : u8  // lambda runnability state
   τR,  // blocked on read from fd
   τW,  // blocked on write to fd
   τE,  // blocked on error from fd
+  τA,  // blocked on accept from fd
 };
 
 

@@ -23,15 +23,16 @@ static Sp<ψ> ψfd(τe &t, fd_t fd)
 }
 
 
-static Sp<ψ> ψr(Sp<ψ> q, fd_t fd, ξi i, ξo o)
+static Sp<ψ> ψr(Sp<ψ> q, fd_t fd, ξo o)
 {
-  q->t().reg(fd, true, false);
   q->name((Ss{} << "<" << fd).str())
-    .def([fd, i, o, qw=Wp<ψ>{q}, &t=q->t()]() mutable
+    .def([fd, o, qw=Wp<ψ>{q}, &t=q->t()]() mutable
       { if (!o.inner_ξ()) return;
         let s = o.inner_ξ()->capacity() >> 1;
         u8  b[s];
-        i.close();
+
+        // Important: don't initiate any reads if nobody is waiting for output.
+        // Otherwise we might block indefinitely, hogging the FD.
         while (o.inner_ξ())
         { let r = t.read(fd, b, s);
           if (r <= 0 || !(o << η1o(Bv{b, Sc<uN>(r)}))) break; }
@@ -40,12 +41,11 @@ static Sp<ψ> ψr(Sp<ψ> q, fd_t fd, ξi i, ξo o)
 }
 
 
-static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i, ξo o)
+static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i)
 {
-  q->t().reg(fd, false, true);
   q->t().pin(q);
   q->name((Ss{} << ">" << fd).str())
-    .def([fd, i, o, qw=Wp<ψ>{q}, &t=q->t()]() mutable
+    .def([fd, i, qw=Wp<ψ>{q}, &t=q->t()]() mutable
       { for (let x : i)
           if (x.tsb())
           { uN  n  = 0;
@@ -53,12 +53,10 @@ static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i, ξo o)
             let s  = x.size();
             while (n < s)
             { let y = t.write(fd, xs + n, s - n);
-              if (y == -1) { o <<= η1o(false); goto done; }
-              else           o <<= η1o(y);
+              if (y == -1) goto done;
               n += y; }}
       done:
         i.close();
-        o.close();
         if (let qs = qw.lock()) t.unpin(qs); },
 
       // Second λ to detect pipe error before we attempt to write, then
@@ -73,28 +71,36 @@ static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i, ξo o)
 
 struct Γfd : public virtual Γ_
 {
-  Γfd(fd_t fd_, bool r_, bool b_) : fd(fd_), r(r_), b(b_) {}
+  Γfd(fd_t fd_, bool r_, bool w_, bool b_)
+    : fd(fd_), r(r_), w(w_), b(b_) {}
 
   St name() const
-    { return (Ss{} << "Γfd" << (r ? "<" : ">") << (b ? "⇐" : "") << fd).str(); }
+    { return (Ss{} << "Γfd"
+              << (r ? "<" : "")
+              << (w ? ">" : "")
+              << (b ? "⇐" : "") << fd).str(); }
 
   void operator()(Ξ &x) const
     { let q = ψfd(x.t(), fd);
       ξi i;
       ξo o;
+      q->t().reg(fd, r, w);
       if (b) std::tie(o, i) = x.xb(q);
       else   std::tie(i, o) = x.xf(q);
-      r ? ψr(q, fd, i, o) : ψw(q, fd, i, o); }
+      if (r) ψr(q, fd, o);
+      if (w) ψw(q, fd, i); }
 
 protected:
   fd_t const fd;
   bool const r;
+  bool const w;
   bool const b;
 };
 
 
-Γ Γfr(fd_t f, bool b) { return new Γfd(f, true,  b); }
-Γ Γfw(fd_t f, bool b) { return new Γfd(f, false, b); }
+Γ Γfr (fd_t f, bool b) { return new Γfd(f, true,  false, b); }
+Γ Γfw (fd_t f, bool b) { return new Γfd(f, false, true,  b); }
+Γ Γfrw(fd_t f, bool b) { return new Γfd(f, true,  true,  b); }
 
 
 Γ Γfcat(bool τ)
