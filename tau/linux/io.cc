@@ -63,7 +63,7 @@ static Sp<ψ> ψw(Sp<ψ> q, fd_t fd, ξi i)
       // unpin this ψ early. Otherwise we'd hang open even if the ξ side
       // were to exit.
       [fd, qw=Wp<ψ>{q}, &t=q->t()]() mutable
-        { if (let e = t.eg(fd)) e->y(λs::τE);
+        { if (let e  = t.eg(fd))  e->y(λs::τE);
           if (let qs = qw.lock()) t.unpin(qs); });
   return q;
 }
@@ -87,8 +87,8 @@ struct Γfd : public virtual Γ_
       q->t().reg(fd, r, w);
       if (b) std::tie(o, i) = x.xb(q);
       else   std::tie(i, o) = x.xf(q);
-      if (r) ψr(q, fd, o);
-      if (w) ψw(q, fd, i); }
+      if (r) ψr(q, fd, o); else o.close();
+      if (w) ψw(q, fd, i); else i.close(); }
 
 protected:
   fd_t const fd;

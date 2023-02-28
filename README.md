@@ -9,7 +9,9 @@ Another way to think of it is that τ is to `ni` what the Laplace transform is t
   + HTTP/REST _requests_ are a stream, which can be sub-streamed for WS
   + Authentication is a fork
 + π scripting
-  + ← for γ assignment, refer to them later
+  + ← for Γ assignment, refer to them later
++ Generalize Ξ topology in Γ layer
+  + Any `a → b` should be forward, backward, left-loop, or right-loopable
 
 
 ## Compute model
@@ -41,8 +43,7 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 τ programs are written as a series of compositional dataflow equations that involve associative channel-vector transformations. There are three main ideas:
 
 + [Ξ](doc/Xi.md): a vector of ξ duplexes (really a map)
-+ [γ](doc/gamma.md): ψ-colocated resources
-+ [Γ](doc/Gamma.md): ∏γ: compositions of γ
++ [Γ](doc/gamma.md): constructors of ψs
 + [φ](doc/phi.md): parser combinators
 + [π](doc/pi.md): the language to assemble τ programs
 

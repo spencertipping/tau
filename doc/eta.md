@@ -48,7 +48,7 @@ Specifications:
 
 **NOTE:** maps are guaranteed to have an even number of elements; otherwise they fail `η₀bc` and are η₁-invalid.
 
-**TODO:** add a dedicated type for file descriptors so we can close them automatically if any are left behind in ξs. Otherwise we leak FDs if a consumer closes its input.
+**TODO:** add a dedicated type for file descriptors so we can close them automatically if any are left behind in ξs. Otherwise we leak FDs if a consumer closes its input. ...or maybe we say you must consume all FDs from a ξ before closing the channel.
 
 
 ## Vector types
