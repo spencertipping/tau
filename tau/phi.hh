@@ -15,8 +15,9 @@ struct φc_;
 
 
 // Parser structures end in _ because we don't instantiate them directly.
-// Instead, we wrap them with shared pointers and build them with ctors.
-template<class T> using φ = Sp<φ_<T>>;
+// Instead, we wrap them with shared pointers. This class defines the
+// user-facing API for parsers.
+template<class T> struct φ;
 
 
 // φ parser ∷ φc → φr<T>
@@ -63,7 +64,9 @@ struct φr_ final
 struct φc_ final
 {
   // Create a new root context
-  φc_(St x__) : x_(new St{x__}), i_(0), n_(""), p_(nullptr) {}
+  φc_(Stc &x__) : x_(new St{x__}), i_(0), n_(""), p_(nullptr) {}
+  φc_(Sp<Stc> x__) : x_(x__), i_(0), n_(""), p_(nullptr) {}
+
   φc_(Sp<Stc> x__, uN i__, Stc n__, φc_ const *p__)
     : x_(x__), i_(i__), n_(n__), p_(p__) {}
 
@@ -104,10 +107,25 @@ protected:
 
 
 template<class T>
-O &operator<<(O &s, φ_<T> const &f)
+struct φ final
 {
-  return s << f.name();
-}
+  φ(φ_<T> *p_) : p(p_) {}
+
+  φr_<T> operator()(φc_ const &x) const { return (*p)(x); }
+  φr_<T> operator()(Stc       &x) const { return (*p)(φc_(x)); }
+
+  Op<T> parse(Stc &x) const { return (*this)(x).y; }
+
+  φ_<T> &operator*() const { return *p; }
+
+  St name() const { return p->name(); }
+
+  Sp<φ_<T>> p;
+};
+
+
+template<class T> O &operator<<(O &s, φ_<T> const &f) { return s << f.name(); }
+template<class T> O &operator<<(O &s, φ <T> const &f) { return s << f.name(); }
 
 
 }

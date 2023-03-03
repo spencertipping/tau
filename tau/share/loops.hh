@@ -2,6 +2,7 @@
 #define τshare_loops_h
 
 #include "../Gamma.hh"
+#include "topology.hh"
 
 #include "../begin.hh"
 
@@ -14,23 +15,23 @@ namespace τ
 Γ Γflex(Γ);
 
 
-Γ Γι(u64 = -1);
-Γ Γϊ();
-Γ Γtake(u64);
-Γ Γdrop(u64);
+Γffn_ ξι(u64 = -1);
+Γffn_ ξϊ();
+Γffn_ ξtake(u64);
+Γffn_ ξdrop(u64);
 
 
 // Put a τ after each item
-Γ Γτ();
+Γffn_ ξτ();
 
 
 // Collect τ-grouped elements into tuple/set/map/etc
-Γ Γτt(η0t = η0t::tuple);
+Γffn_ ξτt(η0t = η0t::tuple);
 
 
 // Sum in τ groups
-Γ Σi();  // ints
-Γ Σf();  // floats
+Γffn_ Σi();  // ints
+Γffn_ Σf();  // floats
 
 
 }

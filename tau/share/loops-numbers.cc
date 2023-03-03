@@ -6,65 +6,65 @@ namespace τ
 {
 
 
-Γ Γι(u64 u)
+Γffn_ ξι(u64 u)
 {
-  return Γffn("ι", [u](ξi I, ξo o)
+  return [u](Wp<ψ>, ξi I, ξo o)
     { I.close();
-      for (u64 i = 0; i < u && o << η1o(i); ++i); });
+      for (u64 i = 0; i < u && o << η1o(i); ++i); };
 }
 
 
-Γ Γϊ()
+Γffn_ ξϊ()
 {
-  return Γffn("ϊ", [](ξi i, ξo o)
+  return [](Wp<ψ>, ξi i, ξo o)
     { for (let x : i)
         if (η0ts{η0t::uint_be, η0t::int_be}[x.t()])
         { let n = x.pu();
           for (u64 j = 0; j < n; ++j) if (!(o << η1o(j))) return;
           if (!(o << η1o(η1sig::τ))) return; }
         else
-          if (!(o << x)) return; });
+          if (!(o << x)) return; };
 }
 
 
-Γ Γtake(u64 n)
+Γffn_ ξtake(u64 n)
 {
-  return Γffn("↑", [=](ξi i, ξo o) mutable
-    { for (let x : i) if (!n-- || !(o << x)) break; });
+  return [=](Wp<ψ>, ξi i, ξo o) mutable
+    { for (let x : i) if (!n-- || !(o << x)) break; };
 }
 
 
-Γ Γdrop(u64 n)
+Γffn_ ξdrop(u64 n)
 {
-  return Γffn("↓", [=](ξi i, ξo o) mutable
+  return [=](Wp<ψ>, ξi i, ξo o) mutable
     { for (let x : i) if (!n--) break;
-      for (let x : i) if (!(o << x)) break; });
+      for (let x : i) if (!(o << x)) break; };
 }
 
 
-Γ Σi()
+Γffn_ Σi()
 {
-  return Γffn("∑i", [](ξi i, ξo o)
+  return [](Wp<ψ>, ξi i, ξo o)
     { u64 t = 0;
       for (let x : i)
         if (x.τ())
         { t = 0;
           if (!(o << η1o(η1sig::τ))) return; }
         else
-          if (!(o << η1o(t += x.pi()))) return; });
+          if (!(o << η1o(t += x.pi()))) return; };
 }
 
 
-Γ Σf()
+Γffn_ Σf()
 {
-  return Γffn("∑f", [](ξi i, ξo o)
+  return [](Wp<ψ>, ξi i, ξo o)
     { f64 t = 0;
       for (let x : i)
         if (x.τ())
         { t = 0;
           if (!(o << η1o(η1sig::τ))) return; }
         else
-          if (!(o << η1o(t += x.pf()))) return; });
+          if (!(o << η1o(t += x.pf()))) return; };
 }
 
 

@@ -12,7 +12,7 @@ namespace τ
 
 Γ Γostream(O &s, St prefix, bool tap)
 {
-  return Γffn("Γ»", [=, &s](Sp<ψ>, ξi i, ξo o) mutable
+  return Γ2("Γ»'", [=, &s](Sp<ψ>, ξi i, ξo o) mutable
     { for (let x : i)
       { s << prefix << x << std::endl;
         if (tap && !(o << x)) break; }});
@@ -21,7 +21,7 @@ namespace τ
 
 Γ ΓZ(u8 l)
 {
-  return Γffn((Ss{} << "ΓZ" << Sc<uN>(l)).str(), [l](ξi i, ξo o)
+  return Γ2((Ss{} << "ΓZ" << Sc<uN>(l)).str(), [l](ξi i, ξo o)
     { for (let x : i)
         if (x.c() >= l) { if (!(o << x)) return; }
         else

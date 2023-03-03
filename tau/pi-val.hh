@@ -12,6 +12,8 @@ namespace τ
 
 
 // Dynamically-typed π value
+// TODO: expand the variant to include C++ primitives and shared_ptrs
+
 struct πv
 {
   template<η0ot T>

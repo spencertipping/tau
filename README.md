@@ -12,6 +12,8 @@ Another way to think of it is that τ is to `ni` what the Laplace transform is t
   + ← for Γ assignment, refer to them later
 + Generalize Ξ topology in Γ layer
   + Any `a → b` should be forward, backward, left-loop, or right-loopable
+  + Do this by having Γ2 with different (Ξ → P<ξi, ξo>) functions
+  + We can generalize further by having other Γ numbers
 
 
 ## Compute model

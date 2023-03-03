@@ -13,8 +13,8 @@ struct Γflex_ : public virtual Γ_
   St name() const { return "[‥" + g.name() + "‥]"; }
 
   void operator()(Ξ &x) const
-    { Sp<ψ> sq = x.q("[‥");          // split prefix from data
-      Sp<ψ> mq = x.q("‥]");          // merge prefix onto result
+    { let sq = x.q("[‥");            // split prefix from data
+      let mq = x.q("‥]");            // merge prefix onto result
       let [pw, pr] = x.pipe(sq, mq);  // pipe for prefixes
       let [i1, o1] = x.xf(sq);
 

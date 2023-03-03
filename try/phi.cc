@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 void run_gamma(St source, bool silent = false)
 {
-  let r = (*φE(φΓ()))(φc_(source));
+  let r = φE(φΓ())(source);
   A(r.is_a(),
     "failed to parse " << source << " at location "
     << r.j << ": " << r.e << " " << r.t << std::endl

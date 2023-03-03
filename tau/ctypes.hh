@@ -144,6 +144,9 @@ template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std:
 template<class T, class U>
 ic auto mp(T &&a, U &&b) { return std::make_pair(std::forward<T>(a), std::forward<U>(b)); }
 
+template<class T, class U>
+ic auto flip(P<T, U> const &p) { return mp(std::get<1>(p), std::get<0>(p)); }
+
 template<class T>
 ic auto ms(T &&a) { return std::make_shared<T>(std::forward<T>(a)); }
 
