@@ -10,6 +10,9 @@ namespace τ
 {
 
 
+// TODO: this should be moved out to tau/
+
+
 typedef F<P<ξi, ξo>(Sp<ψ>, Ξ&)> Γ2fn_;  // 2-ξ splice function
 typedef F<void(Wp<ψ>, ξi, ξo)>  Γffn_;  // 2-ξ processor function
 typedef F<void(ψ&)>             Γfin_;  // ψ finalizer
@@ -20,6 +23,9 @@ typedef F<void(ψ&)>             Γfin_;  // ψ finalizer
 Γ2fn_ Γ2rc();  // right duplex cap
 
 // TODO: splice functions for sub-duplexes
+
+// TODO: higher-order splice functions
+// TODO: entangled processor functions
 
 
 // 2-ξ processor with given splice

@@ -12,7 +12,10 @@ namespace τ
 
 
 // Dynamically-typed π value
-// TODO: expand the variant to include C++ primitives and shared_ptrs
+// TODO: expand the variant to include shared_ptrs to C++ things
+//
+// (NOTE: no point in doing C++ primitives because basic_string
+//  inlining is sufficiently fast)
 
 struct πv
 {

@@ -18,6 +18,7 @@ struct πfn;
 
 
 // π program interpreter
+// TODO: add multi-λ variables, which are probably just a map of πv
 struct πi
 {
   πi(Sp<πfn const> f)             : f_(f) {}

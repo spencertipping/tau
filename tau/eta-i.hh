@@ -152,41 +152,35 @@ struct η final
   M_ M() const { return M_{*this}; }
 
 
-  int compare(η const &o) const
-    { if (t() != o.t()) return Sc<iN>(t()) - Sc<iN>(o.t());
+  PO operator<=>(η const &o) const
+    { if (t() != o.t()) return Sc<iN>(t()) <=> Sc<iN>(o.t());
       switch (t())
       {
-      case η0t::boolean:  return pb() - o.pb();
-      case η0t::uint_be:  return pu() > o.pu() ? 1 : pu() < o.pu() ? -1 : 0;
-      case η0t::int_be:   return pi() > o.pi() ? 1 : pi() < o.pi() ? -1 : 0;
-      case η0t::float_be: return pf() > o.pf() ? 1 : pf() < o.pf() ? -1 : 0;
+      case η0t::boolean:  return pb() <=> o.pb();
+      case η0t::uint_be:  return pu() <=> o.pu();
+      case η0t::int_be:   return pi() <=> o.pi();
+      case η0t::float_be: return pf() <=> o.pf();
       case η0t::bytes:
       case η0t::utf8:
       { let c = memcmp(data(), o.data(), std::min(size(), o.size()));
-        if (c) return c;
-        return size() > o.size() ? 1 : size() < o.size() ? -1 : 0; }
-      case η0t::signal: return Sc<iN>(ps()) - Sc<iN>(o.ps());
+        if (c) return c <=> 0;
+        return size() <=> o.size(); }
+      case η0t::signal: return ps() <=> o.ps();
       case η0t::tuple:
       { auto a =   T().begin(), ae =   T().end();
         auto b = o.T().begin(), be = o.T().end();
         while (a != ae && b != be)
-          if (let c = (*a).compare(*b)) return c;
-          else ++a, ++b;
-        if (a != ae) return 1;
-        if (b != be) return -1;
-        return 0; }
+        { let c = *a <=> *b;
+          if (c != PO::equivalent) return c;
+          else ++a, ++b; }
+        if (a != ae) return PO::greater;
+        if (b != be) return PO::less;
+        return PO::equivalent; }
 
       default:
-        A(0, "cannot compare " << t() << " with " << o.t());
-        return 0;
+        return PO::unordered;
       } }
 
-
-  bool operator< (η const &y) const { return compare(y) <  0; }
-  bool operator<=(η const &y) const { return compare(y) <= 0; }
-  bool operator> (η const &y) const { return compare(y) >  0; }
-  bool operator>=(η const &y) const { return compare(y) >= 0; }
-  bool operator==(η const &y) const { return !compare(y); }
 
   bool operator==(Stvc &x) const { return tsu() && stv() == x; }
   bool operator==(Bvc  &x) const { return tsb() && bv()  == x; }

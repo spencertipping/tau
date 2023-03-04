@@ -19,11 +19,11 @@ void ψx_(ψ*);  // notify that a ψ has been destroyed
 uN ψn();       // number of live ψs
 
 
-// Virtual base for ψ processes
+// Extensible ψ process
 struct ψ
 {
   template<class... Xs>
-  ψ(τe &t__, Xs... xs) : t_(t__) { def(xs...); ψc_(this); }
+  ψ(τe &t__, Xs&&... xs) : t_(t__) { def(xs...); ψc_(this); }
 
   virtual ~ψ() { destroy(); ψx_(this); }
 
@@ -37,10 +37,10 @@ struct ψ
   // which will be named.
   ψ &def() { return *this; }
 
-  template<class... Xs> ψ &def(λf           &&f, Xs... xs) { ls.insert(λc(std::move(f))); return def(xs...); }
-  template<class... Xs> ψ &def(F<void(ψ&)>  &&f, Xs... xs) { return def([f=std::move(f), this]() { f(*this); }, xs...); }
-  template<class... Xs> ψ &def(Stc &k, ξi i,     Xs... xs) { i_[k] = i; return def(xs...); }
-  template<class... Xs> ψ &def(Stc &k, ξo o,     Xs... xs) { o_[k] = o; return def(xs...); }
+  template<class... Xs> ψ &def(λf           &&f, Xs&&... xs) { ls.insert(λc(std::move(f))); return def(xs...); }
+  template<class... Xs> ψ &def(F<void(ψ&)>  &&f, Xs&&... xs) { return def([f=std::move(f), this]() { f(*this); }, xs...); }
+  template<class... Xs> ψ &def(Stc &k, ξi i,     Xs&&... xs) { i_[k] = i; return def(xs...); }
+  template<class... Xs> ψ &def(Stc &k, ξo o,     Xs&&... xs) { o_[k] = o; return def(xs...); }
 
 
   // Creates a new λ and clears any unused λis from our tracked set.

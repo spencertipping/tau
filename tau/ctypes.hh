@@ -3,6 +3,7 @@
 
 
 #include <array>
+#include <compare>
 #include <complex>
 #include <cstddef>
 #include <cstdint>
@@ -139,6 +140,11 @@ template<class... T>       using Vi = typename V<T...>::const_iterator;
 template<class... T>       using Wp = std::weak_ptr<T...>;
 
 template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std::vector<T>, C>;
+
+
+typedef std::strong_ordering  SO;
+typedef std::weak_ordering    WO;
+typedef std::partial_ordering PO;
 
 
 template<class T, class U>
