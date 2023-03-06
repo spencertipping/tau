@@ -22,7 +22,6 @@ Here are some approximate definitions; in practice each is a `struct`:
 struct ξio;            // Sp<ξ> plus "read claimed" and "write claimed"
 typedef M<St, ξio> Ξ;
 typedef F<Ξ(Ξ&)>   Γ;
-typedef D<Γ>       Γ;  // deque so we can prepend
 
 Ξ Γ::operator()(Ξ&);   // apply the whole Γ
 ```

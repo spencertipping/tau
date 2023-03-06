@@ -1,7 +1,5 @@
 # Γ: τ compiler
-Γ assembles multiple [Γs](gamma.md) into a [τ](tau.md)-scale program. More specifically, Γ = 〈Γ〉.
-
-Γ can be used as a Γ with `Γs`.
+Γs transform [Ξs](Xi.md), creating [ψs](psi.md) as processing elements.
 
 
 ## Nonlinear routing
@@ -15,6 +13,6 @@ Many Γ operations are simple _ξ → ξ_ transformations; that is, two-port uni
 
 + _Γ₄_ for a full bidirectional splice (and shared state)
 + _Γ«_ for left-singular, right-plural splicing (e.g. multiplex)
-+ `Γ»_ for left-plural, right-singular splicing (e.g. demux)
++ _Γ»_ for left-plural, right-singular splicing (e.g. demux)
 
 **TODO:** more design here

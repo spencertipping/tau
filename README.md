@@ -3,17 +3,9 @@
 
 Another way to think of it is that τ is to `ni` what the Laplace transform is to the Fourier transform: we can now describe systems that are locally time-invariant but which nonetheless change over time.
 
+The τ runtime ships with the [σ standard library](sigma.md).
 
-## TODO
-+ HTTP library
-  + HTTP/REST _requests_ are a stream, which can be sub-streamed for WS
-  + Authentication is a fork
-+ π scripting
-  + ← for Γ assignment, refer to them later
-+ Generalize Ξ topology in Γ layer
-  + Any `a → b` should be forward, backward, left-loop, or right-loopable
-  + Do this by having Γ2 with different (Ξ → P<ξi, ξo>) functions
-  + We can generalize further by having other Γ numbers
+**TODO:** GC the source and documentation for the sigma refactor
 
 
 ## Compute model
@@ -36,7 +28,7 @@ Another way to think of it is that τ is to `ni` what the Laplace transform is t
 + [ξ](doc/xi.md) is a bounded channel that carries η values
 + [η](doc/eta.md) is the data format used for ξ messages
 
-τ implements an eager dataflow GC that deallocates ψs as soon as nobody depends on their ξ outputs. Destroying a ψ frees all of its global resources, including C++ data structures and any ξs, which may in turn cause more ψs to be freed.
+τ implements an eager dataflow GC that deallocates ψs as soon as nobody depends on their ξ outputs. Destroying a ψ frees all of its global resources, including C++ data structures and any inbound ξs, which may in turn cause more ψs to be freed.
 
 This τ GC corresponds to a signal exponentially decaying below the noise floor in the 𝓛 metaphor.
 
@@ -45,15 +37,15 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 τ programs are written as a series of compositional dataflow equations that involve associative channel-vector transformations. There are three main ideas:
 
 + [Ξ](doc/Xi.md): a vector of ξ duplexes (really a map)
-+ [Γ](doc/gamma.md): constructors of ψs
++ [Γ](doc/Gamma.md): constructors of ψs
 + [φ](doc/phi.md): parser combinators
 + [π](doc/pi.md): the language to assemble τ programs
 
-These are compiler objects, meaning that they don't actually contain live resources. Instead, γ and Γ are functions that take Ξs as inputs and return Ξs as outputs, constructing native resources in the process.
+These are compiler objects, meaning that they don't actually contain live resources. Instead, Γs are functions that take Ξs as inputs and return Ξs as outputs, constructing native resources in the process.
 
 See [compiler structures](doc/compiler-structures.md) for a quick rundown of how these structures interact.
 
-See [γ bindings](doc/gamma-bindings.md) and [π bindings](doc/pi-bindings.md) for a full description of the parser bindings used to construct γs and π programs.
+See [Γ bindings](doc/gamma-bindings.md) and [π bindings](doc/pi-bindings.md) for a full description of the parser bindings used to construct Γs and π programs.
 
 
 ## Linux setup
