@@ -32,6 +32,35 @@
 | `y`     |        |                           |
 | `z`     |        |                           |
 
+| Symbol  | Syntax | Description               |
+|---------|--------|---------------------------|
+| `A`     |        |                           |
+| `B`     |        |                           |
+| `C`     |        |                           |
+| `D`     |        |                           |
+| `E`     |        |                           |
+| `F`     |        |                           |
+| `G`     |        |                           |
+| `H`     |        |                           |
+| `I`     |        |                           |
+| `J`     |        |                           |
+| `K`     |        |                           |
+| `L`     |        |                           |
+| `M`     |        |                           |
+| `N`/`n` |        | numeric ϊ/ι               |
+| `O`     |        |                           |
+| `P`     |        |                           |
+| `Q`     |        |                           |
+| `R`/`r` |        | π row selector            |
+| `S`     |        |                           |
+| `T`     |        |                           |
+| `U`     |        |                           |
+| `V`     |        |                           |
+| `W`/`w` |        | tuple/map horizontal join |
+| `X`     |        | integral                  |
+| `Y`     |        | derivative                |
+| `Z`     |        | prefix for OT             |
+
 | Symbol | Syntax | Description                  |
 |--------|--------|------------------------------|
 | `+`    |        | τ-group append               |
