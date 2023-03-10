@@ -7,7 +7,7 @@
 |---------|--------|---------------------------|
 | `a`     |        |                           |
 | `b`     |        |                           |
-| `c`     |        |                           |
+| `c`     |        | count adjacent            |
 | `d`     |        |                           |
 | `e`     |        | shell command filter      |
 | `f`     |        | tuple field transform     |
@@ -37,11 +37,11 @@
 | `A`     |        |                           |
 | `B`     |        |                           |
 | `C`     |        |                           |
-| `D`     |        |                           |
-| `E`     |        |                           |
+| `D`     |        | decryption                |
+| `E`     |        | encryption                |
 | `F`     |        |                           |
 | `G`     |        |                           |
-| `H`     |        |                           |
+| `H`     |        | HTTP server               |
 | `I`     |        |                           |
 | `J`     |        |                           |
 | `K`     |        |                           |
@@ -52,48 +52,48 @@
 | `P`     |        |                           |
 | `Q`     |        |                           |
 | `R`/`r` |        | π row selector            |
-| `S`     |        |                           |
-| `T`     |        |                           |
-| `U`     |        |                           |
-| `V`     |        |                           |
+| `S`     |        | horizontal scaling        |
+| `T`     |        | TCP server                |
+| `U`     |        | UDP server                |
+| `V`     |        | UNIX domain socket server |
 | `W`/`w` |        | tuple/map horizontal join |
-| `X`     |        | integral                  |
-| `Y`     |        | derivative                |
+| `X`     |        | OT integral               |
+| `Y`     |        | OT derivative             |
 | `Z`     |        | prefix for OT             |
 
-| Symbol | Syntax | Description                  |
-|--------|--------|------------------------------|
-| `+`    |        | τ-group append               |
-| `-`    |        |                              |
-| `*`    |        |                              |
-| `/`    |        |                              |
-| `.`    |        |                              |
-| `,`    |        |                              |
-| `!`    |        |                              |
-| `@`    |        | Ξ subscript                  |
-| `#`    |        |                              |
-| `$`    |        |                              |
-| `%`    |        | Γ union                      |
-| `^`    |        | τ-group prepend              |
-| `&`    |        |                              |
-| `(`    |        | dynamic multiplexer          |
-| `)`    |        | dynamic multiplexer          |
-| `[`    |        | Γ grouping                   |
-| `]`    |        | Γ grouping                   |
-| `{`    |        | static multiplexer           |
-| `}`    |        | static multiplexer           |
-| `<`    |        | stream in from persistent    |
-| `>`    |        | stream out to persistent     |
-| `\|`   | Γp     | modify argument to right-cap |
-| `\\`   | Γp     | modify argument to backward  |
-| `_`    |        |                              |
-| `=`    |        | prefix for full-duplex ops   |
-| `~`    |        |                              |
-| `'`    |        | register                     |
-| `"`    |        | bounded buffer               |
-| `:`    |        | broadcast                    |
-| `;`    |        |                              |
-| `?`    |        |                              |
+| Symbol | Syntax | Description                   |
+|--------|--------|-------------------------------|
+| `+`    |        | τ-group append                |
+| `-`    |        |                               |
+| `*`    |        |                               |
+| `/`    |        |                               |
+| `.`    |        | Ξ subscript                   |
+| `,`    |        | ξ bundle (collect into Ξ)     |
+| `!`    |        |                               |
+| `@`    |        |                               |
+| `#`    |        |                               |
+| `$`    |        |                               |
+| `%`    |        | Γ union                       |
+| `^`    |        | τ-group prepend               |
+| `&`    |        |                               |
+| `(`    |        | dynamic demultiplexer         |
+| `)`    |        | dynamic multiplexer           |
+| `[`    |        | Γ grouping                    |
+| `]`    |        | Γ grouping                    |
+| `{`    |        | static demultiplexer          |
+| `}`    |        | static multiplexer            |
+| `<`    |        | stream in from persistent     |
+| `>`    |        | stream out to persistent      |
+| `\|`   | Γp     | modify processor to right-cap |
+| `\\`   | Γp     | modify processor to backward  |
+| `_`    |        |                               |
+| `=`    |        | prefix for full-duplex ops    |
+| `~`    |        |                               |
+| `'`    |        | register                      |
+| `"`    |        | bounded buffer                |
+| `:`    |        | omni-blocking broadcast       |
+| `;`    |        | non-blocking side tap         |
+| `?`    |        | debug tap                     |
 
 
 ## TODO
