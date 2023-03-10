@@ -34,12 +34,12 @@
 
 | Symbol  | Syntax | Description               |
 |---------|--------|---------------------------|
-| `A`     |        |                           |
+| `A`     |        | prefix for authentication |
 | `B`     |        |                           |
 | `C`     |        |                           |
-| `D`     |        | decryption                |
-| `E`     |        | encryption                |
-| `F`     |        |                           |
+| `D`     |        | prefix for decryption     |
+| `E`     |        | prefix for encryption     |
+| `F`     |        | prefix for formatted IO   |
 | `G`     |        |                           |
 | `H`     |        | HTTP server               |
 | `I`     |        |                           |
@@ -63,13 +63,14 @@
 
 | Symbol | Syntax | Description                   |
 |--------|--------|-------------------------------|
+| `!`    |        | prefix for lossy queues       |
+| `=`    |        | prefix for full-duplex ops    |
 | `+`    |        | τ-group append                |
 | `-`    |        |                               |
 | `*`    |        |                               |
 | `/`    |        |                               |
 | `.`    |        | Ξ subscript                   |
 | `,`    |        | ξ bundle (collect into Ξ)     |
-| `!`    |        |                               |
 | `@`    |        |                               |
 | `#`    |        |                               |
 | `$`    |        |                               |
@@ -86,8 +87,7 @@
 | `>`    |        | stream out to persistent      |
 | `\|`   | Γp     | modify processor to right-cap |
 | `\\`   | Γp     | modify processor to backward  |
-| `_`    |        |                               |
-| `=`    |        | prefix for full-duplex ops    |
+| `_`    |        | null port                     |
 | `~`    |        |                               |
 | `'`    |        | register                      |
 | `"`    |        | bounded buffer                |
