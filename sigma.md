@@ -2,69 +2,69 @@
 σ defines common utilities that make τ ergonomic and useful. This includes [Γ](doc/Gamma.md) components and [φ](doc/phi.md) parsers. The `σ` namespace doesn't include `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
 
 
-## Γ symbol table
-| Symbol | Syntax | Description |
-|--------|--------|-------------|
-| `a`    |        |             |
-| `b`    |        |             |
-| `c`    |        |             |
-| `d`    |        |             |
-| `e`    |        |             |
-| `f`    |        |             |
-| `g`    |        |             |
-| `h`    |        |             |
-| `i`    |        |             |
-| `j`    |        |             |
-| `k`    |        |             |
-| `l`    |        |             |
-| `m`    |        |             |
-| `n`    |        |             |
-| `o`    |        |             |
-| `p`    |        |             |
-| `q`    |        |             |
-| `r`    |        |             |
-| `s`    |        |             |
-| `t`    |        |             |
-| `u`    |        |             |
-| `v`    |        |             |
-| `w`    |        |             |
-| `x`    |        |             |
-| `y`    |        |             |
-| `z`    |        |             |
+## Γ processor symbol table
+| Symbol  | Syntax | Description               |
+|---------|--------|---------------------------|
+| `a`     |        |                           |
+| `b`     |        |                           |
+| `c`     |        |                           |
+| `d`     |        |                           |
+| `e`     |        | shell command filter      |
+| `f`     |        | tuple field transform     |
+| `g`     |        | τ-grouped sort            |
+| `h`     |        |                           |
+| `i`     |        | η identity out            |
+| `j`     |        | τ-grouped sorted join     |
+| `k`     |        | η repeated out            |
+| `l`     |        |                           |
+| `m`     |        | π 1:1 map                 |
+| `n`/`N` |        | numeric ι/ϊ               |
+| `o`     |        |                           |
+| `p`     |        | π program                 |
+| `q`     |        | prefix for queues         |
+| `r`/`R` |        | π row selector            |
+| `s`     |        |                           |
+| `t`     |        |                           |
+| `u`     |        |                           |
+| `v`     |        |                           |
+| `w`/`W` |        | tuple/map horizontal join |
+| `x`     |        |                           |
+| `y`     |        |                           |
+| `z`     |        |                           |
 
-| Symbol | Syntax | Description |
-|--------|--------|-------------|
-| `+`    |        |             |
-| `-`    |        |             |
-| `*`    |        |             |
-| `/`    |        |             |
-| `!`    |        |             |
-| `@`    |        |             |
-| `#`    |        |             |
-| `$`    |        |             |
-| `%`    |        |             |
-| `^`    |        |             |
-| `&`    |        |             |
-| `*`    |        |             |
-| `(`    |        |             |
-| `)`    |        |             |
-| `[`    |        |             |
-| `]`    |        |             |
-| `{`    |        |             |
-| `}`    |        |             |
-| `      | `      |             |
-| `_`    |        |             |
-| `=`    |        |             |
-| `~`    |        |             |
-| `'`    |        |             |
-| `"`    |        |             |
-| `:`    |        |             |
-| `;`    |        |             |
-| `<`    |        |             |
-| `>`    |        |             |
-| `,`    |        |             |
-| `.`    |        |             |
-| `?`    |        |             |
+| Symbol | Syntax | Description                  |
+|--------|--------|------------------------------|
+| `+`    |        | τ-group append               |
+| `-`    |        |                              |
+| `*`    |        |                              |
+| `/`    |        |                              |
+| `.`    |        |                              |
+| `,`    |        |                              |
+| `!`    |        |                              |
+| `@`    |        | Ξ subscript                  |
+| `#`    |        |                              |
+| `$`    |        |                              |
+| `%`    |        | Γ union                      |
+| `^`    |        | τ-group prepend              |
+| `&`    |        |                              |
+| `(`    |        | dynamic multiplexer          |
+| `)`    |        | dynamic multiplexer          |
+| `[`    |        | Γ grouping                   |
+| `]`    |        | Γ grouping                   |
+| `{`    |        | static multiplexer           |
+| `}`    |        | static multiplexer           |
+| `<`    |        | stream in from persistent    |
+| `>`    |        | stream out to persistent     |
+| `\|`   | Γp     | modify argument to right-cap |
+| `\\`   | Γp     | modify argument to backward  |
+| `_`    |        |                              |
+| `=`    |        | prefix for full-duplex ops   |
+| `~`    |        |                              |
+| `'`    |        | register                     |
+| `"`    |        | bounded buffer               |
+| `:`    |        | broadcast                    |
+| `;`    |        |                              |
+| `?`    |        |                              |
 
 
 ## TODO
