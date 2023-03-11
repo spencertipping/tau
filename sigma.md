@@ -30,12 +30,12 @@
 | `w`/`W` |         |        | tuple/map horizontal join |
 | `x`     |         |        |                           |
 | `y`     |         |        |                           |
-| `z`     |         |        |                           |
+| `z`     | P       |        | prefix for compression    |
 
 | Symbol  | Prefix? | Syntax | Description                   |
 |---------|---------|--------|-------------------------------|
 | `A`     | P       |        | prefix for authentication     |
-| `B`     |         |        |                               |
+| `B`     | P       |        | prefix for bounded buffers    |
 | `C`     |         |        |                               |
 | `D`     | P       |        | prefix for decryption         |
 | `E`     | P       |        | prefix for encryption         |
@@ -43,7 +43,7 @@
 | `G`     |         |        | stateful gate                 |
 | `H`     |         |        | HTTP+WS server                |
 | `I`     |         |        | η repeated out                |
-| `J`     |         |        |                               |
+| `J`     |         |        | τ-grouped unordered join      |
 | `K`     |         |        | τ repeater                    |
 | `L`     |         |        |                               |
 | `M`     |         |        | monitor                       |
@@ -61,39 +61,38 @@
 | `Y`     | P       |        | prefix for OT derivative      |
 | `Z`     | P       |        | prefix for OT                 |
 
-| Symbol | Prefix? | Syntax | Description                   |
-|--------|---------|--------|-------------------------------|
-| `!`    | P       |        | prefix for lossy queues       |
-| `=`    | P       |        | prefix for full-duplex ops    |
-| `&`    | P       |        | prefix for eager annotation   |
-| `@`    | P       |        | prefix for sqlite             |
-| `#`    | P       |        | prefix for other DBs          |
-| `+`    |         |        | τ-group append                |
-| `-`    |         |        |                               |
-| `*`    |         |        |                               |
-| `/`    |         |        |                               |
-| `~`    |         |        |                               |
-| `$`    |         |        |                               |
-| `.`    |         |        | Ξ subscript                   |
-| `,`    |         |        | ξ bundle (collect into Ξ)     |
-| `%`    |         |        | Γ union (eager interleave)    |
-| `^`    |         |        | τ-group prepend               |
-| `(`    |         |        | dynamic demultiplexer         |
-| `)`    |         |        | dynamic multiplexer           |
-| `[`    |         |        | Γ grouping                    |
-| `]`    |         |        | Γ grouping                    |
-| `{`    |         |        | static demultiplexer          |
-| `}`    |         |        | static multiplexer            |
-| `<`    | P       |        | stream in from persistent     |
-| `>`    | P       |        | stream out to persistent      |
-| `\|`   |         | Γp     | modify processor to right-cap |
-| `\\`   |         | Γp     | modify processor to backward  |
-| `_`    |         |        | null port                     |
-| `'`    |         |        | register                      |
-| `"`    |         |        | bounded buffer                |
-| `:`    |         |        | omni-blocking broadcast       |
-| `;`    |         |        | non-blocking side tap         |
-| `?`    |         |        | debug tap                     |
+| Symbol  | Prefix? | Syntax | Description                     |
+|---------|---------|--------|---------------------------------|
+| `!`     | P       |        | prefix for lossy queues         |
+| `=`     | P       |        | prefix for full-duplex ops      |
+| `&`     | P       |        | prefix for eager annotation     |
+| `@`     | P       |        | prefix for sqlite               |
+| `#`     | P       |        | prefix for other DBs            |
+| `~`     | P       |        | prefix for delay and rate-limit |
+| `+`     |         |        | τ-group append                  |
+| `-`     |         |        |                                 |
+| `*`     |         |        |                                 |
+| `/`     |         |        |                                 |
+| `$`     |         |        | register                        |
+| `.`     |         |        | Ξ subscript                     |
+| `,`     |         |        | ξ bundle (collect into Ξ)       |
+| `%`     |         |        | Γ union (eager interleave)      |
+| `^`     |         |        | τ-group prepend                 |
+| `(`     |         |        | dynamic demultiplexer           |
+| `)`     |         |        | dynamic multiplexer             |
+| `[`/`]` |         |        | Γ grouping                      |
+| `{`     |         |        | static demultiplexer            |
+| `}`     |         |        | static multiplexer              |
+| `<`     | P       |        | stream in from persistent       |
+| `>`     | P       |        | stream out to persistent        |
+| `\|`    |         | Γp     | modify processor to right-cap   |
+| `\\`    |         | Γp     | modify processor to backward    |
+| `_`     |         |        | null port                       |
+| `'`     |         |        |                                 |
+| `"`     |         |        |                                 |
+| `:`     |         |        | omni-blocking broadcast         |
+| `;`     |         |        | non-blocking side tap           |
+| `?`     |         |        | debug tap                       |
 
 
 ## TODO
