@@ -68,5 +68,5 @@ $ sudo apt install -y \
        libc6-dbg{,:i386} \
        libstdc++6-12-dbg{,:i386} \
        libpango1.0-dev libcairo2-dev \
-       libzstd-dev
+       libzstd-dev libcurl4-openssl-dev
 ```
