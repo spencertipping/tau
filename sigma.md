@@ -15,7 +15,7 @@
 | `h`     |         |        | HTTP/S+WS client          |
 | `i`     |         |        | η identity out            |
 | `j`     |         |        | τ-grouped sorted join     |
-| `k`     |         |        |                           |
+| `k`     |         |        | τ after each item         |
 | `l`     |         |        |                           |
 | `m`     |         |        | π 1:1 map                 |
 | `n`/`N` |         |        | numeric ι/ϊ               |
