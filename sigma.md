@@ -12,10 +12,10 @@
 | `e`     |         |        | shell command filter      |
 | `f`     |         |        | tuple field transform     |
 | `g`     |         |        | τ-grouped sort            |
-| `h`     |         |        | HTTPs? client             |
+| `h`     |         |        | HTTP/S+WS client          |
 | `i`     |         |        | η identity out            |
 | `j`     |         |        | τ-grouped sorted join     |
-| `k`     |         |        | η repeated out            |
+| `k`     |         |        |                           |
 | `l`     |         |        |                           |
 | `m`     |         |        | π 1:1 map                 |
 | `n`/`N` |         |        | numeric ι/ϊ               |
@@ -40,11 +40,11 @@
 | `D`     | P       |        | prefix for decryption         |
 | `E`     | P       |        | prefix for encryption         |
 | `F`     | P       |        | prefix for formatted IO       |
-| `G`     |         |        |                               |
-| `H`     |         |        | HTTP server                   |
-| `I`     |         |        |                               |
+| `G`     |         |        | stateful gate                 |
+| `H`     |         |        | HTTP+WS server                |
+| `I`     |         |        | η repeated out                |
 | `J`     |         |        |                               |
-| `K`     |         |        |                               |
+| `K`     |         |        | τ repeater                    |
 | `L`     |         |        |                               |
 | `M`     |         |        | monitor                       |
 | `N`/`n` |         |        | numeric ϊ/ι                   |
@@ -65,30 +65,30 @@
 |--------|---------|--------|-------------------------------|
 | `!`    | P       |        | prefix for lossy queues       |
 | `=`    | P       |        | prefix for full-duplex ops    |
+| `&`    | P       |        | prefix for eager annotation   |
+| `@`    | P       |        | prefix for sqlite             |
+| `#`    | P       |        | prefix for other DBs          |
 | `+`    |         |        | τ-group append                |
 | `-`    |         |        |                               |
 | `*`    |         |        |                               |
 | `/`    |         |        |                               |
+| `~`    |         |        |                               |
+| `$`    |         |        |                               |
 | `.`    |         |        | Ξ subscript                   |
 | `,`    |         |        | ξ bundle (collect into Ξ)     |
-| `@`    | P       |        | prefix for sqlite             |
-| `#`    | P       |        | prefix for other DBs          |
-| `$`    |         |        |                               |
-| `%`    |         |        | Γ union                       |
+| `%`    |         |        | Γ union (eager interleave)    |
 | `^`    |         |        | τ-group prepend               |
-| `&`    |         |        |                               |
 | `(`    |         |        | dynamic demultiplexer         |
 | `)`    |         |        | dynamic multiplexer           |
 | `[`    |         |        | Γ grouping                    |
 | `]`    |         |        | Γ grouping                    |
 | `{`    |         |        | static demultiplexer          |
 | `}`    |         |        | static multiplexer            |
-| `<`    |         |        | stream in from persistent     |
-| `>`    |         |        | stream out to persistent      |
+| `<`    | P       |        | stream in from persistent     |
+| `>`    | P       |        | stream out to persistent      |
 | `\|`   |         | Γp     | modify processor to right-cap |
 | `\\`   |         | Γp     | modify processor to backward  |
 | `_`    |         |        | null port                     |
-| `~`    |         |        |                               |
 | `'`    |         |        | register                      |
 | `"`    |         |        | bounded buffer                |
 | `:`    |         |        | omni-blocking broadcast       |
