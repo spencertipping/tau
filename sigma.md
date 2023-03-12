@@ -1,6 +1,10 @@
 # σ: the τ standard library
 σ defines common utilities that make τ ergonomic and useful. This includes [Γ](doc/Gamma.md) components and [φ](doc/phi.md) parsers. The `σ` namespace doesn't include `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
 
+**TODO:** we should probably split _topology_ from _stream transformation_ -- topology tends to correspond to architecture while transformation corresponds to implementation.
+
+In other words, an application is a graph whose edges are half-duplex or full-duplex stream transformations.
+
 
 ## Γ processor symbol table
 | Symbol  | Prefix? | Syntax | Description               |
@@ -64,15 +68,19 @@
 | Symbol  | Prefix? | Syntax | Description                     |
 |---------|---------|--------|---------------------------------|
 | `!`     | P       |        | prefix for lossy queues         |
-| `=`     | P       |        | prefix for full-duplex ops      |
 | `&`     | P       |        | prefix for eager annotation     |
 | `@`     | P       |        | prefix for sqlite               |
 | `#`     | P       |        | prefix for other DBs            |
 | `~`     | P       |        | prefix for delay and rate-limit |
+| `<`     | P       |        | prefix for unboxing             |
+| `>`     | P       |        | prefix for boxing               |
 | `+`     |         |        | τ-group append                  |
+| `=`     |         |        |                                 |
 | `-`     |         |        |                                 |
 | `*`     |         |        |                                 |
 | `/`     |         |        |                                 |
+| `'`     |         |        |                                 |
+| `"`     |         |        |                                 |
 | `$`     |         |        | register                        |
 | `.`     |         |        | Ξ subscript                     |
 | `,`     |         |        | ξ bundle (collect into Ξ)       |
@@ -83,13 +91,9 @@
 | `[`/`]` |         |        | Γ grouping                      |
 | `{`     |         |        | static demultiplexer            |
 | `}`     |         |        | static multiplexer              |
-| `<`     | P       |        | stream in from persistent       |
-| `>`     | P       |        | stream out to persistent        |
 | `\|`    |         | Γp     | modify processor to right-cap   |
 | `\\`    |         | Γp     | modify processor to backward    |
 | `_`     |         |        | null port                       |
-| `'`     |         |        |                                 |
-| `"`     |         |        |                                 |
 | `:`     |         |        | omni-blocking broadcast         |
 | `;`     |         |        | non-blocking side tap           |
 | `?`     |         |        | debug tap                       |
