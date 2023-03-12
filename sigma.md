@@ -5,6 +5,8 @@
 
 In other words, an application is a graph whose edges are half-duplex or full-duplex stream transformations.
 
+**Q:** how should we define graphs? Probably not in terms of combinators; instead we can build it up with piecewise paths. Note that individual edges may be factored into subgraphs, but we never need to think about edge/edge interactions. If we had such a situation, we'd create a new node to connect them. So σ applications are top-down dataflow splits (which makes sense if we're treating τ as a finite-element system).
+
 
 ## Γ processor symbol table
 | Symbol  | Prefix? | Syntax | Description               |
