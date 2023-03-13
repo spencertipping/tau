@@ -1,11 +1,14 @@
 # σ: the τ standard library
 σ defines common utilities that make τ ergonomic and useful. This includes [Γ](doc/Gamma.md) components and [φ](doc/phi.md) parsers. The `σ` namespace doesn't include `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
 
-**TODO:** we should probably split _topology_ from _stream transformation_ -- topology tends to correspond to architecture while transformation corresponds to implementation.
+Structurally, an application is a half-duplex processing edge that consumes `stdin` and produces `stdout`. The processing edge is allowed to allocate subgraphs comprised of complex topologies, each edge of which is its own stream processor (which can break down into further sub-topologies, etc).
 
-In other words, an application is a graph whose edges are half-duplex or full-duplex stream transformations.
+There are two ways we define topologies:
 
-**Q:** how should we define graphs? Probably not in terms of combinators; instead we can build it up with piecewise paths. Note that individual edges may be factored into subgraphs, but we never need to think about edge/edge interactions. If we had such a situation, we'd create a new node to connect them. So σ applications are top-down dataflow splits (which makes sense if we're treating τ as a finite-element system).
+1. Explicitly and up-front, with forward references to stream processors
+2. Implicitly as side-taps from a chain, e.g. debug/monitor outputs
+
+Notationally, this means we define topology and processing at the same time in general -- but with some out-of-line elements.
 
 
 ## Γ processor symbol table
