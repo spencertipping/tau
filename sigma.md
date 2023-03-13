@@ -5,10 +5,12 @@ Structurally, an application is a half-duplex processing edge that consumes `std
 
 There are two ways we define topologies:
 
-1. Explicitly and up-front, with forward references to stream processors
+1. Explicitly and up-front, with references to stream processors
 2. Implicitly as side-taps from a chain, e.g. debug/monitor outputs
 
 Notationally, this means we define topology and processing at the same time in general -- but with some out-of-line elements.
+
+**NOTE:** we need to be able to instantiate a ψ and create a Γ that refers specifically to that ψ. This is effectively a pinned global data processor that goes out of scope when all referring Γs are deallocated. These boxed ψs must be of a subclass that provides `operator()(Ξ&)` to accept new hookups.
 
 
 ## Γ processor symbol table
@@ -18,7 +20,7 @@ Notationally, this means we define topology and processing at the same time in g
 | `b`     |         |        |                           |
 | `c`     |         |        | count adjacent            |
 | `d`     |         |        |                           |
-| `e`     |         |        | shell command filter      |
+| `e`     | P       |        | prefix for shell commands |
 | `f`     |         |        | tuple field transform     |
 | `g`     |         |        | τ-grouped sort            |
 | `h`     |         |        | HTTP/S+WS client          |
@@ -70,15 +72,18 @@ Notationally, this means we define topology and processing at the same time in g
 | `Y`     | P       |        | prefix for OT derivative      |
 | `Z`     | P       |        | prefix for OT                 |
 
+**Q:** what does "eager annotation" mean?
+
 | Symbol  | Prefix? | Syntax | Description                     |
 |---------|---------|--------|---------------------------------|
-| `!`     | P       |        | prefix for lossy queues         |
 | `&`     | P       |        | prefix for eager annotation     |
 | `@`     | P       |        | prefix for sqlite               |
 | `#`     | P       |        | prefix for other DBs            |
 | `~`     | P       |        | prefix for delay and rate-limit |
 | `<`     | P       |        | prefix for unboxing             |
 | `>`     | P       |        | prefix for boxing               |
+| `?`     | P       |        | prefix for lossy queues         |
+| `!`     |         |        | evaluate a Γ to a ψ             |
 | `+`     |         |        | τ-group append                  |
 | `=`     |         |        |                                 |
 | `-`     |         |        |                                 |
@@ -86,7 +91,8 @@ Notationally, this means we define topology and processing at the same time in g
 | `/`     |         |        |                                 |
 | `'`     |         |        |                                 |
 | `"`     |         |        |                                 |
-| `$`     |         |        | register                        |
+| `←`     |         | n v    | define variable                 |
+| `$`     |         |        | refer to variable               |
 | `.`     |         |        | Ξ subscript                     |
 | `,`     |         |        | ξ bundle (collect into Ξ)       |
 | `%`     |         |        | Γ union (eager interleave)      |
@@ -101,7 +107,6 @@ Notationally, this means we define topology and processing at the same time in g
 | `_`     |         |        | null port                       |
 | `:`     |         |        | omni-blocking broadcast         |
 | `;`     |         |        | non-blocking side tap           |
-| `?`     |         |        | debug tap                       |
 
 
 ## TODO
