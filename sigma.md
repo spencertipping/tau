@@ -83,12 +83,12 @@ Notationally, this means we define topology and processing at the same time in g
 | `<`     | P       |        | prefix for unboxing             |
 | `>`     | P       |        | prefix for boxing               |
 | `?`     | P       |        | prefix for lossy queues         |
-| `!`     |         |        | evaluate a Γ to a ψ             |
+| `/`     | P       |        | platform-specific namespace     |
+| `!`     |         |        | evaluate a Γ to a static ψ      |
 | `+`     |         |        | τ-group append                  |
 | `=`     |         |        |                                 |
 | `-`     |         |        |                                 |
 | `*`     |         |        |                                 |
-| `/`     |         |        |                                 |
 | `'`     |         |        |                                 |
 | `"`     |         |        |                                 |
 | `←`     |         | n v    | define variable                 |
