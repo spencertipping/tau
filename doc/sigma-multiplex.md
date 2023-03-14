@@ -29,6 +29,8 @@ Dynamic multiplexers create new branches in response to new input tags. These ar
 
 Because `(` is dynamic, **it does not result in a multiplexed Ξ** -- we must immediately demultiplex the stream down to a single full duplex with `)`. Either end can create inner connections.
 
+**TODO:** `(` and `)` should support custom keying strategies; sometimes it's a map key, sometimes it's prepend-to-tuple, sometimes it's entuple.
+
 
 ## Asymmetric cross-multiplexing
 The use case here is _mixing:_ for example, we have inputs of the form `(user, document, edit)` and we want to multiplex on documents and publish updates to users. Let's define a complete system around this problem.
