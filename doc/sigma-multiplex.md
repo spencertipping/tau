@@ -42,9 +42,36 @@ First, we have multiple full-duplex user connections, each terminating in an edi
 At this point we need to route edits by document, broadcasting to each involved user. Because we're mapping `(user, _)` to `(_, document),` we mix with a connection matrix that implements row/column blocking broadcast/union. This is represented by `'`, which transposes a multiplexing key.
 
 ```
-(users) (edit_state) ' (document_state) edit_db
+(user (edit_state)) ' (document_state) edit_db
 ```
 
-**Q:** does `'` accept a broadcast Γ?
+For example, suppose `edit_state` is identity and we have this series of inputs from users:
 
-**TODO:** specify the disconnection protocol for `'`
+```
+(user_1, doc_1, foo)
+(user_1, doc_2, bar)
+(user_2, doc_3, bif)
+(user_2, doc_1, baz)
+(user_1, doc_1, bok)
+```
+
+`'` would have the following matrix state after each input:
+
+```
+foo ⇒ [ (u1 d1) ]
+bar ⇒ [ (u1 d1) (u1 d2) ]
+bif ⇒ [ (u1 d1) (u1 d2) 0
+        0       0       (u2 d3) ]
+baz ⇒ [ (u1 d1) (u1 d2) 0
+        (u2 d1) 0       (u2 d3) ]
+bok ⇒ [ (u1 d1) (u1 d2) 0
+        (u2 d1) 0       (u2 d3) ]
+```
+
+Let's suppose we're working with the post-`bok` state. There are three types of ηs we might observe:
+
++ `(user, document, x)`: route directly
++ `(user, τ, x) →`: broadcast across documents
++ `← (document, τ, x)`: broadcast across users
+
+So the purpose of `'` is twofold: first, we swap the first two tuple elements; and second, we allow _τ_ as a broadcast marker to inform all connected parties.
