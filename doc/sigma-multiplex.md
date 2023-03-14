@@ -74,4 +74,15 @@ Let's suppose we're working with the post-`bok` state. There are three types of 
 + `(user, τ, x) →`: broadcast across documents
 + `← (document, τ, x)`: broadcast across users
 
+For example, "user 1 disconnected" would be encoded as `(u1, τ, ω)` and would be broadcast to `d1` and `d2`. Similarly, "document 1 was updated" would be `(d1, τ, x)` and would be sent to `u1` and `u2`. More concretely:
+
+```
+(u1, τ, ω)              → ' → (d1, u1, ω) (d2, u1, ω)
+(u1, d1, x) (u2, d1, x) ← ' ← (d1, τ, x)
+```
+
+**TODO:** 3-tuples don't have defined behavior for `()` and `{}` multiplexers. We should either nest the inner structures or figure out how `()` should handle extra key elements.
+
 So the purpose of `'` is twofold: first, we swap the first two tuple elements; and second, we allow _τ_ as a broadcast marker to inform all connected parties.
+
+We can disconnect from `'` using _ω;_ for example, `(u1, d1, ω)` will remove the `(u1 d1)` matrix entry. Similarly, `(u1, d1, α)` will create the matrix entry without sending an edit. Dynamic multiplexers emit _α_ and _ω_ automatically.
