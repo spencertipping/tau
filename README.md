@@ -3,7 +3,7 @@
 
 Another way to think of it is that τ is to `ni` what the Laplace transform is to the Fourier transform: we can now describe systems that are locally time-invariant but which nonetheless change over time.
 
-The τ runtime ships with the [σ standard library](sigma.md).
+The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** GC the source and documentation for the sigma refactor
 
