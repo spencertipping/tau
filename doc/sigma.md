@@ -14,6 +14,7 @@ Notationally, this means we define topology and processing at the same time in g
 
 
 ## Complex topologies
++ [Lenses](sigma-lenses.md)
 + [Multiplexers and duplex connections](sigma-multiplex.md)
 
 
