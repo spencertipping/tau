@@ -20,6 +20,14 @@ We could also address the multiplexed Ξ individually prior to the demultiplex, 
 ```
 
 
+## Keying schemes
++ `(k, v)`: entupled key
++ `(k, a, b, ...)`: tuple-spliced key
++ `{k x ...}`: map-spliced key (on `k`)
+
+**TODO:** define syntax to select the keying scheme for each multiplexer
+
+
 ## Dynamic `()`
 Dynamic multiplexers create new branches in response to new input tags. These are written `(π[Γ])`, for example:
 
@@ -28,8 +36,6 @@ Dynamic multiplexers create new branches in response to new input tags. These ar
 ```
 
 Because `(` is dynamic, **it does not result in a multiplexed Ξ** -- we must immediately demultiplex the stream down to a single full duplex with `)`. Either end can create inner connections.
-
-**TODO:** `(` and `)` should support custom keying strategies; sometimes it's a map key, sometimes it's prepend-to-tuple, sometimes it's entuple.
 
 
 ## Asymmetric cross-multiplexing
@@ -82,8 +88,6 @@ For example, "user 1 disconnected" would be encoded as `(u1, τ, ω)` and would 
 (u1, τ, ω)              → ' → (d1, u1, ω) (d2, u1, ω)
 (u1, d1, x) (u2, d1, x) ← ' ← (d1, τ, x)
 ```
-
-**TODO:** 3-tuples don't have defined behavior for `()` and `{}` multiplexers. We should either nest the inner structures or figure out how `()` should handle extra key elements.
 
 So the purpose of `'` is twofold: first, we swap the first two tuple elements; and second, we allow _τ_ as a broadcast marker to inform all connected parties.
 
