@@ -1,9 +1,23 @@
 # σ lenses
-`ni` just dealt with TSV, which provided `A`..`Z` as field readers. Some operations like `,sgA` would end up writing a field value, so in that sense the implied `B` argument (for the summation) was both read/write: a lens.
+`ni` just deals with TSV, which provides `A`..`Z` as field readers. Some operations like `,sgA` end up modifying a field value; the implied `B` argument (for the summation) is both read/write: a lens.
 
 η provides a more complicated landscape. [Multiplexers](sigma-multiplex.md) might want to address several different lensed values:
 
-+ `tuple-wrap-left`: `v ⇒ x ↔ (x, v)`
-+ `tuple-wrap-right`: `v ⇒ x ↔ (v, x)`
-+ `tuple-prepend`: `(v...) ⇒ x ↔ (x, v...)`
-+ `map-key`: `k {...} ⇒ x ↔ {k x ...}`
++ `tuple-wrap-left`: `v x ↔ (x, v)`
++ `tuple-wrap-right`: `v x ↔ (v, x)`
++ `tuple-cons-left`: `(v...) x ↔ (x, v...)`
++ `tuple-cons-right`: `(v...) x ↔ (v..., x)`
++ `map-key`: `k {vs...} x ↔ {k x vs...}`
+
+
+## Lens symbol table
+| Symbol   | Description        |
+|----------|--------------------|
+| `(`      | `tuple-wrap-left`  |
+| `)`      | `tuple-wrap-right` |
+| `^`      | `tuple-cons-left`  |
+| `+`      | `tuple-cons-right` |
+| `a`..`z` | `tuple-element`    |
+| `.k`     | `map-key(k)`       |
+
+**Q:** how do we compose lenses? e.g. `a.foo` or `.bar(`
