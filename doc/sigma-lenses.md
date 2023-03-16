@@ -8,17 +8,3 @@
 + `tuple-cons-left`: `(v...) x ↔ (x, v...)`
 + `tuple-cons-right`: `(v...) x ↔ (v..., x)`
 + `map-key`: `k {vs...} x ↔ {k x vs...}`
-
-
-## Lens symbol table
-| Symbol   | Description        |
-|----------|--------------------|
-| `[`/`]`  | Lens grouping      |
-| `(`      | `tuple-wrap-left`  |
-| `)`      | `tuple-wrap-right` |
-| `^`      | `tuple-cons-left`  |
-| `+`      | `tuple-cons-right` |
-| `a`..`z` | `tuple-element`    |
-| `.k`     | `map-key(k)`       |
-
-**NOTE:** lenses are composable by concatenation: `a.foo` refers to the `foo` key of the first element of a tuple; `ab` is `η[0][1]`. Whitespace is required to refer to a tuple element within a map key: `.foo a`.

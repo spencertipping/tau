@@ -25,34 +25,35 @@ Notationally, this means we define topology and processing at the same time in g
 
 
 ## Lens symbol table (`L`)
-| Symbol   | Description        |
-|----------|--------------------|
-| `[`/`]`  | Lens grouping      |
-| `(`      | `tuple-wrap-left`  |
-| `)`      | `tuple-wrap-right` |
-| `^`      | `tuple-cons-left`  |
-| `+`      | `tuple-cons-right` |
-| `a`..`z` | `tuple-element`    |
-| `.k`     | `map-key(k)`       |
+| Symbol   | Description                 |
+|----------|-----------------------------|
+| `L`      | confirm that this is a lens |
+| `[`/`]`  | Lens grouping               |
+| `(`      | `tuple-wrap-left`           |
+| `)`      | `tuple-wrap-right`          |
+| `^`      | `tuple-cons-left`           |
+| `+`      | `tuple-cons-right`          |
+| `a`..`z` | `tuple-element`             |
+| `.k`     | `map-key(k)`                |
 
 **NOTE:** lenses are composable by concatenation: `a.foo` refers to the `foo` key of the first element of a tuple; `ab` is `η[0][1]`. Whitespace is required to refer to a tuple element within a map key: `.foo a`.
 
 
 ## Γ topology symbol table (`Γ`)
-| Symbol  | Syntax | Description                       |
-|---------|--------|-----------------------------------|
-| `[`/`]` |        | Γ grouping                        |
-| `(`/`)` | π[Γ]   | dynamic half-duplex demultiplexer |
-| `{`/`}` | k Γ    | static full-duplex demultiplexer  |
-| \`A     |        | authentication prefix             |
-| \`D     |        | decryption prefix                 |
-| \`E     |        | encryption prefix                 |
-| \`X     |        | prefix for OT integral            |
-| \`Y     |        | prefix for OT derivative          |
-| \`Z     |        | prefix for OT                     |
-| `\|`    |        | modify processor to right-cap     |
-| `\\`    |        | modify processor to backward      |
-|         |        | implicit fallover to half-duplex  |
+| Symbol  | Syntax     | Description                       |
+|---------|------------|-----------------------------------|
+| `[`/`]` | Γ\*        | Γ grouping                        |
+| `(`/`)` | L? Γ\*     | dynamic half-duplex demultiplexer |
+| `{`/`}` | L? (k Γ)\* | static full-duplex demultiplexer  |
+| \`A     |            | authentication prefix             |
+| \`D     |            | decryption prefix                 |
+| \`E     |            | encryption prefix                 |
+| \`X     |            | OT integral prefix                |
+| \`Y     |            | OT derivative prefix              |
+| \`Z     |            | OT structure prefix               |
+| `\|`    | Γp         | modify processor to right-cap     |
+| `\\`    | Γp         | modify processor to backward      |
+|         | Γp         | implicit fallover to half-duplex  |
 
 
 ## Γ half-duplex table (`Γp`)
@@ -67,15 +68,15 @@ Notationally, this means we define topology and processing at the same time in g
 | `g`      |       | τ-grouped sort                  |
 | `h`      |       | HTTP/S+WS client                |
 | `i`      |       | η identity out                  |
-| `j`      |       | τ-grouped sorted join           |
+| `j`      | L? Γ  | τ-grouped sorted join           |
 | `k`      |       | τ after each item               |
 | `l`      |       |                                 |
 | `m`      |       | π 1:1 map                       |
 | `n`/`N`  |       | numeric ι/ϊ                     |
 | `o`      |       |                                 |
 | `p`      | π     | π program                       |
-| `q`      |       | prefix for queues               |
-| `r`/`R`  | π     | π row selector                  |
+| `q`      |       |                                 |
+| `r`/`R`  | π     | π row selector (+ lossy queues) |
 | `s`      |       |                                 |
 | `t`      |       | TCP client                      |
 | `u`      |       | UDP client                      |
@@ -93,14 +94,14 @@ Notationally, this means we define topology and processing at the same time in g
 | `G`      |       | stateful gate                   |
 | `H`      | Γ     | HTTP+WS server                  |
 | `I`      |       | η repeated out                  |
-| `J`      |       | τ-grouped unordered join        |
+| `J`      | L? Γ  | τ-grouped unordered join        |
 | `K`      |       | τ repeater                      |
-| `L`      |       |                                 |
+| `L`      | R     | reserved for lens prefix        |
 | `M`      |       | monitor                         |
 | `N`/`n`  |       | numeric ϊ/ι                     |
 | `O`      |       |                                 |
 | `P`      |       |                                 |
-| `Q`      |       |                                 |
+| `Q`      |       | prefix for queues               |
 | `R`/`r`  | π     | π row selector                  |
 | `S`      | P     | prefix for horizontal scaling   |
 | `T`      | Γ     | TCP server                      |
@@ -115,7 +116,7 @@ Notationally, this means we define topology and processing at the same time in g
 | `~`      | P     | prefix for delay and rate-limit |
 | `<`      | P     | prefix for unboxing             |
 | `>`      | P     | prefix for boxing               |
-| `?`      | P     | prefix for lossy queues         |
+| `?`      |       |                                 |
 | `/`      | P     | platform-specific namespace     |
 | `!`      |       | evaluate a Γ to a static ψ      |
 | `+`      |       | τ-group append                  |
@@ -128,7 +129,7 @@ Notationally, this means we define topology and processing at the same time in g
 | `=`      |       |                                 |
 | `-`      |       |                                 |
 | `*`      |       |                                 |
-| backtick | P     | reserved for prefixing          |
+| backtick | R     | reserved for prefixing          |
 | `'`      |       | dynamic transpose (cross-mix)   |
 | `"`      |       |                                 |
 | `$`      |       | refer to variable               |
