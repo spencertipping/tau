@@ -13,6 +13,7 @@
 ## Lens symbol table
 | Symbol   | Description        |
 |----------|--------------------|
+| `[`/`]`  | Lens grouping      |
 | `(`      | `tuple-wrap-left`  |
 | `)`      | `tuple-wrap-right` |
 | `^`      | `tuple-cons-left`  |
@@ -20,4 +21,4 @@
 | `a`..`z` | `tuple-element`    |
 | `.k`     | `map-key(k)`       |
 
-**Q:** how do we compose lenses? e.g. `a.foo` or `.bar(`
+**NOTE:** lenses are composable by concatenation: `a.foo` refers to the `foo` key of the first element of a tuple; `ab` is `η[0][1]`. Whitespace is required to refer to a tuple element within a map key: `.foo a`.
