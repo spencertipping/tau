@@ -84,7 +84,6 @@ Notationally, this means we define topology and processing at the same time in g
 | `x`     |       | exchange tuple fields           |
 | `y`     |       |                                 |
 | `z`     | P     | prefix for compression          |
-|---------|-------|---------------------------------|
 | `A`     |       |                                 |
 | `B`     | P     | prefix for bounded buffers      |
 | `C`     |       |                                 |
@@ -111,7 +110,6 @@ Notationally, this means we define topology and processing at the same time in g
 | `X`     |       |                                 |
 | `Y`     |       |                                 |
 | `Z`     |       |                                 |
-|---------|-------|---------------------------------|
 | `@`     | P     | prefix for sqlite               |
 | `#`     | P     | prefix for other DBs            |
 | `~`     | P     | prefix for delay and rate-limit |
