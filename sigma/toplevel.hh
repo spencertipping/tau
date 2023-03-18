@@ -4,6 +4,7 @@
 
 #include "../tau.hh"
 
+#include "begin.hh"
 
 namespace σ
 {
@@ -15,6 +16,8 @@ namespace σ
 
 
 }
+
+#include "end.hh"
 
 
 #endif
