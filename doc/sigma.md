@@ -19,9 +19,10 @@ Notationally, this means we define topology and processing at the same time in g
 
 
 ## π toplevel table (`π`)
-| Symbol | Syntax | Description     |
-|--------|--------|-----------------|
-| `←`    | n v    | define variable |
+| Symbol | Syntax | Description       |
+|--------|--------|-------------------|
+| `←`    | n v    | define variable   |
+| `$`    | n      | refer to variable |
 
 
 ## Lens symbol table (`L`)
@@ -48,93 +49,93 @@ Notationally, this means we define topology and processing at the same time in g
 | \`A     |            | authentication prefix             |
 | \`D     |            | decryption prefix                 |
 | \`E     |            | encryption prefix                 |
+| \`P     | Γ          | fork to local process             |
 | \`X     |            | OT integral prefix                |
 | \`Y     |            | OT derivative prefix              |
 | \`Z     |            | OT structure prefix               |
 | `\|`    | Γp         | modify processor to right-cap     |
 | `\\`    | Γp         | modify processor to backward      |
+| `.`     |            | Ξ subscript                       |
+| `,`     |            | ξ bundle (collect into Ξ)         |
+| `:`     |            | omni-blocking broadcast           |
+| `;`     |            | non-blocking side tap             |
 |         | Γp         | implicit fallover to half-duplex  |
 
 
 ## Γ half-duplex table (`Γp`)
-| Symbol   | Notes | Description                     |
-|----------|-------|---------------------------------|
-| `a`      |       |                                 |
-| `b`      |       |                                 |
-| `c`      |       | count adjacent                  |
-| `d`      |       |                                 |
-| `e`      | P     | prefix for shell commands       |
-| `f`      |       | tuple field transform           |
-| `g`      |       | τ-grouped sort                  |
-| `h`      |       | HTTP/S+WS client                |
-| `i`      |       | η identity out                  |
-| `j`      | L? Γ  | τ-grouped sorted join           |
-| `k`      |       | τ after each item               |
-| `l`      |       |                                 |
-| `m`      |       | π 1:1 map                       |
-| `n`/`N`  |       | numeric ι/ϊ                     |
-| `o`      |       |                                 |
-| `p`      | π     | π program                       |
-| `q`      |       |                                 |
-| `r`/`R`  | π     | π row selector (+ lossy queues) |
-| `s`      |       |                                 |
-| `t`      |       | TCP client                      |
-| `u`      |       | UDP client                      |
-| `v`      |       | UNIX domain socket client       |
-| `w`/`W`  | Γ     | tuple/map horizontal join       |
-| `x`      |       | exchange tuple fields           |
-| `y`      |       |                                 |
-| `z`      | P     | prefix for compression          |
-| `A`      |       |                                 |
-| `B`      | P     | prefix for bounded buffers      |
-| `C`      |       |                                 |
-| `D`      |       |                                 |
-| `E`      |       |                                 |
-| `F`      | P     | prefix for formatted IO         |
-| `G`      |       | stateful gate                   |
-| `H`      | Γ     | HTTP+WS server                  |
-| `I`      |       | η repeated out                  |
-| `J`      | L? Γ  | τ-grouped unordered join        |
-| `K`      |       | τ repeater                      |
-| `L`      | R     | reserved for lens prefix        |
-| `M`      |       | monitor                         |
-| `N`/`n`  |       | numeric ϊ/ι                     |
-| `O`      |       |                                 |
-| `P`      |       |                                 |
-| `Q`      |       | prefix for queues               |
-| `R`/`r`  | π     | π row selector                  |
-| `S`      | P     | prefix for horizontal scaling   |
-| `T`      | Γ     | TCP server                      |
-| `U`      | Γ     | UDP server                      |
-| `V`      | Γ     | UNIX domain socket server       |
-| `W`/`w`  | Γ     | tuple/map horizontal join       |
-| `X`      |       |                                 |
-| `Y`      |       |                                 |
-| `Z`      |       |                                 |
-| `@`      | P     | prefix for sqlite               |
-| `#`      | P     | prefix for other DBs            |
-| `~`      | P     | prefix for delay and rate-limit |
-| `<`      | P     | prefix for unboxing             |
-| `>`      | P     | prefix for boxing               |
-| `?`      |       |                                 |
-| `/`      | P     | platform-specific namespace     |
-| `!`      |       | evaluate a Γ to a static ψ      |
-| `+`      |       | τ-group append                  |
-| `^`      |       | τ-group prepend                 |
-| `%`      |       | Γ union (eager interleave)      |
-| `:+`     |       | multi-way append                |
-| `:^`     |       | multi-way prepend               |
-| `:%`     |       | multi-way interleave            |
-| `&`      |       |                                 |
-| `=`      |       |                                 |
-| `-`      |       |                                 |
-| `*`      |       |                                 |
-| backtick | R     | reserved for prefixing          |
-| `'`      |       | dynamic transpose (cross-mix)   |
-| `"`      |       |                                 |
-| `$`      |       | refer to variable               |
-| `.`      |       | Ξ subscript                     |
-| `,`      |       | ξ bundle (collect into Ξ)       |
-| `_`      |       | null port                       |
-| `:`      |       | omni-blocking broadcast         |
-| `;`      |       | non-blocking side tap           |
+| Symbol   | Notes | Description                      |
+|----------|-------|----------------------------------|
+| `a`      | R     | reserved for lens disambiguation |
+| `b`      | R     |                                  |
+| `c`      | R     |                                  |
+| `d`      | R     |                                  |
+| `e`      | R     |                                  |
+| `f`      |       | tuple field transform            |
+| `g`      |       | τ-grouped sort                   |
+| `h`      |       | HTTP/S+WS client                 |
+| `i`      |       | η identity out                   |
+| `j`      | L? Γ  | τ-grouped sorted join            |
+| `k`      |       | τ after each item                |
+| `l`      |       |                                  |
+| `m`      |       | π 1:1 map                        |
+| `n`/`N`  |       | numeric ι/ϊ                      |
+| `o`      |       |                                  |
+| `p`      | π     | π program                        |
+| `q`      |       |                                  |
+| `r`/`R`  | π     | π row selector (+ lossy queues)  |
+| `s`      | P     | prefix for shell commands        |
+| `t`      |       | TCP client                       |
+| `u`      |       | UDP client                       |
+| `v`      |       | UNIX domain socket client        |
+| `w`/`W`  | Γ     | tuple/map horizontal join        |
+| `x`      |       | exchange tuple fields            |
+| `y`      |       |                                  |
+| `z`      | P     | prefix for compression           |
+| `A`      |       |                                  |
+| `B`      | P     | prefix for bounded buffers       |
+| `C`      |       |                                  |
+| `D`      |       |                                  |
+| `E`      |       |                                  |
+| `F`      | P     | prefix for formatted IO          |
+| `G`      |       | stateful gate                    |
+| `H`      | Γ     | HTTP+WS server                   |
+| `I`      |       | η repeated out                   |
+| `J`      | L? Γ  | τ-grouped unordered join         |
+| `K`      |       | τ repeater                       |
+| `L`      | R     | reserved for lens prefix         |
+| `M`      |       | monitor                          |
+| `N`/`n`  |       | numeric ϊ/ι                      |
+| `O`      |       |                                  |
+| `P`      |       |                                  |
+| `Q`      |       | prefix for queues                |
+| `R`/`r`  | π     | π row selector                   |
+| `S`      | P     | prefix for horizontal scaling    |
+| `T`      | Γ     | TCP server                       |
+| `U`      | Γ     | UDP server                       |
+| `V`      | Γ     | UNIX domain socket server        |
+| `W`/`w`  | Γ     | tuple/map horizontal join        |
+| `X`      |       |                                  |
+| `Y`      |       |                                  |
+| `Z`      |       |                                  |
+| `#`      |       |                                  |
+| `@`      | P     | prefix for DBs                   |
+| `~`      | P     | prefix for delay and rate-limit  |
+| `<`      | P     | prefix for unboxing              |
+| `>`      | P     | prefix for boxing                |
+| `?`      |       |                                  |
+| `/`      | P     | platform-specific namespace      |
+| `!`      |       | evaluate a Γ to a static ψ       |
+| `+`      |       | τ-group append                   |
+| `^`      |       | τ-group prepend                  |
+| `%`      |       | Γ union (eager interleave)       |
+| `:+`     |       | multi-way append                 |
+| `:^`     |       | multi-way prepend                |
+| `:%`     |       | multi-way interleave             |
+| `&`      |       |                                  |
+| `=`      |       |                                  |
+| `-`      |       |                                  |
+| `*`      |       |                                  |
+| backtick | R     | reserved for prefixing           |
+| `'`      |       | dynamic transpose (cross-mix)    |
+| `"`      |       |                                  |
+| `_`      |       | null port                        |
