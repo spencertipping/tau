@@ -3,6 +3,7 @@
 
 
 #include "../tau.hh"
+#include "lens.hh"
 
 #include "begin.hh"
 
@@ -10,9 +11,14 @@ namespace σ
 {
 
 
-// TODO: define toplevel types
-// NOTE: variable definitions impact Ξ objects?
+template<class T>
+using σφd = τ::φd_<T>;
 
+
+σφd<τ::πfn> &σφp();
+σφd<σlens>  &σφl();
+σφd<τ::Γ>   &σφΓ();
+σφd<τ::Γp>  &σφΓp();
 
 
 }

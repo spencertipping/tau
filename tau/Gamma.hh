@@ -64,6 +64,12 @@ struct Γs_ : public virtual Γ_
 };
 
 
+// A single-in, single-out ξ processor (common case)
+// These can be applied forward, backward, or as a cap
+typedef F<void(Wp<ψ>, ξi, ξo)> Γp_;
+typedef Sp<Γp_>                Γp;
+
+
 Γ operator|(Γ a, Γ b);
 
 O &operator<<(O&, Γ const&);
