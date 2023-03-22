@@ -9,6 +9,10 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** figure out how to do meta-linkage, e.g. Γ-level debug connections out to a monitor
 
+**NOTE:** Ξ is fundamentally flawed as it stands. We need a virtual Ξ base with polymorphic `operator()(Γ2)` to cons on a new processor, plus `operator()(Γ4)` to do a full-duplex connection. These operators can change behavior for different cases, e.g. collecting a bundle.
+
+**NOTE:** multiplex is one of many Ξ variants. We lazily collect Γs fed to it and it automatically connects them when new ξs are attached.
+
 
 ## Compute model
 ```
@@ -36,10 +40,10 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 
 
 ## Language model
-τ programs are written as a series of compositional dataflow equations that involve associative channel-vector transformations. There are three main ideas:
+τ programs are written as a series of compositional dataflow equations that involve associative channel-vector transformations.
 
 + [Ξ](doc/Xi.md): a vector of ξ duplexes (really a map)
-+ [Γ](doc/Gamma.md): constructors of ψs
++ [Γ](doc/Gamma.md): matrices that transform Ξs and construct ψs
 + [φ](doc/phi.md): parser combinators
 + [π](doc/pi.md): the language to assemble τ programs
 
