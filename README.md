@@ -9,6 +9,8 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** figure out how to do meta-linkage, e.g. Γ-level debug connections out to a monitor
 
+**TODO:** move φ definitions into σ
+
 **NOTE:** Ξ is fundamentally flawed as it stands. We need a virtual Ξ base with polymorphic `operator()(Γ2)` to cons on a new processor, plus `operator()(Γ4)` to do a full-duplex connection. These operators can change behavior for different cases, e.g. collecting a bundle.
 
 **NOTE:** multiplex is one of many Ξ variants. We lazily collect Γs fed to it and it automatically connects them when new ξs are attached.
