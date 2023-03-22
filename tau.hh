@@ -30,10 +30,6 @@
 #include "tau/phi-str.hh"
 #include "tau/phi-ctor.hh"
 
-#include "tau/share.hh"
-#include "tau/linux.hh"
-#include "tau/wasm.hh"
-
 #include "tau/pi.hh"
 
 

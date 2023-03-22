@@ -17,7 +17,8 @@ namespace τ
 {
 
 
-// Parser for all τ-defined Γs
+// Parser for all σ-defined Γs
+// NOTE: these are implemented in σ, not τ, since that's where the Γs are
 φ<πfn>    φΓ();
 φ<πfn>    φΓ1();
 φd_<πfn> &φΓd();

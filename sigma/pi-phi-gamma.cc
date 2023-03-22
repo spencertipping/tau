@@ -1,4 +1,5 @@
-#include "pi.hh"
+#include "../tau.hh"
+
 #include "share.hh"
 #include "linux.hh"
 #include "wasm.hh"
@@ -9,11 +10,13 @@ namespace τ
 {
 
 
-static φ<πfn> φΓ_;
+static φ<πfn> φΓ_(nullptr);
 
 φd_<πfn> &φΓd()
-{ if (!φΓ_) φΓ_.reset(new φd_<πfn>);
-  return *dpc<φd_<πfn>>(φΓ_); }
+{
+  if (!φΓ_.p) φΓ_.p.reset(new φd_<πfn>);
+  return *dpc<φd_<πfn>>(φΓ_.p);
+}
 
 
 φ<πfn> φΓ()
