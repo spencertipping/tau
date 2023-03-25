@@ -89,7 +89,7 @@ Notationally, this means we define topology and processing at the same time in g
 | `v`      |       | UNIX domain socket client        |
 | `w`/`W`  | Γ     | tuple/map horizontal join        |
 | `x`      |       | exchange tuple fields            |
-| `y`      |       |                                  |
+| `y`      |       | prefix for Python interop        |
 | `z`      | P     | prefix for compression           |
 | `A`      |       |                                  |
 | `B`      | P     | prefix for bounded buffers       |
@@ -106,10 +106,10 @@ Notationally, this means we define topology and processing at the same time in g
 | `M`      |       | monitor                          |
 | `N`/`n`  |       | numeric ϊ/ι                      |
 | `O`      |       |                                  |
-| `P`      |       |                                  |
+| `P`      | P     | prefix for parallelism           |
 | `Q`      |       | prefix for queues                |
 | `R`/`r`  | π     | π row selector                   |
-| `S`      | P     | prefix for horizontal scaling    |
+| `S`      | Γ     | SSH server                       |
 | `T`      | Γ     | TCP server                       |
 | `U`      | Γ     | UDP server                       |
 | `V`      | Γ     | UNIX domain socket server        |

@@ -13,27 +13,7 @@ void ξo::close();      // indicates EOF
 When ψ depends on inputs, it holds a reference to those `ξi` objects; each of these holds a strong `shared_ptr` to its source ψ. Closing or deleting the `ξi` causes the `shared_ptr` to decrement, eventually deleting the ψ, which can transitively delete other `ξi` and ψs.
 
 
-## Compiler layer
-The compiler is made of associative Γ objects that construct ψs and return Ξs, which hold a hierarchically-named set of ξs.
+## Compiler algebra
+[Γ](Gamma.md) represents a _Ξ → Ξ_ transformation, **not necessarily closed under the polymorphic variant of Ξ**. For example, we might define a multiplexing Γ that accepts a duplex Ξ and returns a connection emitter, which is a lazy Ξ that collects Γs up front and applies them to each new connection later on.
 
-Here are some approximate definitions; in practice each is a `struct`:
-
-```cpp
-struct ξio;            // Sp<ξ> plus "read claimed" and "write claimed"
-typedef M<St, ξio> Ξ;
-typedef F<Ξ(Ξ&)>   Γ;
-
-Ξ Γ::operator()(Ξ&);   // apply the whole Γ
-```
-
-This provides enough machinery to do the critical steps:
-
-1. Track ξs by name (Ξ)
-2. Create ψs as necessary to connect ξs together (Γ)
-3. Associatively combine Γs before they are applied (Γ)
-
-Ξ provides storage for named ξs, all of which are weak.
-
-
-## Strong and weak ξ
-ξi can be weakened during the handoff to Γ. **Ξ always holds strong references** because otherwise the ξ would be instantly deallocated during Γ construction.
+Similarly, [Ξ](Xi.md) represents a smart cable of disconnected [ξ](xi.md) objects (which will presumably be connected by whichever Γ is applied next). See [Ξ spec](Xi.md) for an overview of variants.

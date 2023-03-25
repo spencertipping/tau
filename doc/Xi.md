@@ -1,51 +1,13 @@
-# Ξ: 〈ξ〉
-Mathematically, Ξ is a vector of [ξs](xi.md) used as the input and output of [Γ](gamma.md) matrices.
+# _Ξ = f(ξ)_
+A Ξ is a smart cable of [ξs](xi.md) that are awaiting connections. A Ξ has several aspects:
 
-Ξ ξs can point in either direction. This is important because some Γs expect a pair of channels, one pointing each way, to perform some type of negotiation -- for example OT, throughput-dependent compression, or ED25519.
-
-**For efficiency and semantic reasons, Ξ objects are mutable.** It isn't meaningful to fork a Ξ/Γ pipeline, so Γs modify the Ξ in place.
-
-
-## Half and full duplex
-ξs are always carried in duplexed pairs, although some connections use only one half of the pair. The connections are called `f` (for the default forward, left-to-right data movement) and `b` for backwards.
-
-
-## Cabling
-A Ξ contains several elements:
-
-1. The primary data pair
-2. A series of anonymous pairs, e.g. to collect circuit breakers
-3. A series of named pairs, e.g. to collect specific multiplexers
-4. A series of named Ξs
-
-
-## Γ references
-Each Γ takes a Ξ and returns a Ξ. In the most trivial case, we have a simple ξ → ξ transformation along the forward direction of the primary duplex channel:
-
-```
-Ξ[primary] → Γf → Ξ[primary]
-Ξ[primary] ←------ Ξ[primary]
-```
-
-We do this by selecting the primary duplex and splicing the forward connection:
-
-```cpp
-auto [l, r] = c.xf();  // xf() == splice forward
-```
-
-Backward splices work exactly the same way.
-
-
-## ψ GC
-Any leftward-pointing ξ holds a weak reference to its ψ producer. This includes bent ξs that enter from the left side but ultimately move leftwards; for example, we might have a situation like this:
-
-```
-+------------------------+
-|                        |
-+--> Γ₁ --> Γ₂ --> Γ₃ ---+
-        ξa     ξb     ξc
-```
-
-Here, ξc ultimately points leftwards despite having a normal data direction.
-
-We use a simple heuristic to detect these cases: **any ξ whose output is bound before its input will hold a weak reference to that input.**
++ Shape
+  + `f`: the Ξ has a primary forwards output
+  + `b`: the Ξ has a primary backwards input
++ Laziness
+  + `e`: the Ξ will immediately apply Γs to its ξs
+  + `l`: the Ξ will collect Γs to be applied later on
++ Sidecars
+  + `m`: the Ξ has a sidecar of η-keyed ξs, e.g. from debug monitors
+  + `s`: the Ξ has a sidecar of anonymous ξs
+  + `v`: the Ξ has named variables (`St → ξ`)

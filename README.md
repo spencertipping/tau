@@ -42,8 +42,9 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 ## Language model
 τ programs are written as a series of compositional dataflow equations that involve associative channel-vector transformations.
 
-+ [Ξ](doc/Xi.md): a vector of ξ duplexes (really a map)
-+ [Γ](doc/Gamma.md): matrices that transform Ξs and construct ψs
++ [Ξ](doc/Xi.md): polymorphic ξ containers
++ [Γ](doc/Gamma.md): polymorphic, immutable Ξ transformers
++ [Ψ](doc/Psi.md): monomorphic stream transformers
 + [φ](doc/phi.md): parser combinators
 + [π](doc/pi.md): the language to assemble τ programs
 
