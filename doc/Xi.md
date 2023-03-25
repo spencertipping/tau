@@ -1,18 +1,33 @@
 # _Ξ = f(ξ)_
-A Ξ is a smart cable of [ξs](xi.md) that are awaiting connections. A Ξ has several aspects:
+A Ξ is a smart cable of [ξs](xi.md) that are awaiting connections. Ξ uses a stack interface with sidecar named tables, and looks like this:
 
-+ Shape (zero or more)
-  + `f`: the Ξ has a primary forwards output
-  + `b`: the Ξ has a primary backwards input
-+ Laziness (exactly one)
-  + `e`: the Ξ will immediately apply Γs to its ξs
-  + `l`: the Ξ will collect Γs to be applied later on
-+ Sidecars (zero or more)
-  + `m`: the Ξ has a sidecar of η-keyed Ξs, e.g. from debug monitors
-  + `s`: the Ξ has a sidecar of anonymous Ξs
-  + `v`: the Ξ has named variables (`St → Ξ`)
+```cpp
+struct Ξ
+{
+  Sp<Ξs> t;  // top stack entry, or null
+  Sp<Ξk> m;  // next keyed Ξ, or null
+  Sp<Ξk> v;  // next named variable, or null
+  uN     s;  // current scope ID
+};
 
-**NOTE:** variables and sidecar values are always Ξs (often simple Ξs) because they may be full-duplex. Variables in particular might be arbitrarily complex, even though normally you wouldn't use them this way.
+struct Ξs
+{
+  ξd     io;
+  Sp<Ξs> n;
+};
+
+struct Ξk
+{
+  η      k;
+  Sp<ξd> v;
+  uN     s;  // scope ID, so we can quickly pop a full scope
+  Sp<Ξk> n;  // next, or null
+};
+```
+
+So we focus on the stack access pattern and have variables as support. Our variable structure allows us to extend with other chains later, but we still have some coherence by focusing on the stack and allowing each meta-chain to proceed independently.
+
+If an element needs to create new Ξs dynamically, we can leverage immutability to capture the current `m` and `v` for reference within those new Ξs. This makes it possible to add new connections to global endpoints -- see [Γ spec](Gamma.md) for details.
 
 
 ## Using Ξs
@@ -20,8 +35,10 @@ There are a few common operations against Ξs:
 
 + Primary
   + Create Ξ from input and/or output
-  + Transform primary with Ψ
+  + Transform primary with Ψ (in either direction, or as a cap)
   + Transform primary + variable with Ψ (var as monitor/control)
+  + Cap and drop primary ξ pair
+  + Terminate read/write end of ξ pair
   + Bind a variable
   + Delete a variable
 + Sidecars
