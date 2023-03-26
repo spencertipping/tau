@@ -50,3 +50,15 @@ Tuples and maps are both encoded into the stream by having multiple values. For 
 `0x6_` is used to assign names to some stream values, which is done in the context of a map. For example, `63 f o o 11 02 63 b a r 11 05` corresponds to `{"foo":2, "bar":5}`.
 
 There is no requirement that an η stream contain only name-prefixed things or only un-prefixed things, although these are common configurations. There is also no requirement about the relative layout of named/unnamed things. This is a feature: since values closer to the front of the stream are faster to decode, strategic ordering can improve performance.
+
+
+## Lensing
+η streams are typically accessed with a lens, which allows any substream to be replaced by another. A lens contains several values:
+
++ A stack of parent containers
++ The byte offset of the first lensed value
++ The byte offset immediately beyond the last lensed value
+
+Lenses can be joined to form compound edits. This improves efficiency when modifying multiple values within a η stream. In this sense a lens is sort of like a lazy computation with fully-realized operands.
+
+**TODO:** verify that the above makes sense
