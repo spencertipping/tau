@@ -1,5 +1,5 @@
 # ξ bounded channels
-ξs are one-directional data pipes that cause [λs](lambda.md) to yield if they are blocked (either on sending or receiving). They carry any length-framed value, typically [η](eta.md). ξs don't inspect their values.
+ξs are one-directional data pipes that cause [λs](lambda.md) to yield if they are blocked (either on sending or receiving). They carry any length-framed value, typically [η](eta.md). ξs don't inspect their values beyond asking about their "size overhead", which defaults to the literal size of the value but may be defined otherwise.
 
 Each ξ, unless it is weakened, holds a reference to the [ψ](psi.md) that writes into it.
 

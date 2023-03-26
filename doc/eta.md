@@ -59,6 +59,21 @@ There is no requirement that an η stream contain only name-prefixed things or o
 + The byte offset of the first lensed value
 + The byte offset immediately beyond the last lensed value
 
-Lenses can be joined to form compound edits. This improves efficiency when modifying multiple values within a η stream. In this sense a lens is sort of like a lazy computation with fully-realized operands.
+Lenses can be joined to form compound edits. This improves efficiency when modifying multiple values within a η stream. In this sense a lens is sort of like a lazy computation with fully-realized operands. A joined lens is just a linked list of edits to be applied in reverse order.
 
-**TODO:** verify that the above makes sense
+
+## Local values
+η defines a C++ native API that provides in-memory values. In practice this is just a `std::variant` that contains a number of alternatives:
+
++ `τ::ηsig`
++ `τ::i64`
++ `τ::f64`
++ `std::string`
++ `τ::ηatom`
++ `τ::B` (for sub-η)
++ `std::span<τ::i8>` ← TODO: convert below to this
++ `std::span<τ::i16>`
++ `(τ::uN, τ::i32*)`
++ `(τ::uN, τ::i64*)`
++ `(τ::uN, τ::f32*)`
++ `(τ::uN, τ::f64*)`
