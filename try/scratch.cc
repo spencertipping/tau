@@ -48,7 +48,7 @@ void try_xi_simple()
 void try_xi_multi()
 {
   τe t;
-  ξ  x(t.l(), 64);  // force some sidecar allocations
+  ξ  x(t.l(), 64);  // force some expansions
   i64 s0 = 0;
   i64 s  = 0;
 
@@ -87,7 +87,7 @@ void xi_bench()
   letc N = 16ll << 20;
 
   t.l().c([&]() {
-    for (i64 i = 0; i < N; ++i) ηo(x) << i;
+    for (i64 i = 0; i < N; ++i) ηo(x, 12) << i;
     x.close();
   });
 
