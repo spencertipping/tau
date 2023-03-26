@@ -10,6 +10,7 @@
 namespace τ
 {
 
+
 // η input: read from fixed location in memory
 struct ηi final
 {
@@ -21,10 +22,11 @@ struct ηi final
   uN    size() const { return s_; }
   u8c *odata() const { return a_; }
   uN   osize() const { return s_ + c_; }
+  uN   asize() const { return l_ - osize(); }  // size after this
 
-  bool    has_next() const { return s_ + c_ < l_; }
-  ηi      next()     const { return {data() + size(), l_ - (s_ + c_)}; }
-  Sn<u8c> snext()    const { return {data() + size(), has_next() ? l_ - (s_ + c_) : 0}; }
+  bool    has_next() const { return asize(); }
+  ηi      next()     const { return {data() + size(), asize()}; }
+  Sn<u8c> snext()    const { return {data() + size(), has_next() ? asize() : 0}; }
 
 
   bool operator==(Stc  &s_) const { return is_s() && s() == s_; }
@@ -174,9 +176,13 @@ private:
                       | Sc<u32>(a_[1]) << 16
                       | Sc<u32>(a_[2]) << 8
                       | a_[3]); }
+      A(s_ + c_ > s_, "η size overflow");
       A(s_ + c_ <= l_,
         "η size overflows container: s_ = " << s_ << ", c_ = " << c_ << ", l_ = " << l_); }
 };
+
+
+O &operator<<(O&, ηi const&);
 
 
 }

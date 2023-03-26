@@ -19,8 +19,8 @@ namespace τ
 // to care about the details of the underlying allocation.
 struct ηo final
 {
-  ηo(Sp<ξ> o, uN c0 = 256) : o_(o), b_(o->iptr(c0)), s_(0) {}
-  ~ηo() { if (s_) o_->commit(); }
+  ηo(ξ &o, uN c0 = 256) : o_(o), b_(o.iptr(c0)), s_(0) {}
+  ~ηo() { if (s_) o_.commit(s_); }
 
   ηo &operator<<(i64 x)
     { let b = x > Nl<i32>::max() || x < Nl<i32>::min() ? 8
@@ -101,14 +101,63 @@ struct ηo final
   ηo &operator<<(Sn<i16c> xs)
     { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
       s_ += ηcb(b_.subspan(s_), ηtype::int16s, xs.size_bytes());
-      std::copy(xs.begin(), xs.end(),
-                Sn<i16b>(Rc<i16b*>(b_.data() + s_), Rc<i16b*>(b_.data() + b_.size_bytes())));
+      i16b *y = Rc<i16b*>(b_.data() + s_);
+      for (let x : xs) *y++ = x;
       s_ += xs.size_bytes();
       return *this; }
 
+  ηo &operator<<(Sn<i32c> xs)
+    { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
+      s_ += ηcb(b_.subspan(s_), ηtype::int32s, xs.size_bytes());
+      i32b *y = Rc<i32b*>(b_.data() + s_);
+      for (let x : xs) *y++ = x;
+      s_ += xs.size_bytes();
+      return *this; }
+
+  ηo &operator<<(Sn<i64c> xs)
+    { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
+      s_ += ηcb(b_.subspan(s_), ηtype::int64s, xs.size_bytes());
+      i64b *y = Rc<i64b*>(b_.data() + s_);
+      for (let x : xs) *y++ = x;
+      s_ += xs.size_bytes();
+      return *this; }
+
+  ηo &operator<<(Sn<f32c> xs)
+    { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
+      s_ += ηcb(b_.subspan(s_), ηtype::int32s, xs.size_bytes());
+      f32b *y = Rc<f32b*>(b_.data() + s_);
+      for (let x : xs) *y++ = x;
+      s_ += xs.size_bytes();
+      return *this; }
+
+  ηo &operator<<(Sn<f64c> xs)
+    { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
+      s_ += ηcb(b_.subspan(s_), ηtype::int64s, xs.size_bytes());
+      f64b *y = Rc<f64b*>(b_.data() + s_);
+      for (let x : xs) *y++ = x;
+      s_ += xs.size_bytes();
+      return *this; }
+
+  ηo &name(Stc &s)
+    { reserve(s.size() + 1 + ηsb(s.size()));
+      s_ += ηcb(b_.subspan(s_), ηtype::name, s.size());
+      memcpy(b_.data() + s_, s.data(), s.size());
+      s_ += s.size();
+      return *this; }
+
+  ηo &k(Stvc &s)
+    { reserve(s.size() + 1 + ηsb(s.size()));
+      s_ += ηcb(b_.subspan(s_), ηtype::name, s.size());
+      memcpy(b_.data() + s_, s.data(), s.size());
+      s_ += s.size();
+      return *this; }
+
+  template<class T>
+  ηo &v(T &&x) { return *this << std::forward<T>(x); }
+
 
 private:
-  Sp<ξ>  o_;
+  ξ     &o_;
   Sn<u8> b_;   // invariant: this points to memory managed by *o
   uN     s_;   // current number of bytes written to the stream
 
@@ -118,9 +167,9 @@ private:
         // or s_ + l, whichever is larger.
         u8 *b = new u8[s_];
         memcpy(b, b_.data(), s_);
-        o_->abort();
+        o_.abort();
         let s = std::max(s_ + l, b_.size_bytes() << 1);
-        b_ = o_->iptr(s);
+        b_ = o_.iptr(s);
         memcpy(b_.data(), b, s_);
         delete[] b; } }
 };

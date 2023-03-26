@@ -14,13 +14,13 @@
 #include "tau/gate.hh"
 #include "tau/breaker.hh"
 
-#include "tau/eta.hh"
-
 #include "tau/zeta.hh"
 #include "tau/xi.hh"
 #include "tau/xiio.hh"
 #include "tau/psi.hh"
 #include "tau/tau.hh"
+
+#include "tau/eta.hh"
 
 #include "tau/Xi.hh"
 #include "tau/Gamma.hh"
