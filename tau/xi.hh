@@ -2,7 +2,6 @@
 #define τξ_h
 
 
-#include "eta.hh"
 #include "zeta.hh"
 #include "types.hh"
 #include "gate.hh"
@@ -29,10 +28,12 @@ uN   ξn();
 //
 // ξs will be deleted if nobody wants to read from them, and .close()
 // will be called when the writer is done.
+//
+// ξ values are framed with a native-endian length.
 struct ξ
 {
   ξ(Λ &l, uN c)
-    : z(c), b(nullptr), sb(0), t(0), wc(false), w(false), rg(l), wg(l)
+    : z(c), s(nullptr), b(nullptr), sb(0), wc(false), w(false), rg(l), wg(l)
     { ξc_(this); }
 
   // By this point our instance state won't be accessible to any λs, so
@@ -47,41 +48,54 @@ struct ξ
   uN capacity() const { return z.capacity(); }
   uN ra()       const { return b ? sb : z.ra(); }
   uN wa()       const { return z.wa(); }
-  uN wt()       const { return t; }   // total bytes written
   uN extra()    const { return sb; }  // extra bytes allocated right now
 
   ξ &resize(uN c)     { z.resize(c); return *this; }
   ξ &ensure(uN c)     { z.ensure(c); return *this; }
 
+  // If true, no more values will ever be available to read from this ξ
   bool eof(bool nonblock = false)
     { while (!ra() && !wc) if (nonblock || !rg.y(λs::ξR)) return true;
       return !ra() && wc; }
 
 
-  // Writer interface: close() to finalize the write-side, << to write
-  // a value
+  // Writer interface: close() to finalize the write-side,
+  // iptr() and commit() to write values (or abort() to cancel a write)
+  //
+  // To write a value, first call iptr() with an upper bound on the size you
+  // want to use, then call commit() or abort()
   void close() { wc = true; rg.w(true); }
 
-  // Blocking (<<) or nonblocking (<<=) write
-  template<η0ot T> bool write(T const &x, bool nonblock = false)
-    { let s = x.osize();
-      if (s > z.capacity()) return sidecar_write(x, s, nonblock);
-      else                  return pipe_write   (x, s, nonblock); }
+  Sn<u8> iptr(uN size, bool nonblock = false)
+    { A(!s, "ξ: iptr(" << size << ") with uncommitted value");
+      A(size, "ξ: iptr() on size = 0");
+      return size + uNs > z.capacity()
+           ? sidecar_reserve(size, nonblock)
+           : pipe_reserve   (size, nonblock); }
 
-  template<η0ot T> bool operator<< (T const &x) { return write(x, false); }
-  template<η0ot T> bool operator<<=(T const &x) { return write(x, true); }
+  void abort()
+    { A(s, "ξ: abort() without an active value");
+      if (s == &sb) { delete[] b; sb = 0; }
+      s = nullptr; }
+
+  void commit(uN size = 0)
+    { A(s, "ξ: commit(" << size << ") without an active value");
+      if (size) z.advance((*s = size) + uNs);
+      else      z.advance(*s + uNs);
+      s = nullptr; }
 
 
   // Reader interface: delete ξ to finalize the read-side, iterator and
-  // unary */next() to read η0s
-  η operator*() const
+  // unary */next() to read values
+  Sn<u8> operator*() const
     { A(ra(), "*ξ with !ra(), " << z);
-      return !b ? η(z + 0) : η(b); }
+      return !b ? Sn<u8>(z + uNs, pipe_next_size())
+                : Sn<u8>(b, sb); }
 
   void next()
     { A(ra(), "++ξ with !ra(), " << z);
       if (b) delete[] b, b = nullptr, sb = 0;
-      else   z.free((*(*this)).y0().osize());
+      else   z.free(pipe_next_size() + uNs);
       wg.w(true); }  // we are now writable
 
 
@@ -89,10 +103,10 @@ struct ξ
   {
     ξ *const y;  // null == EOF
 
-    bool        eof()            const { return !y || y->eof(); }
-    bool operator==(it const &x) const { return eof() == x.eof(); }
-    it  &operator++()       { A(y, "++ξ::end"); y->next(); return *this; }
-    η    operator* () const { A(y,  "*ξ::end");            return **y; }
+    bool          eof()            const { return !y || y->eof(); }
+    bool   operator==(it const &x) const { return eof() == x.eof(); }
+    it    &operator++()       { A(y, "++ξ::end"); y->next(); return *this; }
+    Sn<u8> operator* () const { A(y,  "*ξ::end");            return **y; }
   };
 
   it begin() { return {this}; }
@@ -118,9 +132,9 @@ struct ξ
 
 protected:
   ζ        z;
+  uN      *s;    // pointer to current element size
   u8      *b;    // sidecar buffer for large values
   uN       sb;   // sizeof(*b)
-  u64      t;    // total bytes written
   bool     wc;   // writer has closed; all blocking reads will fail
   bool     w;    // weaken() has been called, always weaken source ψ
   λg<bool> rg;   // read-gate; false means insta-bail
@@ -133,22 +147,21 @@ protected:
   friend O &operator<<(O&, ξ const&);
 
 
-  template<η0ot T> bool pipe_write(T const &x, uN s, bool nonblock)
-    { while (!write(z.iptr(s), x, s))
-        if (nonblock || !wg.y(λs::ξW)) return false;
-      return true; }
+  uN pipe_next_size() const
+    { A(ra(), "pipe_next_size() with !ra(), " << z);
+      return *Rc<uN*>(z + 0); }
 
-  template<η0ot T> bool sidecar_write(T const &x, uN s, bool nonblock)
+
+  Sn<u8> pipe_reserve(uN l, bool nb)
+    { for (;;)
+        if      (let r = z.iptr(l + uNs)) { *(s = Rc<uN*>(r)) = l; return {r + uNs, l}; }
+        else if (nb || !wg.y(λs::ξW))                              return {Sc<u8*>(nullptr), 0}; }
+
+  Sn<u8> sidecar_reserve(uN l, bool nb)
     { while (ra() || b)
-        if (nonblock || !wg.y(λs::ξW)) return false;
-      return write(b = new u8[s], x, sb = s); }
-
-  template<η0ot T> bool write(u8 *i, T const &x, uN s)
-    { if (!i) return false;
-      t += s;
-      x.into(i);
-      rg.w(true);
-      return true; }
+        if (nb || !wg.y(λs::ξW)) return {Sc<u8*>(nullptr), 0};
+      s = &sb;
+      return {b = new u8[sb = l], l}; }
 };
 
 

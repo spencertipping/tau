@@ -114,6 +114,9 @@ typedef f64b const f64bc;
 #endif
 
 
+letc uNs = sizeof(uN);
+
+
 static_assert(sizeof(void*) == sizeof(uN));
 static_assert(sizeof(void*) == sizeof(iN));
 

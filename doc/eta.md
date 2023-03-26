@@ -52,16 +52,6 @@ Tuples and maps are both encoded into the stream by having multiple values. For 
 There is no requirement that an η stream contain only name-prefixed things or only un-prefixed things, although these are common configurations. There is also no requirement about the relative layout of named/unnamed things. This is a feature: since values closer to the front of the stream are faster to decode, strategic ordering can improve performance.
 
 
-## Lensing
-η streams are typically accessed with a lens, which allows any substream to be replaced by another. A lens contains several values:
-
-+ A stack of parent containers
-+ The byte offset of the first lensed value
-+ The byte offset immediately beyond the last lensed value
-
-Lenses can be joined to form compound edits. This improves efficiency when modifying multiple values within a η stream. In this sense a lens is sort of like a lazy computation with fully-realized operands. A joined lens is just a linked list of edits to be applied in reverse order.
-
-
 ## Local values
 η defines a C++ native API that provides in-memory values. In practice this is just a `std::variant` that contains a number of alternatives:
 

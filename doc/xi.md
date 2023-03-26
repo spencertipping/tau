@@ -6,6 +6,17 @@ Each ξ, unless it is weakened, holds a reference to the [ψ](psi.md) that write
 ξs present as allocators when writing; you can write and adjust the size of your value before committing it. This allows you to write without copying, for instance when doing file IO.
 
 
+## ξ allocation
+This happens in two stages. First, you indicate how much contiguous memory you intend to use; for example, let's say you request 256 bytes. The ξ replies with a `Sn<u8>` sized to the largest contiguous space ≤256 bytes that it can be. **This step may block.**
+
+Once you're done writing the memory, you must do one of two things:
+
+1. Call `commit()` to make the value available
+2. Call `abort()` to erase the new value
+
+`commit()` can accept an optional size; if you provide this, it will trim the value to that size, which saves memory.
+
+
 ## ξ states
 An open ξ has two paths to destruction:
 

@@ -57,15 +57,19 @@ struct ζ
 
   void clear() { ri = wi = ci = 0; }
 
-  void free(uN l)  // free l bytes of memory
+  void free(uN l)  // free l bytes of memory from the left
     { A(l <= ra(), "ζ::free(" << l << "), ra=" << ra());
       if (wrapped()) { let a = std::min(l, ci - ri); set_ri(ri + a); l -= a; }
       if (l) set_ri(ri + l); }
 
+  // NOTE: iptr() **does not update** the write head; for that, use advance()
   u8 *iptr(uN l)   // insertion pointer to l bytes, or null
     { if      (l > wa())                                                   return nullptr;
-      else if (!wrapped() && l + wi > c) { ci = wi; wi = l; ri = wrap(ri); return xs; }
-      else                               { let a = wi; wi += l;            return xs + a; } }
+      else if (!wrapped() && l + wi > c) { ci = wi; wi = 0; ri = wrap(ri); return xs; }
+      else                               { let a = wi;                     return xs + a; } }
+
+  void advance(uN l)  // advance writer by l bytes; you must have called iptr(l) first
+    { wi += l; }
 
 
   ζ &resize(uN);
