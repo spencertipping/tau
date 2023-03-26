@@ -24,6 +24,7 @@ struct ηo final
     { if (s_) o_.commit(s_);
       else    o_.abort(); }
 
+  ηo &operator<<(int x) { return *this << Sc<i64>(x); }
   ηo &operator<<(i64 x)
     { let b = x > Nl<i32>::max() || x < Nl<i32>::min() ? 8
             : x > Nl<i16>::max() || x < Nl<i16>::min() ? 4

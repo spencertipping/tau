@@ -49,7 +49,7 @@ O &operator<<(O &s, ηi const &i)
   {
     ηi x = i.η();
     s << "(" << x;
-    while (x.has_next()) s << ", " << (x = x.next());
+    while (x.has_next()) s << " " << (x = x.next());
     return s << ")";
   }
   default:

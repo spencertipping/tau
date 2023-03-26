@@ -56,6 +56,7 @@ struct ηi final
       while (i && has_next()) r = r.next(), --i;
       return {r.a_, i ? 0 : r.l_}; }
 
+  Sn<u8c> operator[](chc *s) const { return (*this)[St{s}]; }
   Sn<u8c> operator[](Stc &k) const
     { ηi r = *this;
       for (; r.has_next(); r = r.next())

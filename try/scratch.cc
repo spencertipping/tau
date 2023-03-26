@@ -79,6 +79,35 @@ void try_xi_multi()
 }
 
 
+void xi_keys_bench()
+{
+  τe t;
+  ξ  x(t.l(), 16384);
+  i64  s = 0;
+  letc N = 16ll << 20;
+
+  t.l().c([&]() {
+    for (i64 i = 0; i < N; ++i)
+      ηo(x).k("x").v(1).k("y").v(i);
+    x.close();
+  });
+
+  t.l().c([&]() {
+    for (let y : x) s += ηi(ηi(y)["y"]).i();
+    cout << "ξ keys got total: " << s << endl;
+  });
+
+  let t1 = now();
+  t.go();
+  let t2 = now();
+
+  cout << "summed 16M keyed ints in " << t2 - t1 << endl;
+
+  A(s == N * (N - 1) / 2, "got " << s << ", wanted " << N * (N - 1) / 2);
+  cout << "ξ keys ok" << endl;
+}
+
+
 void xi_bench()
 {
   τe t;
@@ -112,6 +141,7 @@ int main()
   try_xi_simple();
   try_xi_multi();
   xi_bench();
+  xi_keys_bench();
   return 0;
 }
 
