@@ -20,7 +20,9 @@ namespace τ
 struct ηo final
 {
   ηo(ξ &o, uN c0 = 256) : o_(o), b_(o.iptr(c0)), s_(0) {}
-  ~ηo() { if (s_) o_.commit(s_); }
+  ~ηo()
+    { if (s_) o_.commit(s_);
+      else    o_.abort(); }
 
   ηo &operator<<(i64 x)
     { let b = x > Nl<i32>::max() || x < Nl<i32>::min() ? 8

@@ -33,7 +33,7 @@ uN   ξn();
 struct ξ
 {
   ξ(Λ &l, uN c)
-    : z(c), wt(0), s(nullptr), b(nullptr), sb(0), wc(false), w(false), rg(l), wg(l)
+    : z(c), wt(0), s(nullptr), wc(false), w(false), rg(l), wg(l)
     { ξc_(this); }
 
   // By this point our instance state won't be accessible to any λs, so
@@ -41,14 +41,12 @@ struct ξ
   // closed, so assume it no longer exists.
   ~ξ()
     { rg.w(false); wg.w(false);
-      if (b) delete[] b;
       ξd_(this); }
 
 
   uN capacity() const { return z.capacity(); }
-  uN ra()       const { return b ? sb : z.ra(); }
+  uN ra()       const { return z.ra(); }
   uN wa()       const { return z.wa(); }
-  uN extra()    const { return sb; }  // extra bytes allocated right now
 
   ξ &resize(uN c)     { z.resize(c); return *this; }
   ξ &ensure(uN c)     { z.ensure(c); return *this; }
@@ -69,22 +67,17 @@ struct ξ
   Sn<u8> iptr(uN size, bool nonblock = false)
     { A(!s, "ξ: iptr(" << size << ") with uncommitted value");
       A(size, "ξ: iptr() on size = 0");
-      return size + uNs > z.capacity()
-           ? sidecar_reserve(size, nonblock)
-           : pipe_reserve   (size, nonblock); }
+      ensure(size + uNs);
+      return reserve(size, nonblock); }
 
   void abort()
     { A(s, "ξ: abort() without an active value");
-      if (b) { delete[] b; sb = 0; }
       s = nullptr; }
 
   void commit(uN size = 0)
     { A(s, "ξ: commit(" << size << ") without an active value");
-      // NOTE: we can't trim b[] without another copy, so leave it there
-      // until it is consumed by the reader.
-      if (!b)
-        if (size) z.advance((*s = size) + uNs);
-        else      z.advance(*s + uNs);
+      if (size) z.advance((*s = size) + uNs);
+      else      z.advance(*s + uNs);
       wt += *s + uNs;
       rg.w(true);  // we now have readable data
       s = nullptr; }
@@ -94,13 +87,11 @@ struct ξ
   // unary */next() to read values
   Sn<u8> operator*() const
     { A(ra(), "*ξ with !ra(), " << z);
-      return !b ? Sn<u8>(z + uNs, pipe_next_size())
-                : Sn<u8>(b, sb); }
+      return Sn<u8>(z + uNs, next_size()); }
 
   void next()
     { A(ra(), "++ξ with !ra(), " << z);
-      if (b) delete[] b, b = nullptr, sb = 0;
-      else   z.free(pipe_next_size() + uNs);
+      z.free(next_size() + uNs);
       wg.w(true); }  // we are now writable
 
 
@@ -139,8 +130,6 @@ protected:
   ζ        z;
   u64      wt;   // total bytes written
   uN      *s;    // pointer to current element size
-  u8      *b;    // sidecar buffer for large values
-  uN       sb;   // sizeof(*b)
   bool     wc;   // writer has closed; all blocking reads will fail
   bool     w;    // weaken() has been called, always weaken source ψ
   λg<bool> rg;   // read-gate; false means insta-bail
@@ -153,21 +142,15 @@ protected:
   friend O &operator<<(O&, ξ const&);
 
 
-  uN pipe_next_size() const
+  uN next_size() const
     { A(ra(), "pipe_next_size() with !ra(), " << z);
       return *Rc<uN*>(z + 0); }
 
 
-  Sn<u8> pipe_reserve(uN l, bool nb)
+  Sn<u8> reserve(uN l, bool nb)
     { for (;;)
         if      (let r = z.iptr(l + uNs)) { *(s = Rc<uN*>(r)) = l; return {r + uNs, l}; }
         else if (nb || !wg.y(λs::ξW))                              return {Sc<u8*>(nullptr), 0}; }
-
-  Sn<u8> sidecar_reserve(uN l, bool nb)
-    { while (ra() || b)
-        if (nb || !wg.y(λs::ξW)) return {Sc<u8*>(nullptr), 0};
-      s = &sb;
-      return {b = new u8[sb = l], l}; }
 };
 
 

@@ -29,6 +29,19 @@ struct ηi final
   Sn<u8c> snext()    const { return {data() + size(), has_next() ? asize() : 0}; }
 
 
+  struct it
+  {
+    Sn<u8c> x;
+    bool operator==(it const &y) const { return x.empty() == y.x.empty(); }
+    it  &operator++()                  { x = ηi(x).snext(); return *this; }
+    ηi   operator*()             const { return ηi(x); }
+  };
+
+  // NOTE: iteration applies to this and subsequent items in the stream
+  it begin() const { return it{{a_, l_}}; }
+  it end()   const { return it{{a_ + l_, 0}}; }
+
+
   bool operator==(Stc  &s_) const { return is_s() && s() == s_; }
   bool operator==(Stvc &s_) const { return is_s() && s() == s_; }
   bool operator==(bool b_)  const { return is_b() && b() == b_; }
