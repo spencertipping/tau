@@ -15,7 +15,7 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** the new η format should be easy to read/write from Rust, Go, and Python (perhaps among others)
 
-**TODO:** lens definitions against η structs
+**TODO:** lens definitions against η values -- **these can just return byte ranges**
 
 
 ## Compute model

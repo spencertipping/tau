@@ -1,55 +1,52 @@
-# η heap/container encoding
-η data has a few properties:
+# η values
+η is one type of value that you can send through a [ξ](xi.md). η values provide consistent endianness, struct layout, type tagging, and namespaces for signals and other out-of-band data.
 
-1. It's contiguous, up to η₀ nonlinear references
-2. A tag bit indicates whether it or any descendant contains a [η₀](eta0.md) reference
-3. Its size is knowable in constant time
-4. Its type is encoded as an integer, where `0` is reserved for η₀
-5. Data is stored native-endian, sizes are stored fixed-endian
-6. Data can be transparently compressed with `zstd`
-
-Specifications:
-
-+ [η₀ spec](eta0.md) for the bit-level format and container-level attributes
-+ [η₁ spec](eta1.md) for the user-level API
-
-**TODO:** design Asqi dataflow and make sure we have enough support here
+**η is designed for simplicity above almost all else.** As the interop format, I'm going to end up writing multiple η libraries -- C++, Rust, Python, and maybe Go.
 
 
-## API
-**TODO:** design the API more proactively; current `η0o{}` shenanigans are suboptimal, both from a design and an implementation perspective
+## Format
+Each η value's size can be calculated in constant time, with the exception of the toplevel value which is a stream of values. Each value begins with a control byte, which describes the type and size-encoding of the thing that comes after it. There are 16 types and 16 size encodings:
 
-**TODO:** `std::get<>` destructuring
+| High 4 bits | Type                             |
+|-------------|----------------------------------|
+| `0x0_`      | stream signal                    |
+| `0x1_`      | int (must be 1, 2, 4, or 8-byte) |
+| `0x2_`      | float (must be 4-byte or 8-byte) |
+| `0x3_`      | string                           |
+| `0x4_`      | atom (`true`/`false`/`null`)     |
+| `0x5_`      | sub-η stream (used for nesting)  |
+| `0x6_`      | name prefix                      |
+| `0x7_`      | **reserved**                     |
+| `0x8_`      | `int8s`                          |
+| `0x9_`      | `int16s`                         |
+| `0xa_`      | `int32s`                         |
+| `0xb_`      | `int64s`                         |
+| `0xc_`      | `float32s`                       |
+| `0xd_`      | `float64s`                       |
+| `0xe_`      | **reserved**                     |
+| `0xf_`      | **reserved**                     |
 
-**NOTE:** η₁ casting is also suboptimal; although it's fine to have different views, we shouldn't have to explicitly cast. Instead, a unified η should do this for us and allow for type-aware iteration.
+| Low 4 bits | Next bytes     | Size encoding |
+|------------|----------------|---------------|
+| `0x_0`     |                | 0 byte        |
+| `0x_1`     |                | 1 bytes       |
+| `0x_2`     |                | 2 bytes       |
+| `0x_3`     |                | 3 bytes       |
+| `0x_4`     |                | 4 bytes       |
+| `0x_5`     |                | 5 bytes       |
+| `0x_6`     |                | 6 bytes       |
+| `0x_7`     |                | 7 bytes       |
+| `0x_8`     |                | 8 bytes       |
+| `0x_9`     |                | 9 bytes       |
+| `0x_a`     |                | 10 bytes      |
+| `0x_b`     |                | 11 bytes      |
+| `0x_c`     |                | 12 bytes      |
+| `0x_d`     | 1              | 13 + `x`      |
+| `0x_e`     | 2 (big-endian) | 269 + `x`     |
+| `0x_f`     | 4 (big-endian) | 65805 + `x`   |
 
-**NOTE:** we need the ability to store native pointers (in η₀ references) with untyped destructor function references; that means two adjacent `void*`s, most likely, as well as [ξ](xi.md) destructors
+Tuples and maps are both encoded into the stream by having multiple values. For example, the hex bytes `1101 1102 1103` encode the array `[1, 2, 3]`. The vectorized version would be `83 010203`.
 
+`0x6_` is used to assign names to some stream values, which is done in the context of a map. For example, `63 f o o 11 02 63 b a r 11 05` corresponds to `{"foo":2, "bar":5}`.
 
-## Primitive user types
-| Code | Description | Spec                       |
-|------|-------------|----------------------------|
-| 1    | `signal`    | [ζ signal](zeta-signal.md) |
-| 2    | `symbol`    | [η symbol](eta-symbol.md)  |
-| 3    | `bytes`     |                            |
-| 4    | `utf8`      |                            |
-| 5    | `int/be`    | Big-endian signed int      |
-| 6    | `uint/be`   | Big-endian unsigned int    |
-| 7    | `float/be`  | Big-endian float           |
-| 8    | `boolean`   |                            |
-
-
-## Container types
-| Code | Description | Format                  |
-|------|-------------|-------------------------|
-| 9    | `tuple`     | `x1 x2 ... xn`          |
-| 10   | `set`       | `x1 x2 ... xn`          |
-| 11   | `map`       | `k1 v1 k2 v2 ... kn vn` |
-
-**NOTE:** maps are guaranteed to have an even number of elements; otherwise they fail `η₀bc` and are η₁-invalid.
-
-**TODO:** add a dedicated type for file descriptors so we can close them automatically if any are left behind in ξs. Otherwise we leak FDs if a consumer closes its input. ...or maybe we say you must consume all FDs from a ξ before closing the channel.
-
-
-## Vector types
-**TODO:** as needed
+There is no requirement that an η stream contain only name-prefixed things or only un-prefixed things, although these are common configurations. There is also no requirement about the relative layout of named/unnamed things. This is a feature: since values closer to the front of the stream are faster to decode, strategic ordering can improve performance.
