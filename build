@@ -45,7 +45,7 @@ o_files=(        `find bin     -name '*.o'` )
 
 
 rebuild_all=
-for f in ${h_files[*]} build; do
+for f in ${h_files[*]} build compile_flags.txt; do
   for o in ${o_files[*]}; do
     if [[ $f -nt $o ]]; then
       find bin -name '*.o' -delete
@@ -156,7 +156,8 @@ server_build()
   host=$1
   path=$2
   ssh $host mkdir -p $path
-  rsync -a --delete tau.hh tau try build $host:$path/
+  rsync -a --delete dep tau.hh tau try build compile_flags.txt $host:$path/
+  rsync -a --delete dev/emsdk $host:$path/dev/
   args=
   [[ -z $build_linux ]] && args="$args --no-linux"
   [[ -z $build_wasm  ]] && args="$args --no-wasm"

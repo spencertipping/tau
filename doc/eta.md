@@ -66,14 +66,15 @@ Lenses can be joined to form compound edits. This improves efficiency when modif
 η defines a C++ native API that provides in-memory values. In practice this is just a `std::variant` that contains a number of alternatives:
 
 + `τ::ηsig`
-+ `τ::i64`
-+ `τ::f64`
-+ `std::string`
++ `τ::i64b` ← big-endian view of an integer
++ `τ::f64b` ← big-endian view of a float
++ `τ::St`
 + `τ::ηatom`
-+ `τ::B` (for sub-η)
-+ `std::span<τ::i8>` ← TODO: convert below to this
-+ `std::span<τ::i16>`
-+ `(τ::uN, τ::i32*)`
-+ `(τ::uN, τ::i64*)`
-+ `(τ::uN, τ::f32*)`
-+ `(τ::uN, τ::f64*)`
++ `τ::η` (for sub-η)
++ `τ::P<τ::St, τ::η>` for name prefixes
++ `τ::Sn<τ::i8b>`
++ `τ::Sn<τ::i16b>`
++ `τ::Sn<τ::i32b>`
++ `τ::Sn<τ::i64b>`
++ `τ::Sn<τ::f32b>`
++ `τ::Sn<τ::f64b>`

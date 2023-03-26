@@ -18,6 +18,7 @@
 #include <queue>
 #include <regex>
 #include <set>
+#include <span>
 #include <stack>
 #include <string>
 #include <string_view>
@@ -27,6 +28,9 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
+
+
+#include <boost/endian.hpp>
 
 
 #include "arch.hh"
@@ -66,6 +70,34 @@ typedef char                ch;  // that's right, "char" is just too damn long
 typedef char const          chc;
 typedef unsigned char       uch;
 typedef unsigned char const uchc;
+
+
+typedef boost::endian::big_int8_t  i8b;
+typedef boost::endian::big_int16_t i16b;
+typedef boost::endian::big_int32_t i32b;
+typedef boost::endian::big_int64_t i64b;
+
+typedef boost::endian::big_uint8_t  u8b;
+typedef boost::endian::big_uint16_t u16b;
+typedef boost::endian::big_uint32_t u32b;
+typedef boost::endian::big_uint64_t u64b;
+
+typedef boost::endian::big_float32_t f32b;
+typedef boost::endian::big_float64_t f64b;
+
+
+typedef i8b  const i8bc;
+typedef i16b const i16bc;
+typedef i32b const i32bc;
+typedef i64b const i64bc;
+
+typedef u8b  const u8bc;
+typedef u16b const u16bc;
+typedef u32b const u32bc;
+typedef u64b const u64bc;
+
+typedef f32b const f32bc;
+typedef f64b const f64bc;
 
 
 // NOTE: "size_t", "int", and "long" don't coerce easily from sized ints,
@@ -126,8 +158,9 @@ template<class T, class U> using P  = std::pair<T, U>;
 template<class... T>       using Q  = std::queue<T...>;
 typedef               std::regex Re;
 template<class... K>       using S  = std::unordered_set<K...>;
-template<class... K>       using So = std::set<K...>;
 template<class... T>       using Sk = std::stack<T...>;
+template<class... T>       using Sn = std::span<T...>;
+template<class... K>       using So = std::set<K...>;
 template<class... T>       using Sp = std::shared_ptr<T...>;
 typedef        std::stringstream Ss;
 template<class... X>       using T  = std::tuple<X...>;
@@ -145,6 +178,17 @@ template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std:
 typedef std::strong_ordering  SO;
 typedef std::weak_ordering    WO;
 typedef std::partial_ordering PO;
+
+
+typedef std::basic_string<u8>      B;
+typedef std::basic_string_view<u8> Bv;
+typedef std::string                St;
+typedef std::string_view           Stv;
+
+typedef B   const Bc;
+typedef St  const Stc;
+typedef Bv  const Bvc;
+typedef Stv const Stvc;
 
 
 template<class T, class U>
@@ -178,17 +222,6 @@ struct iti
 {
   sletc v = iti_static<T>::value | iti_method<T>::value;
 };
-
-
-typedef std::basic_string<u8>      B;
-typedef std::basic_string_view<u8> Bv;
-typedef std::string                St;
-typedef std::string_view           Stv;
-
-typedef B   const Bc;
-typedef St  const Stc;
-typedef Bv  const Bvc;
-typedef Stv const Stvc;
 
 
 }

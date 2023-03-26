@@ -16,3 +16,18 @@
 [submodule "dep/picosha3"]
 	path = dep/picosha3
 	url = https://github.com/yawara/picosha3
+[submodule "dep/endian"]
+	path = dep/boost-endian
+	url = https://github.com/boostorg/endian
+[submodule "dep/config"]
+	path = dep/boost-config
+	url = https://github.com/boostorg/config
+[submodule "dep/boost-type-traits"]
+	path = dep/boost-type-traits
+	url = https://github.com/boostorg/type_traits
+[submodule "dep/boost-static-assert"]
+	path = dep/boost-static-assert
+	url = https://github.com/boostorg/static_assert
+[submodule "dep/boost-core"]
+	path = dep/boost-core
+	url = https://github.com/boostorg/core
