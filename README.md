@@ -7,11 +7,15 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** GC the source and documentation for the sigma refactor
 
-**TODO:** reduce η down to absolute-minimum framed messages; no need to do anything else
+**TODO:** reduce ξ IO down to absolute-minimum framed messages; no need to do anything else
 
 **TODO:** template-typed ξs that can account for out-of-line message sizes
 
-**TODO:** η should be an insta-packable flat array of variants
+**TODO:** η should be an insta-packable flat array of variants, or a template-consed hard struct, or a wrapped C struct of fixed-endian wrappers
+
+**TODO:** the new η format should be easy to read/write from Rust, Go, and Python (perhaps among others)
+
+**TODO:** lens definitions against η structs
 
 
 ## Compute model
