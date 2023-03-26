@@ -7,6 +7,12 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** GC the source and documentation for the sigma refactor
 
+**TODO:** reduce η down to absolute-minimum framed messages; no need to do anything else
+
+**TODO:** template-typed ξs that can account for out-of-line message sizes
+
+**TODO:** η should be an insta-packable flat array of variants
+
 
 ## Compute model
 ```
