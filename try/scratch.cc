@@ -44,10 +44,37 @@ void try_xi_simple()
 }
 
 
+void xi_bench()
+{
+  τe t;
+  ξ  x(t.l(), 16384);
+  i64  s = 0;
+  letc N = 16ll << 20;
+
+  t.l().c([&]() {
+    for (i64 i = 0; i < N; ++i) ηo(x) << i;
+    x.close();
+  });
+
+  t.l().c([&]() {
+    for (let y : x) s += ηi(y).i();
+    cout << "got total: " << s << endl;
+  });
+
+  let t1 = now();
+  t.go();
+  let t2 = now();
+
+  cout << "summed 16M ints in " << t2 - t1 << endl;
+  A(s == N * (N - 1) / 2, "got " << s);
+}
+
+
 int main()
 {
   try_spans();
   try_xi_simple();
+  xi_bench();
   return 0;
 }
 

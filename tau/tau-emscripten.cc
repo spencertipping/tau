@@ -13,7 +13,7 @@ static τe *τg = nullptr;
 
 void τset(τe *t)
 {
-  A(!τg, "τset multiple; old is " << Rc<void*>(τg));
+  if (t) A(!τg, "τset multiple; old is " << Rc<void*>(τg));
   τg = t;
 }
 
