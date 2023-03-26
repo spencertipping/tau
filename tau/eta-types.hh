@@ -56,7 +56,7 @@ enum class ηtype : u8
 
 // Number of bytes used to encode the size, or 0 if the size is directly
 // inlined into the control byte
-inline u8 ηsb(uN s)
+inline uN ηsb(uN s)
 {
   return s <= 12 ? 0 : s < 269 ? 1 : s < 65805 ? 2 : 4;
 }
@@ -67,7 +67,7 @@ inline uN ηcb(Sn<u8> b, ηtype t, uN s)
 {
   let sb = ηsb(s);
   let cb = Sc<u8>(t) << 4 | (!sb ? s : sb == 1 ? 0x0d : sb == 2 ? 0x0e : 0x0f);
-  A(b.size_bytes() >= 1 + sb, "ηcb overflow; |b| = " << b.size_bytes() << ", needed " << 1 + sb);
+  A(b.size_bytes() >= sb + 1, "ηcb overflow; |b| = " << b.size_bytes() << ", needed " << sb + 1);
   A(s < 65805 + Nl<u32>::max(), "ηcb size too large: " << s);
 
   b[0] = cb;

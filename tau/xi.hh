@@ -33,7 +33,7 @@ uN   ξn();
 struct ξ
 {
   ξ(Λ &l, uN c)
-    : z(c), s(nullptr), b(nullptr), sb(0), wc(false), w(false), rg(l), wg(l)
+    : z(c), wt(0), s(nullptr), b(nullptr), sb(0), wc(false), w(false), rg(l), wg(l)
     { ξc_(this); }
 
   // By this point our instance state won't be accessible to any λs, so
@@ -75,13 +75,18 @@ struct ξ
 
   void abort()
     { A(s, "ξ: abort() without an active value");
-      if (s == &sb) { delete[] b; sb = 0; }
+      if (b) { delete[] b; sb = 0; }
       s = nullptr; }
 
   void commit(uN size = 0)
     { A(s, "ξ: commit(" << size << ") without an active value");
-      if (size) z.advance((*s = size) + uNs);
-      else      z.advance(*s + uNs);
+      // NOTE: we can't trim b[] without another copy, so leave it there
+      // until it is consumed by the reader.
+      if (!b)
+        if (size) z.advance((*s = size) + uNs);
+        else      z.advance(*s + uNs);
+      wt += *s + uNs;
+      rg.w(true);  // we now have readable data
       s = nullptr; }
 
 
@@ -132,6 +137,7 @@ struct ξ
 
 protected:
   ζ        z;
+  u64      wt;   // total bytes written
   uN      *s;    // pointer to current element size
   u8      *b;    // sidecar buffer for large values
   uN       sb;   // sizeof(*b)

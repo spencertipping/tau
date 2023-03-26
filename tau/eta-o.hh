@@ -168,7 +168,7 @@ private:
         u8 *b = new u8[s_];
         memcpy(b, b_.data(), s_);
         o_.abort();
-        let s = std::max(s_ + l, b_.size_bytes() << 1);
+        let s = std::max(s_ + l, Sc<uN>(b_.size_bytes() << 1));
         b_ = o_.iptr(s);
         memcpy(b_.data(), b, s_);
         delete[] b; } }

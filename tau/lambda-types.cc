@@ -20,7 +20,7 @@ O &operator<<(O &s, λs t)
   case λs::τW: return s << "τW";
   case λs::τE: return s << "τE";
   case λs::τA: return s << "τA";
-    TA(s, "illegal λs " << Sc<uN>(t));
+  default:     return s << "λs " << Sc<int>(t);
   }
 }
 

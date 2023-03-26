@@ -30,7 +30,5 @@
 #include "tau/phi-str.hh"
 #include "tau/phi-ctor.hh"
 
-#include "tau/pi.hh"
-
 
 #endif

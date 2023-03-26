@@ -15,7 +15,7 @@ uN   ξn()      { return ξs_; }
 O &operator<<(O &s, ξ const &y)
 {
   return s << "ξ[" << (y.wc ? "#" : "")
-           << "wt=" << y.wt() << " " << y.z << "]";
+           << "wt=" << y.wt << " " << y.z << "]";
 }
 
 
