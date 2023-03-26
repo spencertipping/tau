@@ -40,12 +40,7 @@ struct ξ
   // closed, so assume it no longer exists.
   ~ξ()
     { rg.w(false); wg.w(false);
-
-      // IMPORTANT! Destroy all ηs still in this ξ. Otherwise we will leak
-      // native pointers.
-      if (b) η{b}.destroy(), delete[] b;
-      for (; !eof(true); next()) (**this).destroy();
-
+      if (b) delete[] b;
       ξd_(this); }
 
 

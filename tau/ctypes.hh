@@ -30,6 +30,7 @@
 #include <vector>
 
 
+// NOTE: this boost module is vendored into dep/
 #include <boost/endian.hpp>
 
 
