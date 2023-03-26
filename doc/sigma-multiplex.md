@@ -21,6 +21,8 @@ We could also address the multiplexed Ξ individually prior to the demultiplex, 
 
 
 ## Keying schemes
+**FIXME:** port this to new η model
+
 + `(k, v)`: entupled key
 + `(k, a, b, ...)`: tuple-spliced key
 + `{k x ...}`: map-spliced key (on `k`)

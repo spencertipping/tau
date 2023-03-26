@@ -14,7 +14,6 @@ Notationally, this means we define topology and processing at the same time in g
 
 
 ## Complex topologies
-+ [Lenses](sigma-lenses.md)
 + [Multiplexers and duplex connections](sigma-multiplex.md)
 
 
@@ -23,21 +22,6 @@ Notationally, this means we define topology and processing at the same time in g
 |--------|--------|-------------------|
 | `←`    | n v    | define variable   |
 | `$`    | n      | refer to variable |
-
-
-## Lens symbol table (`L`)
-| Symbol   | Description                 |
-|----------|-----------------------------|
-| `L`      | confirm that this is a lens |
-| `[`/`]`  | Lens grouping               |
-| `(`      | `tuple-wrap-left`           |
-| `)`      | `tuple-wrap-right`          |
-| `^`      | `tuple-cons-left`           |
-| `+`      | `tuple-cons-right`          |
-| `a`..`z` | `tuple-element`             |
-| `.k`     | `map-key(k)`                |
-
-**NOTE:** lenses are composable by concatenation: `a.foo` refers to the `foo` key of the first element of a tuple; `ab` is `η[0][1]`. Whitespace is required to refer to a tuple element within a map key: `.foo a`.
 
 
 ## Γ topology symbol table (`Γ`)
@@ -53,16 +37,16 @@ Notationally, this means we define topology and processing at the same time in g
 | \`X     |            | OT integral prefix                |
 | \`Y     |            | OT derivative prefix              |
 | \`Z     |            | OT structure prefix               |
-| `\|`    | Γp         | modify processor to right-cap     |
-| `\\`    | Γp         | modify processor to backward      |
+| `\|`    | Ψ2         | modify processor to right-cap     |
+| `\\`    | Ψ2         | modify processor to backward      |
 | `.`     |            | Ξ subscript                       |
 | `,`     |            | ξ bundle (collect into Ξ)         |
 | `:`     |            | omni-blocking broadcast           |
 | `;`     |            | non-blocking side tap             |
-|         | Γp         | implicit fallover to half-duplex  |
+|         | Ψ2         | implicit fallover to half-duplex  |
 
 
-## Γ half-duplex table (`Γp`)
+## Γ half-duplex table (`Ψ2`)
 | Symbol   | Notes | Description                      |
 |----------|-------|----------------------------------|
 | `a`      | R     | reserved for lens disambiguation |
