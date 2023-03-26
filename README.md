@@ -7,8 +7,6 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** GC the source and documentation for the sigma refactor
 
-**TODO:** figure out how to do meta-linkage, e.g. Γ-level debug connections out to a monitor
-
 
 ## Compute model
 ```

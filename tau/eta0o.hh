@@ -13,7 +13,7 @@ namespace τ
 {
 
 
-// η₀ frame output container, with small-value optimization
+// η₀ frame output container
 struct η0o
 {
   η0o(η0t t) : f_(0), c_(0), h_(0), t_(t), cs_(nullptr) {}
@@ -97,8 +97,6 @@ struct η0o
 
 
 protected:
-  sletc is = 16;   // number of bytes of inline storage
-
   u8   f_ : 1;
   u8   c_ : 5;
   u8   h_ : 1;
