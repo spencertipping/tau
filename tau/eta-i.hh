@@ -26,6 +26,14 @@ PO operator<=>(Sn<T> const &a, Sn<T> const &b)
 }
 
 
+// Emscripten doesn't define this for string views, so we need to create
+// our own. Immediately shell out to <=> for spans, comparing chars.
+inline PO operator<=>(Stvc &a, Stvc &b)
+{
+  return Sn<chc>(a.data(), a.size()) <=> Sn<chc>(b.data(), b.size());
+}
+
+
 // η input: read from fixed location in memory
 struct ηi final
 {
