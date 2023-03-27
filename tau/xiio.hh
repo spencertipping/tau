@@ -64,6 +64,9 @@ struct ξo
 
   ξo &ensure(uN c) { if (let y = x.lock()) y->ensure(c); return *this; }
 
+  // TODO: add methods to create ηo here
+  // TODO: how should those methods deal with no-ξ?
+
 
 protected:
   Wp<ξ> x;
