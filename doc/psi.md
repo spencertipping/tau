@@ -12,19 +12,16 @@ There are two types of ψs (implemented with C++ derived classes):
 
 
 ## Server ports
-Server ports are named and each inbound [Ξ](Xi.md) can be annotated with an [η](eta.md) tag. This means there are a total of three arguments to a server-port connection:
+Server ports are named at the τ level:
 
 ```cpp
-bool τe::bind(St port, Wp<ψ>);             // route port to ψ
+bool τe::bind(St port, Sp<ψ>);             // route port to ψ
 bool τe::unbind(St port Wp<ψ> = nullptr);  // undo binding
-bool ψ::connect(St port, η tag, Ξ);        // false == reject connection
+Ξ    ψ ::connect(St port, Ξ);
 ```
 
-So, for instance, you can have a dynamic demultiplexer that creates Γs on the fly, each of which terminates to the same endpoint:
+Note that any ψ with a bound server port will be GC-pinned.
 
-```
-:%db ... sqlite_connection  # :% binds a τ port and unions outputs
-(.session\k ... &db=k       # &db=k connects to τ port "db" with k tag
-```
+Connections are perfect forwarders of Ξ, meaning that the server can decide how to handle half/full duplexes as well as any named sidecars. The server can also transform the Ξ and returns its continuation. In most cases, this continuation is empty (that is, the server terminates the Ξ).
 
-**TODO:** specify half/full duplex `&` variants
+**TODO:** decide on operators for server ports
