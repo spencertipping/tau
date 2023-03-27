@@ -43,6 +43,7 @@ Notationally, this means we define topology and processing at the same time in g
 | `,`     |            | ξ bundle (collect into Ξ)         |
 | `:`     |            | omni-blocking broadcast           |
 | `;`     |            | non-blocking side tap             |
+| `!`     |            | evaluate a Γ to a static ψ        |
 |         | Ψ2         | implicit fallover to half-duplex  |
 
 
@@ -108,7 +109,6 @@ Notationally, this means we define topology and processing at the same time in g
 | `>`      | P     | prefix for boxing                |
 | `?`      |       |                                  |
 | `/`      | P     | platform-specific namespace      |
-| `!`      |       | evaluate a Γ to a static ψ       |
 | `+`      |       | τ-group append                   |
 | `^`      |       | τ-group prepend                  |
 | `%`      |       | Γ union (eager interleave)       |
