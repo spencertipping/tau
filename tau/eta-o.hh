@@ -24,6 +24,15 @@ struct ηo final
     { if (s_) o_.commit(s_);
       else    o_.abort(); }
 
+
+  // Direct append: hopefully the content is valid η data
+  ηo &operator<<(Sn<u8c> const &xs)
+    { reserve(xs.size_bytes());
+      memcpy(b_.data() + s_, xs.data(), xs.size_bytes());
+      s_ += xs.size_bytes();
+      return *this; }
+
+
   ηo &operator<<(int x) { return *this << Sc<i64>(x); }
   ηo &operator<<(i64 x)
     { let b = x > Nl<i32>::max() || x < Nl<i32>::min() ? 8
@@ -94,14 +103,14 @@ struct ηo final
       s_ += i.osize();
       return *this; }
 
-  ηo &operator<<(Sn<i8c> xs)
+  ηo &operator<<(Sn<i8c> const &xs)
     { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
       s_ += ηcb(b_.subspan(s_), ηtype::int8s, xs.size_bytes());
       std::copy(xs.begin(), xs.end(), b_.data() + s_);
       s_ += xs.size_bytes();
       return *this; }
 
-  ηo &operator<<(Sn<i16c> xs)
+  ηo &operator<<(Sn<i16c> const &xs)
     { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
       s_ += ηcb(b_.subspan(s_), ηtype::int16s, xs.size_bytes());
       i16b *y = Rc<i16b*>(b_.data() + s_);
@@ -109,7 +118,7 @@ struct ηo final
       s_ += xs.size_bytes();
       return *this; }
 
-  ηo &operator<<(Sn<i32c> xs)
+  ηo &operator<<(Sn<i32c> const &xs)
     { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
       s_ += ηcb(b_.subspan(s_), ηtype::int32s, xs.size_bytes());
       i32b *y = Rc<i32b*>(b_.data() + s_);
@@ -117,7 +126,7 @@ struct ηo final
       s_ += xs.size_bytes();
       return *this; }
 
-  ηo &operator<<(Sn<i64c> xs)
+  ηo &operator<<(Sn<i64c> const &xs)
     { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
       s_ += ηcb(b_.subspan(s_), ηtype::int64s, xs.size_bytes());
       i64b *y = Rc<i64b*>(b_.data() + s_);
@@ -125,7 +134,7 @@ struct ηo final
       s_ += xs.size_bytes();
       return *this; }
 
-  ηo &operator<<(Sn<f32c> xs)
+  ηo &operator<<(Sn<f32c> const &xs)
     { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
       s_ += ηcb(b_.subspan(s_), ηtype::int32s, xs.size_bytes());
       f32b *y = Rc<f32b*>(b_.data() + s_);
@@ -133,7 +142,7 @@ struct ηo final
       s_ += xs.size_bytes();
       return *this; }
 
-  ηo &operator<<(Sn<f64c> xs)
+  ηo &operator<<(Sn<f64c> const &xs)
     { reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()));
       s_ += ηcb(b_.subspan(s_), ηtype::int64s, xs.size_bytes());
       f64b *y = Rc<f64b*>(b_.data() + s_);
