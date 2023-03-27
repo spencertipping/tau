@@ -18,3 +18,24 @@
 |                                         |
 +-----------------------------------------+
 ```
+
+
+## Levels of synchronization
+[η](eta.md) structures are portable between browser and server, so any components that use them can in principle be distributed and synchronized across the RPC gap. This creates broad flexibility in how an application's state is managed; we can have a traditional model where the client's state is periodically synchronized to the server in a series of REST-style actions, or we can keep the client and server synchronized in realtime by using OT.
+
+The server logic is largely the same regardless of how synchronization is implemented. Here's the topology for OT-sync:
+
+```
+HTTP ↔ demux ↔ OT[client state] ↔ OT[canonical state] ↔ DB
+```
+
+And here's the REST model, which can use either direct changes (the normal server pattern) or OT for extra resilience:
+
+```
+HTTP ↔ demux ↔ Δ [canonical state] ↔ DB
+HTTP ↔ demux ↔ OT[canonical state] ↔ DB
+```
+
+
+## REST server requests
+**TODO**
