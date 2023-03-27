@@ -72,8 +72,8 @@
 | `u`      |       | UDP client                       |
 | `v`      |       | UNIX domain socket client        |
 | `w`/`W`  | Γ     | tuple/map horizontal join        |
-| `x`      |       | exchange tuple fields            |
-| `y`      |       | prefix for Python interop        |
+| `x`      |       |                                  |
+| `y`      | P     | prefix for Python interop        |
 | `z`      | P     | prefix for compression           |
 | `A`      |       |                                  |
 | `B`      | P     | prefix for bounded buffers       |

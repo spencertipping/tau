@@ -11,29 +11,44 @@ namespace τ
 {
 
 
+template<class T>
+PO operator<=>(Sn<T> const &a, Sn<T> const &b)
+{
+  let sl = std::min(a.size(), b.size());
+  for (uN i = 0; i < sl; ++i)
+  {
+    let c = a[i] <=> b[i];
+    if (c != SO::equal) return c;
+  }
+  if (a.size() > sl) return PO::greater;
+  if (b.size() > sl) return PO::less;
+  return PO::equivalent;
+}
+
+
 // η input: read from fixed location in memory
 struct ηi final
 {
   ηi(u8c *a, uN l) : a_(a),        l_(l)              { decode_cb(); }
   ηi(Sn<u8c> s)    : a_(s.data()), l_(s.size_bytes()) { decode_cb(); }
 
-  ηtype    t() const { return Sc<ηtype>(*a_ >> 4); }
-  u8c  *data() const { return a_ + c_; }
-  uN    size() const { return s_; }
-  u8c *odata() const { return a_; }
-  uN   osize() const { return s_ + c_; }
-  uN   asize() const { return l_ - osize(); }  // size after this
+  ηtype       t()    const { return Sc<ηtype>(*a_ >> 4); }
+  u8c     *data()    const { return a_ + c_; }
+  uN       size()    const { return s_; }
+  u8c    *odata()    const { return a_; }
+  uN      osize()    const { return s_ + c_; }
+  uN      asize()    const { return l_ - osize(); }  // size after this
+  Sn<u8c> after()    const { return {data() + size(), asize()}; }
 
   bool    has_next() const { return asize(); }
   ηi      next()     const { return {data() + size(), asize()}; }
-  Sn<u8c> snext()    const { return {data() + size(), has_next() ? asize() : 0}; }
 
 
   struct it
   {
     Sn<u8c> x;
     bool operator==(it const &y) const { return x.empty() == y.x.empty(); }
-    it  &operator++()                  { x = ηi(x).snext(); return *this; }
+    it  &operator++()                  { x = ηi(x).after(); return *this; }
     ηi   operator*()             const { return ηi(x); }
   };
 
@@ -51,6 +66,29 @@ struct ηi final
   bool is_n(Stvc &n_) const { return is_n() && n() == n_; }
 
 
+  PO operator<=>(ηi const &x) const
+    { let tc = t() <=> x.t();
+      if (tc != SO::equal) return tc;
+      switch (t())
+      {
+      case ηtype::sig:      return sig() <=> x.sig();
+      case ηtype::n_int:    return i()   <=> x.i();
+      case ηtype::n_float:  return f()   <=> x.f();
+      case ηtype::string:   return s()   <=> x.s();
+      case ηtype::atom:     return a()   <=> x.a();
+      case ηtype::name:     return n()   <=> x.n();
+      case ηtype::η:        return η()   <=> x.η();
+
+      case ηtype::int8s:    return i8s()  <=> x.i8s();
+      case ηtype::int16s:   return i16s() <=> x.i16s();
+      case ηtype::int32s:   return i32s() <=> x.i32s();
+      case ηtype::int64s:   return i64s() <=> x.i64s();
+      case ηtype::float32s: return f32s() <=> x.f32s();
+      case ηtype::float64s: return f64s() <=> x.f64s();
+      default:              return PO::unordered;
+      } }
+
+
   Sn<u8c> operator[](uN i) const
     { ηi r = *this;
       while (i && has_next()) r = r.next(), --i;
@@ -60,13 +98,13 @@ struct ηi final
   Sn<u8c> operator[](Stc &k) const
     { ηi r = *this;
       for (; r.has_next(); r = r.next())
-        if (r.is_n(k)) return r.snext();
+        if (r.is_n(k)) return r.after();
       return {r.a_, 0}; }
 
   Sn<u8c> operator[](Stvc &k) const
     { ηi r = *this;
       for (; r.has_next(); r = r.next())
-        if (r.is_n(k)) return r.snext();
+        if (r.is_n(k)) return r.after();
       return {r.a_, 0}; }
 
 
