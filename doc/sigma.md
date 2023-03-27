@@ -1,5 +1,5 @@
 # σ: the τ standard library
-σ defines common utilities that make τ ergonomic and useful. This includes [Γ](doc/Gamma.md) components and [φ](doc/phi.md) parsers. The `σ` namespace doesn't include `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
+σ defines common utilities that make τ ergonomic and useful. This includes [Γ](Gamma.md) components and [φ](phi.md) parsers. The `σ` namespace doesn't include `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
 
 σ is designed for the program-authoring use case, meaning that you're dropped into a [π](pi.md) interpreter that is preloaded with σ bindings. The π program should evaluate to a Γ that is applied to an empty [Ξ](Xi.md) to form the initial steady state.
 

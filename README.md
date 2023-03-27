@@ -27,6 +27,7 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 + [ψ](doc/psi.md) is an atomic λ scope
 + [ξ](doc/xi.md) is a bounded channel that carries η values
 + [η](doc/eta.md) is the data format used for ξ messages
++ [π](doc/pi.md): the expression language used to transform η values
 
 τ implements an eager dataflow GC that deallocates ψs as soon as nobody depends on their ξ outputs. Destroying a ψ frees all of its global resources, including C++ data structures and any inbound ξs, which may in turn cause more ψs to be freed.
 
@@ -40,13 +41,10 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 + [Γ](doc/Gamma.md): polymorphic, immutable Ξ transformers
 + [Ψ](doc/Psi.md): monomorphic stream transformers
 + [φ](doc/phi.md): parser combinators
-+ [π](doc/pi.md): the language to assemble τ programs
 
 These are compiler objects, meaning that they don't actually contain live resources. Instead, Γs are functions that take Ξs as inputs and return Ξs as outputs, constructing native resources in the process.
 
 See [compiler structures](doc/compiler-structures.md) for a quick rundown of how these structures interact.
-
-See [Γ bindings](doc/gamma-bindings.md) and [π bindings](doc/pi-bindings.md) for a full description of the parser bindings used to construct Γs and π programs.
 
 
 ## Designing τ applications

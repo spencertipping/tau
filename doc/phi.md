@@ -1,5 +1,5 @@
 # φ parser combinators
-φ exists to support [π](pi.md), a terse, `ni`-style language used to assemble [Γs](gamma.md) and [Γs](Gamma.md). φ is a function that takes a string and returns a Γ.
+General-purpose string parsers that can produce various types of values. [π](pi.md) uses φ to parse functions; there's a separate grammar for [Γ](Gamma.md) pipelines.
 
 φ is built on longest-prefix matching with delegated parsing, which enables parsers to be modified by extension libraries later on.
 
