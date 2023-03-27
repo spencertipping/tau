@@ -24,6 +24,9 @@ O &operator<<(O &s, ηsig x)
   case ηsig::ι: return s << "ι";
   case ηsig::τ: return s << "τ";
   case ηsig::ω: return s << "ω";
+  case ηsig::Ω: return s << "Ω";
+  case ηsig::ρ: return s << "ρ";
+  case ηsig::θ: return s << "θ";
   default:      return s << "s" << Sc<int>(x);
   }
 }
