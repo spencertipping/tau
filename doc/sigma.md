@@ -1,16 +1,11 @@
 # σ: the τ standard library
 σ defines common utilities that make τ ergonomic and useful. This includes [Γ](doc/Gamma.md) components and [φ](doc/phi.md) parsers. The `σ` namespace doesn't include `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
 
-Structurally, an application is a half-duplex processing edge that consumes `stdin` and produces `stdout`. The processing edge is allowed to allocate subgraphs comprised of complex topologies, each edge of which is its own stream processor (which can break down into further sub-topologies, etc).
+σ is designed for the program-authoring use case, meaning that you're dropped into a [π](pi.md) interpreter that is preloaded with σ bindings. The π program should evaluate to a Γ that is applied to an empty [Ξ](Xi.md) to form the initial steady state.
 
-There are two ways we define topologies:
+**TODO:** rewrite definitions below
 
-1. Explicitly and up-front, with references to stream processors
-2. Implicitly as side-taps from a chain, e.g. debug/monitor outputs
-
-Notationally, this means we define topology and processing at the same time in general -- but with some out-of-line elements.
-
-**NOTE:** we need to be able to instantiate a ψ and create a Γ that refers specifically to that ψ. This is effectively a pinned global data processor that goes out of scope when all referring Γs are deallocated. These boxed ψs must be of a subclass that provides `operator()(Ξ&)` to accept new hookups. We do this with `!`.
+**TODO:** rewrite multiplexer topology stuff
 
 
 ## Complex topologies
@@ -18,10 +13,11 @@ Notationally, this means we define topology and processing at the same time in g
 
 
 ## π toplevel table (`π`)
-| Symbol | Syntax | Description       |
-|--------|--------|-------------------|
-| `←`    | n v    | define variable   |
-| `$`    | n      | refer to variable |
+| Symbol | Syntax | Description              |
+|--------|--------|--------------------------|
+| `:`    | n v    | define variable          |
+| `$`    | n      | refer to variable        |
+| `&`    | n      | refer to τ server socket |
 
 
 ## Γ topology symbol table (`Γ`)
@@ -41,9 +37,12 @@ Notationally, this means we define topology and processing at the same time in g
 | `\\`    | Ψ2         | modify processor to backward      |
 | `.`     |            | Ξ subscript                       |
 | `,`     |            | ξ bundle (collect into Ξ)         |
-| `:`     |            | omni-blocking broadcast           |
-| `;`     |            | non-blocking side tap             |
 | `!`     |            | evaluate a Γ to a static ψ        |
+| `;`     |            | non-blocking side tap             |
+| `:*`    |            | omni-blocking broadcast           |
+| `:+`    |            | multi-way append                  |
+| `:^`    |            | multi-way prepend                 |
+| `:%`    |            | multi-way interleave              |
 |         | Ψ2         | implicit fallover to half-duplex  |
 
 
@@ -112,9 +111,6 @@ Notationally, this means we define topology and processing at the same time in g
 | `+`      |       | τ-group append                   |
 | `^`      |       | τ-group prepend                  |
 | `%`      |       | Γ union (eager interleave)       |
-| `:+`     |       | multi-way append                 |
-| `:^`     |       | multi-way prepend                |
-| `:%`     |       | multi-way interleave             |
 | `&`      |       |                                  |
 | `=`      |       |                                  |
 | `-`      |       |                                  |
