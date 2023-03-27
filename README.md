@@ -7,16 +7,6 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** GC the source and documentation for the sigma refactor
 
-**TODO:** reduce ξ IO down to absolute-minimum framed messages; no need to do anything else
-
-**TODO:** template-typed ξs that can account for out-of-line message sizes
-
-**TODO:** η should be an insta-packable flat array of variants, or a template-consed hard struct, or a wrapped C struct of fixed-endian wrappers
-
-**TODO:** the new η format should be easy to read/write from Rust, Go, and Python (perhaps among others)
-
-**TODO:** lens definitions against η values -- **these can just return byte ranges**
-
 
 ## Compute model
 ```
@@ -57,6 +47,11 @@ These are compiler objects, meaning that they don't actually contain live resour
 See [compiler structures](doc/compiler-structures.md) for a quick rundown of how these structures interact.
 
 See [Γ bindings](doc/gamma-bindings.md) and [π bindings](doc/pi-bindings.md) for a full description of the parser bindings used to construct Γs and π programs.
+
+
+## Designing τ applications
++ [Data processing](doc/data-processing.md)
++ [Web applications](doc/web-applications.md)
 
 
 ## Linux setup
