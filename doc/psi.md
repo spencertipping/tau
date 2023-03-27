@@ -15,8 +15,8 @@ There are two types of ψs (implemented with C++ derived classes):
 Server ports are named at the τ level:
 
 ```cpp
-bool τe::bind(St port, Sp<ψ>);             // route port to ψ
-bool τe::unbind(St port Wp<ψ> = nullptr);  // undo binding
+bool τe::bind   (St port, Sp<ψ>);            // route port to ψ
+bool τe::unbind (St port, Wp<ψ> = nullptr);  // undo binding
 Ξ    ψ ::connect(St port, Ξ);
 ```
 

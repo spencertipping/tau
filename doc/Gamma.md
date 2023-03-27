@@ -4,3 +4,10 @@
 See also [Ψ](Psi.md), which is a more specific abstraction used to create ψs.
 
 **NOTE:** some Γs can refer to global values and add connections. For example, we might have a shared database that can accept new RPC connections as it's running. It would internally use a multiplexer to track each input and reply with query results. Externally, that Γ would terminate a Ξ into a new multiplexed pair.
+
+
+**TODO:** define some Γ operators that do stuff with the Ξ stack, e.g. `+` and `%`
+
+**NOTE:** stack Ξ operators should probably have a prefix, maybe `/`?
+
+**Q:** how do we push a ξ pair?

@@ -43,6 +43,8 @@ struct ηi final
   ηtype       t()    const { return Sc<ηtype>(*a_ >> 4); }
   u8c     *data()    const { return a_ + c_; }
   uN       size()    const { return s_; }
+  Sn<u8c> outer()    const { return {a_, osize()}; }
+  Sn<u8c> inner()    const { return {data(), size()}; }
   u8c    *odata()    const { return a_; }
   uN      osize()    const { return s_ + c_; }
   uN      asize()    const { return l_ - osize(); }  // size after this
