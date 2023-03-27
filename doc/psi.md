@@ -10,10 +10,12 @@ There are two types of ψs:
 + Basic ψs, which have no external interface
 + Server ψs, which behave like [Γs](Gamma.md) and allow connections
 
+
+## Server ports
 Server ports are named and each inbound [Ξ](Xi.md) can be annotated with an [η](eta.md) tag. This means there are a total of three arguments to a server-port connection:
 
 ```cpp
-bool ψ::connect(St, η, Ξ);  // returns false to reject the connection
+bool ψ::connect(St port, η tag, Ξ);  // false == reject connection
 ```
 
 [π](pi.md) defines the following constructs to do this:
@@ -21,3 +23,13 @@ bool ψ::connect(St, η, Ξ);  // returns false to reject the connection
 + `!`: evaluate a Γ to a ψ
 + `:`: bind a ψ (or anything else) to a named variable
 + `&`: take a named ψ and return a Γ that connects to its server port
+
+So, for instance, you can have a dynamic demultiplexer that creates Γs on the fly, each of which terminates to the same endpoint:
+
+```
+:db     !...
+:router !(.session\k ... &db=k
+...
+```
+
+Here, `(.session\k` defines a `(` demultiplexer keyed by the `.session` field, and the value is bound to a π variable called `k`, which is available in the body of the multiplexer. `&db=k` connects to the `""` port of `$db`, tagged with `k` as the value.
