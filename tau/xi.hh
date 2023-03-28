@@ -30,7 +30,7 @@ uN   ξn();
 // will be called when the writer is done.
 //
 // ξ values are framed with a native-endian length.
-struct ξ
+struct ξ final
 {
   ξ(Λ &l, uN c)
     : z(c), wt(0), s(nullptr), wc(false), w(false), rg(l), wg(l)
@@ -75,7 +75,8 @@ struct ξ
       s = nullptr; }
 
   void commit(uN size = 0)
-    { A(s, "ξ: commit(" << size << ") without an active value");
+    { A(s,          "ξ: commit(" << size << ") without an active value");
+      A(size <= *s, "ξ: commit(" << size << ") larger than reservation of " << *s);
       if (size) z.advance((*s = size) + uNs);
       else      z.advance(*s + uNs);
       wt += *s + uNs;

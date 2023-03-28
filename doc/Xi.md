@@ -18,7 +18,7 @@ struct Ξs
 
 struct Ξk
 {
-  η      k;
+  St     k;
   Sp<ξd> v;
   uN     s;  // scope ID, so we can quickly pop a full scope
   Sp<Ξk> n;  // next, or null

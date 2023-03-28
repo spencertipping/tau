@@ -15,18 +15,18 @@ uN ψn()        { return ψs_; }
 void ψ::destroy()
 {
   Λ &l = t_.l();
-  for (let  x : ls) if (l.e(x) && x != l.i()) l.x(x);
-  for (let &f : df)                           f(*this);
-  ls.clear();
-  df.clear();
+  for (let  x : ls_) if (l.e(x) && x != l.i()) l.x(x);
+  for (let &f : df_)                           f(*this);
+  ls_.clear();
+  df_.clear();
 }
 
 
 λi ψ::λc(λf &&f)
 {
   Λ &l = t_.l();
-  for (auto i = ls.begin(); i != ls.end();)
-    if (!l.e(*i)) i = ls.erase(i);
+  for (auto i = ls_.begin(); i != ls_.end();)
+    if (!l.e(*i)) i = ls_.erase(i);
     else          ++i;
   return l.c(std::move(f));
 }

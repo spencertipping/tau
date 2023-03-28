@@ -35,6 +35,13 @@
 #endif
 
 
+[[noreturn]] inline void τunreachable()
+{
+  std::cerr << "τunreachable() called" << std::endl;
+  std::exit(1);
+}
+
+
 #if τhas_fast_exceptions
 # include <errno.h>
 # include <iostream>
@@ -74,6 +81,7 @@
       std::cerr << "FAIL: " << m << std::endl;          \
     }                                                   \
     __assert_fail(x, f, l, __ASSERT_FUNCTION);          \
+    τunreachable();                                     \
   })()
 
 #else    // elif τhas_assert_fail
@@ -93,6 +101,7 @@
                 << std::endl;                              \
     }                                                      \
     assert(0);                                             \
+    τunreachable();                                        \
   })()
 
 #endif   // if τhas_fast_exceptions ... elif has_assert_fail ... else

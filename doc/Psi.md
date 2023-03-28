@@ -1,5 +1,5 @@
 # _Ψ ∷ Ξ → ([ψ], Ξ)_
-Ψs are fixed-topology processors that can be wrapped into [Γs](Gamma.md) with adapters. There are several variants, each with optional aux connectors specifiable with a mask:
+Ψs are compile-time, fixed-topology processors that can be wrapped into [Γs](Gamma.md) with adapters. There are several variants, each with optional aux connectors specifiable with a mask:
 
 + _Ψ₀_: an input consumer
 + _Ψ₁_: an output generator
@@ -12,5 +12,3 @@ Masked aux connections include:
 + `control`: an input ξ used for async control commands (like UNIX signals)
 
 Dynamic topologies like multiplexers don't involve Ψs; they're handled directly by Γ.
-
-Processors are keyed with unique, descriptive [η](eta.md) values that can be used to retrieve the monitor/control channels from Ξs.

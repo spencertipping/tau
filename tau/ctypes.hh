@@ -35,6 +35,7 @@
 
 
 #include "arch.hh"
+#include "cptr.hh"  // TODO: finish this module
 
 
 #include "begin.hh"

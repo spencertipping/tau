@@ -11,13 +11,15 @@ namespace τ
 
 
 // A ξ reader, strongly-referenced
-struct ξi
+struct ξi final
 {
   ξi() {}
   ξi(Sp<ξ> x_) : x(x_) {}
 
   ξi &operator=(ξi const &c) { x = c.x; return *this; }
 
+  operator bool() const { return Sc<bool>(x); }
+  Sp<ξ> inner_ξ() const { return x; }
 
   void     close()       { x.reset(); }
   ηi  operator *() const { A(x,  "*ξi on closed");            return ηi{**x}; }
@@ -42,8 +44,6 @@ struct ξi
   it begin() const { return x ? it{x, x->begin()} : end(); }
   it end()   const { return {nullptr, {nullptr}}; }
 
-  Sp<ξ> inner_ξ() const { return x; }
-
 
 protected:
   Sp<ξ> x;
@@ -54,32 +54,36 @@ protected:
 // Note that all operations are const-qualified to simplify usage from
 // inside C++ lambdas, but aren't constant with respect to the underlying
 // ξ. This is kind of what you'd expect since ξo is a thin wrapper.
-struct ξo
+struct ξo final
 {
-  ξo(Λ &l_, Wp<ξ> x_) : x(x_), l(l_), c(0), p(nullptr) {}
+  ξo() {}
+  ξo(Wp<ξ> x_) : x(x_) {}
 
-  ξo &operator=(ξo const &c)           { x = c.x; return *this; }
+  ξo &operator=(ξo const &c) { x = c.x; return *this; }
 
   operator  bool   ()            const { return !x.expired(); }
   ξo const &ensure (uN c)        const { if (let y = x.lock()) y->ensure(c); return *this; }
   void      close  ()            const { if (let y = x.lock()) y->close(); }
   Sp<ξ>     inner_ξ()            const { return x.lock(); }
-  ηo        r      (uN s0 = 256) const { return ηo(x, ref(), s0); }
+  ηo        r      (uN s0 = 256) const { return ηo(x, s0); }
 
 
 protected:
-  Wp<ξ>        x;
-  Λ           &l;  // scheduler
-  u64 mutable  c;  // number of context switches
-  ξ   mutable *p;  // cached referent of x
-
-  ξ *ref() const
-    { if (l.cs() != c) c = l.cs(), p = x.lock().get();
-      return p; }
+  Wp<ξ> x;
 };
 
 
-// TODO: new ξd struct
+// A full-duplex pair of ξi and ξo, canonically with ξi facing rightwards
+// (we can read from the thing to our left) and ξo facing leftwards (we
+// can write to the thing on our left).
+struct ξd final
+{
+  ξi f;  // forward channel (left to right)
+  ξo b;  // backward channel (right to left)
+};
+
+
+O &operator<<(O&, ξd const&);
 
 
 }

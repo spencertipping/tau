@@ -16,8 +16,8 @@ struct Γ_
 {
   virtual ~Γ_() {}
 
-  virtual Ξ operator()(Ξ) const = 0;
-  virtual St    name()    const = 0;
+  virtual Ξ operator()(Ξ const&) const = 0;
+  virtual St    name()           const = 0;
 };
 
 
@@ -36,7 +36,7 @@ struct Γ
 
   St name() const { return g->name(); }
 
-  Ξ operator()(Ξ x) const { (*g)(x); return x; }
+  Ξ operator()(Ξ const &x) const { (*g)(x); return x; }
 
 
 protected:
@@ -56,18 +56,13 @@ struct Γs_ : public virtual Γ_
   Γ      const h;
   Sp<Γ_> const t;
 
-  Ξ operator()(Ξ x) const { h(x); if (t) (*t)(x); return x; }
-  St    name()      const { return h.name() + (t ? t->name() : ""); }
+  Ξ operator()(Ξ const &x) const { h(x); if (t) (*t)(x); return x; }
+  St    name()             const { return h.name() + (t ? t->name() : ""); }
 };
 
 
-// A single-in, single-out ξ processor (common case)
-// These can be applied forward, backward, or as a cap
-typedef F<void(Wp<ψ>, ξi, ξo)> Γp_;
-typedef Sp<Γp_>                Γp;
-
-
 Γ operator|(Γ a, Γ b);
+
 
 O &operator<<(O&, Γ const&);
 

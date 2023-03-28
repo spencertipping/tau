@@ -12,6 +12,9 @@ namespace τ
 {
 
 
+struct ψ;
+
+
 struct τΘ
 {
   Θp h;
@@ -39,13 +42,14 @@ struct τb  // base τ
 
   P<ξo, ξi> pipe(uN c = 8192)
     { let x = Sp<ξ>(new ξ(l_, c));
-      return mp(ξo(l(), x), ξi(x)); }
+      return mp(ξo(x), ξi(x)); }
 
 
 protected:
-  Λ        l_;
-  PQ<τΘ>   h_;
-  Θp const t0_ = now();
+  Λ            l_;  // Λ thread manager
+  PQ<τΘ>       h_;  // timed threads
+  M<St, Sp<ψ>> b_;  // ψs with bound ports
+  Θp const     t0_ = now();
 };
 
 
