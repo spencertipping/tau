@@ -21,9 +21,15 @@ namespace τ
 // NOTE: we cannot hold a strong reference to the underlying ξ, so we
 // must tolerate it being deallocated while this object exists. If that
 // happens, these methods will silently fail.
+//
+// NOTE: it's possible to do some shenanigans if we track Λ context
+// switches; then we can avoid locking the weak_ptr, which is slow.
+// In practice it's about 18ns, so it probably doesn't matter much.
 struct ηo final
 {
-  ηo(Wp<ξ> o, uN c0 = 256) : o_(o), p_(o.lock().get()), s_(0)
+  ηo(Wp<ξ> o, uN c0 = 256) : ηo(o, o.lock().get(), c0) {}
+
+  ηo(Wp<ξ> o, ξ* p, uN c0 = 256) : o_(o), p_(p), s_(0)
     { A(c0, "ηo with no initial capacity");
       b_ = p_ ? p_->iptr(c0) : Sn<u8>{Sc<u8*>(nullptr), 0}; }
 

@@ -55,6 +55,7 @@ struct Λ final
 
   bool e(λi i) const { return ls.contains(i); }
   λi   i()     const { return ri; }
+  u64  cs()    const { return cs_; }
 
   λi  c(λf &&);
   Λ  &x(λi);
@@ -75,6 +76,7 @@ protected:
   λi            ni  = 0;      // next λi (always nonzero for managed λ)
   λi            ri  = 0;      // currently running λi (0 = main thread)
   bool          fin = false;  // we're done; ignore all requests
+  u64           cs_ = 0;      // total context switches
 
   friend O &operator<<(O&, Λ&);
 };

@@ -56,8 +56,7 @@ protected:
 // ξ. This is kind of what you'd expect since ξo is a thin wrapper.
 struct ξo
 {
-  ξo() {}
-  ξo(Wp<ξ> x_) : x(x_) {}
+  ξo(Λ &l_, Wp<ξ> x_) : x(x_), l(l_), c(0), p(nullptr) {}
 
   ξo &operator=(ξo const &c)           { x = c.x; return *this; }
 
@@ -65,11 +64,18 @@ struct ξo
   ξo const &ensure (uN c)        const { if (let y = x.lock()) y->ensure(c); return *this; }
   void      close  ()            const { if (let y = x.lock()) y->close(); }
   Sp<ξ>     inner_ξ()            const { return x.lock(); }
-  ηo        r      (uN s0 = 256) const { return ηo(x, s0); }
+  ηo        r      (uN s0 = 256) const { return ηo(x, ref(), s0); }
 
 
 protected:
-  Wp<ξ> x;
+  Wp<ξ>        x;
+  Λ           &l;  // scheduler
+  u64 mutable  c;  // number of context switches
+  ξ   mutable *p;  // cached referent of x
+
+  ξ *ref() const
+    { if (l.cs() != c) c = l.cs(), p = x.lock().get();
+      return p; }
 };
 
 

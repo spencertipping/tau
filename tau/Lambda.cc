@@ -56,6 +56,7 @@ namespace τ
   rs.erase(i);
   auto &l = *ls.at(ri = i);
   qΘ.start();
+  ++cs_;
   l.run();
   ri = 0;
   if (l.done()) ls.erase(i);

@@ -39,7 +39,7 @@ struct τb  // base τ
 
   P<ξo, ξi> pipe(uN c = 8192)
     { let x = Sp<ξ>(new ξ(l_, c));
-      return mp(ξo(x), ξi(x)); }
+      return mp(ξo(l(), x), ξi(x)); }
 
 
 protected:
