@@ -116,6 +116,8 @@ struct ξ final
   //
   // NOTE: iq() refers to input _to this ξ_ (i.e. the producer)
   //       oq() to output _from this ξ_ (i.e. the consumer)
+  //
+  // FIXME: update to new ψ interface
   ξ &iq(Sp<ψ> x) { iqs = x; if (w)    weaken(); return *this; }
   ξ &oq(Sp<ψ> x) { oqw = x; if (!iqs) weaken(); return *this; }
 
@@ -140,18 +142,17 @@ protected:
   Wp<ψ>    oqw;  // output (consuming) ψ
 
 
-  friend O &operator<<(O&, ξ const&);
-
-
   uN next_size() const
     { A(ra(), "pipe_next_size() with !ra(), " << z);
       return *Rc<uN*>(z + 0); }
-
 
   Sn<u8> reserve(uN l, bool nb)
     { for (;;)
         if      (let r = z.iptr(l + uNs)) { *(s = Rc<uN*>(r)) = l; return {r + uNs, l}; }
         else if (nb || !wg.y(λs::ξW))                              return {Sc<u8*>(nullptr), 0}; }
+
+
+  friend O &operator<<(O&, ξ const&);
 };
 
 

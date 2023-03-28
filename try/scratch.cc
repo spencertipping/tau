@@ -90,38 +90,68 @@ void try_xi_head()
   bool l1e = false;
   bool l2e = false;
 
+  letc debug = false;
+
+  if (debug) cout << "starting try_xi_head" << endl;
+
+  Wp<ξ> p;
+  Wp<ξ> q;
+
   {
     let [w, r] = t.pipe(256);
+    if (debug) cout << "after pipe: " << w.inner_ξ().use_count() - 1 << endl;
+    p = r.inner_ξ();
+    if (debug) cout << "after p capture: " << p.use_count() << endl;
+
+    // Just make sure this doesn't bump the usage count (it shouldn't)
+    q = r.inner_ξ();
+    if (debug) cout << "after q capture: " << p.use_count() << endl;
+    q.reset();
+
     t.l().c([&, w=w]() {
+      if (debug) cout << "w start: " << p.use_count() << endl;
       for (i64 i = 0; i < 10000; ++i)
       {
         w.r() << i;  // sic: make sure w.r() << i is ok on closed ξ
         if (!w) break;
         u += i;
       }
+      if (debug) cout << "before w close: " << p.use_count() << endl;
       w.close();
+      if (debug) cout << "after w close: " << p.use_count() << endl;
       l1e = true;
     });
 
+    if (debug) cout << "after writer lambda: " << p.use_count() << endl;
+
     t.l().c([&, r=r]() mutable {
+      if (debug) cout << "r start: " << p.use_count() << endl;
       for (let x : r)
       {
         if (x.i() >= 1000)
         {
           A(ξn() == 1, "|ξ| > 1 ????");
+          if (debug) cout << "before r close: " << p.use_count() << endl;
           r.close();
+          if (debug) cout << "after r close: " << p.use_count() << ", inner_ξ = " << r.inner_ξ().get() << endl;
           break;
         }
         s += x.i();
       }
 
-      A(ξn() == 0, "unexpected ξs lingering after r.close: " << ξn());
+      if (debug) cout << "after loop: " << p.use_count() << endl;
+
+      if (!debug) A(ξn() == 0, "unexpected ξs lingering after r.close: " << ξn() << ", Λ = " << t.l());
       cout << "ξ single got total: " << s << endl;
       l2e = true;
     });
+
+    if (debug) cout << "after reader lambda: " << p.use_count() << endl;
   }
 
+  if (debug) cout << "before t go: " << p.use_count() << endl;
   t.go();
+  if (debug) cout << "after t go: " << p.use_count() << endl;
 
   A(!t.l().n(), "lingering λs: " << t.l());
 

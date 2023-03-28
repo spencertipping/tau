@@ -23,10 +23,8 @@ namespace τ
 // happens, writer methods will silently become no-ops.
 struct ηo final
 {
-  // TODO: simplify this silliness once we replace Wp with our own thing
-  ηo(Wp<ξ> o, uN c0 = 256) : ηo(o, o.lock().get(), c0) {}
-
-  ηo(Wp<ξ> o, ξ* p, uN c0 = 256) : o_(o), p_(p), s_(0)
+  // TODO: remove p_() when we replace Wp with non-volatile
+  ηo(Wp<ξ> o, uN c0 = 256) : o_(o), p_(o.lock().get()), s_(0)
     { A(c0, "ηo with no initial capacity");
       b_ = p_ ? p_->iptr(c0) : Sn<u8>{Sc<u8*>(nullptr), 0}; }
 

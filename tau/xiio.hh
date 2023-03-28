@@ -33,7 +33,7 @@ struct ξi final
 
   struct it
   {
-    Sp<ξ> x;  // must hold a strong reference
+    Sp<ξ> x;  // must hold a strong reference during iteration
     ξ::it i;
 
     bool operator==(it const &y) const { return i == y.i; }
