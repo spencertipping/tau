@@ -43,6 +43,11 @@ namespace τ
 {
 
 
+// TODO: when I'm bored, replace Sp and Wp with custom implementations that
+// don't do any atomic locking; this should shave a few ns from various
+// weak ptr operations, most notably ξo::r()
+
+
 typedef std::uint8_t  u8;   typedef u8  const u8c;
 typedef std::uint16_t u16;  typedef u16 const u16c;
 typedef std::uint32_t u32;  typedef u32 const u32c;
