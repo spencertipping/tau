@@ -20,19 +20,21 @@ void try_spans()
 void try_xi_simple()
 {
   τe t;
-  ξ  x(t.l(), 256);
+  let [w, r] = t.pipe(256);
   i64  s   = 0;
   bool l1e = false;
   bool l2e = false;
 
-  t.l().c([&]() {
-    for (i64 i = 0; i < 10000; ++i) ηo(x) << i;
-    x.close();
+  t.l().c([&, w=w]() {
+    for (i64 i = 0; i < 10000; ++i)
+      if (!w) return;
+      else    w.r() << i;
+    w.close();
     l1e = true;
   });
 
-  t.l().c([&]() {
-    for (let y : x) s += ηi(y).i();
+  t.l().c([&, r=r]() {
+    for (let y : r) s += y.i();
     cout << "ξ single got total: " << s << endl;
     l2e = true;
   });
@@ -48,7 +50,7 @@ void try_xi_simple()
 void try_xi_multi()
 {
   τe t;
-  ξ  x(t.l(), 64);  // force some expansions
+  let [w, r] = t.pipe(64);  // force some expansions
   i64 s0 = 0;
   i64 s  = 0;
 
@@ -56,19 +58,20 @@ void try_xi_multi()
     for (i64 j = 0; j < i; ++j)
       s0 += j;
 
-  t.l().c([&]() {
+  t.l().c([&, w=w]() {
     for (i64 i = 0; i < 100; ++i)
     {
-      ηo o(x, 8);  // force many re-allocations
+      if (!w) return;
+      ηo o = w.r(8);  // force many re-allocations
       for (i64 j = 0; j < i; ++j) o << j;
     }
-    x.close();
+    w.close();
   });
 
-  t.l().c([&]() {
-    for (let y : x)
-      for (let z : ηi(y))
-        s += z.i();
+  t.l().c([&, r=r]() {
+    for (let x : r)
+      for (let y : ηi(x))
+        s += y.i();
     cout << "ξ multi got total: " << s << endl;
   });
 
@@ -79,21 +82,73 @@ void try_xi_multi()
 }
 
 
+void try_xi_head()
+{
+  τe t;
+  i64  s   = 0;
+  i64  u   = 0;
+  bool l1e = false;
+  bool l2e = false;
+
+  {
+    let [w, r] = t.pipe(256);
+    t.l().c([&, w=w]() {
+      for (i64 i = 0; i < 10000; ++i)
+      {
+        w.r() << i;  // sic: make sure w.r() << i is ok on closed ξ
+        if (!w) break;
+        u += i;
+      }
+      w.close();
+      l1e = true;
+    });
+
+    t.l().c([&, r=r]() mutable {
+      for (let x : r)
+      {
+        if (x.i() >= 1000)
+        {
+          A(ξn() == 1, "|ξ| > 1 ????");
+          r.close();
+          break;
+        }
+        s += x.i();
+      }
+
+      A(ξn() == 0, "unexpected ξs lingering after r.close: " << ξn());
+      cout << "ξ single got total: " << s << endl;
+      l2e = true;
+    });
+  }
+
+  t.go();
+
+  A(!t.l().n(), "lingering λs: " << t.l());
+
+  A(u < 10000 * 9999 / 2, "got " << u);
+  A(l1e, "lambda 1 didn't terminate correctly");
+  A(l2e, "lambda 2 didn't terminate correctly");
+  A(!ξn(), "expected no ξs to live, got " << ξn());
+  cout << "ξ single ok" << endl;
+}
+
+
 void xi_keys_bench()
 {
   τe t;
-  ξ  x(t.l(), 16384);
+  let [w, r] = t.pipe(16384);
   i64  s = 0;
   letc N = 16ll << 20;
 
-  t.l().c([&]() {
+  t.l().c([&, w=w]() {
     for (i64 i = 0; i < N; ++i)
-      ηo(x).k("x").v(1).k("y").v(i);
-    x.close();
+      if (!w) return;
+      else    w.r().k("x").v(1).k("y").v(i);
+    w.close();
   });
 
-  t.l().c([&]() {
-    for (let y : x) s += ηi(ηi(y)["y"]).i();
+  t.l().c([&, r=r]() {
+    for (let x : r) s += x["y"].i();
     cout << "ξ keys got total: " << s << endl;
   });
 
@@ -111,17 +166,20 @@ void xi_keys_bench()
 void xi_bench()
 {
   τe t;
+  let [w, r] = t.pipe(16384);
   ξ  x(t.l(), 16384);
   i64  s = 0;
   letc N = 16ll << 20;
 
-  t.l().c([&]() {
-    for (i64 i = 0; i < N; ++i) ηo(x, 12) << i;
-    x.close();
+  t.l().c([&, w=w]() {
+    for (i64 i = 0; i < N; ++i)
+      if (!w) return;
+      else    w.r(12) << i;
+    w.close();
   });
 
-  t.l().c([&]() {
-    for (let y : x) s += ηi(y).i();
+  t.l().c([&, r=r]() {
+    for (let x : r) s += x.i();
     cout << "got total: " << s << endl;
   });
 
@@ -140,6 +198,7 @@ int main()
   try_spans();
   try_xi_simple();
   try_xi_multi();
+  try_xi_head();
   xi_bench();
   xi_keys_bench();
   return 0;

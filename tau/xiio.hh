@@ -51,21 +51,21 @@ protected:
 
 
 // A ξ writer, weakly-referenced
+// Note that all operations are const-qualified to simplify usage from
+// inside C++ lambdas, but aren't constant with respect to the underlying
+// ξ. This is kind of what you'd expect since ξo is a thin wrapper.
 struct ξo
 {
   ξo() {}
-  ξo(Sp<ξ> x_) : x(x_) {}
+  ξo(Wp<ξ> x_) : x(x_) {}
 
-  ξo &operator=(ξo const &c) { x = c.x; return *this; }
+  ξo &operator=(ξo const &c)           { x = c.x; return *this; }
 
-  void close() { if (let y = x.lock()) y->close(); }
-
-  Sp<ξ> inner_ξ() const { return x.lock(); }
-
-  ξo &ensure(uN c) { if (let y = x.lock()) y->ensure(c); return *this; }
-
-  // TODO: add methods to create ηo here
-  // TODO: how should those methods deal with no-ξ?
+  operator  bool   ()            const { return !x.expired(); }
+  ξo const &ensure (uN c)        const { if (let y = x.lock()) y->ensure(c); return *this; }
+  void      close  ()            const { if (let y = x.lock()) y->close(); }
+  Sp<ξ>     inner_ξ()            const { return x.lock(); }
+  ηo        r      (uN s0 = 256) const { return ηo(x, s0); }
 
 
 protected:
@@ -73,45 +73,7 @@ protected:
 };
 
 
-// A full-duplex pair
-struct ξd
-{
-  ξd(Λ &l_)                   : l(l_), f_(nullptr), b_(nullptr) {}
-  ξd(Λ &l_, Sp<ξ> f, Sp<ξ> b) : l(l_), f_(f),       b_(b)       {}
-
-  // Destructively splices this pair along the forward direction, returning
-  // the left and right sides of the newly-cut ξ, respectively.
-  P<ξi, ξo> xf(Sp<ψ> q, uN cl, uN cr)
-    { Sp<ξ> f{new ξ(l, cr)}; if (f_) f_->oq(q); f->iq(q);
-      let l_ = ξi(f_    ).ensure(cl);
-      let r_ = ξo(f_ = f).ensure(cr);
-      return {l_, r_}; }
-
-  // Splices the backward ξ, returning the new ends of the cut pair. Like xf(),
-  // the splice occurs to the left of the duplex end -- that is, we create a
-  // new segment visible at the rightmost end.
-  P<ξo, ξi> xb(Sp<ψ> q, uN cl, uN cr)
-    { Sp<ξ> b{new ξ(l, cr)}; if (b_) b_->iq(q); b->oq(q);
-      let l_ = ξo(b_    ).ensure(cl);
-      let r_ = ξi(b_ = b).ensure(cr);
-      return {l_, r_}; }
-
-  Sp<ξ> f() { return f_; }
-  Sp<ξ> b() { return b_; }
-
-
-  ξi ri() { return ξi(f_); }  // read from forward ξ
-  ξo ro() { return ξo(b_); }  // write into backward ξ
-
-  ξo lo() { if (!f_) f_.reset(new ξ(l, 0)); return ξo(f_); }  // write into forward ξ (atypical)
-  ξi li() { if (!b_) b_.reset(new ξ(l, 0)); return ξi(b_); }  // read from backward ξ (atypical)
-
-
-protected:
-  Λ     &l;
-  Sp<ξ>  f_;
-  Sp<ξ>  b_;
-};
+// TODO: new ξd struct
 
 
 }

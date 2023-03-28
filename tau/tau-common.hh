@@ -4,6 +4,7 @@
 
 #include "types.hh"
 #include "Lambda.hh"
+#include "xiio.hh"
 
 #include "begin.hh"
 
@@ -34,6 +35,11 @@ struct τb  // base τ
   void Θ(Θp t)    { while (now() < t) { h_.push(τΘ{t, l_.i()}); l_.y(λs::Θ); } }
   Θp   hn() const { return h_.empty() ? forever() : h_.top().h; }
   ΔΘ   dt() const { return now() - t0_; }
+
+
+  P<ξo, ξi> pipe(uN c = 8192)
+    { let x = Sp<ξ>(new ξ(l_, c));
+      return mp(ξo(x), ξi(x)); }
 
 
 protected:

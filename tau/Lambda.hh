@@ -20,6 +20,9 @@ namespace τ
 struct Λx_ final {};
 sletc λx_ = Λx_{};
 
+// Instantly destroy whichever λ calls this function
+inline void λx() { throw λx_; }
+
 
 // A single Λ task, which is a λ plus some metadata
 struct Λt final

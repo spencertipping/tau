@@ -16,8 +16,8 @@ struct Γ_
 {
   virtual ~Γ_() {}
 
-  virtual void operator()(Ξ &x) const = 0;
-  virtual St         name()     const = 0;
+  virtual Ξ operator()(Ξ) const = 0;
+  virtual St    name()    const = 0;
 };
 
 
@@ -36,10 +36,7 @@ struct Γ
 
   St name() const { return g->name(); }
 
-  Ξ  &operator()(Ξ &x)   const { (*g)(x); return x; }
-  Ξ  &operator()(Ξ &&x)  const { return (*this)(x); }
-  τe &operator()(τe &t)  const { (*this)(Ξ{t}); return t; }
-  τe &operator()(τe &&t) const { return (*this)(t); }
+  Ξ operator()(Ξ x) const { (*g)(x); return x; }
 
 
 protected:
@@ -59,8 +56,8 @@ struct Γs_ : public virtual Γ_
   Γ      const h;
   Sp<Γ_> const t;
 
-  void operator()(Ξ &x) const { h(x); if (t) (*t)(x); }
-  St         name()     const { return h.name() + (t ? t->name() : ""); }
+  Ξ operator()(Ξ x) const { h(x); if (t) (*t)(x); return x; }
+  St    name()      const { return h.name() + (t ? t->name() : ""); }
 };
 
 

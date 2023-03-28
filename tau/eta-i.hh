@@ -100,23 +100,31 @@ struct ηi final
       } }
 
 
-  Sn<u8c> operator[](uN i) const
+  Sn<u8c> at(uN i) const
     { ηi r = *this;
       while (i && has_next()) r = r.next(), --i;
       return {r.a_, i ? 0 : r.l_}; }
 
-  Sn<u8c> operator[](chc *s) const { return (*this)[St{s}]; }
-  Sn<u8c> operator[](Stc &k) const
+  Sn<u8c> at(chc *s) const { return at(St{s}); }
+  Sn<u8c> at(Stc &k) const
     { ηi r = *this;
       for (; r.has_next(); r = r.next())
         if (r.is_n(k)) return r.after();
       return {r.a_, 0}; }
 
-  Sn<u8c> operator[](Stvc &k) const
+  Sn<u8c> at(Stvc &k) const
     { ηi r = *this;
       for (; r.has_next(); r = r.next())
         if (r.is_n(k)) return r.after();
       return {r.a_, 0}; }
+
+
+  // NOTE: these will fail loudly if you request items that
+  // don't exist (to verify, use .at() and check for .empty())
+  ηi operator[](uN i)    const { return at(i); }
+  ηi operator[](chc *s)  const { return at(s); }
+  ηi operator[](Stc &k)  const { return at(k); }
+  ηi operator[](Stvc &k) const { return at(k); }
 
 
   bool is_sig()  const { return t() == ηtype::sig; }

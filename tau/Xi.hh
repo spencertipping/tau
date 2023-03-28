@@ -13,60 +13,10 @@ namespace τ
 {
 
 
-// Default size of ξs created with Ξ
-letc Ξc0 = 8192;
-
-
 // A mutable cable of full-duplex ξ connections
 struct Ξ
 {
-  Ξ(τe &t)             : t_(t), p_(new ξd(l()))                           {}
-  Ξ(τe &t, ξi i, ξo o) : t_(t), p_(new ξd(l(), i.inner_ξ(), o.inner_ξ())) {}
-  Ξ(Ξ&&)      = delete;
-  Ξ(Ξ const&) = delete;
-
-  Λ  &l() const { return t_.l(); }
-  τe &t() const { return t_; }
-
-  ξd            &p() { return *p_; }
-  V<Sp<ξd>>     &a() { return  a_; }
-  M<St, Sp<ξd>> &n() { return  n_; }
-  M<St, Sp<Ξ>>  &x() { return  x_; }
-
-  Sp<ξd> p(Sp<ξd> d) { let r = p_; p_ = d; return r; }
-
-
-  P<ξo, ξi> pipe(Sp<ψ>, Sp<ψ>, uN = Ξc0);
-  Sp<ψ>     q   (St);
-
-  Ξ empty() { return Ξ{t()}; }
-
-
-  P<ξi, ξo> xf(Sp<ψ> q, uN cl = Ξc0, uN cr = Ξc0) { return p_->xf(q, cl, cr); }
-  P<ξo, ξi> xb(Sp<ψ> q, uN cl = Ξc0, uN cr = Ξc0) { return p_->xb(q, cl, cr); }
-
-  ξd &operator()(Stc &k)
-    { if (!n_.contains(k)) n_[k].reset(new ξd(l()));
-      return *n_.at(k); }
-
-  Ξ &operator[](Stc &k)
-    { if (!x_.contains(k)) x_[k].reset(new Ξ(t_));
-      return *x_.at(k); }
-
-  Ξ &operator<<(Sp<ξd> x) { a_.push_back(x); return *this; }
-
-  V<Sp<ξd>>::iterator begin() { return a_.begin(); }
-  V<Sp<ξd>>::iterator end()   { return a_.end(); }
-
-
-protected:
-  τe           &t_;
-  Sp<ξd>        p_;  // primary duplex
-  V<Sp<ξd>>     a_;  // anonymous duplex bundle
-  M<St, Sp<ξd>> n_;  // named duplexes
-  M<St, Sp<Ξ>>  x_;  // named bundles
-
-  friend O &operator<<(O&, Ξ const&);
+  // TODO
 };
 
 

@@ -5,6 +5,33 @@ namespace τ
 {
 
 
+bool ηo::reserve(uN l)
+{
+  if (o_.expired())
+  {
+    b_ = {Sc<u8*>(nullptr), 0};
+    return false;
+  }
+
+  if (s_ + l > b_.size_bytes())
+  {
+    // Abort this allocation and create a new one at twice the current size
+    // or s_ + l, whichever is larger.
+    u8 *b = new u8[s_];
+    memcpy(b, b_.data(), s_);
+    p_->abort();
+    let s = std::max(s_ + l, Sc<uN>(b_.size_bytes() << 1));
+
+    // Complete the copy only if we actually have memory. ξ can be deallocated
+    // during the iptr() call, in which case we'll get an empty span back.
+    if (!(b_ = p_->iptr(s)).empty()) memcpy(b_.data(), b, s_);
+    delete[] b;
+  }
+
+  return !b_.empty();
+}
+
+
 O &operator<<(O &s, ηtype t)
 {
   return s << "t" << Sc<int>(t);

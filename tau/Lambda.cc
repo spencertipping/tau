@@ -19,7 +19,7 @@ namespace τ
 Λ &Λ::x(λi i)
 {
   if (fin) return *this;
-  if (i == ri) throw λx_;
+  if (i == ri) λx();
   else         r(i, λs::X);
   return *this;
 }

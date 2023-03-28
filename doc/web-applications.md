@@ -29,6 +29,8 @@ The server logic is largely the same regardless of how synchronization is implem
 HTTP ↔ demux ↔ OT[client state] ↔ OT[canonical state] ↔ DB
 ```
 
+**TODO:** the `demux` above needs to be a cross-mix, and another before `OT[canonical state]`. The real TODO is to specify where we have server ψs.
+
 And here's the REST model, which can use either direct changes (the normal server pattern) or OT for extra resilience:
 
 ```
