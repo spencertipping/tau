@@ -1,8 +1,16 @@
 #include "Xi.hh"
+#include "psi.hh"
+
 #include "begin.hh"
 
 namespace τ
 {
+
+
+Ξ Ξ::c(Stc &port) const
+{
+  return e_.route(port)->connect(port, *this);
+}
 
 
 ξd Ξkg(Sp<Ξk> x, Stc &k)

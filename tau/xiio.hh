@@ -54,6 +54,9 @@ protected:
 // Note that all operations are const-qualified to simplify usage from
 // inside C++ lambdas, but aren't constant with respect to the underlying
 // ξ. This is kind of what you'd expect since ξo is a thin wrapper.
+//
+// TODO: add auto-close when all ξo instances are gone (this requires a
+// second pointer, I think; its lifecycle differs from the weak ptr)
 struct ξo final
 {
   ξo() {}

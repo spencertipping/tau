@@ -13,50 +13,74 @@ namespace τ
 {
 
 
-struct ψ;
+struct ψ_;
 
-void ψc_(ψ*);  // notify that a new ψ has been created
-void ψx_(ψ*);  // notify that a ψ has been destroyed
-uN   ψn();     // number of live ψs
+void ψc_(ψ_*);  // notify that a new ψ_ has been created
+void ψx_(ψ_*);  // notify that a ψ_ has been destroyed
+uN   ψn();      // number of live ψs
 
 
-// Extensible ψ process
-struct ψ
+// ψ resource container; not used directly, use ψ instead
+struct ψ_ final
 {
-  template<class... Xs>
-  ψ(τe &t__, Xs&&... xs) : t_(t__) { def(xs...); ψc_(this); }
-
-  virtual ~ψ() { destroy(); ψx_(this); }
-
-  virtual St name() const {         return n_; }
-  virtual ψ &name(Stc &s) { n_ = s; return *this; }
-
-  virtual Ξ connect(Stc &port, Ξ const &x)
-    { A(0, "ψ::connect(" << port << ") on non-server " << name() << "; Ξ = " << x);
-      τunreachable(); }
+  ψ_(τe &t) : t_(t) {            ψc_(this); }
+  ~ψ_()             { destroy(); ψx_(this); }
 
   τe &t() const { return t_; }
 
+  ψ_ &f (λf&&);
+  ψ_ &fx(F<void(ψ_&)> &&f) { df_.push_back(std::move(f)); return *this; }
 
-  ψ &def() { return *this; }
-  template<class... Xs> ψ &def(λf          &&f, Xs&&... xs) { ls_.insert(λc(std::move(f))); return def(xs...); }
-  template<class... Xs> ψ &def(F<void(ψ&)> &&f, Xs&&... xs) { return def([f=std::move(f), this]() { f(*this); }, xs...); }
-
-
-  // Creates a new λ and clears any unused λis from our tracked set.
-  λi λc(λf&&);
-
-  ψ &xf(F<void(ψ&)> &&f) { df_.push_back(std::move(f)); return *this; }
+  Ξ connect(Stc &port, Ξ const &x)
+    { A(cs_.contains(port), n_ << " does not bind " << port);
+      return cs_[port](x); }
 
 
 protected:
-  τe                       &t_;
-  V<F<void(ψ&)>>            df_;  // destructor functions
-  S<λi>                     ls_;  // managed λ IDs
-  St                        n_;   // name for debugging purposes
-  M<St, F<Ξ(ψ&, Ξ const&)>> cs_;  // connection functions
+  τe                   &t_;
+  V<F<void(ψ_&)>>       df_;  // destructor functions
+  S<λi>                 ls_;  // managed λ IDs
+  St                    n_;   // name for debugging purposes
+  M<St, F<Ξ(Ξ const&)>> cs_;  // connection functions
 
-  virtual void destroy();
+  void destroy();
+
+  friend struct ψ;
+};
+
+
+// Public interface to ψ_
+struct ψ final
+{
+  ψ() {}
+  ψ(τe    &t) : q_(new ψ_(t)) {}
+  ψ(Sp<ψ_> q) : q_(q) {}
+  ψ(ψ_    *q) : q_(q) {}
+
+  ψ &operator=(ψ const &x) { q_ = x.q_; return *this; }
+
+  Stc &name() const {             return q_->n_; }
+  ψ   &name(Stc &n) { q_->n_ = n; return *this; }
+
+  ψ &f (λf           &&f) { q_->f(std::move(f)); return *this; }
+  ψ &f (F<void(ψ&)>  &&f) { return this->f([f=std::move(f), this]() { f(*this); }); }
+  ψ &fx(F<void(ψ_&)> &&f) { q_->fx(std::move(f)); return *this; }
+
+  ψ &b(Stc &p, F<Ξ(ψ&&, Ξ)> &&f)
+    { A(!q_->t().route(p), name() << " cannot bind claimed port " << p);
+      q_->cs_[p] = [f=std::move(f), q=q_](Ξ const &x) { return f(ψ(q), x); };
+      q_->t().bind(p, q_);
+      return *this; }
+
+  ψ &bx(Stc &p)
+    { A(q_->cs_.contains(p), name() << " cannot unbind " << p);
+      q_->t().unbind(p);
+      q_->cs_.erase(p);
+      return *this; }
+
+
+protected:
+  Sp<ψ_> q_;
 };
 
 

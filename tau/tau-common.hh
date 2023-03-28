@@ -4,6 +4,7 @@
 
 #include "types.hh"
 #include "Lambda.hh"
+#include "xi.hh"
 #include "xiio.hh"
 
 #include "begin.hh"
@@ -12,7 +13,7 @@ namespace τ
 {
 
 
-struct ψ;
+struct ψ_;
 
 
 struct τΘ
@@ -40,16 +41,18 @@ struct τb  // base τ
   ΔΘ   dt() const { return now() - t0_; }
 
 
-  P<ξo, ξi> pipe(uN c = 8192)
-    { let x = Sp<ξ>(new ξ(l_, c));
-      return mp(ξo(x), ξi(x)); }
+  P<ξo, ξi> pipe(uN c = 8192) { let x = Sp<ξ>(new ξ(l_, c)); return mp(ξo(x), ξi(x)); }
+
+  bool   bind  (Stc &port, Sp<ψ_> q) { let c = b_.contains(port); b_[port] = q; return !c; }
+  void   unbind(Stc &port)           { b_.erase(port); }
+  Sp<ψ_> route (Stc &port)     const { return b_.contains(port) ? b_.at(port) : Sp<ψ_>{}; }
 
 
 protected:
-  Λ            l_;  // Λ thread manager
-  PQ<τΘ>       h_;  // timed threads
-  M<St, Sp<ψ>> b_;  // ψs with bound ports
-  Θp const     t0_ = now();
+  Λ             l_;  // Λ thread manager
+  PQ<τΘ>        h_;  // timed threads
+  M<St, Sp<ψ_>> b_;  // ψs with bound ports
+  Θp const      t0_ = now();
 };
 
 

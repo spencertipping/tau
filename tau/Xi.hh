@@ -90,6 +90,13 @@ struct Ξ final
   Ξ f(ξi const &x) const { let [io, t] = pop(); return t.push(ξd{x, io.b}); }
   Ξ b(ξo const &x) const { let [io, t] = pop(); return t.push(ξd{io.f, x}); }
 
+  bool fi() const { return t_ && t_->io.f; }
+  bool bi() const { return t_ && t_->io.b; }
+
+
+  Ξ    c (Stc &port) const;  // connect to server port
+  bool ci(Stc &port) const { return Sc<bool>(e_.route(port)); }
+
 
   Ξ       push(ξd const &x) const { return t(Sp<Ξs>(new Ξs{x, t_})); }
   Ξ       drop()            const { A(t_, "Ξ::drop() empty"); return t(t_->n); }
