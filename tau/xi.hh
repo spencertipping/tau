@@ -13,7 +13,7 @@ namespace τ
 {
 
 
-struct ψ;
+struct ψ_;
 struct ξ;
 
 
@@ -23,11 +23,13 @@ uN   ξn();
 
 
 // η pipe: a circular buffer with Λ-mediated read/write negotiation
-// and endpoint close tracking. We also allocate one-off buffers for
-// values larger than the ζ capacity.
+// and endpoint close tracking. We auto-expand the buffer for large
+// values.
 //
-// ξs will be deleted if nobody wants to read from them, and .close()
-// will be called when the writer is done.
+// ξs will be deleted if nobody wants to read from them, and writers
+// can call .close() to indicate that no further values will be
+// written. This causes the reader to see eof() == true once remaining
+// data is consumed.
 //
 // ξ values are framed with a native-endian length.
 struct ξ final
@@ -116,13 +118,11 @@ struct ξ final
   //
   // NOTE: iq() refers to input _to this ξ_ (i.e. the producer)
   //       oq() to output _from this ξ_ (i.e. the consumer)
-  //
-  // FIXME: update to new ψ interface
-  ξ &iq(Sp<ψ> x) { iqs = x; if (w)    weaken(); return *this; }
-  ξ &oq(Sp<ψ> x) { oqw = x; if (!iqs) weaken(); return *this; }
+  ξ &iq(Sp<ψ_> x) { iqs = x; if (w)    weaken(); return *this; }
+  ξ &oq(Sp<ψ_> x) { oqw = x; if (!iqs) weaken(); return *this; }
 
-  Sp<ψ> iq() { return iqs ? iqs : iqw.lock(); }
-  Sp<ψ> oq() { return             oqw.lock(); }
+  Sp<ψ_> iq() { return iqs ? iqs : iqw.lock(); }
+  Sp<ψ_> oq() { return             oqw.lock(); }
 
   // Weaken reference to generating ψ, e.g. for backflowing ξ
   // NOTE: weaken() is, and must be, idempotent
@@ -137,9 +137,9 @@ protected:
   bool     w;    // weaken() has been called, always weaken source ψ
   λg<bool> rg;   // read-gate; false means insta-bail
   λg<bool> wg;   // write-gate; false means insta-bail
-  Sp<ψ>    iqs;  // input (supplying) ψ -- default strong reference
-  Wp<ψ>    iqw;  // input ψ -- optional weak reference
-  Wp<ψ>    oqw;  // output (consuming) ψ
+  Sp<ψ_>   iqs;  // input (supplying) ψ -- default strong reference
+  Wp<ψ_>   iqw;  // input ψ -- optional weak reference
+  Wp<ψ_>   oqw;  // output (consuming) ψ
 
 
   uN next_size() const

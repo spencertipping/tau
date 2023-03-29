@@ -80,6 +80,9 @@ struct ψ final
       q_->cs_.erase(p);
       return *this; }
 
+  ψ &i(ξi const &i) { if (let x = i.inner_ξ()) x->oq(q_); return *this; }
+  ψ &o(ξo const &o) { if (let x = o.inner_ξ()) x->iq(q_); return *this; }
+
 
 protected:
   Sp<ψ_> q_;

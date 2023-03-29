@@ -7,6 +7,8 @@ namespace τ
 {
 
 
+// NOTE: this function must be defined out-of-line because it contains
+// forward references to ψ members
 Ξ Ξ::c(Stc &port) const
 {
   return e_.route(port)->connect(port, *this);
@@ -35,7 +37,10 @@ Sp<Ξk> Ξks(Sp<Ξk> x, Stc &k, ξd const &v, uN s)
     {
       x = Ξkc(x->n, k, v, s);
       while (!xs.empty())
+      {
         x = Ξkc(x, xs.top()->k, xs.top()->v, xs.top()->s);
+        xs.pop();
+      }
       return x;
     }
 
