@@ -15,15 +15,14 @@ namespace τ
 struct Γ_
 {
   virtual ~Γ_() {}
-
   virtual Ξ operator()(Ξ const&) const = 0;
-  virtual St    name()           const = 0;
+  virtual St      name()         const = 0;
 };
 
 
 // Public-facing API for Γ_: all Γs we create and use will be instances
 // of this class
-struct Γ
+struct Γ final
 {
   Γ(Sp<Γ_> g_) : g(g_) { check(); }
   Γ(Γ_    *g_) : g(g_) { check(); }

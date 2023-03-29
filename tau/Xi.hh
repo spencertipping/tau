@@ -63,6 +63,9 @@ struct Ξ final
       return *this; }
 
 
+  τe &t() const { return e_; }
+
+
   Ξ t(Sp<Ξs> t) const { return {e_, t, m_, v_, s_}; }
   Ξ m(Sp<Ξk> m) const { return {e_, t_, m, v_, s_}; }
   Ξ v(Sp<Ξk> v) const { return {e_, t_, m_, v, s_}; }
@@ -87,8 +90,10 @@ struct Ξ final
   Ξ  vpop() const { return {e_, t_, Ξkp(m_, s_ - 1), Ξkp(v_, s_ - 1), s_ - 1}; }
 
 
-  Ξ f(ξi const &x) const { let [io, t] = pop(); return t.push(ξd{x, io.b}); }
-  Ξ b(ξo const &x) const { let [io, t] = pop(); return t.push(ξd{io.f, x}); }
+  ξi f()            const { return t_->io.f; }
+  ξo b()            const { return t_->io.b; }
+  Ξ  f(ξi const &x) const { let [io, t] = pop(); return t.push(ξd{x, io.b}); }
+  Ξ  b(ξo const &x) const { let [io, t] = pop(); return t.push(ξd{io.f, x}); }
 
   bool fi() const { return t_ && t_->io.f; }
   bool bi() const { return t_ && t_->io.b; }

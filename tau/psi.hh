@@ -17,7 +17,7 @@ struct ψ_;
 
 void ψc_(ψ_*);  // notify that a new ψ_ has been created
 void ψx_(ψ_*);  // notify that a ψ_ has been destroyed
-uN   ψn();      // number of live ψs
+uN   ψn ();     // number of live ψs
 
 
 // ψ resource container; not used directly, use ψ instead
@@ -57,16 +57,18 @@ struct ψ final
   ψ(Sp<ψ_> q) : q_(q) {}
   ψ(ψ_    *q) : q_(q) {}
 
+  ψ(τe &t, St n) : ψ(t) { name(n); }
+
   ψ &operator=(ψ const &x) { q_ = x.q_; return *this; }
 
   Stc &name() const {             return q_->n_; }
   ψ   &name(Stc &n) { q_->n_ = n; return *this; }
 
-  ψ &f (λf           &&f) { q_->f(std::move(f)); return *this; }
-  ψ &f (F<void(ψ&)>  &&f) { return this->f([f=std::move(f), this]() { f(*this); }); }
+  ψ &f (λf           &&f) { q_->f (std::move(f)); return *this; }
   ψ &fx(F<void(ψ_&)> &&f) { q_->fx(std::move(f)); return *this; }
+  ψ &f (F<void(ψ&)>  &&f) { return this->f([f=std::move(f), this]() { f(*this); }); }
 
-  ψ &b(Stc &p, F<Ξ(ψ&&, Ξ)> &&f)
+  ψ &b (Stc &p, F<Ξ(ψ&&, Ξ)> &&f)
     { A(!q_->t().route(p), name() << " cannot bind claimed port " << p);
       q_->cs_[p] = [f=std::move(f), q=q_](Ξ const &x) { return f(ψ(q), x); };
       q_->t().bind(p, q_);

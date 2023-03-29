@@ -1,5 +1,5 @@
 # _Ψ ∷ Ξ → ([ψ], Ξ)_
-Ψs are compile-time, fixed-topology processors that can be wrapped into [Γs](Gamma.md) with adapters. There are several variants, each with optional aux connectors specifiable with a mask:
+Ψs are compile-time, fixed-topology processors that can be wrapped into [Γs](Gamma.md) with adapters. There are several variants, each with optional aux connectors:
 
 + _Ψ₀_: an input consumer
 + _Ψ₁_: an output generator
