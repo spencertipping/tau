@@ -166,9 +166,9 @@ struct ηo final
 
 
 private:
-  Wp<T>   o_;
-  Sn<u8>  b_;  // invariant: this points to memory managed by *o, or null
-  uN      s_;  // current number of bytes written to the stream
+  Wp<T>  o_;
+  Sn<u8> b_;  // invariant: this points to memory managed by *o, or null
+  uN     s_;  // current number of bytes written to the stream
 
   bool reserve(uN l)
     { if (o_.expired())
