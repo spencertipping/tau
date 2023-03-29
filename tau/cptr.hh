@@ -30,9 +30,7 @@ struct ptr_ctrl final
 
 private:
   void post_release()
-    { if (!sr && p)
-        if (df) { df(p); df = nullptr; p = nullptr; }
-        else    { delete p;            p = nullptr; }
+    { if (!sr && p) { df(p); df = nullptr; p = nullptr; }
       if (!sr && !wr) delete this; }
 };
 
@@ -43,13 +41,13 @@ struct shared_ptr final
   T           *p;
   ptr_ctrl<T> *c;
 
-  explicit shared_ptr(T *p_)          : p(p_), c(p ? new ptr_ctrl<T>{1, 0, p_} : nullptr) {}
+  explicit shared_ptr(T *p_)          : p(p_), c(p ? new ptr_ctrl<T>{1, 0, p_, std::default_delete<T>()} : nullptr) {}
   shared_ptr(T *p_, F<void(T*)> &&f_) : p(p_), c(p ? new ptr_ctrl<T>{1, 0, p_, std::move(f_)} : nullptr) {}
 
   shared_ptr()                        : p(nullptr), c(nullptr) {}
   shared_ptr(std::nullptr_t p_)       : p(nullptr), c(nullptr) {}
-  shared_ptr(T *p_, ptr_ctrl<T> *c_)  : p(p_),  c(c_)  { if (c) c->strong_acquire(); }
-  shared_ptr(shared_ptr<T> const &x)  : p(x.p), c(x.c) { if (c) c->strong_acquire(); }
+  shared_ptr(T *p_, ptr_ctrl<T> *c_)  : p(p_),  c(p ? c_  : nullptr) { if (c) c->strong_acquire(); }
+  shared_ptr(shared_ptr<T> const &x)  : p(x.p), c(p ? x.c : nullptr) { if (c) c->strong_acquire(); }
 
   ~shared_ptr() { if (c) c->strong_release(); }
 
@@ -66,7 +64,7 @@ struct shared_ptr final
   void reset(T *x)
     { if (c) c->strong_release();
       p = x;
-      c = new ptr_ctrl<T>{1, 0, p}; }
+      c = new ptr_ctrl<T>{1, 0, p, std::default_delete<T>()}; }
 
 
   operator bool() const { return p; }
@@ -78,7 +76,8 @@ struct shared_ptr final
   iN use_count()  const { return c ? c->sr : 0; }
 
   template<class U>
-  shared_ptr<U> as() const { return shared_ptr<U>{dynamic_cast<U*>(p), c}; }
+  shared_ptr<U> as() const
+    { return shared_ptr<U>{dynamic_cast<U*>(p), Rc<ptr_ctrl<U>*>(c)}; }
 };
 
 
