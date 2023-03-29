@@ -38,7 +38,7 @@ struct ξi final
 
     bool operator==(it const &y) const { return i == y.i; }
     it  &operator++()                  { ++i; return *this; }
-    ηi   operator* () const            { return ηi{*i}; }
+    ηi   operator* ()            const { return ηi{*i}; }
   };
 
   it begin() const { return x ? it{x, x->begin()} : end(); }
