@@ -21,6 +21,9 @@ namespace τ
 // NOTE: we cannot hold a strong reference to the underlying ξ, so we
 // must tolerate it being deallocated while this object exists. If that
 // happens, writer methods will silently become no-ops.
+
+// TODO: this should be a template so we can write to different types of
+// containers
 struct ηo final
 {
   // TODO: remove p_() when we replace Wp with non-volatile
@@ -62,15 +65,13 @@ struct ηo final
   ηo &operator<<(f32 x)
     { if (!reserve(5)) return *this;
       s_ += ηcb(b_.subspan(s_), ηtype::n_float, 4);
-      *Rc<f32b*>(b_.data() + s_) = x;
-      s_ += 4;
+      s_ += sizeof(*Rc<f32b*>(b_.data() + s_) = x);
       return *this; }
 
   ηo &operator<<(f64 x)
     { if (!reserve(9)) return *this;
       s_ += ηcb(b_.subspan(s_), ηtype::n_float, 8);
-      *Rc<f64b*>(b_.data() + s_) = x;
-      s_ += 4;
+      s_ += sizeof(*Rc<f64b*>(b_.data() + s_) = x);
       return *this; }
 
   ηo &operator<<(Stc &s)
@@ -119,45 +120,24 @@ struct ηo final
       s_ += xs.size_bytes();
       return *this; }
 
-  ηo &operator<<(Sn<i16c> const &xs)
-    { if (!reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()))) return *this;
-      s_ += ηcb(b_.subspan(s_), ηtype::int16s, xs.size_bytes());
-      i16b *y = Rc<i16b*>(b_.data() + s_);
-      for (let x : xs) *y++ = x;
-      s_ += xs.size_bytes();
+
+#define τηspan(st, tt, ηt)                                              \
+  ηo &operator<<(Sn<st> const &xs)                                      \
+    { if (!reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()))) return *this; \
+      s_ += ηcb(b_.subspan(s_), ηtype::ηt, xs.size_bytes());            \
+      tt *y = Rc<tt*>(b_.data() + s_);                                  \
+      for (let x : xs) *y++ = x;                                        \
+      s_ += xs.size_bytes();                                            \
       return *this; }
 
-  ηo &operator<<(Sn<i32c> const &xs)
-    { if (!reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()))) return *this;
-      s_ += ηcb(b_.subspan(s_), ηtype::int32s, xs.size_bytes());
-      i32b *y = Rc<i32b*>(b_.data() + s_);
-      for (let x : xs) *y++ = x;
-      s_ += xs.size_bytes();
-      return *this; }
+  τηspan(i16c, i16b, int16s)
+  τηspan(i32c, i32b, int32s)
+  τηspan(i64c, i64b, int64s)
+  τηspan(f32c, f32b, float32s)
+  τηspan(f64c, f64b, float64s)
 
-  ηo &operator<<(Sn<i64c> const &xs)
-    { if (!reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()))) return *this;
-      s_ += ηcb(b_.subspan(s_), ηtype::int64s, xs.size_bytes());
-      i64b *y = Rc<i64b*>(b_.data() + s_);
-      for (let x : xs) *y++ = x;
-      s_ += xs.size_bytes();
-      return *this; }
+#undef τηspan
 
-  ηo &operator<<(Sn<f32c> const &xs)
-    { if (!reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()))) return *this;
-      s_ += ηcb(b_.subspan(s_), ηtype::int32s, xs.size_bytes());
-      f32b *y = Rc<f32b*>(b_.data() + s_);
-      for (let x : xs) *y++ = x;
-      s_ += xs.size_bytes();
-      return *this; }
-
-  ηo &operator<<(Sn<f64c> const &xs)
-    { if (!reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()))) return *this;
-      s_ += ηcb(b_.subspan(s_), ηtype::int64s, xs.size_bytes());
-      f64b *y = Rc<f64b*>(b_.data() + s_);
-      for (let x : xs) *y++ = x;
-      s_ += xs.size_bytes();
-      return *this; }
 
   ηo &name(Stc &s)
     { if (!reserve(s.size() + 1 + ηsb(s.size()))) return *this;

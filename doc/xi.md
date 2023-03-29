@@ -5,6 +5,17 @@ Each ξ, unless it is weakened, holds a reference to the [ψ](psi.md) that write
 
 ξs present as allocators when writing; you can write and adjust the size of your value before committing it. This allows you to write without copying, for instance when doing file IO.
 
+There are some basic tests for ξ in [try/xi.cc](../try/xi.cc):
+
+```bash
+$ bin/xi
+spans are ok
+ξ single got total: 49995000
+ξ multi got total: 161700
+ξ single got total: 499500
+all ok
+```
+
 
 ## ξ allocation
 This happens in two stages. First, you indicate how much contiguous memory you intend to use; for example, let's say you request 256 bytes. The ξ replies with a `Sn<u8>` sized to the largest contiguous space ≤256 bytes that it can be. **This step may block.**

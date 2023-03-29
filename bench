@@ -3,4 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 ./build "$@"
-./lazytest README.md `find doc -name '*.md'` | bash
+
+for b in bin/*-bench; do
+  $b
+done
