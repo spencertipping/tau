@@ -29,7 +29,7 @@ struct Γ
   Γ(Γ_    *g_) : g(g_) { check(); }
 
   template<class T>
-  Sp<T> as () const { return std::dynamic_pointer_cast<T>(g); }
+  Sp<T> as () const { return dpc<T>(g); }
   Γ_   &get() const { return *g; }
 
   Γ &operator=(Γ const &g_) { g = g_.g; check(); return *this; }

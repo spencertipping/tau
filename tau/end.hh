@@ -19,10 +19,5 @@
 #undef Rc
 #undef Cc
 
-#undef defR
-#undef defRI
-#undef defW
-#undef defWI
-
 
 #undef τbegin_h

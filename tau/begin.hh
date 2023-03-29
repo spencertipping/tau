@@ -52,19 +52,3 @@
 #define Sc static_cast
 #define Rc reinterpret_cast
 #define Cc const_cast
-
-
-#define defR(I)                                                         \
-  template<class J, class T>                                            \
-  ic typename std::enable_if<std::is_same<I, J>::value, I>::type        \
-  R(T xs, uN i)
-
-#define defRI(s)                                                        \
-  template<class I, class T>                                            \
-  ic typename std::enable_if<std::is_integral<I>::value                 \
-                             and sizeof(I) == s, I>::type               \
-  R(T xs, uN i)
-
-#define defW(I)                                                         \
-  template<class T>                                                     \
-  ic void W(T xs, uN i, I x)

@@ -35,18 +35,12 @@
 
 
 #include "arch.hh"
-#include "cptr.hh"  // TODO: finish this module
 
 
 #include "begin.hh"
 
 namespace τ
 {
-
-
-// TODO: when I'm bored, replace Sp and Wp with custom implementations that
-// don't do any atomic locking; this should shave a few ns from various
-// weak ptr operations, most notably ξo::r()
 
 
 typedef std::uint8_t  u8;   typedef u8  const u8c;
@@ -171,7 +165,6 @@ template<class... K>       using S  = std::unordered_set<K...>;
 template<class... T>       using Sk = std::stack<T...>;
 template<class... T>       using Sn = std::span<T...>;
 template<class... K>       using So = std::set<K...>;
-template<class... T>       using Sp = std::shared_ptr<T...>;
 typedef        std::stringstream Ss;
 template<class... X>       using T  = std::tuple<X...>;
 typedef              std::thread Th;
@@ -180,7 +173,6 @@ template<class... T>       using V  = std::vector<T...>;
 template<class... T>       using Vc = std::vector<T...> const;
 template<class... T>       using Va = std::variant<T...>;
 template<class... T>       using Vi = typename V<T...>::const_iterator;
-template<class... T>       using Wp = std::weak_ptr<T...>;
 
 template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std::vector<T>, C>;
 
@@ -206,13 +198,6 @@ ic auto mp(T &&a, U &&b) { return std::make_pair(std::forward<T>(a), std::forwar
 
 template<class T, class U>
 ic auto flip(P<T, U> const &p) { return mp(std::get<1>(p), std::get<0>(p)); }
-
-template<class T>
-ic auto ms(T &&a) { return std::make_shared<T>(std::forward<T>(a)); }
-
-
-template<class U, class T>
-ic Sp<U> dpc(Sp<T> x) { return std::dynamic_pointer_cast<U>(x); }
 
 
 template<class T, class = void> struct iti_static : std::false_type {};

@@ -3,6 +3,7 @@
 
 
 #include <chrono>
+#include <memory>
 #include <type_traits>
 
 
@@ -10,14 +11,31 @@
 #include "debug.hh"
 
 #include "ctypes.hh"
-
+#include "cptr.hh"
 
 #include "begin.hh"
+
+
+#define τuse_nonvolatile_sharedptr 0
+
 
 namespace τ
 {
 
 using namespace std::literals;
+
+
+#if !τuse_nonvolatile_sharedptr
+  template<class... T> using Sp = std::shared_ptr<T...>;
+  template<class... T> using Wp = std::weak_ptr<T...>;
+
+  template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return std::dynamic_pointer_cast<U>(x); }
+#else
+  template<class... T> using Sp = shared_ptr<T...>;
+  template<class... T> using Wp = weak_ptr<T...>;
+
+  template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return x.template as<U>(); }
+#endif
 
 
 typedef std::chrono::steady_clock       Θc;
