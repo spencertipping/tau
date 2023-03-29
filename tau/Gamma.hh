@@ -24,24 +24,22 @@ struct Γ_
 // of this class
 struct Γ final
 {
-  Γ(Sp<Γ_> g_) : g(g_) { check(); }
-  Γ(Γ_    *g_) : g(g_) { check(); }
+  Γ(Sp<Γ_> g_) : g(g_) {}
+  Γ(Γ_    *g_) : g(g_) {}
 
-  template<class T>
-  Sp<T> as () const { return dpc<T>(g); }
-  Γ_   &get() const { return *g; }
+  St name() const { A(g, "Γ::name empty"); return g->name(); }
+  Γ_ &get() const { A(g, "Γ::get empty");  return *g; }
 
-  Γ &operator=(Γ const &g_) { g = g_.g; check(); return *this; }
+  operator bool() const { return Sc<bool>(g); }
 
-  St name() const { return g->name(); }
+  template<class T> Sp<T> as() const { return dpc<T>(g); }
 
-  Ξ operator()(Ξ const &x) const { (*g)(x); return x; }
+  Γ &operator= (Γ const &g_)      { g = g_.g;                   return *this; }
+  Ξ  operator()(Ξ const &x) const { A(g, "Γ() empty"); (*g)(x); return x; }
 
 
 protected:
   Sp<Γ_> g;
-
-  void check() { A(g, "∅Γ"); }
 };
 
 
