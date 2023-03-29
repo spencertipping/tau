@@ -24,17 +24,17 @@ namespace τ
 
 // TODO: this should be a template so we can write to different types of
 // containers
+template<class T>
 struct ηo final
 {
-  // TODO: remove p_() when we replace Wp with non-volatile
-  ηo(Wp<ξ> o, uN c0 = 256) : o_(o), p_(o.lock().get()), s_(0)
+  ηo(Wp<T> o, uN c0 = 256) : o_(o), s_(0)
     { A(c0, "ηo with no initial capacity");
-      b_ = p_ ? p_->iptr(c0) : Sn<u8>{Sc<u8*>(nullptr), 0}; }
+      b_ = o_ ? o_.get()->iptr(c0) : Sn<u8>{Sc<u8*>(nullptr), 0}; }
 
   ~ηo()
     { if (!o_.expired())
-        if (s_) p_->commit(s_);
-        else    p_->abort(); }
+        if (s_) o_.get()->commit(s_);
+        else    o_.get()->abort(); }
 
 
   // Direct append: hopefully the content is valid η data
@@ -153,17 +153,34 @@ struct ηo final
       s_ += s.size();
       return *this; }
 
-  template<class T>
-  ηo &v(T &&x) { return *this << std::forward<T>(x); }
+  template<class U>
+  ηo &v(U &&x) { return *this << std::forward<U>(x); }
 
 
 private:
-  Wp<ξ>   o_;
-  ξ      *p_;  // cached copy, since o_ referent will never change
+  Wp<T>   o_;
   Sn<u8>  b_;  // invariant: this points to memory managed by *o, or null
   uN      s_;  // current number of bytes written to the stream
 
-  bool reserve(uN l);
+  bool reserve(uN l)
+    { if (o_.expired())
+      { b_ = {Sc<u8*>(nullptr), 0};
+        return false; }
+
+      if (s_ + l > b_.size_bytes())
+      { // Abort this allocation and create a new one at twice the current size
+        // or s_ + l, whichever is larger.
+        u8 *b = new u8[s_];
+        memcpy(b, b_.data(), s_);
+        o_.get()->abort();
+        let s = std::max(s_ + l, Sc<uN>(b_.size_bytes() << 1));
+
+        // Complete the copy only if we actually have memory. ξ can be deallocated
+        // during the iptr() call, in which case we'll get an empty span back.
+        if (!(b_ = o_.get()->iptr(s)).empty()) memcpy(b_.data(), b, s_);
+        delete[] b; }
+
+      return !b_.empty(); }
 };
 
 

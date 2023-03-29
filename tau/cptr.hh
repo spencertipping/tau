@@ -106,8 +106,10 @@ struct weak_ptr final
       c = nullptr; }
 
 
-  bool expired() const { return !c || !c->p; }
-  T   *get()     const { return p; }
+  operator bool() const { return !expired(); }
+
+  bool expired()  const { return !c || !c->p; }
+  T   *get()      const { return p; }
 
   shared_ptr<T> lock() const
     { if (expired()) return {nullptr};
