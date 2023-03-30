@@ -71,18 +71,18 @@ struct ΓΨ0 final : public virtual ΓΨd_
   ΓΨ0(Ψ0 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
     : ΓΨd_(d_, n_, c_), p(std::move(p_)) {}
 
-  Ξ f(Ξ const &x, ψ q) const  // consume input
+  Ξ f(Ξc &x, ψ q) const  // consume input
     { A(x.fi(), name() << "(" << x << ") with no ξi→");
       fn(q, [q=q.i(x.f()), p=p, i=x.f(), a=Ψaux(x)]() { p(q, i, a); });
       return x.fx(); }
 
-  Ξ b(Ξ const &x, ψ q) const  // consume future backwards input
+  Ξ b(Ξc &x, ψ q) const  // consume future backwards input
     { A(!x.bi(), name() << "(" << x << ") clobbers existing ξo←");
       let [o, i] = x.t().pipe();
       fn(q, [q=q.i(i), p=p, i=i, a=Ψaux(x)]() { p(q, i, a); });
       return x.b(o); }
 
-  Ξ r(Ξ const &x, ψ q) const { return f(x, q).bx(); }
+  Ξ r(Ξc &x, ψ q) const { return f(x, q).bx(); }
 };
 
 
@@ -93,18 +93,18 @@ struct ΓΨ1 final : public virtual ΓΨd_
   ΓΨ1(Ψ1 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
     : ΓΨd_(d_, n_, c_), p(std::move(p_)) {}
 
-  Ξ f(Ξ const &x, ψ q) const  // produce future forwards input
+  Ξ f(Ξc &x, ψ q) const  // produce future forwards input
     { A(!x.fi(), name() << "(" << x << ") clobbers existing ξi→");
       let [o, i] = x.t().pipe();
       fn(q, [q=q.o(o), p=p, o=o, a=Ψaux(x)]() { p(q, o, a); });
       return x.f(i); }
 
-  Ξ b(Ξ const &x, ψ q) const  // produce backwards output
+  Ξ b(Ξc &x, ψ q) const  // produce backwards output
     { A(x.bi(), name() << "(" << x << ") with closed ξo←");
       fn(q, [q=q.o(x.b()), p=p, o=x.b(), a=Ψaux(x)]() { p(q, o, a); });
       return x.bx(); }
 
-  Ξ r(Ξ const &x, ψ q) const { return b(x, q).fx(); }
+  Ξ r(Ξc &x, ψ q) const { return b(x, q).fx(); }
 };
 
 
@@ -115,19 +115,19 @@ struct ΓΨ2 final : public virtual ΓΨd_
   ΓΨ2(Ψ2 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
     : ΓΨd_(d_, n_, c_), p(std::move(p_)) {}
 
-  Ξ f(Ξ const &x, ψ q) const  // transform forwards
+  Ξ f(Ξc &x, ψ q) const  // transform forwards
     { let [o, i] = x.t().pipe();
       fn(q.i(x.f()).o(o),
          [q=q, p=p, i=x.f(), o=o, a=Ψaux(x)]() { p(q, i, o, a); });
       return x.f(i); }
 
-  Ξ b(Ξ const &x, ψ q) const  // transform backwards
+  Ξ b(Ξc &x, ψ q) const  // transform backwards
     { let [o, i] = x.t().pipe();
       fn(q.i(i).o(x.b()),
          [q=q, p=p, i=i, o=x.b(), a=Ψaux(x)]() { p(q, i, o, a); });
       return x.b(o); }
 
-  Ξ r(Ξ const &x, ψ q) const
+  Ξ r(Ξc &x, ψ q) const
     { fn(q.i(x.f()).o(x.b()),
          [q=q, p=p, i=x.f(), o=x.b(), a=Ψaux(x)]() { p(q, i, o, a); });
       return x.fx().bx(); }
@@ -142,7 +142,7 @@ struct ΓΨ4 final : public virtual ΓΨd_
     : ΓΨd_(d_, n_, c_), p(std::move(p_))
     { A(d != Ψd::r, "cannot apply Ψ4:r"); }
 
-  Ξ f(Ξ const &x, ψ q) const  // transform forwards
+  Ξ f(Ξc &x, ψ q) const  // transform forwards
     { let [fo, fi] = x.t().pipe();
       let [bo, bi] = x.t().pipe();
       fn(q.i(x.f()).i(bi).o(x.b()).o(fo),
@@ -150,7 +150,7 @@ struct ΓΨ4 final : public virtual ΓΨd_
            { p(q, fi, fo, bo, bi, a); });
       return x.f(fi).b(bo); }
 
-  Ξ b(Ξ const &x, ψ q) const  // transform backwards
+  Ξ b(Ξc &x, ψ q) const  // transform backwards
     { let [fo, fi] = x.t().pipe();
       let [bo, bi] = x.t().pipe();
       fn(q.i(x.f()).i(bi).o(x.b()).o(bo),
@@ -158,7 +158,7 @@ struct ΓΨ4 final : public virtual ΓΨd_
            { p(q, bi, bo, fo, fi, a); });
       return x.f(fi).b(bo); }
 
-  Ξ r(Ξ const &x, ψ q) const { τunreachable(); }
+  Ξ r(Ξc &x, ψ q) const { τunreachable(); }
 };
 
 
