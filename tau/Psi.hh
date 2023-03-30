@@ -64,6 +64,9 @@ struct ΓΨd_ : public virtual Γ_
 };
 
 
+// NOTE: this class has special lifetime rules (no q.weaken()) because
+// nobody consumes its output; that means it lives as long as the constructor
+// function is running.
 struct ΓΨ0 final : public virtual ΓΨd_
 {
   Ψ0 const p;
@@ -96,12 +99,12 @@ struct ΓΨ1 final : public virtual ΓΨd_
   Ξ f(Ξc &x, ψ q) const  // produce future forwards input
     { A(!x.fi(), name() << "(" << x << ") clobbers existing ξi→");
       let [o, i] = x.t().pipe();
-      fn(q, [q=q.o(o), p=p, o=o, a=Ψaux(x)]() { p(q, o, a); });
+      fn(q, [q=q.o(o), p=p, o=o, a=Ψaux(x)]() mutable { q.weaken(true); p(q, o, a); });
       return x.f(i); }
 
   Ξ b(Ξc &x, ψ q) const  // produce backwards output
     { A(x.bi(), name() << "(" << x << ") with closed ξo←");
-      fn(q, [q=q.o(x.b()), p=p, o=x.b(), a=Ψaux(x)]() { p(q, o, a); });
+      fn(q, [q=q.o(x.b()), p=p, o=x.b(), a=Ψaux(x)]() mutable { q.weaken(true); p(q, o, a); });
       return x.bx(); }
 
   Ξ r(Ξc &x, ψ q) const { return b(x, q).fx(); }
@@ -118,18 +121,18 @@ struct ΓΨ2 final : public virtual ΓΨd_
   Ξ f(Ξc &x, ψ q) const  // transform forwards
     { let [o, i] = x.t().pipe();
       fn(q.i(x.f()).o(o),
-         [q=q, p=p, i=x.f(), o=o, a=Ψaux(x)]() { p(q, i, o, a); });
+         [q=q, p=p, i=x.f(), o=o, a=Ψaux(x)]() mutable { q.weaken(true); p(q, i, o, a); });
       return x.f(i); }
 
   Ξ b(Ξc &x, ψ q) const  // transform backwards
     { let [o, i] = x.t().pipe();
       fn(q.i(i).o(x.b()),
-         [q=q, p=p, i=i, o=x.b(), a=Ψaux(x)]() { p(q, i, o, a); });
+         [q=q, p=p, i=i, o=x.b(), a=Ψaux(x)]() mutable { q.weaken(true); p(q, i, o, a); });
       return x.b(o); }
 
   Ξ r(Ξc &x, ψ q) const
     { fn(q.i(x.f()).o(x.b()),
-         [q=q, p=p, i=x.f(), o=x.b(), a=Ψaux(x)]() { p(q, i, o, a); });
+         [q=q, p=p, i=x.f(), o=x.b(), a=Ψaux(x)]() mutable { q.weaken(true); p(q, i, o, a); });
       return x.fx().bx(); }
 };
 
@@ -146,16 +149,18 @@ struct ΓΨ4 final : public virtual ΓΨd_
     { let [fo, fi] = x.t().pipe();
       let [bo, bi] = x.t().pipe();
       fn(q.i(x.f()).i(bi).o(x.b()).o(fo),
-         [q=q, p=p, fi=x.f(), fo=fo, bo=x.b(), bi=bi, a=Ψaux(x)]()
-           { p(q, fi, fo, bo, bi, a); });
+         [q=q, p=p, fi=x.f(), fo=fo, bo=x.b(), bi=bi, a=Ψaux(x)]() mutable
+           { q.weaken(true);
+             p(q, fi, fo, bo, bi, a); });
       return x.f(fi).b(bo); }
 
   Ξ b(Ξc &x, ψ q) const  // transform backwards
     { let [fo, fi] = x.t().pipe();
       let [bo, bi] = x.t().pipe();
       fn(q.i(x.f()).i(bi).o(x.b()).o(bo),
-         [q=q, p=p, fi=x.f(), fo=fo, bo=x.b(), bi=bi, a=Ψaux(x)]()
-           { p(q, bi, bo, fo, fi, a); });
+         [q=q, p=p, fi=x.f(), fo=fo, bo=x.b(), bi=bi, a=Ψaux(x)]() mutable
+           { q.weaken(true);
+             p(q, bi, bo, fo, fi, a); });
       return x.f(fi).b(bo); }
 
   Ξ r(Ξc &x, ψ q) const { τunreachable(); }
