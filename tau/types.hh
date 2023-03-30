@@ -30,11 +30,13 @@ using namespace std::literals;
   template<class... T> using Wp = std::weak_ptr<T...>;
 
   template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return std::dynamic_pointer_cast<U>(x); }
+  template<class T> T* wpg(Wp<T> const &x) { return x.lock().get(); }
 #else
   template<class... T> using Sp = shared_ptr<T...>;
   template<class... T> using Wp = weak_ptr<T...>;
 
   template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return x.template as<U>(); }
+  template<class T> T* wpg(Wp<T> const &x) { return x.get(); }
 #endif
 
 

@@ -27,13 +27,13 @@ struct ηo final
 {
   ηo(Λ &l, Wp<T> o, uN c0 = 256) : o_(o), s_(0)
     { A(c0, "ηo with no initial capacity");
-      if (o_) b_ = o_.get()->iptr(c0);
-      else    l.x(l.i()), τunreachable(); }
+      if (!o_.expired()) b_ = wpg(o_)->iptr(c0);
+      else               l.x(l.i()), τunreachable(); }
 
   ~ηo()
-    { if (o_)
-        if (s_) o_.get()->commit(s_);
-        else    o_.get()->abort(); }
+    { if (!o_.expired())
+        if (s_) wpg(o_)->commit(s_);
+        else    wpg(o_)->abort(); }
 
 
   // Direct append: hopefully the content is valid η data
@@ -179,12 +179,12 @@ private:
         // or s_ + l, whichever is larger.
         u8 *b = new u8[s_];
         memcpy(b, b_.data(), s_);
-        o_.get()->abort();
+        wpg(o_)->abort();
         let s = std::max(s_ + l, Sc<uN>(b_.size_bytes() << 1));
 
         // Complete the copy only if we actually have memory. ξ can be deallocated
         // during the iptr() call, in which case we'll get an empty span back.
-        if (!(b_ = o_.get()->iptr(s)).empty()) memcpy(b_.data(), b, s_);
+        if (!(b_ = wpg(o_)->iptr(s)).empty()) memcpy(b_.data(), b, s_);
         delete[] b; }
 
       return !b_.empty(); }

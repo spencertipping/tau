@@ -14,6 +14,13 @@ using namespace std;
     { for (i64 i = 1;; ++i) o.r(12) << i; }, d, "ι");
 }
 
+Γ weaken_eager()
+{
+  return new Γf_("weaken_eager", [](Ξc &x)
+    { x.f().weaken();
+      return x; });
+}
+
 Γ weaken(Ψd d = Ψd::f)
 {
   return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
@@ -115,13 +122,26 @@ using namespace std;
 }
 
 
-void try_gc()
+void try_gc1()
 {
   τe t;
-  ( ΞΓpush() | iota() | weaken() | sum() | last() | print() )(Ξ{t});
-  cerr << "try_gc starting" << endl;
+  // weaken_eager() should immediately free iota()
+  ( ΞΓpush() | iota() | weaken_eager() | sum() | last() | print() )(Ξ{t});
+  cerr << "try_gc1 starting" << endl;
   t.go();
-  cerr << "try_gc exiting" << endl;
+  cerr << "try_gc1 exiting" << endl;
+  A(!ξn(), "ξs outlived try_gc: " << ξn());
+  A(!ψn(), "ψs outlived try_gc: " << ψn());
+}
+
+void try_gc2()
+{
+  τe t;
+  // weaken() should immediately free iota()
+  ( ΞΓpush() | iota() | weaken() | sum() | last() | print() )(Ξ{t});
+  cerr << "try_gc2 starting" << endl;
+  t.go();
+  cerr << "try_gc2 exiting" << endl;
   A(!ξn(), "ξs outlived try_gc: " << ξn());
   A(!ψn(), "ψs outlived try_gc: " << ψn());
 }
@@ -192,7 +212,8 @@ void try_server_simple()
 
 int main()
 {
-  try_gc();
+  try_gc1();
+  try_gc2();
   try_iota();
   try_iota_rev();
   try_iota_loop();

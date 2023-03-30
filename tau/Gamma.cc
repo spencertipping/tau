@@ -10,7 +10,7 @@ namespace τ
   // Since we're a normal consed list, append if the left-hand side
   // is itself a list. That way all of our results are flat.
   if (let h = a.as<Γs_>())
-    return h->t ? h->h | (Γ(h->t.as<Γ_>()) | b)
+    return h->t ? h->h | Γ(dpc<Γ_>(h->t) | b)
                 : h->h | b;
 
   // If the right side is a list, then glue on directly; otherwise,

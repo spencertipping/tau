@@ -124,20 +124,18 @@ struct ξ final
 
 
   // Endpoint management
-  // NOTE: oq() conditionally weakens the input reference for reasons
-  // outlined in doc/xi.md (ψ GC section)
-  //
-  // NOTE: iq() refers to input _to this ξ_ (i.e. the producer)
-  //       oq() to output _from this ξ_ (i.e. the consumer)
-  ξ &iq(Sp<ψ_> x) { iqs = x; if (w)    weaken(); return *this; }
-  ξ &oq(Sp<ψ_> x) { oqw = x; if (!iqs) weaken(); return *this; }
+  // NOTE: iq() refers to input  _to   this ξ_ (i.e. the producer)
+  //       oq() refers to output _from this ξ_ (i.e. the consumer)
+  ξ &iq(Sp<ψ_> x) { iqs = x; if (w) weaken_(); return *this; }
+  ξ &oq(Wp<ψ_> x) { oqw = x;                   return *this; }
 
-  Sp<ψ_> iq() { return iqs ? iqs : iqw.lock(); }
-  Sp<ψ_> oq() { return             oqw.lock(); }
+  Sp<ψ_> iq() const { return iqs ? iqs : iqw.lock(); }
+  Wp<ψ_> oq() const { return             oqw; }
 
   // Weaken reference to generating ψ, e.g. for backflowing ξ
   // NOTE: weaken() is, and must be, idempotent
-  ξ &weaken() { if (!w) iqw = iqs, iqs.reset(), w = true; return *this; }
+  ξ   &weaken () { if (!w) weaken_(), w = true; return *this; }
+  void weaken_() { if (iqs) iqw = iqs, iqs.reset(); }
 
 
 protected:
