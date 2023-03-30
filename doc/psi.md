@@ -11,6 +11,14 @@ There are two types of ψs (implemented with C++ derived classes):
 + Server ψs, which register [τ](tau.md)-level ports
 
 
+## GC
+GC is simple: a ψ is destroyed when:
+
+1. Nobody reads from its output ξs (or they are closed), and
+2. It has no active server ports, and
+3. It is not τ-pinned, e.g. registered as something that produces side-effects
+
+
 ## Server ports
 Server ports are named at the τ level:
 
@@ -23,5 +31,3 @@ bool τe::unbind (St port, Wp<ψ> = nullptr);  // undo binding
 Note that any ψ with a bound server port will be GC-pinned.
 
 Connections are perfect forwarders of Ξ, meaning that the server can decide how to handle half/full duplexes as well as any named sidecars. The server can also transform the Ξ and returns its continuation. In most cases, this continuation is empty (that is, the server terminates the Ξ).
-
-**TODO:** decide on operators for server ports
