@@ -61,8 +61,8 @@ struct ψ final
   ψ &operator=(ψ const &x) { q_ = x.q_; w_ = x.w_; return *this; }
   operator bool() const { return q_ || w_; }
 
-  Stc &name() const {              return q()->n_; }
-  ψ   &name(Stc &n) { q()->n_ = n; return *this; }
+  Stc &name() const { let r = q(); A(r, "ψ::name() on null ψ"); return r->n_; }
+  ψ   &name(Stc &n) { if (let r = q()) r->n_ = n; return *this; }
 
   ψ &f (λf           &&f) { let r = q(); A(r, "ψ::f() on null");  r->f (std::move(f)); return *this; }
   ψ &fx(F<void(ψ_&)> &&f) { let r = q(); A(r, "ψ::fx() on null"); r->fx(std::move(f)); return *this; }

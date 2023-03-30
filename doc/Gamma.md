@@ -5,7 +5,10 @@ Some Γs manipulate Ξ state, while others transform [ξ](xi.md) duplexes by cre
 
 ```bash
 $ bin/gamma
+0
+0
 55
 500500
 50005000
+110
 ```

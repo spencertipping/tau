@@ -88,7 +88,8 @@ struct weak_ptr final
   ptr_ctrl<T> *c;
 
   weak_ptr()                       : p(nullptr), c(nullptr) {}
-  weak_ptr(shared_ptr<T> const &s) : p(s.p), c(s.c)  { if (c) c->weak_acquire(); }
+  weak_ptr(shared_ptr<T> const &s) : p(s.p), c(s.c) { if (c) c->weak_acquire(); }
+  weak_ptr(weak_ptr<T>   const &w) : p(w.p), c(w.c) { if (c) c->weak_acquire(); }
 
   ~weak_ptr() { if (c) c->weak_release(); }
 

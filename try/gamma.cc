@@ -36,12 +36,7 @@ using namespace std;
       if (n)
         for (let x : i)
         { o.r(x.osize()) << x.outer();
-          if (++e >= n) break; }
-      Wp<ξ> op = o.inner_ξ();
-      Wp<ξ> ip = i.inner_ξ();
-      cout << "take(" << n << ") exiting; i use count = "
-           << ip.use_count() << ", o use count = "
-           << op.use_count() << endl; },
+          if (++e >= n) break; } },
     d, (Ss{} << "↑" << n).str());
 }
 
@@ -49,8 +44,7 @@ using namespace std;
 {
   return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
     { i64 t = 0;
-      for (let x : i) o.r(12) << (t += x.i());
-      cout << "sum() exiting" << endl; },
+      for (let x : i) o.r(12) << (t += x.i()); },
     d, "∑");
 }
 
@@ -59,8 +53,7 @@ using namespace std;
   return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
     { i64 y = 0;
       for (let x : i) y = x.i();
-      o.r(12) << y;
-      cout << "last() exiting" << endl; },
+      o.r(12) << y; },
     d, "↓₁");
 }
 
@@ -71,8 +64,7 @@ using namespace std;
       { cout << prefix << ": ";
         for (let y : x) cout << y << (y.has_next() ? " " : "");
         cout << endl;
-        o.r(x.osize()) << x.outer(); }
-      cout << "debug(" << prefix << ") exiting" << endl; },
+        o.r(x.osize()) << x.outer(); } },
     d, "debug:" + prefix);
 }
 
@@ -81,8 +73,7 @@ using namespace std;
   return new ΓΨ0([](ψ, ξi i, Ψaux)
     { for (let x : i)
       { for (let y : x) cout << y << (y.has_next() ? " " : "");
-        cout << endl; }
-      cout << "print() exiting" << endl; },
+        cout << endl; } },
     d, "out");
 }
 
@@ -127,9 +118,7 @@ void try_gc1()
   τe t;
   // weaken_eager() should immediately free iota()
   ( ΞΓpush() | iota() | weaken_eager() | sum() | last() | print() )(Ξ{t});
-  cerr << "try_gc1 starting" << endl;
   t.go();
-  cerr << "try_gc1 exiting" << endl;
   A(!ξn(), "ξs outlived try_gc: " << ξn());
   A(!ψn(), "ψs outlived try_gc: " << ψn());
 }
@@ -139,9 +128,7 @@ void try_gc2()
   τe t;
   // weaken() should immediately free iota()
   ( ΞΓpush() | iota() | weaken() | sum() | last() | print() )(Ξ{t});
-  cerr << "try_gc2 starting" << endl;
   t.go();
-  cerr << "try_gc2 exiting" << endl;
   A(!ξn(), "ξs outlived try_gc: " << ξn());
   A(!ψn(), "ψs outlived try_gc: " << ψn());
 }
@@ -195,15 +182,12 @@ void try_iota_loop()
 void try_server_simple()
 {
   τe t;
-  ( ΞΓpush() | forever_server("p") | debug("server out")
+  ( ΞΓpush() | forever_server("p")
     | sum() | take(20) | last() | print() | ΞΓdrop()
 
     | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop()
     | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop() )(Ξ{t});
   t.go();
-
-  for (let p : ξs()) cout << "existing ξ: " << *p << endl;
-  for (let p : ψs()) cout << "existing ψ: " << *p << endl;
 
   A(!ξn(), "ξs outlived try_server_simple: " << ξn());
   A(ψn() == 1, "more than one ψ outlived try_server_simple: " << ψn());
