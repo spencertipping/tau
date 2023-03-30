@@ -14,6 +14,14 @@ using namespace std;
     { for (i64 i = 1;; ++i) o.r(12) << i; }, d, "ι");
 }
 
+Γ weaken(Ψd d = Ψd::f)
+{
+  return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
+    { i.weaken();
+      for (let x : i) o.r(x.osize()) << x.outer(); },
+    d, "weaken");
+}
+
 Γ take(i64 n, Ψd d = Ψd::f)
 {
   return new ΓΨ2([n](ψ, ξi i, ξo o, Ψaux)
@@ -42,7 +50,7 @@ using namespace std;
 Γ last(Ψd d = Ψd::f)
 {
   return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
-    { i64 y;
+    { i64 y = 0;
       for (let x : i) y = x.i();
       o.r(12) << y;
       cout << "last() exiting" << endl; },
@@ -104,6 +112,18 @@ using namespace std;
 {
   return new Γf_{"connect:" + port, [port](Ξc &x)
     { return x.c(port); }};
+}
+
+
+void try_gc()
+{
+  τe t;
+  ( ΞΓpush() | iota() | weaken() | sum() | last() | print() )(Ξ{t});
+  cerr << "try_gc starting" << endl;
+  t.go();
+  cerr << "try_gc exiting" << endl;
+  A(!ξn(), "ξs outlived try_gc: " << ξn());
+  A(!ψn(), "ψs outlived try_gc: " << ψn());
 }
 
 
@@ -172,6 +192,7 @@ void try_server_simple()
 
 int main()
 {
+  try_gc();
   try_iota();
   try_iota_rev();
   try_iota_loop();

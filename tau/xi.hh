@@ -137,7 +137,7 @@ struct ξ final
 
   // Weaken reference to generating ψ, e.g. for backflowing ξ
   // NOTE: weaken() is, and must be, idempotent
-  ξ &weaken() { if (!w) iqw = iqs, iqs.reset(); w = true; return *this; }
+  ξ &weaken() { if (!w) iqw = iqs, iqs.reset(), w = true; return *this; }
 
 
 protected:
