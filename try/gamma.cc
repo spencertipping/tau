@@ -11,15 +11,22 @@ using namespace std;
 Γ iota(Ψd d = Ψd::f)
 {
   return new ΓΨ1([](ψ, ξo o, Ψaux)
-    { for (i64 i = 1;; ++i) if (o) o.r(12) << i; else break; }, d, "ι");
+    { for (i64 i = 1;; ++i) o.r(12) << i; }, d, "ι");
 }
 
 Γ take(i64 n, Ψd d = Ψd::f)
 {
-  return new ΓΨ2([n](ψ, ξi i, ξo o, Ψaux) mutable
-    { for (let x : i)
-        if (n-- <= 0) break;
-        else if (o)   o.r(x.osize()) << x.outer(); },
+  return new ΓΨ2([n](ψ, ξi i, ξo o, Ψaux)
+    { i64 e = 0;
+      if (n)
+        for (let x : i)
+        { o.r(x.osize()) << x.outer();
+          if (++e >= n) break; }
+      Wp<ξ> op = o.inner_ξ();
+      Wp<ξ> ip = i.inner_ξ();
+      cout << "take(" << n << ") exiting; i use count = "
+           << ip.use_count() << ", o use count = "
+           << op.use_count() << endl; },
     d, (Ss{} << "↑" << n).str());
 }
 
@@ -27,7 +34,8 @@ using namespace std;
 {
   return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
     { i64 t = 0;
-      for (let x : i) if (o) o.r(12) << (t += x.i()); },
+      for (let x : i) o.r(12) << (t += x.i());
+      cout << "sum() exiting" << endl; },
     d, "∑");
 }
 
@@ -36,8 +44,21 @@ using namespace std;
   return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
     { i64 y;
       for (let x : i) y = x.i();
-      if (o) o.r(12) << y; },
+      o.r(12) << y;
+      cout << "last() exiting" << endl; },
     d, "↓₁");
+}
+
+Γ debug(St prefix, Ψd d = Ψd::f)
+{
+  return new ΓΨ2([prefix](ψ, ξi i, ξo o, Ψaux)
+    { for (let x : i)
+      { cout << prefix << ": ";
+        for (let y : x) cout << y << (y.has_next() ? " " : "");
+        cout << endl;
+        o.r(x.osize()) << x.outer(); }
+      cout << "debug(" << prefix << ") exiting" << endl; },
+    d, "debug:" + prefix);
 }
 
 Γ print(Ψd d = Ψd::f)
@@ -45,8 +66,44 @@ using namespace std;
   return new ΓΨ0([](ψ, ξi i, Ψaux)
     { for (let x : i)
       { for (let y : x) cout << y << (y.has_next() ? " " : "");
-        cout << endl; } },
+        cout << endl; }
+      cout << "print() exiting" << endl; },
     d, "out");
+}
+
+
+Γ forever_server(St p)
+{
+  return new ΓΨ1([p](ψ q, ξo o, Ψaux)
+    { q.b(p, [o](ψ &&q, Ξc &x)
+      { let i = x.f();
+        q.f([i, o]()
+          { for (let x : i) o.r(x.osize()) << x.outer(); });
+        return x.fx(); }); },
+    Ψd::f, "forever_server:" + p, true);
+}
+
+Γ server(St p)
+{
+  return new ΓΨ2([p](ψ q, ξi i, ξo o, Ψaux)
+    { q.b(p, [o](ψ &&q, Ξc &x)
+      { let i = x.f();
+        q.f([i, o]() { for (let x : i) o.r(x.osize()) << x.outer(); });
+        return x.fx(); });
+
+      // Provide a way to decommission the server, which should terminate
+      // the ψ as soon as all client connections are done
+      q.f([q, p, i]() mutable
+        { for (let a : i)
+            if (a.is_sig() && a.sig() == ηsig::ω)
+              q.bx(p); }); },
+    Ψd::f, "server:" + p, true);
+}
+
+Γ connect(St port)
+{
+  return new Γf_{"connect:" + port, [port](Ξc &x)
+    { return x.c(port); }};
 }
 
 
@@ -95,11 +152,30 @@ void try_iota_loop()
 }
 
 
+void try_server_simple()
+{
+  τe t;
+  ( ΞΓpush() | forever_server("p") | debug("server out")
+    | sum() | take(20) | last() | print() | ΞΓdrop()
+
+    | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop()
+    | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop() )(Ξ{t});
+  t.go();
+
+  for (let p : ξs()) cout << "existing ξ: " << *p << endl;
+  for (let p : ψs()) cout << "existing ψ: " << *p << endl;
+
+  A(!ξn(), "ξs outlived try_server_simple: " << ξn());
+  A(ψn() == 1, "more than one ψ outlived try_server_simple: " << ψn());
+}
+
+
 int main()
 {
   try_iota();
   try_iota_rev();
   try_iota_loop();
+  try_server_simple();
   return 0;
 }
 

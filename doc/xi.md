@@ -28,6 +28,12 @@ Once you're done writing the memory, you must do one of two things:
 `commit()` can accept an optional size; if you provide this, it will trim the value to that size, which saves memory.
 
 
+## GC dynamics
+ξ GC works on two levels. First, ξs hold strong references to the [ψs](psi.md) that write into them. This is the primary dataflow GC.
+
+Second, the ξi and ξo wrappers defined in [xiio.hh](../tau/xiio.hh) are designed such that ξi holds a strong reference while ξo is weak. If a η is written into an expired ξ, it will SIGPIPE and terminate the [λ](lambda.hh). (You can check this condition up front with `ξo::operator bool()`.)
+
+
 ## ξ states
 An open ξ has two paths to destruction:
 

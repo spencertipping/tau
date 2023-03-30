@@ -1,15 +1,25 @@
+#include "debug.hh"
 #include "psi.hh"
 #include "begin.hh"
 
 namespace τ
 {
 
+#if τtrack_ψ
+  static S<ψ_*> ψs_;
 
-static iN ψs_ = 0;
+  void ψc_(ψ_ *q) { ψs_.insert(q); }
+  void ψx_(ψ_ *q) { ψs_.erase(q); }
+  uN   ψn()       { return ψs_.size(); }
 
-void ψc_(ψ_ *q) { ++ψs_; }
-void ψx_(ψ_ *q) { A(--ψs_ >= 0, "ψs underflow"); }
-uN   ψn()       { return ψs_; }
+  S<ψ_*> &ψs()    { return ψs_; }
+#else
+  static iN ψs_ = 0;
+
+  void ψc_(ψ_ *q) { ++ψs_; }
+  void ψx_(ψ_ *q) { A(--ψs_ >= 0, "ψs underflow"); }
+  uN   ψn()       { return ψs_; }
+#endif
 
 
 void ψ_::destroy()
@@ -38,6 +48,12 @@ void ψ_::destroy()
 O &operator<<(O &s, ψ const &q)
 {
   return s << q.name();
+}
+
+
+O &operator<<(O &s, ψ_ const &q)
+{
+  return s << q.n_;
 }
 
 

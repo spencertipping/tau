@@ -14,25 +14,24 @@ namespace τ
 // Inline output writer for η values, in this case into a ξ.
 //
 // This object accepts a stream of values that may overflow the initial
-// allocation. If this happens, the next stream operation may block, but
-// your memory will be safe; that is, aside from blocking you don't need
-// to care about the details of the underlying allocation.
+// allocation. If this happens, the next stream operation may block, but your
+// memory will be safe; that is, aside from blocking you don't need to care
+// about the details of the underlying allocation.
 //
-// NOTE: we cannot hold a strong reference to the underlying ξ, so we
-// must tolerate it being deallocated while this object exists. If that
-// happens, writer methods will silently become no-ops.
-
-// TODO: this should be a template so we can write to different types of
-// containers
+// NOTE: we cannot hold a strong reference to the underlying ξ, so we must
+// tolerate it being deallocated while this object exists. If that happens,
+// writer methods will silently become no-ops. If you create a ηo against an
+// expired pointer, it will SIGPIPE and terminate the calling λ.
 template<class T>
 struct ηo final
 {
-  ηo(Wp<T> o, uN c0 = 256) : o_(o), s_(0)
+  ηo(Λ &l, Wp<T> o, uN c0 = 256) : o_(o), s_(0)
     { A(c0, "ηo with no initial capacity");
-      b_ = o_ ? o_.get()->iptr(c0) : Sn<u8>{Sc<u8*>(nullptr), 0}; }
+      if (o_) b_ = o_.get()->iptr(c0);
+      else    l.x(l.i()), τunreachable(); }
 
   ~ηo()
-    { if (!o_.expired())
+    { if (o_)
         if (s_) o_.get()->commit(s_);
         else    o_.get()->abort(); }
 

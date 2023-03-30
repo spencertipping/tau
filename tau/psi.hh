@@ -19,10 +19,20 @@ void ψc_(ψ_*);  // notify that a new ψ_ has been created
 void ψx_(ψ_*);  // notify that a ψ_ has been destroyed
 uN   ψn ();     // number of live ψs
 
+#if τtrack_ψ
+S<ψ_*> &ψs();   // return set of live ψs
+#endif
+
 
 // ψ resource container; not used directly, use ψ instead
 struct ψ_ final
 {
+  τe                   &t_;
+  V<F<void(ψ_&)>>       df_;  // destructor functions
+  S<λi>                 ls_;  // managed λ IDs
+  St                    n_;   // name for debugging purposes
+  M<St, F<Ξ(Ξ const&)>> cs_;  // connection functions
+
   ψ_(τe &t) : t_(t) {            ψc_(this); }
   ~ψ_()             { destroy(); ψx_(this); }
 
@@ -35,17 +45,7 @@ struct ψ_ final
     { A(cs_.contains(port), n_ << " does not bind " << port);
       return cs_[port](x); }
 
-
-protected:
-  τe                   &t_;
-  V<F<void(ψ_&)>>       df_;  // destructor functions
-  S<λi>                 ls_;  // managed λ IDs
-  St                    n_;   // name for debugging purposes
-  M<St, F<Ξ(Ξ const&)>> cs_;  // connection functions
-
   void destroy();
-
-  friend struct ψ;
 };
 
 
@@ -68,9 +68,9 @@ struct ψ final
   ψ &fx(F<void(ψ_&)> &&f) { q_->fx(std::move(f)); return *this; }
   ψ &f (F<void(ψ&)>  &&f) { return this->f([f=std::move(f), this]() { f(*this); }); }
 
-  ψ &b (Stc &p, F<Ξ(ψ&&, Ξ)> &&f)
+  ψ &b (Stc &p, F<Ξ(ψ&&, Ξc&)> &&f)
     { A(!q_->t().route(p), name() << " cannot bind claimed port " << p);
-      q_->cs_[p] = [f=std::move(f), q=q_](Ξ const &x) { return f(ψ(q), x); };
+      q_->cs_[p] = [f=std::move(f), q=q_](Ξc &x) { return f(ψ(q), x); };
       q_->t().bind(p, q_);
       return *this; }
 
@@ -89,7 +89,8 @@ protected:
 };
 
 
-O &operator<<(O&, ψ const&);
+O &operator<<(O&, ψ  const&);
+O &operator<<(O&, ψ_ const&);
 
 
 }

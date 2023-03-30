@@ -15,18 +15,18 @@
 #endif
 
 
+#if !defined(τtrack_ψ)
+# define τtrack_ψ τdebug
+#endif
+
+
+#if !defined(τtrack_ξ)
+# define τtrack_ξ τdebug
+#endif
+
+
 #if τdebug
 # include <iostream>
-#endif
-
-
-#if !defined(τdebug_i9st)
-# define τdebug_i9st 0
-#endif
-
-
-#if !defined(τπ0debug_bounds_checks)
-# define τπ0debug_bounds_checks τdebug
 #endif
 
 

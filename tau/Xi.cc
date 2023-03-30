@@ -11,7 +11,9 @@ namespace τ
 // forward references to ψ members
 Ξ Ξ::c(Stc &port) const
 {
-  return e_.route(port)->connect(port, *this);
+  let q = e_.route(port);
+  A(q, "no ψ binds " << port);
+  return q->connect(port, *this);
 }
 
 

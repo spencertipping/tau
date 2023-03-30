@@ -21,6 +21,10 @@ void ξc_(ξ*);
 void ξd_(ξ*);
 uN   ξn();
 
+#if τtrack_ξ
+S<ξ*> &ξs();
+#endif
+
 
 // η pipe: a circular buffer with Λ-mediated read/write negotiation
 // and endpoint close tracking. We auto-expand the buffer for large

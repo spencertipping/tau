@@ -12,7 +12,7 @@ namespace τ
 
 
 inline Γ ΞΓdrop() { return new Γf_{"Ξ_", [](Ξc &x) { return x.drop(); }}; }
-inline Γ ΞΓpush() { return new Γf_{"Ξ+", [](Ξc &x) { return x.push({}); }}; }
+inline Γ ΞΓpush() { return new Γf_{"Ξ+", [](Ξc &x) { return x.push({{}, {x.t().l(), {}}}); }}; }
 
 inline Γ ΞΓswap()
 {
