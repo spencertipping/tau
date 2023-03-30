@@ -19,8 +19,7 @@ using namespace std;
   return new ΓΨ2([n](ψ, ξi i, ξo o, Ψaux) mutable
     { for (let x : i)
         if (n-- <= 0) break;
-        else if (o)   o.r(x.osize()) << x.outer();
-      i.close(); },
+        else if (o)   o.r(x.osize()) << x.outer(); },
     d, (Ss{} << "↑" << n).str());
 }
 
