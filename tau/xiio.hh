@@ -98,6 +98,9 @@ struct ξd final
 };
 
 
+typedef ξd const ξdc;
+
+
 O &operator<<(O&, ξd const&);
 
 

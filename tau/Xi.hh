@@ -31,8 +31,8 @@ struct Ξk final
 
 
 ξd     Ξkg(Sp<Ξk>, Stc&);                 // get value for key
-Sp<Ξk> Ξkc(Sp<Ξk>, Stc&, ξd const&, uN);  // create k/v binding
-Sp<Ξk> Ξks(Sp<Ξk>, Stc&, ξd const&, uN);  // create or replace k/v binding
+Sp<Ξk> Ξkc(Sp<Ξk>, Stc&, ξdc&, uN);  // create k/v binding
+Sp<Ξk> Ξks(Sp<Ξk>, Stc&, ξdc&, uN);  // create or replace k/v binding
 bool   Ξki(Sp<Ξk>, Stc&);                 // check for existence
 Sp<Ξk> Ξkx(Sp<Ξk>, Stc&);                 // delete k/v binding
 Sp<Ξk> Ξkp(Sp<Ξk>, uN);                   // pop scope
@@ -50,9 +50,11 @@ struct Ξ final
   Sp<Ξk>  v_;  // variables
   uN      s_;  // scope index (keyed things and vars will be ≤s)
 
-  Ξ(τe &e)              : e_(e), t_(nullptr),            m_(nullptr), v_(nullptr), s_(0) {}
-  Ξ(τe &e, ξd const &p) : e_(e), t_(new Ξs{p, nullptr}), m_(nullptr), v_(nullptr), s_(0) {}
-  Ξ(τe &e, Sp<Ξs> t, Sp<Ξk> m, Sp<Ξk> v, uN s) : e_(e), t_(t), m_(m), v_(v), s_(s) {}
+  Ξ(τe &e)         : e_(e), t_(nullptr),            m_(nullptr), v_(nullptr), s_(0) {}
+  Ξ(τe &e, ξdc &p) : e_(e), t_(new Ξs{p, nullptr}), m_(nullptr), v_(nullptr), s_(0) {}
+
+  Ξ(τe &e, Sp<Ξs> t, Sp<Ξk> m, Sp<Ξk> v, uN s)
+    : e_(e), t_(t), m_(m), v_(v), s_(s) {}
 
 
   Ξ &operator=(Ξ const &x)
@@ -71,16 +73,16 @@ struct Ξ final
   Ξ v(Sp<Ξk> v) const { return {e_, t_, m_, v, s_}; }
 
 
-  ξd   kg(Stc &k)              const { return Ξkg(m_, k); }
-  Ξ    ks(Stc &k, ξd const &x) const { return m(Ξks(m_, k, x, s_)); }
-  bool ki(Stc &k)              const { return Ξki(m_, k); }
-  Ξ    kx(Stc &k)              const { return m(Ξkx(m_, k)); }
+  ξd   kg(Stc &k)         const { return Ξkg(m_, k); }
+  Ξ    ks(Stc &k, ξdc &x) const { return m(Ξks(m_, k, x, s_)); }
+  bool ki(Stc &k)         const { return Ξki(m_, k); }
+  Ξ    kx(Stc &k)         const { return m(Ξkx(m_, k)); }
 
-  ξd   vg(Stc &k)              const { return Ξkg(v_, k); }
-  Ξ    vs(Stc &k, ξd const &x) const { return v(Ξks(v_, k, x, s_)); }
-  Ξ    vc(Stc &k, ξd const &x) const { return v(Ξkc(v_, k, x, s_)); }
-  bool vi(Stc &k)              const { return Ξki(v_, k); }
-  Ξ    vx(Stc &k)              const { return v(Ξkx(v_, k)); }
+  ξd   vg(Stc &k)         const { return Ξkg(v_, k); }
+  Ξ    vs(Stc &k, ξdc &x) const { return v(Ξks(v_, k, x, s_)); }
+  Ξ    vc(Stc &k, ξdc &x) const { return v(Ξkc(v_, k, x, s_)); }
+  bool vi(Stc &k)         const { return Ξki(v_, k); }
+  Ξ    vx(Stc &k)         const { return v(Ξkx(v_, k)); }
 
   Ξ pushk(Stc &k) const { return push(kg(k)); }
   Ξ pushv(Stc &k) const { return push(vg(k)); }
@@ -103,11 +105,11 @@ struct Ξ final
   bool ci(Stc &port) const { return Sc<bool>(e_.route(port)); }
 
 
-  Ξ       push(ξd const &x) const { return t(Sp<Ξs>(new Ξs{x, t_})); }
-  Ξ       drop()            const { A(t_, "Ξ::drop() empty"); return t(t_->n); }
-  P<ξd, Ξ> pop()            const { A(t_, "Ξ::pop() empty");  return mp(t_->io, t(t_->n)); }
-  bool   empty()            const { return !t_; }
-  uN     depth()            const
+  Ξ       push(ξdc &x) const { return t(Sp<Ξs>(new Ξs{x, t_})); }
+  Ξ       drop()       const { A(t_, "Ξ::drop() empty"); return t(t_->n); }
+  P<ξd, Ξ> pop()       const { A(t_, "Ξ::pop() empty");  return mp(t_->io, t(t_->n)); }
+  bool   empty()       const { return !t_; }
+  uN     depth()       const
     { auto x = t_;
       uN   i = 0;
       while (x) ++i, x = x->n;
@@ -115,7 +117,10 @@ struct Ξ final
 };
 
 
-O &operator<<(O&, Ξ const&);
+typedef Ξ const Ξc;
+
+
+O &operator<<(O&, Ξc&);
 
 
 }

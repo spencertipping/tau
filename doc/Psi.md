@@ -26,6 +26,8 @@ Servers follow the same topologies as other processors, but they can define one 
 });
 ```
 
+Resources are typically pinned by the constructor function, which may create sub-λs and return early to release these pins.
+
 
 ## Ξ conventions for aux connections
 **TODO**

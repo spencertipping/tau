@@ -12,12 +12,13 @@ namespace τ
 
 
 // Λ breaker: catch any attempts to kill the thread and store killed-status
-// so we can exit at a safe point. This is used to safely unwind C stacks.
+// so we can exit at a safe point. This is used to safely unwind stacks that
+// involve exception-unaware C callbacks.
 //
 // λb(f) → catch trips within f()
 // λb.t() → trip the breaker (resuming will unwind)
 // λb.r() → resume, unwinding if we have been tripped
-//
+
 struct λb final
 {
   // Execute a function safely, that is, catching all trips that may result.

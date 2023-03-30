@@ -1,13 +1,11 @@
 # _Γ ∷ Ξ → Ξ_
-Γs transform [Ξs](Xi.md), creating [ψs](psi.md) as processing elements. Γs can be combined associatively like matrices.
+Γs transform [Ξs](Xi.md) and can be combined associatively like matrices.
 
-See also [Ψ](Psi.md), which is a more specific abstraction used to create ψs.
+Some Γs manipulate Ξ state, while others transform [ξ](xi.md) duplexes by creating [ψ](psi.md) processor elements. Common ψ topologies are factored into the [Ψ](Psi.md) library of Γs.
 
-**NOTE:** some Γs can refer to global values and add connections. For example, we might have a shared database that can accept new RPC connections as it's running. It would internally use a multiplexer to track each input and reply with query results. Externally, that Γ would terminate a Ξ into a new multiplexed pair.
-
-
-**TODO:** define some Γ operators that do stuff with the Ξ stack, e.g. `+` and `%`
-
-**NOTE:** stack Ξ operators should probably have a prefix, maybe `/`?
-
-**Q:** how do we push a ξ pair?
+```bash
+$ bin/gamma
+55
+500500
+50005000
+```
