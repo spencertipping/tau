@@ -24,7 +24,7 @@ uN   ξn();
 
 // η pipe: a circular buffer with Λ-mediated read/write negotiation
 // and endpoint close tracking. We auto-expand the buffer for large
-// values.
+// values. (Note that ξ can carry non-η values too; it's data-agnostic.)
 //
 // ξs will be deleted if nobody wants to read from them, and writers
 // can call .close() to indicate that no further values will be
@@ -32,6 +32,9 @@ uN   ξn();
 // data is consumed.
 //
 // ξ values are framed with a native-endian length.
+//
+// NOTE: don't create ξs directly; use τe::pipe(), which wraps with
+// ξi and ξo and does proper memory management.
 struct ξ final
 {
   ξ(Λ &l, uN c)
@@ -64,10 +67,14 @@ struct ξ final
   //
   // To write a value, first call iptr() with an upper bound on the size you
   // want to use, then call commit() or abort()
-  void close() { wc = true; rg.w(true); }
+
+  // Closing the writer means that the reader no longer depends on it;
+  // so the writer is immediately up for deallocation. We do this by
+  // weakening the input reference.
+  void close() { wc = true; rg.w(true); weaken(); }
 
   Sn<u8> iptr(uN size, bool nonblock = false)
-    { A(!s, "ξ: iptr(" << size << ") with uncommitted value");
+    { A(!s,   "ξ: iptr(" << size << ") with uncommitted value");
       A(size, "ξ: iptr() on size = 0");
       ensure(size + uNs);
       return reserve(size, nonblock); }

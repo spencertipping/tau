@@ -43,15 +43,18 @@ struct τb  // base τ
 
   P<ξo, ξi> pipe(uN c = 8192) { let x = Sp<ξ>(new ξ(l_, c)); return mp(ξo(x), ξi(x)); }
 
+  Sp<ψ_> route (Stc &port)     const { return b_.contains(port) ? b_.at(port) : Sp<ψ_>{}; }
   bool   bind  (Stc &port, Sp<ψ_> q) { let c = b_.contains(port); b_[port] = q; return !c; }
   void   unbind(Stc &port)           { b_.erase(port); }
-  Sp<ψ_> route (Stc &port)     const { return b_.contains(port) ? b_.at(port) : Sp<ψ_>{}; }
+
+  St gensym(Stc &pre) { return (Ss{} << "τgs_" << pre << gs_++).str(); }
 
 
 protected:
-  Λ             l_;  // Λ thread manager
-  PQ<τΘ>        h_;  // timed threads
-  M<St, Sp<ψ_>> b_;  // ψs with bound ports
+  Λ             l_;       // Λ thread manager
+  PQ<τΘ>        h_;       // timed threads
+  M<St, Sp<ψ_>> b_;       // ψs with bound ports
+  u64           gs_ = 0;  // gensym ID
   Θp const      t0_ = now();
 };
 

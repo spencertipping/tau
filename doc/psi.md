@@ -3,7 +3,7 @@
 
 1. ψ GC follows dataflow dependency
 2. ψs' _only_ form of communication is through ξs
-3. All λs within a ψ are simultaneously deallocated when the ψ is destroyed
+3. All λs within a ψ are simultaneously terminated when the ψ is destroyed
 
 There are two types of ψs (implemented with C++ derived classes):
 
@@ -15,8 +15,9 @@ There are two types of ψs (implemented with C++ derived classes):
 GC is simple: a ψ is destroyed when:
 
 1. Nobody reads from its output ξs (or they are closed), and
-2. It has no active server ports, and
-3. It is not τ-pinned, e.g. registered as something that produces side-effects
+2. It is not τ-pinned
+
+τ pins arise from server ports or from an explicit pin request. A ψ can request a pin to indicate that it creates process-external side effects, e.g. writing to a file.
 
 
 ## Server ports

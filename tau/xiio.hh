@@ -50,19 +50,30 @@ protected:
 };
 
 
+// ξ auto-closer
+// Closes a ξ once all references to it are freed. Used by ξo.
+struct ξoc final
+{
+  ξoc(Wp<ξ> x_) : x(x_) {}
+  ~ξoc() { if (let y = x.lock()) y->close(); }
+
+protected:
+  Wp<ξ> x;
+};
+
+
 // A ξ writer, weakly-referenced
 // Note that all operations are const-qualified to simplify usage from
 // inside C++ lambdas, but aren't constant with respect to the underlying
 // ξ. This is kind of what you'd expect since ξo is a thin wrapper.
 //
-// TODO: add auto-close when all ξo instances are gone (this requires a
-// second pointer, I think; its lifecycle differs from the weak ptr)
+// Automatically calls ξ::close() once the last ξo instance is deleted.
 struct ξo final
 {
   ξo() {}
-  ξo(Wp<ξ> x_) : x(x_) {}
+  ξo(Wp<ξ> x_) : x(x_), oc(new ξoc(x)) {}
 
-  ξo &operator=(ξo const &c) { x = c.x; return *this; }
+  ξo &operator=(ξo const &c) { x = c.x; oc = c.oc; return *this; }
 
   operator  bool   ()            const { return !x.expired(); }
   ξo const &ensure (uN c)        const { if (let y = x.lock()) y->ensure(c); return *this; }
@@ -72,7 +83,8 @@ struct ξo final
 
 
 protected:
-  Wp<ξ> x;
+  Wp<ξ>   x;
+  Sp<ξoc> oc;
 };
 
 
