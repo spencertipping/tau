@@ -54,7 +54,7 @@ struct ψ final
 {
   ψ(τe    &t) : t_(t), q_(new ψ_(t)) {}
   ψ(Sp<ψ_> q) : t_(q->t_), q_(q) {}
-  ψ(ψ_    *q) : t_(q->t_), q_(q) {}
+  ψ(Wp<ψ_> w) : t_(w.get()->t_), w_(w) {}
 
   ψ(τe &t, St n) : ψ(t) { name(n); }
 
@@ -72,7 +72,7 @@ struct ψ final
     { let r = q();
       A(r, "ψ::b(" << p << ") on null ψ");
       A(!r->t().route(p), name() << " cannot bind claimed port " << p);
-      r->cs_[p] = [f=std::move(f), q=r](Ξc &x) { return f(ψ(q), x); };
+      r->cs_[p] = [f=std::move(f), q=Wp<ψ_>(r)](Ξc &x) { return f(ψ(q), x); };
       r->t().bind(p, r);
       return *this; }
 

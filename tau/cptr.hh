@@ -30,7 +30,7 @@ struct ptr_ctrl final
 
 private:
   void post_release()
-    { if (!sr && p) { df(p); df = nullptr; p = nullptr; }
+    { if (!sr && p) { let q = p; p = nullptr; df(q); df = nullptr; }
       if (!sr && !wr) delete this; }
 };
 

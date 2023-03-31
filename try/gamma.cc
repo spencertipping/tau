@@ -181,16 +181,19 @@ void try_iota_loop()
 
 void try_server_simple()
 {
-  τe t;
-  ( ΞΓpush() | forever_server("p")
-    | sum() | take(20) | last() | print() | ΞΓdrop()
+  {
+    τe t;
+    ( ΞΓpush() | forever_server("p")
+      | sum() | take(20) | last() | print() | ΞΓdrop()
 
-    | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop()
-    | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop() )(Ξ{t});
-  t.go();
+      | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop()
+      | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop() )(Ξ{t});
+    t.go();
 
-  A(!ξn(), "ξs outlived try_server_simple: " << ξn());
-  A(ψn() == 1, "more than one ψ outlived try_server_simple: " << ψn());
+    A(!ξn(), "ξs outlived try_server_simple: " << ξn());
+    A(ψn() == 1, "more than one ψ outlived try_server_simple: " << ψn());
+  }
+  A(!ψn(), "ψ outlived τ");
 }
 
 

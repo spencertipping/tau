@@ -32,6 +32,8 @@ struct τb  // base τ
   τb(τb&&) = delete;
   τb() {}
 
+  virtual ~τb() { fin_ = true; }
+
   Λ  &l()      { return l_; }
   ΔΘ  dt(Θp p) { return t0_ - p; }
 
@@ -45,17 +47,18 @@ struct τb  // base τ
 
   Sp<ψ_> route (Stc &port)     const { return b_.contains(port) ? b_.at(port) : Sp<ψ_>{}; }
   bool   bind  (Stc &port, Sp<ψ_> q) { let c = b_.contains(port); b_[port] = q; return !c; }
-  void   unbind(Stc &port)           { b_.erase(port); }
+  void   unbind(Stc &port)           { if (!fin_) b_.erase(port); }
 
   St gensym(Stc &pre) { return (Ss{} << "τgs_" << pre << gs_++).str(); }
 
 
 protected:
-  Λ             l_;       // Λ thread manager
-  PQ<τΘ>        h_;       // timed threads
-  M<St, Sp<ψ_>> b_;       // ψs with bound ports
-  u64           gs_ = 0;  // gensym ID
-  Θp const      t0_ = now();
+  Λ             l_;            // Λ thread manager
+  PQ<τΘ>        h_;            // timed threads
+  M<St, Sp<ψ_>> b_;            // ψs with bound ports
+  u64           gs_  = 0;      // gensym ID
+  bool          fin_ = false;  // if true, most operations are nops
+  Θp const      t0_  = now();
 };
 
 
