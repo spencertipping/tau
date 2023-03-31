@@ -5,11 +5,6 @@
 2. ψs' _only_ form of communication is through ξs
 3. All λs within a ψ are simultaneously terminated when the ψ is destroyed
 
-There are two types of ψs (implemented with C++ derived classes):
-
-+ Basic ψs, which have no external interface
-+ Server ψs, which register [τ](tau.md)-level ports
-
 
 ## GC
 GC is simple: a ψ is destroyed when:
@@ -29,6 +24,14 @@ bool τe::unbind (St port, Wp<ψ> = nullptr);  // undo binding
 Ξ    ψ ::connect(St port, Ξ);
 ```
 
-Note that any ψ with a bound server port will be GC-pinned.
+These are not used directly; instead, use ψ and Ξ methods:
+
+```cpp
+ψ &ψ::b (St port, F<Ξ(ψ&&, Ξc&)>);  // calls τ::bind
+ψ &ψ::bx(St port);                  // calls τ::unbind
+Ξ  Ξ::c (St port);                  // calls ψ::connect
+```
+
+Note that any ψ with a bound server port will be GC-pinned by its τ.
 
 Connections are perfect forwarders of Ξ, meaning that the server can decide how to handle half/full duplexes as well as any named sidecars. The server can also transform the Ξ and returns its continuation. In most cases, this continuation is empty (that is, the server terminates the Ξ).

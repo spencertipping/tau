@@ -72,6 +72,10 @@ struct ψ final
     { let r = q();
       A(r, "ψ::b(" << p << ") on null ψ");
       A(!r->t().route(p), name() << " cannot bind claimed port " << p);
+
+      // NOTE: callback function cannot hold a strong reference to ψ; if it does,
+      // the ψ has the ability to outlive its τ boundary (instead, we rely on τ
+      // to hold the strong reference and we hold a weak one here).
       r->cs_[p] = [f=std::move(f), q=Wp<ψ_>(r)](Ξc &x) { return f(ψ(q), x); };
       r->t().bind(p, r);
       return *this; }

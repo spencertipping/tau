@@ -3,6 +3,8 @@
 
 **η is designed for simplicity above almost all else.** As the interop format, I'm going to end up writing multiple η libraries -- C++, Rust, Python, and maybe Go.
 
++ [η signal conventions](eta-signals.md)
+
 
 ## Format
 Each η value's size can be calculated in constant time, with the exception of the toplevel value which is a stream of values. Each value begins with a control byte, which describes the type and size-encoding of the thing that comes after it. There are 16 types and 16 size encodings:

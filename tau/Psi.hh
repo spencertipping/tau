@@ -66,7 +66,7 @@ struct ΓΨd_ : public virtual Γ_
 
 // NOTE: this class has special lifetime rules (no q.weaken()) because
 // nobody consumes its output; that means it lives as long as the constructor
-// function is running.
+// function is running, or creates other λs that hold references to ψ.
 struct ΓΨ0 final : public virtual ΓΨd_
 {
   Ψ0 const p;

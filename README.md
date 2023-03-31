@@ -37,14 +37,14 @@ This τ GC corresponds to a signal exponentially decaying below the noise floor 
 ## Language model
 τ programs are written as a series of compositional dataflow equations that involve associative channel-vector transformations.
 
-+ [Ξ](doc/Xi.md): polymorphic ξ containers
++ [Ξ](doc/Xi.md): monomorphic, immutable cables of ξs
 + [Γ](doc/Gamma.md): polymorphic, immutable Ξ transformers
 + [Ψ](doc/Psi.md): monomorphic stream transformers
 + [φ](doc/phi.md): parser combinators
 
 These are compiler objects, meaning that they don't actually contain live resources. Instead, Γs are functions that take Ξs as inputs and return Ξs as outputs, constructing native resources in the process.
 
-See [compiler structures](doc/compiler-structures.md) for a quick rundown of how these structures interact.
+Ξs have a relatively complex state space including a stack of ξ duplexes, variable bindings, and keyed sidecar ξs. Structurally, Ξ acts as an interpreter state for Γs, which are applied concatenatively.
 
 
 ## Designing τ applications
