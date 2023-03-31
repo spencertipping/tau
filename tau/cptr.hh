@@ -20,7 +20,8 @@ struct ptr_ctrl final
   iN          sr = 0;        // strong ref count
   iN          wr = 0;        // weak ref count
   T          *p  = nullptr;  // pointer to object
-  F<void(T*)> df;            // deleter function, or none for default
+  F<void(T*)> df = nullptr;  // deleter function, or none for default
+  bool        re = false;    // re-entrancy flag for post_release()
 
   void weak_acquire()   { ++wr; }
   void strong_acquire() { ++sr; }
@@ -30,8 +31,11 @@ struct ptr_ctrl final
 
 private:
   void post_release()
-    { if (!sr && p) { let q = p; p = nullptr; df(q); df = nullptr; }
-      if (!sr && !wr) delete this; }
+    { if (re) return;
+      re = true;
+      if (!sr && p) { let q = p; p = nullptr; df(q); df = nullptr; }
+      if (!sr && !wr) { delete this; return; }
+      re = false; }
 };
 
 
