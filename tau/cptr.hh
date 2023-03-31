@@ -25,8 +25,8 @@ struct ptr_ctrl final
   void weak_acquire()   { ++wr; }
   void strong_acquire() { ++sr; }
 
-  void weak_release()   { --wr; post_release(); }
-  void strong_release() { --sr; post_release(); }
+  void weak_release()   { A(--wr >= 0, "ptr_ctrl wr < 0: " << wr); post_release(); }
+  void strong_release() { A(--sr >= 0, "ptr_ctrl sr < 0: " << sr); post_release(); }
 
 private:
   void post_release()
@@ -93,13 +93,13 @@ struct weak_ptr final
 
   ~weak_ptr() { if (c) c->weak_release(); }
 
+
   weak_ptr<T> &operator=(weak_ptr<T> const &x)
     { if (x.c) x.c->weak_acquire();
       if (c)   c  ->weak_release();
       p = x.p;
       c = x.c;
       return *this; }
-
 
   void reset()
     { if (c) c->weak_release();
@@ -114,7 +114,7 @@ struct weak_ptr final
 
   shared_ptr<T> lock() const
     { if (expired()) return {nullptr};
-      else           return {p, c}; }
+      else           return {c->p, c}; }
 
   iN use_count() const { return c ? c->sr : 0; }
 };
