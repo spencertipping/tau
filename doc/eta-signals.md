@@ -24,20 +24,28 @@ You can embed a signal inside other data, at which point it has no default effec
 ```
 1 2 τ
 "foo" ω
-true κ
+true κ 2 3 τ 5
 ```
+
+The same is true if you have a sub-η: `(τ)` is also regular data.
 
 
 ## Ψ₂ signal dispositions
-Many Ψ₂s are _linear_ in the sense that they don't interact with signals. This means any inbound signals are forwarded directly to the output. Linear processing loops can be created by using `ηlinear`:
+Many Ψ₂s are _linear_ in the sense that they don't interact with signals. This means any inbound signals are forwarded directly to the output. Linear processing loops can be created by using `ηl`:
 
 ```cpp
 ξi i;
 ξo o;
-ηlinear(i, o, [o](ηi x)
-{
-  // normal logic to call o.r()...
-});
+ηl(i, o, [&](ηi x) { o.r() << x.i() + 1; });
 ```
 
-Nonlinear loops are by their nature custom, and as a result there aren't (yet) helper functions for them.
+Another common pattern is to have some effect that occurs on τ cycles. For example, suppose you want to sum each τ-delimited group and emit just the totals. That logic could be written like this:
+
+```cpp
+ξi i;
+ξo o;
+i64 t = 0;
+ητ(i, o,
+   [&](ηi x) { t += x.i(); },          // handle normal data
+   [&]()     { o.r() << t; t = 0; });  // handle τ signal
+```
