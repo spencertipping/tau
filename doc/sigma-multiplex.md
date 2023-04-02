@@ -29,7 +29,7 @@ Although you could in principle have an unterminated `{`, it isn't common in pra
 
 `)` by itself creates a τ server; each inbound connection is mixed into the right-hand side, which receives all clients in a tagged union. (Inbound connections can send a single `k α` pair to define their tag; this won't be forwarded to the output, but will register state with `)`.)
 
-Because `)` is a server and servers return client-connectors, `(...)` is equivalent to `&foo )...` followed by `(... &foo`.
+Because `)` is a server and servers return client-connectors, `(...)` is equivalent to `:)foo ...` followed by `(... &foo`.
 
 
 ## Asymmetric cross-multiplexing
