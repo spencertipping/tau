@@ -26,7 +26,7 @@ Although you could in principle have an unterminated `{`, it isn't common in pra
 
 Unlike `(...)`, which is a full-duplex ξ operator, a lone `)` creates a server that tracks tagged inbound connections and mixes them into a single ξ.
 
-
+**FIXME:** given this design, we should be able to write `( ... &foo` and define `:foo )...`.
 
 
 ## Asymmetric cross-multiplexing
