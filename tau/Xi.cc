@@ -70,6 +70,23 @@ Sp<Ξk> Ξkp(Sp<Ξk> x, uN s)
 }
 
 
+M<St, ξd> Ξ::ktop() const
+{
+  M<St, ξd> r;
+  for (auto x = m_; x && x->s == s_; x = x->n)
+    r.emplace(x->k, x->v);
+  return r;
+}
+
+M<St, ξd> Ξ::vtop() const
+{
+  M<St, ξd> r;
+  for (auto x = v_; x && x->s == s_; x = x->n)
+    r.emplace(x->k, x->v);
+  return r;
+}
+
+
 O &operator<<(O &s, Ξ const &x)
 {
   s << "Ξ s=" << x.s_ << ", depth=" << x.depth() << std::endl;

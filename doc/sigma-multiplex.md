@@ -1,43 +1,32 @@
 # Multiplexers and duplex connections
-Static multiplexers are straightforward because they back into Ξ channels:
+σ supports two types of multiplexing:
+
+1. Static/heterogeneous, written `{...}`
+2. Dynamic/homogeneous, written `(...)`
+
+Static multiplexers are parsed as a series of Γ alternatives, each prefixed by its key. For example:
 
 ```
-{         # { is multiplexer op
-  a[...]  # a[...] is a specific branch
-  b[...]  # b[...] is another branch
+... { a[...] b[...] }
 ```
 
-At this point our Ξ will have two named full-duplex channels: `a` and `b`. We can use `}` to demultiplex those down to a single full-duplex tagged connection:
-
-```
-{ a[...] b[...] }
-```
-
-We could also address the multiplexed Ξ individually prior to the demultiplex, possibly renaming our channels:
-
-```
-{ a[...] b[...] .a[...] .b[...] }
-```
+There are several things happening here; let's break them down.
 
 
-## Keying schemes
-**FIXME:** port this to new η model
+## Static multiplexer syntax
+`{` and `}` are mirror operators: `{` splits from the left and joins from the right, `}` does the opposite. `{` terminates the top ξ and awaits a series of named-ξ Γ definitions, each of which will transform a keyed axis of the demultiplexed ξ. `}` then joins all keyed things back into the top ξ.
 
-+ `(k, v)`: entupled key
-+ `(k, a, b, ...)`: tuple-spliced key
-+ `{k x ...}`: map-spliced key (on `k`)
+Internally, we do this with scope indexes: `{` increments the scope index and `}` collects+decrements it.
 
-**TODO:** define syntax to select the keying scheme for each multiplexer
+Although you could in principle have an unterminated `{`, it isn't common in practice.
 
 
-## Dynamic `()`
-Dynamic multiplexers create new branches in response to new input tags. These are written `(π[Γ])`, for example:
+## Dynamic multiplexers
+`(` and `)` are also mirrors; unlike `{}`, however, `(` is must always be terminated by a `)`. The only exception is when the inner Γ right-caps its ξ, making the `(` a one-sided operator.
 
-```
-( >$y )  # write each stream into a file
-```
+Unlike `(...)`, which is a full-duplex ξ operator, a lone `)` creates a server that tracks tagged inbound connections and mixes them into a single ξ.
 
-Because `(` is dynamic, **it does not result in a multiplexed Ξ** -- we must immediately demultiplex the stream down to a single full duplex with `)`. Either end can create inner connections.
+
 
 
 ## Asymmetric cross-multiplexing

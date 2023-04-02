@@ -88,8 +88,10 @@ struct Ξ final
   Ξ pushv(Stc &k) const { return push(vg(k)); }
 
 
-  Ξ vpush() const { return {e_, t_, m_, v_, s_ + 1}; }
-  Ξ  vpop() const { return {e_, t_, Ξkp(m_, s_ - 1), Ξkp(v_, s_ - 1), s_ - 1}; }
+  Ξ        spush() const { return {e_, t_, m_, v_, s_ + 1}; }
+  Ξ         spop() const { return {e_, t_, Ξkp(m_, s_ - 1), Ξkp(v_, s_ - 1), s_ - 1}; }
+  M<St, ξd> ktop() const;
+  M<St, ξd> vtop() const;
 
 
   ξi f()            const { return t_->io.f; }

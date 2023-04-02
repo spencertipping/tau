@@ -5,8 +5,6 @@
 
 **TODO:** rewrite definitions below
 
-**TODO:** rewrite multiplexer topology stuff
-
 
 ## Complex topologies
 + [Multiplexers and duplex connections](sigma-multiplex.md)
