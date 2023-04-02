@@ -52,7 +52,7 @@
 | `c`      | R     |                                  |
 | `d`      | R     |                                  |
 | `e`      | R     |                                  |
-| `f`      |       | tuple field transform            |
+| `f`      |       | field transform                  |
 | `g`      |       | τ-grouped sort                   |
 | `h`      |       | HTTP/S+WS client                 |
 | `i`      |       | η identity out                   |
@@ -65,12 +65,12 @@
 | `p`      | π     | π program                        |
 | `q`      |       |                                  |
 | `r`/`R`  | π     | π row selector (+ lossy queues)  |
-| `s`      | P     | prefix for shell commands        |
+| `s`      | P     | SSH client                       |
 | `t`      |       | TCP client                       |
 | `u`      |       | UDP client                       |
 | `v`      |       | UNIX domain socket client        |
 | `w`/`W`  | Γ     | tuple/map horizontal join        |
-| `x`      |       |                                  |
+| `x`      |       | prefix for shell execution       |
 | `y`      | P     | prefix for Python interop        |
 | `z`      | P     | prefix for compression           |
 | `A`      |       |                                  |

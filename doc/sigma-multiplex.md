@@ -22,11 +22,14 @@ Although you could in principle have an unterminated `{`, it isn't common in pra
 
 
 ## Dynamic multiplexers
-`(` and `)` are also mirrors; unlike `{}`, however, `(` is must always be terminated by a `)`. The only exception is when the inner Γ right-caps its ξ, making the `(` a one-sided operator.
+`(` and `)` are also mirrors; unlike `{}`, however, `(` must be terminated by a `)` with two exceptions:
 
-Unlike `(...)`, which is a full-duplex ξ operator, a lone `)` creates a server that tracks tagged inbound connections and mixes them into a single ξ.
+1. `( ... &s`: each Γ connects to a server
+2. `( ... |x`: the final Γ operator right-caps the ξ
 
-**FIXME:** given this design, we should be able to write `( ... &foo` and define `:foo )...`.
+`)` by itself creates a τ server; each inbound connection is mixed into the right-hand side, which receives all clients in a tagged union. (Inbound connections can send a single `k α` pair to define their tag; this won't be forwarded to the output, but will register state with `)`.)
+
+Because `)` is a server and servers return client-connectors, `(...)` is equivalent to `&foo )...` followed by `(... &foo`.
 
 
 ## Asymmetric cross-multiplexing
