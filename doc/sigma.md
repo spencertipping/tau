@@ -1,119 +1,172 @@
 # σ: the τ standard library
-σ defines common utilities that make τ ergonomic and useful. This includes [Γ](Gamma.md) components and [φ](phi.md) parsers. The `σ` namespace doesn't include `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
-
-σ is designed for the program-authoring use case, meaning that you're dropped into a [π](pi.md) interpreter that is preloaded with σ bindings. The π program should evaluate to a Γ that is applied to an empty [Ξ](Xi.md) to form the initial steady state.
-
-**TODO:** rewrite definitions below
+σ defines common utilities that make τ ergonomic and useful. This includes [Γ](Gamma.md) components and [φ](phi.md) parsers. The `σ` namespace doesn't export `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
 
 
 ## Complex topologies
 + [Multiplexers and duplex connections](sigma-multiplex.md)
 
 
-## π toplevel table (`π`)
-| Symbol | Syntax | Description              |
-|--------|--------|--------------------------|
-| `:`    | n v    | define variable          |
-| `$`    | n      | refer to variable        |
-| `&`    | n      | refer to τ server socket |
+## Toplevel entities
+The σ parser is split into context-specific branches, each of which has its own symbol table:
+
++ [Γ](Gamma.md)
++ [Ψ](Psi.md)
++ [π](pi.md)
 
 
-## Γ topology symbol table (`Γ`)
-| Symbol  | Syntax     | Description                       |
-|---------|------------|-----------------------------------|
-| `[`/`]` | Γ\*        | Γ grouping                        |
-| `(`/`)` | L? Γ\*     | dynamic half-duplex demultiplexer |
-| `{`/`}` | L? (k Γ)\* | static full-duplex demultiplexer  |
-| \`A     |            | authentication prefix             |
-| \`D     |            | decryption prefix                 |
-| \`E     |            | encryption prefix                 |
-| \`P     | Γ          | fork to local process             |
-| \`X     |            | OT integral prefix                |
-| \`Y     |            | OT derivative prefix              |
-| \`Z     |            | OT structure prefix               |
-| `\|`    | Ψ2         | modify processor to right-cap     |
-| `\\`    | Ψ2         | modify processor to backward      |
-| `.`     |            | Ξ subscript                       |
-| `,`     |            | ξ bundle (collect into Ξ)         |
-| `!`     |            | evaluate a Γ to a static ψ        |
-| `;`     |            | non-blocking side tap             |
-| `:*`    |            | omni-blocking broadcast           |
-| `:+`    |            | multi-way append                  |
-| `:^`    |            | multi-way prepend                 |
-| `:%`    |            | multi-way interleave              |
-|         | Ψ2         | implicit fallover to half-duplex  |
+## Parse tables
+First an overall map of which characters are mapped to which tables. Numbers represent Ψ levels, `S` represents syntax (comments/whitespace). π is listed separately below.
+
+```
+
+sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
+Γ/Ψ   2 ΓΓ   0   22 Γ2200002444S     222022 20 2 222222222
+π    ηηηηηη   m    m           S  m           m   d    vvv
+
+sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
+Γ/Ψ   4SΓ22Γ      2ΓΓΓΓΓΓ 222  Γ  4 4
+π    mLS ddddLLdd d  LL d mdd    LL L
+```
 
 
-## Γ half-duplex table (`Ψ2`)
-| Symbol   | Notes | Description                      |
-|----------|-------|----------------------------------|
-| `a`      | R     | reserved for lens disambiguation |
-| `b`      | R     |                                  |
-| `c`      | R     |                                  |
-| `d`      | R     |                                  |
-| `e`      | R     |                                  |
-| `f`      |       | field transform                  |
-| `g`      |       | τ-grouped sort                   |
-| `h`      |       | HTTP/S+WS client                 |
-| `i`      |       | η identity out                   |
-| `j`      | L? Γ  | τ-grouped sorted join            |
-| `k`      |       | τ after each item                |
-| `l`      |       |                                  |
-| `m`      |       | π 1:1 map                        |
-| `n`/`N`  |       | numeric ι/ϊ                      |
-| `o`      |       |                                  |
-| `p`      | π     | π program                        |
-| `q`      |       |                                  |
-| `r`/`R`  | π     | π row selector (+ lossy queues)  |
-| `s`      | P     | SSH client                       |
-| `t`      |       | TCP client                       |
-| `u`      |       | UDP client                       |
-| `v`      |       | UNIX domain socket client        |
-| `w`/`W`  | Γ     | tuple/map horizontal join        |
-| `x`      |       | prefix for shell execution       |
-| `y`      | P     | prefix for Python interop        |
-| `z`      | P     | prefix for compression           |
-| `A`      |       |                                  |
-| `B`      | P     | prefix for bounded buffers       |
-| `C`      |       |                                  |
-| `D`      |       |                                  |
-| `E`      |       |                                  |
-| `F`      | P     | prefix for formatted IO          |
-| `G`      |       | stateful gate                    |
-| `H`      | Γ     | HTTP+WS server                   |
-| `I`      |       | η repeated out                   |
-| `J`      | L? Γ  | τ-grouped unordered join         |
-| `K`      |       | τ repeater                       |
-| `L`      | R     | reserved for lens prefix         |
-| `M`      |       | monitor                          |
-| `N`/`n`  |       | numeric ϊ/ι                      |
-| `O`      |       |                                  |
-| `P`      | P     | prefix for parallelism           |
-| `Q`      |       | prefix for queues                |
-| `R`/`r`  | π     | π row selector                   |
-| `S`      | Γ     | SSH server                       |
-| `T`      | Γ     | TCP server                       |
-| `U`      | Γ     | UDP server                       |
-| `V`      | Γ     | UNIX domain socket server        |
-| `W`/`w`  | Γ     | tuple/map horizontal join        |
-| `X`      |       |                                  |
-| `Y`      |       |                                  |
-| `Z`      |       |                                  |
-| `#`      |       |                                  |
-| `@`      | P     | prefix for DBs                   |
-| `~`      | P     | prefix for delay and rate-limit  |
-| `<`      | P     | prefix for unboxing              |
-| `>`      | P     | prefix for boxing                |
-| `?`      |       |                                  |
-| `/`      | P     | platform-specific namespace      |
-| `+`      |       | τ-group append                   |
-| `^`      |       | τ-group prepend                  |
-| `%`      |       | Γ union (eager interleave)       |
-| `&`      |       |                                  |
-| `=`      |       |                                  |
-| `-`      |       |                                  |
-| `*`      |       |                                  |
-| backtick | R     | reserved for prefixing           |
-| `'`      |       | dynamic transpose (cross-mix)    |
-| `"`      |       |                                  |
-| `_`      |       | null port                        |
+### Γ table
+| Symbol  | Syntax  | Description                       |
+|---------|---------|-----------------------------------|
+| `:`     | n v     | define variable                   |
+| `$`     | n       | refer to variable                 |
+| `&`     | n       | refer to τ server socket          |
+| `[`/`]` | Γ\*     | Γ grouping                        |
+| `(`/`)` | Γ\*     | dynamic half-duplex demultiplexer |
+| `{`/`}` | (k Γ)\* | static full-duplex demultiplexer  |
+| `A`     |         | authentication prefix             |
+| `D`     |         | decryption prefix                 |
+| `E`     |         | encryption prefix                 |
+| `P`     | Γ       | fork to local process             |
+| `\|`    | Ψ[012]  | modify processor to right-cap     |
+| `\\`    | Ψ[012]  | modify processor to backward      |
+
+
+### Ψ₀ table
+| Symbol | Notes | Description               |
+|--------|-------|---------------------------|
+| `i`    |       | η identity out            |
+| `I`    |       | η repeated out            |
+| `n`    |       | ι                         |
+| `S`    | Γ     | SSH server                |
+| `T`    | Γ     | TCP server                |
+| `U`    | Γ     | UDP server                |
+| `V`    | Γ     | UNIX domain socket server |
+
+
+### Ψ₁ table
+| Symbol   | Notes | Description                     |
+|----------|-------|---------------------------------|
+
+
+### Ψ₂ half-duplex table
+| Symbol  | Notes | Description                      |
+|---------|-------|----------------------------------|
+| `f`     |       | field transform                  |
+| `g`     |       | τ-grouped sort                   |
+| `h`     |       | HTTP/S+WS client                 |
+| `j`     | L? Γ  | τ-grouped sorted join            |
+| `k`     |       | τ after each item                |
+| `m`     |       | π 1:1 map                        |
+| `p`     | π     | π program                        |
+| `r`/`R` | π     | π row selector + row drop macros |
+| `s`     | P     | SSH client                       |
+| `t`     |       | TCP client                       |
+| `u`     |       | UDP client                       |
+| `v`     |       | UNIX domain socket client        |
+| `w`/`W` | Γ     | tuple/map horizontal join        |
+| `x`     |       | prefix for shell execution       |
+| `y`     | P     | prefix for Python interop        |
+| `z`     | P     | prefix for compression           |
+| `B`     | P     | prefix for bounded buffers       |
+| `H`     | Γ     | HTTP+WS server                   |
+| `J`     | L? Γ  | τ-grouped unordered join         |
+| `M`     |       | monitor                          |
+| `N`     |       | numeric ϊ                        |
+| `P`     | P     | prefix for parallelism           |
+| `Q`     |       | prefix for queues                |
+| `<`     | P     | prefix for unboxing              |
+| `>`     | P     | prefix for boxing                |
+| `~`     | P     | prefix for delay and rate-limit  |
+| `+`     | Γ     | τ-group append                   |
+| `^`     | Γ     | τ-group prepend                  |
+| `%`     | Γ     | Γ union (eager interleave)       |
+
+
+### Ψ₄ full-duplex table
+| Symbol | Notes | Description                   |
+|--------|-------|-------------------------------|
+| `'`    |       | dynamic transpose (cross-mix) |
+| `@`    | P     | prefix for DBs                |
+| `/`    | P     | platform-specific namespace   |
+| `//`   | P     | synthetic namespace           |
+| `X`    |       | OT integral prefix            |
+| `Y`    |       | OT derivative prefix          |
+| `Z`    |       | OT structure prefix           |
+
+
+## π tables
+### Input accessors (`η`)
+| Symbol | Description |
+|--------|-------------|
+| `A`    | `η[0]`      |
+| `B`    | `η[1]`      |
+| `C`    | `η[2]`      |
+| `D`    | `η[3]`      |
+| `E`    | `η[4]`      |
+| `F`    | `η[5]`      |
+| `G`    | `η[6]`      |
+| `H`    | `η[7]`      |
+
+
+### Monadic functions (`m`)
+| Symbol | Description               |
+|--------|---------------------------|
+| `c`    | count by unsorted element |
+| `o`    | ascending sort            |
+| `O`    | descending sort           |
+| `J^`   | JSON decode               |
+| `J`    | JSON encode               |
+| `!`    | logical negate            |
+| `~`    | bitwise negate            |
+
+
+### Literals (`L`)
+| Symbol   | Description                          |
+|----------|--------------------------------------|
+| `/`      | regex                                |
+| `0`..`9` | numeric literal                      |
+| `'`      | non-whitespace string literal        |
+| `".."`   | general string literal               |
+| `()`     | subexpression grouping               |
+| `[]`     | sub-η                                |
+| `@`      | symbol prefix, e.g. `@t`, `@f`, `@n` |
+
+
+### Variables (`v`)
+| Symbol | Description           |
+|--------|-----------------------|
+| `x`    | pre-reserved variable |
+| `y`    | pre-reserved variable |
+| `z`    | pre-reserved variable |
+
+
+### Dyadic functions (`d`)
+| Symbol | Description           |
+|--------|-----------------------|
+| `s`    | substr/subarray/slice |
+| `+`    | add/concatenate/union |
+| `-`    | sub                   |
+| `*`    | mul/intersect         |
+| `%`    | mod                   |
+| `//`   | div                   |
+| `<`    | compare               |
+| `>`    | compare               |
+| `=`    | compare               |
+| `&`    | bitwise and           |
+| `\|`   | bitwise or            |
+| `^`    | bitwise xor           |

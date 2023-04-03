@@ -20,6 +20,8 @@ Internally, we do this with scope indexes: `{` increments the scope index and `}
 
 Although you could in principle have an unterminated `{`, it isn't common in practice.
 
+Multiplexed ξ alternatives may terminate independently; by default, `{}` will send `k ω` for any `k` that does so.
+
 
 ## Dynamic multiplexers
 `(` and `)` are also mirrors; unlike `{}`, however, `(` must be terminated by a `)` with two exceptions:
@@ -27,21 +29,21 @@ Although you could in principle have an unterminated `{`, it isn't common in pra
 1. `( ... &s`: each Γ connects to a server
 2. `( ... |x`: the final Γ operator right-caps the ξ
 
-`)` by itself creates a τ server; each inbound connection is mixed into the right-hand side, which receives all clients in a tagged union. (Inbound connections can send a single `k α` pair to define their tag; this won't be forwarded to the output, but will register state with `)`.)
+`)` by itself creates a τ server; each inbound connection is mixed into the right-hand side, which receives all clients in a tagged union. (Inbound connections can send a single `k α` pair to define their tag; this will forward _α_ to the output channel, which typically has no effect.)
 
-Because `)` is a server and servers return client-connectors, `(...)` is equivalent to `:)foo ...` followed by `(... &foo`.
+Because `)` is a server and servers return client-connectors, `(...)` is equivalent to `:)foo ...` followed by `(... &foo` (except that `foo` will be visible in one case but not the other).
 
 
 ## Asymmetric cross-multiplexing
-The use case here is _mixing:_ for example, we have inputs of the form `(user, document, edit)` and we want to multiplex on documents and publish updates to users. Let's define a complete system around this problem.
+The use case here is _mixing:_ for example, we have inputs of the form `user document edit` and we want to multiplex on documents and publish updates to users. Let's define a complete system around this problem.
 
 First, we have multiple full-duplex user connections, each terminating in an edit-state manager before being mixed to documents.
 
 ```
-(users) ↔ (edit_state)  # ↔ (user, document, edit)
+(users) ↔ (edit_state)  # ↔ user document edit
 ```
 
-At this point we need to route edits by document, broadcasting to each involved user. Because we're mapping `(user, _)` to `(_, document),` we mix with a connection matrix that implements row/column blocking broadcast/union. This is represented by `'`, which transposes a multiplexing key.
+At this point we need to route edits by document, broadcasting to each involved user. Because we're mapping `user _` to `_ document`, we mix with a connection matrix that implements row/column blocking broadcast/union. This is represented by `'`, which transposes a multiplexing key.
 
 ```
 (user (edit_state)) ' (document_state) edit_db
@@ -50,39 +52,39 @@ At this point we need to route edits by document, broadcasting to each involved 
 For example, suppose `edit_state` is identity and we have this series of inputs from users:
 
 ```
-(user_1, doc_1, foo)
-(user_1, doc_2, bar)
-(user_2, doc_3, bif)
-(user_2, doc_1, baz)
-(user_1, doc_1, bok)
+user_1 doc_1 foo
+user_1 doc_2 bar
+user_2 doc_3 bif
+user_2 doc_1 baz
+user_1 doc_1 bok
 ```
 
 `'` would have the following matrix state after each input:
 
 ```
-foo ⇒ [ (u1 d1) ]
-bar ⇒ [ (u1 d1) (u1 d2) ]
-bif ⇒ [ (u1 d1) (u1 d2) 0
-        0       0       (u2 d3) ]
-baz ⇒ [ (u1 d1) (u1 d2) 0
-        (u2 d1) 0       (u2 d3) ]
-bok ⇒ [ (u1 d1) (u1 d2) 0
-        (u2 d1) 0       (u2 d3) ]
+foo [ (u1 d1) ]
+bar [ (u1 d1) (u1 d2) ]
+bif [ (u1 d1) (u1 d2) 0
+      0       0       (u2 d3) ]
+baz [ (u1 d1) (u1 d2) 0
+      (u2 d1) 0       (u2 d3) ]
+bok [ (u1 d1) (u1 d2) 0
+      (u2 d1) 0       (u2 d3) ]
 ```
 
 Let's suppose we're working with the post-`bok` state. There are three types of ηs we might observe:
 
-+ `(user, document, x)`: route directly
-+ `(user, τ, x) →`: broadcast across documents
-+ `← (document, τ, x)`: broadcast across users
++ `user document x`: route directly
++ `user τ x →`: broadcast across documents
++ `← document τ x`: broadcast across users
 
-For example, "user 1 disconnected" would be encoded as `(u1, τ, ω)` and would be broadcast to `d1` and `d2`. Similarly, "document 1 was updated" would be `(d1, τ, x)` and would be sent to `u1` and `u2`. More concretely:
+For example, "user 1 disconnected" would be encoded as `u1 τ ω` and would be broadcast to `d1` and `d2`. Similarly, "document 1 was updated" would be `d1 τ x` and would be sent to `u1` and `u2`. More concretely:
 
 ```
-(u1, τ, ω)              → ' → (d1, u1, ω) (d2, u1, ω)
-(u1, d1, x) (u2, d1, x) ← ' ← (d1, τ, x)
+u1 τ ω            → ' → d1 u1 ω ; d2 u1 ω
+u1 d1 x ; u2 d1 x ← ' ← d1 τ x
 ```
 
 So the purpose of `'` is twofold: first, we swap the first two tuple elements; and second, we allow _τ_ as a broadcast marker to inform all connected parties.
 
-We can disconnect from `'` using _ω;_ for example, `(u1, d1, ω)` will remove the `(u1 d1)` matrix entry. Similarly, `(u1, d1, α)` will create the matrix entry without sending an edit. Dynamic multiplexers emit _α_ and _ω_ automatically.
+We can disconnect from `'` using _ω_; for example, `u1 d1 ω` will remove the `(u1 d1)` matrix entry. Similarly, `u1 d1 α` will create the matrix entry without sending an edit. Dynamic multiplexers emit _α_ and _ω_ automatically.
