@@ -21,7 +21,7 @@ First an overall map of which characters are mapped to which tables. Numbers rep
 
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 Γ/Ψ   2 ΓΓ   0   22 Γ2200002444S     222022 20 2 222222222
-π    ηηηηηη   m    m           S  m           m   d    vvv
+π    ηηηηηm   m    m           S  m dm     d mm ddd    vvv
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 Γ/Ψ   4SΓ22Γ      2ΓΓΓΓΓΓ 222  Γ  4 4
@@ -111,33 +111,26 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 
 ## π tables
 ### Input accessors (`η`)
-| Symbol | Description |
-|--------|-------------|
-| `A`    | `η[0]`      |
-| `B`    | `η[1]`      |
-| `C`    | `η[2]`      |
-| `D`    | `η[3]`      |
-| `E`    | `η[4]`      |
-| `F`    | `η[5]`      |
-| `G`    | `η[6]`      |
-| `H`    | `η[7]`      |
-
-
-### Monadic functions (`m`)
-| Symbol | Description               |
-|--------|---------------------------|
-| `c`    | count by unsorted element |
-| `o`    | ascending sort            |
-| `O`    | descending sort           |
-| `J^`   | JSON decode               |
-| `J`    | JSON encode               |
-| `!`    | logical negate            |
-| `~`    | bitwise negate            |
+| Symbol | Description                 |
+|--------|-----------------------------|
+| `A`    | `η[0]`                      |
+| `B`    | `η[1]`                      |
+| `C`    | `η[2]`                      |
+| `D`    | `η[3]`                      |
+| `E`    | `η[4]`                      |
+| `F`    | `η[5]`                      |
+| `G`    | `η[6]`                      |
+| `H`    | `η[7]`                      |
+| `N`    | `\|η\|`: number of elements |
 
 
 ### Literals (`L`)
 | Symbol   | Description                          |
 |----------|--------------------------------------|
+| `ne`     | exponential constant                 |
+| `nf`     | φ numeric constant                   |
+| `np`     | π numeric constant                   |
+| `nt`     | τ numeric constant                   |
 | `/`      | regex                                |
 | `0`..`9` | numeric literal                      |
 | `'`      | non-whitespace string literal        |
@@ -155,15 +148,36 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `z`    | pre-reserved variable |
 
 
+### Monadic functions (`m`)
+| Symbol | Description               |
+|--------|---------------------------|
+| `c`    | count by unsorted element |
+| `f`    | floor                     |
+| `F`    | ceiling                   |
+| `n`    | length of string/vector   |
+| `o`    | ascending sort            |
+| `O`    | descending sort           |
+| `J^`   | JSON decode               |
+| `J`    | JSON encode               |
+| `!`    | logical negate            |
+| `~`    | bitwise negate            |
+
+
 ### Dyadic functions (`d`)
 | Symbol | Description           |
 |--------|-----------------------|
+| `e`    | exp                   |
+| `r`    | root                  |
+| `l`    | log                   |
+| `q`    | quantize              |
 | `s`    | substr/subarray/slice |
 | `+`    | add/concatenate/union |
 | `-`    | sub                   |
 | `*`    | mul/intersect         |
 | `%`    | mod                   |
 | `//`   | div                   |
+| `+/`   | sum of many           |
+| `*/`   | product of many       |
 | `<`    | compare               |
 | `>`    | compare               |
 | `=`    | compare               |
