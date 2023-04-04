@@ -193,6 +193,21 @@ typedef Bv  const Bvc;
 typedef Stv const Stvc;
 
 
+// std::variant superset casting
+template<class... Xs>
+struct vc_
+{
+  Va<Xs...> v;
+
+  template<class... Ys>
+  operator Va<Ys...>() const
+    { return std::visit([](auto &&x) { return x; }, v); }
+};
+
+template <class... Xs>
+vc_<Xs...> vc(Va<Xs...> const &v) { return {v}; }
+
+
 template<class T, class U>
 ic auto mp(T &&a, U &&b) { return std::make_pair(std::forward<T>(a), std::forward<U>(b)); }
 
