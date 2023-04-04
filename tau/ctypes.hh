@@ -200,7 +200,7 @@ struct vc_
   Va<Xs...> v;
 
   template<class... Ys>
-  operator Va<Ys...>() const
+  operator Va<Ys...>() &&
     { return std::visit([](auto &&x) -> Va<Ys...> { return x; }, std::move(v)); }
 };
 
