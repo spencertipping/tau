@@ -18,15 +18,16 @@ The σ parser is split into context-specific branches, each of which has its own
 First an overall map of which characters are mapped to which tables. Numbers represent Ψ levels, `S` represents syntax (comments/whitespace). π is listed separately below.
 
 ```
-
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 Γ/Ψ   2 ΓΓ   0   22 Γ2200002444S     222022 20 2 222222222
-π    ηηηηηm   m    m           S  m dm     d mm ddd    vvv
+π    ηηηηηm   m   ηm       d   SL m dmL    d mm ddd   dv
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 Γ/Ψ   4SΓ22Γ      2ΓΓΓΓΓΓ 222  Γ  4 4
-π    mLS ddddLLdd d  LL d mdd    LL L
+π    mLSvddddLLdd dLLLL d mddddddLLSL
 ```
+
+**NOTE:** some punctuation is syntax (e.g. `?`) because it appears within other operators and would create ambiguous parsers if it were allowed to appear separately.
 
 
 ### Γ table
@@ -123,29 +124,38 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `H`    | `η[7]`                      |
 | `N`    | `\|η\|`: number of elements |
 
+Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: you can always proceed rightward to the end of the input record.
+
 
 ### Literals (`L`)
-| Symbol   | Description                          |
-|----------|--------------------------------------|
-| `ne`     | exponential constant                 |
-| `nf`     | φ numeric constant                   |
-| `np`     | π numeric constant                   |
-| `nt`     | τ numeric constant                   |
-| `/`      | regex                                |
-| `0`..`9` | numeric literal                      |
-| `'`      | non-whitespace string literal        |
-| `".."`   | general string literal               |
-| `()`     | subexpression grouping               |
-| `[]`     | sub-η                                |
-| `@`      | symbol prefix, e.g. `@t`, `@f`, `@n` |
+| Symbol   | Description            |
+|----------|------------------------|
+| `ne`     | exponential constant   |
+| `nf`     | φ numeric constant     |
+| `np`     | π numeric constant     |
+| `nt`     | τ numeric constant     |
+| `ga`     | α signal               |
+| `gk`     | κ signal               |
+| `gi`     | ι signal               |
+| `gt`     | τ signal               |
+| `gw`     | ω signal               |
+| `at`     | `true` atom            |
+| `af`     | `false` atom           |
+| `an`     | `null` atom            |
+| `/`      | regex                  |
+| `0`..`9` | numeric literal        |
+| `'`      | name literal           |
+| `".."`   | string literal         |
+| `[]`     | subexpression grouping |
+| `()`     | sub-η as tuple         |
+| `{}`     | sub-η as map           |
 
 
 ### Variables (`v`)
 | Symbol | Description           |
 |--------|-----------------------|
+| `$`    | variable prefix       |
 | `x`    | pre-reserved variable |
-| `y`    | pre-reserved variable |
-| `z`    | pre-reserved variable |
 
 
 ### Monadic functions (`m`)
@@ -161,26 +171,42 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `J`    | JSON encode               |
 | `!`    | logical negate            |
 | `~`    | bitwise negate            |
+| `I?`   | check for integer type    |
+| `R?`   | check for real type       |
+| `N?`   | check for numeric type    |
+| `S?`   | check for string type     |
+| `A?`   | check for atom type       |
+| `G?`   | check for signal type     |
+| `V?`   | check for vector type     |
+| `Y?`   | check for η type          |
 
 
 ### Dyadic functions (`d`)
-| Symbol | Description           |
-|--------|-----------------------|
-| `e`    | exp                   |
-| `r`    | root                  |
-| `l`    | log                   |
-| `q`    | quantize              |
-| `s`    | substr/subarray/slice |
-| `+`    | add/concatenate/union |
-| `-`    | sub                   |
-| `*`    | mul/intersect         |
-| `%`    | mod                   |
-| `//`   | div                   |
-| `+/`   | sum of many           |
-| `*/`   | product of many       |
-| `<`    | compare               |
-| `>`    | compare               |
-| `=`    | compare               |
-| `&`    | bitwise and           |
-| `\|`   | bitwise or            |
-| `^`    | bitwise xor           |
+| Symbol   | Description           |
+|----------|-----------------------|
+| `e`      | exp                   |
+| `r`      | root                  |
+| `l`      | log                   |
+| `q`      | quantize              |
+| `s`      | substr/subarray/slice |
+| `w`      | tuple join natural    |
+| `W`      | tuple join inverted   |
+| `+`      | add/concatenate/union |
+| `+[...]` | union-with            |
+| `-`      | sub                   |
+| `*`      | mul/intersect         |
+| `*[...]` | intersect-with        |
+| `%`      | mod                   |
+| `//`     | div                   |
+| `+/`     | sum of many           |
+| `*/`     | product of many       |
+| `<`      | compare               |
+| `>`      | compare               |
+| `=`      | compare               |
+| `&`      | bitwise and           |
+| `\|`     | bitwise or            |
+| `^`      | bitwise xor           |
+| `.`      | map element access    |
+| `,`      | tuple element access  |
+| `:`      | bind variable         |
+| `;`      | sequence (return RHS) |

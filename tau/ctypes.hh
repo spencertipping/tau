@@ -200,6 +200,11 @@ template<class T, class U>
 ic auto flip(P<T, U> const &p) { return mp(std::get<1>(p), std::get<0>(p)); }
 
 
+// Polymorphic functions
+template<class... Xs> struct fn : Xs... { using Xs::operator()...; };
+template<class... Xs> fn(Xs...) -> fn<Xs...>;
+
+
 template<class T, class = void> struct iti_static : std::false_type {};
 template<class T> struct iti_static
 <T, std::void_t<decltype(std::begin(std::declval<T>())),

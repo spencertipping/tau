@@ -30,12 +30,12 @@ struct Ξk final
 };
 
 
-ξd     Ξkg(Sp<Ξk>, Stc&);                 // get value for key
+ξd     Ξkg(Sp<Ξk>, Stc&);            // get value for key
 Sp<Ξk> Ξkc(Sp<Ξk>, Stc&, ξdc&, uN);  // create k/v binding
 Sp<Ξk> Ξks(Sp<Ξk>, Stc&, ξdc&, uN);  // create or replace k/v binding
-bool   Ξki(Sp<Ξk>, Stc&);                 // check for existence
-Sp<Ξk> Ξkx(Sp<Ξk>, Stc&);                 // delete k/v binding
-Sp<Ξk> Ξkp(Sp<Ξk>, uN);                   // pop scope
+bool   Ξki(Sp<Ξk>, Stc&);            // check for existence
+Sp<Ξk> Ξkx(Sp<Ξk>, Stc&);            // delete k/v binding
+Sp<Ξk> Ξkp(Sp<Ξk>, uN);              // pop scope
 
 
 // Γ program state, including a stack of ξ duplexes
