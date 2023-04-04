@@ -13,13 +13,15 @@ The σ parser is split into context-specific branches, each of which has its own
 + [Ψ](Psi.md)
 + [π](pi.md)
 
+You can think about it like this: Γ transforms _cables_ (many streams), Ψ transforms _streams_ (vertical), and π transforms _rows_ (horizontal). Some Ψs accept π expressions to perform some horizontal transformation before or after manipulating the rows.
+
 
 ## Parse tables
 First an overall map of which characters are mapped to which tables. Numbers represent Ψ levels, `S` represents syntax (comments/whitespace). π is listed separately below.
 
 ```
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
-Γ/Ψ   2 ΓΓ   0   22 Γ2200002444S     222022 20 2 222222222
+Γ/Ψ   2 ΓΓ  00   22 Γ2200002444S      22022  0 2 222222222
 π    ηηηηηm   m   ηm       d   SL m dmL    d mm ddd   dv
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
@@ -27,7 +29,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 π    mLSvddddLLdd dLLLL d mddddddLLSL
 ```
 
-**NOTE:** some punctuation is syntax (e.g. `?`) because it appears within other operators and would create ambiguous parsers if it were allowed to appear separately.
+**NOTE:** some punctuation is considered to be syntax (e.g. `?`) because it appears within other operators and would create ambiguous parsers if it were allowed to appear separately.
 
 
 ### Γ table
@@ -50,6 +52,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 ### Ψ₀ table
 | Symbol | Notes | Description               |
 |--------|-------|---------------------------|
+| `H`    | Γ     | HTTP+WS server            |
 | `i`    |       | η identity out            |
 | `I`    |       | η repeated out            |
 | `n`    |       | ι                         |
@@ -67,12 +70,10 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 ### Ψ₂ half-duplex table
 | Symbol  | Notes | Description                      |
 |---------|-------|----------------------------------|
-| `f`     |       | field transform                  |
-| `g`     |       | τ-grouped sort                   |
+| `g`     | π     | τ-grouped sort by π expression   |
 | `h`     |       | HTTP/S+WS client                 |
 | `j`     | L? Γ  | τ-grouped sorted join            |
 | `k`     |       | τ after each item                |
-| `m`     |       | π 1:1 map                        |
 | `p`     | π     | π program                        |
 | `r`/`R` | π     | π row selector + row drop macros |
 | `s`     | P     | SSH client                       |
@@ -84,7 +85,6 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `y`     | P     | prefix for Python interop        |
 | `z`     | P     | prefix for compression           |
 | `B`     | P     | prefix for bounded buffers       |
-| `H`     | Γ     | HTTP+WS server                   |
 | `J`     | L? Γ  | τ-grouped unordered join         |
 | `M`     |       | monitor                          |
 | `N`     |       | numeric ϊ                        |
@@ -111,6 +111,9 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 
 
 ## π tables
+π expressions are parsed with prefix monadic and infix dyadic ops, just like APL. Unlike APL, however, we can't infer operator arity; expressions may be juxtaposed to form adjacent tuple/map elements, so we rely on operators to set our expectations about whether the next expression is part of this one or the beginning of a new element.
+
+
 ### Input accessors (`η`)
 | Symbol | Description                 |
 |--------|-----------------------------|
@@ -179,6 +182,9 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 | `G?`   | check for signal type     |
 | `V?`   | check for vector type     |
 | `Y?`   | check for η type          |
+| `I<`   | convert to int            |
+| `F<`   | convert to float          |
+| `S<`   | convert to string         |
 
 
 ### Dyadic functions (`d`)
@@ -193,10 +199,10 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 | `W`      | tuple join inverted   |
 | `+`      | add/concatenate/union |
 | `+[...]` | union-with            |
-| `-`      | sub                   |
+| `-`      | sub/difference        |
 | `*`      | mul/intersect         |
 | `*[...]` | intersect-with        |
-| `%`      | mod                   |
+| `%`      | mod/regex apply       |
 | `//`     | div                   |
 | `+/`     | sum of many           |
 | `*/`     | product of many       |

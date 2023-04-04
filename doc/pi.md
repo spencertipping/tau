@@ -52,6 +52,7 @@ There's a bit more nuance to `+`, however, because multiple types can be added w
 
 ```
 let plus = fn {
+  [](auto  &&x, auto &&y) { type_error(x, y); },
   [](int     x, int    y) { return x + y; },
   [](double  x, double y) { return x + y; },
   [](Stc    &x, auto  &y) { return (Ss{} << x << y).str(); },
@@ -62,5 +63,3 @@ let plus = fn {
 ```
 
 We then invoke it with `std::visit` to calculate the result across all of the variant alternatives.
-
-**NOTE:** the above should be some preprocessor macros that expand to `if constexpr (std::is_same_v<...>)` so we can easily `else` out to the fallback case (or default it to a type error). `fn` isn't cut out for this, nor is any template conditioning on `operator()` implementations, even if it is easy to extract parameter types.
