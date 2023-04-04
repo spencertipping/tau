@@ -1,4 +1,6 @@
+#include <functional>
 #include <iostream>
+#include <type_traits>
 #include "../tau.hh"
 
 using namespace τ;
@@ -33,6 +35,14 @@ void try_variant_cast()
   vi(fn {
       [](St   x) { cout << "string branch: " << x << endl; },
       [](auto x) { cout << "fallthrough" << endl; } }, c);
+
+
+  let f = [](int x) {};
+
+  // FIXME: std::function_traits doesn't exist, but boost defines it
+  // and https://stackoverflow.com/questions/25044869/member-function-traits.
+  //using T = std::function_traits<decltype(&f::operator())>;
+
 }
 
 
