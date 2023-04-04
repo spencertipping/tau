@@ -11,16 +11,15 @@ using namespace std;
 
 void try_polymorphic_functions()
 {
-  // FIXME: we get fallthrough here for f("bar"), which is bad; we should
-  // be able to specify a fallthrough branch with lower affinity (I hope)
   let f = fn {
-    [](int x) { return x + 1; },
-    [](St x)  { return "foo" + x; },
-    [](auto x) { return "fallthrough"; }
+    [](auto x) { return "fallthrough"; },
+    [](int x)  { return x + 1; },
+    [](chc *x) { return "foo" + St{x}; }
   };
 
   cout << "f(5) = " << f(5) << endl;
   cout << "f(\"bar\") = " << f("bar") << endl;
+  cout << "f(true) = " << f(true) << endl;
 }
 
 
@@ -33,16 +32,8 @@ void try_variant_cast()
 
   Va<St, int> c = "foo";
   vi(fn {
-      [](St   x) { cout << "string branch: " << x << endl; },
-      [](auto x) { cout << "fallthrough" << endl; } }, c);
-
-
-  let f = [](int x) {};
-
-  // FIXME: std::function_traits doesn't exist, but boost defines it
-  // and https://stackoverflow.com/questions/25044869/member-function-traits.
-  //using T = std::function_traits<decltype(&f::operator())>;
-
+      [](auto x) { cout << "fallthrough" << endl; },
+      [](St   x) { cout << "string branch: " << x << endl; }}, c);
 }
 
 
