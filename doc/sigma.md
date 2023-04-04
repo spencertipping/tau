@@ -172,7 +172,7 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 | `!`    | logical negate            |
 | `~`    | bitwise negate            |
 | `I?`   | check for integer type    |
-| `R?`   | check for real type       |
+| `F?`   | check for float type      |
 | `N?`   | check for numeric type    |
 | `S?`   | check for string type     |
 | `A?`   | check for atom type       |

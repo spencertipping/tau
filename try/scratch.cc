@@ -9,9 +9,12 @@ using namespace std;
 
 void try_polymorphic_functions()
 {
+  // FIXME: we get fallthrough here for f("bar"), which is bad; we should
+  // be able to specify a fallthrough branch with lower affinity (I hope)
   let f = fn {
     [](int x) { return x + 1; },
-    [](St x)  { return "foo" + x; }
+    [](St x)  { return "foo" + x; },
+    [](auto x) { return "fallthrough"; }
   };
 
   cout << "f(5) = " << f(5) << endl;
@@ -25,6 +28,11 @@ void try_variant_cast()
   Va<St, int, double> b = vc(a);
   vi([](auto &&x) { cout << "a = " << x << endl; }, a);
   vi([](auto &&x) { cout << "b = " << x << endl; }, b);
+
+  Va<St, int> c = "foo";
+  vi(fn {
+      [](St   x) { cout << "string branch: " << x << endl; },
+      [](auto x) { cout << "fallthrough" << endl; } }, c);
 }
 
 

@@ -55,11 +55,11 @@ There is no requirement that an η stream contain only name-prefixed things or o
 
 
 ## Local values
-η defines a C++ native API that provides in-memory values. In practice this is just a `std::variant` that contains a number of alternatives:
+[π](pi.md) defines a C++ native API that provides in-memory values. In practice this is just a `std::variant` that contains each η type as an alternative:
 
 + `τ::ηsig`
-+ `τ::i64b` ← big-endian view of an integer
-+ `τ::f64b` ← big-endian view of a float
++ `τ::i64`
++ `τ::f64`
 + `τ::St`
 + `τ::ηatom`
 + `τ::η` (for sub-η)
@@ -70,3 +70,5 @@ There is no requirement that an η stream contain only name-prefixed things or o
 + `τ::Sn<τ::i64b>`
 + `τ::Sn<τ::f32b>`
 + `τ::Sn<τ::f64b>`
+
+**NOTE:** `πv` may also contain other values.
