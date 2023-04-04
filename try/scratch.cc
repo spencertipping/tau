@@ -19,9 +19,19 @@ void try_polymorphic_functions()
 }
 
 
+void try_variant_cast()
+{
+  Va<    int, double> a = 5.0;
+  Va<St, int, double> b = vc(a);
+  std::visit([](auto &&x) { cout << "a = " << x << endl; }, a);
+  std::visit([](auto &&x) { cout << "b = " << x << endl; }, b);
+}
+
+
 int main()
 {
   try_polymorphic_functions();
+  try_variant_cast();
   return 0;
 }
 
