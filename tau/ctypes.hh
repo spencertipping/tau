@@ -214,6 +214,9 @@ ic auto mp(T &&a, U &&b) { return std::make_pair(std::forward<T>(a), std::forwar
 template<class T, class U>
 ic auto flip(P<T, U> const &p) { return mp(std::get<1>(p), std::get<0>(p)); }
 
+template<class... Xs>
+ic auto vi(Xs &&... xs) { return std::visit(std::forward<Xs>(xs)...); }
+
 
 // Polymorphic functions
 template<class... Xs> struct fn : Xs... { using Xs::operator()...; };
