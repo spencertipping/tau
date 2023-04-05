@@ -1,0 +1,52 @@
+#ifndef τπfn_h
+#define τπfn_h
+
+
+#include "pi-val.hh"
+#include "pi-int.hh"
+
+#include "begin.hh"
+
+namespace τ
+{
+
+
+typedef F<πv(πi&)> πf;
+
+
+template<class T>
+auto πun(T &&f)
+{
+  return [f=fo<T>(f)]<class U>(πi &i, U &&x)
+    -> If<Eq<De<U>, πv>,
+          decltype(vi(fn {f, bi(f, i)},
+                      fo<decltype(Dv<U>().v)>(x.v)))>
+    {
+      return vi(fn {f, bi(f, i)},
+                fo<decltype(Dv<U>().v)>(x.v));
+    };
+}
+
+
+template<class T>
+auto πbin(T &&f)
+{
+  return [f=fo<T>(f)]<class U, class V>(πi &i, U &&x, V &&y)
+    -> If<Eq<De<U>, πv>,
+          decltype(vi(fn {f, bi(f, i)},
+                      fo<decltype(Dv<U>().v)>(x.v),
+                      fo<decltype(Dv<V>().v)>(y.v)))>
+    {
+      return vi(fn {f, bi(f, i)},
+                fo<decltype(Dv<U>().v)>(x.v),
+                fo<decltype(Dv<V>().v)>(y.v));
+    };
+}
+
+
+}
+
+#include "end.hh"
+
+
+#endif

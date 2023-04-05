@@ -32,5 +32,9 @@
 #include "tau/phi-str.hh"
 #include "tau/phi-ctor.hh"
 
+#include "tau/pi-val.hh"
+#include "tau/pi-int.hh"
+#include "tau/pi-fn.hh"
+
 
 #endif

@@ -177,6 +177,14 @@ template<class... T>       using Vi = typename V<T...>::const_iterator;
 template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std::vector<T>, C>;
 
 
+template<class T>         using De = std::decay_t<T>;
+template<bool X, class T> using If = std::enable_if_t<X, T>;
+
+template<class T, class U> ic bool Eq = std::is_same_v<T, U>;
+
+template<class T> ic T &Dv() { return std::declval<T&>(); }
+
+
 typedef std::strong_ordering  SO;
 typedef std::weak_ordering    WO;
 typedef std::partial_ordering PO;
@@ -196,17 +204,24 @@ typedef Stv const Stvc;
 inline auto ma(uN    s) { return std::malloc(s); }
 inline void fr(void *x) { std::free(x); }
 
-template<class T>
-ic auto mo(T &&x) { return std::move(x); }
-
-template<class T, class U>
-ic auto mp(T &&a, U &&b) { return std::make_pair(std::forward<T>(a), std::forward<U>(b)); }
-
-template<class T, class U>
-ic auto flip(P<T, U> const &p) { return mp(std::get<1>(p), std::get<0>(p)); }
 
 template<class... Xs>
-ic auto vi(Xs &&... xs) { return std::visit(std::forward<Xs>(xs)...); }
+ic decltype(auto) bi(Xs && ...xs) { return std::bind(std::forward<Xs>(xs)...); }
+
+template<class T>
+ic decltype(auto) mo(T &&x) { return std::move(x); }
+
+template<class T> ic T&& fo(T &&x) { return Sc<T&&>(x); }
+template<class T> ic T&& fo(T  &x) { return Sc<T&&>(x); }
+
+template<class T, class U>
+ic decltype(auto) mp(T &&a, U &&b) { return std::make_pair(std::forward<T>(a), std::forward<U>(b)); }
+
+template<class T, class U>
+ic decltype(auto) flip(P<T, U> const &p) { return mp(std::get<1>(p), std::get<0>(p)); }
+
+template<class... Xs>
+ic decltype(auto) vi(Xs &&... xs) { return std::visit(std::forward<Xs>(xs)...); }
 
 
 }

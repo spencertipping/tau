@@ -37,10 +37,30 @@ void try_variant_cast()
 }
 
 
+void try_pi_vals()
+{
+  τe t;
+  πi i{{}, {t.l(), {}}, {}};
+
+  πv a{3};
+  πv b{4};
+  auto add = πbin(fn {
+    [](let &x, let &y) -> πv { cout << "type error" << endl; return {0}; },
+    [](i64  x, i64  y) -> πv { return {x + y}; }});
+
+  πv c{add(i, a, b)};
+
+  vi(fn {
+      [](let &x) { cout << "type error" << endl; },
+      [](i64  x) { cout << "got " << x << endl; }}, c.v);
+}
+
+
 int main()
 {
   try_polymorphic_functions();
   try_variant_cast();
+  try_pi_vals();
   return 0;
 }
 
