@@ -22,11 +22,9 @@ auto πun(T &&f)
 {
   return [f=fo<T>(f)]<class U>(πi &i, U &&x)
     -> If<Eq<De<U>, πv>,
-          decltype(vi(fn {f, bi(f, i)},
-                      fo<decltype(Dv<U>().v)>(x.v)))>
+          decltype(vi(fn {f, bi(f, i)}, fo<U>(x)))>
     {
-      return vi(fn {f, bi(f, i)},
-                fo<decltype(Dv<U>().v)>(x.v));
+      return vi(fn {f, bi(f, i)}, fo<U>(x));
     };
 }
 
@@ -38,13 +36,9 @@ auto πbin(T &&f)
 {
   return [f=fo<T>(f)]<class U, class V>(πi &i, U &&x, V &&y)
     -> If<Eq<De<U>, πv>,
-          decltype(vi(fn {f, bi(f, i)},
-                      fo<decltype(Dv<U>().v)>(x.v),
-                      fo<decltype(Dv<V>().v)>(y.v)))>
+          decltype(vi(fn {f, bi(f, i)}, fo<U>(x), fo<V>(y)))>
     {
-      return vi(fn {f, bi(f, i)},
-                fo<decltype(Dv<U>().v)>(x.v),
-                fo<decltype(Dv<V>().v)>(y.v));
+      return vi(fn {f, bi(f, i)}, fo<U>(x), fo<V>(y));
     };
 }
 

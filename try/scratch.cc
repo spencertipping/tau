@@ -52,7 +52,7 @@ void try_pi_vals()
 
   vi(fn {
       [](let &x) { cout << "type error" << endl; },
-      [](i64  x) { cout << "got " << x << endl; }}, c.v);
+      [](i64  x) { cout << "got " << x << endl; }}, c);
 }
 
 

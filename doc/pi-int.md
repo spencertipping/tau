@@ -11,7 +11,7 @@ The return value is the evaluated value of the expression, after side effects ag
 ## `πv` runtime values
 `πv` can encode each of the alternatives in [η](eta.md), plus some that can't be serialized:
 
-+ C++ native
++ C++ native (stored on heap)
   + `τ::Re`
   + `τ::V<πv>`
   + `τ::M<St, πv>`
@@ -21,7 +21,7 @@ The return value is the evaluated value of the expression, after side effects ag
   + `τ::V<i64>`
   + `τ::V<f32>`
   + `τ::V<f64>`
-+ η-serializable
++ η-serializable (stored immediately)
   + `τ::ηsig`
   + `τ::i64`
   + `τ::f64`
@@ -36,7 +36,7 @@ The return value is the evaluated value of the expression, after side effects ag
   + `τ::Sn<τ::f32b>`
   + `τ::Sn<τ::f64b>`
 
-`πv`s are stored by-value, meaning there is no heap indirection. Values are copied unless move semantics are available.
+`πv`s are indirected through `Sp<>` to allow for low-effort copying.
 
 
 ## Operator implementations

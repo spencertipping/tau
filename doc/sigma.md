@@ -23,10 +23,10 @@ First an overall map of which characters are mapped to which tables. Numbers rep
 
 ```
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
-Γ/Ψ   2 ΓΓ  00   22 Γ2200002444S      22022  0 2 222222222
+Γ/Ψ     ΓΓ  00   22 Γ2200002444S      22022  0 2 222222222
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-Γ/Ψ   4SΓ22Γ      2ΓΓΓΓΓΓ 222  Γ  4 4
+Γ/Ψ   4SΓ22Γ ΓΓ   2ΓΓΓΓΓΓ 222  Γ  4 4
 ```
 
 

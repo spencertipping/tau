@@ -11,40 +11,41 @@ namespace τ
 {
 
 
-struct πv final
+struct πv_;
+
+typedef Va<
+  // C++ native types (heap-allocated, mutable)
+  Sp<Re>,
+  Sp<V<πv_>>,
+  Sp<M<St, πv_>>,
+  Sp<V<i8>>,
+  Sp<V<i16>>,
+  Sp<V<i32>>,
+  Sp<V<i64>>,
+  Sp<V<f32>>,
+  Sp<V<f64>>,
+
+  // η-mappable values (immediate, read-only)
+  ηsig,
+  i64,
+  f64,
+  St,
+  ηatom,
+  ηi,
+  Sn<i8b>,
+  Sn<i16b>,
+  Sn<i32b>,
+  Sn<i64b>,
+  Sn<f32b>,
+  Sn<f64b>
+  > πv;
+
+
+struct πv_ final
 {
-  Va<
-    // C++ native types
-    Re,
-    V<Sp<πv>>,
-    M<St, Sp<πv>>,
-    V<i8>,
-    V<i16>,
-    V<i32>,
-    V<i64>,
-    V<f32>,
-    V<f64>,
-
-    // η-mappable values
-    ηsig,
-    i64,
-    f64,
-    St,
-    ηatom,
-    ηi,
-    Sn<i8b>,
-    Sn<i16b>,
-    Sn<i32b>,
-    Sn<i64b>,
-    Sn<f32b>,
-    Sn<f64b>
-    > v;
-
-  template<class T> πv &operator=(T &&x) { v = fo<T>(x); return *this; }
+  πv v;
+  operator πv const&() const { return v; }
 };
-
-
-typedef πv const πvc;
 
 
 }

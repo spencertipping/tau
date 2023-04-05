@@ -1,19 +1,13 @@
 # σ/π stdlib
-π expressions are parsed with prefix monadic and infix dyadic ops, just like APL. Unlike APL, however, we can't infer operator arity; expressions may be juxtaposed to form adjacent tuple/map elements, so we rely on operators to set our expectations about whether the next expression is part of this one or the beginning of a new element.
-
-Monadic and dyadic operators may include dyadic operator characters after their first position, since these can normally be parsed only after a value. For example, `S<` is a valid monadic operator because `S` cannot be interpreted as a value, so `<` must not be a dyadic operator in this context.
-
-Like APL, operators apply strictly right to left: `!3>4` is evaluated as `!(3>4)`. We don't have operator precedence.
+See [π](pi.md) for an overview of the language structure.
 
 ```
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
-π    ηηηηηm   m   ηm           SL m dmL    d mm ddd    vv
+π    ηηηηηm   m   ηm           SL m dmL    d mm ddt    vv
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-π    mLSvddddLLdd dLLLL d mddddddLLSL
+π    mLSvddddLLdd dLLLL d mddddddLLtL
 ```
-
-**NOTE:** some punctuation is considered to be syntax (e.g. `?`) because it appears within other operators and would create ambiguous parsers if it were allowed to appear separately.
 
 
 ## Input accessors (`η`)
@@ -99,7 +93,6 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 | `l`      | number base=e    | log                   |
 | `r`      | number root=2    | root                  |
 | `q`      | number quantum=1 | quantize              |
-| `s`      |                  | substr/subarray/slice |
 | `+`      |                  | add/concatenate/union |
 | `+[...]` |                  | union-with            |
 | `-`      |                  | sub/difference        |
@@ -108,12 +101,26 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 | `%`      |                  | mod/regex apply       |
 | `//`     |                  | div                   |
 | `<`      |                  | compare               |
+| `<=`     |                  | compare               |
 | `>`      |                  | compare               |
+| `>=`     |                  | compare               |
 | `=`      |                  | compare               |
+| `!=`     |                  | compare               |
 | `&`      |                  | bitwise and           |
 | `\|`     |                  | bitwise or            |
 | `^`      |                  | bitwise xor           |
+| `&&`     |                  | logical and           |
+| `\|\|`   |                  | logical or`           |
 | `.`      | map key          | map element access    |
 | `,`      | tuple idx        | tuple element access  |
 | `:`      | name-str value   | bind variable         |
 | `;`      | lhs rhs          | sequence (return RHS) |
+
+
+## Ternary functions (`t`)
+Ternary functions are placed between the first and second arguments; the third is parsed as an immediate continuation. See [π spec](pi.md) for details.
+
+| Symbol | Arguments      | Description           |
+|--------|----------------|-----------------------|
+| `?`    | b t e          | conditional           |
+| `s`    | xs lower upper | substr/subarray/slice |
