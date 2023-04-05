@@ -52,6 +52,19 @@ These are compiler objects, meaning that they don't actually contain live resour
 + [Web applications](doc/web-applications.md)
 
 
+## Scratch tests
+```bash
+$ bin/scratch
+f(5) = 6
+f("bar") = foobar
+f(true) = fallthrough
+a = 5
+b = 5
+string branch: foo
+got 7
+```
+
+
 ## Linux setup
 ```sh
 $ sudo apt install -y \
