@@ -40,7 +40,7 @@ struct πv final
     Sn<f64b>
     > v;
 
-  template<class T> πv &operator=(T &&x) { v = std::forward<T>(x); return *this; }
+  template<class T> πv &operator=(T &&x) { v = fo<T>(x); return *this; }
 };
 
 

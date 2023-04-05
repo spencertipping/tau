@@ -11,9 +11,12 @@ namespace τ
 {
 
 
+// π expression used to compute a value
 typedef F<πv(πi&)> πf;
 
 
+// Unary function adapter: converts a polymorphic unary fn
+// to a visitor against πv
 template<class T>
 auto πun(T &&f)
 {
@@ -28,6 +31,8 @@ auto πun(T &&f)
 }
 
 
+// Binary function adapter: converts a polymorphic binary fn
+// to a visitor against πv pairs
 template<class T>
 auto πbin(T &&f)
 {
