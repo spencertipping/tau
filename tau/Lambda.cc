@@ -9,7 +9,7 @@ namespace τ
 {
   if (fin) return 0;
   let i = ιi(ni, ls);
-  ls[i].reset(new Λt([f=std::move(f)]()
+  ls[i].reset(new Λt([f=mo(f)]()
     { try         { f(); }
       catch (Λx_) {} }));
   r(i, λs::R);

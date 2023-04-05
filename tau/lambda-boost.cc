@@ -20,12 +20,12 @@ bool λmi;  // true if current continuation is main
 
 void λm(λbc::continuation &&cc)
 {
-  if (cc) **λmk() = std::move(cc);
+  if (cc) **λmk() = mo(cc);
 }
 
 
 λ::λ(λf &&f_)
-  : f      (std::move(f_)),
+  : f      (mo(f_)),
     k      (nullptr),
     is_done(false)
 {
@@ -36,7 +36,7 @@ void λm(λbc::continuation &&cc)
         { λm(cc.resume());
           f();
           fin();
-          return std::move(**λmk()); }));
+          return mo(**λmk()); }));
 }
 
 
@@ -72,14 +72,14 @@ void λ::fin()
         { λm(cc.resume());
           f();
           fin();
-          return std::move(**λmk()); });
+          return mo(**λmk()); });
     cc = cc.resume();
-    if (k) *k = std::move(cc);
+    if (k) *k = mo(cc);
   }
   else
   {
     auto cc = k->resume();
-    if (k) *k = std::move(cc);  // NOTE: k can be nulled within k->resume()
+    if (k) *k = mo(cc);  // NOTE: k can be nulled within k->resume()
   }
 
   λmi = true;

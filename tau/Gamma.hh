@@ -47,7 +47,7 @@ protected:
 // Trivial C++ lambda implementation of Γ_
 struct Γf_ : public virtual Γ_
 {
-  Γf_(St n_, F<Ξ(Ξ const&)> &&f_) : n(n_), f(std::move(f_)) {}
+  Γf_(St n_, F<Ξ(Ξ const&)> &&f_) : n(n_), f(mo(f_)) {}
 
   Ξ operator()(Ξ const &x) const { return f(x); }
   St      name()           const { return n; }

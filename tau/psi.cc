@@ -40,7 +40,7 @@ void ψ_::destroy()
   for (auto i = ls_.begin(); i != ls_.end();)
     if (!l.e(*i)) i = ls_.erase(i);
     else          ++i;
-  ls_.insert(l.c(std::move(f)));
+  ls_.insert(l.c(mo(f)));
   return *this;
 }
 

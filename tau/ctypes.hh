@@ -193,20 +193,11 @@ typedef Bv  const Bvc;
 typedef Stv const Stvc;
 
 
-// std::variant superset casting
-template<class... Xs>
-struct vc_
-{
-  Va<Xs...> v;
+inline auto ma(uN    s) { return std::malloc(s); }
+inline void fr(void *x) { std::free(x); }
 
-  template<class... Ys>
-  operator Va<Ys...>() &&
-    { return std::visit([](auto &&x) -> Va<Ys...> { return x; }, std::move(v)); }
-};
-
-template<class... Xs> vc_<Xs...> vc(Va<Xs...> &&v) { return {std::move(v)}; }
-template<class... Xs> vc_<Xs...> vc(Va<Xs...> &v)  { return {v}; }
-
+template<class T>
+ic auto mo(T &&x) { return std::move(x); }
 
 template<class T, class U>
 ic auto mp(T &&a, U &&b) { return std::make_pair(std::forward<T>(a), std::forward<U>(b)); }
@@ -216,11 +207,6 @@ ic auto flip(P<T, U> const &p) { return mp(std::get<1>(p), std::get<0>(p)); }
 
 template<class... Xs>
 ic auto vi(Xs &&... xs) { return std::visit(std::forward<Xs>(xs)...); }
-
-
-// Polymorphic functions
-template<class... Xs> struct fn : Xs... { using Xs::operator()...; };
-template<class... Xs> fn(Xs...) -> fn<Xs...>;
 
 
 }

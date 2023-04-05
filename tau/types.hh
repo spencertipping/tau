@@ -40,6 +40,26 @@ using namespace std::literals;
 #endif
 
 
+// std::variant superset casting
+template<class... Xs>
+struct vc_
+{
+  Va<Xs...> v;
+
+  template<class... Ys>
+  operator Va<Ys...>() &&
+    { return std::visit([](auto &&x) -> Va<Ys...> { return x; }, mo(v)); }
+};
+
+template<class... Xs> vc_<Xs...> vc(Va<Xs...> &&v) { return {mo(v)}; }
+template<class... Xs> vc_<Xs...> vc(Va<Xs...> &v)  { return {v}; }
+
+
+// Polymorphic functions
+template<class... Xs> struct fn : Xs... { using Xs::operator()...; };
+template<class... Xs> fn(Xs...) -> fn<Xs...>;
+
+
 typedef std::chrono::steady_clock       Θc;
 typedef std::chrono::nanoseconds        ΔΘ;
 typedef std::chrono::time_point<Θc, ΔΘ> Θp;

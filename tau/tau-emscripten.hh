@@ -58,7 +58,7 @@ struct τe : public τb
 
 
   τe &go(F<bool(τe&)> &&f = [](τe &t) { return Sc<bool>(t); })
-    { go_f = std::move(f);
+    { go_f = mo(f);
       l_.go();
       return schedule(); }
 

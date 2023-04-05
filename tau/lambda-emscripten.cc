@@ -36,12 +36,12 @@ void λinvoke(void *λ_)
 
 
 λ::λ(λf &&f_)
-  : f      (std::move(f_)),
+  : f      (mo(f_)),
     is_done(false)
 {
   λinit();
-  k.async_stack = std::malloc(λss);
-  k.c_stack     = std::malloc(λss);
+  k.async_stack = ma(λss);
+  k.c_stack     = ma(λss);
   emscripten_fiber_init(&k.k, &λinvoke, this,
                         k.c_stack,     λss,
                         k.async_stack, λss);
@@ -50,8 +50,8 @@ void λinvoke(void *λ_)
 
 λ::~λ()
 {
-  if (k.async_stack) std::free(k.async_stack);
-  if (k.c_stack)     std::free(k.c_stack);
+  if (k.async_stack) fr(k.async_stack);
+  if (k.c_stack)     fr(k.c_stack);
 }
 
 
@@ -88,15 +88,15 @@ void λy()
     // it from λmk() above?
     //let s = λthis;
     let s = t;
-    if (s->async_stack) { std::free(s->async_stack); s->async_stack = nullptr; }
-    if (s->c_stack)     { std::free(s->c_stack);     s->c_stack     = nullptr; }
+    if (s->async_stack) { fr(s->async_stack); s->async_stack = nullptr; }
+    if (s->c_stack)     { fr(s->c_stack);     s->c_stack     = nullptr; }
   }
 }
 
 
 void λinit_()
 {
-  λmk()->async_stack = std::malloc(λss);
+  λmk()->async_stack = ma(λss);
   λmk()->c_stack     = nullptr;
   emscripten_fiber_init_from_current_context(&λmk()->k,
                                              λmk()->async_stack,

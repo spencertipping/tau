@@ -46,7 +46,7 @@ struct shared_ptr final
   ptr_ctrl<T> *c;
 
   explicit shared_ptr(T *p_)          : p(p_), c(p ? new ptr_ctrl<T>{1, 0, p_, std::default_delete<T>()} : nullptr) {}
-  shared_ptr(T *p_, F<void(T*)> &&f_) : p(p_), c(p ? new ptr_ctrl<T>{1, 0, p_, std::move(f_)} : nullptr) {}
+  shared_ptr(T *p_, F<void(T*)> &&f_) : p(p_), c(p ? new ptr_ctrl<T>{1, 0, p_, mo(f_)} : nullptr) {}
 
   shared_ptr()                        : p(nullptr), c(nullptr) {}
   shared_ptr(std::nullptr_t p_)       : p(nullptr), c(nullptr) {}

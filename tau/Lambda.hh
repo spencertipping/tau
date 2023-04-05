@@ -30,7 +30,7 @@ struct Λt final
   λ  l;
   λs s;
 
-  Λt(λf &&f) : l(λ(std::move(f))), s(λs::S) {}
+  Λt(λf &&f) : l(λ(mo(f))), s(λs::S) {}
 
   void run()            {        l(); }
   bool done()     const { return l.done(); }

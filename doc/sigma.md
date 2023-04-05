@@ -84,12 +84,11 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `x`     |       | prefix for shell execution       |
 | `y`     | P     | prefix for Python interop        |
 | `z`     | P     | prefix for compression           |
-| `B`     | P     | prefix for bounded buffers       |
 | `J`     | L? Γ  | τ-grouped unordered join         |
 | `M`     |       | monitor                          |
 | `N`     |       | numeric ϊ                        |
 | `P`     | P     | prefix for parallelism           |
-| `Q`     |       | prefix for queues                |
+| `Q`     |       | prefix for queues/buffers        |
 | `<`     | P     | prefix for unboxing              |
 | `>`     | P     | prefix for boxing                |
 | `~`     | P     | prefix for delay and rate-limit  |

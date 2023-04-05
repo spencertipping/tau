@@ -39,7 +39,7 @@ struct ψ_ final
   τe &t() const { return t_; }
 
   ψ_ &f (λf&&);
-  ψ_ &fx(F<void(ψ_&)> &&f) { df_.push_back(std::move(f)); return *this; }
+  ψ_ &fx(F<void(ψ_&)> &&f) { df_.push_back(mo(f)); return *this; }
 
   Ξ connect(Stc &port, Ξc &x)
     { A(cs_.contains(port), n_ << " does not bind " << port);
@@ -64,9 +64,9 @@ struct ψ final
   Stc &name() const { let r = q(); A(r, "ψ::name() on null ψ"); return r->n_; }
   ψ   &name(Stc &n) { if (let r = q()) r->n_ = n; return *this; }
 
-  ψ &f (λf           &&f) { let r = q(); A(r, "ψ::f() on null");  r->f (std::move(f)); return *this; }
-  ψ &fx(F<void(ψ_&)> &&f) { let r = q(); A(r, "ψ::fx() on null"); r->fx(std::move(f)); return *this; }
-  ψ &f (F<void(ψ&)>  &&f) { return this->f([f=std::move(f), this]() { f(*this); }); }
+  ψ &f (λf           &&f) { let r = q(); A(r, "ψ::f() on null");  r->f (mo(f)); return *this; }
+  ψ &fx(F<void(ψ_&)> &&f) { let r = q(); A(r, "ψ::fx() on null"); r->fx(mo(f)); return *this; }
+  ψ &f (F<void(ψ&)>  &&f) { return this->f([f=mo(f), this]() { f(*this); }); }
 
   ψ &b (Stc &p, F<Ξ(ψ&&, Ξc&)> &&f)
     { let r = q();
@@ -76,7 +76,7 @@ struct ψ final
       // NOTE: callback function cannot hold a strong reference to ψ; if it does,
       // the ψ has the ability to outlive its τ boundary (instead, we rely on τ
       // to hold the strong reference and we hold a weak one here).
-      r->cs_[p] = [f=std::move(f), q=Wp<ψ_>(r)](Ξc &x) { return f(ψ(q), x); };
+      r->cs_[p] = [f=mo(f), q=Wp<ψ_>(r)](Ξc &x) { return f(ψ(q), x); };
       r->t().bind(p, r);
       return *this; }
 

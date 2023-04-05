@@ -59,7 +59,7 @@ struct ΓΨd_ : public virtual Γ_
 
   ψ fn(ψ q, λf &&f) const
     { if (c) f();
-      else   q.f(std::move(f));
+      else   q.f(mo(f));
       return q; }
 };
 
@@ -72,7 +72,7 @@ struct ΓΨ0 final : public virtual ΓΨd_
   Ψ0 const p;
 
   ΓΨ0(Ψ0 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
-    : ΓΨd_(d_, n_, c_), p(std::move(p_)) {}
+    : ΓΨd_(d_, n_, c_), p(mo(p_)) {}
 
   Ξ f(Ξc &x, ψ q) const  // consume input
     { A(x.fi(), name() << "(" << x << ") with no ξi→");
@@ -94,7 +94,7 @@ struct ΓΨ1 final : public virtual ΓΨd_
   Ψ1 const p;
 
   ΓΨ1(Ψ1 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
-    : ΓΨd_(d_, n_, c_), p(std::move(p_)) {}
+    : ΓΨd_(d_, n_, c_), p(mo(p_)) {}
 
   Ξ f(Ξc &x, ψ q) const  // produce future forwards input
     { A(!x.fi(), name() << "(" << x << ") clobbers existing ξi→");
@@ -116,7 +116,7 @@ struct ΓΨ2 final : public virtual ΓΨd_
   Ψ2 const p;
 
   ΓΨ2(Ψ2 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
-    : ΓΨd_(d_, n_, c_), p(std::move(p_)) {}
+    : ΓΨd_(d_, n_, c_), p(mo(p_)) {}
 
   Ξ f(Ξc &x, ψ q) const  // transform forwards
     { let [o, i] = x.t().pipe();
@@ -142,7 +142,7 @@ struct ΓΨ4 final : public virtual ΓΨd_
   Ψ4 const p;
 
   ΓΨ4(Ψ4 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
-    : ΓΨd_(d_, n_, c_), p(std::move(p_))
+    : ΓΨd_(d_, n_, c_), p(mo(p_))
     { A(d != Ψd::r, "cannot apply Ψ4:r"); }
 
   Ξ f(Ξc &x, ψ q) const  // transform forwards
