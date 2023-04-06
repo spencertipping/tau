@@ -44,15 +44,23 @@ void try_pi_vals()
 
   πv a{3};
   πv b{4};
-  auto add = πdf(fn {
-    [](let &x, let &y) -> πv { cout << "type error" << endl; return {0}; },
-    [](i64  x, i64  y) -> πv { return {x + y}; }});
-
-  πv c{add(i, a, b)};
+  let add1 = πdf(fn {
+      [](πi&, let &x, let &y) -> πv { cout << "type error" << endl; return {0}; },
+      [](πi&, i64  x, i64  y) -> πv { return {x + y}; }});
 
   vi(fn {
       [](let &x) { cout << "type error" << endl; },
-      [](i64  x) { cout << "got " << x << endl; }}, c);
+      [](i64  x) { cout << "add1 got " << x << endl; }},
+    add1(i, a, b));
+
+  let add2 = πdf(fn {
+      [](let &x, let &y) -> πv { cout << "type error" << endl; return {0}; },
+      [](i64  x, i64  y) -> πv { return {x + y}; }});
+
+  vi(fn {
+      [](let &x) { cout << "type error" << endl; },
+      [](i64  x) { cout << "add2 got " << x << endl; }},
+    add2(i, a, b));
 }
 
 
@@ -64,8 +72,8 @@ void try_pi_bound_fns()
   let x = [](πi&) { return πv{3}; };
   let y = [](πi&) { return πv{4}; };
   let add = fn {
-    [](let &x, let &y) -> πv { cout << "type error" << endl; return {0}; },
-    [](i64  x, i64  y) -> πv { return {x + y}; } };
+    [](πi&, let &x, let &y) -> πv { cout << "type error" << endl; return {0}; },
+    [](πi&, i64  x, i64  y) -> πv { return {x + y}; } };
 
   let add_x_y = πde(add, x, y);
   vi(fn {

@@ -25,8 +25,8 @@ auto πmf(T &&f)
 {
   return [f=fo<T>(f)]<class U>(πi &i, U &&x)
     -> If<Eq<De<U>, πv>,
-          decltype(vi(fn {f, bi(f, i)}, fo<U>(x)))>
-    { return vi(fn {f, bi(f, i)}, fo<U>(x)); };
+          decltype(vi(fn {f, bi(f, i, _1)}, fo<U>(x)))>
+    { return vi(fn {f, bi(f, i, _1)}, fo<U>(x)); };
 }
 
 template<class T>
@@ -34,8 +34,8 @@ auto πdf(T &&f)  // dyadic
 {
   return [f=fo<T>(f)]<class U, class V>(πi &i, U &&x, V &&y)
     -> If<Eq<De<U>, πv>,
-          decltype(vi(fn {f, bi(f, i)}, fo<U>(x), fo<V>(y)))>
-    { return vi(fn {f, bi(f, i)}, fo<U>(x), fo<V>(y)); };
+          decltype(vi(fn {f, bi(f, i, _1, _2)}, fo<U>(x), fo<V>(y)))>
+    { return vi(fn {f, bi(f, i, _1, _2)}, fo<U>(x), fo<V>(y)); };
 }
 
 template<class T>
@@ -44,8 +44,8 @@ auto πtf(T &&f)  // triadic
   return [f=fo<T>(f)]<class U, class V, class W>
     (πi &i, U &&x, V &&y, W &&z)
     -> If<Eq<De<U>, πv>,
-          decltype(vi(fn {f, bi(f, i)}, fo<U>(x), fo<V>(y), fo<W>(z)))>
-    { return vi(fn {f, bi(f, i)}, fo<U>(x), fo<V>(y), fo<W>(z)); };
+          decltype(vi(fn {f, bi(f, i, _1, _2, _3)}, fo<U>(x), fo<V>(y), fo<W>(z)))>
+    { return vi(fn {f, bi(f, i, _1, _2, _3)}, fo<U>(x), fo<V>(y), fo<W>(z)); };
 }
 
 
