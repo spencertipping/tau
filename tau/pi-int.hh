@@ -20,6 +20,8 @@ struct πi
 
   πi(τe &t)        : o(t.l(), {}) {}
   πi(ξi i_, ξo o_) : i(i_), o(o_) {}
+
+  [[noreturn]] void fail(St reason) { throw reason; }
 };
 
 

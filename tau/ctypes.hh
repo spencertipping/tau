@@ -182,8 +182,6 @@ template<bool X, class T> using If = std::enable_if_t<X, T>;
 
 template<class T, class U> ic bool Eq = std::is_same_v<T, U>;
 
-template<class T> ic T &Dv() { return std::declval<T&>(); }
-
 
 typedef std::strong_ordering  SO;
 typedef std::weak_ordering    WO;
@@ -219,9 +217,6 @@ ic decltype(auto) mp(T &&a, U &&b) { return std::make_pair(std::forward<T>(a), s
 
 template<class T, class U>
 ic decltype(auto) flip(P<T, U> const &p) { return mp(std::get<1>(p), std::get<0>(p)); }
-
-template<class... Xs>
-ic decltype(auto) vi(Xs &&... xs) { return std::visit(std::forward<Xs>(xs)...); }
 
 
 }

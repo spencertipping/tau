@@ -60,8 +60,10 @@ f("bar") = foobar
 f(true) = fallthrough
 a = 5
 b = 5
+template invocation: 5, 5
 string branch: foo
-x + y = 7
+[add1] x + y = 7
+[add2] x + y = 7
 1 || error = 1
 0 || 3 = 3
 ```

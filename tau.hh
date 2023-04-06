@@ -35,6 +35,7 @@
 #include "tau/pi-val.hh"
 #include "tau/pi-int.hh"
 #include "tau/pi-fn.hh"
+#include "tau/pi-fn-eta.hh"
 
 
 #endif

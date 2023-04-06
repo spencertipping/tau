@@ -17,6 +17,43 @@ namespace τ
 typedef F<πv(πi&)> πf;
 typedef πf const   πfc;
 
+typedef F<πv(πi&, πv&&)>             πmf;
+typedef F<πv(πi&, πv&&, πv&&)>       πdf;
+typedef F<πv(πi&, πv&&, πv&&, πv&&)> πtf;
+
+
+// Compiler helpers: we want to compile around the erasure boundary.
+// πmv(f) means "convert f to a function that evaluates + visits its argument".
+// nmc(f, x) means "convert f() to close over x".
+//
+// Same for dyadic and triadic functions. Note that closures copy their operands.
+
+
+template<class T>
+πmf πmv(T &&f)
+{ return [f=fo<T>(f)](πi &i, πv &&x) -> πv
+  { return std::visit([&](auto &&x) { return f(i, x); }, x); }; }
+
+template<class T>
+πdf πdv(T &&f)
+{ return [f=fo<T>(f)](πi &i, πv &&x, πv &&y) -> πv
+  { return std::visit([&](auto &&x, auto &&y) { return f(i, x, y); }, x, y); }; }
+
+template<class T>
+πtf πtv(T &&f)
+{ return [f=fo<T>(f)](πi &i, πv &&x, πv &&y, πv &&z) -> πv
+  { return std::visit([&](auto &&x, auto &&y, auto &&z) { return f(i, x, y, z); }, x, y, z); }; }
+
+
+inline πf πmc(πmf &&f, πfc &x)
+{ return [f=mo(f), x](πi &i) -> πv { return f(i, x(i)); }; }
+
+inline πf πdc(πdf &&f, πfc &x, πfc &y)
+{ return [f=mo(f), x, y](πi &i) -> πv { return f(i, x(i), y(i)); }; }
+
+inline πf πtc(πtf &&f, πfc &x, πfc &y, πfc &z)
+{ return [f=mo(f), x, y, z](πi &i) -> πv { return f(i, x(i), y(i), z(i)); }; }
+
 
 // There are two kinds of functions in π: lazy and eager. Lazy functions
 // examine only the first argument and leave the other(s) unevaluated.
@@ -44,8 +81,8 @@ template<class T>
   return [f=fo<T>(f), x=mo(x), y=mo(y)](πi &i) -> πv
     { let a = x(i);
       let b = y(i);
-      return vi([&](let &a, let &b) { return f(i, a, b); },
-                a, b); };
+      return std::visit([&](let &a, let &b) { return f(i, a, b); },
+                        a, b); };
 }
 
 template<class T>
@@ -55,8 +92,8 @@ template<class T>
     { let a = x(i);
       let b = y(i);
       let c = z(i);
-      return vi([&](let &a, let &b, let &c) { return f(i, a, b, c); },
-                a, b, c); };
+      return std::visit([&](let &a, let &b, let &c) { return f(i, a, b, c); },
+                        a, b, c); };
 }
 
 
@@ -71,14 +108,14 @@ template<class T>
 πf πdl(T &&f, πf &&x, πf &&y)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y)](πi &i) -> πv
-    { return vi([&](let &a) { return f(i, a, y); }, x(i)); };
+    { return std::visit([&](let &a) { return f(i, a, y); }, x(i)); };
 }
 
 template<class T>
 πf πtl(T &&f, πf &&x, πf &&y, πf &&z)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y), z=mo(z)](πi &i) -> πv
-    { return vi([&](let &a) { return f(i, a, y, z); }, x(i)); };
+    { return std::visit([&](let &a) { return f(i, a, y, z); }, x(i)); };
 }
 
 

@@ -31,13 +31,15 @@ using namespace std::placeholders;
   template<class... T> using Wp = std::weak_ptr<T...>;
 
   template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return std::dynamic_pointer_cast<U>(x); }
-  template<class T> T* wpg(Wp<T> const &x) { return x.lock().get(); }
+  template<class T>          T*    wpg(Wp<T> const &x) { return x.lock().get(); }
+  template<class T>          Sp<T> ms (T &&x)          { return std::make_shared(mo(x)); }
 #else
   template<class... T> using Sp = shared_ptr<T...>;
   template<class... T> using Wp = weak_ptr<T...>;
 
   template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return x.template as<U>(); }
-  template<class T> T* wpg(Wp<T> const &x) { return x.get(); }
+  template<class T>          T*    wpg(Wp<T> const &x) { return x.get(); }
+  template<class T>          Sp<T> ms (T &&x)          { let r = Sp<T>(new T{}); *r = mo(x); return r; }
 #endif
 
 
