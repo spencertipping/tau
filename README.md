@@ -62,6 +62,9 @@ a = 5
 b = 5
 string branch: foo
 got 7
+x + y = 7
+1 || error = 1
+0 || 3 = 3
 ```
 
 

@@ -44,7 +44,7 @@ void try_pi_vals()
 
   πv a{3};
   πv b{4};
-  auto add = πbin(fn {
+  auto add = πdf(fn {
     [](let &x, let &y) -> πv { cout << "type error" << endl; return {0}; },
     [](i64  x, i64  y) -> πv { return {x + y}; }});
 
@@ -56,11 +56,59 @@ void try_pi_vals()
 }
 
 
+void try_pi_bound_fns()
+{
+  τe t;
+  πi i{{}, {t.l(), {}}, {}};
+
+  let x = [](πi&) { return πv{3}; };
+  let y = [](πi&) { return πv{4}; };
+  let add = fn {
+    [](let &x, let &y) -> πv { cout << "type error" << endl; return {0}; },
+    [](i64  x, i64  y) -> πv { return {x + y}; } };
+
+  let add_x_y = πde(add, x, y);
+  vi(fn {
+      [](let &x) { cout << "type error on add_x_y" << endl; },
+      [](i64  x) { cout << "x + y = " << x << endl; }},
+    add_x_y(i));
+}
+
+
+void try_pi_lazy_fns()
+{
+  τe t;
+  πi i{{}, {t.l(), {}}, {}};
+
+  let w = [](πi&) -> πv { return πv{0}; };
+  let x = [](πi&) -> πv { return πv{1}; };
+  let y = [](πi&) -> πv { throw "should never happen"; };
+  let z = [](πi&) -> πv { return πv{3}; };
+  let or_fn = fn {
+    [](πi &i, let &x, πfc &r) -> πv { cout << "type error" << endl; throw "type error"; },
+    [](πi &i, i64 x,  πfc &r) -> πv { return x ? πv{x} : r(i); } };
+
+  let or_x_y = πdl(or_fn, x, y);
+  vi(fn {
+      [](let &x) { cout << "type error on add_x_y" << endl; },
+      [](i64  x) { cout << "1 || error = " << x << endl; }},
+    or_x_y(i));
+
+  let or_w_z = πdl(or_fn, w, z);
+  vi(fn {
+      [](let &x) { cout << "type error on add_x_y" << endl; },
+      [](i64  x) { cout << "0 || 3 = " << x << endl; }},
+    or_w_z(i));
+}
+
+
 int main()
 {
   try_polymorphic_functions();
   try_variant_cast();
   try_pi_vals();
+  try_pi_bound_fns();
+  try_pi_lazy_fns();
   return 0;
 }
 
