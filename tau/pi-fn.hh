@@ -84,16 +84,14 @@ template<class T>
 πf πdl(T &&f, πf &&x, πf &&y)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y)](πi &i) -> πv
-    { using namespace std::placeholders;
-      return vi(bi(f, i, _1, y), x(i)); };
+    { return vi(bi(f, i, _1, y), x(i)); };
 }
 
 template<class T>
 πf πtl(T &&f, πf &&x, πf &&y, πf &&z)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y), z=mo(z)](πi &i) -> πv
-    { using namespace std::placeholders;
-      return vi(bi(f, i, _1, y, z), x(i)); };
+    { return vi(bi(f, i, _1, y, z), x(i)); };
 }
 
 

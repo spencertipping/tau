@@ -23,6 +23,7 @@ namespace τ
 {
 
 using namespace std::literals;
+using namespace std::placeholders;
 
 
 #if !τuse_nonvolatile_sharedptr
