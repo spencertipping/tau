@@ -120,23 +120,27 @@ struct ηo final
       s_ += i.osize();
       return *this; }
 
-  ηo &operator<<(Sn<i8c> const &xs)
-    { if (!reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()))) return *this;
-      s_ += ηcb(b_.subspan(s_), ηtype::int8s, xs.size_bytes());
-      std::copy(xs.begin(), xs.end(), b_.data() + s_);
-      s_ += xs.size_bytes();
-      return *this; }
-
 
 #define τηspan(st, tt, ηt)                                              \
   ηo &operator<<(Sn<st> const &xs)                                      \
-    { if (!reserve(xs.size_bytes() + 1 + ηsb(xs.size_bytes()))) return *this; \
-      s_ += ηcb(b_.subspan(s_), ηtype::ηt, xs.size_bytes());            \
+    { let sb = xs.size_bytes();                                         \
+      if (!reserve(sb + 1 + ηsb(sb))) return *this;                     \
+      s_ += ηcb(b_.subspan(s_), ηtype::ηt, sb);                         \
       tt *y = Rc<tt*>(b_.data() + s_);                                  \
       for (let x : xs) *y++ = x;                                        \
-      s_ += xs.size_bytes();                                            \
-      return *this; }
+      s_ += sb;                                                         \
+      return *this; }                                                   \
+                                                                        \
+  ηo &operator<<(V<De<st>> const &xs)                                   \
+    { let sb = xs.size() * sizeof(st);                                  \
+      if (!reserve(sb + 1 + ηsb(sb))) return *this;                     \
+      s_ += ηcb(b_.subspan(s_), ηtype::ηt, sb);                         \
+      tt *y = Rc<tt*>(b_.data() + s_);                                  \
+      for (let x : xs) *y++ = x;                                        \
+      s_ += sb;                                                         \
+      return *this; }                                                   \
 
+  τηspan(i8c,  i8b,  int8s)
   τηspan(i16c, i16b, int16s)
   τηspan(i32c, i32b, int32s)
   τηspan(i64c, i64b, int64s)
