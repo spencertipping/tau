@@ -26,12 +26,14 @@ wasm_link=(
 
 build_linux=yes
 build_wasm=yes
+build_on_server=
 
 while (( $# )); do
   case $1 in
-    --no-wasm)  build_wasm=;  shift ;;
-    --no-linux) build_linux=; shift ;;
-    *)                        break ;;
+    --no-wasm)  build_wasm=;         shift ;;
+    --no-linux) build_linux=;        shift ;;
+    --server)   build_on_server=yes; shift ;;
+    *)                               break ;;
   esac
 done
 
@@ -51,6 +53,7 @@ for f in ${h_files[*]} build compile_flags.txt; do
       find bin -name '*.o' -delete
       echo FULL REBUILD: $f newer than $o
       rebuild_all=yes
+      build_on_server=yes
       break 2
     fi
   done
@@ -166,12 +169,8 @@ server_build()
 }
 
 
-case ${1:-} in
-  --server)
-    time server_build set.128 /nvme/asqi/tau
-    ;;
-
-  *)
-    time local_build
-    ;;
-esac
+if [[ -n "$build_on_server" ]]; then
+  time server_build set.128 /nvme/asqi/tau
+else
+  time local_build
+fi

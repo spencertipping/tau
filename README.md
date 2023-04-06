@@ -61,8 +61,6 @@ f(true) = fallthrough
 a = 5
 b = 5
 string branch: foo
-add1 got 7
-add2 got 7
 x + y = 7
 1 || error = 1
 0 || 3 = 3
