@@ -40,7 +40,7 @@ void try_variant_cast()
 void try_pi_bound_fns()
 {
   τe t;
-  πi i{{}, {t.l(), {}}, {}};
+  πi i(t);
 
   let x = [](πi&) { return πv{3}; };
   let y = [](πi&) { return πv{4}; };
@@ -59,7 +59,7 @@ void try_pi_bound_fns()
 void try_pi_lazy_fns()
 {
   τe t;
-  πi i{{}, {t.l(), {}}, {}};
+  πi i(t);
 
   let w = [](πi&) -> πv { return πv{0}; };
   let x = [](πi&) -> πv { return πv{1}; };
