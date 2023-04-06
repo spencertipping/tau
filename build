@@ -27,13 +27,16 @@ wasm_link=(
 build_linux=yes
 build_wasm=yes
 build_on_server=
+just_print_status=
 
 while (( $# )); do
   case $1 in
-    --no-wasm)  build_wasm=;         shift ;;
-    --no-linux) build_linux=;        shift ;;
-    --server)   build_on_server=yes; shift ;;
-    *)                               break ;;
+    --no-wasm)  build_wasm=;           shift ;;
+    --no-linux) build_linux=;          shift ;;
+    --server)   build_on_server=yes;   shift ;;
+    --status)   just_print_status=yes; shift ;;
+    *) echo "unknown option $1"
+       exit 1 ;;
   esac
 done
 
@@ -51,13 +54,28 @@ for f in ${h_files[*]} build compile_flags.txt; do
   for o in ${o_files[*]}; do
     if [[ $f -nt $o ]]; then
       find bin -name '*.o' -delete
-      echo FULL REBUILD: $f newer than $o
       rebuild_all=yes
       build_on_server=yes
       break 2
     fi
   done
 done
+
+
+linux_to_compile=0
+wasm_to_compile=0
+for f in ${c_files[*]}; do
+  if [[ $f -nt bin/linux/${f%%.cc}.o ]]; then
+    let linux_to_compile+=1
+  fi
+  if [[ -n "$build_wasm" ]] && [[ $f -nt bin/wasm/${f%%.cc}.o ]]; then
+    let wasm_to_compile+=1
+  fi
+done
+
+if (( $linux_to_compile > 4 || $wasm_to_compile > 2 )); then
+  build_on_server=yes
+fi
 
 
 linux_cc()
@@ -169,8 +187,19 @@ server_build()
 }
 
 
-if [[ -n "$build_on_server" ]]; then
-  time server_build set.128 /nvme/asqi/tau
+build_status()
+{
+  [[ -n "$rebuild_all" ]] && echo 'full rebuild'
+  echo "linux to rebuild: $linux_to_compile"
+  echo "wasm  to rebuild: $wasm_to_compile"
+}
+
+
+if [[ -n "$just_print_status" ]]; then
+  build_status
+elif [[ ${HOSTNAME:0:1} == i ]] && [[ -n "$build_on_server" ]]; then
+  echo "building on server"
+  server_build set.128 /nvme/asqi/tau
 else
   time local_build
 fi
