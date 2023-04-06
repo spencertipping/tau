@@ -80,27 +80,32 @@ fi
 
 linux_cc()
 {
+  start=`date +%s.%N`
   src=$1
   obj=bin/linux/${src%.cc}.o
   if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
     g++ $linux_flags $src -c -o $obj
-    echo "linux/compiled $src"
+    end=`date +%s.%N`
+    echo "linux/compiled $src in `bc -l <<<"($end - $start) * 1000"`ms"
   fi
 }
 
 wasm_cc()
 {
+  start=`date +%s.%N`
   src=$1
   obj=bin/wasm/${src%.cc}.o
   if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
     dev/emsdk em++ $wasm_flags $src -c -o $obj
-    echo "wasm/compiled $src"
+    end=`date +%s.%N`
+    echo "wasm/compiled $src in `bc -l <<<"($end - $start) * 1000"`ms"
   fi
 }
 
 
 linux_link()
 {
+  start=`date +%s.%N`
   src=$1
   obj=bin/linux/${src%.cc}.o
   out=bin/$(basename $src .cc)
@@ -115,12 +120,14 @@ linux_link()
 
   if [[ -n $build ]]; then
     g++ $linux_flags $obj -o $out bin/tau-linux.a ${linux_link[@]}
-    echo "linux/link $out"
+    end=`date +%s.%N`
+    echo "linux/link $out in `bc -l <<<"($end - $start) * 1000"`ms"
   fi
 }
 
 wasm_link()
 {
+  start=`date +%s.%N`
   src=$1
   obj=bin/wasm/${src%.cc}.o
   out=bin/$(basename $src .cc).js
@@ -135,7 +142,8 @@ wasm_link()
 
   if [[ -n $build ]]; then
     dev/emsdk em++ $wasm_flags $obj -o $out bin/tau-wasm.a ${wasm_link[@]}
-    echo "wasm/link $out"
+    end=`date +%s.%N`
+    echo "wasm/link $out in `bc -l <<<"($end - $start) * 1000"`ms"
   fi
 }
 
