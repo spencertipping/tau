@@ -1,4 +1,5 @@
 #include <memory>
+#include <tuple>
 #include <typeinfo>
 #include <vector>
 
@@ -85,18 +86,28 @@ struct binr
             << typeid(y).name()).str()); }
 
 
-// Yes, it's true. After hours hunting this one down, it seems that WASM
-// has a link-time issue having something to do with missing function
-// deleters being invoked from a shared_ptr context (maybe?) and cannot
-// build this code. I've tried many things, including upgrading the emsdk
-// docker image, to no avail. The only fix is to drop emscripten vectors
-// entirely, at least until I build up more courage to try this again.
+// WTF, I hear you asking. What purpose could this possibly serve???
+// Well, it's a long and tragic tale but to summarize, clang++ has
+// a known defect (https://github.com/llvm/llvm-project/issues/44214)
+// that causes it to not emit all symbols for templates expanded within
+// some types of lambdas. So if we're compiling with clang, we need to
+// manually generate these symbols by instantiating them directly.
 
-#if τemscripten
-# define τspan_binop(t, op, a, b)                       \
-  { i.fail("no vectorized op support for webassembly"); }
-#else
-# define τspan_binop(t, op, a, b)                                       \
+#if τclang
+auto τclang_workaround_gensyms()
+{
+  Sp<V<i8>>  x{new V<i8>};
+  Sp<V<i16>> y{new V<i16>};
+  Sp<V<i32>> z{new V<i32>};
+  Sp<V<i64>> a{new V<i64>};
+  Sp<V<f32>> b{new V<f32>};
+  Sp<V<f64>> c{new V<f64>};
+  return std::make_tuple(x, y, z, a, b, c);
+}
+#endif
+
+
+#define τspan_binop(t, op, a, b)                                       \
   { let     &x = (a);                                                   \
     let     &y = (b);                                                   \
     let      s = std::min(x.size(), y.size());                          \
@@ -104,7 +115,6 @@ struct binr
     r->reserve(s);                                                      \
     for (uN i = 0; i < s; ++i) (*r)[i] = x[i] op y[i];                  \
     return πv{r}; }
-#endif
 
 
 #define τbinoptype(op, a, b) decltype(std::declval<a>() op std::declval<b>())
