@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-./build --no-wasm
+./build --no-wasm --no-clang
 ./lazytest README.md `find doc -name '*.md'` | bash
 
 ./build --no-linux

@@ -54,12 +54,12 @@ struct ψ final
 {
   ψ(τe    &t) : t_(t), q_(new ψ_(t)) {}
   ψ(Sp<ψ_> q) : t_(q->t_), q_(q) {}
-  ψ(Wp<ψ_> w) : t_(w.get()->t_), w_(w) {}
+  ψ(Wp<ψ_> w) : t_(wpg(w)->t_), w_(w) {}
 
   ψ(τe &t, St n) : ψ(t) { name(n); }
 
   ψ &operator=(ψ const &x) { q_ = x.q_; w_ = x.w_; return *this; }
-  operator bool() const { return q_ || w_; }
+  operator bool() const { return q_ || !w_.expired(); }
 
   Stc &name() const { let r = q(); A(r, "ψ::name() on null ψ"); return r->n_; }
   ψ   &name(Stc &n) { if (let r = q()) r->n_ = n; return *this; }

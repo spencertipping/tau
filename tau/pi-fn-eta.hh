@@ -2,11 +2,6 @@
 #define τπfn_η_h
 
 
-#include <typeinfo>
-
-#include "types.hh"
-#include "eta.hh"
-#include "pi-val.hh"
 #include "pi-fn.hh"
 
 #include "begin.hh"

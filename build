@@ -7,7 +7,8 @@ cflags="$(<compile_flags.txt) -O3"
 #cflags="$(<compile_flags.txt) -O0 -g"
 
 linux_flags="$cflags -flto"
-wasm_flags="$cflags -fexceptions"
+clang_flags="$cflags -flto"
+wasm_flags="$cflags -fexceptions -Wno-mathematical-notation-identifier-extension"
 
 linux_link=(
   #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
@@ -18,13 +19,21 @@ linux_link=(
   -lboost_context
   -lzstd
 )
+clang_link=(
+  -flto
+  -lsqlite3
+  -lboost_context
+  -lzstd
+)
 wasm_link=(
+  --use-preload-plugins
   -sTOTAL_MEMORY=1024MB
   -sASYNCIFY
 )
 
 
 build_linux=yes
+build_clang=yes
 build_wasm=yes
 build_on_server=
 just_print_status=
@@ -33,6 +42,10 @@ while (( $# )); do
   case $1 in
     --no-wasm)  build_wasm=;           shift ;;
     --no-linux) build_linux=;          shift ;;
+    --no-clang) build_clang=;          shift ;;
+    --wasm)     build_wasm=yes;        shift ;;
+    --linux)    build_linux=yes;       shift ;;
+    --clang)    build_clang=yes;       shift ;;
     --server)   build_on_server=yes;   shift ;;
     --status)   just_print_status=yes; shift ;;
     *) echo "unknown option $1"
@@ -41,7 +54,7 @@ while (( $# )); do
 done
 
 
-mkdir -p bin/{linux,wasm}/{tau{,/linux,/wasm,/share},try}
+mkdir -p bin/{linux,wasm,clang}/{tau{,/linux,/wasm,/share,/clang},try}
 
 
 h_files=( tau.hh `find tau     -name '*.hh'` )
@@ -50,7 +63,7 @@ o_files=(        `find bin     -name '*.o'` )
 
 
 rebuild_all=
-for f in ${h_files[*]} build compile_flags.txt; do
+for f in ${h_files[*]} build compile_flags.txt dev/emsdk; do
   for o in ${o_files[*]}; do
     if [[ $f -nt $o ]]; then
       find bin -name '*.o' -delete
@@ -64,16 +77,20 @@ done
 
 linux_to_compile=0
 wasm_to_compile=0
+clang_to_compile=0
 for f in ${c_files[*]}; do
   if [[ $f -nt bin/linux/${f%%.cc}.o ]]; then
     let linux_to_compile+=1
+  fi
+  if [[ -n "$build_clang" ]] && [[ $f -nt bin/clang/${f%%.cc}.o ]]; then
+    let clang_to_compile+=1
   fi
   if [[ -n "$build_wasm" ]] && [[ $f -nt bin/wasm/${f%%.cc}.o ]]; then
     let wasm_to_compile+=1
   fi
 done
 
-if (( $linux_to_compile > 4 || $wasm_to_compile > 2 )); then
+if (( $linux_to_compile > 4 || $wasm_to_compile > 2 || $clang_to_compile > 2 )); then
   build_on_server=yes
 fi
 
@@ -87,6 +104,18 @@ linux_cc()
     g++ $linux_flags $src -c -o $obj
     end=`date +%s.%N`
     echo "linux/compiled $src in `bc -l <<<"($end - $start) * 1000"`ms"
+  fi
+}
+
+clang_cc()
+{
+  start=`date +%s.%N`
+  src=$1
+  obj=bin/clang/${src%.cc}.o
+  if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
+    clang++ $clang_flags $src -c -o $obj
+    end=`date +%s.%N`
+    echo "clang/compiled $src in `bc -l <<<"($end - $start) * 1000"`ms"
   fi
 }
 
@@ -125,6 +154,28 @@ linux_link()
   fi
 }
 
+clang_link()
+{
+  start=`date +%s.%N`
+  src=$1
+  obj=bin/clang/${src%.cc}.o
+  out=bin/$(basename $src .cc)-clang
+
+  build=
+  for f in $obj `find bin/clang/tau -name '*.o'`; do
+    if [[ $f -nt $out ]]; then
+      build=yes
+      break
+    fi
+  done
+
+  if [[ -n $build ]]; then
+    clang++ $clang_flags $obj -o $out bin/tau-clang.a ${clang_link[@]}
+    end=`date +%s.%N`
+    echo "clang/link $out in `bc -l <<<"($end - $start) * 1000"`ms"
+  fi
+}
+
 wasm_link()
 {
   start=`date +%s.%N`
@@ -152,11 +203,13 @@ compile()
 {
   for f in ${c_files[*]}; do
     [[ -n $build_linux ]] && linux_cc $f &
+    [[ -n $build_clang ]] && clang_cc $f &
     [[ -n $build_wasm  ]] && wasm_cc  $f &
   done
   wait
   rm -f bin/*.a
   [[ -n $build_linux ]] && ar             rcs bin/tau-linux.a `find bin/linux/tau -name '*.o'`
+  [[ -n $build_clang ]] && ar             rcs bin/tau-clang.a `find bin/clang/tau -name '*.o'`
   [[ -n $build_wasm  ]] && dev/emsdk emar rcs bin/tau-wasm.a  `find bin/wasm/tau  -name '*.o'`
   echo "compile done"
 }
@@ -167,6 +220,7 @@ link()
   for f in `find try -name '*.cc'`; do
     [[ -n $build_linux ]] && linux_link $f &
     [[ -n $build_wasm  ]] && wasm_link  $f &
+    [[ -n $build_clang ]] && clang_link $f &
   done
   wait
   echo "link done"
@@ -190,6 +244,7 @@ server_build()
   args=
   [[ -z $build_linux ]] && args="$args --no-linux"
   [[ -z $build_wasm  ]] && args="$args --no-wasm"
+  [[ -z $build_clang ]] && args="$args --no-clang"
   ssh -t $host "cd $path && ./build $args"
   rsync -a --delete $host:$path/bin ./
 }

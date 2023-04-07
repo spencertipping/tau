@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
+mkdir -p /tmp/emsdk-cache
 exec docker run \
   --rm \
+  -v /tmp/emsdk-cache:/emsdk/upstream/emscripten/cache \
   -v $(pwd):/src \
   -u $(id -u):$(id -g) \
-  registry.128:5000/asqi/emsdk "$@"
+  registry.128:5000/asqi/emsdk2 "$@"
