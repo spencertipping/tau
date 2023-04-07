@@ -172,8 +172,6 @@ auto τclang_workaround_gensyms()
 
 
 πdf πηadd() { return πdv(fn {τbinfallthrough(+), τnbinop(+)}); }
-
-/*
 πdf πηsub() { return πdv(fn {τbinfallthrough(-), τnbinop(-)}); }
 πdf πηmul() { return πdv(fn {τbinfallthrough(*), τnbinop(*)}); }
 πdf πηdiv() { return πdv(fn {τbinfallthrough(/), τnbinop(/)}); }
@@ -184,7 +182,6 @@ auto τclang_workaround_gensyms()
 πdf πηand() { return πdv(fn {τbinfallthrough(&),  τibinop(&)}); }
 πdf πηor () { return πdv(fn {τbinfallthrough(|),  τibinop(|)}); }
 πdf πηxor() { return πdv(fn {τbinfallthrough(^),  τibinop(^)}); }
-*/
 
 
 // TODO: define the right behavior for these (i.e. do we use η ordering,

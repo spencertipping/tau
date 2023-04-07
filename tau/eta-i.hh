@@ -11,29 +11,6 @@ namespace τ
 {
 
 
-template<class T>
-PO operator<=>(Sn<T> const &a, Sn<T> const &b)
-{
-  let sl = std::min(a.size(), b.size());
-  for (uN i = 0; i < sl; ++i)
-  {
-    let c = a[i] <=> b[i];
-    if (c != SO::equal) return c;
-  }
-  if (a.size() > sl) return PO::greater;
-  if (b.size() > sl) return PO::less;
-  return PO::equivalent;
-}
-
-
-// Emscripten doesn't define this for string views, so we need to create
-// our own. Immediately shell out to <=> for spans, comparing chars.
-inline PO operator<=>(Stvc &a, Stvc &b)
-{
-  return Sn<chc>(a.data(), a.size()) <=> Sn<chc>(b.data(), b.size());
-}
-
-
 // η input: read from fixed location in memory
 struct ηi final
 {
@@ -88,7 +65,6 @@ struct ηi final
       case ηtype::string:   return s()   <=> x.s();
       case ηtype::atom:     return a()   <=> x.a();
       case ηtype::name:     return n()   <=> x.n();
-      case ηtype::η:        return η()   <=> x.η();
 
       case ηtype::int8s:    return i8s()  <=> x.i8s();
       case ηtype::int16s:   return i16s() <=> x.i16s();
@@ -96,7 +72,20 @@ struct ηi final
       case ηtype::int64s:   return i64s() <=> x.i64s();
       case ηtype::float32s: return f32s() <=> x.f32s();
       case ηtype::float64s: return f64s() <=> x.f64s();
-      default:              return PO::unordered;
+
+      case ηtype::η:
+      { ηi a = η();
+        ηi b = x.η();
+        for (;;)
+        { let c = a <=> b;
+          if (c != PO::equivalent) return c;
+          if (!a.has_next() && !b.has_next()) return PO::equivalent;
+          if (!a.has_next()) return PO::less;
+          if (!b.has_next()) return PO::greater;
+          a = a.next();
+          b = b.next(); } }
+
+      default: return PO::unordered;
       } }
 
 

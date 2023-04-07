@@ -40,6 +40,13 @@ typedef Va<
   Sn<f64b>
   > πv;
 
+typedef πv const πvc;
+
+
+ηtype πvt(πvc&);
+
+PO operator<=>(πvc&, πvc&);
+
 
 struct πv_ final
 {

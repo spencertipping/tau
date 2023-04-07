@@ -53,6 +53,7 @@ enum class ηtype : u8
   float64s = 13,
   res14    = 14,  // reserved
   res15    = 15,  // reserved
+  invalid  = 15,  // reserved for illegal values
   max      = 15,
 };
 

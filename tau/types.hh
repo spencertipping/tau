@@ -43,6 +43,48 @@ using namespace std::placeholders;
 #endif
 
 
+// Span/vector comparisons
+template<class T, class U>
+PO svc(T const &a, U const &b)
+{
+  let sl = std::min(a.size(), b.size());
+  for (uN i = 0; i < sl; ++i)
+  {
+    let c = a[i] <=> b[i];
+    if (c != SO::equal) return c;
+  }
+  if (a.size() > sl) return PO::greater;
+  if (b.size() > sl) return PO::less;
+  return PO::equivalent;
+}
+
+template<class T, class U,
+         class = decltype(std::declval<T>() <=> std::declval<U>())>
+PO operator<=>(Sn<T> const &a, Sn<U> const &b) { return svc(a, b); }
+
+template<class T, class U,
+         class = decltype(std::declval<T>() <=> std::declval<U>())>
+PO operator<=>(V<T> const &a, Sn<U> const &b) { return svc(a, b); }
+
+template<class T, class U,
+         class = decltype(std::declval<T>() <=> std::declval<U>())>
+PO operator<=>(Sn<T> const &a, V<U> const &b) { return svc(a, b); }
+
+template<class T, class U,
+         class = decltype(std::declval<T>() <=> std::declval<U>())>
+PO operator<=>(V<T> const &a, V<U> const &b) { return svc(a, b); }
+
+
+#if τclang
+// clang doesn't define this for string views, so we need to create
+// our own. Immediately shell out to <=> for spans, comparing chars.
+inline PO operator<=>(Stvc &a, Stvc &b)
+{
+  return Sn<chc>(a.data(), a.size()) <=> Sn<chc>(b.data(), b.size());
+}
+#endif
+
+
 // std::variant superset casting
 template<class... Xs>
 struct vc_
