@@ -29,6 +29,7 @@ wasm_link=(
   --use-preload-plugins
   -sTOTAL_MEMORY=1024MB
   -sASYNCIFY
+  -Wl,-error-limit=0
 )
 
 
@@ -54,7 +55,7 @@ while (( $# )); do
 done
 
 
-mkdir -p bin/{linux,wasm,clang}/{tau{,/linux,/wasm,/share,/clang},try}
+mkdir -p bin/{linux,wasm,clang}/{tau,try}
 
 
 h_files=( tau.hh `find tau     -name '*.hh'` )
@@ -66,7 +67,8 @@ rebuild_all=
 for f in ${h_files[*]} build compile_flags.txt dev/emsdk; do
   for o in ${o_files[*]}; do
     if [[ $f -nt $o ]]; then
-      find bin -name '*.o' -delete
+      rm -rf bin
+      mkdir -p bin/{linux,wasm,clang}/{tau,try}
       rebuild_all=yes
       build_on_server=yes
       break 2

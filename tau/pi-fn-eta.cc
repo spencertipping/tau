@@ -11,176 +11,69 @@ namespace τ
 {
 
 
-// Type widening logic, specified here because emscripten will default
-// to widening everything to int, long long, and double (and consequently
-// causing linker errors as we assign incompatible shared_ptrs into πvs).
-//
-// It's also worth pinning it down in general, since C compilers might
-// artificially widen vectorized things.
-//
-// There's a huge lookup table below because I'm bad at C++. Surely there's
-// a better strategy, but I ran into SFINAE problems trying to substitute
-// i8b for i8 with template programming.
-//
-// TODO: replace this garbage with float_bits and int_bits logic to dispatch
+// Type widening logic, specified here to prevent C++ from artificially inflating
+// arithmetic results (e.g. i8 + i8 = int, that type of thing).
 
-template<class T, class U> struct binr;
+template<int ibits, int fbits> struct ntype;
+template<> struct ntype<8,  0> { typedef i8  t; };
+template<> struct ntype<16, 0> { typedef i16 t; };
+template<> struct ntype<32, 0> { typedef i32 t; };
+template<> struct ntype<64, 0> { typedef i64 t; };
 
-template<> struct binr<i8, i8>   { typedef i8 t; };
-template<> struct binr<i8, i16>  { typedef i16 t; };
-template<> struct binr<i8, i32>  { typedef i32 t; };
-template<> struct binr<i8, i64>  { typedef i64 t; };
-template<> struct binr<i8, f32>  { typedef f32 t; };
-template<> struct binr<i8, f64>  { typedef f64 t; };
-template<> struct binr<i8, i8b>  { typedef i8 t; };
-template<> struct binr<i8, i16b> { typedef i16 t; };
-template<> struct binr<i8, i32b> { typedef i32 t; };
-template<> struct binr<i8, i64b> { typedef i64 t; };
-template<> struct binr<i8, f32b> { typedef f32 t; };
-template<> struct binr<i8, f64b> { typedef f64 t; };
+template<> struct ntype<0,  32> { typedef f32 t; };
+template<> struct ntype<8,  32> { typedef f32 t; };
+template<> struct ntype<16, 32> { typedef f32 t; };
+template<> struct ntype<32, 32> { typedef f64 t; };
+template<> struct ntype<64, 32> { typedef f64 t; };
 
-template<> struct binr<i16, i8>   { typedef i16 t; };
-template<> struct binr<i16, i16>  { typedef i16 t; };
-template<> struct binr<i16, i32>  { typedef i32 t; };
-template<> struct binr<i16, i64>  { typedef i64 t; };
-template<> struct binr<i16, f32>  { typedef f32 t; };
-template<> struct binr<i16, f64>  { typedef f64 t; };
-template<> struct binr<i16, i8b>  { typedef i16 t; };
-template<> struct binr<i16, i16b> { typedef i16 t; };
-template<> struct binr<i16, i32b> { typedef i32 t; };
-template<> struct binr<i16, i64b> { typedef i64 t; };
-template<> struct binr<i16, f32b> { typedef f32 t; };
-template<> struct binr<i16, f64b> { typedef f64 t; };
+template<> struct ntype<0,  64> { typedef f64 t; };
+template<> struct ntype<8,  64> { typedef f64 t; };
+template<> struct ntype<16, 64> { typedef f64 t; };
+template<> struct ntype<32, 64> { typedef f64 t; };
+template<> struct ntype<64, 64> { typedef f64 t; };
 
-template<> struct binr<i32, i8>   { typedef i32 t; };
-template<> struct binr<i32, i16>  { typedef i32 t; };
-template<> struct binr<i32, i32>  { typedef i32 t; };
-template<> struct binr<i32, i64>  { typedef i64 t; };
-template<> struct binr<i32, f32>  { typedef f64 t; };
-template<> struct binr<i32, f64>  { typedef f64 t; };
-template<> struct binr<i32, i8b>  { typedef i32 t; };
-template<> struct binr<i32, i16b> { typedef i32 t; };
-template<> struct binr<i32, i32b> { typedef i32 t; };
-template<> struct binr<i32, i64b> { typedef i64 t; };
-template<> struct binr<i32, f32b> { typedef f64 t; };
-template<> struct binr<i32, f64b> { typedef f64 t; };
 
-template<> struct binr<i64, i8>   { typedef i64 t; };
-template<> struct binr<i64, i16>  { typedef i64 t; };
-template<> struct binr<i64, i32>  { typedef i64 t; };
-template<> struct binr<i64, i64>  { typedef i64 t; };
-template<> struct binr<i64, f32>  { typedef f64 t; };
-template<> struct binr<i64, f64>  { typedef f64 t; };
-template<> struct binr<i64, i8b>  { typedef i64 t; };
-template<> struct binr<i64, i16b> { typedef i64 t; };
-template<> struct binr<i64, i32b> { typedef i64 t; };
-template<> struct binr<i64, i64b> { typedef i64 t; };
-template<> struct binr<i64, f32b> { typedef f64 t; };
-template<> struct binr<i64, f64b> { typedef f64 t; };
+template<class T> struct ibits_of;
+template<> struct ibits_of<bool> { sletc v = 8;  };
+template<> struct ibits_of<i8>   { sletc v = 8;  };
+template<> struct ibits_of<i16>  { sletc v = 16; };
+template<> struct ibits_of<i32>  { sletc v = 32; };
+template<> struct ibits_of<i64>  { sletc v = 64; };
+template<> struct ibits_of<f32>  { sletc v = 0;  };
+template<> struct ibits_of<f64>  { sletc v = 0;  };
 
-template<> struct binr<f32, i8>   { typedef f32 t; };
-template<> struct binr<f32, i16>  { typedef f32 t; };
-template<> struct binr<f32, i32>  { typedef f64 t; };
-template<> struct binr<f32, i64>  { typedef f64 t; };
-template<> struct binr<f32, f32>  { typedef f32 t; };
-template<> struct binr<f32, f64>  { typedef f64 t; };
-template<> struct binr<f32, i8b>  { typedef f32 t; };
-template<> struct binr<f32, i16b> { typedef f32 t; };
-template<> struct binr<f32, i32b> { typedef f64 t; };
-template<> struct binr<f32, i64b> { typedef f64 t; };
-template<> struct binr<f32, f32b> { typedef f32 t; };
-template<> struct binr<f32, f64b> { typedef f64 t; };
+template<> struct ibits_of<i8b>  { sletc v = 8;  };
+template<> struct ibits_of<i16b> { sletc v = 16; };
+template<> struct ibits_of<i32b> { sletc v = 32; };
+template<> struct ibits_of<i64b> { sletc v = 64; };
+template<> struct ibits_of<f32b> { sletc v = 0;  };
+template<> struct ibits_of<f64b> { sletc v = 0;  };
 
-template<> struct binr<f64, i8>   { typedef f64 t; };
-template<> struct binr<f64, i16>  { typedef f64 t; };
-template<> struct binr<f64, i32>  { typedef f64 t; };
-template<> struct binr<f64, i64>  { typedef f64 t; };
-template<> struct binr<f64, f32>  { typedef f64 t; };
-template<> struct binr<f64, f64>  { typedef f64 t; };
-template<> struct binr<f64, i8b>  { typedef f64 t; };
-template<> struct binr<f64, i16b> { typedef f64 t; };
-template<> struct binr<f64, i32b> { typedef f64 t; };
-template<> struct binr<f64, i64b> { typedef f64 t; };
-template<> struct binr<f64, f32b> { typedef f64 t; };
-template<> struct binr<f64, f64b> { typedef f64 t; };
 
-template<> struct binr<i8b, i8>   { typedef i8 t; };
-template<> struct binr<i8b, i16>  { typedef i16 t; };
-template<> struct binr<i8b, i32>  { typedef i32 t; };
-template<> struct binr<i8b, i64>  { typedef i64 t; };
-template<> struct binr<i8b, f32>  { typedef f32 t; };
-template<> struct binr<i8b, f64>  { typedef f64 t; };
-template<> struct binr<i8b, i8b>  { typedef i8 t; };
-template<> struct binr<i8b, i16b> { typedef i16 t; };
-template<> struct binr<i8b, i32b> { typedef i32 t; };
-template<> struct binr<i8b, i64b> { typedef i64 t; };
-template<> struct binr<i8b, f32b> { typedef f32 t; };
-template<> struct binr<i8b, f64b> { typedef f64 t; };
+template<class T> struct fbits_of;
+template<> struct fbits_of<bool> { sletc v = 0;  };
+template<> struct fbits_of<i8>   { sletc v = 0;  };
+template<> struct fbits_of<i16>  { sletc v = 0;  };
+template<> struct fbits_of<i32>  { sletc v = 0;  };
+template<> struct fbits_of<i64>  { sletc v = 0;  };
+template<> struct fbits_of<f32>  { sletc v = 32; };
+template<> struct fbits_of<f64>  { sletc v = 64; };
 
-template<> struct binr<i16b, i8>   { typedef i16 t; };
-template<> struct binr<i16b, i16>  { typedef i16 t; };
-template<> struct binr<i16b, i32>  { typedef i32 t; };
-template<> struct binr<i16b, i64>  { typedef i64 t; };
-template<> struct binr<i16b, f32>  { typedef f32 t; };
-template<> struct binr<i16b, f64>  { typedef f64 t; };
-template<> struct binr<i16b, i8b>  { typedef i16 t; };
-template<> struct binr<i16b, i16b> { typedef i16 t; };
-template<> struct binr<i16b, i32b> { typedef i32 t; };
-template<> struct binr<i16b, i64b> { typedef i64 t; };
-template<> struct binr<i16b, f32b> { typedef f32 t; };
-template<> struct binr<i16b, f64b> { typedef f64 t; };
+template<> struct fbits_of<i8b>  { sletc v = 0;  };
+template<> struct fbits_of<i16b> { sletc v = 0;  };
+template<> struct fbits_of<i32b> { sletc v = 0;  };
+template<> struct fbits_of<i64b> { sletc v = 0;  };
+template<> struct fbits_of<f32b> { sletc v = 32; };
+template<> struct fbits_of<f64b> { sletc v = 64; };
 
-template<> struct binr<i32b, i8>   { typedef i32 t; };
-template<> struct binr<i32b, i16>  { typedef i32 t; };
-template<> struct binr<i32b, i32>  { typedef i32 t; };
-template<> struct binr<i32b, i64>  { typedef i64 t; };
-template<> struct binr<i32b, f32>  { typedef f64 t; };
-template<> struct binr<i32b, f64>  { typedef f64 t; };
-template<> struct binr<i32b, i8b>  { typedef i32 t; };
-template<> struct binr<i32b, i16b> { typedef i32 t; };
-template<> struct binr<i32b, i32b> { typedef i32 t; };
-template<> struct binr<i32b, i64b> { typedef i64 t; };
-template<> struct binr<i32b, f32b> { typedef f64 t; };
-template<> struct binr<i32b, f64b> { typedef f64 t; };
 
-template<> struct binr<i64b, i8>   { typedef i64 t; };
-template<> struct binr<i64b, i16>  { typedef i64 t; };
-template<> struct binr<i64b, i32>  { typedef i64 t; };
-template<> struct binr<i64b, i64>  { typedef i64 t; };
-template<> struct binr<i64b, f32>  { typedef f64 t; };
-template<> struct binr<i64b, f64>  { typedef f64 t; };
-template<> struct binr<i64b, i8b>  { typedef i64 t; };
-template<> struct binr<i64b, i16b> { typedef i64 t; };
-template<> struct binr<i64b, i32b> { typedef i64 t; };
-template<> struct binr<i64b, i64b> { typedef i64 t; };
-template<> struct binr<i64b, f32b> { typedef f64 t; };
-template<> struct binr<i64b, f64b> { typedef f64 t; };
-
-template<> struct binr<f32b, i8>   { typedef f32 t; };
-template<> struct binr<f32b, i16>  { typedef f32 t; };
-template<> struct binr<f32b, i32>  { typedef f64 t; };
-template<> struct binr<f32b, i64>  { typedef f64 t; };
-template<> struct binr<f32b, f32>  { typedef f32 t; };
-template<> struct binr<f32b, f64>  { typedef f64 t; };
-template<> struct binr<f32b, i8b>  { typedef f32 t; };
-template<> struct binr<f32b, i16b> { typedef f32 t; };
-template<> struct binr<f32b, i32b> { typedef f64 t; };
-template<> struct binr<f32b, i64b> { typedef f64 t; };
-template<> struct binr<f32b, f32b> { typedef f32 t; };
-template<> struct binr<f32b, f64b> { typedef f64 t; };
-
-template<> struct binr<f64b, i8>   { typedef f64 t; };
-template<> struct binr<f64b, i16>  { typedef f64 t; };
-template<> struct binr<f64b, i32>  { typedef f64 t; };
-template<> struct binr<f64b, i64>  { typedef f64 t; };
-template<> struct binr<f64b, f32>  { typedef f64 t; };
-template<> struct binr<f64b, f64>  { typedef f64 t; };
-template<> struct binr<f64b, i8b>  { typedef f64 t; };
-template<> struct binr<f64b, i16b> { typedef f64 t; };
-template<> struct binr<f64b, i32b> { typedef f64 t; };
-template<> struct binr<f64b, i64b> { typedef f64 t; };
-template<> struct binr<f64b, f32b> { typedef f64 t; };
-template<> struct binr<f64b, f64b> { typedef f64 t; };
+template<class T, class U, class R = typename ntype<
+                             std::max(ibits_of<T>::v, ibits_of<U>::v),
+                             std::max(fbits_of<T>::v, fbits_of<U>::v)>::t>
+struct binr
+{
+  typedef R t;
+};
 
 
 #define τbinfallthrough(op)                             \

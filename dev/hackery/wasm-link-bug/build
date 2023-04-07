@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")"
+
+rm -f *.o
+../../emsdk em++ -c test.cc -o test.o
+../../emsdk em++ -c main.cc -o main.o
+../../emsdk em++ *.o -o main.js

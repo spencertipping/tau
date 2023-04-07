@@ -14,6 +14,11 @@ namespace τ
 
 // π expression used to compute a value (this is where C++ type
 // and dependency erasure happens)
+//
+// TODO: convert these things to proper C++ virtual structs
+// so we have less std::function weirdness on wasm, and so we
+// have more precise memory management
+
 typedef F<πv(πi&)> πf;
 typedef πf const   πfc;
 
@@ -52,7 +57,8 @@ inline πf πdc(πdf &&f, πfc &x, πfc &y)
 { return [f=mo(f), x, y](πi &i) -> πv { return f(i, x(i), y(i)); }; }
 
 inline πf πtc(πtf &&f, πfc &x, πfc &y, πfc &z)
-{ return [f=mo(f), x, y, z](πi &i) -> πv { return f(i, x(i), y(i), z(i)); }; }
+{ return [f=mo(f), x, y, z](πi &i) -> πv
+    { return f(i, x(i), y(i), z(i)); }; }
 
 
 // There are two kinds of functions in π: lazy and eager. Lazy functions
