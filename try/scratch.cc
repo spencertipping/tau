@@ -56,13 +56,13 @@ void try_pi_bound_fns()
   std::visit(fn {
       [](auto &&x) { cout << "type error on add1_x_y" << endl; },
       [](i64    x) { cout << "[add1] x + y = " << x << endl; }},
-    add1_x_y(i));
+    add1_x_y(i).v_);
 
   let add2_x_y = πdc(πηadd(), x, y);
   std::visit(fn {
       [](auto &&x) { cout << "type error on add2_x_y" << endl; },
       [](i64    x) { cout << "[add2] x + y = " << x << endl; }},
-    add2_x_y(i));
+    add2_x_y(i).v_);
 }
 
 
@@ -83,13 +83,13 @@ void try_pi_lazy_fns()
   std::visit(fn {
       [](auto &&x) { cout << "type error on or_x_y" << endl; },
       [](i64    x) { cout << "1 || error = " << x << endl; }},
-    or_x_y(i));
+    or_x_y(i).v_);
 
   let or_w_z = πdl(or_fn, w, z);
   std::visit(fn {
       [](auto &&x) { cout << "type error on or_w_z" << endl; },
       [](i64    x) { cout << "0 || 3 = " << x << endl; }},
-    or_w_z(i));
+    or_w_z(i).v_);
 }
 
 

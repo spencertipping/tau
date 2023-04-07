@@ -46,8 +46,11 @@ while (( $# )); do
     --wasm)     build_wasm=yes;        shift ;;
     --linux)    build_linux=yes;       shift ;;
     --clang)    build_clang=yes;       shift ;;
+
+    --check)    build_wasm=; build_clang=; build_linux=yes; shift ;;
     --server)   build_on_server=yes;   shift ;;
     --status)   just_print_status=yes; shift ;;
+
     *) echo "unknown option $1"
        exit 1 ;;
   esac

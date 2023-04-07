@@ -16,6 +16,8 @@ namespace τ
 
 // Type widening logic, specified here to prevent C++ from artificially inflating
 // arithmetic results (e.g. i8 + i8 = int, that type of thing).
+//
+// We also vector-encode bools as i8s so we can do vectorized comparisons.
 
 template<int ibits, int fbits> struct ntype;
 template<> struct ntype<8,  0> { typedef i8  t; };
@@ -175,8 +177,8 @@ auto τclang_workaround_gensyms()
 πdf πηsub() { return πdv(fn {τbinfallthrough(-), τnbinop(-)}); }
 πdf πηmul() { return πdv(fn {τbinfallthrough(*), τnbinop(*)}); }
 πdf πηdiv() { return πdv(fn {τbinfallthrough(/), τnbinop(/)}); }
-πdf πηmod() { return πdv(fn {τbinfallthrough(%), τibinop(%)}); }
 
+πdf πηmod() { return πdv(fn {τbinfallthrough(%),  τibinop(%)}); }
 πdf πηlsh() { return πdv(fn {τbinfallthrough(<<), τibinop(<<)}); }
 πdf πηrsh() { return πdv(fn {τbinfallthrough(>>), τibinop(>>)}); }
 πdf πηand() { return πdv(fn {τbinfallthrough(&),  τibinop(&)}); }
@@ -184,16 +186,20 @@ auto τclang_workaround_gensyms()
 πdf πηxor() { return πdv(fn {τbinfallthrough(^),  τibinop(^)}); }
 
 
-// TODO: define the right behavior for these (i.e. do we use η ordering,
-// or do we broadcast for vector ops?)
-/*
-πdf πηlt()  { return πdv(fn {τbinfallthrough(<),  τnbinop(<)}); }
-πdf πηle()  { return πdv(fn {τbinfallthrough(<=), τnbinop(<=)}); }
-πdf πηgt()  { return πdv(fn {τbinfallthrough(>),  τnbinop(>)}); }
-πdf πηge()  { return πdv(fn {τbinfallthrough(>=), τnbinop(>=)}); }
-πdf πηeq()  { return πdv(fn {τbinfallthrough(==), τnbinop(==)}); }
-πdf πηne()  { return πdv(fn {τbinfallthrough(!=), τnbinop(!=)}); }
-*/
+πdf πηlt() { return [](πi&, πv &&a, πv &&b) { return πv{a <  b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
+πdf πηle() { return [](πi&, πv &&a, πv &&b) { return πv{a <= b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
+πdf πηgt() { return [](πi&, πv &&a, πv &&b) { return πv{a >  b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
+πdf πηge() { return [](πi&, πv &&a, πv &&b) { return πv{a >= b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
+πdf πηeq() { return [](πi&, πv &&a, πv &&b) { return πv{a == b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
+πdf πηne() { return [](πi&, πv &&a, πv &&b) { return πv{a != b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
+
+
+πdf πηvlt()  { return πdv(fn {τbinfallthrough(<),  τvbinop(<)}); }
+πdf πηvle()  { return πdv(fn {τbinfallthrough(<=), τvbinop(<=)}); }
+πdf πηvgt()  { return πdv(fn {τbinfallthrough(>),  τvbinop(>)}); }
+πdf πηvge()  { return πdv(fn {τbinfallthrough(>=), τvbinop(>=)}); }
+πdf πηveq()  { return πdv(fn {τbinfallthrough(==), τvbinop(==)}); }
+πdf πηvne()  { return πdv(fn {τbinfallthrough(!=), τvbinop(!=)}); }
 
 
 }

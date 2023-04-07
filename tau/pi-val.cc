@@ -5,36 +5,47 @@ namespace τ
 {
 
 
-sc ηtype πvts[] =
+sletc cmp_fn = fn
 {
-  ηtype::invalid,
-  ηtype::η,
-  ηtype::η,
-  ηtype::int8s,
-  ηtype::int16s,
-  ηtype::int32s,
-  ηtype::int64s,
-  ηtype::float32s,
-  ηtype::float64s,
-
-  ηtype::sig,
-  ηtype::n_int,
-  ηtype::n_float,
-  ηtype::string,
-  ηtype::atom,
-  ηtype::η,
-  ηtype::int8s,
-  ηtype::int16s,
-  ηtype::int32s,
-  ηtype::int64s,
-  ηtype::float32s,
-  ηtype::float64s
+  [](auto &&x, auto &&y) -> PO { throw "πvc<=> internal error"; },
+  []<class T, class U,
+     class = decltype(std::declval<T>().size()),
+     class = decltype(std::declval<U>().size()),
+     class = decltype(std::declval<T>()[0] <=> std::declval<U>()[0])>
+    (T const &x, U const &y) { return svc(x, y); }
 };
 
 
-ηtype πvt(πvc &x)
+PO πv::operator<=>(πvc &x) const
 {
-  return πvts[x.index()];
+  let ta = t();
+  let tb = x.t();
+  if (ta == ηtype::invalid || tb == ηtype::invalid)
+    return PO::unordered;
+
+  let tc = ta <=> tb;
+  if (tc != SO::equal) return tc;
+
+  switch (ta)
+  {
+  case ηtype::sig:     return sig()     <=> x.sig();
+  case ηtype::n_int:   return n_int()   <=> x.n_int();
+  case ηtype::n_float: return n_float() <=> x.n_float();
+  case ηtype::string:  return str()     <=> x.str();
+  case ηtype::atom:    return atom()    <=> x.atom();
+  case ηtype::name:    return name().n  <=> x.name().n;
+
+  case ηtype::int8s:
+  case ηtype::int16s:
+  case ηtype::int32s:
+  case ηtype::int64s:
+  case ηtype::float32s:
+  case ηtype::float64s: return std::visit(cmp_fn, v_, x.v_);
+
+  case ηtype::η: return ηscmp(η(), x.η());
+
+  default: return PO::unordered;
+  }
 }
 
 

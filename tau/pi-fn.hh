@@ -14,10 +14,6 @@ namespace τ
 
 // π expression used to compute a value (this is where C++ type
 // and dependency erasure happens)
-//
-// TODO: convert these things to proper C++ virtual structs
-// so we have less std::function weirdness on wasm, and so we
-// have more precise memory management
 
 typedef F<πv(πi&)> πf;
 typedef πf const   πfc;
@@ -37,12 +33,12 @@ typedef F<πv(πi&, πv&&, πv&&, πv&&)> πtf;
 template<class T>
 πmf πmv(T &&f)
 { return [f=fo<T>(f)](πi &i, πv &&x) -> πv
-  { return std::visit([&](auto &&x) { return f(i, x); }, x); }; }
+  { return std::visit([&](auto &&x) { return f(i, x); }, x.v_); }; }
 
 template<class T>
 πdf πdv(T &&f)
 { return [f=fo<T>(f)](πi &i, πv &&x, πv &&y) -> πv
-  { return std::visit([&](auto &&x, auto &&y) { return f(i, x, y); }, x, y); }; }
+  { return std::visit([&](auto &&x, auto &&y) { return f(i, x, y); }, x.v_, y.v_); }; }
 
 template<class T>
 πtf πtv(T &&f)
@@ -88,7 +84,7 @@ template<class T>
     { let a = x(i);
       let b = y(i);
       return std::visit([&](let &a, let &b) { return f(i, a, b); },
-                        a, b); };
+                        a.v_, b.v_); };
 }
 
 template<class T>
@@ -99,7 +95,7 @@ template<class T>
       let b = y(i);
       let c = z(i);
       return std::visit([&](let &a, let &b, let &c) { return f(i, a, b, c); },
-                        a, b, c); };
+                        a.v_, b.v_, c.v_); };
 }
 
 
@@ -114,14 +110,14 @@ template<class T>
 πf πdl(T &&f, πf &&x, πf &&y)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y)](πi &i) -> πv
-    { return std::visit([&](let &a) { return f(i, a, y); }, x(i)); };
+    { return std::visit([&](let &a) { return f(i, a, y); }, x(i).v_); };
 }
 
 template<class T>
 πf πtl(T &&f, πf &&x, πf &&y, πf &&z)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y), z=mo(z)](πi &i) -> πv
-    { return std::visit([&](let &a) { return f(i, a, y, z); }, x(i)); };
+    { return std::visit([&](let &a) { return f(i, a, y, z); }, x(i).v_); };
 }
 
 

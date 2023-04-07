@@ -33,14 +33,19 @@ template<class T> πbcast(T) -> πbcast<T>;
 πdf πηor();
 πdf πηxor();
 
-/*
 πdf πηlt();
 πdf πηle();
 πdf πηgt();
 πdf πηge();
 πdf πηeq();
 πdf πηne();
-*/
+
+πdf πηvlt();
+πdf πηvle();
+πdf πηvgt();
+πdf πηvge();
+πdf πηveq();
+πdf πηvne();
 
 
 }
