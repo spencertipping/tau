@@ -1,4 +1,6 @@
+#include <memory>
 #include <typeinfo>
+#include <vector>
 
 #include "types.hh"
 #include "eta.hh"

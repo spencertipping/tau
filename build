@@ -7,7 +7,7 @@ cflags="$(<compile_flags.txt) -O3"
 #cflags="$(<compile_flags.txt) -O0 -g"
 
 linux_flags="$cflags -flto"
-clang_flags="$cflags -flto"
+clang_flags="$cflags"
 wasm_flags="$cflags -fexceptions -Wno-mathematical-notation-identifier-extension"
 
 linux_link=(
@@ -20,7 +20,6 @@ linux_link=(
   -lzstd
 )
 clang_link=(
-  -flto
   -lsqlite3
   -lboost_context
   -lzstd
