@@ -1,4 +1,15 @@
-#include <tuple>
+// NOTE:
+// This file is included outside of the main τ flow. It's a resource
+// for split .cc files that are separated to improve build parallelism,
+// but otherwise serve as a single module. This allows us to add new
+// operators without significantly increasing the total build time,
+// assuming we have a lot of processors to work with.
+
+#ifdef τplatform
+# error pi-fn-eta-prefix.hh cannot be used as a normal header
+#endif
+
+
 #include <typeinfo>
 
 #include "types.hh"
@@ -148,12 +159,6 @@ struct binr
   τfbinop(op),                                  \
   τmbinop(op),                                  \
   τvbinop(op)
-
-
-// NOTE: function definitions are split into separate files for better parallel
-// compilation; see pi-fn-eta-*.cc
-//
-// Those files include this one as a header. It's ugly.
 
 
 }

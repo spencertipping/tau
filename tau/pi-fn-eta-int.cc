@@ -1,4 +1,4 @@
-#include "pi-fn-eta.cc"
+#include "pi-fn-eta-prefix.hh"
 #include "begin.hh"
 
 namespace τ

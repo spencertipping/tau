@@ -94,7 +94,7 @@ for f in ${c_files[*]}; do
   fi
 done
 
-if (( $linux_to_compile > 4 || $wasm_to_compile > 2 || $clang_to_compile > 2 )); then
+if (( $linux_to_compile + $wasm_to_compile + $clang_to_compile > 4 )); then
   build_on_server=yes
 fi
 

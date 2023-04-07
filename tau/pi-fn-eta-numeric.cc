@@ -1,4 +1,4 @@
-#include "pi-fn-eta.cc"
+#include "pi-fn-eta-prefix.hh"
 #include "arch.hh"
 #include "begin.hh"
 
@@ -31,6 +31,7 @@ auto τclang_workaround_gensyms()
 πdf πηsub() { return πdv(fn {τbinfallthrough(-), τnbinop(-)}); }
 πdf πηmul() { return πdv(fn {τbinfallthrough(*), τnbinop(*)}); }
 πdf πηdiv() { return πdv(fn {τbinfallthrough(/), τnbinop(/)}); }
+
 
 }
 
