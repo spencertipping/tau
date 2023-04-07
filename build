@@ -211,7 +211,6 @@ compile()
     [[ -n $build_wasm  ]] && wasm_cc  $f &
   done
   wait
-  rm -f bin/*.a
   [[ -n $build_linux ]] && ar             rcs bin/tau-linux.a `find bin/linux/tau -name '*.o'`
   [[ -n $build_clang ]] && ar             rcs bin/tau-clang.a `find bin/clang/tau -name '*.o'`
   [[ -n $build_wasm  ]] && dev/emsdk emar rcs bin/tau-wasm.a  `find bin/wasm/tau  -name '*.o'`
