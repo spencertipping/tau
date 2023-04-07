@@ -1,7 +1,5 @@
-#include <memory>
 #include <tuple>
 #include <typeinfo>
-#include <vector>
 
 #include "types.hh"
 #include "eta.hh"
@@ -88,27 +86,6 @@ struct binr
             << typeid(y).name()).str()); }
 
 
-// WTF, I hear you asking. What purpose could this possibly serve???
-// Well, it's a long and tragic tale but to summarize, clang++ has
-// a known defect (https://github.com/llvm/llvm-project/issues/44214)
-// that causes it to not emit all symbols for templates expanded within
-// some types of lambdas. So if we're compiling with clang, we need to
-// manually generate these symbols by instantiating them directly.
-
-#if τclang
-auto τclang_workaround_gensyms()
-{
-  Sp<V<i8>>  x{new V<i8>};
-  Sp<V<i16>> y{new V<i16>};
-  Sp<V<i32>> z{new V<i32>};
-  Sp<V<i64>> a{new V<i64>};
-  Sp<V<f32>> b{new V<f32>};
-  Sp<V<f64>> c{new V<f64>};
-  return std::make_tuple(x, y, z, a, b, c);
-}
-#endif
-
-
 #define τspan_binop(t, op, a, b)                                       \
   { let     &x = (a);                                                   \
     let     &y = (b);                                                   \
@@ -173,33 +150,10 @@ auto τclang_workaround_gensyms()
   τvbinop(op)
 
 
-πdf πηadd() { return πdv(fn {τbinfallthrough(+), τnbinop(+)}); }
-πdf πηsub() { return πdv(fn {τbinfallthrough(-), τnbinop(-)}); }
-πdf πηmul() { return πdv(fn {τbinfallthrough(*), τnbinop(*)}); }
-πdf πηdiv() { return πdv(fn {τbinfallthrough(/), τnbinop(/)}); }
-
-πdf πηmod() { return πdv(fn {τbinfallthrough(%),  τibinop(%)}); }
-πdf πηlsh() { return πdv(fn {τbinfallthrough(<<), τibinop(<<)}); }
-πdf πηrsh() { return πdv(fn {τbinfallthrough(>>), τibinop(>>)}); }
-πdf πηand() { return πdv(fn {τbinfallthrough(&),  τibinop(&)}); }
-πdf πηor () { return πdv(fn {τbinfallthrough(|),  τibinop(|)}); }
-πdf πηxor() { return πdv(fn {τbinfallthrough(^),  τibinop(^)}); }
-
-
-πdf πηlt() { return [](πi&, πv &&a, πv &&b) { return πv{a <  b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
-πdf πηle() { return [](πi&, πv &&a, πv &&b) { return πv{a <= b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
-πdf πηgt() { return [](πi&, πv &&a, πv &&b) { return πv{a >  b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
-πdf πηge() { return [](πi&, πv &&a, πv &&b) { return πv{a >= b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
-πdf πηeq() { return [](πi&, πv &&a, πv &&b) { return πv{a == b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
-πdf πηne() { return [](πi&, πv &&a, πv &&b) { return πv{a != b ? ηatom::ηtrue : ηatom::ηfalse}; }; }
-
-
-πdf πηvlt()  { return πdv(fn {τbinfallthrough(<),  τvbinop(<)}); }
-πdf πηvle()  { return πdv(fn {τbinfallthrough(<=), τvbinop(<=)}); }
-πdf πηvgt()  { return πdv(fn {τbinfallthrough(>),  τvbinop(>)}); }
-πdf πηvge()  { return πdv(fn {τbinfallthrough(>=), τvbinop(>=)}); }
-πdf πηveq()  { return πdv(fn {τbinfallthrough(==), τvbinop(==)}); }
-πdf πηvne()  { return πdv(fn {τbinfallthrough(!=), τvbinop(!=)}); }
+// NOTE: function definitions are split into separate files for better parallel
+// compilation; see pi-fn-eta-*.cc
+//
+// Those files include this one as a header. It's ugly.
 
 
 }
