@@ -16,7 +16,7 @@
 #include "begin.hh"
 
 
-#define τuse_nonvolatile_sharedptr 1
+#define τuse_nonvolatile_sharedptr τgcc
 
 
 namespace τ

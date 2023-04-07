@@ -80,5 +80,8 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 #define τwasm       (τplatform == τplatform_wasm)
 #define τemscripten τwasm
 
+#define τgcc   (τcompiler == τcompiler_gcc)
+#define τclang (τcompiler == τcompiler_clang)
+
 
 #endif
