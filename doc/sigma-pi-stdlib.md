@@ -1,5 +1,5 @@
 # σ/π stdlib
-See [π](pi.md) for an overview of the language structure.
+See [π](pi.md) for an overview of the language structure. This page describes the functions/operators that σ defines for π. First the parse map:
 
 ```
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
@@ -8,6 +8,10 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 π    mLSvddddLLdd dLLLL d mddddddLLtL
 ```
+
+
+## Examples
+**TODO**
 
 
 ## Input accessors (`η`)
@@ -59,31 +63,34 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 
 
 ## Monadic functions (`m`)
-| Symbol | Description               |
-|--------|---------------------------|
-| `c`    | count by unsorted element |
-| `f`    | floor                     |
-| `F`    | ceiling                   |
-| `n`    | length of string/vector   |
-| `o`    | ascending sort            |
-| `O`    | descending sort           |
-| `J^`   | JSON decode               |
-| `J`    | JSON encode               |
-| `!`    | logical negate            |
-| `~`    | bitwise negate            |
-| `I?`   | check for integer type    |
-| `F?`   | check for float type      |
-| `N?`   | check for numeric type    |
-| `S?`   | check for string type     |
-| `A?`   | check for atom type       |
-| `G?`   | check for signal type     |
-| `V?`   | check for vector type     |
-| `Y?`   | check for η type          |
-| `I<`   | convert to int            |
-| `F<`   | convert to float          |
-| `S<`   | convert to string         |
-| `+/`   | sum of many               |
-| `*/`   | product of many           |
+| Symbol | Description                  |
+|--------|------------------------------|
+| `c`    | count by unsorted element    |
+| `f`    | floor                        |
+| `F`    | ceiling                      |
+| `n`    | length of string/vector      |
+| `o`    | ascending sort               |
+| `O`    | descending sort              |
+| `J^`   | JSON decode                  |
+| `J`    | JSON encode                  |
+| `!`    | logical negate               |
+| `~`    | bitwise negate               |
+| `I?`   | check for integer type       |
+| `F?`   | check for float type         |
+| `N?`   | check for numeric type       |
+| `S?`   | check for string type        |
+| `A?`   | check for atom type          |
+| `G?`   | check for signal type        |
+| `V?`   | check for vector type        |
+| `Y?`   | check for η type             |
+| `I<`   | convert to int               |
+| `F<`   | convert to float             |
+| `S<`   | convert to string            |
+| `+/`   | sum of many                  |
+| `*/`   | product of many              |
+| `+\\`  | summing reduction (integral) |
+| `-\\`  | delta reduction (derivative) |
+| `*\\`  | product reduction            |
 
 
 ## Dyadic functions (`d`)
