@@ -81,6 +81,7 @@ O &operator<<(O &s, πvc &v)
   std::visit(fn {
       [&](i64 x)           { s << x; },
       [&](f64 x)           { s << x; },
+      [&](Stvc x)          { s << "\"" << x << "\""; },
       [&](St x)            { s << "\"" << x << "\""; },
       [&](πname x)         { s << "'" << x.n; },
       [&](ηatom x)         { s << x; },
