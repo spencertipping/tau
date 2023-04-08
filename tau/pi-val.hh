@@ -40,12 +40,12 @@ struct πv final
     πname,
     ηatom,
     ηi,
-    Sn<i8b>,
-    Sn<i16b>,
-    Sn<i32b>,
-    Sn<i64b>,
-    Sn<f32b>,
-    Sn<f64b>
+    Sn<i8bc>,
+    Sn<i16bc>,
+    Sn<i32bc>,
+    Sn<i64bc>,
+    Sn<f32bc>,
+    Sn<f64bc>
     > vt;
 
   // NOTE: these type mappings match ηi logic; they just allow for more
@@ -99,12 +99,12 @@ struct πv final
   ηatom  atom   () const { return std::get<14>(v_); }
   ηi     η      () const { return std::get<15>(v_); }
 
-  Sn<i8b>  i8s () const { return std::get<16>(v_); }
-  Sn<i16b> i16s() const { return std::get<17>(v_); }
-  Sn<i32b> i32s() const { return std::get<18>(v_); }
-  Sn<i64b> i64s() const { return std::get<19>(v_); }
-  Sn<f32b> f32s() const { return std::get<20>(v_); }
-  Sn<f64b> f64s() const { return std::get<21>(v_); }
+  Sn<i8bc>  i8s () const { return std::get<16>(v_); }
+  Sn<i16bc> i16s() const { return std::get<17>(v_); }
+  Sn<i32bc> i32s() const { return std::get<18>(v_); }
+  Sn<i64bc> i64s() const { return std::get<19>(v_); }
+  Sn<f32bc> f32s() const { return std::get<20>(v_); }
+  Sn<f64bc> f64s() const { return std::get<21>(v_); }
 
   ηtype     t() const { return πvts[v_.index()]; }
   bool native() const { return v_.index() <= 8; }
@@ -120,6 +120,9 @@ struct πv final
 };
 
 typedef πv const πvc;
+
+
+O &operator<<(O&, πvc&);
 
 
 }

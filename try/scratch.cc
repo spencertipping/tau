@@ -1,5 +1,6 @@
 #include <functional>
 #include <iostream>
+#include <typeinfo>
 #include <type_traits>
 #include "../tau.hh"
 
@@ -93,12 +94,37 @@ void try_pi_lazy_fns()
 }
 
 
+void try_pi_vectors()
+{
+  τe t;
+  πi i(t);
+
+  u8c       xs[] = { 0x00, 0x01,  0x00, 0x02,  0x00, 0x05  };
+  Sn<i8bc>  xs8 {Rc<i8bc*> (&xs[0]), 6};
+  Sn<i16bc> xs16{Rc<i16bc*>(&xs[0]), 3};
+
+  let a = [&](πi&) { return πv{xs8};  };
+  let b = [&](πi&) { return πv{xs16}; };
+  let c = [&](πi&) { return πv{4}; };
+  let d = [&](πi&) { return πv{7.0}; };
+
+  cout << πηadd()(i, a(i), a(i)) << endl;
+  cout << πηadd()(i, a(i), b(i)) << endl;
+  cout << πηadd()(i, b(i), b(i)) << endl;
+  cout << πηadd()(i, a(i), c(i)) << endl;
+  cout << πηadd()(i, b(i), c(i)) << endl;
+  cout << πηadd()(i, a(i), d(i)) << endl;
+  cout << πηadd()(i, b(i), d(i)) << endl;
+}
+
+
 int main()
 {
   try_polymorphic_functions();
   try_variant_cast();
   try_pi_bound_fns();
   try_pi_lazy_fns();
+  try_pi_vectors();
   return 0;
 }
 

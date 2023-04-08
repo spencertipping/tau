@@ -43,6 +43,11 @@ using namespace std::placeholders;
 #endif
 
 
+// Widening away from i8/u8 so we can print stuff easily
+template<class T> If<sizeof(T) == 1, int> widen(T x) { return x; }
+template<class T> If<sizeof(T) != 1, T>   widen(T x) { return x; }
+
+
 // Span/vector comparisons
 template<class T, class U>
 PO svc(T const &a, U const &b)

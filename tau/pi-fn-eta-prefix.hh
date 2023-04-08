@@ -100,15 +100,18 @@ template<> struct fbits_of<f64b> { sletc v = 64; };
 
 
 template<class T,
-         class R = typename ntype<ibits_of<T>::v, fbits_of<T>::v>::t>
+         class R = typename ntype<
+           ibits_of<De<T>>::v,
+           fbits_of<De<T>>::v>::t>
 struct unr
 {
   typedef R t;
 };
 
-template<class T, class U, class R = typename ntype<
-                             std::max(ibits_of<T>::v, ibits_of<U>::v),
-                             std::max(fbits_of<T>::v, fbits_of<U>::v)>::t>
+template<class T, class U,
+         class R = typename ntype<
+           std::max(ibits_of<De<T>>::v, ibits_of<De<U>>::v),
+           std::max(fbits_of<De<T>>::v, fbits_of<De<U>>::v)>::t>
 struct binr
 {
   typedef R t;
@@ -137,7 +140,7 @@ ic auto tnorm(T x) { return Sc<typename unr<T>::t>(x); }
     let      s = std::min(x.size(), y.size());                          \
     Sp<V<t>> r{new V<t>};                                               \
     r->reserve(s);                                                      \
-    for (uN i = 0; i < s; ++i) (*r)[i] = op(tnorm(x[i]), tnorm(y[i]));  \
+    for (uN i = 0; i < s; ++i) r->push_back(op(tnorm(x[i]), tnorm(y[i]))); \
     return πv{r}; }
 
 
@@ -146,7 +149,7 @@ ic auto tnorm(T x) { return Sc<typename unr<T>::t>(x); }
     let      s = x.size();                                      \
     Sp<V<t>> r{new V<t>};                                       \
     r->reserve(s);                                              \
-    for (uN i = 0; i < s; ++i) (*r)[i] = op(tnorm(x[i]));       \
+    for (uN i = 0; i < s; ++i) r->push_back(op(tnorm(x[i])));   \
     return πv{r}; }
 
 

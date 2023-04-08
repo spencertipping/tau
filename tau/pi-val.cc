@@ -49,6 +49,39 @@ PO πv::operator<=>(πvc &x) const
 }
 
 
+O &operator<<(O &s, πvc &v)
+{
+  std::visit(fn {
+      [&](Sp<Re> x) { s << "[regex]"; },
+      [&](Sp<V<πv>> x) { s << "(...)"; },
+      [&](Sp<M<St, πv>> x) { s << "{...}"; },
+      [&](i64 x) { s << x; },
+      [&](f64 x) { s << x; },
+      [&](St x) { s << "\"" << x << "\""; },
+      [&](πname x) { s << "'" << x.n; },
+      [&](ηatom x) { s << x; },
+      [&](ηsig x) { s << x; },
+      [&](ηi x) { s << x; },
+      [&]<class T>(Sp<V<T>> x)
+      { s << v.t() << "<";
+        bool first = true;
+        for (let y : *x)
+        { if (first) first = false;
+          else       s << " ";
+          s << widen(y); }
+        s << ">"; },
+      [&]<class T>(Sn<T> x)
+      { s << v.t() << "<";
+        bool first = true;
+        for (let y : x)
+        { if (first) first = false;
+          else s << " ";
+          s << widen(y); }
+        s << ">"; }}, v.v_);
+  return s;
+}
+
+
 }
 
 #include "end.hh"
