@@ -14,7 +14,7 @@ namespace τ
 // manually generate these symbols by instantiating them directly.
 
 #if τclang
-auto τclang_workaround_gensyms()
+auto τclang_workaround_gensyms_numeric()
 {
   Sp<V<i8>>  a{new V<i8>};
   Sp<V<i16>> b{new V<i16>};
@@ -26,6 +26,8 @@ auto τclang_workaround_gensyms()
 }
 #endif
 
+
+πmf πηneg() { return πmv(fn {τunfallthrough(neg), τnunop(op_neg)}); }
 
 πdf πηadd() { return πdv(fn {τbinfallthrough(+), τnbinop(op_add)}); }
 πdf πηsub() { return πdv(fn {τbinfallthrough(-), τnbinop(op_sub)}); }

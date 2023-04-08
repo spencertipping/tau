@@ -10,6 +10,8 @@ namespace τ
 {
 
 
+πmf πηneg();
+
 πdf πηadd();
 πdf πηsub();
 πdf πηmul();
@@ -37,6 +39,46 @@ namespace τ
 πdf πηveq();
 πdf πηvne();
 πdf πηvcmp();
+
+πdf πηpow();
+πdf πηlogn();
+πdf πηcopysign();
+πdf πηhypot();
+
+πmf πηexp();
+πmf πηexp2();
+πmf πηexpm1();
+πmf πηlog();
+πmf πηlog2();
+πmf πηlog1p();
+
+πmf πηsqrt();
+πmf πηcbrt();
+
+πmf πηsin();
+πmf πηcos();
+πmf πηtan();
+πmf πηasin();
+πmf πηacos();
+πmf πηatan();
+πdf πηatan2();
+
+πmf πηsinh();
+πmf πηcosh();
+πmf πηtanh();
+πmf πηasinh();
+πmf πηacosh();
+πmf πηatanh();
+
+πmf πηerf();
+πmf πηerfc();
+πmf πηtgamma();
+πmf πηlgamma();
+
+πmf πηceil();
+πmf πηfloor();
+πmf πηtrunc();
+πmf πηround();
 
 
 }

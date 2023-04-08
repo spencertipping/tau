@@ -10,6 +10,8 @@
 #endif
 
 
+#include <cstdlib>
+#include <cmath>
 #include <typeinfo>
 
 #include "types.hh"
@@ -42,6 +44,7 @@ template<class T> πbcast(T) -> πbcast<T>;
 // We also vector-encode bools as i8s so we can do vectorized comparisons.
 
 template<int ibits, int fbits> struct ntype;
+
 template<> struct ntype<8,  0> { typedef i8  t; };
 template<> struct ntype<16, 0> { typedef i16 t; };
 template<> struct ntype<32, 0> { typedef i32 t; };
@@ -61,6 +64,7 @@ template<> struct ntype<64, 64> { typedef f64 t; };
 
 
 template<class T> struct ibits_of;
+
 template<> struct ibits_of<bool> { sletc v = 8;  };
 template<> struct ibits_of<i8>   { sletc v = 8;  };
 template<> struct ibits_of<i16>  { sletc v = 16; };
@@ -78,6 +82,7 @@ template<> struct ibits_of<f64b> { sletc v = 0;  };
 
 
 template<class T> struct fbits_of;
+
 template<> struct fbits_of<bool> { sletc v = 0;  };
 template<> struct fbits_of<i8>   { sletc v = 0;  };
 template<> struct fbits_of<i16>  { sletc v = 0;  };
@@ -94,6 +99,13 @@ template<> struct fbits_of<f32b> { sletc v = 32; };
 template<> struct fbits_of<f64b> { sletc v = 64; };
 
 
+template<class T,
+         class R = typename ntype<ibits_of<T>::v, fbits_of<T>::v>::t>
+struct unr
+{
+  typedef R t;
+};
+
 template<class T, class U, class R = typename ntype<
                              std::max(ibits_of<T>::v, ibits_of<U>::v),
                              std::max(fbits_of<T>::v, fbits_of<U>::v)>::t>
@@ -103,6 +115,15 @@ struct binr
 };
 
 
+template<class T>
+ic auto tnorm(T x) { return Sc<typename unr<T>::t>(x); }
+
+
+#define τunfallthrough(op)                              \
+  [](πi &i, auto &&x) -> πv                             \
+  { i.fail((Ss{} << #op << " does not apply to "        \
+            << typeid(x).name()).str()); }
+
 #define τbinfallthrough(op)                             \
   [](πi &i, auto &&x, auto &&y) -> πv                   \
   { i.fail((Ss{} << #op << " does not apply to "        \
@@ -110,17 +131,36 @@ struct binr
             << typeid(y).name()).str()); }
 
 
-#define τspan_binop(t, op, a, b)                                       \
+#define τspan_binop(t, op, a, b)                                        \
   { let     &x = (a);                                                   \
     let     &y = (b);                                                   \
     let      s = std::min(x.size(), y.size());                          \
     Sp<V<t>> r{new V<t>};                                               \
     r->reserve(s);                                                      \
-    for (uN i = 0; i < s; ++i) (*r)[i] = op(x[i], y[i]);                \
+    for (uN i = 0; i < s; ++i) (*r)[i] = op(tnorm(x[i]), tnorm(y[i]));  \
     return πv{r}; }
 
 
-#define τbinrtype(op, a, b) typename binr<T, U>::t
+#define τspan_unop(t, op, a)                                    \
+  { let     &x = (a);                                           \
+    let      s = x.size();                                      \
+    Sp<V<t>> r{new V<t>};                                       \
+    r->reserve(s);                                              \
+    for (uN i = 0; i < s; ++i) (*r)[i] = op(tnorm(x[i]));       \
+    return πv{r}; }
+
+
+#define τunrtype(op, a)     decltype(op(std::declval<a>()))
+#define τbinrtype(op, a, b) typename binr<a, b>::t
+
+#define τvunop(op)                              \
+  []<class T, class = τunrtype(op, T)>          \
+  (πi &i, Sn<T> a) -> πv                        \
+  { τspan_unop(τunrtype(op, T), op, a); },      \
+                                                \
+  []<class T, class = τunrtype(op, T)>          \
+  (πi &i, Sp<V<T>> a) -> πv                     \
+  { τspan_unop(τunrtype(op, T), op, *a); }
 
 #define τvbinop(op)                                                     \
   []<class T, class U, class = τbinrtype(op, T, U)>                     \
@@ -154,6 +194,11 @@ struct binr
   []<class T, class U, class = τbinrtype(op, T, U)>                     \
   (πi &i, Sp<V<T>> a, Sp<V<U>> b) -> πv                                 \
   { τspan_binop(τbinrtype(op, T, U), op, *a, *b); }
+
+
+#define τiunop(op) [](πi&, i64 a) -> πv { return {op(a)}; }
+#define τfunop(op) [](πi&, f64 a) -> πv { return {op(a)}; }
+#define τnunop(op) τiunop(op), τfunop(op)
 
 
 #define τibinop(op)                                     \
@@ -190,6 +235,9 @@ struct binr
 #define op_ge(a, b) a >= b
 #define op_eq(a, b) a == b
 #define op_ne(a, b) a != b
+
+
+#define op_neg(a) (-(a))
 
 
 }
