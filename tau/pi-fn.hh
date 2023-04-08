@@ -27,15 +27,15 @@ template<class T>
 πmf πmv(T &&f)
 {
   return [f=fo<T>(f)](πi &i, πv &&x) -> πv
-  { return std::visit([&](auto &&x) { return f(i, x); }, x.v_); };
+    { return std::visit([&](auto &&x) { return f(i, mo(x)); }, x.v_); };
 }
 
 template<class T>
 πdf πdv(T &&f)
 {
   return [f=fo<T>(f)](πi &i, πv &&x, πv &&y) -> πv
-  { return std::visit([&](auto &&x, auto &&y) { return f(i, x, y); },
-                      x.v_, y.v_); };
+    { return std::visit([&](auto &&x, auto &&y) { return f(i, mo(x), mo(y)); },
+                        x.v_, y.v_); };
 }
 
 
@@ -102,14 +102,14 @@ template<class T>
 πf πdl(T &&f, πf &&x, πf &&y)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y)](πi &i) -> πv
-    { return std::visit([&](let &a) { return f(i, a, y); }, x(i).v_); };
+    { return std::visit([&](auto &&a) { return f(i, mo(a), y); }, x(i).v_); };
 }
 
 template<class T>
 πf πtl(T &&f, πf &&x, πf &&y, πf &&z)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y), z=mo(z)](πi &i) -> πv
-    { return std::visit([&](let &a) { return f(i, a, y, z); }, x(i).v_); };
+    { return std::visit([&](auto &&a) { return f(i, mo(a), y, z); }, x(i).v_); };
 }
 
 
