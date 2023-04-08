@@ -23,6 +23,19 @@ namespace τ
 {
 
 
+// Make a single value act like a vector; this way we can use it with
+// vector functions
+template<class T>
+struct πbcast
+{
+  T x;
+  T     operator[](uN i) const { return x; }
+  std::size_t size()     const { return Nl<std::size_t>::max(); }
+};
+
+template<class T> πbcast(T) -> πbcast<T>;
+
+
 // Type widening logic, specified here to prevent C++ from artificially inflating
 // arithmetic results (e.g. i8 + i8 = int, that type of thing).
 //
@@ -103,12 +116,11 @@ struct binr
     let      s = std::min(x.size(), y.size());                          \
     Sp<V<t>> r{new V<t>};                                               \
     r->reserve(s);                                                      \
-    for (uN i = 0; i < s; ++i) (*r)[i] = x[i] op y[i];                  \
+    for (uN i = 0; i < s; ++i) (*r)[i] = op(x[i], y[i]);                \
     return πv{r}; }
 
 
-#define τbinoptype(op, a, b) decltype(std::declval<a>() op std::declval<b>())
-#define τbinrtype( op, a, b) typename binr<T, U>::t
+#define τbinrtype(op, a, b) typename binr<T, U>::t
 
 #define τvbinop(op)                                                     \
   []<class T, class U, class = τbinrtype(op, T, U)>                     \
@@ -145,20 +157,39 @@ struct binr
 
 
 #define τibinop(op)                                     \
-  [](πi&, i64 a, i64 b) -> πv { return {a op b}; }
+  [](πi&, i64 a, i64 b) -> πv { return {op(a, b)}; }
 
 #define τfbinop(op)                                     \
-  [](πi&, f64 a, f64 b) -> πv { return {a op b}; }
+  [](πi&, f64 a, f64 b) -> πv { return {op(a, b)}; }
 
 #define τmbinop(op)                                     \
-  [](πi&, i64 a, f64 b) -> πv { return {a op b}; },     \
-  [](πi&, f64 a, i64 b) -> πv { return {a op b}; }
+  [](πi&, i64 a, f64 b) -> πv { return {op(a, b)}; },   \
+  [](πi&, f64 a, i64 b) -> πv { return {op(a, b)}; }
 
 #define τnbinop(op)                             \
   τibinop(op),                                  \
   τfbinop(op),                                  \
   τmbinop(op),                                  \
   τvbinop(op)
+
+
+#define op_add(a, b) a + b
+#define op_sub(a, b) a - b
+#define op_mul(a, b) a * b
+#define op_div(a, b) a / b
+#define op_mod(a, b) a % b
+#define op_lsh(a, b) a << b
+#define op_rsh(a, b) a >> b
+#define op_and(a, b) a & b
+#define op_or( a, b) a | b
+#define op_xor(a, b) a ^ b
+
+#define op_lt(a, b) a < b
+#define op_le(a, b) a <= b
+#define op_gt(a, b) a > b
+#define op_ge(a, b) a >= b
+#define op_eq(a, b) a == b
+#define op_ne(a, b) a != b
 
 
 }

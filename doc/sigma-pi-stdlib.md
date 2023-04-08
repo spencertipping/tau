@@ -63,65 +63,67 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 
 
 ## Monadic functions (`m`)
-| Symbol | Description                  |
-|--------|------------------------------|
-| `c`    | count by unsorted element    |
-| `f`    | floor                        |
-| `F`    | ceiling                      |
-| `n`    | length of string/vector      |
-| `o`    | ascending sort               |
-| `O`    | descending sort              |
-| `J^`   | JSON decode                  |
-| `J`    | JSON encode                  |
-| `!`    | logical negate               |
-| `~`    | bitwise negate               |
-| `I?`   | check for integer type       |
-| `F?`   | check for float type         |
-| `N?`   | check for numeric type       |
-| `S?`   | check for string type        |
-| `A?`   | check for atom type          |
-| `G?`   | check for signal type        |
-| `V?`   | check for vector type        |
-| `Y?`   | check for η type             |
-| `I<`   | convert to int               |
-| `F<`   | convert to float             |
-| `S<`   | convert to string            |
-| `+/`   | sum of many                  |
-| `*/`   | product of many              |
-| `+\\`  | summing reduction (integral) |
-| `-\\`  | delta reduction (derivative) |
-| `*\\`  | product reduction            |
+| Symbol | Description                   |
+|--------|-------------------------------|
+| `c`    | count unsorted elements       |
+| `f`    | floor                         |
+| `F`    | ceiling                       |
+| `n`    | length of string/vector/tuple |
+| `o`    | ascending sort                |
+| `O`    | descending sort               |
+| `J^`   | JSON decode                   |
+| `J`    | JSON encode                   |
+| `!`    | logical negate                |
+| `~`    | bitwise negate                |
+| `?I`   | check for integer type        |
+| `?F`   | check for float type          |
+| `?N`   | check for numeric type        |
+| `?S`   | check for string type         |
+| `?A`   | check for atom type           |
+| `?G`   | check for signal type         |
+| `?V`   | check for vector type         |
+| `?Y`   | check for η type              |
+| `>I`   | convert to int                |
+| `>F`   | convert to float              |
+| `>S`   | convert to string             |
+| `+/`   | sum of many                   |
+| `*/`   | product of many               |
+| `+\\`  | summing reduction (integral)  |
+| `-\\`  | delta reduction (derivative)  |
+| `*\\`  | product reduction             |
 
 
 ## Dyadic functions (`d`)
-| Symbol   | Arguments        | Description           |
-|----------|------------------|-----------------------|
-| `e`      | power base=e     | exp                   |
-| `l`      | number base=e    | log                   |
-| `r`      | number root=2    | root                  |
-| `q`      | number quantum=1 | quantize              |
-| `+`      |                  | add/concatenate/union |
-| `+[...]` |                  | union-with            |
-| `-`      |                  | sub/difference        |
-| `*`      |                  | mul/intersect         |
-| `*[...]` |                  | intersect-with        |
-| `%`      |                  | mod/regex apply       |
-| `//`     |                  | div                   |
-| `<`      |                  | compare               |
-| `<=`     |                  | compare               |
-| `>`      |                  | compare               |
-| `>=`     |                  | compare               |
-| `=`      |                  | compare               |
-| `!=`     |                  | compare               |
-| `&`      |                  | bitwise and           |
-| `\|`     |                  | bitwise or            |
-| `^`      |                  | bitwise xor           |
-| `&&`     |                  | logical and           |
-| `\|\|`   |                  | logical or`           |
-| `.`      | map key          | map element access    |
-| `,`      | tuple idx        | tuple element access  |
-| `:`      | name-str value   | bind variable         |
-| `;`      | lhs rhs          | sequence (return RHS) |
+| Symbol   | Arguments        | Description                     |
+|----------|------------------|---------------------------------|
+| `e`      | power base=e     | exp                             |
+| `l`      | number base=e    | log                             |
+| `r`      | number root=2    | root                            |
+| `q`      | number quantum=1 | quantize                        |
+| `+`      |                  | add/concatenate/union           |
+| `+[...]` |                  | union-with                      |
+| `-`      |                  | sub/difference                  |
+| `*`      |                  | mul/intersect                   |
+| `*[...]` |                  | intersect-with                  |
+| `%`      |                  | mod/regex apply                 |
+| `//`     |                  | div                             |
+| `<`      |                  | compare                         |
+| `<=`     |                  | compare                         |
+| `>`      |                  | compare                         |
+| `>=`     |                  | compare                         |
+| `=`      |                  | compare                         |
+| `!=`     |                  | compare                         |
+| `<=>`    |                  | three-way compare (-1, 0, 1, 2) |
+| `&`      |                  | bitwise and                     |
+| `\|`     |                  | bitwise or                      |
+| `^`      |                  | bitwise xor                     |
+| `&&`     |                  | logical and                     |
+| `\|\|`   |                  | logical or`                     |
+| `.`      | map key          | map element access              |
+| `@`      | tuple idx        | tuple element access            |
+| `:`      | name-str value   | bind variable                   |
+| `,`      | lhs rhs          | write (return RHS)              |
+| `;`      | lhs rhs          | sequence (return RHS)           |
 
 
 ## Ternary functions (`t`)

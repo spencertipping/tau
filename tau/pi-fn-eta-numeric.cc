@@ -27,10 +27,10 @@ auto τclang_workaround_gensyms()
 #endif
 
 
-πdf πηadd() { return πdv(fn {τbinfallthrough(+), τnbinop(+)}); }
-πdf πηsub() { return πdv(fn {τbinfallthrough(-), τnbinop(-)}); }
-πdf πηmul() { return πdv(fn {τbinfallthrough(*), τnbinop(*)}); }
-πdf πηdiv() { return πdv(fn {τbinfallthrough(/), τnbinop(/)}); }
+πdf πηadd() { return πdv(fn {τbinfallthrough(+), τnbinop(op_add)}); }
+πdf πηsub() { return πdv(fn {τbinfallthrough(-), τnbinop(op_sub)}); }
+πdf πηmul() { return πdv(fn {τbinfallthrough(*), τnbinop(op_mul)}); }
+πdf πηdiv() { return πdv(fn {τbinfallthrough(/), τnbinop(op_div)}); }
 
 
 }

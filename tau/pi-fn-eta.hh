@@ -10,17 +10,6 @@ namespace τ
 {
 
 
-template<class T>
-struct πbcast
-{
-  T x;
-  T     operator[](uN i) const { return x; }
-  std::size_t size()     const { return Nl<std::size_t>::max(); }
-};
-
-template<class T> πbcast(T) -> πbcast<T>;
-
-
 πdf πηadd();
 πdf πηsub();
 πdf πηmul();
@@ -39,6 +28,7 @@ template<class T> πbcast(T) -> πbcast<T>;
 πdf πηge();
 πdf πηeq();
 πdf πηne();
+πdf πηcmp();
 
 πdf πηvlt();
 πdf πηvle();
@@ -46,6 +36,7 @@ template<class T> πbcast(T) -> πbcast<T>;
 πdf πηvge();
 πdf πηveq();
 πdf πηvne();
+πdf πηvcmp();
 
 
 }

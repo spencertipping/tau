@@ -28,33 +28,42 @@ typedef F<πv(πi&, πv&&, πv&&, πv&&)> πtf;
 // nmc(f, x) means "convert f() to close over x".
 //
 // Same for dyadic and triadic functions. Note that closures copy their operands.
-
+//
+// We don't define πtv because it would produce an enormous dispatch table
+// from cubic std::visit complexity (against three variants). Realistically,
+// two variants is the dispatch limit if we want any reasonable compile times
+// and binary sizes.
 
 template<class T>
 πmf πmv(T &&f)
-{ return [f=fo<T>(f)](πi &i, πv &&x) -> πv
-  { return std::visit([&](auto &&x) { return f(i, x); }, x.v_); }; }
+{
+  return [f=fo<T>(f)](πi &i, πv &&x) -> πv
+  { return std::visit([&](auto &&x) { return f(i, x); }, x.v_); };
+}
 
 template<class T>
 πdf πdv(T &&f)
-{ return [f=fo<T>(f)](πi &i, πv &&x, πv &&y) -> πv
-  { return std::visit([&](auto &&x, auto &&y) { return f(i, x, y); }, x.v_, y.v_); }; }
-
-template<class T>
-πtf πtv(T &&f)
-{ return [f=fo<T>(f)](πi &i, πv &&x, πv &&y, πv &&z) -> πv
-  { return std::visit([&](auto &&x, auto &&y, auto &&z) { return f(i, x, y, z); }, x, y, z); }; }
+{
+  return [f=fo<T>(f)](πi &i, πv &&x, πv &&y) -> πv
+  { return std::visit([&](auto &&x, auto &&y) { return f(i, x, y); },
+                      x.v_, y.v_); };
+}
 
 
 inline πf πmc(πmf &&f, πfc &x)
-{ return [f=mo(f), x](πi &i) -> πv { return f(i, x(i)); }; }
+{
+  return [f=mo(f), x](πi &i) -> πv { return f(i, x(i)); };
+}
 
 inline πf πdc(πdf &&f, πfc &x, πfc &y)
-{ return [f=mo(f), x, y](πi &i) -> πv { return f(i, x(i), y(i)); }; }
+{
+  return [f=mo(f), x, y](πi &i) -> πv { return f(i, x(i), y(i)); };
+}
 
 inline πf πtc(πtf &&f, πfc &x, πfc &y, πfc &z)
-{ return [f=mo(f), x, y, z](πi &i) -> πv
-    { return f(i, x(i), y(i), z(i)); }; }
+{
+  return [f=mo(f), x, y, z](πi &i) -> πv { return f(i, x(i), y(i), z(i)); };
+}
 
 
 // There are two kinds of functions in π: lazy and eager. Lazy functions
@@ -68,7 +77,9 @@ inline πf πtc(πtf &&f, πfc &x, πfc &y, πfc &z)
 //
 // Any eager arguments are visited, meaning we accept overloaded
 // visitor functions for them.
-
+//
+// As above, no πte because the std::visit dispatch table size would be
+// too large.
 
 template<class T>
 πf πme(T &&f, πf &&x)
@@ -85,17 +96,6 @@ template<class T>
       let b = y(i);
       return std::visit([&](let &a, let &b) { return f(i, a, b); },
                         a.v_, b.v_); };
-}
-
-template<class T>
-πf πte(T &&f, πf &&x, πf &&y, πf &&z)
-{
-  return [f=fo<T>(f), x=mo(x), y=mo(y), z=mo(z)](πi &i) -> πv
-    { let a = x(i);
-      let b = y(i);
-      let c = z(i);
-      return std::visit([&](let &a, let &b, let &c) { return f(i, a, b, c); },
-                        a.v_, b.v_, c.v_); };
 }
 
 
