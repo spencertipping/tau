@@ -113,7 +113,7 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 | `>=`     |                  | compare                         |
 | `=`      |                  | compare                         |
 | `!=`     |                  | compare                         |
-| `<=>`    |                  | three-way compare (-1, 0, 1, 2) |
+| `<>`     |                  | three-way compare (-1, 0, 1, 2) |
 | `&`      |                  | bitwise and                     |
 | `\|`     |                  | bitwise or                      |
 | `^`      |                  | bitwise xor                     |

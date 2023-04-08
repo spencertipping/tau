@@ -180,7 +180,9 @@ template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std:
 template<class T>         using De = std::decay_t<T>;
 template<bool X, class T> using If = std::enable_if_t<X, T>;
 
-template<class T, class U> ic bool Eq = std::is_same_v<T, U>;
+template<class T>          ic bool Isi = std::is_integral_v<T>;
+template<class T>          ic bool Isf = std::is_fundamental_v<T>;
+template<class T, class U> ic bool Eq  = std::is_same_v<T, U>;
 
 
 typedef std::strong_ordering  SO;

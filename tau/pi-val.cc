@@ -49,35 +49,56 @@ PO πv::operator<=>(πvc &x) const
 }
 
 
+template<class T>
+static O &vout(O &s, T const &xs)
+{
+  bool first = true;
+  for (let &x : xs)
+  {
+    if (first) first = false;
+    else       s << " ";
+    s << widen(x);
+  }
+  return s;
+}
+
+template<class T>
+static O &mout(O &s, T const &xs)
+{
+  bool first = true;
+  for (let &[k, v] : xs)
+  {
+    if (first) first = false;
+    else       s << ", ";
+    s << k << " " << widen(v);
+  }
+  return s;
+}
+
+
 O &operator<<(O &s, πvc &v)
 {
   std::visit(fn {
-      [&](Sp<Re> x) { s << "[regex]"; },
-      [&](Sp<V<πv>> x) { s << "(...)"; },
-      [&](Sp<M<St, πv>> x) { s << "{...}"; },
-      [&](i64 x) { s << x; },
-      [&](f64 x) { s << x; },
-      [&](St x) { s << "\"" << x << "\""; },
-      [&](πname x) { s << "'" << x.n; },
-      [&](ηatom x) { s << x; },
-      [&](ηsig x) { s << x; },
-      [&](ηi x) { s << x; },
-      [&]<class T>(Sp<V<T>> x)
-      { s << v.t() << "<";
-        bool first = true;
-        for (let y : *x)
-        { if (first) first = false;
-          else       s << " ";
-          s << widen(y); }
-        s << ">"; },
+      [&](i64 x)           { s << x; },
+      [&](f64 x)           { s << x; },
+      [&](St x)            { s << "\"" << x << "\""; },
+      [&](πname x)         { s << "'" << x.n; },
+      [&](ηatom x)         { s << x; },
+      [&](ηsig x)          { s << x; },
+      [&](ηi x)            { s << x; },
+      [&](Sp<Re> x)        { s << "[re]"; },
+      [&](Sp<V<πv>> x)     { vout(s << "(", *x) << ")"; },
+      [&](Sp<M<St, πv>> x) { mout(s << "{", *x) << "}"; },
+      [&](Sp<πmf> x)       { s << "[πmf]"; },
+      [&](Sp<πdf> x)       { s << "[πdf]"; },
+      [&](Sp<πtf> x)       { s << "[πtf]"; },
+
+      [&]<class T, class = If<Isf<T>, void>>(Sp<V<T>> x)
+      { vout(s << v.t() << "<", *x) << ">"; },
+
       [&]<class T>(Sn<T> x)
-      { s << v.t() << "<";
-        bool first = true;
-        for (let y : x)
-        { if (first) first = false;
-          else s << " ";
-          s << widen(y); }
-        s << ">"; }}, v.v_);
+      { vout(s << v.t() << "<", x) << ">"; }}, v.v_);
+
   return s;
 }
 

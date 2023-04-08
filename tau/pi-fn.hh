@@ -12,17 +12,6 @@ namespace τ
 {
 
 
-// π expression used to compute a value (this is where C++ type
-// and dependency erasure happens)
-
-typedef F<πv(πi&)> πf;
-typedef πf const   πfc;
-
-typedef F<πv(πi&, πv&&)>             πmf;
-typedef F<πv(πi&, πv&&, πv&&)>       πdf;
-typedef F<πv(πi&, πv&&, πv&&, πv&&)> πtf;
-
-
 // Compiler helpers: we want to compile around the erasure boundary.
 // πmv(f) means "convert f to a function that evaluates + visits its argument".
 // nmc(f, x) means "convert f() to close over x".
