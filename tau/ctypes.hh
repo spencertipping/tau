@@ -102,7 +102,8 @@ typedef f64b const f64bc;
 
 
 // NOTE: "size_t", "int", and "long" don't coerce easily from sized ints,
-// even when those types match size and signedness
+// even when those types match size and signedness; as a result, we define
+// fixed-width ints for "native width" and define size_t separately
 #if τwordsize == 64
   typedef u64 uN;  typedef uN const uNc;
   typedef i64 iN;  typedef iN const iNc;
@@ -117,8 +118,14 @@ typedef f64b const f64bc;
 letc uNs = sizeof(uN);
 
 
+typedef size_t  uS;  typedef uS const uSc;
+typedef ssize_t iS;  typedef iS const iSc;
+
+
 static_assert(sizeof(void*) == sizeof(uN));
 static_assert(sizeof(void*) == sizeof(iN));
+static_assert(sizeof(void*) == sizeof(uS));
+static_assert(sizeof(void*) == sizeof(iS));
 
 static_assert(sizeof(long long) == sizeof(u64));
 static_assert(sizeof(f64)       == sizeof(u64));

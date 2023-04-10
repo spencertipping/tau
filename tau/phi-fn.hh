@@ -166,13 +166,13 @@ struct φs_ : public virtual φ_<T<Xs...>>
 
 
 protected:
-  template<uN i>
+  template<uS i>
   St name_() const
     { if constexpr (i + 1 < sizeof...(Xs))
                      return std::get<i>(p).name() + " " + name_<i + 1>();
       else return std::get<i>(p).name(); }
 
-  template<uN i, class X>
+  template<uS i, class X>
   Tdrop<i, T<φr_<Xs>...>> go(φc_ const &x, φr_<X> const &r0) const
     { if constexpr (i == sizeof...(Xs)) return {};
       else
@@ -180,7 +180,7 @@ protected:
         let r = r0.is_f() ? r0.template cast<Y>() : std::get<i>(p)(x);
         return tcons(r, go<i + 1>(x.at(*this).at(r.j), r)); } }
 
-  template<uN i>
+  template<uS i>
   φr_<Tdrop<i, T<Xs...>>> res(T<φr_<Xs>...> const &xs) const
     { if constexpr (i == sizeof...(Xs)) return φr_<T<>>{{nullptr}, 0, 0, {{}}, {}, {}};
       else
