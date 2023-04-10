@@ -16,4 +16,11 @@ Errors are always reported at the rightmost point; that is, alt-folding and nest
 ## π integration
 π is parsed with φ combinators that map pretty much 1:1 to language constructs. The basic structure is `φ<πf>`: a parser that produces an expression that can be evaluated when an interpreter object is passed in.
 
-**The big question:** how do we arrange the parsers such that we can fork the main grammar but still have core dependencies? (And while we're at it, how do we handle the circular parsers we tend to get with left-recursive grammars?)
+It's easy to parse a linear sequence of atoms, monadics, and dyadics, then right-fold the resulting chain. The specific chain would go like this:
+
+```
+π₁ :: m π₁ | π₀ | '[' π ']'  ← single π value
+π  :: π₁ (d π₁ | t π₁ π₁)*   ← full op chain
+```
+
+This structure is nice because it contains no self-references except for the `[]` case, which is prefixed by a constant so we have no left recursion. It's also simple, although not so much that we should make end-users redefine the core grammar. We should have pluggable alternatives for `m`, `d`, `t`, and `π₀` and define the core grammar in terms of those. That way we can have some fixed syntax, e.g. `# ...` for line comments.
