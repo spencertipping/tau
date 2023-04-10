@@ -22,3 +22,29 @@ Unlike APL, multiple adjacent expressions are not parsed into a vector by defaul
 x?3:y  // C++
 x?3y   // π
 ```
+
+
+## Examples
+**TODO:** use actual syntax here
+
+```bash
+$ bin/pi-eta
+f(5) = 6
+f("bar") = foobar
+f(true) = fallthrough
+a = 5
+b = 5
+template invocation: 5, 5
+string branch: foo
+[add1] x + y = 7
+[add2] x + y = 7
+1 || error = 1
+0 || 3 = 3
+i8s<0 2 0 4 0 10>
+i16s<1 3 5>
+i16s<2 4 10>
+i64s<4 5 4 6 4 9>
+i64s<5 6 9>
+f64s<7 8 7 9 7 12>
+f64s<8 9 12>
+```

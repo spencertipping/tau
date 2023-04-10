@@ -48,6 +48,29 @@ template<class T> If<sizeof(T) == 1, int> widen(T x) { return x; }
 template<class T> If<sizeof(T) != 1, T>   widen(T x) { return x; }
 
 
+// Tuple slicing: Tsub<1, 3, T<char, short, int, long>> = T<short, int long>
+template<class... Xs, uN... I>
+auto tat_(T<Xs...> const &t, Is<I...>) { return std::make_tuple(std::get<I>(t)...); }
+
+template<class X, class Y>
+auto tcons(X &&x, Y &&xs) { return std::tuple_cat(std::make_tuple(std::forward<X>(x)), std::forward<Y>(xs)); }
+
+
+template<uN n, class X>  struct offset_;
+template<uN n, uN... Xs> struct offset_<n, Is<Xs...>> { using t = Is<Xs + n...>; };
+template<uN n, class X>  using  offset = typename offset_<n, X>::t;
+
+template<uN s, uN n, class    X>  struct Tsub_;
+template<uN s, uN n, class... Xs> struct Tsub_<s, n, T<Xs...>>
+{ using t = decltype(
+    tat_(std::declval<T<Xs...>>(),
+         std::declval<offset<s, std::make_index_sequence<n>>>())); };
+
+template<uN s, uN n, class X> using Tsub  = typename Tsub_<s, n, X>::t;
+template<uN n, class X>       using Ttake = typename Tsub_<0, n, X>::t;
+template<uN n, class X>       using Tdrop = typename Tsub_<n, std::tuple_size<X>::value - n, X>::t;
+
+
 // Span/vector comparisons
 template<class T, class U>
 PO svc(T const &a, U const &b)

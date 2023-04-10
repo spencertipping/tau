@@ -54,6 +54,11 @@ struct φr_ final
       y = a.y; e = a.e; t = a.t; return *this; }
 
   template<class U>
+  φr_<U> cast(U &&y) const
+    { A(is_a(), "cannot cast(y) φr::f");
+      return φr_<De<U>>{x, i, j, {std::forward<U>(y)}, e, t}; }
+
+  template<class U>
   φr_<U> cast() const
     { A(is_f(), "cannot cast φr::a");
       return φr_<U>{x, i, j, {}, e, t}; }

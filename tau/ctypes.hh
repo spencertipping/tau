@@ -177,8 +177,10 @@ template<class... T>       using Vi = typename V<T...>::const_iterator;
 template<class T, class C = std::less<T>> using PQ = std::priority_queue<T, std::vector<T>, C>;
 
 
-template<class T>         using De = std::decay_t<T>;
-template<bool X, class T> using If = std::enable_if_t<X, T>;
+template<class T>                  using De = std::decay_t<T>;
+template<bool X, class T>          using If = std::enable_if_t<X, T>;
+template<bool X, class T, class F> using Co = std::conditional_t<X, T, F>;
+template<uN... Xs>                 using Is = std::index_sequence<Xs...>;
 
 template<class T>          ic bool Isi = std::is_integral_v<T>;
 template<class T>          ic bool Isf = std::is_fundamental_v<T>;

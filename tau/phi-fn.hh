@@ -152,66 +152,42 @@ struct φO_ : public virtual φ_<T>
 
 
 // Sequential parsing
-// TODO: fully generic template for this so we can use tuples
-template<class T, class U>
-struct φs_ : public virtual φ_<P<T, U>>
-{
-  φs_(φ<T> pt_, φ<U> pu_) : pt(pt_), pu(pu_) {}
-
-  St name() const { return pt->name() + " » " + pu->name(); }
-  φr_<P<T, U>> operator()(φc_ const &x) const
-    { let s = (*pt)(x);                   if (s.is_f()) return s.template cast<P<T, U>>();
-      let t = (*pu)(x.at(*this).at(s.j)); if (t.is_f()) return t.template cast<P<T, U>>();
-      return x.a(mp(*s.y, *t.y), t.j); }
-
-  φ<T> pt;
-  φ<U> pu;
-};
-
 template<class... Xs>
-struct φs2_ : public virtual φ_<T<Xs...>>
+struct φs_ : public virtual φ_<T<Xs...>>
 {
-  φs2_(φ<Xs>... p_) : p(p_...) {}
+  φs_(φ<Xs>... p_) : p(p_...) {}
 
-  template<uN i>
-  If<i < sizeof...(Xs), St> name() const
-    { return std::get<i>(p).name() + " " + name<i + 1>(); }
-
-  template<uN i>
-  If<i == sizeof...(Xs), St> name() const { return ""; }
+  St name() const { return name_<0>(); }
 
   φr_<T<Xs...>> operator()(φc_ const &x) const
-    { T<φr_<Xs...>> rs;
-      sletc n = std::tuple_size_v<decltype(rs)>;
-      iN f = (std::get<0>(rs) = std::get<0>(p)(x)).is_f() ? 0 : -1;
+    { return res<0>(go<0>(x, x.a(true, x.i()))); }
 
-    }
+  T<φ<Xs>...> p;
 
-  T<φ<Xs...>> p;
+
+protected:
+  template<uN i>
+  St name_() const
+    { if constexpr (i + 1 < sizeof...(Xs))
+                     return std::get<i>(p).name() + " " + name_<i + 1>();
+      else return std::get<i>(p).name(); }
+
+  template<uN i, class X>
+  Tdrop<i, T<φr_<Xs>...>> go(φc_ const &x, φr_<X> const &r0) const
+    { if constexpr (i == sizeof...(Xs)) return {};
+      else
+      { using Y = De<decltype(std::get<i>(std::declval<T<Xs...>>()))>;
+        let r = r0.is_f() ? r0.template cast<Y>() : std::get<i>(p)(x);
+        return tcons(r, go<i + 1>(x.at(*this).at(r.j), r)); } }
+
+  template<uN i>
+  φr_<Tdrop<i, T<Xs...>>> res(T<φr_<Xs>...> const &xs) const
+    { if constexpr (i == sizeof...(Xs)) return φr_<T<>>{{nullptr}, 0, 0, {{}}, {}, {}};
+      else
+      { let x = std::get<i>(xs); if (x.is_f()) return x.template cast<Tdrop<i, T<Xs...>>>();
+        let y = res<i + 1>(xs);  if (y.is_f()) return y.template cast<Tdrop<i, T<Xs...>>>();
+        return y.cast(tcons(*x.y, *y.y)); } }
 };
-
-/*
-Courtesy of chatGPT:
-
-template<typename... Ts>
-std::variant<fail_type, std::tuple<Ts...>> f(int v)
-{
-  std::tuple<std::optional<Ts>...> results;
-  std::get<0>(results) = Ts::get(v);
-  bool any_empty = !std::get<0>(results);
-  int empty_index = -1;
-  ((empty_index == -1 && !std::get<std::tuple_size<decltype(results)>::value - sizeof...(Ts)>(results)
-    ? empty_index = std::tuple_size<decltype(results)>::value - sizeof...(Ts)
-    : empty_index,
-   any_empty |= !(std::get<std::tuple_size<decltype(results)>::value - sizeof...(Ts)>(results)
-                  = Ts::get(*std::get<std::tuple_size<decltype(results)>::value - sizeof...(Ts) - 1>(results))),
-   any_empty) || ...);
-  if (any_empty) {
-    return fail_type{ empty_index };
-  }
-  return std::make_tuple((*std::get<Ts>(results)).v...);
-}
- */
 
 
 // Functional transform (map)
