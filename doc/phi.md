@@ -11,3 +11,9 @@ Each parser takes _(x, i)_ and returns one of:
 + _(e, t, j)_: return error _e_ with backtrace _t_, at _j_
 
 Errors are always reported at the rightmost point; that is, alt-folding and nesting will preserve the most-successful parse so we can report the most local problem to the user.
+
+
+## π integration
+π is parsed with φ combinators that map pretty much 1:1 to language constructs. The basic structure is `φ<πf>`: a parser that produces an expression that can be evaluated when an interpreter object is passed in.
+
+**The big question:** how do we arrange the parsers such that we can fork the main grammar but still have core dependencies? (And while we're at it, how do we handle the circular parsers we tend to get with left-recursive grammars?)
