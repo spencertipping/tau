@@ -168,6 +168,51 @@ struct φs_ : public virtual φ_<P<T, U>>
   φ<U> pu;
 };
 
+template<class... Xs>
+struct φs2_ : public virtual φ_<T<Xs...>>
+{
+  φs2_(φ<Xs>... p_) : p(p_...) {}
+
+  template<uN i>
+  If<i < sizeof...(Xs), St> name() const
+    { return std::get<i>(p).name() + " " + name<i + 1>(); }
+
+  template<uN i>
+  If<i == sizeof...(Xs), St> name() const { return ""; }
+
+  φr_<T<Xs...>> operator()(φc_ const &x) const
+    { T<φr_<Xs...>> rs;
+      sletc n = std::tuple_size_v<decltype(rs)>;
+      iN f = (std::get<0>(rs) = std::get<0>(p)(x)).is_f() ? 0 : -1;
+
+    }
+
+  T<φ<Xs...>> p;
+};
+
+/*
+Courtesy of chatGPT:
+
+template<typename... Ts>
+std::variant<fail_type, std::tuple<Ts...>> f(int v)
+{
+  std::tuple<std::optional<Ts>...> results;
+  std::get<0>(results) = Ts::get(v);
+  bool any_empty = !std::get<0>(results);
+  int empty_index = -1;
+  ((empty_index == -1 && !std::get<std::tuple_size<decltype(results)>::value - sizeof...(Ts)>(results)
+    ? empty_index = std::tuple_size<decltype(results)>::value - sizeof...(Ts)
+    : empty_index,
+   any_empty |= !(std::get<std::tuple_size<decltype(results)>::value - sizeof...(Ts)>(results)
+                  = Ts::get(*std::get<std::tuple_size<decltype(results)>::value - sizeof...(Ts) - 1>(results))),
+   any_empty) || ...);
+  if (any_empty) {
+    return fail_type{ empty_index };
+  }
+  return std::make_tuple((*std::get<Ts>(results)).v...);
+}
+ */
+
 
 // Functional transform (map)
 template<class T, class U>
