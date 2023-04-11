@@ -3,12 +3,12 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 
-cflags="$(<compile_flags.txt) -O1"
+cflags="$(<compile_flags.txt)"
 #cflags="$(<compile_flags.txt) -O0 -g"
 
-linux_flags="$cflags"
-clang_flags="$cflags -flto"
-wasm_flags="$cflags -fexceptions -Wno-mathematical-notation-identifier-extension"
+linux_flags="$cflags -O2"
+clang_flags="$cflags -O2 -flto"
+wasm_flags="$cflags -Os -fexceptions -Wno-mathematical-notation-identifier-extension"
 
 linux_link=(
   #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0

@@ -26,10 +26,13 @@ x?3y   // π
 
 ## Examples
 ```bash
-$ bin/pi-phi '3+4' '"foo"' '3+2*5'
+$ bin/pi-phi '3+4' '"foo"' '3+2*5' '
+# this is a test
+[123+100] < 456  # this was a test'
 7
 "foo"
 13
+true
 ```
 
 
