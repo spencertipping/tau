@@ -5,11 +5,11 @@ def iota():
     for i in range(1 << 24):
         yield i
 
-t1 = time()
+start = time()
 sum = 0
 for i in iota():
     sum += i
-t2 = time()
+end = time()
 
 print(f'sum = {sum}')
-print(f'summed 16M ints in {t2 - t1}s')
+print(f'summed 16M ints in {(end - start) / (1 << 24) * 1e9} ns/element')

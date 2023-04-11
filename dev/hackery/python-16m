@@ -7,7 +7,7 @@ start = time()
 for i in range(1 << 24):
   xs.append(i)
 end = time()
-print(f"prepare 16M = {end - start}s")
+print(f"prepare 16M = {(end - start) / (1 << 24) * 1e9} ns/element")
 
 
 start = time()
@@ -15,13 +15,13 @@ t = 0
 for x in xs:
   t += x
 end = time()
-print(f"total 16M = {t}, duration = {end - start}s")
+print(f"total 16M = {t}, {(end - start) / (1 << 24) * 1e9} ns/element")
 
 
 start = time()
 del xs
 end = time()
-print(f"delete 16M = {end - start}s")
+print(f"delete 16M = {(end - start) / (1 << 24) * 1e9} ns/element")
 
 
 xs = []
@@ -29,7 +29,7 @@ start = time()
 for i in range(1 << 24):
   xs.append({'x': 1, 'y': i})
 end = time()
-print(f"prepare 16M dicts = {end - start}s")
+print(f"prepare 16M dicts = {(end - start) / (1 << 24) * 1e9} ns/element")
 
 
 start = time()
@@ -37,10 +37,10 @@ t = 0
 for x in xs:
   t += x['y']
 end = time()
-print(f"total 16M dicts = {t}, duration = {end - start}s")
+print(f"total 16M dicts = {t}, duration = {(end - start) / (1 << 24) * 1e9} ns/element")
 
 
 start = time()
 del xs
 end = time()
-print(f"delete 16M dicts = {end - start}s")
+print(f"delete 16M dicts = {(end - start) / (1 << 24) * 1e9} ns/element")
