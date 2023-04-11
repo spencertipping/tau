@@ -9,7 +9,7 @@ using namespace τ;
 {
   τe t;
   πi i{t};
-  let p = πφ();
+  let p = φE(πφ());
   let x = p(e);
   A(x.is_a(), "parse failed: " << x.e << " beginning here: → |" << e.substr(x.j));
   return (*x.y)(i);

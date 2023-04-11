@@ -109,10 +109,7 @@ struct τe : public τb
     { return !gs.empty() || l_() || hn() != forever(); }
 
   τe &go(bool                nonblock = false,
-         F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); })
-    { l_.go();
-      while (f(*this)) (*this)(nonblock), l_.go();
-      return *this; }
+         F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); });
 
 
   τe &pin  (Sp<ψ> q) { qs.insert(q); return *this; }

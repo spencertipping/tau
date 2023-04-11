@@ -60,11 +60,11 @@ struct Λ final
   λi  c(λf &&);
   Λ  &x(λi);
   Λ  &y(λs);               // yield currently-running λ with specified yield state
-  Λ  &r(λi, λs = λs::R);   // set λi to runnable, or other state
+  Λ  &r(λi, λs = λs::Y);   // set λi to runnable, or other state
 
   Λ  &operator<<(λi);      // run λi for one quantum
   λi  operator()() const;  // find next λi to run
-  Λ          &go();        // run as long as there is stuff to do
+  Λ        &step();        // run all runnable λs for one quantum
 
   uN n() const { return ls.size(); }
 

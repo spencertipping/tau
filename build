@@ -241,14 +241,14 @@ server_build()
   host=$1
   path=$2
   ssh $host mkdir -p $path
-  rsync -a --delete dep tau.hh tau try build compile_flags.txt $host:$path/
-  rsync -a --delete dev/emsdk $host:$path/dev/
+  rsync -az --delete dep tau.hh tau try build compile_flags.txt $host:$path/
+  rsync -az --delete dev/emsdk $host:$path/dev/
   args=
   [[ -z $build_linux ]] && args="$args --no-linux"
   [[ -z $build_wasm  ]] && args="$args --no-wasm"
   [[ -z $build_clang ]] && args="$args --no-clang"
   ssh -t $host "cd $path && ./build $args"
-  rsync -a --delete $host:$path/bin ./
+  rsync -az --delete $host:$path/bin ./
 }
 
 

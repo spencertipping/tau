@@ -120,9 +120,15 @@ void τe::term()
 
 τe &τe::operator()(bool nonblock)
 {
+  // Important: if there's work to be done, then don't schedule any
+  // blocking wait here; our goal is to check for realtime updates
+  // and activate blocked λs, but pausing is a bad idea since we could
+  // use the time with CPU-bound tasks.
+  nonblock |= l_();
+
   while (!fin && now() < hn() && (!gs.empty() || hn() != forever()))
   {
-    epoll_event evs[16];
+    epoll_event evs[256];
 
     // We may need to retry if epoll is interrupted by SIGCHLD
   epoll:
@@ -156,7 +162,15 @@ void τe::term()
     nonblock = true;
   }
 
-  while (now() >= hn()) l_.r(h_.top().l), h_.pop();
+  while (now() >= hn()) l_.r(h_.top().l, λs::R), h_.pop();
+  return *this;
+}
+
+
+τe &τe::go(bool nonblock, F<bool(τe&)> const &f)
+{
+  l_.step();
+  while (f(*this)) (*this)(nonblock), l_.step();
   return *this;
 }
 

@@ -51,6 +51,10 @@ These are compiler objects, meaning that they don't actually contain live resour
 + [Data processing](doc/data-processing.md)
 + [Web applications](doc/web-applications.md)
 
+**TODO:** formalize/test Λ scheduling system; right now there are some edge cases involving CPU blocking and Θ races
+
+**TODO:** break π core into its own build, so we don't have to rebuild it each time
+
 
 ## Scratch tests
 ```bash

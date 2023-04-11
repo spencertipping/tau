@@ -50,20 +50,15 @@ struct τe : public τb
   ~τe() { τset(nullptr); }
 
 
-  operator bool() const { return nts || hn() != forever(); }
+  operator bool() const;
 
   τe &wake();
   τe &schedule();
   τe &operator()();
 
+  τe &go(F<bool(τe&)> &&f = [](τe &t) { return Sc<bool>(t); });
 
-  τe &go(F<bool(τe&)> &&f = [](τe &t) { return Sc<bool>(t); })
-    { go_f = mo(f);
-      l_.go();
-      return schedule(); }
-
-
-  bool should_step() { return go_f(*this); }
+  bool should_step();
 
 
 protected:

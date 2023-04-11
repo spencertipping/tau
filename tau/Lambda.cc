@@ -72,10 +72,10 @@ namespace τ
   return 0;
 }
 
-Λ &Λ::go()
+Λ &Λ::step()
 {
   for (λi t; (t = (*this)()); *this << t);
-  for (let &[i, s] : ls) if (s->s == λs::Y) r(i);
+  for (let &[i, s] : ls) if (s->s == λs::Y) r(i, λs::R);
   return *this;
 }
 

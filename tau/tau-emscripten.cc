@@ -27,15 +27,35 @@ void τstep(void *t_)
 
 τe &τe::wake()
 {
-  while (now() >= hn()) l_.r(h_.top().l), h_.pop();
+  while (now() >= hn()) l_.r(h_.top().l, λs::R), h_.pop();
   return *this;
+}
+
+
+τe::operator bool() const
+{
+  return l_() || nts || hn() != forever();
+}
+
+
+τe &τe::go(F<bool(τe&)> &&f)
+{
+  go_f = mo(f);
+  while (l_() && now() < hn()) l_.step();
+  return schedule();
+}
+
+
+bool τe::should_step()
+{
+  return go_f(*this);
 }
 
 
 τe &τe::schedule()
 {
   let t = now();
-  if (hn() < forever())
+  if (l_() || hn() < forever())
     if (t < hn())
     { let dt = (hn() - t) / 1ms;
       emscripten_async_call(τstep, this, std::min(dt, Sc<decltype(dt)>(Nl<int>::max()))); }
@@ -48,7 +68,7 @@ void τstep(void *t_)
 τe &τe::operator()()
 {
   wake();
-  l_.go();
+  l_.step();
   return schedule();
 }
 
