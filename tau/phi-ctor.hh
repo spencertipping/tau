@@ -19,19 +19,32 @@ inline φ<St>    φcs (chc *s, bool n = false, uN min = 0, uN max = -1) { return
 inline φ<St>    φucs(F<bool(u64)> f,         uN min = 0, uN max = -1) { return {new φucs_(f, min, max)}; }
 inline φ<V<St>> φre (St re)                                           { return {new φre_(re)}; }
 
-template<class T>              φ<T>       φE(φ<T> p)          { return {new φE_<T>(p)}; }
+template<class T>              φ<T>        φE(φ<T> p)          { return {new φE_<T>(p)}; }
 
-template<class T, class... Xs> φ<T>       φa(Xs const&... xs) { return {new φa_<T>(xs...)}; }
+template<class T, class... Xs> φ<T>        φa(Xs const&... xs) { return {new φa_<T>(xs...)}; }
 
-template<class T>              φ<V<T>>    φn(φ<T> p, uN l = 0, uN u = -1) { return {new φn_<T>(p, l, u)}; }
+template<class T>              φ<V<T>>     φn(φ<T> p, uN l = 0, uN u = -1) { return {new φn_<T>(p, l, u)}; }
 
-template<class T>              φ<St>       φq(φ<T> p)               { return {new φq_<T>(p)}; }
-template<class T>              φ<Op<T>>    φo(φ<T> p)               { return {new φo_<T>(p)}; }
-template<class T>              φ<T>        φO(φ<T> p, T d)          { return {new φO_<T>(p, d)}; }
-template<class... Xs>          φ<T<Xs...>> φs(φ<Xs>... xs)          { return {new φs_(xs...)}; }
-template<class T, class U>     φ<U>        φm(φ<T> p, F<U(T)> f)    { return {new φm_<T, U>(p, f)}; }
-template<class T>              φ<T>        φf(φ<T> p, F<bool(T)> f) { return {new φf_<T>(p, f)}; }
-template<class T, class... Xs> φ<V<T>>     φS(Xs const&... p)       { return (new φS_<T>(p...)); }
+template<class T>              φ<St>       φq(φ<T> p)                   { return {new φq_<T>(p)}; }
+template<class T>              φ<Op<T>>    φo(φ<T> p)                   { return {new φo_<T>(p)}; }
+template<class T>              φ<T>        φO(φ<T> p, T d)              { return {new φO_<T>(p, d)}; }
+template<class... Xs>          φ<T<Xs...>> φs(φ<Xs>... xs)              { return {new φs_(xs...)}; }
+template<class T, class... Xs> φ<V<T>>     φS(Xs const&... p)           { return (new φS_<T>(p...)); }
+
+template<class T, class F> φ<T> φf(φ<T> p, F f) { return {new φf_(p, f)}; }
+template<class T, class F> auto φm(φ<T> p, F f)
+  -> φ<De<decltype(f(std::declval<T>()))>>
+{ return {new φm_{p, f}}; }
+
+
+template<class... Xs> auto φ1(φ<Xs>... xs)
+{ return φm(φs(xs...), [](auto &&x) { return std::get<0>(x); }); }
+
+template<class... Xs> auto φ2(φ<Xs>... xs)
+{ return φm(φs(xs...), [](auto &&x) { return std::get<1>(x); }); }
+
+template<class... Xs> auto φ3(φ<Xs>... xs)
+{ return φm(φs(xs...), [](auto &&x) { return std::get<2>(x); }); }
 
 
 // NOTE: this is important to prevent infinite recursion for self-referential parsers

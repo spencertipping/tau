@@ -122,9 +122,9 @@ struct φq_ : public virtual φ_<St>
 {
   φq_(φ<T> p_) : p(p_) {}
 
-  St name() const { return "'" + p->name(); }
+  St name() const { return "'" + p.name(); }
   φr_<St> operator()(φc_ const &x) const
-    { let s = (*p)(x);
+    { let s = p(x);
       return s.is_a()
            ? x.template a<St>(x.sub(s.j - x.i()), s.j)
            : s.template cast<St>(); }
@@ -139,9 +139,9 @@ struct φE_ : public virtual φ_<T>
 {
   φE_(φ<T> p_) : p(p_) {}
 
-  St name() const { return "E" + p->name(); }
+  St name() const { return "E" + p.name(); }
   φr_<T> operator()(φc_ const &x) const
-    { let s = (*p)(x);
+    { let s = p(x);
       if (s.is_f())     return s;
       if (s.j != x.n()) return x.f<T>((Ss{} << "not eof: " << s.j << " ≠ " << x.n()).str(), s.j);
       return s; }
