@@ -119,6 +119,9 @@ struct φ final
   φr_<T> operator()(φc_ const &x) const { return (*p)(x); }
   φr_<T> operator()(Stc       &x) const { return (*p)(φc_(x)); }
 
+  template<class X>
+  X &as() const { return *dynamic_cast<X*>(p.get()); }
+
   Op<T> parse(Stc &x) const { return (*this)(x).y; }
 
   φ_<T> &operator*() const { return *p; }

@@ -39,22 +39,19 @@ template<class T>
 }
 
 
-inline πf πmc(πmf &&f, πf &&x)
+inline πf πmc(πmf const &f, πf const &x)
 {
-  return [f=mo(f), x=mo(x)](πi &i) -> πv
-    { return f(i, x(i)); };
+  return [=](πi &i) -> πv { return f(i, x(i)); };
 }
 
-inline πf πdc(πdf &&f, πf &&x, πf &&y)
+inline πf πdc(πdf const &f, πf const &x, πf const &y)
 {
-  return [f=mo(f), x=mo(x), y=mo(y)](πi &i) -> πv
-    { return f(i, x(i), y(i)); };
+  return [=](πi &i) -> πv { return f(i, x(i), y(i)); };
 }
 
-inline πf πtc(πtf &&f, πf &&x, πf &&y, πf &&z)
+inline πf πtc(πtf const &f, πf const &x, πf const &y, πf const &z)
 {
-  return [f=mo(f), x=mo(x), y=mo(y), z=mo(z)](πi &i) -> πv
-    { return f(i, x(i), y(i), z(i)); };
+  return [=](πi &i) -> πv { return f(i, x(i), y(i), z(i)); };
 }
 
 
