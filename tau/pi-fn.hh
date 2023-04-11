@@ -39,6 +39,11 @@ template<class T>
 }
 
 
+inline πf πvq(πvc &x)
+{
+  return [=](πi &i) -> πv { return x; };
+}
+
 inline πf πmc(πmf const &f, πf const &x)
 {
   return [=](πi &i) -> πv { return f(i, x(i)); };
@@ -49,26 +54,16 @@ inline πf πdc(πdf const &f, πf const &x, πf const &y)
   return [=](πi &i) -> πv { return f(i, x(i), y(i)); };
 }
 
+// NOTE: triadic operators are by default lazy when closed
 inline πf πtc(πtf const &f, πf const &x, πf const &y, πf const &z)
 {
-  return [=](πi &i) -> πv { return f(i, x(i), y(i), z(i)); };
+  return [=](πi &i) -> πv { return f(i, x, y, z); };
 }
 
 
-// There are two kinds of functions in π: lazy and eager. Lazy functions
-// examine only the first argument and leave the other(s) unevaluated.
-// Eager functions evaluate all arguments in order and visit them
-// jointly.
-//
-// C++/π translation functions are called πXY, where X is "m" for
-// monadic, "d" for dyadic, and "t" for triadic. Y is "l" for lazy and
-// "e" for eager.
-//
-// Any eager arguments are visited, meaning we accept overloaded
-// visitor functions for them.
-//
-// As above, no πte because the std::visit dispatch table size would be
-// too large.
+// Eager evaluator+visitors for arguments. We define these only for
+// monadic/dyadic, not triadic, to avoid the humongous dispatch tables
+// that triadic operators would produce.
 
 template<class T>
 πf πme(T &&f, πf &&x)
@@ -88,6 +83,7 @@ template<class T>
 }
 
 
+// Lazy dispatching variants
 template<class T>
 πf πml(T &&f, πf &&x)
 {
@@ -100,13 +96,6 @@ template<class T>
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y)](πi &i) -> πv
     { return std::visit([&](auto &&a) { return f(i, mo(a), y); }, x(i).v_); };
-}
-
-template<class T>
-πf πtl(T &&f, πf &&x, πf &&y, πf &&z)
-{
-  return [f=fo<T>(f), x=mo(x), y=mo(y), z=mo(z)](πi &i) -> πv
-    { return std::visit([&](auto &&a) { return f(i, mo(a), y, z); }, x(i).v_); };
 }
 
 

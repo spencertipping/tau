@@ -240,7 +240,10 @@ ic auto tnorm(T x) { return Sc<typename unr<T>::t>(x); }
 #define op_ne(a, b) a != b
 
 
-#define op_neg(a) (-(a))
+#define op_neg(a)    (-(a))
+#define op_inv(a)    (~(a))
+#define op_not(a)    (!(a))
+#define op_notnot(a) (!!(a))
 
 
 }

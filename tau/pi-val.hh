@@ -30,7 +30,7 @@ typedef πf const   πfc;
 
 typedef F<πv(πi&, πv&&)>             πmf;
 typedef F<πv(πi&, πv&&, πv&&)>       πdf;
-typedef F<πv(πi&, πv&&, πv&&, πv&&)> πtf;
+typedef F<πv(πi&, πfc&, πfc&, πfc&)> πtf;  // NOTE: no triple-dispatch
 
 
 struct πv final
@@ -149,6 +149,12 @@ struct πv final
   bool operator< (πv const &x) const { return (*this <=> x) == PO::less; }
   bool operator> (πv const &x) const { return (*this <=> x) == PO::greater; }
   bool operator==(πv const &x) const { return (*this <=> x) == PO::equivalent; }
+
+  bool truthy() const
+    { return std::visit(fn {
+          [](auto &&x) { return true; },
+          [](ηatom x)  { return x == ηatom::ηtrue; },
+          [](i64 x)    { return x != 0; }}, v_); }
 };
 
 typedef πv const πvc;

@@ -10,7 +10,12 @@ namespace τ
 {
 
 
+πtf πηcond();
+
 πmf πηneg();
+πmf πηinv();
+πmf πηnot();
+πmf πηnotnot();
 
 πdf πηadd();
 πdf πηsub();

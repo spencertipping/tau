@@ -182,10 +182,10 @@ protected:
 
   template<uS i>
   φr_<Tdrop<i, T<Xs...>>> res(T<φr_<Xs>...> const &xs) const
-    { if constexpr (i == sizeof...(Xs)) return φr_<T<>>{{nullptr}, 0, 0, {{}}, {}, {}};
+    { let x = std::get<i>(xs); if (x.is_f()) return x.template cast<Tdrop<i, T<Xs...>>>();
+      if constexpr (i + 1 >= sizeof...(Xs)) return x.cast(std::make_tuple(*x.y));
       else
-      { let x = std::get<i>(xs); if (x.is_f()) return x.template cast<Tdrop<i, T<Xs...>>>();
-        let y = res<i + 1>(xs);  if (y.is_f()) return y.template cast<Tdrop<i, T<Xs...>>>();
+      { let y = res<i + 1>(xs); if (y.is_f()) return y.template cast<Tdrop<i, T<Xs...>>>();
         return y.cast(tcons(*x.y, *y.y)); } }
 };
 

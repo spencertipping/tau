@@ -26,6 +26,10 @@ auto τclang_workaround_gensyms_int()
 #endif
 
 
+πmf πηinv()    { return πmv(fn {τunfallthrough(~),  τiunop(op_inv)}); }
+πmf πηnot()    { return πmv(fn {τunfallthrough(!),  τiunop(op_not)}); }
+πmf πηnotnot() { return πmv(fn {τunfallthrough(!!), τiunop(op_notnot)}); }
+
 πdf πηmod() { return πdv(fn {τbinfallthrough(%),  τibinop(op_mod)}); }
 πdf πηlsh() { return πdv(fn {τbinfallthrough(<<), τibinop(op_lsh)}); }
 πdf πηrsh() { return πdv(fn {τbinfallthrough(>>), τibinop(op_rsh)}); }

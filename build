@@ -3,10 +3,10 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 
-cflags="$(<compile_flags.txt) -O3"
+cflags="$(<compile_flags.txt) -O1"
 #cflags="$(<compile_flags.txt) -O0 -g"
 
-linux_flags="$cflags -flto"
+linux_flags="$cflags"
 clang_flags="$cflags -flto"
 wasm_flags="$cflags -fexceptions -Wno-mathematical-notation-identifier-extension"
 
@@ -14,7 +14,6 @@ linux_link=(
   #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
   #-lharfbuzz -lcairo
   #-lxcb -lX11 -lGL -lX11-xcb
-  -flto
   -lsqlite3
   -lboost_context
   -lzstd

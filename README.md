@@ -55,8 +55,10 @@ These are compiler objects, meaning that they don't actually contain live resour
 ## Scratch tests
 ```bash
 $ bin/scratch
-"a" "b" "c" φucs
+E"a" "b" "c" φucs
+E'"a" "b" "c" φucs
 3, 4, hi there, 八次不
+abc不西
 ```
 
 

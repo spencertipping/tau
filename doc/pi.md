@@ -25,8 +25,15 @@ x?3y   // π
 
 
 ## Examples
-**TODO:** use actual syntax here
+```bash
+$ bin/pi-phi '3+4' '"foo"' '3+2*5'
+7
+"foo"
+13
+```
 
+
+## Scratch tests
 ```bash
 $ bin/pi-eta
 f(5) = 6

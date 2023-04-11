@@ -6,11 +6,46 @@
 #include "phi-ctor.hh"
 #include "phi-fn.hh"
 #include "phi-str.hh"
+#include "pi-fn-eta.hh"
 
 #include "begin.hh"
 
 namespace τ
 {
+
+
+φ<πf>  πφcore_a() { return φm(πφlit(), πvq); }
+φ<πmf> πφcore_m() { return φa(φl("sin",  πηsin()),
+                              φl("sqrt", πηsqrt()),
+                              φl("exp",  πηexp()),
+                              φl("log",  πηlog()),
+                              φl("~",    πηinv()),
+                              φl("-",    πηneg()),
+                              φl("!",    πηnot()),
+                              φl("!!",   πηnotnot())); }
+
+φ<πdf> πφcore_d()
+{ return φa(φl("+",  πηadd()),
+            φl("-",  πηsub()),
+            φl("**", πηpow()),
+            φl("*",  πηmul()),
+            φl("//", πηdiv()),
+            φl("<<", πηlsh()),
+            φl(">>", πηrsh()),
+            φl("%",  πηmod()),
+            φl("&",  πηand()),
+            φl("|",  πηor()),
+            φl("^",  πηxor()),
+            φl("<=", πηle()),
+            φl(">=", πηge()),
+            φl("<>", πηcmp()),
+            φl("<",  πηlt()),
+            φl(">",  πηgt()),
+            φl("=",  πηeq()),
+            φl("!=", πηne())); }
+
+φ<πtf> πφcore_t()
+{ return φa(φl("?", πηcond())); }
 
 
 φ<St> πφws() { return φcs(" \t\n\r", false, 1); }
@@ -19,7 +54,7 @@ namespace τ
 
 
 φ<i64> πφint()     { return φa(πφint_hex(), πφint_bin(), πφint_oct(), πφint_dec()); }
-φ<i64> πφint_dec() { return φm(φq(φo(φl("-")),           φcs("0123456789",             false, 1)), [](St x) -> i64 { return std::stoll(x); }); }
+φ<i64> πφint_dec() { return φm(φq(φo(φl("-")),           φcs("0123456789",             false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 10); }); }
 φ<i64> πφint_oct() { return φm(φq(φo(φl("-")), φl("0"),  φcs("01234567",               false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 8); }); }
 φ<i64> πφint_bin() { return φm(φ2(φl("0b"),              φcs("01",                     false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 2); }); }
 φ<i64> πφint_hex() { return φm(φq(φo(φl("-")), φl("0x"), φcs("0123456789abcdefABCDEF", false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 16); }); }
@@ -49,7 +84,7 @@ namespace τ
 φ<St> πφstr()
 {
   return φm(φ2(φl("\""),
-               φn(φa(φcs("\\\"", true), φ2(φl("\\"), πφstr_escape()))),
+               φn(φa(φcs("\\\"", true, 1), φ2(φl("\\"), πφstr_escape()))),
                φl("\"")),
             [](V<St> xs)
               { let n = std::accumulate(xs.begin(), xs.end(), 0, [](i64 a, Stc &b) { return a + b.size(); });

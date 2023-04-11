@@ -12,8 +12,10 @@ void try_parsers()
   let b = φl("b", 4.0);
   let c = φl("c", "hi there");
   let d = φCJK();
-  let p = φs(a, b, c, d);
+  let p = φE(φs(a, b, c, d));
+  let q = φE(φq(a, b, c, d));
   cout << p.name() << endl;
+  cout << q.name() << endl;
 
   let r = p("abc八次不");
   if (r.is_f()) cout << "parse failed: " << r.e << ", " << r.t << endl;
@@ -22,6 +24,10 @@ void try_parsers()
     let [a_, b_, c_, d_] = *r.y;
     cout << a_ << ", " << b_ << ", " << c_ << ", " << d_ << endl;
   }
+
+  let s = q("abc不西");
+  if (s.is_f()) cout << "parse failed: " << s.e << ", " << s.t << endl;
+  else cout << *s.y << endl;
 }
 
 
