@@ -24,31 +24,14 @@ template<class X>
 
 φ<πf> πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t)
 {
-  let p1 = φa<πf>();
-  let pw = πwrap(p1);
-  let po = φa<F<πf(πf)>>(
-    φm(φs(πwrap(d), pw), [](auto x) -> F<πf(πf)>
-      { let &[d, y] = x;
-        return [d=d, y=y](πf x) { return πdc(d, x, y); }; }),
-    φm(φs(πwrap(t), pw, pw), [](auto x) -> F<πf(πf)>
-      { let &[t, y, z] = x;
-        return [t=t, y=y, z=z](πf x) { return πtc(t, x, y, z); }; }));
+  let p1 = φa<πf>();  auto &p1a = p1.as<φa_<πf>>();
+  let p  = φa<πf>();  auto &pa  = p .as<φa_<πf>>();
+  let pr = φN("π", p);
 
-  φ<πf> mo = φm(φs(πwrap(m), pw), [](auto r)
-    { let &[m, x] = r; return πmc(m, x); });
-
-  φ<πf> p = φN("π", φm(φs(p1, φn(po)), [](auto r)
-    { let &[x, os] = r;
-
-      // OOPS: we need to keep the intermediate values around so we can
-      // apply this function correctly; right now we're left-associative
-      //
-      // dyadic and triadic operators can't capture their operands, which
-      // might actually cause parsing problems...?
-      return x; }));
-
-  // Now add the alternatives
-  p1.as<φa_<πf>>().push(πwrap(a), mo, πgroup(p));
+  p1a << πgroup(pr) << πwrap(a);
+  pa  << φm(φs(πwrap(m), pr),         [](auto r) { let &[m, x]       = r; return πmc(m, x); })
+      << φm(φs(p1, πwrap(d), pr),     [](auto r) { let &[x, d, y]    = r; return πdc(d, x, y); })
+      << φm(φs(p1, πwrap(t), pr, pr), [](auto r) { let &[x, t, y, z] = r; return πtc(t, x, y, z); });
 
   return p;
 }
