@@ -40,7 +40,7 @@ struct πv final
     ηsig,
     i64,
     f64,
-    Stvc,
+    Stv,
     πname,
     ηatom,
     ηi,

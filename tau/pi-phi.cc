@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "types.hh"
 #include "pi-phi.hh"
 #include "pi-fn.hh"
@@ -11,27 +13,71 @@ namespace τ
 {
 
 
-static φ<St> πws() { return φcs(" \t\n\r", false, 1); }
-static φ<St> πlc() { return φq(φs(φl("# ", ""), φcs("\n", true))); }
-static φ<St> πig() { return φq(φn(φa<St>(πws(), πlc()))); }
+φ<St> πφws() { return φcs(" \t\n\r", false, 1); }
+φ<St> πφlc() { return φq(φs(φl("# ", ""), φcs("\n", true))); }
+φ<St> πφig() { return φq(φn(φa<St>(πφws(), πφlc()))); }
 
-template<class X>
-φ<X> πwrap(φ<X> p) { return φ2(φo(πig()), p, φo(πig())); }
 
-template<class X>
-φ<X> πgroup(φ<X> p) { return φ2(πwrap(φl("[", "")), πwrap(p), πwrap(φl("]", ""))); }
+φ<i64> πφint()     { return φa(πφint_hex(), πφint_bin(), πφint_oct(), πφint_dec()); }
+φ<i64> πφint_dec() { return φm(φq(φo(φl("-")),           φcs("0123456789",             false, 1)), [](St x) -> i64 { return std::stoll(x); }); }
+φ<i64> πφint_oct() { return φm(φq(φo(φl("-")), φl("0"),  φcs("01234567",               false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 8); }); }
+φ<i64> πφint_bin() { return φm(φ2(φl("0b"),              φcs("01",                     false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 2); }); }
+φ<i64> πφint_hex() { return φm(φq(φo(φl("-")), φl("0x"), φcs("0123456789abcdefABCDEF", false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 16); }); }
+
+φ<f64> πφfloat()
+{
+  let ds  = φcs("0123456789", false, 1);
+  let exp = φq(φcs("eE", false, 1, 1), φcs("-+", false, 0, 1), ds);
+  return φm(φq(φo(φl("-")), φa(φq(ds, φl("."), φo(φs(ds, φo(exp)))),
+                               φq(φl("."), φs(ds, φo(exp))),
+                               φq(ds, exp))),
+            [](St x) { return std::stod(x); });
+}
+
+
+φ<πname> πφname() { return φm(φ2(φl("'"), φcs("abcdefghjiklmnopqrstuvxyz", false, 1)), [](St x) { return πname{x}; }); }
+
+φ<St> πφstr_escape()
+{
+  return φa(φl("\\"),
+            φl("\""),
+            φl<St>("n", "\n"),
+            φl<St>("r", "\r"),
+            φl<St>("t", "\t"));
+}
+
+φ<St> πφstr()
+{
+  return φm(φ2(φl("\""),
+               φn(φa(φcs("\\\"", true), φ2(φl("\\"), πφstr_escape()))),
+               φl("\"")),
+            [](V<St> xs)
+              { let n = std::accumulate(xs.begin(), xs.end(), 0, [](i64 a, Stc &b) { return a + b.size(); });
+                St  r; r.reserve(n);
+                for (let &x : xs) r.append(x);
+                return r; });
+}
+
+φ<πv> πφlit()
+{
+  return φa<πv>(φm(πφfloat(), [](f64 x)   { return πv{x}; }),
+                φm(πφint(),   [](i64 x)   { return πv{x}; }),
+                φm(πφname(),  [](πname x) { return πv{x}; }),
+                φm(πφstr(),   [](St x)    { return πv{x}; }));
+}
 
 
 φ<πf> πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t)
 {
-  let p1 = φa<πf>();  auto &p1a = p1.as<φa_<πf>>();
-  let p  = φa<πf>();  auto &pa  = p .as<φa_<πf>>();
+  let p1 = φa0<πf>();  auto &p1a = p1.as<φa_<πf>>();
+  let p  = φa0<πf>();  auto &pa  = p .as<φa_<πf>>();
   let pr = φN("π", p);
 
-  p1a << πgroup(pr) << πwrap(a);
-  pa  << φm(φs(πwrap(m), pr),         [](auto r) { let &[m, x]       = r; return πmc(m, x); })
-      << φm(φs(p1, πwrap(d), pr),     [](auto r) { let &[x, d, y]    = r; return πdc(d, x, y); })
-      << φm(φs(p1, πwrap(t), pr, pr), [](auto r) { let &[x, t, y, z] = r; return πtc(t, x, y, z); });
+  p1a << πφgroup(pr) << πφwrap(a);
+  pa  << φm(φs(πφwrap(m), pr),         [](auto r) { let &[m, x]       = r; return πmc(m, x); })
+      << φm(φs(p1, πφwrap(d), pr),     [](auto r) { let &[x, d, y]    = r; return πdc(d, x, y); })
+      << φm(φs(p1, πφwrap(t), pr, pr), [](auto r) { let &[x, t, y, z] = r; return πtc(t, x, y, z); })
+      << p1;
 
   return p;
 }
