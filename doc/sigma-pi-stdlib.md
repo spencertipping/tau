@@ -51,6 +51,7 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 | `".."`   | string literal         |
 | `[]`     | subexpression grouping |
 | `()`     | sub-η as tuple         |
+| `{}`     | sub-η as map           |
 
 
 ## Variables (`v`)
