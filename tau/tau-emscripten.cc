@@ -41,7 +41,11 @@ void τstep(void *t_)
 τe &τe::go(F<bool(τe&)> &&f)
 {
   go_f = mo(f);
-  while (l_() && now() < hn()) l_.step();
+  while (l_())
+  {
+    wake();
+    l_.step();
+  }
   return schedule();
 }
 

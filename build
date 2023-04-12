@@ -7,10 +7,10 @@ cflags="$(<compile_flags.txt)"
 #cflags="$(<compile_flags.txt) -O0 -g"
 
 linux_flags="$cflags -O2"
-clang_flags="$cflags -O2 -flto"
+clang_flags="$cflags -O2"
 wasm_flags="$cflags -Os -fexceptions -Wno-mathematical-notation-identifier-extension"
 
-linux_link=(
+linux_libs=(
   #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
   #-lharfbuzz -lcairo
   #-lxcb -lX11 -lGL -lX11-xcb
@@ -18,12 +18,9 @@ linux_link=(
   -lboost_context
   -lzstd
 )
-clang_link=(
-  -flto
-  -lsqlite3
-  -lboost_context
-  -lzstd
-)
+
+linux_link=( ${linux_libs[@]} )
+clang_link=( ${linux_libs[@]} )
 wasm_link=(
   --use-preload-plugins
   -sTOTAL_MEMORY=1024MB
