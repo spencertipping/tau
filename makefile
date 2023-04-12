@@ -2,11 +2,11 @@ linux_cc = g++
 wasm_cc  = dev/emsdk em++
 
 linux_cflags = $(shell cat compile_flags.txt) -O3
-wasm_cflags  = $(shell cat compile_flags.txt) -Os -fexceptions \
+wasm_cflags  = $(shell cat compile_flags.txt) -O3 -flto -fexceptions \
                -Wno-mathematical-notation-identifier-extension
 
 linux_ldflags =
-wasm_ldflags  = -sASYNCIFY -sTOTAL_MEMORY=1024MB
+wasm_ldflags  = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB
 
 linux_libs = -lsqlite3 -lboost_context -lzstd
   #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
@@ -86,6 +86,12 @@ bin/wasm-bin/%.d: try/%.cc | bin
 
 
 # Clean up
-.PHONY: clean
+.PHONY: clean linux-clean wasm-clean
 clean:
 	rm -rf bin
+
+linux-clean:
+	rm -f bin/linux*/*
+
+wasm-clean:
+	rm -f bin/wasm*/*
