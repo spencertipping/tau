@@ -3,265 +3,50 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 
-cflags="$(<compile_flags.txt)"
-#cflags="$(<compile_flags.txt) -O0 -g"
-
-linux_flags="$cflags -O2"
-clang_flags="$cflags -O2"
-wasm_flags="$cflags -Os -fexceptions -Wno-mathematical-notation-identifier-extension"
-
-linux_libs=(
-  #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
-  #-lharfbuzz -lcairo
-  #-lxcb -lX11 -lGL -lX11-xcb
-  -lsqlite3
-  -lboost_context
-  -lzstd
-)
-
-linux_link=( ${linux_libs[@]} )
-clang_link=( ${linux_libs[@]} )
-wasm_link=(
-  --use-preload-plugins
-  -sTOTAL_MEMORY=1024MB
-  -sASYNCIFY
-)
-
-
-build_linux=yes
-build_clang=yes
-build_wasm=yes
-build_on_server=
-just_print_status=
-
-while (( $# )); do
-  case $1 in
-    --no-wasm)  build_wasm=;           shift ;;
-    --no-linux) build_linux=;          shift ;;
-    --no-clang) build_clang=;          shift ;;
-    --wasm)     build_wasm=yes;        shift ;;
-    --linux)    build_linux=yes;       shift ;;
-    --clang)    build_clang=yes;       shift ;;
-
-    --check)    build_wasm=; build_clang=; build_linux=yes; shift ;;
-    --server)   build_on_server=yes;   shift ;;
-    --status)   just_print_status=yes; shift ;;
-
-    *) echo "unknown option $1"
-       exit 1 ;;
-  esac
-done
-
-
-mkdir -p bin/{linux,wasm,clang}/{tau,try}
-
-
-h_files=( tau.hh `find tau     -name '*.hh'` )
-c_files=(        `find tau try -name '*.cc'` )
-o_files=(        `find bin     -name '*.o'` )
-
-
-rebuild_all=
-for f in ${h_files[*]} build compile_flags.txt dev/emsdk; do
-  for o in ${o_files[*]}; do
-    if [[ $f -nt $o ]]; then
-      rm -rf bin
-      mkdir -p bin/{linux,wasm,clang}/{tau,try}
-      rebuild_all=yes
-      build_on_server=yes
-      break 2
-    fi
-  done
-done
-
-
-linux_to_compile=0
-wasm_to_compile=0
-clang_to_compile=0
-for f in ${c_files[*]}; do
-  if [[ $f -nt bin/linux/${f%%.cc}.o ]]; then
-    let linux_to_compile+=1
-  fi
-  if [[ -n "$build_clang" ]] && [[ $f -nt bin/clang/${f%%.cc}.o ]]; then
-    let clang_to_compile+=1
-  fi
-  if [[ -n "$build_wasm" ]] && [[ $f -nt bin/wasm/${f%%.cc}.o ]]; then
-    let wasm_to_compile+=1
-  fi
-done
-
-if (( $linux_to_compile + $wasm_to_compile + $clang_to_compile > 4 )); then
-  build_on_server=yes
-fi
-
-
-linux_cc()
+sync()
 {
-  start=`date +%s.%N`
-  src=$1
-  obj=bin/linux/${src%.cc}.o
-  if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
-    g++ $linux_flags $src -c -o $obj
-    end=`date +%s.%N`
-    echo "linux/compiled $src in `bc -l <<<"($end - $start) * 1000"`ms"
-  fi
-}
-
-clang_cc()
-{
-  start=`date +%s.%N`
-  src=$1
-  obj=bin/clang/${src%.cc}.o
-  if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
-    clang++ $clang_flags $src -c -o $obj
-    end=`date +%s.%N`
-    echo "clang/compiled $src in `bc -l <<<"($end - $start) * 1000"`ms"
-  fi
-}
-
-wasm_cc()
-{
-  start=`date +%s.%N`
-  src=$1
-  obj=bin/wasm/${src%.cc}.o
-  if [[ -n $rebuild_all ]] || [[ $src -nt $obj ]]; then
-    dev/emsdk em++ $wasm_flags $src -c -o $obj
-    end=`date +%s.%N`
-    echo "wasm/compiled $src in `bc -l <<<"($end - $start) * 1000"`ms"
-  fi
-}
-
-
-linux_link()
-{
-  start=`date +%s.%N`
-  src=$1
-  obj=bin/linux/${src%.cc}.o
-  out=bin/$(basename $src .cc)
-
-  build=
-  for f in $obj `find bin/linux/tau -name '*.o'`; do
-    if [[ $f -nt $out ]]; then
-      build=yes
-      break
-    fi
-  done
-
-  if [[ -n $build ]]; then
-    g++ $linux_flags $obj -o $out bin/tau-linux.a ${linux_link[@]}
-    end=`date +%s.%N`
-    echo "linux/link $out in `bc -l <<<"($end - $start) * 1000"`ms"
-  fi
-}
-
-clang_link()
-{
-  start=`date +%s.%N`
-  src=$1
-  obj=bin/clang/${src%.cc}.o
-  out=bin/$(basename $src .cc)-clang
-
-  build=
-  for f in $obj `find bin/clang/tau -name '*.o'`; do
-    if [[ $f -nt $out ]]; then
-      build=yes
-      break
-    fi
-  done
-
-  if [[ -n $build ]]; then
-    clang++ $clang_flags $obj -o $out bin/tau-clang.a ${clang_link[@]}
-    end=`date +%s.%N`
-    echo "clang/link $out in `bc -l <<<"($end - $start) * 1000"`ms"
-  fi
-}
-
-wasm_link()
-{
-  start=`date +%s.%N`
-  src=$1
-  obj=bin/wasm/${src%.cc}.o
-  out=bin/$(basename $src .cc).js
-
-  build=
-  for f in $obj `find bin/wasm/tau -name '*.o'`; do
-    if [[ $f -nt $out ]]; then
-      build=yes
-      break
-    fi
-  done
-
-  if [[ -n $build ]]; then
-    dev/emsdk em++ $wasm_flags $obj -o $out bin/tau-wasm.a ${wasm_link[@]}
-    end=`date +%s.%N`
-    echo "wasm/link $out in `bc -l <<<"($end - $start) * 1000"`ms"
-  fi
-}
-
-
-compile()
-{
-  for f in ${c_files[*]}; do
-    [[ -n $build_linux ]] && linux_cc $f &
-    [[ -n $build_clang ]] && clang_cc $f &
-    [[ -n $build_wasm  ]] && wasm_cc  $f &
-  done
+  local host=${1:-set.128}
+  local path=${2:-/nvme/asqi/tau}
+  rsync -azP --delete \
+        dep tau.hh sigma tau try makefile compile_flags.txt \
+        $host:$path/ &
+  rsync -azP --delete dev/emsdk $host:$path/dev/ &
   wait
-  [[ -n $build_linux ]] && ar             rcs bin/tau-linux.a `find bin/linux/tau -name '*.o'`
-  [[ -n $build_clang ]] && ar             rcs bin/tau-clang.a `find bin/clang/tau -name '*.o'`
-  [[ -n $build_wasm  ]] && dev/emsdk emar rcs bin/tau-wasm.a  `find bin/wasm/tau  -name '*.o'`
-  echo "compile done"
+  date +"synced at %Y.%m%d.%H%M%S"
 }
 
 
-link()
+sloop()
 {
-  for f in `find try -name '*.cc'`; do
-    [[ -n $build_linux ]] && linux_link $f &
-    [[ -n $build_wasm  ]] && wasm_link  $f &
-    [[ -n $build_clang ]] && clang_link $f &
-  done
-  wait
-  echo "link done"
-}
-
-
-local_build()
-{
-  compile
-  link
+  watch $0 sync "$@"
 }
 
 
 server_build()
 {
-  host=$1
-  path=$2
-  ssh $host mkdir -p $path
-  rsync -az --delete dep tau.hh tau try build compile_flags.txt $host:$path/
-  rsync -az --delete dev/emsdk $host:$path/dev/
-  args=
-  [[ -z $build_linux ]] && args="$args --no-linux"
-  [[ -z $build_wasm  ]] && args="$args --no-wasm"
-  [[ -z $build_clang ]] && args="$args --no-clang"
-  ssh -t $host "cd $path && ./build $args"
-  rsync -az --delete $host:$path/bin ./
+  local host=${1:-set.128}
+  local path=${2:-/nvme/asqi/tau}
+  shift 2
+  sync $host $path
+  ssh $host bash -c ":; cd $path; $*"
+  rsync -azP --delete $host:$path/bin ./
 }
 
 
-build_status()
+run()
 {
-  [[ -n "$rebuild_all" ]] && echo 'full rebuild'
-  echo "linux to rebuild: $linux_to_compile"
-  echo "wasm  to rebuild: $wasm_to_compile"
+  if [[ ${HOSTNAME:0:1} == i ]]; then
+    server_build set.128 /nvme/asqi/tau "$@"
+  else
+    exec "$@"
+  fi
 }
 
 
-if [[ -n "$just_print_status" ]]; then
-  build_status
-elif [[ ${HOSTNAME:0:1} == i ]] && [[ -n "$build_on_server" ]]; then
-  echo "building on server"
-  server_build set.128 /nvme/asqi/tau
-else
-  time local_build
-fi
+cmd=$1
+shift
+case $cmd in
+  sloop) sloop "$@"    ;;
+  sync)  sync "$@"     ;;
+  *)     run $cmd "$@" ;;
+esac

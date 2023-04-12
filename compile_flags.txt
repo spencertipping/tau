@@ -2,7 +2,6 @@
 -Wall
 -Wno-parentheses
 -Wno-misleading-indentation
--Wno-odr
 -Idep/boost-endian/include
 -Idep/boost-config/include
 -Idep/boost-type-traits/include
