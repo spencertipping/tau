@@ -79,7 +79,7 @@ struct φn_ : public virtual φ_<V<T>>
         r.push_back(s);
         y = y.at(s.j); }
       if (r.size() < min)
-        return x.at(*this).template f<V<T>>("too few elements", y.i());
+        return x.template f<V<T>>(this, y.i());
       V<T> rs;
       for (let &z : r) rs.push_back(*z.y);
       return x.a(rs, r.empty() ? x.i() : r.back().j); }
@@ -106,7 +106,7 @@ struct φS_ : public virtual φ_<V<T>>
 
   φr_<V<T>> operator()(φc_ const &x) const
     { V<T> r;
-      φc_ y = x.at(*this);
+      φc_ y = x;
       for (let &p : ps)
       { let s = p(y);
         if (s.is_f()) return s.template cast<V<T>>();
@@ -142,9 +142,8 @@ struct φO_ : public virtual φ_<T>
   St name() const { return p.name() + "?_"; }
   φr_<T> operator()(φc_ const &x) const
     { let s = p(x);
-      return x.a(
-        s.is_a() ? *s.y : d,
-        s.is_a() ?  s.j : x.i()); }
+      return x.a(s.is_a() ? *s.y : d,
+                 s.is_a() ?  s.j : x.i()); }
 
   φ<T> p;
   T    d;
@@ -178,7 +177,7 @@ protected:
       else
       { using Y = De<decltype(std::get<i>(std::declval<T<Xs...>>()))>;
         let r = r0.is_f() ? r0.template cast<Y>() : std::get<i>(p)(x);
-        return tcons(r, go<i + 1>(x.at(*this).at(r.j), r)); } }
+        return tcons(r, go<i + 1>(x.at(r.j), r)); } }
 
   template<uS i>
   φr_<Tdrop<i, T<Xs...>>> res(T<φr_<Xs>...> const &xs) const
@@ -202,7 +201,7 @@ struct φm_ : public virtual φ_<U>
     { let s = p(x);
       return s.is_f()
            ? s.template cast<U>()
-           : φr_<U>{s.x, s.i, s.j, f(*s.y), s.e, s.t}; }
+           : φr_<U>{s.x, s.i, s.j, f(*s.y), Rc<φ_<U> const*>(s.p)}; }
 
   φ<T> p;
   F    f;
@@ -218,9 +217,7 @@ struct φf_ : public virtual φ_<T>
   St name() const { return "(" + p.name() + " | f)"; }
   φr_<T> operator()(φc_ const &x) const
     { let s = p(x);
-      return !s.is_a() || f(*s.y)
-           ? s
-           : x.at(*this).f("predicate rejected", s.j); }
+      return !s.is_a() || f(*s.y) ? s : x.f(this, s.j); }
 
   φ<T>       p;
   F<bool(T)> f;

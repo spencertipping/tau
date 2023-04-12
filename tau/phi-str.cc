@@ -9,7 +9,7 @@ namespace τ
 {
   uN i = 0;
   while (i < max && i < x.l() && cs[x[i]] ^ n) ++i;
-  if (i < min) return x.at(*this).f<St>("too few chars", x.i() + i);
+  if (i < min) return x.template f<St>(this, x.i() + i);
   return x.a(x.sub(i), x.i() + i);
 }
 
@@ -37,11 +37,11 @@ namespace τ
       w = 4, u = (c & 0x07) << 18 | (x[1] & 0x3f) << 12 | (x[2] & 0x3f) << 6 | x[3] & 0x3f;
     else break;  // illegal UTF-8 char
 
-    if (!f(u)) { std::cout << "rejecting char " << u << std::endl; break; }
+    if (!f(u)) break;
     i += w;
     ++n;
   }
-  if (n < min) return x.at(*this).f<St>((Ss{} << "too few chars: " << n).str(), x.i() + i);
+  if (n < min) return x.f<St>(this, x.i() + i);
   return x.a(x.sub(i), x.i() + i);
 }
 
@@ -50,7 +50,7 @@ namespace τ
 {
   std::smatch m;
   if (!std::regex_search(x.it(0), x.it(x.l()), m, r))
-    return x.at(*this).f<V<St>>("/" + src + "/ failed to match", x.i());
+    return x.f<V<St>>(this, x.i());
 
   V<St> y;
   for (let &x : m) y.push_back(x.str());

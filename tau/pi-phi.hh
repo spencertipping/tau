@@ -43,7 +43,10 @@ template<class X>
 φ<X> πφwrap(φ<X> p) { return φ2(φo(πφig()), p, φo(πφig())); }
 
 template<class X>
-φ<X> πφgroup(φ<X> p) { return φ2(πφwrap(φl("[", "")), πφwrap(p), πφwrap(φl("]", ""))); }
+φ<X> πφgroup(φ<X> p) { return φ2(πφwrap(φl("[")), πφwrap(p), πφwrap(φl("]"))); }
+
+template<class X>
+φ<V<X>> πφtuple(φ<X> p) { return φ2(πφwrap(φl("(")), φn(πφwrap(p)), φo(πφwrap(φl(")")))); }
 
 
 // Basic literals

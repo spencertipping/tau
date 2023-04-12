@@ -11,7 +11,7 @@ using namespace τ;
   πi i{t};
   let p = φE(πφ());
   let x = p(e);
-  A(x.is_a(), "parse failed: " << x.e << " beginning here: → |" << e.substr(x.j));
+  A(x.is_a(), "parse failed at " << x.p->name() << " beginning here: → |" << e.substr(x.j));
   return (*x.y)(i);
 }
 

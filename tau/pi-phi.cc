@@ -55,8 +55,8 @@ namespace τ
 
 φ<i64> πφint()     { return φa(πφint_hex(), πφint_bin(), πφint_oct(), πφint_dec()); }
 φ<i64> πφint_dec() { return φm(φq(φo(φl("-")),           φcs("0123456789",             false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 10); }); }
-φ<i64> πφint_oct() { return φm(φq(φo(φl("-")), φl("0"),  φcs("01234567",               false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 8); }); }
-φ<i64> πφint_bin() { return φm(φ2(φl("0b"),              φcs("01",                     false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 2); }); }
+φ<i64> πφint_oct() { return φm(φq(φo(φl("-")), φl("0"),  φcs("01234567",               false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 8);  }); }
+φ<i64> πφint_bin() { return φm(φ2(             φl("0b"), φcs("01",                     false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 2);  }); }
 φ<i64> πφint_hex() { return φm(φq(φo(φl("-")), φl("0x"), φcs("0123456789abcdefABCDEF", false, 1)), [](St x) -> i64 { return std::stoll(x, nullptr, 16); }); }
 
 φ<f64> πφfloat()
@@ -64,8 +64,8 @@ namespace τ
   let ds  = φcs("0123456789", false, 1);
   let exp = φq(φcs("eE", false, 1, 1), φcs("-+", false, 0, 1), ds);
   return φm(φq(φo(φl("-")), φa(φq(ds, φl("."), φo(φs(ds, φo(exp)))),
-                               φq(φl("."), φs(ds, φo(exp))),
-                               φq(ds, exp))),
+                               φq(    φl("."),    φs(ds, φo(exp))),
+                               φq(ds,                       exp))),
             [](St x) { return std::stod(x); });
 }
 
@@ -102,13 +102,23 @@ namespace τ
 }
 
 
+φ<πf> πφtuple_expr(φ<πf> p)
+{
+  return φm(πφtuple(p), [](Vc<πf> &xs) -> πf
+    { return [xs](πi &i) -> πv
+      { let ys = new V<πv>; ys->reserve(xs.size());
+        for (let &x : xs) ys->push_back(x(i));
+        return πv{Sp<V<πv>>(ys)}; }; });
+}
+
+
 φ<πf> πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t)
 {
   let p1 = φa0<πf>();  auto &p1a = p1.as<φa_<πf>>();
   let p  = φa0<πf>();  auto &pa  = p .as<φa_<πf>>();
   let pr = φN("π", p);
 
-  p1a << πφgroup(pr) << πφwrap(a);
+  p1a << πφgroup(pr) << πφtuple_expr(pr) << πφwrap(a);
   pa  << φm(φs(πφwrap(m), pr),         [](auto r) { let &[m, x]       = r; return πmc(m, x); })
       << φm(φs(p1, πφwrap(d), pr),     [](auto r) { let &[x, d, y]    = r; return πdc(d, x, y); })
       << φm(φs(p1, πφwrap(t), pr, pr), [](auto r) { let &[x, t, y, z] = r; return πtc(t, x, y, z); })

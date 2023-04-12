@@ -43,11 +43,10 @@ struct φd_ : public virtual φ_<T>
         if (k.size() <= x.l() && x.sub(k.size()) == k) ks.push_back(k);
       std::sort(ks.begin(), ks.end(),
                 [](Stc &a, Stc &b) { return a.size() > b.size(); });
-      // TODO: collect failures
       for (let &k : ks)
       { let s = (*ps.at(k))(x.at(x.i() + k.size()));
         if (s.is_a()) return s; }
-      return x.at(*this).template f<T>("no matching prefix, or all alternatives failed", x.i()); }
+      return x.template f<T>(this, x.i()); }
 
 
   M<St, φ<T>> ps;
@@ -64,7 +63,7 @@ struct φl_ : public virtual φ_<T>
   φr_<T> operator()(φc_ const &x) const
     { return x.l() >= l.size() && x.sub(l.size()) == l
            ? x.a(y, x.i() + l.size())
-           : x.f<T>("literal mismatch", x.i()); }
+           : x.f<T>(this, x.i()); }
 
   St l;
   T  y;
@@ -143,7 +142,7 @@ struct φE_ : public virtual φ_<T>
   φr_<T> operator()(φc_ const &x) const
     { let s = p(x);
       if (s.is_f())     return s;
-      if (s.j != x.n()) return x.f<T>((Ss{} << "not eof: " << s.j << " ≠ " << x.n()).str(), s.j);
+      if (s.j != x.n()) return x.f<T>(this, s.j);
       return s; }
 
   φ<T> p;

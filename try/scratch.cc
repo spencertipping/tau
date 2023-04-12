@@ -18,7 +18,7 @@ void try_parsers()
   cout << q.name() << endl;
 
   let r = p("abc八次不");
-  if (r.is_f()) cout << "parse failed: " << r.e << ", " << r.t << endl;
+  if (r.is_f()) cout << "parse failed: " << r.p->name() << endl;
   else
   {
     let [a_, b_, c_, d_] = *r.y;
@@ -26,7 +26,7 @@ void try_parsers()
   }
 
   let s = q("abc不西");
-  if (s.is_f()) cout << "parse failed: " << s.e << ", " << s.t << endl;
+  if (s.is_f()) cout << "parse failed: " << s.p->name() << endl;
   else cout << *s.y << endl;
 }
 
