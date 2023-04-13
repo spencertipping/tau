@@ -22,11 +22,6 @@
 
 #include "tau/eta.hh"
 
-#include "tau/Xi.hh"
-#include "tau/Gamma.hh"
-#include "tau/Psi.hh"
-#include "tau/XiGamma.hh"
-
 #include "tau/phi.hh"
 #include "tau/phi-fn.hh"
 #include "tau/phi-str.hh"
@@ -37,6 +32,12 @@
 #include "tau/pi-fn.hh"
 #include "tau/pi-fn-eta.hh"
 #include "tau/pi-phi.hh"
+
+#include "tau/Xi.hh"
+#include "tau/Gamma.hh"
+#include "tau/Psi.hh"
+#include "tau/XiGamma.hh"
+#include "tau/Gamma-phi.hh"
 
 
 #endif

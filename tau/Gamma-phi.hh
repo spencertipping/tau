@@ -31,11 +31,14 @@ namespace τ
 φ<St> Γφlc();
 φ<St> Γφig();
 
-template<class X>
-φ<X> Γφwrap(φ<X> p) { return φ2(φo(Γφig()), p, φo(Γφig())); }
+φ<St> Γφlb();
+φ<St> Γφrb();
 
 template<class X>
-φ<X> Γφgroup(φ<X> p) { return φ2(Γφwrap(φl("[")), Γφwrap(p), Γφwrap(φl("]"))); }
+φ<X> Γφwrap(φ<X> p) { return φ2("wrap", Γφig(), p, Γφig()); }
+
+template<class X>
+φ<X> Γφgroup(φ<X> p) { return φ2("[]", Γφlb(), Γφwrap(p), Γφrb()); }
 
 
 }
