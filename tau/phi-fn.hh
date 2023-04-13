@@ -16,8 +16,8 @@ struct φnamed_ : public virtual φ_<T>
 {
   φnamed_(St name__, φ<T> p_) : name_(name__), p(p_) {}
 
-  St           name()             const { return name_; }
-  φr_<T> operator()(φc_ const &x) const { return p(x); }
+  St           name()             const noexcept { return name_; }
+  φr_<T> operator()(φc_ const &x) const noexcept { return p(x); }
 
   St   name_;
   φ<T> p;
@@ -31,7 +31,7 @@ struct φa_ : public virtual φ_<T>
   template<class... Xs>
   φa_(Xs const&... xs) { push(xs...); }
 
-  St name() const
+  St name() const noexcept
     { St   r     = "(";
       bool first = true;
       for (let &p : ps)
@@ -40,7 +40,7 @@ struct φa_ : public virtual φ_<T>
         r.append(p.name()); }
       return r.append(")"); }
 
-  φr_<T> operator()(φc_ const &x) const
+  φr_<T> operator()(φc_ const &x) const noexcept
     { φr_<T> r;
       bool   first = true;
       for (let &p : ps)
@@ -66,8 +66,8 @@ struct φR_ : public virtual φ_<T>
 {
   φR_(T x__) : x_(x__) {}
 
-  St           name()             const { return "φR"; }
-  φr_<T> operator()(φc_ const &x) const { return x.a(x_, x.i()); }
+  St           name()             const noexcept { return "φR"; }
+  φr_<T> operator()(φc_ const &x) const noexcept { return x.a(x_, x.i()); }
 
   T x_;
 };
@@ -80,10 +80,10 @@ struct φn_ : public virtual φ_<V<T>>
   φn_(φ<T> p_, uN min_ = 0, uN max_ = -1)
     : p(p_), min(min_), max(max_) {}
 
-  St name() const
+  St name() const noexcept
     { return p.name() + (Ss{} << "{" << min << "," << max << "}").str(); }
 
-  φr_<V<T>> operator()(φc_ const &x) const
+  φr_<V<T>> operator()(φc_ const &x) const noexcept
     { V<φr_<T>> r;
       φc_ y = x;
       for (uN i = 0; i < max; ++i)
@@ -110,14 +110,14 @@ struct φS_ : public virtual φ_<V<T>>
   template<class... Xs>
   φS_(Xs const&... ps_) : ps({ps_...}) {}
 
-  St name() const
+  St name() const noexcept
     { Ss r;
       r << "φs[";
       for (let &p : ps) r << p.name() << " ";
       r << "]";
       return r.str(); }
 
-  φr_<V<T>> operator()(φc_ const &x) const
+  φr_<V<T>> operator()(φc_ const &x) const noexcept
     { V<T> r;
       φc_ y = x;
       for (let &p : ps)
@@ -137,8 +137,8 @@ struct φo_ : public virtual φ_<Op<T>>
 {
   φo_(φ<T> p_) : p(p_) {}
 
-  St name() const { return p.name() + "?"; }
-  φr_<Op<T>> operator()(φc_ const &x) const
+  St name() const noexcept { return p.name() + "?"; }
+  φr_<Op<T>> operator()(φc_ const &x) const noexcept
     { let s = p(x);
       return x.template a<Op<T>>(s.y, s.is_a() ? s.j : x.i()); }
 
@@ -152,8 +152,8 @@ struct φO_ : public virtual φ_<T>
 {
   φO_(φ<T> p_, T d_) : p(p_), d(d_) {}
 
-  St name() const { return p.name() + "?_"; }
-  φr_<T> operator()(φc_ const &x) const
+  St name() const noexcept { return p.name() + "?_"; }
+  φr_<T> operator()(φc_ const &x) const noexcept
     { let s = p(x);
       return x.a(s.is_a() ? *s.y : d,
                  s.is_a() ?  s.j : x.i()); }
@@ -169,9 +169,9 @@ struct φs_ : public virtual φ_<T<Xs...>>
 {
   φs_(φ<Xs>... p_) : p(p_...) {}
 
-  St name() const { return name_<0>(); }
+  St name() const noexcept { return name_<0>(); }
 
-  φr_<T<Xs...>> operator()(φc_ const &x) const
+  φr_<T<Xs...>> operator()(φc_ const &x) const noexcept
     { return res<0>(go<0>(x, x.a(true, x.i()))); }
 
   T<φ<Xs>...> p;
@@ -179,13 +179,13 @@ struct φs_ : public virtual φ_<T<Xs...>>
 
 protected:
   template<uS i>
-  St name_() const
+  St name_() const noexcept
     { if constexpr (i + 1 < sizeof...(Xs))
                      return std::get<i>(p).name() + " " + name_<i + 1>();
       else return std::get<i>(p).name(); }
 
   template<uS i, class X>
-  Tdrop<i, T<φr_<Xs>...>> go(φc_ const &x, φr_<X> const &r0) const
+  Tdrop<i, T<φr_<Xs>...>> go(φc_ const &x, φr_<X> const &r0) const noexcept
     { if constexpr (i == sizeof...(Xs)) return {};
       else
       { using Y = De<decltype(std::get<i>(std::declval<T<Xs...>>()))>;
@@ -193,7 +193,7 @@ protected:
         return tcons(r, go<i + 1>(x.at(r.j), r)); } }
 
   template<uS i>
-  φr_<Tdrop<i, T<Xs...>>> res(T<φr_<Xs>...> const &xs) const
+  φr_<Tdrop<i, T<Xs...>>> res(T<φr_<Xs>...> const &xs) const noexcept
     { let x = std::get<i>(xs); if (x.is_f()) return x.template cast<Tdrop<i, T<Xs...>>>();
       if constexpr (i + 1 >= sizeof...(Xs)) return x.cast(std::make_tuple(*x.y));
       else
@@ -209,8 +209,8 @@ struct φm_ : public virtual φ_<U>
 {
   φm_(φ<T> p_, F f_) : p(p_), f(f_) {}
 
-  St name() const { return "f(" + p.name() + ")"; }
-  φr_<U> operator()(φc_ const &x) const
+  St name() const noexcept { return "f(" + p.name() + ")"; }
+  φr_<U> operator()(φc_ const &x) const noexcept
     { let s = p(x);
       return s.is_f()
            ? s.template cast<U>()
@@ -227,8 +227,8 @@ struct φf_ : public virtual φ_<T>
 {
   φf_(φ<T> p_, F<bool(T)> f_) : p(p_), f(f_) {}
 
-  St name() const { return "(" + p.name() + " | f)"; }
-  φr_<T> operator()(φc_ const &x) const
+  St name() const noexcept { return "(" + p.name() + " | f)"; }
+  φr_<T> operator()(φc_ const &x) const noexcept
     { let s = p(x);
       return !s.is_a() || f(*s.y) ? s : x.f(this, s.j); }
 

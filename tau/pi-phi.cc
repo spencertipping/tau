@@ -44,6 +44,11 @@ namespace τ
                  "log2",  πηlog2(),
                  "log1p", πηlog1p(),
 
+                 "ceil",  πηceil(),
+                 "floor", πηfloor(),
+                 "trunc", πηtrunc(),
+                 "round", πηround(),
+
                  "~",  πηinv(),
                  "-",  πηneg(),
                  "!",  πηnot(),
@@ -57,19 +62,26 @@ namespace τ
                  "**", πηpow(),
                  "*",  πηmul(),
                  "//", πηdiv(),
+
+                 "%",  πηmod(),
                  "<<", πηlsh(),
                  ">>", πηrsh(),
-                 "%",  πηmod(),
                  "&",  πηand(),
                  "|",  πηor(),
                  "^",  πηxor(),
+
                  "<=", πηle(),
                  ">=", πηge(),
                  "<>", πηcmp(),
                  "<",  πηlt(),
                  ">",  πηgt(),
                  "=",  πηeq(),
-                 "!=", πηne());
+                 "!=", πηne(),
+
+                 "atan2",    πηatan2(),
+                 "hypot",    πηhypot(),
+                 "logn",     πηlogn(),
+                 "copysign", πηcopysign());
 }
 
 

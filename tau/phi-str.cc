@@ -5,7 +5,7 @@ namespace τ
 {
 
 
-φr_<St> φcs_::operator()(φc_ const &x) const
+φr_<St> φcs_::operator()(φc_ const &x) const noexcept
 {
   uN i = 0;
   while (i < max && i < x.l() && cs[x[i]] ^ n) ++i;
@@ -14,7 +14,7 @@ namespace τ
 }
 
 
-φr_<St> φucs_::operator()(φc_ const &x) const
+φr_<St> φucs_::operator()(φc_ const &x) const noexcept
 {
   uN n = 0;  // number of parsed chars
   uN i = 0;  // byte offset into input
@@ -46,7 +46,7 @@ namespace τ
 }
 
 
-φr_<V<St>> φre_::operator()(φc_ const &x) const
+φr_<V<St>> φre_::operator()(φc_ const &x) const noexcept
 {
   std::smatch m;
   if (!std::regex_search(x.it(0), x.it(x.l()), m, r))

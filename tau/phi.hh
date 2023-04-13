@@ -28,8 +28,8 @@ struct φ_
 {
   virtual ~φ_() {};
 
-  virtual St           name()           const = 0;
-  virtual φr_<T> operator()(φc_ const&) const = 0;
+  virtual St           name()           const noexcept = 0;
+  virtual φr_<T> operator()(φc_ const&) const noexcept = 0;
 };
 
 
@@ -47,17 +47,17 @@ struct φr_ final
   bool is_a() const { return  y.has_value(); }
   bool is_f() const { return !y.has_value(); }
 
-  bool operator>(φr_<T> const &o) const { return j > o.j; }
-  φr_ &operator=(φr_<T> const &a)
+  bool operator>(φr_<T> const &o) const noexcept { return j > o.j; }
+  φr_ &operator=(φr_<T> const &a) noexcept
     { i = a.i; j = a.j; y = a.y; p = a.p; return *this; }
 
   template<class U>
-  φr_<U> cast(U &&y) const
+  φr_<U> cast(U &&y) const noexcept
     { A(is_a(), "cannot cast(y) φr::f");
       return φr_<De<U>>{i, j, {std::forward<U>(y)}, Rc<φ_<U> const*>(p)}; }
 
   template<class U>
-  φr_<U> cast() const
+  φr_<U> cast() const noexcept
     { A(is_f(), "cannot cast φr::a");
       return φr_<U>{i, j, {}, Rc<φ_<U> const*>(p)}; }
 };
@@ -72,24 +72,24 @@ struct φc_ final
   φc_(Sp<Stc> x__, uN i__) : x_(x__),         i_(i__) {}
 
 
-  φc_ at(uN j) const { return φc_{x_, j}; }
+  φc_ at(uN j) const noexcept { return φc_{x_, j}; }
 
-  template<class T> φr_<T> a(T            y, uN j) const { return φr_<T>{i_, j, y, {}}; }
-  template<class T> φr_<T> f(φ_<T> const *p, uN j) const { return φr_<T>{i_, j, {}, p}; }
+  template<class T> φr_<T> a(T            y, uN j) const noexcept { return φr_<T>{i_, j, y, {}}; }
+  template<class T> φr_<T> f(φ_<T> const *p, uN j) const noexcept { return φr_<T>{i_, j, {}, p}; }
 
-  Stc &x() const { return *x_; }
-  uN   i() const { return i_; }
-  uN   l() const { return x_->size() - i_; }
-  uN   n() const { return x_->size(); }
+  Stc &x() const noexcept { return *x_; }
+  uN   i() const noexcept { return i_; }
+  uN   l() const noexcept { return x_->size() - i_; }
+  uN   n() const noexcept { return x_->size(); }
 
-  ch operator[](iN i) const { return x_->at(i_ + i); }
-  St sub(uN n)        const { return {x_->data() + i_, n}; }
-  St sub(uN s, uN n)  const { return {x_->data() + i_ + s, n}; }
+  ch operator[](iN i) const noexcept { return x_->at(i_ + i); }
+  St sub(uN n)        const noexcept { return {x_->data() + i_, n}; }
+  St sub(uN s, uN n)  const noexcept { return {x_->data() + i_ + s, n}; }
 
-  bool sw(Stc &x) const
+  bool sw(Stc &x) const noexcept
     { return x.size() <= l() && !memcmp(x_->data() + i_, x.data(), x.size()); }
 
-  St::const_iterator it(uN i) const { return x_->begin() + i_ + i; }
+  St::const_iterator it(uN i) const noexcept { return x_->begin() + i_ + i; }
 
 
 protected:
@@ -106,17 +106,16 @@ struct φ final
 
   φ &operator=(φ<T> const &x) { p = x.p; return *this; }
 
-  φr_<T> operator()(φc_ const &x) const { return (*p)(x); }
-  φr_<T> operator()(Stc       &x) const { return (*p)(φc_(x)); }
+  φr_<T> operator()(φc_ const &x) const noexcept { return (*p)(x); }
+  φr_<T> operator()(Stc       &x) const noexcept { return (*p)(φc_(x)); }
 
-  St name() const { return p->name(); }
+  St name() const noexcept { return p->name(); }
 
   template<class X>
-  X &as() const { return *dynamic_cast<X*>(p.get()); }
+  X &as() const noexcept { return *dynamic_cast<X*>(p.get()); }
 
-  Op<T> parse(Stc &x) const { return (*this)(x).y; }
-
-  φ_<T> &operator*() const { return *p; }
+  Op<T> parse(Stc &x) const noexcept { return (*this)(x).y; }
+  φ_<T> &operator*()  const noexcept { return *p; }
 
   Sp<φ_<T>> p;
 };
