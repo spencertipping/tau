@@ -38,15 +38,21 @@ namespace τ
 φ<St> πφlc();
 φ<St> πφig();
 
+φ<St> πφlb();
+φ<St> πφrb();
+
+φ<St> πφlp();
+φ<St> πφrp();
+
 
 template<class X>
-φ<X> πφwrap(φ<X> p) { return φ2(φo(πφig()), p, φo(πφig())); }
+φ<X> πφwrap(φ<X> p) { return φ2("wrap", πφig(), p, πφig()); }
 
 template<class X>
-φ<X> πφgroup(φ<X> p) { return φ2(πφwrap(φl("[")), πφwrap(p), πφwrap(φl("]"))); }
+φ<X> πφgroup(φ<X> p) { return φ2("[]", πφlb(), πφwrap(p), πφrb()); }
 
 template<class X>
-φ<V<X>> πφtuple(φ<X> p) { return φ2(πφwrap(φl("(")), φn(πφwrap(p)), φo(πφwrap(φl(")")))); }
+φ<V<X>> πφtuple(φ<X> p) { return φ2("()", πφlp(), φn(πφwrap(p)), φo(πφrp())); }
 
 
 // Basic literals

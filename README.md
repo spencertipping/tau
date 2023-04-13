@@ -53,14 +53,10 @@ These are compiler objects, meaning that they don't actually contain live resour
 
 **TODO:** formalize/test Λ scheduling system; right now there are some edge cases involving CPU blocking and Θ races
 
-**TODO:** break π core into its own build, so we don't have to rebuild it each time
-
 
 ## Scratch tests
 ```bash
 $ bin/scratch
-E"a" "b" "c" φucs
-E'"a" "b" "c" φucs
 3, 4, hi there, 八次不
 abc不西
 ```

@@ -22,7 +22,7 @@ template<class T>
 struct φd_ : public virtual φ_<T>
 {
   template<class... Xs>
-  φd_(Xs const&... xs) { def(xs...); }
+  φd_(St name, Xs const&... xs) : φ_<T>(name) { def(xs...); }
 
   template<class... Xs>
   φd_ &def(Stc &k, φ<T> p, Xs const&... xs)
@@ -36,11 +36,6 @@ struct φd_ : public virtual φ_<T>
 
   φd_ &def() { return *this; }
 
-
-  St name() const noexcept
-    { St r = "{\n";
-      for (let &[k, p] : ps) r += "\"" + k + "\" → " + p.name() + "\n";
-      return r + "}"; }
 
   φr_<T> operator()(φc_ const &x) const noexcept
     { V<Stc*> ks;
@@ -62,9 +57,8 @@ struct φd_ : public virtual φ_<T>
 template<class T>
 struct φl_ : public virtual φ_<T>
 {
-  φl_(St l_, T y_) : l(l_), y(y_) {}
+  φl_(St l_, T y_) : φ_<T>(l_), l(l_), y(y_) {}
 
-  St name() const noexcept { return "\"" + l + "\""; }
   φr_<T> operator()(φc_ const &x) const noexcept
     { return x.l() >= l.size() && x.sub(l.size()) == l
            ? x.a(y, x.i() + l.size())
@@ -79,9 +73,8 @@ struct φl_ : public virtual φ_<T>
 struct φcs_ : public virtual φ_<St>
 {
   φcs_(chc *cs_, bool n_ = false, uN min_ = 0, uN max_ = -1)
-    : cs(cs_), n(n_), min(min_), max(max_) {}
+    : φ_<St>("cs7"), cs(cs_), n(n_), min(min_), max(max_) {}
 
-  St name() const noexcept { return (Ss{} << cs).str(); }
   φr_<St> operator()(φc_ const&) const noexcept;
 
   cs7  cs;
@@ -96,9 +89,8 @@ struct φcs_ : public virtual φ_<St>
 struct φucs_ : public virtual φ_<St>
 {
   φucs_(F<bool(u64)> f_, uN min_ = 0, uN max_ = -1)
-    : f(f_), min(min_), max(max_) {}
+    : φ_<St>("φucs"), f(f_), min(min_), max(max_) {}
 
-  St name() const noexcept { return "φucs"; }
   φr_<St> operator()(φc_ const&) const noexcept;
 
   F<bool(u64)> f;
@@ -110,9 +102,9 @@ struct φucs_ : public virtual φ_<St>
 // Regex match, beginning at a minimum number of bytes
 struct φre_ : public virtual φ_<V<St>>
 {
-  φre_(St src_) : src(src_), r("^(?:" + src + ")") {}
+  φre_(St src_)
+    : φ_<V<St>>("/" + src_ + "/"), src(src_), r("^(?:" + src + ")") {}
 
-  St name() const noexcept { return "/" + src + "/"; }
   φr_<V<St>> operator()(φc_ const&) const noexcept;
 
   St src;
@@ -124,9 +116,8 @@ struct φre_ : public virtual φ_<V<St>>
 template<class T>
 struct φq_ : public virtual φ_<St>
 {
-  φq_(φ<T> p_) : p(p_) {}
+  φq_(φ<T> p_) : φ_<St>("'(" + p_.name() + ")"), p(p_) {}
 
-  St name() const noexcept { return "'" + p.name(); }
   φr_<St> operator()(φc_ const &x) const noexcept
     { let s = p(x);
       return s.is_a()
@@ -141,9 +132,8 @@ struct φq_ : public virtual φ_<St>
 template<class T>
 struct φE_ : public virtual φ_<T>
 {
-  φE_(φ<T> p_) : p(p_) {}
+  φE_(φ<T> p_) : φ_<T>("E[" + p_.name() + "]"), p(p_) {}
 
-  St name() const noexcept { return "E" + p.name(); }
   φr_<T> operator()(φc_ const &x) const noexcept
     { let s = p(x);
       if (s.is_f())     return s;

@@ -17,9 +17,9 @@ static bool timed = false;
   let t1 = now();
   let x = p(e);
   let t2 = now();
-  A(x.is_a(), "parse failed at " << x.p->name() << " beginning here: → |" << e.substr(x.j));
+  A(x.is_a(), "parse failed at " << x.p().name() << " beginning here: → |" << e.substr(x.j));
 
-  let r = (*x.y)(i);
+  let r = x.r()(i);
   let t3 = now();
 
   if (timed)
