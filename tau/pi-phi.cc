@@ -15,37 +15,45 @@ namespace τ
 
 
 φ<πf>  πφcore_a() { return φm(πφlit(), πvq); }
-φ<πmf> πφcore_m() { return φa(φl("sin",  πηsin()),
-                              φl("sqrt", πηsqrt()),
-                              φl("exp",  πηexp()),
-                              φl("log",  πηlog()),
-                              φl("~",    πηinv()),
-                              φl("-",    πηneg()),
-                              φl("!",    πηnot()),
-                              φl("!!",   πηnotnot())); }
+φ<πmf> πφcore_m()
+{
+  return φd<πmf>("sin",  πηsin(),
+                 "sqrt", πηsqrt(),
+                 "exp",  πηexp(),
+                 "log",  πηlog(),
+                 "~",    πηinv(),
+                 "-",    πηneg(),
+                 "!",    πηnot(),
+                 "!!",   πηnotnot());
+}
 
 φ<πdf> πφcore_d()
-{ return φa(φl("+",  πηadd()),
-            φl("-",  πηsub()),
-            φl("**", πηpow()),
-            φl("*",  πηmul()),
-            φl("//", πηdiv()),
-            φl("<<", πηlsh()),
-            φl(">>", πηrsh()),
-            φl("%",  πηmod()),
-            φl("&",  πηand()),
-            φl("|",  πηor()),
-            φl("^",  πηxor()),
-            φl("<=", πηle()),
-            φl(">=", πηge()),
-            φl("<>", πηcmp()),
-            φl("<",  πηlt()),
-            φl(">",  πηgt()),
-            φl("=",  πηeq()),
-            φl("!=", πηne())); }
+{
+  return φd<πdf>("+",  πηadd(),
+                 "-",  πηsub(),
+                 "**", πηpow(),
+                 "*",  πηmul(),
+                 "//", πηdiv(),
+                 "<<", πηlsh(),
+                 ">>", πηrsh(),
+                 "%",  πηmod(),
+                 "&",  πηand(),
+                 "|",  πηor(),
+                 "^",  πηxor(),
+                 "<=", πηle(),
+                 ">=", πηge(),
+                 "<>", πηcmp(),
+                 "<",  πηlt(),
+                 ">",  πηgt(),
+                 "=",  πηeq(),
+                 "!=", πηne());
+}
+
 
 φ<πtf> πφcore_t()
-{ return φa(φl("?", πηcond())); }
+{
+  return φd<πtf>("?", πηcond());
+}
 
 
 φ<St> πφws() { return φcs(" \t\n\r", false, 1); }

@@ -39,7 +39,6 @@ struct φ_
 template<class T>
 struct φr_ final
 {
-  Sp<Stc>      x;
   uN           i;
   uN           j;
   Op<T>        y;
@@ -50,17 +49,17 @@ struct φr_ final
 
   bool operator>(φr_<T> const &o) const { return j > o.j; }
   φr_ &operator=(φr_<T> const &a)
-    { x = a.x; i = a.i; j = a.j; y = a.y; p = a.p; return *this; }
+    { i = a.i; j = a.j; y = a.y; p = a.p; return *this; }
 
   template<class U>
   φr_<U> cast(U &&y) const
     { A(is_a(), "cannot cast(y) φr::f");
-      return φr_<De<U>>{x, i, j, {std::forward<U>(y)}, Rc<φ_<U> const*>(p)}; }
+      return φr_<De<U>>{i, j, {std::forward<U>(y)}, Rc<φ_<U> const*>(p)}; }
 
   template<class U>
   φr_<U> cast() const
     { A(is_f(), "cannot cast φr::a");
-      return φr_<U>{x, i, j, {}, Rc<φ_<U> const*>(p)}; }
+      return φr_<U>{i, j, {}, Rc<φ_<U> const*>(p)}; }
 };
 
 
@@ -75,8 +74,8 @@ struct φc_ final
 
   φc_ at(uN j) const { return φc_{x_, j}; }
 
-  template<class T> φr_<T> a(T            y, uN j) const { return φr_<T>{x_, i_, j, y, {}}; }
-  template<class T> φr_<T> f(φ_<T> const *p, uN j) const { return φr_<T>{x_, i_, j, {}, p}; }
+  template<class T> φr_<T> a(T            y, uN j) const { return φr_<T>{i_, j, y, {}}; }
+  template<class T> φr_<T> f(φ_<T> const *p, uN j) const { return φr_<T>{i_, j, {}, p}; }
 
   Stc &x() const { return *x_; }
   uN   i() const { return i_; }
@@ -86,6 +85,9 @@ struct φc_ final
   ch operator[](iN i) const { return x_->at(i_ + i); }
   St sub(uN n)        const { return {x_->data() + i_, n}; }
   St sub(uN s, uN n)  const { return {x_->data() + i_ + s, n}; }
+
+  bool sw(Stc &x) const
+    { return x.size() <= l() && !memcmp(x_->data() + i_, x.data(), x.size()); }
 
   St::const_iterator it(uN i) const { return x_->begin() + i_ + i; }
 
@@ -99,7 +101,10 @@ protected:
 template<class T>
 struct φ final
 {
+  φ() {}
   φ(φ_<T> *p_) : p(p_) {}
+
+  φ &operator=(φ<T> const &x) { p = x.p; return *this; }
 
   φr_<T> operator()(φc_ const &x) const { return (*p)(x); }
   φr_<T> operator()(Stc       &x) const { return (*p)(φc_(x)); }

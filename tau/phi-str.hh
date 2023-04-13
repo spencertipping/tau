@@ -9,6 +9,7 @@
 #include "types.hh"
 #include "strings.hh"
 #include "phi.hh"
+#include "phi-fn.hh"
 
 #include "begin.hh"
 
@@ -29,22 +30,26 @@ struct φd_ : public virtual φ_<T>
       ps[k] = p;
       return def(xs...); }
 
+  template<class... Xs>
+  φd_ &def(Stc &k, T x, Xs const&... xs)
+    { return def(k, φ<T>{new φR_<T>(x)}, xs...); }
+
   φd_ &def() { return *this; }
 
 
   St name() const
     { St r = "{\n";
-      for (let &[k, p] : ps) r += "\"" + k + "\" → " + p->name() + "\n";
+      for (let &[k, p] : ps) r += "\"" + k + "\" → " + p.name() + "\n";
       return r + "}"; }
 
   φr_<T> operator()(φc_ const &x) const
-    { V<St> ks;
+    { V<Stc*> ks;
       for (let &[k, p] : ps)
-        if (k.size() <= x.l() && x.sub(k.size()) == k) ks.push_back(k);
+        if (x.sw(k)) ks.push_back(&k);
       std::sort(ks.begin(), ks.end(),
-                [](Stc &a, Stc &b) { return a.size() > b.size(); });
+                [](Stc *a, Stc *b) { return a->size() > b->size(); });
       for (let &k : ks)
-      { let s = (*ps.at(k))(x.at(x.i() + k.size()));
+      { let s = (*ps.at(*k))(x.at(x.i() + k->size()));
         if (s.is_a()) return s; }
       return x.template f<T>(this, x.i()); }
 

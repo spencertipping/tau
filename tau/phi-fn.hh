@@ -60,6 +60,19 @@ struct φa_ : public virtual φ_<T>
 };
 
 
+// Return without consuming anything
+template<class T>
+struct φR_ : public virtual φ_<T>
+{
+  φR_(T x__) : x_(x__) {}
+
+  St           name()             const { return "φR"; }
+  φr_<T> operator()(φc_ const &x) const { return x.a(x_, x.i()); }
+
+  T x_;
+};
+
+
 // Repetition
 template<class T>
 struct φn_ : public virtual φ_<V<T>>
@@ -201,7 +214,7 @@ struct φm_ : public virtual φ_<U>
     { let s = p(x);
       return s.is_f()
            ? s.template cast<U>()
-           : φr_<U>{s.x, s.i, s.j, f(*s.y), Rc<φ_<U> const*>(s.p)}; }
+           : φr_<U>{s.i, s.j, f(*s.y), Rc<φ_<U> const*>(s.p)}; }
 
   φ<T> p;
   F    f;

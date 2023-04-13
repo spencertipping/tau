@@ -16,11 +16,13 @@ template<class T, class... Xs> φ<T>  φd(Xs const&... xs) { return {new φd_<T>
 template<class T>              φ<T>  φl(St s, T v)       { return {new φl_<T>(s, v)}; }
 inline                         φ<St> φl(St s)            { return φl(s, s); }
 
+template<class T>              φ<T>  φE(φ<T> p)          { return {new φE_<T>(p)}; }
+template<class T>              φ<T>  φR(T x)             { return {new φR_<T>(x)}; }
+
 inline φ<St>    φcs (chc *s, bool n = false, uN min = 0, uN max = -1) { return {new φcs_(s, n, min, max)}; }
 inline φ<St>    φucs(F<bool(u64)> f,         uN min = 0, uN max = -1) { return {new φucs_(f, min, max)}; }
 inline φ<V<St>> φre (St re)                                           { return {new φre_(re)}; }
 
-template<class T>              φ<T>        φE(φ<T> p)          { return {new φE_<T>(p)}; }
 
 template<class T>              φ<V<T>>     φn(φ<T> p, uN l = 0, uN u = -1) { return {new φn_<T>(p, l, u)}; }
 

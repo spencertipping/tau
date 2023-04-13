@@ -15,13 +15,16 @@ linux_libs = -lsqlite3 -lboost_context -lzstd
 
 
 # Define the source and object files
-tau_cs = $(wildcard tau/*.cc)
-try_cs = $(wildcard try/*.cc)
+tau_cs   = $(wildcard tau/*.cc)
+sigma_cs = $(wildcard sigma/*.cc)
+try_cs   = $(wildcard try/*.cc)
 
-tau_linux_os = $(patsubst tau/%.cc, bin/linux/%.o,     $(tau_cs))
-try_linux_os = $(patsubst try/%.cc, bin/linux-bin/%.o, $(try_cs))
-tau_wasm_os  = $(patsubst tau/%.cc, bin/wasm/%.o,      $(tau_cs))
-try_wasm_os  = $(patsubst try/%.cc, bin/wasm-bin/%.o,  $(try_cs))
+tau_linux_os   = $(patsubst tau/%.cc,   bin/linux/tau-%.o,   $(tau_cs))
+sigma_linux_os = $(patsubst sigma/%.cc, bin/linux/sigma-%.o, $(sigma_cs))
+try_linux_os   = $(patsubst try/%.cc,   bin/linux-bin/%.o,   $(try_cs))
+tau_wasm_os    = $(patsubst tau/%.cc,   bin/wasm/tau-%.o,    $(tau_cs))
+sigma_wasm_os  = $(patsubst sigma/%.cc, bin/wasm/sigma-%.o,  $(sigma_cs))
+try_wasm_os    = $(patsubst try/%.cc,   bin/wasm-bin/%.o,    $(try_cs))
 
 try_linux_bins = $(patsubst try/%.cc, bin/%,    $(try_cs))
 try_wasm_bins  = $(patsubst try/%.cc, bin/%.js, $(try_cs))
@@ -29,30 +32,42 @@ try_wasm_bins  = $(patsubst try/%.cc, bin/%.js, $(try_cs))
 
 all: linux wasm
 
-linux: $(try_linux_bins) bin/tau-linux.a
-wasm:  $(try_wasm_bins)  bin/tau-wasm.a
+linux: $(try_linux_bins) bin/tau-linux.a bin/sigma-linux.a
+wasm:  $(try_wasm_bins)  bin/tau-wasm.a  bin/sigma-wasm.a
 
 
 bin/tau-linux.a: $(tau_linux_os)
-	ar rcs bin/tau-linux.a $^
+	ar rcs $@ $^
 
 bin/tau-wasm.a: $(tau_wasm_os)
-	dev/emsdk emar rcs bin/tau-wasm.a $^
+	dev/emsdk emar rcs $@ $^
 
-bin/%: $(tau_linux_os) bin/linux-bin/%.o
+bin/sigma-linux.a: $(sigma_linux_os)
+	ar rcs $@ $^
+
+bin/sigma-wasm.a: $(sigma_wasm_os)
+	dev/emsdk emar rcs $@ $^
+
+bin/%: $(tau_linux_os) $(sigma_linux_os) bin/linux-bin/%.o
 	$(linux_cc) $(linux_ldflags) -o $@ $^ $(linux_libs)
 
-bin/%.js: $(tau_wasm_os) bin/wasm-bin/%.o
+bin/%.js: $(tau_wasm_os) $(sigma_wasm_os) bin/wasm-bin/%.o
 	$(wasm_cc) $(wasm_ldflags) -o $@ $^
 
 
-bin/linux/%.o: tau/%.cc bin/linux/%.d | bin
+bin/linux/tau-%.o: tau/%.cc bin/linux/tau-%.d | bin
+	$(linux_cc) $(linux_cflags) -c -o $@ $<
+
+bin/linux/sigma-%.o: sigma/%.cc bin/linux/sigma-%.d | bin
 	$(linux_cc) $(linux_cflags) -c -o $@ $<
 
 bin/linux-bin/%.o: try/%.cc bin/linux-bin/%.d | bin
 	$(linux_cc) $(linux_cflags) -c -o $@ $<
 
-bin/wasm/%.o: tau/%.cc bin/wasm/%.d | bin
+bin/wasm/tau-%.o: tau/%.cc bin/wasm/tau-%.d | bin
+	$(wasm_cc) $(wasm_cflags) -c -o $@ $<
+
+bin/wasm/sigma-%.o: sigma/%.cc bin/wasm/sigma-%.d | bin
 	$(wasm_cc) $(wasm_cflags) -c -o $@ $<
 
 bin/wasm-bin/%.o: try/%.cc bin/wasm-bin/%.d | bin
@@ -64,28 +79,6 @@ bin:
                  bin/wasm  bin/wasm-bin
 
 
-# Header file tracing
-header-deps: linux-header-deps wasm-header-deps
-linux-header-deps: $(tau_linux_os:.o=.d) $(try_linux_os:.o=.d)
-wasm-header-deps:  $(tau_wasm_os:.o=.d)  $(try_wasm_os:.o=.d)
-
--include $(tau_linux_os:.o=.d)
--include $(tau_wasm_os:.o=.d)
-
-bin/linux/%.d: tau/%.cc | bin
-	$(linux_cc) $(linux_cflags) -MM -MT $(patsubst tau/%.cc, bin/linux/%.o, $<) -MF $@ $<
-
-bin/linux-bin/%.d: try/%.cc | bin
-	$(linux_cc) $(linux_cflags) -MM -MT $(patsubst try/%.cc, bin/linux-bin/%.o, $<) -MF $@ $<
-
-bin/wasm/%.d: tau/%.cc | bin
-	$(wasm_cc) $(wasm_cflags) -MM -MT $(patsubst tau/%.cc, bin/wasm/%.o, $<) -o $@ $<
-
-bin/wasm-bin/%.d: try/%.cc | bin
-	$(wasm_cc) $(wasm_cflags) -MM -MT $(patsubst try/%.cc, bin/wasm-bin/%.o, $<) -o $@ $<
-
-
-# Clean up
 .PHONY: clean linux-clean wasm-clean
 clean:
 	rm -rf bin
@@ -95,3 +88,32 @@ linux-clean:
 
 wasm-clean:
 	rm -f bin/wasm*/*
+
+
+# Header file tracing
+header-deps: linux-header-deps wasm-header-deps
+linux-header-deps: $(tau_linux_os:.o=.d) $(sigma_linux_os:.o=.d) $(try_linux_os:.o=.d)
+wasm-header-deps:  $(tau_wasm_os:.o=.d)  $(sigma_wasm_os:.o=.d)  $(try_wasm_os:.o=.d)
+
+-include $(tau_linux_os:.o=.d)
+-include $(sigma_linux_os:.o=.d)
+-include $(tau_wasm_os:.o=.d)
+-include $(sigma_wasm_os:.o=.d)
+
+bin/linux/tau-%.d: tau/%.cc | bin
+	$(linux_cc) $(linux_cflags) -MM -MT $(patsubst tau/%.cc, bin/linux/tau-%.o, $<) -MF $@ $<
+
+bin/linux/sigma-%.d: sigma/%.cc | bin
+	$(linux_cc) $(linux_cflags) -MM -MT $(patsubst sigma/%.cc, bin/linux/sigma-%.o, $<) -MF $@ $<
+
+bin/linux-bin/%.d: try/%.cc | bin
+	$(linux_cc) $(linux_cflags) -MM -MT $(patsubst try/%.cc, bin/linux-bin/%.o, $<) -MF $@ $<
+
+bin/wasm/tau-%.d: tau/%.cc | bin
+	$(wasm_cc) $(wasm_cflags) -MM -MT $(patsubst tau/%.cc, bin/wasm/tau-%.o, $<) -o $@ $<
+
+bin/wasm/sigma-%.d: tau/%.cc | bin
+	$(wasm_cc) $(wasm_cflags) -MM -MT $(patsubst sigma/%.cc, bin/wasm/sigma-%.o, $<) -o $@ $<
+
+bin/wasm-bin/%.d: try/%.cc | bin
+	$(wasm_cc) $(wasm_cflags) -MM -MT $(patsubst try/%.cc, bin/wasm-bin/%.o, $<) -o $@ $<
