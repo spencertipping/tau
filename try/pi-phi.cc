@@ -31,12 +31,14 @@ static bool timed = false;
 
 int main(int argc, char **argv)
 {
+  τassert_begin
   A(argc >= 2, "usage: " << argv[0] << " 'pi expr'");
   int i = 1;
   if (St{argv[1]} == "--timed") timed = true, ++i;
   for (; i < argc; ++i)
     cout << eval_pi_core_expr(argv[i]) << endl;
   return 0;
+  τassert_end
 }
 
 
