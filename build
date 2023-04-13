@@ -3,6 +3,14 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 
+pull()
+{
+  local host=${1:-set.128}
+  local path=${2:-/nvme/asqi/tau}
+  rsync -azP $host:$path/bin ./
+}
+
+
 sync()
 {
   local host=${1:-set.128}
@@ -48,5 +56,6 @@ shift
 case $cmd in
   sloop) sloop "$@"    ;;
   sync)  sync "$@"     ;;
+  pull)  pull "$@"     ;;
   *)     run $cmd "$@" ;;
 esac

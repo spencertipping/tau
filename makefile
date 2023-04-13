@@ -1,11 +1,11 @@
 linux_cc = g++
 wasm_cc  = dev/emsdk em++
 
-linux_cflags = $(shell cat compile_flags.txt) -O3
+linux_cflags = $(shell cat compile_flags.txt) -O3 -g -pg
 wasm_cflags  = $(shell cat compile_flags.txt) -O3 -flto -fexceptions \
                -Wno-mathematical-notation-identifier-extension
 
-linux_ldflags =
+linux_ldflags = -pg
 wasm_ldflags  = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB
 
 linux_libs = -lsqlite3 -lboost_context -lzstd
