@@ -9,26 +9,21 @@
 # define τdebug 1
 #endif
 
-
 #if !defined(τallow_todo)
 # define τallow_todo τdebug
 #endif
-
 
 #if !defined(τtrack_ψ)
 # define τtrack_ψ τdebug
 #endif
 
-
 #if !defined(τtrack_ξ)
 # define τtrack_ξ τdebug
 #endif
 
-
 #if τdebug
 # include <iostream>
 #endif
-
 
 #if !defined(τdebug_catchall)
 # define τdebug_catchall τdebug

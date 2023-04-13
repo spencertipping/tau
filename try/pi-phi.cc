@@ -12,14 +12,14 @@ static bool timed = false;
 {
   τe t;
   πi i{t};
-  let p = φE(πφ());
-
+  let p  = φE(πφ());
   let t1 = now();
-  let x = p(e);
+  let x  = p(e);
   let t2 = now();
-  A(x.is_a(), "parse failed at " << x.p().name() << " beginning here: → |" << e.substr(x.j));
-
-  let r = x.r()(i);
+  A(x.is_a(),
+    "parse failed at " << x.p().name()
+    << " beginning here: → |" << e.substr(x.j));
+  let r  = x.r()(i);
   let t3 = now();
 
   if (timed)
