@@ -17,14 +17,37 @@ namespace τ
 φ<πf>  πφcore_a() { return φm(πφlit(), πvq); }
 φ<πmf> πφcore_m()
 {
-  return φd<πmf>("sin",  πηsin(),
-                 "sqrt", πηsqrt(),
-                 "exp",  πηexp(),
-                 "log",  πηlog(),
-                 "~",    πηinv(),
-                 "-",    πηneg(),
-                 "!",    πηnot(),
-                 "!!",   πηnotnot());
+  return φd<πmf>("sin",   πηsin(),
+                 "cos",   πηcos(),
+                 "tan",   πηtan(),
+                 "asin",  πηasin(),
+                 "acos",  πηacos(),
+                 "atan",  πηatan(),
+                 "sinh",  πηsinh(),
+                 "cosh",  πηcosh(),
+                 "tanh",  πηtanh(),
+                 "asinh", πηasinh(),
+                 "acosh", πηacosh(),
+                 "atanh", πηatanh(),
+
+                 "erf",    πηerf(),
+                 "erfc",   πηerfc(),
+                 "tgamma", πηtgamma(),
+                 "lgamma", πηlgamma(),
+
+                 "sqrt",  πηsqrt(),
+                 "cbrt",  πηcbrt(),
+                 "exp",   πηexp(),
+                 "exp2",  πηexp2(),
+                 "expm1", πηexpm1(),
+                 "log",   πηlog(),
+                 "log2",  πηlog2(),
+                 "log1p", πηlog1p(),
+
+                 "~",  πηinv(),
+                 "-",  πηneg(),
+                 "!",  πηnot(),
+                 "!!", πηnotnot());
 }
 
 φ<πdf> πφcore_d()
