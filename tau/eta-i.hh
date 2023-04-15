@@ -13,6 +13,8 @@ namespace τ
 
 struct ηi;
 
+typedef ηi const ηic;
+
 
 // Compare ηis and all following elements -- i.e. consider each to be
 // the beginning of a series, not in isolation.
@@ -57,8 +59,8 @@ struct ηi final
 
   bool operator==(Stc  &s_) const { return is_s() && s() == s_; }
   bool operator==(Stvc &s_) const { return is_s() && s() == s_; }
-  bool operator==(bool b_)  const { return is_b() && b() == b_; }
-  bool operator==(i64  i_)  const { return is_i() && i() == i_; }
+  bool operator==(bool  b_) const { return is_b() && b() == b_; }
+  bool operator==(i64   i_) const { return is_i() && i() == i_; }
 
   bool is_n(Stc  &n_) const { return is_n() && n() == n_; }
   bool is_n(Stvc &n_) const { return is_n() && n() == n_; }
