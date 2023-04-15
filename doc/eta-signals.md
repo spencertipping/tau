@@ -29,6 +29,8 @@ true κ 2 3 τ 5
 
 The same is true if you have a sub-η: `(τ)` is also regular data.
 
+**NOTE:** signals apply if they are the first element in the η stream, even if there are other elements after them. So `τ 1 2 3` is a τ signal against its stream.
+
 
 ## Ψ₂ signal dispositions
 Many Ψ₂s are _linear_ in the sense that they don't interact with signals. This means any inbound signals are forwarded directly to the output. Linear processing loops can be created by using `ηl`:
