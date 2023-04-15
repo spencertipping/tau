@@ -39,5 +39,7 @@
 #include "tau/XiGamma.hh"
 #include "tau/Gamma-phi.hh"
 
+#include "tau/eta-signal.hh"
+
 
 #endif
