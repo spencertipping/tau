@@ -24,6 +24,7 @@ struct Γ_
 // of this class
 struct Γ final
 {
+  Γ()                  {}
   Γ(Sp<Γ_> g_) : g(g_) {}
   Γ(Γ_    *g_) : g(g_) {}
 
