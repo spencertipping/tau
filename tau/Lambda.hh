@@ -53,7 +53,7 @@ struct Λ final
   // world is ending, nothing matters from here.
   ~Λ() { fin = true; }
 
-  bool e(λi i) const { return ls.contains(i); }
+  bool e(λi i) const { return fin ? false : ls.contains(i); }
   λi   i()     const { return ri; }
   u64  cs()    const { return cs_; }
 

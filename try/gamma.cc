@@ -8,10 +8,10 @@ using namespace std;
 #include "../tau/begin.hh"
 
 
-Γ iota(Ψd d = Ψd::f)
+Ψ1 iota()
 {
-  return new ΓΨ1([](ψ, ξo o, Ψaux)
-    { for (i64 i = 1;; ++i) o.r(12) << i; }, d, "ι");
+  return [](ψ, ξo o, Ψaux)
+    { for (i64 i = 1;; ++i) o.r(12) << i; };
 }
 
 Γ weaken_eager()
@@ -21,60 +21,54 @@ using namespace std;
       return x; });
 }
 
-Γ weaken(Ψd d = Ψd::f)
+Ψ2 weaken()
 {
-  return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
+  return [](ψ, ξi i, ξo o, Ψaux)
     { i.weaken();
-      for (let x : i) o.r(x.osize()) << x.outer(); },
-    d, "weaken");
+      for (let x : i) o.r(x.osize()) << x.outer(); };
 }
 
-Γ take(i64 n, Ψd d = Ψd::f)
+Ψ2 take(i64 n)
 {
-  return new ΓΨ2([n](ψ, ξi i, ξo o, Ψaux)
+  return [n](ψ, ξi i, ξo o, Ψaux)
     { i64 e = 0;
       if (n)
         for (let x : i)
         { o.r(x.osize()) << x.outer();
-          if (++e >= n) break; } },
-    d, (Ss{} << "↑" << n).str());
+          if (++e >= n) break; } };
 }
 
-Γ sum(Ψd d = Ψd::f)
+Ψ2 sum()
 {
-  return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
+  return [](ψ, ξi i, ξo o, Ψaux)
     { i64 t = 0;
-      for (let x : i) o.r(12) << (t += x.i()); },
-    d, "∑");
+      for (let x : i) o.r(12) << (t += x.i()); };
 }
 
-Γ last(Ψd d = Ψd::f)
+Ψ2 last()
 {
-  return new ΓΨ2([](ψ, ξi i, ξo o, Ψaux)
+  return [](ψ, ξi i, ξo o, Ψaux)
     { i64 y = 0;
       for (let x : i) y = x.i();
-      o.r(12) << y; },
-    d, "↓₁");
+      o.r(12) << y; };
 }
 
-Γ debug(St prefix, Ψd d = Ψd::f)
+Ψ2 debug(St prefix)
 {
-  return new ΓΨ2([prefix](ψ, ξi i, ξo o, Ψaux)
+  return [prefix](ψ, ξi i, ξo o, Ψaux)
     { for (let x : i)
       { cout << prefix << ": ";
         for (let y : x) cout << y << (y.has_next() ? " " : "");
         cout << endl;
-        o.r(x.osize()) << x.outer(); } },
-    d, "debug:" + prefix);
+        o.r(x.osize()) << x.outer(); } };
 }
 
-Γ print(Ψd d = Ψd::f)
+Ψ0 print()
 {
-  return new ΓΨ0([](ψ, ξi i, Ψaux)
+  return [](ψ, ξi i, Ψaux)
     { for (let x : i)
       { for (let y : x) cout << y << (y.has_next() ? " " : "");
-        cout << endl; } },
-    d, "out");
+        cout << endl; } };
 }
 
 
@@ -113,11 +107,31 @@ using namespace std;
 }
 
 
+slet p = φE(Γφ(φd<Γ>("Γ₁",
+                     "push", φR(ΞΓpush()),
+                     "drop", φR(ΞΓdrop()),
+                     "we",   φR(weaken_eager()),
+                     "S",    φm(πφstr(), [](St x) { return server(x); }),
+                     "fS",   φm(πφstr(), [](St x) { return forever_server(x); }),
+                     "C",    φm(πφstr(), [](St x) { return connect(x); })),
+               φd<Ψ0>("Ψ₀",
+                      "p",   φR(print())),
+               φd<Ψ1>("Ψ₁",
+                      "i",   φR(iota())),
+               φd<Ψ2>("Ψ₂",
+                      "d",   φm(πφstr(), [](St x) { return debug(x); }),
+                      "wl",  φR(weaken()),
+                      "s",   φR(sum()),
+                      "l",   φR(last()),
+                      "t",   φm(πφint(), [](i64 x) { return take (x); })),
+               φF<Ψ4>()));
+
+
 void try_gc1()
 {
   τe t;
   // weaken_eager() should immediately free iota()
-  ( ΞΓpush() | iota() | weaken_eager() | sum() | last() | print() )(Ξ{t});
+  p("push i we slp").r()(Ξ{t});
   t.go();
   A(!ξn(), "ξs outlived try_gc: " << ξn());
   A(!ψn(), "ψs outlived try_gc: " << ψn());
@@ -127,7 +141,7 @@ void try_gc2()
 {
   τe t;
   // weaken() should immediately free iota()
-  ( ΞΓpush() | iota() | weaken() | sum() | last() | print() )(Ξ{t});
+  p("push i wl slp").r()(Ξ{t});
   t.go();
   A(!ξn(), "ξs outlived try_gc: " << ξn());
   A(!ψn(), "ψs outlived try_gc: " << ψn());
@@ -137,12 +151,7 @@ void try_gc2()
 void try_iota()
 {
   τe t;
-  ( ΞΓpush() |
-    iota() |
-    take(10) |
-    sum() |
-    last() |
-    print() )(Ξ{t});
+  p("push i t10 slp").r()(Ξ{t});
   t.go();
   A(!ξn(), "ξs outlived try_iota: " << ξn());
   A(!ψn(), "ψs outlived try_iota: " << ψn());
@@ -152,12 +161,7 @@ void try_iota()
 void try_iota_rev()
 {
   τe t;
-  ( ΞΓpush() |
-    print(Ψd::b) |
-    last(Ψd::b) |
-    sum(Ψd::b) |
-    take(1000, Ψd::b) |
-    iota(Ψd::b) )(Ξ{t});
+  p("push \\p\\l\\s\\t1000\\i").r()(Ξ{t});
   t.go();
   A(!ξn(), "ξs outlived try_iota_rev: " << ξn());
   A(!ψn(), "ψs outlived try_iota_rev: " << ψn());
@@ -167,12 +171,7 @@ void try_iota_rev()
 void try_iota_loop()
 {
   τe t;
-  ( ΞΓpush() |
-    print(Ψd::b) |
-    last(Ψd::b) |
-    iota(Ψd::f) |
-    take(10000, Ψd::f) |
-    sum(Ψd::r) )(Ξ{t});
+  p("push \\p\\l it10000 |s").r()(Ξ{t});
   t.go();
   A(!ξn(), "ξs outlived try_iota_loop: " << ξn());
   A(!ψn(), "ψs outlived try_iota_loop: " << ψn());
@@ -183,11 +182,9 @@ void try_server_simple()
 {
   {
     τe t;
-    ( ΞΓpush() | forever_server("p")
-      | sum() | take(20) | last() | print() | ΞΓdrop()
-
-      | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop()
-      | ΞΓpush() | iota() | take(10) | connect("p") | ΞΓdrop() )(Ξ{t});
+    p("push fS\"p\" st20lp drop "
+      "push it10 C\"p\" drop "
+      "push it10 C\"p\" drop").r()(Ξ{t});
     t.go();
 
     A(!ξn(), "ξs outlived try_server_simple: " << ξn());
@@ -199,6 +196,7 @@ void try_server_simple()
 
 int main()
 {
+  τassert_begin;
   try_gc1();
   try_gc2();
   try_iota();
@@ -206,6 +204,7 @@ int main()
   try_iota_loop();
   try_server_simple();
   return 0;
+  τassert_end;
 }
 
 

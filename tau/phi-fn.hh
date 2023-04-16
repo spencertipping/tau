@@ -20,6 +20,15 @@ struct φW_ : public virtual φ_<T>
 };
 
 
+// Insta-fail parser
+template<class T>
+struct φF_ : public virtual φ_<T>
+{
+  φF_() : φ_<T>("fail") {}
+  φr_<T> operator()(φc_ const &x) const noexcept { return x.f(this, x.i()); }
+};
+
+
 // Preferential alternative
 template<class T>
 struct φa_ : public virtual φ_<T>
@@ -52,9 +61,7 @@ template<class T>
 struct φR_ : public virtual φ_<T>
 {
   φR_(T x__) : φ_<T>("φR"), x_(x__) {}
-
   φr_<T> operator()(φc_ const &x) const noexcept { return x.a(x_, x.i()); }
-
   T x_;
 };
 
@@ -171,7 +178,8 @@ protected:
 
 
 // Functional transform (map)
-template<class T, class F,
+template<class T,
+         class F,
          class U = decltype(std::declval<F>()(std::declval<T>()))>
 struct φm_ : public virtual φ_<U>
 {

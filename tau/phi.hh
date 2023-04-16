@@ -50,7 +50,9 @@ struct φr_ final
   bool is_f() const { return y.index() == 0; }
 
   φ_<T> const &p() const { return *std::get<0>(y); }
-  T     const &r() const { return  std::get<1>(y); }
+  T     const &r() const
+    { A(is_a(), "parse failure at index " << j << ", parser " << p().name());
+      return  std::get<1>(y); }
 
   bool operator>(φr_<T> const &o) const noexcept { return j > o.j; }
   φr_ &operator=(φr_<T> const &a) noexcept
