@@ -67,33 +67,37 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 
 
 ### Ψ₂ half-duplex table
-| Symbol  | Notes | Description                      |
-|---------|-------|----------------------------------|
-| `g`     | π     | τ-grouped sort by π expression   |
-| `h`     |       | HTTP/S+WS client                 |
-| `j`     | L? Γ  | τ-grouped sorted join            |
-| `k`     |       | τ after each item                |
-| `p`     | π     | π program                        |
-| `r`/`R` | π     | π row selector + row drop macros |
-| `s`     | P     | SSH client                       |
-| `t`     |       | TCP client                       |
-| `u`     |       | UDP client                       |
-| `v`     |       | UNIX domain socket client        |
-| `w`/`W` | Γ     | tuple/map horizontal join        |
-| `x`     |       | prefix for shell execution       |
-| `y`     | P     | prefix for Python interop        |
-| `z`     | P     | prefix for compression           |
-| `J`     | L? Γ  | τ-grouped unordered join         |
-| `M`     |       | monitor                          |
-| `N`     |       | numeric ϊ                        |
-| `P`     | P     | prefix for parallelism           |
-| `Q`     |       | prefix for queues/buffers        |
-| `<`     | P     | prefix for unboxing              |
-| `>`     | P     | prefix for boxing                |
-| `~`     | P     | prefix for delay and rate-limit  |
-| `+`     | Γ     | τ-group append                   |
-| `^`     | Γ     | τ-group prepend                  |
-| `%`     | Γ     | Γ union (eager interleave)       |
+**TODO:** design sort/join operators that work together to produce streaming τ-cyclic parallel sort
+
+| Symbol  | Notes | Description                     |
+|---------|-------|---------------------------------|
+| `g`     | π     | τ-grouped sort by π expression  |
+| `h`     |       | HTTP/S+WS client                |
+| `j`     | L? Γ  | τ-grouped sorted join           |
+| `k`     |       | τ after each item               |
+| `p`     | π     | π program                       |
+| `r`/`R` | π     | π row selector                  |
+| `r`     | int   | take/drop first N rows (per τ)  |
+| `r+`    | int   | take/drop last N rows (per τ)   |
+| `s`     | P     | SSH client                      |
+| `t`     |       | TCP client                      |
+| `u`     |       | UDP client                      |
+| `v`     |       | UNIX domain socket client       |
+| `w`/`W` | Γ     | tuple/map horizontal join       |
+| `x`     |       | prefix for shell execution      |
+| `y`     | P     | prefix for Python interop       |
+| `z`     | P     | prefix for compression          |
+| `J`     | L? Γ  | τ-grouped unordered join        |
+| `M`     |       | monitor                         |
+| `N`     |       | numeric ϊ                       |
+| `P`     | P     | prefix for parallelism          |
+| `Q`     |       | prefix for queues/buffers       |
+| `<`     | P     | prefix for unboxing             |
+| `>`     | P     | prefix for boxing               |
+| `~`     | P     | prefix for delay and rate-limit |
+| `+`     | Γ     | τ-group append                  |
+| `^`     | Γ     | τ-group prepend                 |
+| `%`     | Γ     | Γ union (eager interleave)      |
 
 
 ### Ψ₄ full-duplex table

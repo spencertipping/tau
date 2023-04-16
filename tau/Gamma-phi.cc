@@ -14,6 +14,21 @@ namespace τ
 φ<St> Γφrb() { slet r = Γφwrap(φl("]")); return r; }
 
 
+static φ<Γ> ΓφΨ(St    n,
+                φ<Ψ0> a,
+                φ<Ψ1> b,
+                φ<Ψ2> c,
+                φ<Ψ4> d,
+                Ψd    e)
+{
+  return φa(n,
+            φm(a, [e](Ψ0 x) -> Γ { return new ΓΨ0(mo(x), e, "ΓΨ₀"); }),
+            φm(b, [e](Ψ1 x) -> Γ { return new ΓΨ1(mo(x), e, "ΓΨ₁"); }),
+            φm(c, [e](Ψ2 x) -> Γ { return new ΓΨ2(mo(x), e, "ΓΨ₂"); }),
+            φm(d, [e](Ψ4 x) -> Γ { return new ΓΨ4(mo(x), e, "ΓΨ₄"); }));
+}
+
+
 φ<Γ> Γφ(φ<Γ> g, φ<Ψ0> a, φ<Ψ1> b, φ<Ψ2> c, φ<Ψ4> d)
 {
   let g1 = φa0<Γ>("Γ₁");  auto &g1a = g1.as<φa_<Γ>>();
@@ -33,22 +48,9 @@ namespace τ
 
   g1a << Γφgroup(gw)
       << Γφwrap(g)
-      << φ2("Γ|", Γφwrap(φl("|")),
-            φa("Γ|",
-               φm(wa, [](Ψ0 x) -> Γ { return new ΓΨ0(mo(x), Ψd::r, "ΓΨ₀"); }),
-               φm(wb, [](Ψ1 x) -> Γ { return new ΓΨ1(mo(x), Ψd::r, "ΓΨ₁"); }),
-               φm(wc, [](Ψ2 x) -> Γ { return new ΓΨ2(mo(x), Ψd::r, "ΓΨ₂"); }),
-               φm(wd, [](Ψ4 x) -> Γ { return new ΓΨ4(mo(x), Ψd::r, "ΓΨ₄"); })))
-      << φ2("Γ\\", Γφwrap(φl("\\")),
-            φa("Γ\\",
-               φm(wa, [](Ψ0 x) -> Γ { return new ΓΨ0(mo(x), Ψd::b, "ΓΨ₀"); }),
-               φm(wb, [](Ψ1 x) -> Γ { return new ΓΨ1(mo(x), Ψd::b, "ΓΨ₁"); }),
-               φm(wc, [](Ψ2 x) -> Γ { return new ΓΨ2(mo(x), Ψd::b, "ΓΨ₂"); }),
-               φm(wd, [](Ψ4 x) -> Γ { return new ΓΨ4(mo(x), Ψd::b, "ΓΨ₄"); })))
-      << φm(wa, [](Ψ0 x) -> Γ { return new ΓΨ0(mo(x), Ψd::f, "ΓΨ₀"); })
-      << φm(wb, [](Ψ1 x) -> Γ { return new ΓΨ1(mo(x), Ψd::f, "ΓΨ₁"); })
-      << φm(wc, [](Ψ2 x) -> Γ { return new ΓΨ2(mo(x), Ψd::f, "ΓΨ₂"); })
-      << φm(wd, [](Ψ4 x) -> Γ { return new ΓΨ4(mo(x), Ψd::f, "ΓΨ₄"); });
+      << φ2("Γ|",  Γφwrap(φl("|")),  ΓφΨ("Γ|",  wa, wb, wc, wd, Ψd::r))
+      << φ2("Γ\\", Γφwrap(φl("\\")), ΓφΨ("Γ\\", wa, wb, wc, wd, Ψd::b))
+      << ΓφΨ("ΓΨ", wa, wb, wc, wd, Ψd::f);
 
   return gs;
 }
