@@ -2,8 +2,9 @@
 σ defines common utilities that make τ ergonomic and useful. This includes [Γ](Gamma.md) components and [φ](phi.md) parsers. The `σ` namespace doesn't export `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
 
 
-## Complex topologies
+## Sub-topics
 + [Multiplexers and duplex connections](sigma-multiplex.md)
++ [π standard library](sigma-pi-stdlib.md)
 
 
 ## Toplevel entities
@@ -31,34 +32,33 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 
 
 ### Γ table
-| Symbol  | Syntax  | Description                       |
-|---------|---------|-----------------------------------|
-| `:`     | n v     | define variable                   |
-| `$`     | n       | refer to variable                 |
-| `&`     | n       | refer to τ server socket          |
-| `[`/`]` | Γ\*     | Γ grouping                        |
-| `(`/`)` | Γ\*     | dynamic half-duplex demultiplexer |
-| `{`/`}` | (k Γ)\* | static full-duplex demultiplexer  |
-| `A`     |         | authentication prefix             |
-| `D`     |         | decryption prefix                 |
-| `E`     |         | encryption prefix                 |
-| `P`     | Γ       | fork to local process             |
-| `\|`    | Ψ[012]  | modify processor to right-cap     |
-| `\\`    | Ψ[012]  | modify processor to backward      |
-| `:)`    | n Γ     | define tagged-union server        |
+| Symbol  | Syntax  | Description                               |
+|---------|---------|-------------------------------------------|
+| `:`     | n v     | define variable                           |
+| `$`     | n       | refer to variable                         |
+| `&`     | n       | refer to τ server socket                  |
+| `[`/`]` | Γ\*     | Γ grouping                                |
+| `(`/`)` | Γ\*     | dynamic half-duplex demultiplexer         |
+| `{`/`}` | (k Γ)\* | static full-duplex demultiplexer          |
+| `A`     |         | [authentication prefix](sigma-http-ws.md) |
+| `D`     |         | decryption prefix                         |
+| `E`     |         | encryption prefix                         |
+| `P`     | Γ       | fork to local process                     |
+| `\|`    | Ψ[012]  | modify processor to right-cap             |
+| `\\`    | Ψ[012]  | modify processor to backward              |
+| `:)`    | n Γ     | define tagged-union server                |
 
 
 ### Ψ₀ table
-| Symbol | Notes | Description               |
-|--------|-------|---------------------------|
-| `H`    | Γ     | HTTP+WS server            |
-| `i`    |       | η identity out            |
-| `I`    |       | η repeated out            |
-| `n`    |       | ι                         |
-| `S`    | Γ     | SSH server                |
-| `T`    | Γ     | TCP server                |
-| `U`    | Γ     | UDP server                |
-| `V`    | Γ     | UNIX domain socket server |
+| Symbol | Notes | Description                    |
+|--------|-------|--------------------------------|
+| `i`    |       | η identity out                 |
+| `I`    |       | η repeated out                 |
+| `n`    |       | ι                              |
+| `S`    | Γ     | SSH server                     |
+| `T`    | Γ     | [TCP server](sigma-http-ws.md) |
+| `U`    | Γ     | UDP server                     |
+| `V`    | Γ     | UNIX domain socket server      |
 
 
 ### Ψ₁ table
@@ -101,12 +101,13 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 
 
 ### Ψ₄ full-duplex table
-| Symbol | Notes | Description                   |
-|--------|-------|-------------------------------|
-| `'`    |       | dynamic transpose (cross-mix) |
-| `@`    | P     | prefix for DBs                |
-| `/`    | P     | platform-specific namespace   |
-| `//`   | P     | synthetic namespace           |
-| `X`    |       | OT integral prefix            |
-| `Y`    |       | OT derivative prefix          |
-| `Z`    |       | OT structure prefix           |
+| Symbol | Notes | Description                        |
+|--------|-------|------------------------------------|
+| `'`    |       | dynamic transpose (cross-mix)      |
+| `@`    | P     | prefix for DBs                     |
+| `/`    | P     | platform-specific namespace        |
+| `//`   | P     | synthetic namespace                |
+| `H`    | Γ     | [HTTP+WS server](sigma-http-ws.md) |
+| `X`    |       | OT integral prefix                 |
+| `Y`    |       | OT derivative prefix               |
+| `Z`    |       | OT structure prefix                |

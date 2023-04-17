@@ -10,6 +10,9 @@ namespace σ
 // TODO: synchronize this with doc/sigma.md; that file should drive the stdlib
 // design
 
+// NOTE: this should probably start from asqi and we can work backwards
+// filling out more of sigma as we need to
+
 
 τ::Ψ0 Γostream_null(τ::O&, τ::St = "");
 τ::Ψ2 Γostream_tap (τ::O&, τ::St = "");
