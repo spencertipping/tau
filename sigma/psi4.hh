@@ -8,7 +8,7 @@ namespace σ
 {
 
 
-// TODO: derive π grammars for function args
+// TODO: derive φ grammars for function args
 τ::Ψ4 Ψhttp();
 τ::Ψ4 Ψauth();
 
