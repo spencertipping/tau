@@ -9,13 +9,11 @@ The basic idea is to create a pipeline like this: `T3[HA...]`, where `T3` create
 
 
 ## TCP server structure
-A TCP server listens on a port and, for each inbound connection, constructs a [Ξ](Xi.md) whose top duplex is a read/write [ψ](psi.md) for the new connection socket handle. Sending _ω_ leftwards to the socket, or ending its input, will `shutdown(SHUT_WR)`; sending _Ω_ will `shutdown(SHUT_RDWR)` and close the FD. `shutdown(SHUT_RD)` happens if you close the rightward output from the ψ -- i.e. you stop reading from it.
-
-**TODO:** verify all of the TCP handshake details here
+A TCP server on a port creates a [Ξ](Xi.md) with a read/write [ψ](psi.md) for each incoming connection. Sending _ω_ to the socket will `shutdown(SHUT_WR)` while sending _Ω_ will `shutdown(SHUT_RDWR)` and close the FD. Closing the rightward output from the ψ results in `shutdown(SHUT_RD)`.
 
 
 ## HTTP/WS Ψ₄ codec
-`H` is responsible for two things: transcoding a single HTTP session between the left-hand byte stream and the right-hand structured encoding, and closing any connection that exhibits traits of exploitation, e.g. slowloris or other malformed data. The `H` contract is that data you get from it will be well-formed and, as far as HTTP is concerned, reasonably non-malicious (i.e. headers below some size, valid HTTP method, that type of thing).
+`H` performs two tasks: converting a single HTTP session between byte stream and structured encoding, and terminating any suspicious connections (e.g., slowloris, malformed data). `H` ensures that data it provides is well-formed and reasonably non-malicious in the context of HTTP (e.g., headers below a certain size, valid HTTP method, websocket frames below a certain size).
 
 **The HTTP/WS server does not handle routing or authentication.** It simply parses the HTTP/WS protocol on a request-by-request basis and closes the connection if anything sufficiently unexpected takes place.
 
@@ -25,7 +23,7 @@ A TCP server listens on a port and, for each inbound connection, constructs a [�
 ## Session authentication and routing
 σ ties authentication and routing together because they ultimately are parts of the same problem. For example, a `/login` endpoint is required in order to establish user identity and acquire a session cookie, which is then required in order to access authenticated APIs.
 
-`A` right-terminates a single HTTP session, replies to login-related requests, and forwards the rest with the user's identity or `null` prepended to the η. **That same authentication header must be present on replies; otherwise nothing will be sent.** This confirms that the reply was intended for the connected user.
+`A` right-terminates a single HTTP session, replies to login-related requests, and forwards the rest with the user's identity or `null` prepended to the η. **That same authentication header must be present on replies; otherwise nothing will be sent.** This confirms that the reply was intended for the connected user, preventing data leaks from topology errors.
 
 `A` supports OAuth2 for some providers.
 
