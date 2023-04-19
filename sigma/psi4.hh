@@ -12,6 +12,11 @@ namespace σ
 τ::Ψ4 Ψhttp();
 τ::Ψ4 Ψauth();
 
+// TODO: define operator| for parsers
+
+// TODO: define arg-filler to unify functions to return types
+// for φd() sets
+
 
 }
 
