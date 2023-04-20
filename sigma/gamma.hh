@@ -25,6 +25,8 @@ namespace σ
 τ::Ψ2 Γtake_last (τ::i64);
 τ::Ψ2 Γdrop_last (τ::i64);
 
+τ::Γ Γtcp_server(τ::u16, τ::u32, τ::Γ);
+
 
 }
 

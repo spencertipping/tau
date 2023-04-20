@@ -1,0 +1,36 @@
+#ifndef τφauto_h
+#define τφauto_h
+
+#include "phi.hh"
+#include "phi-fn.hh"
+#include "phi-str.hh"
+#include "phi-ctor.hh"
+
+#include "begin.hh"
+
+namespace τ
+{
+
+
+template<class T> struct φauto_;
+
+
+template<class... Xs, class T>
+auto φauto(F<T(Xs...)> const &f) -> φ<decltype(f(std::declval<Xs>()...))>
+{
+  return φm(φs("auto", φauto_<Xs>::p()...),
+            [f](auto xs) -> T { return std::apply(f, xs); });
+}
+
+template<class... Xs, class T>
+auto φauto(T(*f)(Xs...))
+{
+  return φauto(std::function(f));
+}
+
+
+}
+
+#include "end.hh"
+
+#endif

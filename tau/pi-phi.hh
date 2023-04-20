@@ -3,6 +3,7 @@
 
 #include "phi.hh"
 #include "phi-ctor.hh"
+#include "phi-auto.hh"
 #include "pi-val.hh"
 
 #include "begin.hh"
@@ -68,6 +69,11 @@ template<class X>
 φ<St>    πφstr();
 
 φ<πv> πφlit();
+
+
+template<> struct φauto_<i64> { static φ<i64> p() { return πφint();   } };
+template<> struct φauto_<f64> { static φ<f64> p() { return πφfloat(); } };
+template<> struct φauto_<St>  { static φ<St>  p() { return πφstr();   } };
 
 
 }
