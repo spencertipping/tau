@@ -1,4 +1,5 @@
 #include "../tau.hh"
+#include "../sigma.hh"
 
 using namespace std;
 using namespace τ;

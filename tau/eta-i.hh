@@ -100,6 +100,13 @@ struct ηi final
   bool is_f32s() const { return t() == ηtype::float32s; }
   bool is_f64s() const { return t() == ηtype::float64s; }
 
+  bool is_α() const { return is_sig() && sig() == ηsig::α; }
+  bool is_ι() const { return is_sig() && sig() == ηsig::ι; }
+  bool is_κ() const { return is_sig() && sig() == ηsig::κ; }
+  bool is_τ() const { return is_sig() && sig() == ηsig::τ; }
+  bool is_ω() const { return is_sig() && sig() == ηsig::ω; }
+  bool is_Ω() const { return is_sig() && sig() == ηsig::Ω; }
+
 
   ηi η() const { return {data(), size()}; }
 

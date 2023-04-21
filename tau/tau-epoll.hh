@@ -112,12 +112,6 @@ struct τe : public τb
          F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); });
 
 
-  τe &pin  (Sp<ψ> q) { qs.insert(q); return *this; }
-  τe &unpin(Sp<ψ> q) { qs.erase(q);  return *this; }
-
-  uN pinned() const { return qs.size(); }
-
-
   // Cancel all ongoing work and unregister all file descriptors, destroying
   // all active ψs. This prepares the τ for new ψs, e.g. after a fork().
   τe &clear();
@@ -126,7 +120,6 @@ struct τe : public τb
 protected:
   fd_t          efd;   // epoll control FD
   M<fd_t, λgs*> gs;    // edge-triggered gate pairs
-  S<Sp<ψ>>      qs;    // boundary-pinned ψs
   S<pid_t>      pids;  // child pids
   bool          fin;   // true if we're terminating
 

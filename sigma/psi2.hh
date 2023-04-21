@@ -12,7 +12,7 @@ namespace σ
 
 τ::Ψ2 Γg(τ::πf);
 τ::Ψ2 Γh();
-τ::Ψ2 Γj();  // join top two Ξ entries
+τ::Ψ2 Γj();  // sorted-join top two Ξ entries
 τ::Ψ2 Γk();
 τ::Ψ2 Γp(τ::πf);
 τ::Ψ2 Γrp(τ::πf);
@@ -26,7 +26,6 @@ namespace σ
 τ::Ψ2 ΓW(τ::Γ);
 τ::Ψ2 Γx(τ::St);
 τ::Ψ2 Γy(τ::St);
-τ::Ψ2 Γz();  // TODO: define API here
 
 τ::Ψ2 ΓJ(τ::Γ);
 τ::Ψ2 ΓM(τ::St);

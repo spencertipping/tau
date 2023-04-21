@@ -177,7 +177,7 @@ void τe::term()
 
 τe &τe::clear()
 {
-  qs.clear();
+  qs_.clear();
   V<fd_t> fds;
   for (let &[fd, g] : gs) fds.push_back(fd);
   for (let x : fds) close(x);

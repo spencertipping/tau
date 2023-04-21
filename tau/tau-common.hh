@@ -52,10 +52,17 @@ struct τb  // base τ
   St gensym(Stc &pre) { return (Ss{} << "τgs_" << pre << gs_++).str(); }
 
 
+  void pin  (Sp<ψ_> q) { qs_.insert(q); }
+  void unpin(Sp<ψ_> q) { qs_.erase(q);  }
+
+  uN pinned() const { return qs_.size(); }
+
+
 protected:
   Λ             l_;            // Λ thread manager
   PQ<τΘ>        h_;            // timed threads
   M<St, Sp<ψ_>> b_;            // ψs with bound ports
+  S<Sp<ψ_>>     qs_;           // boundary-pinned ψs
   u64           gs_  = 0;      // gensym ID
   bool          fin_ = false;  // if true, most operations are nops
   Θp const      t0_  = now();

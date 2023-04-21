@@ -64,6 +64,8 @@ struct ψ final
   Stc &name() const { let r = q(); A(r, "ψ::name() on null ψ"); return r->n_; }
   ψ   &name(Stc &n) { if (let r = q()) r->n_ = n; return *this; }
 
+  τe &t() { return t_; }
+
   ψ &f (λf           &&f) { let r = q(); A(r, "ψ::f() on null");  r->f (mo(f)); return *this; }
   ψ &fx(F<void(ψ_&)> &&f) { let r = q(); A(r, "ψ::fx() on null"); r->fx(mo(f)); return *this; }
   ψ &f (F<void(ψ&)>  &&f) { return this->f([f=mo(f), this]() { f(*this); }); }
@@ -89,6 +91,9 @@ struct ψ final
 
   ψ &i(ξi const &i) { if (let r = q()) if (let x = i.inner_ξ()) x->oq(r); return *this; }
   ψ &o(ξo const &o) { if (let r = q()) if (let x = o.inner_ξ()) x->iq(r); return *this; }
+
+  ψ &pin()   { if (let r = q()) t_.pin  (r); return *this; }
+  ψ &unpin() { if (let r = q()) t_.unpin(r); return *this; }
 
   Sp<ψ_> q() const { return q_ ? q_ : w_.lock(); }
   Wp<ψ_> w() const { return q_ ? q_ : w_; }
