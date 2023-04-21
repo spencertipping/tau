@@ -28,13 +28,14 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 Γ/Ψ   4SΓ22Γ ΓΓ   2ΓΓΓΓΓΓ 222  Γ  4 4
+Γ/Ψ                        10
 ```
 
 
 ### Γ table
 | Symbol  | Syntax  | Description                               |
 |---------|---------|-------------------------------------------|
-| `:`     | n v     | define variable                           |
+| `:`     | n Γ     | define variable                           |
 | `$`     | n       | refer to variable                         |
 | `&`     | n       | refer to τ server socket                  |
 | `[`/`]` | Γ\*     | Γ grouping                                |
@@ -47,23 +48,28 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `\|`    | Ψ[012]  | modify processor to right-cap             |
 | `\\`    | Ψ[012]  | modify processor to backward              |
 | `:)`    | n Γ     | define tagged-union server                |
+|         |         | push new Ξ duplex                         |
+|         |         | drop Ξ duplex                             |
 
 
 ### Ψ₀ table
+| Symbol | Notes | Description |
+|--------|-------|-------------|
+| `>F`   | fd    | write to FD |
+
+
+### Ψ₁ table
 | Symbol | Notes | Description                    |
 |--------|-------|--------------------------------|
-| `i`    |       | η identity out                 |
-| `I`    |       | η repeated out                 |
+| `<F`   | fd    | read from FD                   |
+| `f`    |       | wait forever                   |
+| `i`    | π     | η identity out                 |
+| `I`    | π     | η repeated out                 |
 | `n`    |       | ι                              |
 | `S`    | Γ     | SSH server                     |
 | `T`    | Γ     | [TCP server](sigma-http-ws.md) |
 | `U`    | Γ     | UDP server                     |
 | `V`    | Γ     | UNIX domain socket server      |
-
-
-### Ψ₁ table
-| Symbol   | Notes | Description                     |
-|----------|-------|---------------------------------|
 
 
 ### Ψ₂ half-duplex table

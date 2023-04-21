@@ -11,9 +11,14 @@ namespace τ
 {
 
 
+struct ηexit_ {};
+sletc ηexit = ηexit_{};  // throw this to terminate a loop
+
+
 inline void ηl(ξi i, ξo o, F<void(ηi)> const &f)
 {
-  for (let x : i) if (o) f(x);
+  try { for (let x : i) if (o) f(x); }
+  catch (ηexit_) {}
 }
 
 
@@ -21,10 +26,14 @@ inline void ητ(ξi i, ξo o,
                F<void(ηi)> const &f,
                F<void()>   const &t)
 {
-  for (let x : i)
-    if (x.is_sig() && x.sig() == ηsig::τ) t();
-    else if (!o)                          return;
-    else                                  f(x);
+  try
+  {
+    for (let x : i)
+      if (x.is_sig() && x.sig() == ηsig::τ) t();
+      else if (!o)                          return;
+      else                                  f(x);
+  }
+  catch (ηexit_) {}
 }
 
 
