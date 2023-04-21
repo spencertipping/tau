@@ -112,7 +112,7 @@ bin/linux-bin/%.d: try/%.cc | bin
 bin/wasm/tau-%.d: tau/%.cc | bin
 	$(wasm_cc) $(wasm_cflags) -MM -MT $(patsubst tau/%.cc, bin/wasm/tau-%.o, $<) -o $@ $<
 
-bin/wasm/sigma-%.d: tau/%.cc | bin
+bin/wasm/sigma-%.d: sigma/%.cc | bin
 	$(wasm_cc) $(wasm_cflags) -MM -MT $(patsubst sigma/%.cc, bin/wasm/sigma-%.o, $<) -o $@ $<
 
 bin/wasm-bin/%.d: try/%.cc | bin
