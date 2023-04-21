@@ -27,7 +27,7 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 Γ/Ψ     ΓΓ  00   22 Γ2200002444S      22022  0 2 222222222
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-Γ/Ψ   4SΓ22Γ ΓΓ   2ΓΓΓΓΓΓ 222  Γ  4 4
+Γ/Ψ   4SΓ22Γ ΓΓ ΓΓ2ΓΓΓΓΓΓ 222  Γ  4 4
 Γ/Ψ                        10
 ```
 
@@ -48,8 +48,8 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `\|`    | Ψ[012]  | modify processor to right-cap             |
 | `\\`    | Ψ[012]  | modify processor to backward              |
 | `:)`    | n Γ     | define tagged-union server                |
-|         |         | push new Ξ duplex                         |
-|         |         | drop Ξ duplex                             |
+| `=`     |         | push new Ξ duplex                         |
+| `_`     |         | drop Ξ duplex                             |
 
 
 ### Ψ₀ table

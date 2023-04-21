@@ -7,25 +7,16 @@ namespace σ
 {
 
 
-// TODO: synchronize this with doc/sigma.md; that file should drive the stdlib
-// design
-
-// NOTE: this should probably start from asqi and we can work backwards
-// filling out more of sigma as we need to
+τ::φ<τ::Γ> φΓ();
 
 
-τ::Ψ0 Γostream_null(τ::O&, τ::St = "");
-τ::Ψ2 Γostream_tap (τ::O&, τ::St = "");
+τ::Γ Γdef(τ::St, τ::Γ);
+τ::Γ Γref(τ::St);
+τ::Γ Γconn(τ::St);
+τ::Γ Γdefs(τ::St, τ::Γ);
 
-τ::Ψ1 Γι(τ::i64 = -1);
-τ::Ψ2 Γϊ();
-
-τ::Ψ2 Γtake_first(τ::i64);
-τ::Ψ2 Γdrop_first(τ::i64);
-τ::Ψ2 Γtake_last (τ::i64);
-τ::Ψ2 Γdrop_last (τ::i64);
-
-τ::Γ Γtcp_server(τ::u16, τ::u32, τ::Γ);
+τ::Γ Γpush();
+τ::Γ Γdrop();
 
 
 }

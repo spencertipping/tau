@@ -7,10 +7,13 @@ namespace σ
 {
 
 
-τ::Ψ4 Ψhttp();
-τ::Ψ4 Ψauth();
+τ::φ<τ::Ψ4> φΨ4();
 
-// TODO: define operator| for parsers
+
+τ::Ψ4 Γmix();
+
+τ::Ψ4 Γhttp();
+τ::Ψ4 Γauth();
 
 
 }
