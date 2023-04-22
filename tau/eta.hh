@@ -4,5 +4,6 @@
 #include "eta-types.hh"
 #include "eta-i.hh"
 #include "eta-o.hh"
+#include "eta-m.hh"
 
 #endif
