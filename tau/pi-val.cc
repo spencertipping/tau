@@ -41,7 +41,7 @@ template<class T>
   case ηtype::int64s:    return x.native() ? o << x.vi64s() : o << x.i64s();
   case ηtype::float32s:  return x.native() ? o << x.vf32s() : o << x.f32s();
   case ηtype::float64s:  return x.native() ? o << x.vf64s() : o << x.f64s();
-    TA(o, "πv::operator<<: unhandled ηtype: " << x.t());
+    TA(o, "ηo<<πv: invalid type " << x.t());
   }
 }
 
@@ -51,7 +51,7 @@ template ηo<ξ> &operator<<(ηo<ξ>&, πvc&);
 
 sletc cmp_fn = fn
 {
-  [](auto &&x, auto &&y) -> PO { throw "πvc<=> internal error"; },
+  [](auto &&x, auto &&y) -> PO { A(0, "πv<=> internal error"); return PO::unordered; },
   []<class T, class U,
      class = decltype(std::declval<T>().size()),
      class = decltype(std::declval<U>().size()),
