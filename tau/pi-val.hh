@@ -33,6 +33,9 @@ typedef F<πv(πi&, πv&&, πv&&)>       πdf;
 typedef F<πv(πi&, πfc&, πfc&, πfc&)> πtf;  // NOTE: no triple-dispatch
 
 
+// In-memory representation of a value. This includes optimized C++
+// variants of η types.
+
 struct πv final
 {
   typedef Va<
@@ -141,6 +144,9 @@ struct πv final
   ηtype     t() const { return πvts[v_.index()]; }
   bool native() const { return v_.index() > 12; }
 
+  bool is_ntuple() const { return v_.index() == 21; }
+  bool is_nmap()   const { return v_.index() == 22; }
+
   // NOTE: this mirrors ηi's <=> operator exactly, the only exceptions
   // being C++-hosted V<> and M<> variants, which are unordered since
   // we haven't committed them to η buffers.
@@ -161,6 +167,10 @@ typedef πv const πvc;
 
 
 O &operator<<(O&, πvc&);
+
+
+template<class T>
+ηo<T> &operator<<(ηo<T> &o, πvc &x);
 
 
 }

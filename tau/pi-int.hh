@@ -16,10 +16,18 @@ struct πi
 {
   ξi        i;
   ξo        o;
+  ηm        m;
   M<St, πv> vs;
 
   πi()                            {}
+  πi(ηic &x)       : m(x)         {}
+  πi(ηm &&m_)      : m(mo(m_))    {}
+  πi(ηm  &m_)      : m(m_)        {}
   πi(ξi i_, ξo o_) : i(i_), o(o_) {}
+
+
+  ηi          y()       const { return m.y(); }
+  πi &operator=(ηic &x)       { m = x; return *this; }
 
   [[noreturn]] void fail(St reason) { throw reason; }
 };

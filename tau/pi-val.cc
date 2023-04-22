@@ -5,6 +5,50 @@ namespace τ
 {
 
 
+template<class T>
+ηo<T> &operator<<(ηo<T> &o, πvc &x)
+{
+  // Handle the two special cases, which require recursive πv conversion.
+  if (x.is_nmap())
+  {
+    ηoc<B> b;
+    ηo<B>  i{b};
+    for (let &[k, v] : *x.m()) i.name(k) << v;
+    return o << b;
+  }
+
+  if (x.is_ntuple())
+  {
+    ηoc<B> b;
+    ηo<B>  i{b};
+    for (let &v : *x.v()) i << v;
+    return o << b;
+  }
+
+
+  switch (x.t())
+  {
+  case ηtype::sig:       return o << x.sig();
+  case ηtype::n_int:     return o << x.n_int();
+  case ηtype::n_float:   return o << x.n_float();
+  case ηtype::string:    return o << x.str();
+  case ηtype::name:      return o << x.name();
+  case ηtype::atom:      return o << x.atom();
+  case ηtype::η:         return o << x.η();
+  case ηtype::int8s:     return x.native() ? o << x.vi8s()  : o << x.i8s();
+  case ηtype::int16s:    return x.native() ? o << x.vi16s() : o << x.i16s();
+  case ηtype::int32s:    return x.native() ? o << x.vi32s() : o << x.i32s();
+  case ηtype::int64s:    return x.native() ? o << x.vi64s() : o << x.i64s();
+  case ηtype::float32s:  return x.native() ? o << x.vf32s() : o << x.f32s();
+  case ηtype::float64s:  return x.native() ? o << x.vf64s() : o << x.f64s();
+    TA(o, "πv::operator<<: unhandled ηtype: " << x.t());
+  }
+}
+
+template ηo<B> &operator<<(ηo<B>&, πvc&);
+template ηo<ξ> &operator<<(ηo<ξ>&, πvc&);
+
+
 sletc cmp_fn = fn
 {
   [](auto &&x, auto &&y) -> PO { throw "πvc<=> internal error"; },

@@ -79,7 +79,7 @@ struct ξo final
   ξo const &ensure (uN c)        const { if (let y = x.lock()) y->ensure(c); return *this; }
   void      close  ()            const { if (let y = x.lock()) y->close(); }
   Sp<ξ>     inner_ξ()            const { return x.lock(); }
-  ηo<ξ>     r      (uN s0 = 256) const { return ηo<ξ>(x, s0); }
+  ηo<ξ>     r      (uN s0 = 256) const { return ηo<ξ>(ηoc<ξ>{x}, s0); }
 
 
 protected:
