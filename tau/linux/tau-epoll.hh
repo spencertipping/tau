@@ -11,14 +11,14 @@
 #include <unistd.h>
 
 
-#include "types.hh"
-#include "Lambda.hh"
-#include "gate.hh"
+#include "../types.hh"
+#include "../Lambda.hh"
+#include "../gate.hh"
 
-#include "tau-common.hh"
+#include "../tau-common.hh"
 
 
-#include "begin.hh"
+#include "../begin.hh"
 
 namespace τ
 {
@@ -149,7 +149,7 @@ protected:
 
 }
 
-#include "end.hh"
+#include "../end.hh"
 
 
 #endif

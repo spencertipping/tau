@@ -1,8 +1,5 @@
-#include "arch.hh"
-#if τhas_emscripten_fiber
-
 #include "tau-emscripten.hh"
-#include "begin.hh"
+#include "../begin.hh"
 
 namespace τ
 {
@@ -79,5 +76,4 @@ bool τe::should_step()
 
 }
 
-#include "end.hh"
-#endif
+#include "../end.hh"

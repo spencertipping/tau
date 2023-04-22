@@ -1,21 +1,17 @@
-#include "arch.hh"
-
-#if τhas_emscripten_fiber
-
 #include <memory>
 
 
-#include "types.hh"
-#include "lambda-types.hh"
+#include "../types.hh"
+#include "../lambda-types.hh"
 
 
 // For interactive development with clang/lsp; this is a nop in production
 #define τassume_emscripten 1
-# include "lambda-class.hh"
+# include "../lambda-class.hh"
 #undef τassume_emscripten
 
 
-#include "begin.hh"
+#include "../begin.hh"
 
 namespace τ
 {
@@ -107,6 +103,4 @@ void λinit_()
 
 }
 
-#include "end.hh"
-
-#endif
+#include "../end.hh"

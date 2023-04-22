@@ -1,12 +1,9 @@
-#include "arch.hh"
-#if τhas_epoll
-
 #include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include "tau-epoll.hh"
-#include "begin.hh"
+#include "../begin.hh"
 
 namespace τ
 {
@@ -188,5 +185,4 @@ void τe::term()
 
 }
 
-#include "end.hh"
-#endif
+#include "../end.hh"

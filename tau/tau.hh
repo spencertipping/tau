@@ -5,9 +5,11 @@
 #include "arch.hh"
 
 #if τhas_epoll
-# include "tau-epoll.hh"
+# include "linux/tau-epoll.hh"
 #elif τplatform == τplatform_wasm
-# include "tau-emscripten.hh"
+# include "wasm/tau-emscripten.hh"
+#else
+# error no τ² implementation for this platform
 #endif
 
 

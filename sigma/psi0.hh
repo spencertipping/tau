@@ -10,7 +10,9 @@ namespace σ
 τ::φ<τ::Ψ0> φΨ0();
 
 
+#if τlinux
 τ::Ψ0 ΓwF(τ::fd_t);
+#endif
 
 
 }

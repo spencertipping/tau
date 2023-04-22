@@ -2,7 +2,7 @@
 #define τ²emscripten_h
 
 
-#include "arch.hh"
+#include "../arch.hh"
 
 #include <stdio.h>
 
@@ -21,16 +21,16 @@
 #endif
 
 
-#include "types.hh"
+#include "../types.hh"
 
-#include "lambda.hh"
-#include "Lambda.hh"
+#include "../lambda.hh"
+#include "../Lambda.hh"
 
-#include "gate.hh"
-#include "tau-common.hh"
+#include "../gate.hh"
+#include "../tau-common.hh"
 
 
-#include "begin.hh"
+#include "../begin.hh"
 
 namespace τ
 {
@@ -69,7 +69,7 @@ protected:
 
 }
 
-#include "end.hh"
+#include "../end.hh"
 
 
 #endif

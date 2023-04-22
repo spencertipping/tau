@@ -95,6 +95,13 @@ struct ηo final
       s_ += s.size();
       return *this; }
 
+  ηo &operator<<(Sn<chc> &s)
+    { if (!reserve(s.size() + 1 + ηsb(s.size()))) return *this;
+      s_ += ηcb(b_.subspan(s_), ηtype::string, s.size());
+      memcpy(b_.data() + s_, s.data(), s.size());
+      s_ += s.size();
+      return *this; }
+
   ηo &operator<<(bool b)
     { if (!reserve(2)) return *this;
       s_ += ηcb(b_.subspan(s_), ηtype::atom, 1);

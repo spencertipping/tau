@@ -16,7 +16,8 @@ sync()
   local host=${1:-set.128}
   local path=${2:-/nvme/asqi/tau}
   rsync -azP --delete \
-        dep tau.hh sigma.hh sigma tau try makefile compile_flags.txt \
+        build dep doc README.md tau.hh sigma.hh sigma tau try \
+        test lazytest makefile compile_flags.txt \
         $host:$path/ &
   rsync -azP --delete dev/emsdk $host:$path/dev/ &
   wait
@@ -41,6 +42,15 @@ server_build()
 }
 
 
+install_deps()
+{
+  sudo apt update
+  sudo apt install -y \
+       docker.io build-essential \
+       libboost-context-dev libzstd-dev libsqlite3-dev
+}
+
+
 run()
 {
   if [[ ${HOSTNAME:0:1} == i ]]; then
@@ -54,8 +64,9 @@ run()
 cmd=$1
 shift
 case $cmd in
-  sloop) sloop "$@"    ;;
-  sync)  sync "$@"     ;;
-  pull)  pull "$@"     ;;
+  sloop) sloop "$@" ;;
+  sync)  sync "$@" ;;
+  pull)  pull "$@" ;;
+  deps)  install_deps "$@" ;;
   *)     run $cmd "$@" ;;
 esac

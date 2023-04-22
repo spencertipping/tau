@@ -1,6 +1,6 @@
-#include "auto.hh"
-#include "psi0.hh"
-#include "begin.hh"
+#include "../auto.hh"
+#include "../psi0.hh"
+#include "../begin.hh"
 
 namespace σ
 {
@@ -44,4 +44,4 @@ using namespace τ;
 
 }
 
-#include "end.hh"
+#include "../end.hh"

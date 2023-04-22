@@ -1,13 +1,9 @@
-#include "arch.hh"
-
-#if τhas_boost_context
-
-#include "types.hh"
-#include "lambda-types.hh"
-#include "lambda-class.hh"
+#include "../types.hh"
+#include "../lambda-types.hh"
+#include "../lambda-class.hh"
 
 
-#include "begin.hh"
+#include "../begin.hh"
 
 namespace τ
 {
@@ -104,6 +100,4 @@ void λinit_()
 
 }
 
-#include "end.hh"
-
-#endif
+#include "../end.hh"
