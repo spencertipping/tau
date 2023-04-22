@@ -1,6 +1,7 @@
 #ifndef τηo_h
 #define τηo_h
 
+#include "Lambda.hh"
 #include "xi.hh"
 #include "eta-types.hh"
 #include "eta-i.hh"
@@ -22,13 +23,14 @@ namespace τ
 // tolerate it being deallocated while this object exists. If that happens,
 // writer methods will silently become no-ops. If you create a ηo against an
 // expired pointer, it will SIGPIPE and terminate the calling λ.
+
 template<class T>
 struct ηo final
 {
-  ηo(Λ &l, Wp<T> o, uN c0 = 256) : o_(o), s_(0)
+  ηo(Wp<T> o, uN c0 = 256) : o_(o), s_(0)
     { A(c0, "ηo with no initial capacity");
       if (!o_.expired()) b_ = wpg(o_)->iptr(c0);
-      else               l.x(l.i()), τunreachable(); }
+      else               λx(), τunreachable(); }
 
   ~ηo()
     { if (!o_.expired())

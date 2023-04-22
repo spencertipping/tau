@@ -49,6 +49,7 @@ try_wasm_bins  = $(patsubst try/%.cc,       bin/%.js, $(try_cs)) \
 
 
 all: linux wasm
+	./test
 
 linux: $(try_linux_bins) bin/tau-linux.a bin/sigma-linux.a
 wasm:  $(try_wasm_bins)  bin/tau-wasm.a  bin/sigma-wasm.a

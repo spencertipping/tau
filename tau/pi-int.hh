@@ -18,7 +18,7 @@ struct πi
   ξo        o;
   M<St, πv> vs;
 
-  πi(τe &t)        : o(t.l(), {}) {}
+  πi()                            {}
   πi(ξi i_, ξo o_) : i(i_), o(o_) {}
 
   [[noreturn]] void fail(St reason) { throw reason; }

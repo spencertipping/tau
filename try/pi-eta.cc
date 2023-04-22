@@ -44,8 +44,7 @@ void try_variant_cast()
 
 void try_pi_bound_fns()
 {
-  τe t;
-  πi i(t);
+  πi i;
 
   let x = [](πi&) { return πv{3}; };
   let y = [](πi&) { return πv{4}; };
@@ -69,8 +68,7 @@ void try_pi_bound_fns()
 
 void try_pi_lazy_fns()
 {
-  τe t;
-  πi i(t);
+  πi i;
 
   let w = [](πi&) -> πv { return πv{0}; };
   let x = [](πi&) -> πv { return πv{1}; };
@@ -96,8 +94,7 @@ void try_pi_lazy_fns()
 
 void try_pi_vectors()
 {
-  τe t;
-  πi i(t);
+  πi i;
 
   u8c       xs[] = { 0x00, 0x01,  0x00, 0x02,  0x00, 0x05  };
   Sn<i8bc>  xs8 {Rc<i8bc*> (&xs[0]), 6};

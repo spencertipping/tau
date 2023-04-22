@@ -70,7 +70,8 @@ protected:
 // Automatically calls ξ::close() once the last ξo instance is deleted.
 struct ξo final
 {
-  ξo(Λ &l_, Wp<ξ> x_) : l(l_), x(x_), oc(new ξoc(x)) {}
+  ξo() {}
+  ξo(Wp<ξ> x_) : x(x_), oc(new ξoc(x)) {}
 
   ξo &operator=(ξo const &c) { x = c.x; oc = c.oc; return *this; }
 
@@ -78,11 +79,10 @@ struct ξo final
   ξo const &ensure (uN c)        const { if (let y = x.lock()) y->ensure(c); return *this; }
   void      close  ()            const { if (let y = x.lock()) y->close(); }
   Sp<ξ>     inner_ξ()            const { return x.lock(); }
-  ηo<ξ>     r      (uN s0 = 256) const { return ηo<ξ>(l, x, s0); }
+  ηo<ξ>     r      (uN s0 = 256) const { return ηo<ξ>(x, s0); }
 
 
 protected:
-  Λ      &l;
   Wp<ξ>   x;
   Sp<ξoc> oc;
 };

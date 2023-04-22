@@ -15,7 +15,8 @@ namespace τ
 // Auxiliary connections for Ψ; these may be connected or disconnected.
 struct Ψaux final
 {
-  Ψaux(Ξc &x) : m(x.t().l(), {}) {}
+  // TODO: populate these correctly
+  Ψaux(Ξc &x) {}
   ξo m;
   ξi c;
 };

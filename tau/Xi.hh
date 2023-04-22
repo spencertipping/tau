@@ -99,7 +99,7 @@ struct Ξ final
   Ξ  f(ξi const &x) const { let [io, t] = pop(); return t.push(ξd{x, io.b}); }
   Ξ  b(ξo const &x) const { let [io, t] = pop(); return t.push(ξd{io.f, x}); }
   Ξ  fx()           const { return f({}); }
-  Ξ  bx()           const { return b({e_.l(), {}}); }
+  Ξ  bx()           const { return b({{}}); }
 
   bool fi() const { return t_ && t_->io.f; }
   bool bi() const { return t_ && t_->io.b; }

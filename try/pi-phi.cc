@@ -10,8 +10,7 @@ static bool timed = false;
 
 πv eval_pi_core_expr(St e)
 {
-  τe t;
-  πi i{t};
+  πi i;
   let p  = φE(πφ());
   let t1 = now();
   let x  = p(e);

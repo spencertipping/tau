@@ -43,7 +43,7 @@ struct τb  // base τ
   ΔΘ   dt() const { return now() - t0_; }
 
 
-  P<ξo, ξi> pipe(uN c = 8192) { let x = Sp<ξ>(new ξ(l_, c)); return mp(ξo(l_, x), ξi(x)); }
+  P<ξo, ξi> pipe(uN c = 8192) { let x = Sp<ξ>(new ξ(l_, c)); return mp(ξo(x), ξi(x)); }
 
   Sp<ψ_> route (Stc &port)     const { return b_.contains(port) ? b_.at(port) : Sp<ψ_>{}; }
   bool   bind  (Stc &port, Sp<ψ_> q) { let c = b_.contains(port); b_[port] = q; return !c; }
