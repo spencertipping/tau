@@ -62,7 +62,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | Symbol | Notes | Description                    |
 |--------|-------|--------------------------------|
 | `<F`   | fd    | read from FD                   |
-| `f`    |       | wait forever                   |
+| `f`    |       | wait forever, write nothing    |
 | `i`    | π     | η identity out                 |
 | `I`    | π     | η repeated out                 |
 | `n`    |       | ι                              |
@@ -79,7 +79,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 |---------|-------|---------------------------------|
 | `g`     | π     | τ-grouped sort by π expression  |
 | `h`     |       | HTTP/S+WS client                |
-| `j`     | L? Γ  | τ-grouped sorted join           |
+| `j`     | Γ     | τ-grouped sorted join           |
 | `k`     |       | τ after each item               |
 | `p`     | π     | π program                       |
 | `r`/`R` | π     | π row selector                  |

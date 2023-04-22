@@ -12,7 +12,9 @@ namespace τ
 
 
 struct ηexit_ {};
-sletc ηexit = ηexit_{};  // throw this to terminate a loop
+sletc ηexit__ = ηexit_{};  // throw this to terminate a loop
+
+inline void ηexit() { throw ηexit__; }
 
 
 inline void ηl(ξi i, ξo o, F<void(ηi)> const &f)
