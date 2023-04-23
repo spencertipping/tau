@@ -23,7 +23,7 @@ struct ηm final
   ηm(ηic &x) { *this = x; }
 
   ηm &operator=(ηic &x)
-    { x_.assign(x.odata(), x.osize()); return *this; }
+    { x_.assign(x.odata(), x.osize() + x.asize()); return *this; }
 
   operator ηi() const { return y(); }
   ηi        y() const { return ηi(x_.data(), x_.size()); }
