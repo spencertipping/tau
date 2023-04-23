@@ -5,5 +5,6 @@
 #include "eta-i.hh"
 #include "eta-o.hh"
 #include "eta-m.hh"
+#include "eta-auto.hh"
 
 #endif
