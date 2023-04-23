@@ -79,6 +79,12 @@ struct ηo final
   ηo &v(U &&x) { return *this << std::forward<U>(x); }
 
 
+  template<class... Xs>
+  ηo &operator<<(std::tuple<Xs...> const &xs)
+    { std::apply([this](auto &&... xs) { (*this << ... << xs); }, xs);
+      return *this; }
+
+
   ηo &operator<<(int x) { return *this << Sc<i64>(x); }
 
   ηo &operator<<(i64 x);

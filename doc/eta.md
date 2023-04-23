@@ -8,8 +8,10 @@
 
 ```bash
 $ bin/eta
-g(i) = 4
-g(i[2]) = 8
+fa(i) = 4
+fa(i[2]) = 8
+ga(i) = 2 "afoo"
+ga(i[2]) = 3 "abarbif"
 ```
 
 

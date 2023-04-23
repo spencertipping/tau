@@ -200,7 +200,7 @@ private:
 };
 
 
-O &operator<<(O&, ηi const&);
+O &operator<<(O&, ηi);
 
 
 }

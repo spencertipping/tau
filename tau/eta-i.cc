@@ -106,6 +106,36 @@ void ηi::decode_cb()
 }
 
 
+static O &yone(O &s, ηi i)
+{
+  switch (i.t())
+  {
+  case ηtype::sig:      return s << i.sig();
+  case ηtype::n_int:    return s << i.i();
+  case ηtype::n_float:  return s << i.f();
+  case ηtype::string:   return s << "\"" << i.s() << "\"";
+  case ηtype::atom:     return s << i.a();
+  case ηtype::name:     return s << i.n() << ":";
+  case ηtype::int8s:    return s << "i8s[" << i.size() << "]";
+  case ηtype::int16s:   return s << "i16s[" << i.size() / 2 << "]";
+  case ηtype::int32s:   return s << "i32s[" << i.size() / 4 << "]";
+  case ηtype::int64s:   return s << "i64s[" << i.size() / 8 << "]";
+  case ηtype::float32s: return s << "f32s[" << i.size() / 4 << "]";
+  case ηtype::float64s: return s << "f64s[" << i.size() / 8 << "]";
+  case ηtype::η:        return s << "(" << i.η() << ")";
+  default:
+    return s << "ηi[t=" << Sc<int>(i.t()) << ", s=" << i.size() << "]";
+  }
+}
+
+O &operator<<(O &s, ηi i)
+{
+  yone(s, i);
+  while (i.has_next()) yone(s << " ", i = i.next());
+  return s;
+}
+
+
 }
 
 #include "end.hh"
