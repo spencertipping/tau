@@ -85,7 +85,7 @@ struct ηo final
   ηo &operator<<(ηatom a);
   ηo &operator<<(ηsig s);
 
-  ηo &operator<<(ηi &i);
+  ηo &operator<<(ηic &i);
   ηo &operator<<(ηoc<B> &o);
 
   ηo &operator<<(Sn<i8bc>  const&);

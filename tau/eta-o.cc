@@ -118,7 +118,7 @@ template<class T>
 
 
 template<class T>
-ηo<T> &ηo<T>::operator<<(ηi &i)
+ηo<T> &ηo<T>::operator<<(ηic &i)
 {
   let sb = i.osize();
   if (!reserve(sb + 1 + ηsb(sb))) return *this;
