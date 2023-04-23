@@ -24,6 +24,7 @@ PO ηscmp(ηi, ηi);
 // η input: read from fixed location in memory
 struct ηi final
 {
+  ηi(ηi const&) = default;
   ηi(u8c *a, uN l) : a_(a),        l_(l)              { decode_cb(); }
   ηi(Sn<u8c> s)    : a_(s.data()), l_(s.size_bytes()) { decode_cb(); }
 
@@ -41,7 +42,8 @@ struct ηi final
   bool    has_next() const { return l_ > osize(); }
   ηi      next()     const { return {adata(), has_next() ? asize() : 0}; }
 
-  ηi &operator++() { *this = next(); return *this; }
+  ηi &operator++()    { *this = next(); return *this; }
+  ηi  operator++(int) { let r = *this; ++*this; return r; }
 
 
   struct it
