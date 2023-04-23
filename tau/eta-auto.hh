@@ -35,8 +35,31 @@ template<> struct ηauto_<Sn<f32bc>> { static Sn<f32bc> v(ηic &i) { return i.f3
 template<> struct ηauto_<Sn<f64bc>> { static Sn<f64bc> v(ηic &i) { return i.f64s(); } };
 
 
-// TODO: add φauto-style evaluation for η against functions
-// Bidirectional function conversion: ηauto(f)(i) -> T<...>
+template<uS I, class R, class... Xs, class... Ys>
+R ηauto__(F<R(Xs...)> const &f, Sn<u8c> i, Ys&&... ys)
+{
+  if constexpr (I == sizeof...(Xs)) return f(std::forward<Ys>(ys)...);
+  else
+  {
+    using T = std::tuple_element_t<I, T<Xs...>>;
+    ηi    j = i;
+    auto  x = ηauto_<T>::v(j);
+    return ηauto__<I + 1>(f, j.after(), std::forward<Ys>(ys)..., x);
+  }
+}
+
+
+template<class R, class... Xs>
+auto ηauto(F<R(Xs...)> const &f)
+{
+  return [=](ηi const &i) -> R { return ηauto__<0>(f, i.all()); };
+}
+
+template<class R, class... Xs>
+auto ηauto(R(*f)(Xs...))
+{
+  return ηauto(F<R(Xs...)>(f));
+}
 
 
 }

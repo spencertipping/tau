@@ -11,18 +11,20 @@ template<class T>
   // Handle the two special cases, which require recursive πv conversion.
   if (x.is_nmap())
   {
-    ηoc<B> b;
-    ηo<B>  i{b};
+    B       b;
+    ηoc<B&> c{b};
+    ηo<B&>  i{c};
     for (let &[k, v] : *x.m()) i.name(k) << v;
-    return o << b;
+    return o << c;
   }
 
   if (x.is_ntuple())
   {
-    ηoc<B> b;
-    ηo<B>  i{b};
+    B       b;
+    ηoc<B&> c{b};
+    ηo<B&>  i{c};
     for (let &v : *x.v()) i << v;
-    return o << b;
+    return o << c;
   }
 
 
@@ -45,8 +47,8 @@ template<class T>
   }
 }
 
-template ηo<B> &operator<<(ηo<B>&, πvc&);
-template ηo<ξ> &operator<<(ηo<ξ>&, πvc&);
+template ηo<B&> &operator<<(ηo<B&>&, πvc&);
+template ηo<ξ>  &operator<<(ηo<ξ>&, πvc&);
 
 
 sletc cmp_fn = fn

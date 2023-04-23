@@ -18,6 +18,8 @@ typedef ηm const ηmc;
 struct ηm final
 {
   ηm() {}
+  ηm(ηm  &x) = default;
+  ηm(ηm &&x) = default;
   ηm(ηic &x) { *this = x; }
 
   ηm &operator=(ηic &x)
@@ -29,6 +31,9 @@ struct ηm final
   PO operator<=>(ηic &x) const { return y() <=> x; }
   PO operator<=>(ηmc &x) const { return y() <=> x.y(); }
 
+  template<class T>
+  ηm &operator<<(T const &x) { ηo{ηoc<B&>(x_)} << x; return *this; }
+
   B x_;
 };
 
@@ -38,7 +43,6 @@ template<class T>
 {
   return x << Sn<u8c>{y.x_.data(), y.x_.size()};
 }
-
 
 
 }

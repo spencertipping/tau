@@ -6,6 +6,13 @@
 + [η signal conventions](eta-signals.md)
 
 
+```bash
+$ bin/eta
+g(i) = 4
+g(i[2]) = 8
+```
+
+
 ## Format
 Each η value's size can be calculated in constant time, with the exception of the toplevel value which is a stream of values. Each value begins with a control byte, which describes the type and size-encoding of the thing that comes after it. There are 16 types and 16 size encodings:
 

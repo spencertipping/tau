@@ -15,24 +15,30 @@ namespace τ
 // ηoc: output container for ηo writers
 template<class T> struct ηoc;
 
-template<> struct ηoc<ξ>
+template<> struct ηoc<ξ> final
 {
-  bool   expired()    { return o.expired(); }
-  Sn<u8> iptr(uN n)   { return wpg(o)->iptr(n); }
   void   commit(uN n) { wpg(o)->commit(n); }
   void   abort()      { wpg(o)->abort(); }
+  bool   expired()    { return o.expired(); }
+  Sn<u8> iptr(uN n)   { return wpg(o)->iptr(n); }
 
   Wp<ξ> o;
 };
 
-template<> struct ηoc<B>
+template<> struct ηoc<B&> final
 {
-  bool   expired()    { return false; }
-  Sn<u8> iptr(uN n)   { b.resize(n); return {b.data(), b.size()}; }
-  void   commit(uN n) {}
-  void   abort()      { b.clear(); }
+  ηoc(B& b) : b(b), s(0) {}
 
-  B b;
+  void   commit(uN n) { if (n) b.resize(s + n); s = 0; }
+  void   abort()      {        b.resize(s);     s = 0; }
+  bool   expired()    { return false; }
+  Sn<u8> iptr(uN n)
+    { A(!s, "ηoc<B&>::iptr(" << n << ") called with uncommitted data");
+      b.resize((s = b.size()) + n);
+      return {b.data() + s, n}; }
+
+  B& b;
+  uN s;  // last committed size
 };
 
 
@@ -80,13 +86,14 @@ struct ηo final
   ηo &operator<<(f64 x);
   ηo &operator<<(Stc &s);
   ηo &operator<<(Stvc &s);
+  ηo &operator<<(chc *s);
 
   ηo &operator<<(bool b);
   ηo &operator<<(ηatom a);
   ηo &operator<<(ηsig s);
 
   ηo &operator<<(ηic &i);
-  ηo &operator<<(ηoc<B> &o);
+  ηo &operator<<(ηoc<B&> &o);
 
   ηo &operator<<(Sn<i8bc>  const&);
   ηo &operator<<(Sn<i16bc> const&);
