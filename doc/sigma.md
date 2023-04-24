@@ -24,7 +24,7 @@ First an overall map of which characters are mapped to which tables. Numbers rep
 
 ```
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
-Γ/Ψ     ΓΓ  00   22 Γ2200002444S      22022  0 2 222222222
+Γ/Ψ     ΓΓ  00   22 Γ2200002444S      22022  0 2 22222222
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 Γ/Ψ   4SΓ22Γ ΓΓ ΓΓ2ΓΓΓΓΓΓ 222  Γ  4 4
@@ -92,7 +92,6 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `w`/`W` | Γ     | tuple/map horizontal join       |
 | `x`     |       | prefix for shell execution      |
 | `y`     | P     | prefix for Python interop       |
-| `z`     | P     | prefix for compression          |
 | `J`     | L? Γ  | τ-grouped unordered join        |
 | `M`     |       | monitor                         |
 | `N`     |       | numeric ϊ                       |

@@ -17,9 +17,9 @@ typedef ηm const ηmc;
 // η memory buffer: store an ηi's datastream as a C++ object
 struct ηm final
 {
-  ηm() {}
-  ηm(ηm  &x) = default;
-  ηm(ηm &&x) = default;
+  ηm()     = default;
+  ηm(ηm&)  = default;
+  ηm(ηm&&) = default;
   ηm(ηic &x) { *this = x; }
 
   ηm &operator=(ηic &x)
