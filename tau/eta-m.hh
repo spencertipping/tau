@@ -28,7 +28,8 @@ struct ηm final
   operator ηi() const { return y(); }
   ηi        y() const { return ηi(x_.data(), x_.size()); }
 
-  ηm &clear() { x_.clear(); return *this; }
+  ηm  &clear()       { x_.clear(); return *this; }
+  bool empty() const {             return x_.empty(); }
 
   PO operator<=>(ηic &x) const { return y() <=> x; }
   PO operator<=>(ηmc &x) const { return y() <=> x.y(); }

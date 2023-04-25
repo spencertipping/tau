@@ -13,7 +13,7 @@ using namespace τ;
 φ<Ψ2> φΨ2()
 {
   slet p = φd<Ψ2>("Ψ2",
-                  "g",  φauto(Γg)
+                  "g",  φauto(Γg),
                   /*"j",  φauto(Γj),
                   "k",  φauto(Γk),
                   "p",  φauto(Γp),
@@ -31,13 +31,24 @@ using namespace τ;
                   "W",  φauto(ΓW),
                   "x",  φauto(Γx),
                   "y",  φauto(Γy),
-                  "J",  φauto(ΓJ),
-                  "M",  φauto(ΓM),
+                  "J",  φauto(ΓJ), */
+                  "M",  φauto(ΓM) /*
                   "N",  φauto(ΓN),
                   "+",  φauto(Γappend),
                   "^",  φauto(Γprepend),
                   "%",  φauto(Γunion)*/);
   return p;
+}
+
+
+Ψ2 ΓM(St name)
+{
+  return [=](ψ q, ξi i, ξo o, Ψaux)
+    {
+      ηl(i, o, [&](ηi x)
+        { std::cout << name << ": " << x << std::endl;
+          o.r(x.lsize()) << x.all(); });
+    };
 }
 
 

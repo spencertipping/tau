@@ -35,9 +35,10 @@ struct ηi final
   uN       size()    const { return s_; }
   uN      osize()    const { return s_ + c_; }
   uN      asize()    const { return l_ - osize(); }  // size after this
+  uN      lsize()    const { return l_; }            // full size
   Sn<u8c> inner()    const { return {data(),  size()}; }
   Sn<u8c> outer()    const { return {a_,      osize()}; }
-  Sn<u8c>   all()    const { return {a_,      l_}; }
+  Sn<u8c>   all()    const { return {a_,      lsize()}; }
   Sn<u8c> after()    const { return {adata(), has_next() ? asize() : 0}; }
 
   bool    has_next() const { return l_ > osize(); }

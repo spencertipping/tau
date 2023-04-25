@@ -17,8 +17,10 @@ namespace τ
 
   let ys = new u8[c_];
   if (wrapped())
-  { memcpy(ys,             xs + wi, ci - wi);  // (wi..ci)
-    memcpy(ys + (ci - wi), xs,      ri); }     // (0..ri)
+  {
+    memcpy(ys,             xs + wi, ci - wi);  // (wi..ci)
+    memcpy(ys + (ci - wi), xs,      ri);       // (0..ri)
+  }
   else
     memcpy(ys, xs + ri, wi - ri);
 

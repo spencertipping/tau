@@ -10,8 +10,9 @@ namespace τ
   if (fin) return 0;
   let i = ιi(ni, ls);
   ls[i].reset(new Λt([f=mo(f)]()
-    { try         { f(); }
-      catch (Λx_) {} }));
+    { try           { f(); }
+      catch (Λx_)   {}
+      catch (Stc e) { std::cerr << "Λ uncaught: " << e << std::endl; } }));
   r(i, λs::R);
   return i;
 }

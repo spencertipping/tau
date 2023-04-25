@@ -14,10 +14,10 @@ namespace τ
 
 struct πi
 {
-  ξi        i;
-  ξo        o;
-  ηm        m;
-  M<St, πv> vs;
+  ξi        i;   // input stream (if streaming)
+  ξo        o;   // output stream (if streaming)
+  ηm        m;   // buffered input value (if not streaming)
+  M<St, πv> vs;  // stored variables
 
   πi()                            {}
   πi(ηic &x)       : m(x)         {}
@@ -26,8 +26,8 @@ struct πi
   πi(ξi i_, ξo o_) : i(i_), o(o_) {}
 
 
-  ηi          y()       const { return m.y(); }
-  πi &operator=(ηic &x)       { m = x; return *this; }
+  ηi          y() const {        return m.empty() ? *i : m.y(); }
+  πi &operator=(ηic &x) { m = x; return *this; }
 
   [[noreturn]] void fail(St reason) { throw reason; }
 };

@@ -88,21 +88,26 @@ void ηi::decode_cb()
   else if (sn == 0x0e)
   {
     A(l_ >= 3, "η control size OOB: l = " << l_ << ", which is < 3");
-    c_ = 3, s_ = 269 + (Sc<u16>(a_[0]) << 8 | a_[1]);
+    c_ = 3, s_ = 269 + (Sc<u16>(a_[1]) << 8 | a_[2]);
   }
   else
   {
     A(l_ >= 5, "η control size OOB: l = " << l_ << ", which is < 5");
     c_ = 5;
-    s_ = 65805 + (  Sc<u32>(a_[0]) << 24
-                    | Sc<u32>(a_[1]) << 16
-                    | Sc<u32>(a_[2]) << 8
-                    | a_[3]);
+    s_ = 65805 + (  Sc<u32>(a_[1]) << 24
+                  | Sc<u32>(a_[2]) << 16
+                  | Sc<u32>(a_[3]) << 8
+                  | a_[4]);
   }
 
+  // NOTE: this looks weird, but we're making sure that we aren't
+  // overflowing unsigned int math so the l_ check is valid.
   A(s_ + c_ > s_, "η size overflow");
   A(s_ + c_ <= l_,
-    "η size overflows container: s_ = " << s_ << ", c_ = " << c_ << ", l_ = " << l_);
+    "η size overflows container: s_ = " << s_ <<
+    ", c_ = " << Sc<int>(c_) <<
+    ", l_ = " << l_ <<
+    ", cb = " << Sc<int>(*a_));
 }
 
 

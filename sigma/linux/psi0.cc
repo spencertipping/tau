@@ -22,6 +22,7 @@ using namespace τ;
     {
       τe &t = q.t();
       q.pin();
+      q.fx([&, fd](ψ_&) { t.close(fd); });
       for (let x : i)
         if (x.is_ω()) goto done;
         else if (x.is_s())
@@ -36,7 +37,6 @@ using namespace τ;
         }
     done:
       i.close();
-      t.close(fd);
       q.unpin();
     };
 }

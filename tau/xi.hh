@@ -57,13 +57,11 @@ struct ξ final
   uN ra()       const { return z.ra(); }
   uN wa()       const { return z.wa(); }
 
-  ξ &resize(uN c)     { z.resize(c); return *this; }
-  ξ &ensure(uN c)     { z.ensure(c); return *this; }
+  ξ &resize(uN c) { A(!s, "cannot resize during transaction"); z.resize(c); return *this; }
+  ξ &ensure(uN c) { A(!s, "cannot resize during transaction"); z.ensure(c); return *this; }
 
   // If true, no more values will ever be available to read from this ξ
-  bool eof(bool nonblock = false)
-    { while (!ra() && !wc) if (nonblock || !rg.y(λs::ξR)) return true;
-      return !ra() && wc; }
+  bool eof(bool nonblock = false);
 
 
   // Writer interface: close() to finalize the write-side,
@@ -75,39 +73,15 @@ struct ξ final
   // Closing the writer means that the reader no longer depends on it;
   // so the writer is immediately up for deallocation. We do this by
   // weakening the input reference.
-  void close() { wc = true; rg.w(true); weaken(); }
-
-  Sn<u8> iptr(uN size, bool nonblock = false)
-    { A(!s,   "ξ: iptr(" << size << ") with uncommitted value");
-      A(size, "ξ: iptr() on size = 0");
-      ensure(size + uNs);
-      return reserve(size, nonblock); }
-
-  void abort()
-    { A(s, "ξ: abort() without an active value");
-      s = nullptr; }
-
-  void commit(uN size = 0)
-    { A(s,          "ξ: commit(" << size << ") without an active value");
-      A(size <= *s, "ξ: commit(" << size << ") larger than reservation of " << *s);
-      if (size) z.advance((*s = size) + uNs);
-      else      z.advance(*s + uNs);
-      wt += *s + uNs;
-      rg.w(true);  // we now have readable data
-      s = nullptr; }
-
+  void   close () { wc = true; rg.w(true); weaken(); }
+  Sn<u8> iptr  (uN size, bool nonblock = false);
+  void   abort ();
+  void   commit(uN size = 0);
 
   // Reader interface: delete ξ to finalize the read-side, iterator and
   // unary */next() to read values
-  Sn<u8> operator*() const
-    { A(ra(), "*ξ with !ra(), " << z);
-      return Sn<u8>(z + uNs, next_size()); }
-
-  void next()
-    { A(ra(), "++ξ with !ra(), " << z);
-      z.free(next_size() + uNs);
-      wg.w(true); }  // we are now writable
-
+  Sn<u8> operator*() const;
+  void        next();
 
   struct it
   {
@@ -150,16 +124,11 @@ protected:
   Wp<ψ_>   iqw;  // input ψ -- optional weak reference
   Wp<ψ_>   oqw;  // output (consuming) ψ
 
-
   uN next_size() const
-    { A(ra(), "pipe_next_size() with !ra(), " << z);
+    { A(ra(), "next_size() with !ra(): " << z);
       return *Rc<uN*>(z + 0); }
 
-  Sn<u8> reserve(uN l, bool nb)
-    { for (;;)
-        if      (let r = z.iptr(l + uNs)) { *(s = Rc<uN*>(r)) = l; return {r + uNs, l}; }
-        else if (nb || !wg.y(λs::ξW))                              return {Sc<u8*>(nullptr), 0}; }
-
+  Sn<u8> reserve(uN l, bool nb);
 
   friend O &operator<<(O&, ξ const&);
 };

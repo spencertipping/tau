@@ -34,7 +34,7 @@ inline Γ ΞΓvs(St n)
 
 inline Γ ΞΓvg(St n)
 {
-  return new Γf_{"@" + n, [n](Ξc &x)
+  return new Γf_{"$" + n, [n](Ξc &x)
     { return x.push(x.vg(n)); }};
 }
 
