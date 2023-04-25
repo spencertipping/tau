@@ -81,6 +81,8 @@ struct ξo final
   Sp<ξ>     inner_ξ()            const { return x.lock(); }
   ηo<ξ>     r      (uN s0 = 256) const { return ηo<ξ>(ηoc<ξ>{x}, s0); }
 
+  ξo const &operator<<(ηi const &y) const { r(y.lsize()) << y.all(); return *this; }
+
 
 protected:
   Wp<ξ>   x;

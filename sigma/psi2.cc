@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <sys/socket.h>
 
 #include "auto.hh"
 #include "psi2.hh"
@@ -47,7 +48,7 @@ using namespace τ;
     {
       ηl(i, o, [&](ηi x)
         { std::cout << name << ": " << x << std::endl;
-          o.r(x.lsize()) << x.all(); });
+          o << x; });
     };
 }
 

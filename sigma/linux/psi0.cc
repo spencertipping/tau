@@ -22,7 +22,8 @@ using namespace τ;
     {
       τe &t = q.t();
       q.pin();
-      q.fx([&, fd](ψ_&) { t.close(fd); });
+      q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_WR); t.close(fd); });
+      t.reg(fd, false, true);
       for (let x : i)
         if (x.is_ω()) goto done;
         else if (x.is_s())
