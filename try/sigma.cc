@@ -4,7 +4,8 @@ using namespace σ;
 using namespace std;
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   if (argc != 2)
   {
     cerr << "Usage: " << argv[0] << " Γ" << endl;

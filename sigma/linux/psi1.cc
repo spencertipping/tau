@@ -32,8 +32,8 @@ using namespace τ;
       for (;;)
       {
         let c = t.accept(fd, nullptr, nullptr);
-        (ΓΨ(ΓrF(c)) | ΓΨ(ΓwF(c), Ψd::b) | g)(Ξ{t});
-        o.r() << fd;
+        o.r() << c;
+        (ΓΨ(ΓrF(c)) | ΓΨ(ΓwF(c), Ψd::b) | g)(Ξ{t}.push());
       }
     };
 }

@@ -109,7 +109,8 @@ struct Ξ final
   bool ci(Stc &port) const { return Sc<bool>(e_.route(port)); }
 
 
-  Ξ       push(ξdc &x) const { return t(Sp<Ξs>(new Ξs{x, t_})); }
+  Ξ       push()       const { return t(Sp<Ξs>(new Ξs{ξdc{{}, {{}}}, t_})); }
+  Ξ       push(ξdc &x) const { return t(Sp<Ξs>(new Ξs{x,             t_})); }
   Ξ       drop()       const { A(t_, "Ξ::drop() empty"); return t(t_->n); }
   P<ξd, Ξ> pop()       const { A(t_, "Ξ::pop() empty");  return mp(t_->io, t(t_->n)); }
   bool   empty()       const { return !t_; }
