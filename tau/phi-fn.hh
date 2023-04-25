@@ -10,6 +10,23 @@ namespace τ
 {
 
 
+// Lazy parser, initialized on-demand
+template<class T>
+struct φL_ : public virtual φ_<T>
+{
+  φL_(F<φ<T>()> f_) : φ_<T>("lazy"), f(f_), c(false) {}
+
+  φr_<T> operator()(φc_ const &x) const noexcept
+    { A(!c, "circular dependency in lazy parser");
+      if (!p) c = true, p = f(), f = nullptr, c = false;
+      return p(x); }
+
+  φ<T>      mutable p;
+  F<φ<T>()> mutable f;
+  bool      mutable c;
+};
+
+
 // Weakly referenced parser
 template<class T>
 struct φW_ : public virtual φ_<T>

@@ -14,12 +14,13 @@ namespace τ
 
 template<class T, class... Xs> φ<T>  φd(St n, Xs const&... xs) { return {new φd_<T>(n, xs...)}; }
 
-template<class T>              φ<T>  φl(St s, T v) { return {new φl_<T>(s, v)}; }
-inline                         φ<St> φl(St s)      { return φl(s, s); }
-template<class T>              φ<T>  φE(φ<T> p)    { return {new φE_<T>(p)}; }
-template<class T>              φ<T>  φR(T x)       { return {new φR_<T>(x)}; }
-template<class T>              φ<T>  φF()          { return {new φF_<T>}; }
-template<class T>              φ<T>  φW(φ<T> p)    { return {new φW_<T>{p}}; }
+template<class T>              φ<T>  φl(St s, T v)   { return {new φl_<T>(s, v)}; }
+inline                         φ<St> φl(St s)        { return φl(s, s); }
+template<class T>              φ<T>  φE(φ<T> p)      { return {new φE_<T>(p)}; }
+template<class T>              φ<T>  φR(T x)         { return {new φR_<T>(x)}; }
+template<class T>              φ<T>  φF()            { return {new φF_<T>}; }
+template<class T>              φ<T>  φW(φ<T> p)      { return {new φW_<T>{p}}; }
+template<class T>              φ<T>  φL(F<φ<T>()> f) { return {new φL_<T>{f}}; }
 
 inline φ<St>    φcs (chc *s, bool n = false, uN min = 0, uN max = -1) { return {new φcs_(s, n, min, max)}; }
 inline φ<St>    φucs(F<bool(u64)> f,         uN min = 0, uN max = -1) { return {new φucs_(f, min, max)}; }

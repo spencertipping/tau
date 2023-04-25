@@ -128,6 +128,8 @@ struct φ final
 
   φ &operator=(φ<T> const &x) { p = x.p; id = x.id; return *this; }
 
+  operator bool() const { return Sc<bool>(p); }
+
   φr_<T> operator()(Stc       &x) const noexcept { return (*this)(φc_(x)); }
   φr_<T> operator()(φc_ const &x) const noexcept
     { let   k = φmk(id, x.i());

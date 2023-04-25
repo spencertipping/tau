@@ -1,4 +1,8 @@
+#include <netdb.h>
+#include <sys/socket.h>
+
 #include "../auto.hh"
+#include "../psi0.hh"
 #include "../psi1.hh"
 #include "../begin.hh"
 
@@ -8,11 +12,30 @@ namespace σ
 using namespace τ;
 
 
-φ<Ψ1> φΨ1()
+Ψ1 Γtcp(i16 port, i32 addr, Γ g)
 {
-  slet p = φd<Ψ1>("Ψ1",
-                  "<F", φauto(ΓrF));
-  return p;
+  return [=](ψ q, ξo o, Ψaux)
+    {
+      τe &t = q.t();
+      fd_t fd = socket(AF_INET, SOCK_STREAM, 0);
+      t.reg(fd, true, false);
+      q.fx([&, fd](ψ_&) { t.close(fd); });
+
+      sockaddr_in a;
+      a.sin_family = AF_INET;
+      a.sin_port = htons(port);
+      a.sin_addr.s_addr = htonl(addr);
+      A(!bind(fd, (sockaddr*)&a, sizeof(a)),
+        "bind to port " << port << ", addr " << addr << " failed");
+      listen(fd, 5);
+
+      for (;;)
+      {
+        let c = t.accept(fd, nullptr, nullptr);
+        (ΓΨ(ΓrF(c)) | ΓΨ(ΓwF(c), Ψd::b) | g)(Ξ{t});
+        o.r() << fd;
+      }
+    };
 }
 
 

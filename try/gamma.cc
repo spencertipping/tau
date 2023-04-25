@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../tau.hh"
+#include "../sigma.hh"
 
 using namespace τ;
 using namespace std;
@@ -74,7 +75,7 @@ using namespace std;
 
 Γ forever_server(St p)
 {
-  return new ΓΨ1([p](ψ q, ξo o, Ψaux)
+  return ΓΨ([p](ψ q, ξo o, Ψaux)
     { q.b(p, [o](ψ &&q, Ξc &x)
       { let i = x.f();
         q.f([i, o]()
@@ -85,7 +86,7 @@ using namespace std;
 
 Γ server(St p)
 {
-  return new ΓΨ2([p](ψ q, ξi i, ξo o, Ψaux)
+  return new ΓΨ2_([p](ψ q, ξi i, ξo o, Ψaux)
     { q.b(p, [o](ψ &&q, Ξc &x)
       { let i = x.f();
         q.f([i, o]() { for (let x : i) o.r(x.osize()) << x.outer(); });
@@ -108,8 +109,8 @@ using namespace std;
 
 
 slet p = φE(Γφ(φd<Γ>("Γ₁",
-                     "push", φR(ΞΓpush()),
-                     "drop", φR(ΞΓdrop()),
+                     "push", φR(σ::Γpush()),
+                     "drop", φR(σ::Γdrop()),
                      "we",   φR(weaken_eager()),
                      "S",    φm(πφstr(), Sc<Γ(*)(St)>(server)),
                      "fS",   φm(πφstr(), forever_server),

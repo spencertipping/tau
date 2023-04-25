@@ -27,7 +27,7 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 Γ/Ψ     ΓΓ  00   22 Γ2200002444S      22022  0 2 22222222
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-Γ/Ψ   4SΓ22Γ ΓΓ ΓΓ2ΓΓΓΓΓΓ 222  Γ  4 4
+Γ/Ψ   4SΓ22Γ ΓΓ2ΓΓ2ΓΓΓΓΓΓ 222  Γ  4 4
 Γ/Ψ                        10
 ```
 
@@ -103,6 +103,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `+`     | Γ     | τ-group append                  |
 | `^`     | Γ     | τ-group prepend                 |
 | `%`     | Γ     | Γ union (eager interleave)      |
+| `-`     |       | identity passthrough            |
 
 
 ### Ψ₄ full-duplex table

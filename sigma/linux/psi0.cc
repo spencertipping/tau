@@ -8,14 +8,6 @@ namespace σ
 using namespace τ;
 
 
-φ<Ψ0> φΨ0()
-{
-  slet p = φd<Ψ0>("Ψ0",
-                  ">F", φauto(ΓwF));
-  return p;
-}
-
-
 Ψ0 ΓwF(fd_t fd)
 {
   return [=](ψ q, ξi i, Ψaux)

@@ -4,13 +4,15 @@
 namespace σ
 {
 
+using namespace τ;
 
-τ::φ<τ::πf>  φπ()  { return τ::πφ(φπa(), φπm(), φπd(), φπt()); }
 
-τ::φ<τ::πf>  φπa() { return τ::πφcore_a(); }
-τ::φ<τ::πmf> φπm() { return τ::πφcore_m(); }
-τ::φ<τ::πdf> φπd() { return τ::πφcore_d(); }
-τ::φ<τ::πtf> φπt() { return τ::πφcore_t(); }
+φ<πf> &φπ()  { static φ<πf> r = πφ(φπa(), φπm(), φπd(), φπt()); return r; }
+
+φ<πf>  φπa() { return πφcore_a(); }
+φ<πmf> φπm() { return πφcore_m(); }
+φ<πdf> φπd() { return πφcore_d(); }
+φ<πtf> φπt() { return πφcore_t(); }
 
 
 }

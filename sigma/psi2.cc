@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <sys/socket.h>
 
 #include "auto.hh"
 #include "psi2.hh"
@@ -11,34 +10,36 @@ namespace σ
 using namespace τ;
 
 
-φ<Ψ2> φΨ2()
+φ<Ψ2> &φΨ2()
 {
-  slet p = φd<Ψ2>("Ψ2",
-                  "g",  φauto(Γg),
-                  /*"j",  φauto(Γj),
-                  "k",  φauto(Γk),
-                  "p",  φauto(Γp),
-                  "rp", φauto(Γrp),
-                  "r-", φauto(Γrd),
-                  "r",  φauto(Γrt),
-#if τlinux
-                  "h",  φauto(Γh),
-                  "s",  φauto(Γsshc),
-                  "t",  φauto(Γtcpc),
-                  "u",  φauto(Γudpc),
-                  "v",  φauto(Γunixc),
-#endif
-                  "w",  φauto(Γw),
-                  "W",  φauto(ΓW),
-                  "x",  φauto(Γx),
-                  "y",  φauto(Γy),
-                  "J",  φauto(ΓJ), */
-                  "M",  φauto(ΓM) /*
-                  "N",  φauto(ΓN),
-                  "+",  φauto(Γappend),
-                  "^",  φauto(Γprepend),
-                  "%",  φauto(Γunion)*/);
-  return p;
+  static φ<Ψ2> r = φL<Ψ2>([]()
+    { return φd<Ψ2>("Ψ2",
+                    "g",  φauto(Γg),
+                    "-",  φauto(Γid),
+                    "M",  φauto(ΓM)
+                    /*"j",  φauto(Γj),
+                      "k",  φauto(Γk),
+                      "p",  φauto(Γp),
+                      "rp", φauto(Γrp),
+                      "r-", φauto(Γrd),
+                      "r",  φauto(Γrt),
+                      #if τlinux
+                      "h",  φauto(Γh),
+                      "s",  φauto(Γsshc),
+                      "t",  φauto(Γtcpc),
+                      "u",  φauto(Γudpc),
+                      "v",  φauto(Γunixc),
+                      #endif
+                      "w",  φauto(Γw),
+                      "W",  φauto(ΓW),
+                      "x",  φauto(Γx),
+                      "y",  φauto(Γy),
+                      "J",  φauto(ΓJ),
+                      "N",  φauto(ΓN),
+                      "+",  φauto(Γappend),
+                      "^",  φauto(Γprepend),
+                      "%",  φauto(Γunion)*/); });
+  return r;
 }
 
 
@@ -50,6 +51,12 @@ using namespace τ;
         { std::cout << name << ": " << x << std::endl;
           o << x; });
     };
+}
+
+
+Ψ2 Γid()
+{
+  return [=](ψ, ξi i, ξo o, Ψaux) { for (let x : i) o << x; };
 }
 
 

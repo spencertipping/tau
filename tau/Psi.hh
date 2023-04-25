@@ -68,11 +68,11 @@ struct ΓΨd_ : public virtual Γ_
 // NOTE: this class has special lifetime rules (no q.weaken()) because
 // nobody consumes its output; that means it lives as long as the constructor
 // function is running, or creates other λs that hold references to ψ.
-struct ΓΨ0 final : public virtual ΓΨd_
+struct ΓΨ0_ final : public virtual ΓΨd_
 {
   Ψ0 const p;
 
-  ΓΨ0(Ψ0 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
+  ΓΨ0_(Ψ0 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
     : ΓΨd_(d_, n_, c_), p(mo(p_)) {}
 
   Ξ f(Ξc &x, ψ q) const  // consume input
@@ -90,11 +90,11 @@ struct ΓΨ0 final : public virtual ΓΨd_
 };
 
 
-struct ΓΨ1 final : public virtual ΓΨd_
+struct ΓΨ1_ final : public virtual ΓΨd_
 {
   Ψ1 const p;
 
-  ΓΨ1(Ψ1 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
+  ΓΨ1_(Ψ1 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
     : ΓΨd_(d_, n_, c_), p(mo(p_)) {}
 
   Ξ f(Ξc &x, ψ q) const  // produce future forwards input
@@ -112,11 +112,11 @@ struct ΓΨ1 final : public virtual ΓΨd_
 };
 
 
-struct ΓΨ2 final : public virtual ΓΨd_
+struct ΓΨ2_ final : public virtual ΓΨd_
 {
   Ψ2 const p;
 
-  ΓΨ2(Ψ2 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
+  ΓΨ2_(Ψ2 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
     : ΓΨd_(d_, n_, c_), p(mo(p_)) {}
 
   Ξ f(Ξc &x, ψ q) const  // transform forwards
@@ -138,11 +138,11 @@ struct ΓΨ2 final : public virtual ΓΨd_
 };
 
 
-struct ΓΨ4 final : public virtual ΓΨd_
+struct ΓΨ4_ final : public virtual ΓΨd_
 {
   Ψ4 const p;
 
-  ΓΨ4(Ψ4 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
+  ΓΨ4_(Ψ4 &&p_, Ψd d_ = Ψd::f, St n_ = "", bool c_ = false)
     : ΓΨd_(d_, n_, c_), p(mo(p_))
     { A(d != Ψd::r, "cannot apply Ψ4:r"); }
 
@@ -166,6 +166,12 @@ struct ΓΨ4 final : public virtual ΓΨd_
 
   Ξ r(Ξc &x, ψ q) const { τunreachable(); }
 };
+
+
+inline Γ ΓΨ(Ψ0 &&p, Ψd d = Ψd::f, St n = "", bool c = false) { return {new ΓΨ0_(mo(p), d, n, c)}; }
+inline Γ ΓΨ(Ψ1 &&p, Ψd d = Ψd::f, St n = "", bool c = false) { return {new ΓΨ1_(mo(p), d, n, c)}; }
+inline Γ ΓΨ(Ψ2 &&p, Ψd d = Ψd::f, St n = "", bool c = false) { return {new ΓΨ2_(mo(p), d, n, c)}; }
+inline Γ ΓΨ(Ψ4 &&p, Ψd d = Ψd::f, St n = "", bool c = false) { return {new ΓΨ4_(mo(p), d, n, c)}; }
 
 
 }
