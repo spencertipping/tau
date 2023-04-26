@@ -30,7 +30,7 @@ $ diff <(bin/sigma '=n10p[A+1]M?F') <(seq 10)
 | `H`    | `η[7]`                      |
 | `N`    | `\|η\|`: number of elements |
 
-Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: you can always proceed rightward to the end of the input record.
+**TODO:** define precise semantics to differentiate between `ni fB` and `ni fB.`, which currently are unclear here
 
 
 ## Literals (`L`)

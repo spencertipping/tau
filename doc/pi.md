@@ -15,6 +15,12 @@ Like APL, operators apply strictly right to left: `!3>4` is evaluated as `!(3>4)
 Unlike APL, multiple adjacent expressions are not parsed into a vector by default. `1 2 3` will result in an η with three separate integers. Operators apply within subexpressions: `1+2 3` is equivalent to `3 3`.
 
 
+## Plurality
+A single η record is comprised of one or more values, each of which can be accessed positionally using the `A`..`H` atoms.
+
+**TODO:** define splicing contexts, which we should definitely have because (1) they're useful, and (2) they solve the η problem
+
+
 ## Ternary expressions
 π is built to parse multiple expressions independently, which means we can easily define a ternary operator without a delimiter. That is, we can define `?` without a corresponding `:` because the left and right subexpressions will be parsed adjacent to one another. This yields tighter packing:
 
