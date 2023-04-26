@@ -10,16 +10,18 @@ namespace σ
 using namespace τ;
 
 
-φ<Ψ2> &φΨ2()
+φ<Ψ2> φΨ2()
 {
   static φ<Ψ2> r = φL<Ψ2>([]()
     { return φd<Ψ2>("Ψ2",
-                    "g",  φauto(Γg),
-                    "-",  φauto(Γid),
-                    "M",  φauto(ΓM)
+                    "g",   φauto(Γg),
+                    "-",   φauto(Γid),
+                    "M?",  φauto(ΓMq),
+                    "M??", φauto(ΓMqq),
+                    "N",   φauto(ΓN),
+                    "p",   φauto(Γp)
                     /*"j",  φauto(Γj),
                       "k",  φauto(Γk),
-                      "p",  φauto(Γp),
                       "rp", φauto(Γrp),
                       "r-", φauto(Γrd),
                       "r",  φauto(Γrt),
@@ -35,7 +37,6 @@ using namespace τ;
                       "x",  φauto(Γx),
                       "y",  φauto(Γy),
                       "J",  φauto(ΓJ),
-                      "N",  φauto(ΓN),
                       "+",  φauto(Γappend),
                       "^",  φauto(Γprepend),
                       "%",  φauto(Γunion)*/); });
@@ -43,13 +44,30 @@ using namespace τ;
 }
 
 
+Ψ2 ΓMq()         { return ΓM(""); }
+Ψ2 ΓMqq(St name) { return ΓM(name); }
+
 Ψ2 ΓM(St name)
 {
   return [=](ψ q, ξi i, ξo o, Ψaux)
     {
+      for (let x : i)
+      {
+        if (name.empty()) std::cout                 << x << std::endl;
+        else              std::cout << name << ": " << x << std::endl;
+        o << x;
+      }
+    };
+}
+
+
+Ψ2 ΓN()
+{
+  return [=](ψ q, ξi i, ξo o, Ψaux)
+    {
       ηl(i, o, [&](ηi x)
-        { std::cout << name << ": " << x << std::endl;
-          o << x; });
+        { for (i64 j = 0; j < x.i(); ++j) o.r(12) << j;
+          o.r() << ηsig::τ; });
     };
 }
 
@@ -57,6 +75,13 @@ using namespace τ;
 Ψ2 Γid()
 {
   return [=](ψ, ξi i, ξo o, Ψaux) { for (let x : i) o << x; };
+}
+
+
+Ψ2 Γp(πf f)
+{
+  return [=](ψ q, ξi i, ξo o, Ψaux)
+    { ηl(i, o, [&](ηi x) { πi j{i, o}; o.r() << f(j); }); };
 }
 
 

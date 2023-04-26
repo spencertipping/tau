@@ -16,9 +16,19 @@ namespace τ
 
 φ<πf> πφcore_a()
 {
-  slet r = φm(πφlit(), πvq);
+  slet r = φd<πf>("πcore_a",
+                  "A", φR<πf>([](πi &i) { return i.y(); }),
+                  "B", φR<πf>([](πi &i) { return i.y()[1]; }),
+                  "C", φR<πf>([](πi &i) { return i.y()[2]; }),
+                  "D", φR<πf>([](πi &i) { return i.y()[3]; }),
+                  "E", φR<πf>([](πi &i) { return i.y()[4]; }),
+                  "F", φR<πf>([](πi &i) { return i.y()[5]; }),
+                  "G", φR<πf>([](πi &i) { return i.y()[6]; }),
+                  "H", φR<πf>([](πi &i) { return i.y()[7]; }),
+                  "",  φm(πφlit(), πvq));
   return r;
 }
+
 
 φ<πmf> πφcore_m()
 {
@@ -61,6 +71,7 @@ namespace τ
                    "!!", πηnotnot());
   return r;
 }
+
 
 φ<πdf> πφcore_d()
 {

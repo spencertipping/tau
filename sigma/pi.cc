@@ -7,7 +7,7 @@ namespace σ
 using namespace τ;
 
 
-φ<πf> &φπ()  { static φ<πf> r = πφ(φπa(), φπm(), φπd(), φπt()); return r; }
+φ<πf>  φπ()  { static φ<πf> r = πφ(φπa(), φπm(), φπd(), φπt()); return r; }
 
 φ<πf>  φπa() { return πφcore_a(); }
 φ<πmf> φπm() { return πφcore_m(); }

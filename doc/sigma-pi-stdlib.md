@@ -3,7 +3,7 @@ See [π](pi.md) for an overview of the language structure. This page describes t
 
 ```
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
-π    ηηηηηm   m   ηm           SL m dmL    d mm ddt    vv
+π    ηηηηηm   m   ηm           SL m dmL    d mm ddt    vη
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 π    mLSvddddLLdd dLLLL d mddddddLLtL
@@ -17,7 +17,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 ## Input accessors (`η`)
 | Symbol | Description                 |
 |--------|-----------------------------|
-| `A`    | `η[0]`                      |
+| `A`    | `η[0]`, aka current input   |
 | `B`    | `η[1]`                      |
 | `C`    | `η[2]`                      |
 | `D`    | `η[3]`                      |
@@ -59,7 +59,6 @@ Note that due to the structure of η, `B` and `ni`'s `B.` are comparable here: y
 |--------|-----------------------|
 | `$`    | variable prefix       |
 | `x`    | pre-reserved variable |
-| `y`    | pre-reserved variable |
 
 
 ## Monadic functions (`m`)

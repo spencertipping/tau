@@ -32,7 +32,7 @@ struct φ_
   virtual St           name()           const noexcept { return name_; }
   virtual φr_<T> operator()(φc_ const&) const noexcept = 0;
 
-  St name_;
+  St mutable name_;
 };
 
 

@@ -18,7 +18,13 @@ inline void ηexit() { throw ηexit__; }
 
 inline void ηl(ξi i, ξo o, F<void(ηi)> const &f)
 {
-  try { for (let x : i) if (o) f(x); }
+  try
+  {
+    for (let x : i)
+      if (x.is_sig()) o << x;
+      else if (o)     f(x);
+      else            return;
+  }
   catch (ηexit_) {}
 }
 

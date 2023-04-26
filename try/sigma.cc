@@ -21,8 +21,6 @@ int main(int argc, char *argv[])
       return 1;
     }
 
-    cout << r.r() << endl;
-
     τ::τe t;
     r.r()(τ::Ξ{t});
     t.go();

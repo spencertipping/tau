@@ -8,7 +8,7 @@ namespace σ
 using namespace τ;
 
 
-φ<Γ> &φΓa()
+φ<Γ> φΓa()
 {
   static φ<Γ> r = φL<Γ>([]()
     { return φd<Γ>("Γ",
@@ -20,7 +20,7 @@ using namespace τ;
 }
 
 
-φ<Γ> &φΓ()
+φ<Γ> φΓ()
 {
   static φ<Γ> r = φL<Γ>([]()
     { return Γφ(φΓa(), φΨ0(), φΨ1(), φΨ2(), φF<Ψ4>()); });

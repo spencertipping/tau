@@ -18,7 +18,7 @@ struct φL_ : public virtual φ_<T>
 
   φr_<T> operator()(φc_ const &x) const noexcept
     { A(!c, "circular dependency in lazy parser");
-      if (!p) c = true, p = f(), f = nullptr, c = false;
+      if (!p) c = true, p = f(), φ_<T>::name_ = p.name(), f = nullptr, c = false;
       return p(x); }
 
   φ<T>      mutable p;

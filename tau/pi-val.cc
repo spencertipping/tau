@@ -13,8 +13,10 @@ template<class T>
   {
     B       b;
     ηoc<B&> c{b};
-    ηo<B&>  i{c};
-    for (let &[k, v] : *x.m()) i.name(k) << v;
+    {
+      ηo<B&> i{c};
+      for (let &[k, v] : *x.m()) i.name(k) << v;
+    }
     return o << c;
   }
 
@@ -22,8 +24,10 @@ template<class T>
   {
     B       b;
     ηoc<B&> c{b};
-    ηo<B&>  i{c};
-    for (let &v : *x.v()) i << v;
+    {
+      ηo<B&> i{c};
+      for (let &v : *x.v()) i << v;
+    }
     return o << c;
   }
 
@@ -47,8 +51,17 @@ template<class T>
   }
 }
 
+template<class T>
+ηo<T> &&operator<<(ηo<T> &&o, πvc &x)
+{
+  return std::move(o << x);
+}
+
 template ηo<B&> &operator<<(ηo<B&>&, πvc&);
-template ηo<ξ>  &operator<<(ηo<ξ>&, πvc&);
+template ηo<ξ>  &operator<<(ηo<ξ> &, πvc&);
+
+template ηo<B&> &&operator<<(ηo<B&>&&, πvc&);
+template ηo<ξ>  &&operator<<(ηo<ξ> &&, πvc&);
 
 
 sletc cmp_fn = fn
