@@ -11,7 +11,10 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 
 
 ## Examples
-**TODO**
+```bash
+$ diff <(bin/sigma '=n10M?F') <(seq 0 9)
+$ diff <(bin/sigma '=n10p[A+1]M?F') <(seq 10)
+```
 
 
 ## Input accessors (`η`)

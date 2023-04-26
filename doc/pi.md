@@ -4,11 +4,6 @@
 + [π interpreter](pi-int.md)
 + [σ/π stdlib](sigma-pi-stdlib.md)
 
-```bash
-$ diff <(bin/sigma '=n10M?F') <(seq 0 9)
-$ diff <(bin/sigma '=n10p[A+1] M?F') <(seq 10)
-```
-
 
 ## π expression structure
 π expressions are parsed with prefix monadic and infix dyadic ops, just like APL. Unlike APL, however, we can't infer operator arity; expressions may be juxtaposed to form adjacent tuple/map elements, so we rely on operators to set our expectations about whether the next expression is part of this one or the beginning of a new element.
