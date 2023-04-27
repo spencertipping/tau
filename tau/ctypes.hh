@@ -169,6 +169,7 @@ template<class T, class U> using P  = std::pair<T, U>;
 template<class... T>       using Q  = std::queue<T...>;
 typedef               std::regex Re;
 typedef              std::smatch Rsm;
+typedef     std::sregex_iterator Rsi;
 template<class... K>       using S  = std::unordered_set<K...>;
 template<class... T>       using Sk = std::stack<T...>;
 template<class... T>       using Sn = std::span<T...>;

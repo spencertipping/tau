@@ -20,10 +20,8 @@ static bool http_req_parse(Stc &b, ξo o)
   Stc hs = m[3].str();
   Re  hr(R"(([A-Za-z0-9-]+): ([^\r\n]*)\r\n)");
   πv  h; h.v_ = Sp<M<St, πv>>{new M<St, πv>};
-  for (std::sregex_iterator it(hs.begin(), hs.end(), hr), end_it;
-       it != end_it;
-       ++it)
-    (*h.m())[(*it)[1].str()] = (*it)[2].str();
+  for (Rsi i(hs.begin(), hs.end(), hr), e; i != e; ++i)
+    (*h.m())[(*i)[1].str()] = (*i)[2].str();
 
   w << h;
   return true;
@@ -32,6 +30,8 @@ static bool http_req_parse(Stc &b, ξo o)
 
 static void http_req_loop(ξi i, ξo o)
 {
+  // TODO: make this a proper state machine with a buffer, content-length,
+  // and transfer-encoding
   St b;
   for (let x : i)
   {
