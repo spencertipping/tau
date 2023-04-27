@@ -29,25 +29,25 @@ using namespace τ;
 
 Ψ1 Γf()
 {
-  return [](ψ q, ξo o, Ψaux)
+  return {[](ψ q, ξo o, Ψaux)
     { τe &t = q.t();
-      while (1) t.dt(now() + 1s); };
+      while (1) t.dt(now() + 1s); }};
 }
 
 Ψ1 Γi(πv v)
 {
-  return [=](ψ q, ξo o, Ψaux) { o.r() << v; };
+  return {[=](ψ q, ξo o, Ψaux) { o.r() << v; }};
 }
 
 Ψ1 ΓI(πv v)
 {
-  return [=](ψ q, ξo o, Ψaux) { while (o) o.r() << v; };
+  return {[=](ψ q, ξo o, Ψaux) { while (o) o.r() << v; }};
 }
 
 Ψ1 Γn(i64 l)
 {
-  return [=](ψ q, ξo o, Ψaux)
-    { for (i64 i = 0; i < l; ++i) o.r() << i; };
+  return {[=](ψ q, ξo o, Ψaux)
+    { for (i64 i = 0; i < l; ++i) o.r() << i; }};
 }
 
 

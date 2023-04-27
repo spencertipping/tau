@@ -49,7 +49,7 @@ using namespace τ;
 
 Ψ2 ΓM(St name)
 {
-  return [=](ψ q, ξi i, ξo o, Ψaux)
+  return {[=](ψ q, ξi i, ξo o, Ψaux)
     {
       for (let x : i)
       {
@@ -57,37 +57,37 @@ using namespace τ;
         else              std::cout << name << ": " << x << std::endl;
         o << x;
       }
-    };
+    }, "M" + name};
 }
 
 
 Ψ2 ΓN()
 {
-  return [=](ψ q, ξi i, ξo o, Ψaux)
+  return {[=](ψ q, ξi i, ξo o, Ψaux)
     {
       ηl(i, o, [&](ηi x)
         { for (i64 j = 0; j < x.i(); ++j) o.r(12) << j;
           o.r() << ηsig::τ; });
-    };
+    }, "N"};
 }
 
 
 Ψ2 Γid()
 {
-  return [=](ψ, ξi i, ξo o, Ψaux) { for (let x : i) o << x; };
+  return {[=](ψ, ξi i, ξo o, Ψaux) { for (let x : i) o << x; }, "-"};
 }
 
 
 Ψ2 Γp(πf f)
 {
-  return [=](ψ q, ξi i, ξo o, Ψaux)
-    { ηl(i, o, [&](ηi x) { πi j{i, o}; o.r() << f(j); }); };
+  return {[=](ψ q, ξi i, ξo o, Ψaux)
+    { ηl(i, o, [&](ηi x) { πi j{i, o}; o.r() << f(j); }); }, "p[]"};
 }
 
 
 Ψ2 Γg(πf f)
 {
-  return [=](ψ q, ξi i, ξo o, Ψaux)
+  return {[=](ψ q, ξi i, ξo o, Ψaux)
     {
       V<B> xs;
       ητ(i, o,
@@ -100,7 +100,7 @@ using namespace τ;
              for (let &x : xs) o.r(x.size()) << Sn<u8c>{x.data(), x.size()};
              xs.clear();
              o.r() << ηsig::τ; });
-    };
+    }, "g[]"};
 }
 
 

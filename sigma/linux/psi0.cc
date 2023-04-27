@@ -10,7 +10,7 @@ using namespace τ;
 
 Ψ0 ΓwF(fd_t fd)
 {
-  return [=](ψ q, ξi i, Ψaux)
+  return {[=](ψ q, ξi i, Ψaux)
     {
       τe &t = q.t();
       q.pin();
@@ -31,7 +31,7 @@ using namespace τ;
     done:
       i.close();
       q.unpin();
-    };
+    }};
 }
 
 

@@ -11,8 +11,8 @@ using namespace std;
 
 Ψ1 iota()
 {
-  return [](ψ, ξo o, Ψaux)
-    { for (i64 i = 1;; ++i) o.r(12) << i; };
+  return {[](ψ, ξo o, Ψaux)
+    { for (i64 i = 1;; ++i) o.r(12) << i; }};
 }
 
 Γ weaken_eager()
@@ -24,69 +24,68 @@ using namespace std;
 
 Ψ2 weaken()
 {
-  return [](ψ, ξi i, ξo o, Ψaux)
+  return {[](ψ, ξi i, ξo o, Ψaux)
     { i.weaken();
-      for (let x : i) o.r(x.osize()) << x.outer(); };
+      for (let x : i) o.r(x.osize()) << x.outer(); }};
 }
 
 Ψ2 take(i64 n)
 {
-  return [n](ψ, ξi i, ξo o, Ψaux)
+  return {[n](ψ, ξi i, ξo o, Ψaux)
     { i64 e = 0;
       if (n)
         for (let x : i)
         { o.r(x.osize()) << x.outer();
-          if (++e >= n) break; } };
+          if (++e >= n) break; } }};
 }
 
 Ψ2 sum()
 {
-  return [](ψ, ξi i, ξo o, Ψaux)
+  return {[](ψ, ξi i, ξo o, Ψaux)
     { i64 t = 0;
-      for (let x : i) o.r(12) << (t += x.i()); };
+      for (let x : i) o.r(12) << (t += x.i()); }};
 }
 
 Ψ2 last()
 {
-  return [](ψ, ξi i, ξo o, Ψaux)
+  return {[](ψ, ξi i, ξo o, Ψaux)
     { i64 y = 0;
       for (let x : i) y = x.i();
-      o.r(12) << y; };
+      o.r(12) << y; }};
 }
 
 Ψ2 debug(St prefix)
 {
-  return [prefix](ψ, ξi i, ξo o, Ψaux)
+  return {[=](ψ, ξi i, ξo o, Ψaux)
     { for (let x : i)
       { cout << prefix << ": ";
         for (let y : x) cout << y << (y.has_next() ? " " : "");
         cout << endl;
-        o.r(x.osize()) << x.outer(); } };
+        o.r(x.osize()) << x.outer(); } }};
 }
 
 Ψ0 print()
 {
-  return [](ψ, ξi i, Ψaux)
+  return {[](ψ, ξi i, Ψaux)
     { for (let x : i)
       { for (let y : x) cout << y << (y.has_next() ? " " : "");
-        cout << endl; } };
+        cout << endl; } }};
 }
 
 
-Γ forever_server(St p)
+Ψ1 forever_server(St p)
 {
-  return ΓΨ([p](ψ q, ξo o, Ψaux)
+  return {[p](ψ q, ξo o, Ψaux)
     { q.b(p, [o](ψ &&q, Ξc &x)
       { let i = x.f();
         q.f([i, o]()
           { for (let x : i) o.r(x.osize()) << x.outer(); });
-        return x.fx(); }); },
-    Ψd::f, "forever_server:" + p, true);
+        return x.fx(); }); }, "forever_server:" + p, true};
 }
 
-Γ server(St p)
+Ψ2 server(St p)
 {
-  return new ΓΨ2_([p](ψ q, ξi i, ξo o, Ψaux)
+  return {[p](ψ q, ξi i, ξo o, Ψaux)
     { q.b(p, [o](ψ &&q, Ξc &x)
       { let i = x.f();
         q.f([i, o]() { for (let x : i) o.r(x.osize()) << x.outer(); });
@@ -98,7 +97,7 @@ using namespace std;
         { for (let a : i)
             if (a.is_sig() && a.sig() == ηsig::ω)
               q.bx(p); }); },
-    Ψd::f, "server:" + p, true);
+    "server:" + p, true};
 }
 
 Γ connect(St port)
@@ -112,17 +111,17 @@ slet p = φE(Γφ(φd<Γ>("Γ₁",
                      "push", φR(σ::Γpush()),
                      "drop", φR(σ::Γdrop()),
                      "we",   φR(weaken_eager()),
-                     "S",    φm(πφstr(), Sc<Γ(*)(St)>(server)),
-                     "fS",   φm(πφstr(), forever_server),
                      "C",    φm(πφstr(), Sc<Γ(*)(St)>(connect))),
                φd<Ψ0>("Ψ₀",
                       "p",   φR(print())),
                φd<Ψ1>("Ψ₁",
+                      "fS",  φm(πφstr(), forever_server),
                       "i",   φR(iota())),
                φd<Ψ2>("Ψ₂",
                       "d",   φm(πφstr(), debug),
                       "wl",  φR(weaken()),
                       "s",   φR(sum()),
+                      "S",   φm(πφstr(), Sc<Ψ2(*)(St)>(server)),
                       "l",   φR(last()),
                       "t",   φm(πφint(), take)),
                φF<Ψ4>()));

@@ -25,7 +25,7 @@ using namespace τ;
 
 Ψ0 ΓF()
 {
-  return [](ψ q, ξi i, Ψaux) { for (let x : i) (void) x; };
+  return {[](ψ q, ξi i, Ψaux) { for (let x : i) (void) x; }};
 }
 
 

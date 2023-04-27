@@ -14,7 +14,7 @@ using namespace τ;
 
 Ψ1 Γtcp(i16 port, i32 addr, Γ g)
 {
-  return [=](ψ q, ξo o, Ψaux)
+  return {[=](ψ q, ξo o, Ψaux)
     {
       τe &t = q.t();
       fd_t fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -35,13 +35,13 @@ using namespace τ;
         o.r() << c;
         (ΓΨ(ΓrF(c)) | ΓΨ(ΓwF(c), Ψd::b) | g)(Ξ{t}.push());
       }
-    };
+    }};
 }
 
 
 Ψ1 ΓrF(fd_t fd)
 {
-  return [=](ψ q, ξo o, Ψaux)
+  return {[=](ψ q, ξo o, Ψaux)
     {
       St d; d.reserve(65536);
       τe &t = q.t();
@@ -50,7 +50,7 @@ using namespace τ;
       for (iS r;
            (r = t.read(fd, Rc<u8*>(d.data()), d.capacity())) > 0;)
         o.r(r + 8) << Stv{d.data(), Sc<uN>(r)};
-    };
+    }};
 }
 
 
