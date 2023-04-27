@@ -30,7 +30,7 @@ $ diff <(bin/sigma '=n10p[A+1]M?F') <(seq 10)
 | `H`    | `η[7]`                      |
 | `N`    | `\|η\|`: number of elements |
 
-**TODO:** define precise semantics to differentiate between `ni fB` and `ni fB.`, which currently are unclear here
+**TODO:** define precise semantics to differentiate between `ni fB` and `ni fB.`, which currently are unclear here (see "plurality" in [pi.md](pi.md))
 
 
 ## Literals (`L`)

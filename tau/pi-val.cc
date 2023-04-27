@@ -38,7 +38,7 @@ template<class T>
   case ηtype::n_int:     return o << x.n_int();
   case ηtype::n_float:   return o << x.n_float();
   case ηtype::string:    return o << x.str();
-  case ηtype::name:      return o << x.name();
+  case ηtype::name:      return o.k(x.name().n);
   case ηtype::atom:      return o << x.atom();
   case ηtype::η:         return o << x.η();
   case ηtype::int8s:     return x.native() ? o << x.vi8s()  : o << x.i8s();

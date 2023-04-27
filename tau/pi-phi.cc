@@ -146,7 +146,10 @@ namespace τ
 
 φ<πname> πφname()
 {
-  slet r = φm(φ2("name", φl("'"), φcs("abcdefghjiklmnopqrstuvxyz", false, 1)), [](St x) { return πname{x}; });
+  slet r = φ2("name", φl("'"),
+              φa("name",
+                 φm(πφstr(), [](St x) { return πname{x}; }),
+                 φm(φcs("abcdefghjiklmnopqrstuvxyz", false, 1), [](St x) { return πname{x}; })));
   return r;
 }
 

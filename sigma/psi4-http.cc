@@ -28,6 +28,9 @@ static bool http_req_parse(Stc &b, ξo o)
 }
 
 
+// Input: chunks of HTTP request data, from the socket
+// Output: η[method url {headers}]
+
 static void http_req_loop(ξi i, ξo o)
 {
   // TODO: make this a proper state machine with a buffer, content-length,
@@ -35,22 +38,48 @@ static void http_req_loop(ξi i, ξo o)
   St b;
   for (let x : i)
   {
-    if (x.is_s()) b.append(x.s().begin(), x.s().end());
-    if (b.find("\r\n\r\n") != St::npos)
+    if (x.is_s())
     {
-      if (http_req_parse(b, o)) b.clear();
-      else                      break;
+      b.append(x.s().begin(), x.s().end());
+      if (b.find("\r\n\r\n") != St::npos)
+      {
+        if (http_req_parse(b, o)) b.clear();
+        else                      break;
+      }
     }
   }
 }
 
 
+// Input: η[code message {headers}] body... τ
+// Output: chunks of HTTP response data, to the socket
+
 static void http_res_loop(ξi i, ξo o)
 {
-  for (let x : i)
+  for (auto x : i)
   {
-    // FIXME
-    o << x;
+    if (x.is_η()) x = x.η();       // TODO: remove this once π is fixed
+    if (x.is_i() && x.has_next())  // structured reply
+    {
+      Ss r; r << "HTTP/1.1 " << x.i() << " " << x.next().s() << "\r\n";
+      let h = x.next().next().η();
+      for (let i : h)
+        if      (i.is_n()) r << i.n() << ": ";
+        else if (i.is_s()) r << i.s() << "\r\n";
+        else               A(0, "http_res_loop: unexpected header " << i);
+      r << "\r\n";
+      let s = r.str();
+      o.r(s.size() + 8) << s;
+    }
+    else if (x.is_s()) o << x;
+    else if (x.is_τ())  // end of reply
+    {
+      // TODO: reset state
+    }
+    else
+    {
+      A(0, "http_res_loop: unexpected input " << x);
+    }
   }
 }
 
