@@ -12,6 +12,10 @@ namespace σ
 {
 
 
+// TODO: parsers like this should be structs so we can avoid global state
+// and it remains easy to fork/extend the grammar
+//
+// Core functions should return copies that we can modify
 τ::φ<τ::Γ> φΓ();
 τ::φ<τ::Γ> φΓa();
 

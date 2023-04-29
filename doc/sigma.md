@@ -35,8 +35,8 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 ### Γ table
 | Symbol  | Syntax  | Description                               |
 |---------|---------|-------------------------------------------|
-| `:`     | n Γ     | define variable                           |
-| `$`     | n       | refer to variable                         |
+| `:`     | n Γ     | define Γ variable                         |
+| `$`     | n       | refer to Γ                                |
 | `&`     | n       | refer to τ server socket                  |
 | `[`/`]` | Γ\*     | Γ grouping                                |
 | `(`/`)` | Γ\*     | dynamic half-duplex demultiplexer         |

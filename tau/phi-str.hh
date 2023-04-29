@@ -24,6 +24,7 @@ struct φd_ : public virtual φ_<T>
   template<class... Xs>
   φd_(St name, Xs const&... xs) : φ_<T>(name) { def(xs...); }
 
+
   template<class... Xs>
   φd_ &def(Stc &k, φ<T> p, Xs const&... xs)
     { A(!ps.contains(k), *this << ": redefining " << k);
@@ -35,6 +36,15 @@ struct φd_ : public virtual φ_<T>
     { return def(k, φ<T>{new φR_<T>(x)}, xs...); }
 
   φd_ &def() { return *this; }
+
+
+  template<class... Xs>
+  φd_ &undef(Stc &k, Xs const&... xs)
+    { A(ps.contains(k), *this << ": undefining nonexistent " << k);
+      ps.erase(k);
+      return undef(xs...); }
+
+  φd_ &undef() { return *this; }
 
 
   φr_<T> operator()(φc_ const &x) const noexcept
