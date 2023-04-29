@@ -17,7 +17,7 @@ namespace τ
 }
 
 
-ξd Ξkg(Sp<Ξk> x, Stc &k)
+Tt T Ξkg(Sp<Ξk<T>> x, Stc &k)
 {
   for (; x; x = x->n)
     if (x->k == k) return x->v;
@@ -25,15 +25,15 @@ namespace τ
   τunreachable();
 }
 
-Sp<Ξk> Ξkc(Sp<Ξk> x, Stc &k, ξd const &v, uN s)
+Tt Sp<Ξk<T>> Ξkc(Sp<Ξk<T>> x, Stc &k, T const &v, uN s)
 {
-  return Sp<Ξk>{new Ξk{k, v, s, x}};
+  return Sp<Ξk<T>>{new Ξk<T>{k, v, s, x}};
 }
 
-Sp<Ξk> Ξks(Sp<Ξk> x, Stc &k, ξd const &v, uN s)
+Tt Sp<Ξk<T>> Ξks(Sp<Ξk<T>> x, Stc &k, T const &v, uN s)
 {
   if (!Ξki(x, k)) return Ξkc(x, k, v, s);
-  Sk<Sp<Ξk>> xs;
+  Sk<Sp<Ξk<T>>> xs;
   for (; x; xs.push(x), x = x->n)
     if (x->k == k)
     {
@@ -50,24 +50,39 @@ Sp<Ξk> Ξks(Sp<Ξk> x, Stc &k, ξd const &v, uN s)
   τunreachable();
 }
 
-bool Ξki(Sp<Ξk> x, Stc &k)
+Tt bool Ξki(Sp<Ξk<T>> x, Stc &k)
 {
   for (; x; x = x->n) if (x->k == k) return true;
   return false;
 }
 
-Sp<Ξk> Ξkx(Sp<Ξk> x, Stc &k)
+Tt Sp<Ξk<T>> Ξkx(Sp<Ξk<T>> x, Stc &k)
 {
   if (!x)        return x;
   if (x->k == k) return x->n;
-  return Sp<Ξk>(new Ξk{x->k, x->v, x->s, Ξkx(x->n, k)});
+  return Sp<Ξk<T>>(new Ξk<T>{x->k, x->v, x->s, Ξkx(x->n, k)});
 }
 
-Sp<Ξk> Ξkp(Sp<Ξk> x, uN s)
+Tt Sp<Ξk<T>> Ξkp(Sp<Ξk<T>> x, uN s)
 {
   while (x && x->s > s) x = x->n;
   return x;
 }
+
+
+template ξd         Ξkg<ξd>(Sp<Ξk<ξd>>, Stc&);
+template Sp<Ξk<ξd>> Ξkc<ξd>(Sp<Ξk<ξd>>, Stc&, ξdc&, uN);
+template Sp<Ξk<ξd>> Ξks<ξd>(Sp<Ξk<ξd>>, Stc&, ξdc&, uN);
+template bool       Ξki<ξd>(Sp<Ξk<ξd>>, Stc&);
+template Sp<Ξk<ξd>> Ξkx<ξd>(Sp<Ξk<ξd>>, Stc&);
+template Sp<Ξk<ξd>> Ξkp<ξd>(Sp<Ξk<ξd>>, uN);
+
+template Sp<Γ_>         Ξkg<Sp<Γ_>>(Sp<Ξk<Sp<Γ_>>>, Stc&);
+template Sp<Ξk<Sp<Γ_>>> Ξkc<Sp<Γ_>>(Sp<Ξk<Sp<Γ_>>>, Stc&, Sp<Γ_> const&, uN);
+template Sp<Ξk<Sp<Γ_>>> Ξks<Sp<Γ_>>(Sp<Ξk<Sp<Γ_>>>, Stc&, Sp<Γ_> const&, uN);
+template bool           Ξki<Sp<Γ_>>(Sp<Ξk<Sp<Γ_>>>, Stc&);
+template Sp<Ξk<Sp<Γ_>>> Ξkx<Sp<Γ_>>(Sp<Ξk<Sp<Γ_>>>, Stc&);
+template Sp<Ξk<Sp<Γ_>>> Ξkp<Sp<Γ_>>(Sp<Ξk<Sp<Γ_>>>, uN);
 
 
 M<St, ξd> Ξ::ktop() const

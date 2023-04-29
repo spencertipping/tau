@@ -124,7 +124,7 @@ slet p = φE(Γφ(φd<Γ>("Γ₁",
                       "S",   φm(πφstr(), Sc<Ψ2(*)(St)>(server)),
                       "l",   φR(last()),
                       "t",   φm(πφint(), take)),
-               φF<Ψ4>()));
+               φF<Ψ4>()).second);
 
 
 void try_gc1()

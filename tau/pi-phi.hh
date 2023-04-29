@@ -28,12 +28,11 @@ namespace τ
 //
 // The resulting parser performs all folding and returns a single value.
 
-// TODO: return P<φ<πf>, φ<πf>>, one for compiled atoms and one for full exprs
-
-φ<πf> πφ(φ<πf>  a = πφcore_a(),
-         φ<πmf> m = πφcore_m(),
-         φ<πdf> d = πφcore_d(),
-         φ<πtf> t = πφcore_t());
+P<φ<πf>, φ<πf>>
+πφ(φ<πf>  a = πφcore_a(),
+   φ<πmf> m = πφcore_m(),
+   φ<πdf> d = πφcore_d(),
+   φ<πtf> t = πφcore_t());
 
 
 // Built-in language elements

@@ -8,7 +8,7 @@ namespace σ
 using namespace τ;
 
 
-φ<Γ> φΓa()
+static φ<Γ> φΓa_()
 {
   static φ<Γ> r = φL<Γ>([]()
     { return φd<Γ>("Γ",
@@ -19,13 +19,14 @@ using namespace τ;
   return r;
 }
 
-
-φ<Γ> φΓ()
+static P<φ<Γ>, φ<Γ>> φΓ_()
 {
-  static φ<Γ> r = φL<Γ>([]()
-    { return Γφ(φΓa(), φΨ0(), φΨ1(), φΨ2(), φΨ4()); });
+  slet r = Γφ(φΓa_(), φΨ0(), φΨ1(), φΨ2(), φΨ4());
   return r;
 }
+
+φ<Γ> φΓa() { return φL<Γ>([]() { return φΓ_().first; }); }
+φ<Γ> φΓ () { return φL<Γ>([]() { return φΓ_().second; }); }
 
 
 Γ Γdrop() { return new Γf_{"_", [](Ξc &x) { return x.drop(); }}; }

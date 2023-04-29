@@ -131,7 +131,7 @@ namespace τ
 
 φ<f64> πφfloat()
 {
-  slet ds  = φcs("0123456789", false, 1);
+  slet ds  = φcs("0123456789", false, 1, 100);
   slet exp = φq("fexp", φcs("eE", false, 1, 1), φcs("-+", false, 0, 1), ds);
   slet r   = φm(φq("float",
                    φo(φl("-")),
@@ -200,7 +200,7 @@ namespace τ
 }
 
 
-φ<πf> πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t)
+P<φ<πf>, φ<πf>> πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t)
 {
   let p1 = φa0<πf>("π₁");  auto &p1a = p1.as<φa_<πf>>();
   let p  = φa0<πf>("π");   auto &pa  = p .as<φa_<πf>>();
@@ -212,7 +212,7 @@ namespace τ
       << φm(φs("tf", p1, πφwrap(t), pw, pw), [](auto r) { let &[x, t, y, z] = r; return πtc(t, x, y, z); })
       << p1;
 
-  return p;
+  return {p1, p};
 }
 
 

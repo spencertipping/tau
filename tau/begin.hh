@@ -52,3 +52,5 @@
 #define Sc static_cast
 #define Rc reinterpret_cast
 #define Cc const_cast
+
+#define Tt template<class T>

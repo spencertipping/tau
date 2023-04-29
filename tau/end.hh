@@ -19,5 +19,7 @@
 #undef Rc
 #undef Cc
 
+#undef Tt
+
 
 #undef τbegin_h

@@ -31,7 +31,8 @@ struct Γ final
   St name() const { A(g, "Γ::name empty"); return g->name(); }
   Γ_ &get() const { A(g, "Γ::get empty");  return *g; }
 
-  operator bool() const { return Sc<bool>(g); }
+  operator bool()   const { return Sc<bool>(g); }
+  operator Sp<Γ_>() const { return g; }
 
   template<class T = Γ_> Sp<T> as() const { return dpc<T>(g); }
   template<class T>      bool  is() const { return dynamic_cast<T*>(g.get()); }

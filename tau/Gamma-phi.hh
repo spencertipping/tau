@@ -12,8 +12,7 @@ namespace τ
 {
 
 
-// TODO: return P<φ, φ> -- see pi-phi.hh for details
-φ<Γ> Γφ(φ<Γ>, φ<Ψ0>, φ<Ψ1>, φ<Ψ2>, φ<Ψ4>);
+P<φ<Γ>, φ<Γ>> Γφ(φ<Γ>, φ<Ψ0>, φ<Ψ1>, φ<Ψ2>, φ<Ψ4>);
 
 
 // Built-in language elements
