@@ -12,7 +12,7 @@ namespace τ
 {
 
 
-template<class T, class... Xs> φ<T>  φd(St n, Xs const&... xs) { return {new φd_<T>(n, xs...)}; }
+template<class T, class... Xs> φ<T> φd(St n, Xs const&... xs) { return {new φd_<T>(n, xs...)}; }
 
 Tt     φ<T>  φl(St s, T v)   { return {new φl_<T>(s, v)}; }
 inline φ<St> φl(St s)        { return φl(s, s); }
@@ -59,17 +59,10 @@ template<class... Xs> auto φ3(St n, φ<Xs>... xs)
 φ<St> φCJK(uN min = 1, uN max = -1);
 
 
-Tt
-φ<T> operator|(φ<T> a, φ<T> b) { return φa("|", a, b); }
-
-template<class T, class U>
-φ<P<T, U>> operator&(φ<T> a, φ<U> b) { return φs("&", a, b); }
-
-template<class T, class U>
-φ<T> operator<<(φ<T> a, φ<U> b) { return φ1("<<", a, b); }
-
-template<class T, class U>
-φ<U> operator>>(φ<T> a, φ<U> b) { return φ1(">>", a, b); }
+Tt                         φ<T>       operator| (φ<T> a, φ<T> b) { return φa("|", a, b); }
+template<class T, class U> φ<P<T, U>> operator& (φ<T> a, φ<U> b) { return φs("&", a, b); }
+template<class T, class U> φ<T>       operator<<(φ<T> a, φ<U> b) { return φ1("<<", a, b); }
+template<class T, class U> φ<U>       operator>>(φ<T> a, φ<U> b) { return φ1(">>", a, b); }
 
 
 }
