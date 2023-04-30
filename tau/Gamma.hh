@@ -79,8 +79,8 @@ struct Γs_ : public virtual Γ_
 
   Ξ operator()(Ξ const &x) const { let y = h(x); return t ? (*t)(y) : y; }
   St    name()             const
-    { if (Γ_::name().empty()) Γ_::name(h.name() + (t ? t->name() : ""));
-      return Γ_::name(); }
+    { let n = Γ_::name();
+      return n.empty() ? h.name() + (t ? t->name() : "") : n; }
 };
 
 
