@@ -1,6 +1,8 @@
 #ifndef σΓ_h
 #define σΓ_h
 
+#include "auto.hh"
+
 #include "psi0.hh"
 #include "psi1.hh"
 #include "psi2.hh"
@@ -19,8 +21,11 @@ namespace σ
 τ::φ<τ::Γ> φΓa();
 
 
-τ::Γ Γdef(τ::St, τ::Γ);
-τ::Γ Γref(τ::St);
+τ::Γ Γvs(σident);
+τ::Γ Γvg(σident);
+
+τ::Γ Γdef(σident, τ::Γ);
+τ::Γ Γref(σident);
 τ::Γ Γsmux(τ::Mc<τ::St, τ::Γ>&);
 τ::Γ Γsdemux();
 τ::Γ Γdmux(τ::Γ);
@@ -30,7 +35,7 @@ namespace σ
 
 τ::Γ Γpush();
 τ::Γ Γdrop();
-τ::Γ Γdebug(τ::St);
+τ::Γ Γdebug(σident);
 
 
 }

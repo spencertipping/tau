@@ -37,6 +37,9 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 |---------|---------|-------------------------------------------|
 | `:`     | n Γ     | define Γ variable                         |
 | `$`     | n       | refer to Γ                                |
+| `:/`    | n       | bind top ξ to `n`                         |
+| `$/`    | n       | recall ξ                                  |
+| `$$`    |         | swap top ξs                               |
 | `&`     | n       | refer to τ server socket                  |
 | `[`/`]` | Γ\*     | Γ grouping                                |
 | `(`/`)` | Γ\*     | dynamic half-duplex demultiplexer         |

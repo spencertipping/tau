@@ -12,8 +12,9 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 
 ## Examples
 ```bash
-$ diff <(bin/sigma '=n10M?F') <(seq 0 9)
-$ diff <(bin/sigma '=n10p[A+1]M?F') <(seq 10)
+$ diff <(bin/sigma 'n10M?F') <(seq 0 9)
+$ diff <(bin/sigma 'n10p[A+1]M?F') <(seq 10)
+$ diff <(bin/sigma ':foo [n10p[A+1]] :bar [n20] $foo M?F') <(seq 10)
 ```
 
 

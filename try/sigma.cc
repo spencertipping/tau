@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     }
 
     τ::τe t;
-    r.r()(τ::Ξ{t});
+    r.r()(τ::Ξ{t}.push());
     t.go();
     return 0;
   }
