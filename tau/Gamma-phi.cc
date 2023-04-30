@@ -22,10 +22,10 @@ static φ<Γ> ΓφΨ(St    n,
                 Ψd    e)
 {
   return φa(n,
-            φm(a, [e](Ψ0 x) -> Γ { return ΓΨ(mo(x), e, "ΓΨ₀"); }),
-            φm(b, [e](Ψ1 x) -> Γ { return ΓΨ(mo(x), e, "ΓΨ₁"); }),
-            φm(c, [e](Ψ2 x) -> Γ { return ΓΨ(mo(x), e, "ΓΨ₂"); }),
-            φm(d, [e](Ψ4 x) -> Γ { return ΓΨ(mo(x), e, "ΓΨ₄"); }));
+            φM(a, [e](φc_ const &c, φr_<Ψ0> &&s) -> φr_<Γ> { return s.cast(ΓΨ(mo(s).r(), e, c.sub(s))); }),
+            φM(b, [e](φc_ const &c, φr_<Ψ1> &&s) -> φr_<Γ> { return s.cast(ΓΨ(mo(s).r(), e, c.sub(s))); }),
+            φM(c, [e](φc_ const &c, φr_<Ψ2> &&s) -> φr_<Γ> { return s.cast(ΓΨ(mo(s).r(), e, c.sub(s))); }),
+            φM(d, [e](φc_ const &c, φr_<Ψ4> &&s) -> φr_<Γ> { return s.cast(ΓΨ(mo(s).r(), e, c.sub(s))); }));
 }
 
 

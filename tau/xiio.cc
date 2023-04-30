@@ -7,7 +7,7 @@ namespace τ
 
 O &operator<<(O &s, ξd const &x)
 {
-  return s << x.f.inner_ξ().get() << "/" << x.b.inner_ξ().get();
+  return s << "ξd:f" << x.f.inner_ξ().get() << ":b" << x.b.inner_ξ().get();
 }
 
 

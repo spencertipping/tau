@@ -205,6 +205,26 @@ struct φm_ : public virtual φ_<U>
 };
 
 
+// Flatmap φr_<T> to φr_<U>
+template<class T,
+         class F,
+         class U = typename decltype(
+           std::declval<F>()(std::declval<φc_>(),
+                             std::declval<φr_<T>>()))::R>
+struct φM_ : public virtual φ_<U>
+{
+  φM_(φ<T> p_, F f_)
+    : φ_<U>("f(" + p_.name() + ")"), p(p_), f(f_) {}
+
+  φr_<U> operator()(φc_ const &x) const noexcept
+    { auto s = p(x);
+      return s.is_f() ? s.template cast<U>() : f(x, mo(s)); }
+
+  φ<T> p;
+  F    f;
+};
+
+
 // Filter
 Tt struct φf_ : public virtual φ_<T>
 {

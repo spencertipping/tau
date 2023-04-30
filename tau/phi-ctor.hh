@@ -45,6 +45,10 @@ template<class T, class F> auto φm(φ<T> p, F f)
   -> φ<De<decltype(f(std::declval<T>()))>>
 { return {new φm_<T, F>{p, f}}; }
 
+template<class T, class F> auto φM(φ<T> p, F f)
+  -> φ<De<typename decltype(f(std::declval<φc_>(), std::declval<φr_<T>>()))::R>>
+{ return {new φM_<T, F>{p, f}}; }
+
 
 template<class... Xs> auto φ1(St n, φ<Xs>... xs)
 { return φm(φs(n, xs...), [](auto &&x) { return std::get<0>(x); }); }

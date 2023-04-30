@@ -40,6 +40,8 @@ Tt struct φ_
 //   fail   ∷ (x, i) → (p, j)
 Tt struct φr_ final
 {
+  typedef T R;
+
   uN                  i;
   uN                  j;
   Va<φ_<T> const*, T> y;
@@ -48,9 +50,13 @@ Tt struct φr_ final
   bool is_f() const { return y.index() == 0; }
 
   φ_<T> const &p() const { return *std::get<0>(y); }
-  T     const &r() const
+  T     const &r() const&
     { A(is_a(), "parse failure at index " << j << ", parser " << p().name());
-      return  std::get<1>(y); }
+      return std::get<1>(y); }
+
+  T &&r() &&
+    { A(is_a(), "parse failure at index " << j << ", parser " << p().name());
+      return mo(std::get<1>(y)); }
 
   bool operator>(φr_<T> const &o) const noexcept { return j > o.j; }
   φr_ &operator=(φr_<T> const &a) noexcept
@@ -97,9 +103,10 @@ struct φc_ final
   uN   l() const noexcept { return x_->size() - i_; }
   uN   n() const noexcept { return x_->size(); }
 
-  ch operator[](iN i) const noexcept { return x_->at(i_ + i); }
-  St sub(uN n)        const noexcept { return {x_->data() + i_, n}; }
-  St sub(uN s, uN n)  const noexcept { return {x_->data() + i_ + s, n}; }
+  ch operator[](iN i)            const noexcept { return x_->at(i_ + i); }
+  St        sub(uN n)            const noexcept { return {x_->data() + i_, n}; }
+  St        sub(uN s, uN n)      const noexcept { return {x_->data() + i_ + s, n}; }
+  Tt St     sub(φr_<T> const &r) const noexcept { return sub(0, r.j - i_); }
 
   bool sw(Stc &x) const noexcept
     { return x.size() <= l() && !memcmp(x_->data() + i_, x.data(), x.size()); }

@@ -14,9 +14,16 @@ namespace τ
 // Virtual base for Γ compilers
 struct Γ_
 {
+  Γ_() {}
+  Γ_(Stc &n) { name_ = n; }
+
   virtual ~Γ_() {}
   virtual Ξ operator()(Ξ const &x) const { return x; }
-  virtual St      name()           const { return "Γ_"; }
+  virtual St      name()           const { return name_; }
+  virtual void    name(Stc &n)     const { name_ = n; }
+
+protected:
+  mutable St name_;
 };
 
 
@@ -28,8 +35,9 @@ struct Γ final
   Γ(Sp<Γ_> g_) : g(g_) {}
   Γ(Γ_    *g_) : g(g_) {}
 
-  St name() const { A(g, "Γ::name empty"); return g->name(); }
-  Γ_ &get() const { A(g, "Γ::get empty");  return *g; }
+  St name() const { A(g, "Γ::name on empty");              return g->name(); }
+  Γ &name(Stc &n) { A(g, "Γ::name= on empty"); g->name(n); return *this; }
+  Γ_ &get() const { A(g, "Γ::get on empty");               return *g; }
 
   operator bool()   const { return Sc<bool>(g); }
   operator Sp<Γ_>() const { return g; }
@@ -49,13 +57,11 @@ protected:
 // Trivial C++ lambda implementation of Γ_
 struct Γf_ : public virtual Γ_
 {
-  Γf_(St n_, F<Ξ(Ξ const&)> &&f_) : n(n_), f(mo(f_)) {}
+  Γf_(St n_, F<Ξ(Ξ const&)> &&f_) : Γ_(n_), f(mo(f_)) {}
 
   Ξ operator()(Ξ const &x) const { return f(x); }
-  St      name()           const { return n; }
 
 protected:
-  St             n;
   F<Ξ(Ξ const&)> f;
 };
 
@@ -72,7 +78,9 @@ struct Γs_ : public virtual Γ_
   Sp<Γs_> const t;
 
   Ξ operator()(Ξ const &x) const { let y = h(x); return t ? (*t)(y) : y; }
-  St    name()             const { return h.name() + (t ? t->name() : ""); }
+  St    name()             const
+    { if (Γ_::name().empty()) Γ_::name(h.name() + (t ? t->name() : ""));
+      return Γ_::name(); }
 };
 
 

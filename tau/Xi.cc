@@ -1,4 +1,5 @@
 #include "Xi.hh"
+#include "Gamma.hh"
 #include "psi.hh"
 
 #include "begin.hh"
@@ -109,10 +110,13 @@ O &operator<<(O &s, Ξ const &x)
     s << "  "  << y->io << std::endl;
 
   for (auto k = x.m_; k; k = k->n)
-    s << "  kv  " << k->k << " = " << k->v << " @ " << k->s << std::endl;
+    s << "  Ξk " << k->k << "@" << k->s << " = " << k->v << std::endl;
 
   for (auto v = x.v_; v; v = v->n)
-    s << "  var " << v->k << " = " << v->v << " @ " << v->s << std::endl;
+    s << "  Ξv " << v->k << "@" << v->s << " = " << v->v << std::endl;
+
+  for (auto v = x.g_; v; v = v->n)
+    s << "  Γv " << v->k << "@" << v->s << " = " << Γ{v->v} << std::endl;
 
   return s;
 }
