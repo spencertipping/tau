@@ -5,8 +5,7 @@ namespace τ
 {
 
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(Sn<u8c> const &xs)
+Tt ηo<T> &ηo<T>::operator<<(Sn<u8c> const &xs)
 {
   if (!reserve(xs.size_bytes())) return *this;
   memcpy(b_.data() + s_, xs.data(), xs.size_bytes());
@@ -15,8 +14,7 @@ template<class T>
 }
 
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(i64 x)
+Tt ηo<T> &ηo<T>::operator<<(i64 x)
 {
   if (x > Nl<i32>::max() || x < Nl<i32>::min())
   {
@@ -50,8 +48,7 @@ template<class T>
 }
 
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(f32 x)
+Tt ηo<T> &ηo<T>::operator<<(f32 x)
 {
   if (!reserve(5)) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::n_float, 4);
@@ -59,8 +56,7 @@ template<class T>
   return *this;
 }
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(f64 x)
+Tt ηo<T> &ηo<T>::operator<<(f64 x)
 {
   if (!reserve(9)) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::n_float, 8);
@@ -68,8 +64,7 @@ template<class T>
   return *this;
 }
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(Stc &s)
+Tt ηo<T> &ηo<T>::operator<<(Stc &s)
 {
   if (!reserve(s.size() + 1 + ηsb(s.size()))) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::string, s.size());
@@ -78,8 +73,7 @@ template<class T>
   return *this;
 }
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(Stvc &s)
+Tt ηo<T> &ηo<T>::operator<<(Stvc &s)
 {
   if (!reserve(s.size() + 1 + ηsb(s.size()))) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::string, s.size());
@@ -88,8 +82,7 @@ template<class T>
   return *this;
 }
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(chc *s)
+Tt ηo<T> &ηo<T>::operator<<(chc *s)
 {
   let n = strlen(s);
   if (!reserve(n + 1 + ηsb(n))) return *this;
@@ -100,8 +93,7 @@ template<class T>
 }
 
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(bool b)
+Tt ηo<T> &ηo<T>::operator<<(bool b)
 {
   if (!reserve(2)) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::atom, 1);
@@ -109,8 +101,7 @@ template<class T>
   return *this;
 }
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(ηatom a)
+Tt ηo<T> &ηo<T>::operator<<(ηatom a)
 {
   if (!reserve(2)) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::atom, 1);
@@ -118,8 +109,7 @@ template<class T>
   return *this;
 }
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(ηsig s)
+Tt ηo<T> &ηo<T>::operator<<(ηsig s)
 {
   if (!reserve(2)) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::sig, 1);
@@ -128,8 +118,7 @@ template<class T>
 }
 
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(ηic &i)
+Tt ηo<T> &ηo<T>::operator<<(ηic &i)
 {
   let sb = i.osize();
   if (!reserve(sb + 1 + ηsb(sb))) return *this;
@@ -139,8 +128,7 @@ template<class T>
   return *this;
 }
 
-template<class T>
-ηo<T> &ηo<T>::operator<<(ηoc<B&> &o)
+Tt ηo<T> &ηo<T>::operator<<(ηoc<B&> &o)
 {
   let sb = o.b.size();
   if (!reserve(sb + 1 + ηsb(sb))) return *this;
@@ -151,8 +139,7 @@ template<class T>
 }
 
 
-template<class T>
-ηo<T> &ηo<T>::name(Stc &s)
+Tt ηo<T> &ηo<T>::name(Stc &s)
 {
   if (!reserve(s.size() + 1 + ηsb(s.size()))) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::name, s.size());
@@ -161,8 +148,7 @@ template<class T>
   return *this;
 }
 
-template<class T>
-ηo<T> &ηo<T>::k(Stvc &s)
+Tt ηo<T> &ηo<T>::k(Stvc &s)
 {
   if (!reserve(s.size() + 1 + ηsb(s.size()))) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::name, s.size());
@@ -173,8 +159,7 @@ template<class T>
 
 
 #define τηspan(st, tt, ηt)                            \
-  template<class T>                                   \
-  ηo<T> &ηo<T>::operator<<(Sn<tt const> const &xs)    \
+  Tt ηo<T> &ηo<T>::operator<<(Sn<tt const> const &xs) \
   { let sb = xs.size_bytes();                         \
     if (!reserve(sb + 1 + ηsb(sb))) return *this;     \
     s_ += ηcb(b_.subspan(s_), ηtype::ηt, sb);         \
@@ -183,8 +168,7 @@ template<class T>
     s_ += sb;                                         \
     return *this; }                                   \
                                                       \
-  template<class T>                                   \
-  ηo<T> &ηo<T>::operator<<(Sn<st> const &xs)          \
+  Tt ηo<T> &ηo<T>::operator<<(Sn<st> const &xs)       \
   { let sb = xs.size_bytes();                         \
     if (!reserve(sb + 1 + ηsb(sb))) return *this;     \
     s_ += ηcb(b_.subspan(s_), ηtype::ηt, sb);         \
@@ -193,8 +177,7 @@ template<class T>
     s_ += sb;                                         \
     return *this; }                                   \
                                                       \
-  template<class T>                                   \
-  ηo<T> &ηo<T>::operator<<(V<De<st>> const &xs)       \
+  Tt ηo<T> &ηo<T>::operator<<(V<De<st>> const &xs)    \
   { let sb = xs.size() * sizeof(st);                  \
     if (!reserve(sb + 1 + ηsb(sb))) return *this;     \
     s_ += ηcb(b_.subspan(s_), ηtype::ηt, sb);         \
@@ -213,8 +196,7 @@ template<class T>
 #undef τηspan
 
 
-template<class T>
-bool ηo<T>::reserve(uN l)
+Tt bool ηo<T>::reserve(uN l)
 {
   if (o_.expired())
   {

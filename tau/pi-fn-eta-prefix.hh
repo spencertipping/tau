@@ -51,8 +51,7 @@ namespace τ
 
 // Make a single value act like a vector; this way we can use it with
 // vector functions
-template<class T>
-struct πbcast
+Tt struct πbcast
 {
   T x;
   T     operator[](uN i) const { return x; }
@@ -142,8 +141,7 @@ struct binr
 };
 
 
-template<class T>
-ic auto tnorm(T x) { return Sc<typename unr<T>::t>(x); }
+Tt ic auto tnorm(T x) { return Sc<typename unr<T>::t>(x); }
 
 
 #define τunfallthrough(op)                              \

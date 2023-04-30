@@ -14,8 +14,7 @@ namespace τ
 // (and hence, volatile), are faster than weak_ptr
 
 
-template<class T>
-struct ptr_ctrl final
+Tt struct ptr_ctrl final
 {
   iN          sr = 0;        // strong ref count
   iN          wr = 0;        // weak ref count
@@ -39,8 +38,7 @@ private:
 };
 
 
-template<class T>
-struct shared_ptr final
+Tt struct shared_ptr final
 {
   T           *p;
   ptr_ctrl<T> *c;
@@ -85,8 +83,7 @@ struct shared_ptr final
 };
 
 
-template<class T>
-struct weak_ptr final
+Tt struct weak_ptr final
 {
   T           *p;
   ptr_ctrl<T> *c;
@@ -127,13 +124,13 @@ struct weak_ptr final
 }
 
 
-template<class T> struct std::hash<τ::shared_ptr<T>>
+Tt struct std::hash<τ::shared_ptr<T>>
 {
   size_t operator()(τ::shared_ptr<T> const &x) const
     { return std::hash<void*>{}(x.p); }
 };
 
-template<class T> struct std::hash<τ::weak_ptr<T>>
+Tt struct std::hash<τ::weak_ptr<T>>
 {
   size_t operator()(τ::weak_ptr<T> const &x) const
     { return std::hash<void*>{}(x.p); }

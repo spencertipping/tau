@@ -11,8 +11,7 @@ namespace τ
 
 
 // Lazy parser, initialized on-demand
-template<class T>
-struct φL_ : public virtual φ_<T>
+Tt struct φL_ : public virtual φ_<T>
 {
   φL_(F<φ<T>()> f_) : φ_<T>("lazy"), f(f_), c(false) {}
 
@@ -28,8 +27,7 @@ struct φL_ : public virtual φ_<T>
 
 
 // Weakly referenced parser
-template<class T>
-struct φW_ : public virtual φ_<T>
+Tt struct φW_ : public virtual φ_<T>
 {
   φW_(φ<T> p_) : φ_<T>(p_.name()), p(p_.p) {}
   φr_<T> operator()(φc_ const &x) const noexcept { return (*wpg(p))(x); }
@@ -38,8 +36,7 @@ struct φW_ : public virtual φ_<T>
 
 
 // Insta-fail parser
-template<class T>
-struct φF_ : public virtual φ_<T>
+Tt struct φF_ : public virtual φ_<T>
 {
   φF_() : φ_<T>("fail") {}
   φr_<T> operator()(φc_ const &x) const noexcept { return x.f(this, x.i()); }
@@ -47,8 +44,7 @@ struct φF_ : public virtual φ_<T>
 
 
 // Preferential alternative
-template<class T>
-struct φa_ : public virtual φ_<T>
+Tt struct φa_ : public virtual φ_<T>
 {
   template<class... Xs>
   φa_(St name, Xs const&... xs) : φ_<T>(name) { push(xs...); }
@@ -74,8 +70,7 @@ struct φa_ : public virtual φ_<T>
 
 
 // Return without consuming anything
-template<class T>
-struct φR_ : public virtual φ_<T>
+Tt struct φR_ : public virtual φ_<T>
 {
   φR_(T x__) : φ_<T>("φR"), x_(x__) {}
   φr_<T> operator()(φc_ const &x) const noexcept { return x.a(x_, x.i()); }
@@ -84,8 +79,7 @@ struct φR_ : public virtual φ_<T>
 
 
 // Repetition
-template<class T>
-struct φn_ : public virtual φ_<V<T>>
+Tt struct φn_ : public virtual φ_<V<T>>
 {
   φn_(φ<T> p_, uN min_ = 0, uN max_ = -1)
     : φ_<V<T>>("(" + p_.name() + ")*"), p(p_), min(min_), max(max_) {}
@@ -111,8 +105,7 @@ struct φn_ : public virtual φ_<V<T>>
 
 
 // Sequence of same-typed thing
-template<class T>
-struct φS_ : public virtual φ_<V<T>>
+Tt struct φS_ : public virtual φ_<V<T>>
 {
   template<class... Xs>
   φS_(St name, Xs const&... ps_) : φ_<V<T>>(name), ps({ps_...}) {}
@@ -132,8 +125,7 @@ struct φS_ : public virtual φ_<V<T>>
 
 
 // Optional
-template<class T>
-struct φo_ : public virtual φ_<Op<T>>
+Tt struct φo_ : public virtual φ_<Op<T>>
 {
   φo_(φ<T> p_) : φ_<Op<T>>("(" + p_.name() + ")?"), p(p_) {}
 
@@ -148,8 +140,7 @@ struct φo_ : public virtual φ_<Op<T>>
 
 
 // Optional with default
-template<class T>
-struct φO_ : public virtual φ_<T>
+Tt struct φO_ : public virtual φ_<T>
 {
   φO_(φ<T> p_, T d_) : φ_<T>("(" + p_.name + ")?_"), p(p_), d(d_) {}
 
@@ -215,8 +206,7 @@ struct φm_ : public virtual φ_<U>
 
 
 // Filter
-template<class T>
-struct φf_ : public virtual φ_<T>
+Tt struct φf_ : public virtual φ_<T>
 {
   φf_(φ<T> p_, F<bool(T)> f_)
     : φ_<T>("(" + p_.name() + " | f)"), p(p_), f(f_) {}

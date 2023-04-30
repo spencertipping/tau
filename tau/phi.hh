@@ -11,20 +11,19 @@ namespace τ
 {
 
 
-template<class T> struct φ_;
-template<class T> struct φr_;
+Tt struct φ_;
+Tt struct φr_;
 struct φc_;
 
 
 // Parser structures end in _ because we don't instantiate them directly.
 // Instead, we wrap them with shared pointers. This class defines the
 // user-facing API for parsers.
-template<class T> struct φ;
+Tt struct φ;
 
 
 // φ parser ∷ φc → φr<T>
-template<class T>
-struct φ_
+Tt struct φ_
 {
   φ_(St name) : name_(name) {}
   virtual ~φ_() {};
@@ -39,8 +38,7 @@ struct φ_
 // Parse result, which is either:
 //   accept ∷ (x, i) → (y, j)
 //   fail   ∷ (x, i) → (p, j)
-template<class T>
-struct φr_ final
+Tt struct φr_ final
 {
   uN                  i;
   uN                  j;
@@ -108,8 +106,7 @@ struct φc_ final
 
   St::const_iterator it(uN i) const noexcept { return x_->begin() + i_ + i; }
 
-  template<class T>
-  M<φmk_, φ_<T> const*> &m() const noexcept
+  Tt M<φmk_, φ_<T> const*> &m() const noexcept
     { return *Rc<M<φmk_, φ_<T> const*>*>(m_.get()); }
 
 
@@ -120,8 +117,7 @@ protected:
 };
 
 
-template<class T>
-struct φ final
+Tt struct φ final
 {
   φ()          :        id(φgen_id()) {}
   φ(φ_<T> *p_) : p(p_), id(φgen_id()) {}

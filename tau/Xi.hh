@@ -24,8 +24,7 @@ struct Ξs final
 
 
 // Immutable k → v map with scope-level annotations
-template<class T>
-struct Ξk final
+Tt struct Ξk final
 {
   St     const k;
   T      const v;

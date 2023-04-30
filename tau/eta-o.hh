@@ -13,7 +13,7 @@ namespace τ
 
 
 // ηoc: output container for ηo writers
-template<class T> struct ηoc;
+Tt struct ηoc;
 
 template<> struct ηoc<ξ> final
 {
@@ -54,8 +54,7 @@ template<> struct ηoc<B&> final
 // writer methods will silently become no-ops. If you create a ηo against an
 // expired pointer, it will SIGPIPE and terminate the calling λ.
 
-template<class T>
-struct ηo final
+Tt struct ηo final
 {
   ηo(ηoc<T> o, uN c0 = 256) : o_(o), s_(0)
     { A(c0, "ηo with no initial capacity");

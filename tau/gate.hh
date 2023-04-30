@@ -17,14 +17,12 @@ namespace τ
 //
 // This class holds a reference to a gate container, which outlasts λg so
 // that all awoken λs will have access to messages being sent to them.
-template<class T>
-struct λg;
+Tt struct λg;
 
 
 // Gate container: this contains all of the logic required to send messages
 // and wake λs that are blocked.
-template<class T>
-struct λgc
+Tt struct λgc
 {
   λgc(Λ &l_) : l(l_), m{} {}
 
@@ -47,8 +45,7 @@ protected:
 };
 
 
-template<class T>
-struct λg
+Tt struct λg
 {
   λg(Λ &l) : c(new λgc<T>(l)) {}
 

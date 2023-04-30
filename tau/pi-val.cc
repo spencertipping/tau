@@ -5,8 +5,7 @@ namespace τ
 {
 
 
-template<class T>
-ηo<T> &operator<<(ηo<T> &o, πvc &x)
+Tt ηo<T> &operator<<(ηo<T> &o, πvc &x)
 {
   // Handle the two special cases, which require recursive πv conversion.
   if (x.is_nmap())
@@ -51,8 +50,7 @@ template<class T>
   }
 }
 
-template<class T>
-ηo<T> &&operator<<(ηo<T> &&o, πvc &x)
+Tt ηo<T> &&operator<<(ηo<T> &&o, πvc &x)
 {
   return std::move(o << x);
 }
@@ -108,8 +106,7 @@ PO πv::operator<=>(πvc &x) const
 }
 
 
-template<class T>
-static O &vout(O &s, T const &xs)
+Tt static O &vout(O &s, T const &xs)
 {
   bool first = true;
   for (let &x : xs)
@@ -121,8 +118,7 @@ static O &vout(O &s, T const &xs)
   return s;
 }
 
-template<class T>
-static O &mout(O &s, T const &xs)
+Tt static O &mout(O &s, T const &xs)
 {
   bool first = true;
   for (let &[k, v] : xs)

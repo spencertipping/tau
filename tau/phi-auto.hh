@@ -12,7 +12,7 @@ namespace τ
 {
 
 
-template<class T> struct φauto_;
+Tt struct φauto_;
 
 
 template<class... Xs, class T>

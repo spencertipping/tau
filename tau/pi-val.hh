@@ -199,8 +199,8 @@ typedef πv const πvc;
 O &operator<<(O&, πvc&);
 
 
-template<class T> ηo<T>  &operator<<(ηo<T>&,  πvc&);
-template<class T> ηo<T> &&operator<<(ηo<T>&&, πvc&);
+Tt ηo<T>  &operator<<(ηo<T>&,  πvc&);
+Tt ηo<T> &&operator<<(ηo<T>&&, πvc&);
 
 
 }

@@ -9,7 +9,7 @@ namespace τ
 {
 
 
-template<class T> struct ηauto_;
+Tt struct ηauto_;
 
 template<> struct ηauto_<i8>  { static i8  v(ηic &i) { return i.i(); } };
 template<> struct ηauto_<i16> { static i16 v(ηic &i) { return i.i(); } };

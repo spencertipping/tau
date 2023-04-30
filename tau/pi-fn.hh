@@ -23,15 +23,13 @@ namespace τ
 // two variants is the dispatch limit if we want any reasonable compile times
 // and binary sizes.
 
-template<class T>
-πmf πmv(T &&f)
+Tt πmf πmv(T &&f)
 {
   return [f=fo<T>(f)](πi &i, πv &&x) -> πv
     { return std::visit([&](auto &&x) { return f(i, mo(x)); }, x.v_); };
 }
 
-template<class T>
-πdf πdv(T &&f)
+Tt πdf πdv(T &&f)
 {
   return [f=fo<T>(f)](πi &i, πv &&x, πv &&y) -> πv
     { return std::visit([&](auto &&x, auto &&y) { return f(i, mo(x), mo(y)); },
@@ -65,15 +63,13 @@ inline πf πtc(πtf const &f, πf const &x, πf const &y, πf const &z)
 // monadic/dyadic, not triadic, to avoid the humongous dispatch tables
 // that triadic operators would produce.
 
-template<class T>
-πf πme(T &&f, πf &&x)
+Tt πf πme(T &&f, πf &&x)
 {
   return [f=fo<T>(f), x=mo(x)](πi &i) -> πv
     { return f(i, x(i)); };
 }
 
-template<class T>
-πf πde(T &&f, πf &&x, πf &&y)
+Tt πf πde(T &&f, πf &&x, πf &&y)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y)](πi &i) -> πv
     { let a = x(i);
@@ -84,15 +80,13 @@ template<class T>
 
 
 // Lazy dispatching variants
-template<class T>
-πf πml(T &&f, πf &&x)
+Tt πf πml(T &&f, πf &&x)
 {
   return [f=fo<T>(f), x=mo(x)](πi &i) -> πv
     { return f(i, x); };
 }
 
-template<class T>
-πf πdl(T &&f, πf &&x, πf &&y)
+Tt πf πdl(T &&f, πf &&x, πf &&y)
 {
   return [f=fo<T>(f), x=mo(x), y=mo(y)](πi &i) -> πv
     { return std::visit([&](auto &&a) { return f(i, mo(a), y); }, x(i).v_); };

@@ -18,8 +18,7 @@ namespace τ
 
 
 // Longest-prefix dispatch
-template<class T>
-struct φd_ : public virtual φ_<T>
+Tt struct φd_ : public virtual φ_<T>
 {
   template<class... Xs>
   φd_(St name, Xs const&... xs) : φ_<T>(name) { def(xs...); }
@@ -64,8 +63,7 @@ struct φd_ : public virtual φ_<T>
 
 
 // Literal string, with literal result
-template<class T>
-struct φl_ : public virtual φ_<T>
+Tt struct φl_ : public virtual φ_<T>
 {
   φl_(St l_, T y_) : φ_<T>(l_), l(l_), y(y_) {}
 
@@ -123,8 +121,7 @@ struct φre_ : public virtual φ_<V<St>>
 
 
 // Quote the string that was parsed by something
-template<class T>
-struct φq_ : public virtual φ_<St>
+Tt struct φq_ : public virtual φ_<St>
 {
   φq_(φ<T> p_) : φ_<St>("'(" + p_.name() + ")"), p(p_) {}
 
@@ -139,8 +136,7 @@ struct φq_ : public virtual φ_<St>
 
 
 // End of input detector (wraps another parser)
-template<class T>
-struct φE_ : public virtual φ_<T>
+Tt struct φE_ : public virtual φ_<T>
 {
   φE_(φ<T> p_) : φ_<T>("E[" + p_.name() + "]"), p(p_) {}
 
