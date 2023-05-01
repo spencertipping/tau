@@ -21,16 +21,36 @@ struct πname final
 struct πv;
 struct πi;
 
+typedef V<πv> πvs;
+
+typedef πv  const πvc;
+typedef πvs const πvsc;
+
 
 // π expression used to compute a value (this is where C++ type
 // and dependency erasure happens)
+//
+// NOTE: singular/plural is not an erasure domain; it's parse-typed like
+// it (mostly) is in Perl.
 
-typedef F<πv(πi&)> πf;
-typedef πf const   πfc;
+typedef F<πv (πi&)> πf;   // single value
+typedef F<πvs(πi&)> πfs;  // multiple values
+typedef πf    const πfc;
+typedef πfs   const πfsc;
 
 typedef F<πv(πi&, πv&&)>             πmf;
 typedef F<πv(πi&, πv&&, πv&&)>       πdf;
 typedef F<πv(πi&, πfc&, πfc&, πfc&)> πtf;  // NOTE: no triple-dispatch
+
+typedef F<πvs(πi&, πv&&)>             πmsf;
+typedef F<πvs(πi&, πv&&, πv&&)>       πdsf;
+typedef F<πvs(πi&, πfc&, πfc&, πfc&)> πtsf;
+
+typedef F<πv (πi&, πvs&&)> πsmf;
+typedef F<πvs(πi&, πvs&&)> πsmsf;
+
+typedef F<πv (πi&, πvs&&, πvs&&)> πsdf;
+typedef F<πvs(πi&, πvs&&, πvs&&)> πsdsf;
 
 
 // In-memory representation of a value. This includes optimized C++
@@ -192,8 +212,6 @@ struct πv final
           [](ηatom x)  { return x == ηatom::ηtrue; },
           [](i64 x)    { return x != 0; }}, v_); }
 };
-
-typedef πv const πvc;
 
 
 O &operator<<(O&, πvc&);

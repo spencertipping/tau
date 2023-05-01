@@ -16,9 +16,7 @@ Unlike APL, multiple adjacent expressions are not parsed into a vector by defaul
 
 
 ## Plurality
-A single η record is comprised of one or more values, each of which can be accessed positionally using the `A`..`H` atoms.
-
-**TODO:** define splicing contexts, which we should definitely have because (1) they're useful, and (2) they solve the η problem
+π, like Perl, has separate parsing contexts for single and plural values. This follows from η's "stream-of-values" structure, and is also inspired by the splice operators in Javascript, Ruby, and Python.
 
 
 ## Ternary expressions

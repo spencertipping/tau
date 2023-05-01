@@ -44,7 +44,7 @@ P<φ<Γ>, φ<Γ>> Γφ(φ<Γ> g, φ<Ψ0> a, φ<Ψ1> b, φ<Ψ2> c, φ<Ψ4> d)
   let wc = Γφwrap(c);
   let wd = Γφwrap(d);
 
-  // TODO: \ and | should support [] groups
+  // TODO: \ and | should support [] groups, but that has some undefined aspects
 
   g1a << Γφgroup(gw)
       << Γφwrap(g)

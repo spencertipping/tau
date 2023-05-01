@@ -18,6 +18,13 @@ namespace τ
 φ<πdf> πφcore_d();
 φ<πtf> πφcore_t();
 
+φ<πmsf> πφcore_ms();
+φ<πdsf> πφcore_ds();
+φ<πtsf> πφcore_ts();
+
+φ<πsmf>  πφcore_sm();
+φ<πsmsf> πφcore_sms();
+
 
 // Constructs a full π grammar using the provided elemental parsers:
 //
@@ -26,13 +33,31 @@ namespace τ
 // d = dyadic operator
 // t = ternary operator
 //
-// The resulting parser performs all folding and returns a single value.
+// ms = monadic plural operator
+// ds = dyadic plural operator
+// ts = ternary plural operator
+//
+// sm = monadic operator consuming plural values
+// sms = monadic operator producing and consuming plural values
+//
+// πφ returns the following parser objects:
+//
+// 1. A parser for atoms; i.e. `[]` is required around any operators
+// 2. A parser for single-valued expressions
+// 3. A parser for multi-valued expressions
 
-P<φ<πf>, φ<πf>>
+T<φ<πf>, φ<πf>, φ<πfs>>
 πφ(φ<πf>  a = πφcore_a(),
    φ<πmf> m = πφcore_m(),
    φ<πdf> d = πφcore_d(),
-   φ<πtf> t = πφcore_t());
+   φ<πtf> t = πφcore_t(),
+
+   φ<πmsf> ms = πφcore_ms(),
+   φ<πdsf> ds = πφcore_ds(),
+   φ<πtsf> ts = πφcore_ts(),
+
+   φ<πsmf>  sm  = πφcore_sm(),
+   φ<πsmsf> sms = πφcore_sms());
 
 
 // Built-in language elements
