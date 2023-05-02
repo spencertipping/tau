@@ -123,7 +123,6 @@ $ diff <(bin/sigma ':foo [n10p[A+1]] :bar [n20] $foo M?F') <(seq 10)
 | `&&`     |                  | logical and                     |
 | `\|\|`   |                  | logical or`                     |
 | `.`      | map key          | map element access              |
-| `@`      | tuple idx        | tuple element access            |
 | `:`      | name-str value   | bind variable                   |
 | `,`      | lhs rhs          | write (return RHS)              |
 | `;`      | lhs rhs          | sequence (return RHS)           |

@@ -4,9 +4,16 @@
 + [π interpreter](pi-int.md)
 + [σ/π stdlib](sigma-pi-stdlib.md)
 
-**TODO:** re-formulate the language grammar below; most of it still applies, but it can be rewritten to be terser and with new splicing stuff
 
-**TODO:** figure out the space of operator collisions that are permissible without introducing ambiguity
+## Expressions
+π has two parse contexts: _singular_ and _plural_, each of which has slightly different behavior around operators and adjacent values.
+
++ Atoms: `a`
++ Monadic operators: `m x`
++ Dyadic operators: `x d y`
++ Triadic operators: `x t y z`
+
+**TODO:** rewrite everything below
 
 
 ## π expression structure
