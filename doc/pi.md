@@ -6,12 +6,17 @@
 
 
 ## Expressions
-π has two parse contexts: _singular_ and _plural_, each of which has slightly different behavior around operators and adjacent values.
+π has two parse contexts: _singular_ and _plural_, each of which has slightly different behavior around operators and adjacent values. Here's the parse map:
 
-+ Atoms: `a`
-+ Monadic operators: `m x`
-+ Dyadic operators: `x d y`
-+ Triadic operators: `x t y z`
+```
+a ::= lit | '[' s ']' | '(' p ')'
+s ::= a | m a | ms p | a d s | a ds p | a t s s
+p ::= (a | m a | a d s | a t s s)* (ms p | a ds p)?
+```
+
+Some ambiguities are possible unless `a`, (`m` + `ms`), (`d` + `ds`), and `t` are all prefix-disjoint. This disjunction is not enforced, but σ is designed with it in mind.
+
+**Q:** what's preferable, left or right association?
 
 **TODO:** rewrite everything below
 

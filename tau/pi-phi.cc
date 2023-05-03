@@ -207,9 +207,9 @@ P<φ<πf>, φ<πf>> πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t)
   let pw = φW(p);
 
   p1a << πφgroup(pw) << πφtuple_expr(pw) << πφwrap(a);
-  pa  << φm(φs("mf", πφwrap(m), pw),         [](auto r) { let &[m, x]       = r; return πmc(m, x); })
-      << φm(φs("df", p1, πφwrap(d), pw),     [](auto r) { let &[x, d, y]    = r; return πdc(d, x, y); })
-      << φm(φs("tf", p1, πφwrap(t), pw, pw), [](auto r) { let &[x, t, y, z] = r; return πtc(t, x, y, z); })
+  pa  << φm(φs("mf", πφwrap(m), pw),         [](let &r) { let &[m, x]       = r; return πmc(m, x); })
+      << φm(φs("df", p1, πφwrap(d), pw),     [](let &r) { let &[x, d, y]    = r; return πdc(d, x, y); })
+      << φm(φs("tf", p1, πφwrap(t), pw, pw), [](let &r) { let &[x, t, y, z] = r; return πtc(t, x, y, z); })
       << p1;
 
   return {p1, p};
