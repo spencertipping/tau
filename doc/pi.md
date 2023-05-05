@@ -33,4 +33,4 @@ APL requires parentheses around vector elements; that is, its plurality takes hi
 
 
 ## Functions
-**TODO:** allocate syntax, figure out how singular/plural works here, if it applies (probably `{}`, but how do we define arity?)
+**TODO:** allocate syntax, figure out how singular/plural works here, if it applies (probably `{}`, but how do we define arity? **switch the closing delimiter:** `]` for monadic, `}` for dyadic, and `)` for ternary)
