@@ -32,17 +32,5 @@ Some ambiguities are possible unless `a`, (`m` + `ms`), (`d` + `ds`), and `t` ar
 APL requires parentheses around vector elements; that is, its plurality takes high precedence. π does not have this limitation because we assume that plurality extends rightwards until the current parse fails.
 
 
-## Adverbs
-`a`, `m`, `d`, and `t` are all disjoint, which means we will never confuse an operator with its operand. This implies something subtle: if we parse operators preferentially to atoms, then we can define adverbial operators whose "operands" are themselves functions. This yields some new parse rules:
-
-```
-m ::= v* m1
-d ::= v* d1
-t ::= v* t1
-```
-
-Adverbs enable notation like `/+` to mean "fold under `+`", which would otherwise be written longer-form as `/{a+b}`.
-
-
-## FIXME
-Let's try again to write Asqi or do some ETL with π to see where we stand. Principles-first language development is the wrong move here.
+## Functions
+**TODO:** allocate syntax, figure out how singular/plural works here, if it applies (probably `{}`, but how do we define arity?)
