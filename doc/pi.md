@@ -5,76 +5,44 @@
 + [σ/π stdlib](sigma-pi-stdlib.md)
 
 
+## Toplevel syntax
+```
+prog ::= (expr '`')* expr
+expr ::= p
+```
+
+`p` is a plural expression, defined below.
+
+
 ## Expressions
-π has two parse contexts: _singular_ and _plural_, each of which has slightly different behavior around operators and adjacent values. Here's the parse map:
+π has two parse contexts: _singular_ and _plural_, each of which has slightly different behavior around operators and adjacent values. Here's the grammar:
 
 ```
-a ::= lit | '[' s ']' | '(' p ')'
+a ::= lit | '[' s ']'? | '(' p ')'?
 s ::= a | m a | ms p | a d s | a ds p | a t s s
 p ::= (a | m a | a d s | a t s s)* (ms p | a ds p)?
 ```
 
+Operators associate rightwards with no relative precedence, just like they do in APL.
+
+Dyadic and triadic operators have no left-plural variants.
+
 Some ambiguities are possible unless `a`, (`m` + `ms`), (`d` + `ds`), and `t` are all prefix-disjoint. This disjunction is not enforced, but σ is designed with it in mind.
 
-**Q:** what's preferable, left or right association?
-
-**TODO:** rewrite everything below
+APL requires parentheses around vector elements; that is, its plurality takes high precedence. π does not have this limitation because we assume that plurality extends rightwards until the current parse fails.
 
 
-## π expression structure
-π expressions are parsed with prefix monadic and infix dyadic ops, just like APL. Unlike APL, however, we can't infer operator arity; expressions may be juxtaposed to form adjacent tuple/map elements, so we rely on operators to set our expectations about whether the next expression is part of this one or the beginning of a new element.
-
-Monadic and dyadic operators may include dyadic operator characters after their first position, since these can normally be parsed only after a value. For example, `S<` is a valid monadic operator because `S` cannot be interpreted as a value, so `<` must not be a dyadic operator in this context.
-
-Like APL, operators apply strictly right to left: `!3>4` is evaluated as `!(3>4)`. We don't have operator precedence.
-
-Unlike APL, multiple adjacent expressions are not parsed into a vector by default. `1 2 3` will result in an η with three separate integers. Operators apply within subexpressions: `1+2 3` is equivalent to `3 3`.
-
-
-## Plurality
-π, like Perl, has separate parsing contexts for single and plural values. This follows from η's "stream-of-values" structure, and is also inspired by the splice operators in Javascript, Ruby, and Python.
-
-
-## Ternary expressions
-π is built to parse multiple expressions independently, which means we can easily define a ternary operator without a delimiter. That is, we can define `?` without a corresponding `:` because the left and right subexpressions will be parsed adjacent to one another. This yields tighter packing:
+## Adverbs
+`a`, `m`, `d`, and `t` are all disjoint, which means we will never confuse an operator with its operand. This implies something subtle: if we parse operators preferentially to atoms, then we can define adverbial operators whose "operands" are themselves functions. This yields some new parse rules:
 
 ```
-x?3:y  // C++
-x?3y   // π
+m ::= v* m1
+d ::= v* d1
+t ::= v* t1
 ```
 
-
-## Examples
-```bash
-$ bin/pi-phi '3+4' '"foo"' '3+2*5' '
-# this is a test
-[123+100] < 456  # this was a test'
-7
-"foo"
-13
-true
-```
+Adverbs enable notation like `/+` to mean "fold under `+`", which would otherwise be written longer-form as `/{a+b}`.
 
 
-## Scratch tests
-```bash
-$ bin/pi-eta
-f(5) = 6
-f("bar") = foobar
-f(true) = fallthrough
-a = 5
-b = 5
-template invocation: 5, 5
-string branch: foo
-[add1] x + y = 7
-[add2] x + y = 7
-1 || error = 1
-0 || 3 = 3
-i8s<0 2 0 4 0 10>
-i16s<1 3 5>
-i16s<2 4 10>
-i64s<4 5 4 6 4 9>
-i64s<5 6 9>
-f64s<7 8 7 9 7 12>
-f64s<8 9 12>
-```
+## FIXME
+Let's try again to write Asqi or do some ETL with π to see where we stand. Principles-first language development is the wrong move here.

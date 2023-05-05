@@ -6,7 +6,7 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 π    ηηηηηm   m   ηm           SL m dmL    d mm ddt    vη
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-π    mLSvddddLLdd dLLLL d mddddddLLtL
+π    mLSvddddLLdd dLLLL dSmddddddLLtL
 ```
 
 
@@ -19,43 +19,31 @@ $ diff <(bin/sigma ':foo [n10p[A+1]] :bar [n20] $foo M?F') <(seq 10)
 
 
 ## Input accessors (`η`)
-| Symbol | Description                 |
-|--------|-----------------------------|
-| `A`    | `η[0]`, aka current input   |
-| `B`    | `η[1]`                      |
-| `C`    | `η[2]`                      |
-| `D`    | `η[3]`                      |
-| `E`    | `η[4]`                      |
-| `F`    | `η[5]`                      |
-| `G`    | `η[6]`                      |
-| `H`    | `η[7]`                      |
-| `N`    | `\|η\|`: number of elements |
-
-**TODO:** define precise semantics to differentiate between `ni fB` and `ni fB.`, which currently are unclear here (see "plurality" in [pi.md](pi.md))
+**TODO**
 
 
 ## Literals (`L`)
-| Symbol   | Description            |
-|----------|------------------------|
-| `ne`     | exponential constant   |
-| `nf`     | φ numeric constant     |
-| `np`     | π numeric constant     |
-| `nt`     | τ numeric constant     |
-| `ga`     | α signal               |
-| `gk`     | κ signal               |
-| `gi`     | ι signal               |
-| `gt`     | τ signal               |
-| `gw`     | ω signal               |
-| `at`     | `true` atom            |
-| `af`     | `false` atom           |
-| `an`     | `null` atom            |
-| `/`      | regex                  |
-| `0`..`9` | numeric literal        |
-| `'`      | name literal           |
-| `".."`   | string literal         |
-| `[]`     | subexpression grouping |
-| `()`     | sub-η as tuple         |
-| `{}`     | sub-η as map           |
+| Symbol   | Description                              |
+|----------|------------------------------------------|
+| `ne`     | exponential constant                     |
+| `nf`     | φ numeric constant                       |
+| `np`     | π numeric constant                       |
+| `nt`     | τ numeric constant                       |
+| `ga`     | α signal                                 |
+| `gk`     | κ signal                                 |
+| `gi`     | ι signal                                 |
+| `gt`     | τ signal                                 |
+| `gw`     | ω signal                                 |
+| `at`     | `true` atom                              |
+| `af`     | `false` atom                             |
+| `an`     | `null` atom                              |
+| `/`      | regex **FIXME: `/` is useful elsewhere** |
+| `0`..`9` | numeric literal                          |
+| `'`      | name literal                             |
+| `".."`   | string literal                           |
+| `[]`     | subexpression grouping                   |
+| `()`     | sub-η as tuple                           |
+| `{}`     | quote expression as function             |
 
 
 ## Variables (`v`)
