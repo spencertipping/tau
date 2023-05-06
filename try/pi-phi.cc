@@ -11,7 +11,8 @@ static bool timed = false;
 πv eval_pi_core_expr(St e)
 {
   πi i;
-  let p  = φE(std::get<1>(πφ()));
+  let [pa, ps, pp] = πφ();
+  let p  = φE(ps);
   let t1 = now();
   let x  = p(e);
   let t2 = now();
