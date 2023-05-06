@@ -30,7 +30,10 @@ Tt struct φL_ : public virtual φ_<T>
 Tt struct φW_ : public virtual φ_<T>
 {
   φW_(φ<T> p_) : φ_<T>(p_.name()), p(p_.p) {}
-  φr_<T> operator()(φc_ const &x) const noexcept { return (*wpg(p))(x); }
+  φr_<T> operator()(φc_ const &x) const noexcept
+    { let r = wpg(p);
+      A(r, "weakly referenced φ " << φ_<T>::name() << " is null");
+      return (*r)(x); }
   Wp<φ_<T>> p;
 };
 
