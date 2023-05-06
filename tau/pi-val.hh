@@ -60,34 +60,34 @@ struct πv final
 {
   typedef Va<
     // η-mapped values (immediate, read-only)
-    ηsig,
+    ηsig,        // std::get<0>
     i64,
     f64,
     Stv,
-    πname,
+    πname,       // std::get<4>
     ηatom,
     ηi,
     Sn<i8bc>,
-    Sn<i16bc>,
+    Sn<i16bc>,   // std::get<8>
     Sn<i32bc>,
     Sn<i64bc>,
     Sn<f32bc>,
-    Sn<f64bc>,
+    Sn<f64bc>,   // std::get<12>
 
     // C++ native types (heap-allocated, mutable)
     St,
     Sp<V<i8>>,
     Sp<V<i16>>,
-    Sp<V<i32>>,
+    Sp<V<i32>>,  // std::get<16>
     Sp<V<i64>>,
     Sp<V<f32>>,
     Sp<V<f64>>,
 
-    Sp<Re>,
+    Sp<Re>,      // std::get<20>
     Sp<V<πv>>,
     Sp<M<St, πv>>,
     Sp<πmf>,
-    Sp<πdf>,
+    Sp<πdf>,     // std::get<24>
     Sp<πtf>
     > vt;
 

@@ -112,7 +112,13 @@ namespace τ
 }
 
 
-φ<πmsf> πφcore_ms() { slet r = φF<πmsf>(); return r; }
+φ<πmsf> πφcore_ms()
+{
+  slet r = φd<πmsf>("πcore_ms", "@", πηflatten());
+  return r;
+}
+
+
 φ<πdsf> πφcore_ds() { slet r = φF<πdsf>(); return r; }
 φ<πtsf> πφcore_ts() { slet r = φF<πtsf>(); return r; }
 
