@@ -54,11 +54,14 @@ p ::= (a | m a | a d s | a t s s)*
 ```bash
 $ bin/pi-phi '3+4' '"foo"' '3+2*5' '
 # this is a test
-[123+100] < 456  # this was a test'
+[123+100] < 456  # this was a test' '
+(10 (1 + 2 3) 4 5)
+'
 7
 "foo"
 13
 true
+(10 (3 3) 4 5)
 $ bin/pi-eta
 f(5) = 6
 f("bar") = foobar
