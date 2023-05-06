@@ -112,6 +112,14 @@ namespace τ
 }
 
 
+φ<πmsf> πφcore_ms() { slet r = φF<πmsf>(); return r; }
+φ<πdsf> πφcore_ds() { slet r = φF<πdsf>(); return r; }
+φ<πtsf> πφcore_ts() { slet r = φF<πtsf>(); return r; }
+
+φ<πsmf>  πφcore_sm() { slet r = φF<πsmf>(); return r; }
+φ<πsmsf> πφcore_sms() { slet r = φF<πsmsf>(); return r; }
+
+
 φ<St> πφws() { slet r = φcs(" \t\n\r", false, 1);                      return r; }
 φ<St> πφlc() { slet r = φq("lc", φl("# ", ""), φcs("\n", true));       return r; }
 φ<St> πφig() { slet r = φq("ign", φn(φa<St>("ign0", πφws(), πφlc()))); return r; }
@@ -189,31 +197,48 @@ namespace τ
 }
 
 
-φ<πf> πφtuple_expr(φ<πf> p)
+φ<πfs> πφfs(φ<πfs> f)
 {
-  slet r = φm(πφtuple(p), [](Vc<πf> &xs) -> πf
-    { return [xs](πi &i) -> πv
-      { let ys = new V<πv>; ys->reserve(xs.size());
-        for (let &x : xs) ys->push_back(x(i));
-        return πv{Sp<V<πv>>(ys)}; }; });
-  return r;
+  return φm(φn(f), [](V<πfs> &&x) -> πfs
+    { return [x = mo(x)](πi &i)
+      { πvs r;
+        for (let &p : x) for (let &y : p(i)) r.push_back(y);
+        return r; }; });
 }
 
 
 T<φ<πf>, φ<πf>, φ<πfs>>
-πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t)
+πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t,
+   φ<πmsf> ms, φ<πdsf> ds, φ<πtsf> ts,
+   φ<πsmf> sm, φ<πsmsf> sms)
 {
-  let p1 = φa0<πf>("π₁");  auto &p1a = p1.as<φa_<πf>>();
-  let p  = φa0<πf>("π");   auto &pa  = p .as<φa_<πf>>();
-  let pw = φW(p);
+  let pa  = φa0<πf> ("πa");  auto &a_ = pa .as<φa_<πf>>();
+  let ps  = φa0<πf> ("πs");  auto &s_ = ps .as<φa_<πf>>();
+  let pp_ = φa0<πfs>("πp");  auto &p_ = pp_.as<φa_<πfs>>();
+  let pp  = πφfs(pp_);
 
-  p1a << πφgroup(pw) << πφtuple_expr(pw) << πφwrap(a);
-  pa  << φm(φs("mf", πφwrap(m), pw),         [](let &r) { let &[m, x]       = r; return πmc(m, x); })
-      << φm(φs("df", p1, πφwrap(d), pw),     [](let &r) { let &[x, d, y]    = r; return πdc(d, x, y); })
-      << φm(φs("tf", p1, πφwrap(t), pw, pw), [](let &r) { let &[x, t, y, z] = r; return πtc(t, x, y, z); })
-      << p1;
+  let aw = φW(pa);
+  let sw = φW(ps);
+  let pw = φW(pp);
 
-  return {p1, p};
+  let te = φ2("()", πφlp(), φm(pw, [](πfs &&f) -> πf
+    { return [f=mo(f)](πi &i) -> πv
+      { return {Sp<V<πv>>{new V<πv>{f(i)}}}; }; }), φo(πφrp()));
+
+  a_ << πφgroup(sw) << te << πφwrap(a);
+
+  s_ << φm(φs("mf",     πφwrap(m), sw),     [](let &r) -> πf { let &[m, x]       = r; return πmc(m, x); })
+     << φm(φs("df", aw, πφwrap(d), sw),     [](let &r) -> πf { let &[x, d, y]    = r; return πdc(d, x, y); })
+     << φm(φs("tf", aw, πφwrap(t), sw, sw), [](let &r) -> πf { let &[x, t, y, z] = r; return πtc(t, x, y, z); })
+     << aw;
+
+  p_ << φm(φs("ms",     πφwrap(ms), sw),     [](let &r) -> πfs { let &[m, x]       = r; return πmc(m, x); })
+     << φm(φs("ds", aw, πφwrap(ds), sw),     [](let &r) -> πfs { let &[x, d, y]    = r; return πdc(d, x, y); })
+     << φm(φs("ts", aw, πφwrap(ts), sw, sw), [](let &r) -> πfs { let &[x, t, y, z] = r; return πtc(t, x, y, z); })
+     << φm(sw,                               [](let &f) -> πfs
+       { return [f](πi &i) { πvs r; r.push_back(f(i)); return r; }; });
+
+  return {pa, ps, pp};
 }
 
 

@@ -195,10 +195,10 @@ struct φm_ : public virtual φ_<U>
     : φ_<U>("f(" + p_.name() + ")"), p(p_), f(f_) {}
 
   φr_<U> operator()(φc_ const &x) const noexcept
-    { let s = p(x);
+    { auto s = p(x);
       return s.is_f()
            ? s.template cast<U>()
-           : s.template cast<U>(f(s.r())); }
+           : s.template cast<U>(f(mo(s).r())); }
 
   φ<T> p;
   F    f;

@@ -78,9 +78,6 @@ template<class X>
 template<class X>
 φ<X> πφgroup(φ<X> p) { return φ2("[]", πφlb(), πφwrap(p), πφrb()); }
 
-template<class X>
-φ<V<X>> πφtuple(φ<X> p) { return φ2("()", πφlp(), φn(πφwrap(p)), φo(πφrp())); }
-
 
 // Basic literals
 φ<i64> πφint_dec();

@@ -47,15 +47,30 @@ inline πf πmc(πmf const &f, πf const &x)
   return [=](πi &i) -> πv { return f(i, x(i)); };
 }
 
+inline πfs πmc(πmsf const &f, πf const &x)
+{
+  return [=](πi &i) -> πvs { return f(i, x(i)); };
+}
+
 inline πf πdc(πdf const &f, πf const &x, πf const &y)
 {
   return [=](πi &i) -> πv { return f(i, x(i), y(i)); };
+}
+
+inline πfs πdc(πdsf const &f, πf const &x, πf const &y)
+{
+  return [=](πi &i) -> πvs { return f(i, x(i), y(i)); };
 }
 
 // NOTE: triadic operators are by default lazy when closed
 inline πf πtc(πtf const &f, πf const &x, πf const &y, πf const &z)
 {
   return [=](πi &i) -> πv { return f(i, x, y, z); };
+}
+
+inline πfs πtc(πtsf const &f, πf const &x, πf const &y, πf const &z)
+{
+  return [=](πi &i) -> πvs { return f(i, x, y, z); };
 }
 
 

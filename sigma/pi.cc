@@ -7,10 +7,11 @@ namespace σ
 using namespace τ;
 
 
-static P<φ<πf>, φ<πf>> φπ_() { slet r = πφ(φπa_(), φπm(), φπd(), φπt()); return r; }
+static T<φ<πf>, φ<πf>, φ<πfs>> φπ_() { slet r = πφ(φπa_(), φπm(), φπd(), φπt()); return r; }
 
-φ<πf>  φπa()  { return φL<πf>([]() { return φπ_().first; }); }
-φ<πf>  φπ()   { return φL<πf>([]() { return φπ_().second; }); }
+φ<πf>  φπa()  { return φL<πf> ([]() { return std::get<0>(φπ_()); }); }
+φ<πf>  φπs()  { return φL<πf> ([]() { return std::get<1>(φπ_()); }); }
+φ<πfs> φπp()  { return φL<πfs>([]() { return std::get<2>(φπ_()); }); }
 
 φ<πf>  φπa_() { return πφcore_a(); }
 φ<πmf> φπm()  { return πφcore_m(); }
