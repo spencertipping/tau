@@ -200,7 +200,8 @@ namespace τ
 }
 
 
-P<φ<πf>, φ<πf>> πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t)
+T<φ<πf>, φ<πf>, φ<πfs>>
+πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t)
 {
   let p1 = φa0<πf>("π₁");  auto &p1a = p1.as<φa_<πf>>();
   let p  = φa0<πf>("π");   auto &pa  = p .as<φa_<πf>>();

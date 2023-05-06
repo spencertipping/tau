@@ -33,4 +33,18 @@ APL requires parentheses around vector elements; that is, its plurality takes hi
 
 
 ## Functions
-**TODO:** allocate syntax, figure out how singular/plural works here, if it applies (probably `{}`, but how do we define arity? **switch the closing delimiter:** `]` for monadic, `}` for dyadic, and `)` for ternary)
+Monadic, dyadic, and triadic lambda expressions can be written using `{]`, `{}`, and `{)` groups respectively.
+
+```
+a ::= ... | '{' p ']' | '{' p '}' | '{' p ')'
+```
+
+
+## V1
+We can get by without most of the `ms` and `ds` operators for now, and also without functions. So we just need to implement a more basic grammar:
+
+```
+a ::= lit | '[' s ']'? | '(' p ')'?
+s ::= a | m a | a d s | a t s s
+p ::= (a | m a | a d s | a t s s)*
+```
