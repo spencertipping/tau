@@ -20,7 +20,15 @@ namespace τ
         }
         return r;
       }
-      A(0, "π @ unsupported for " << v);
+      else if (v.t() == ηtype::η)
+      {
+        ηi x = v.η();
+        r.push_back(x);
+        while (x.has_next()) r.push_back(x = x.next());
+        return r;
+      }
+
+      TODO("πηflatten other types (esp " << v.t() << ")");
       return r;
     };
 }
