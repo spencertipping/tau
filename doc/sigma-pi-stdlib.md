@@ -1,9 +1,22 @@
 # σ/π stdlib
-See [π](pi.md) for an overview of the language structure. This page describes the functions/operators that σ defines for π. First the parse map:
+See [π](pi.md) for an overview of the language structure. This page describes the functions/operators that σ defines for π.
 
+**FIXME:** rewrite a lot of this: we now have plural operators and more domains (string, numeric, etc)
+
+
+## Operator classes
++ Numeric monads (`sin`, `cos`, `~`)
++ Numeric dyads (`+`, `//`, `|`)
++ String monads (`lc`, `uc`)
++ String dyads (`++`, `=~`, `find`)
++ Sequence monads (`n`, `o`, `O`, `uniq`, `freqs`)
++ Sequence dyads (`++`, `-`, `union`, `intersect`, `+[]`, `*[]`)
+
+
+## Parse map
 ```
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
-π    ηηηηηm   m   ηm           SL m dmL    d mm ddt     η
+π    ηηηηηm   m   ηm         η SL m dmL    d mm ddt     η
 R?        R                       R ?R     ?    ??
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/

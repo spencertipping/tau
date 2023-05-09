@@ -63,6 +63,8 @@ $ bin/pi-phi '3+4' '"foo"' '3+2*5' '
 true
 (10 (3 3) 4 5)
 (10 11 12 13 14 15)
+$ bin/pi-phi '"foo" + "bar"'
+"foobar"
 ```
 
 Testing some builtins:

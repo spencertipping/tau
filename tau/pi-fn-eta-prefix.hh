@@ -14,6 +14,8 @@
 #include <cmath>
 #include <typeinfo>
 
+#include <boost/core/demangle.hpp>
+
 #include "types.hh"
 #include "eta.hh"
 #include "pi-val.hh"
@@ -144,16 +146,16 @@ struct binr
 Tt ic auto tnorm(T x) { return Sc<typename unr<T>::t>(x); }
 
 
-#define τunfallthrough(op)                              \
-  [](πi &i, auto &&x) -> πv                             \
-  { i.fail((Ss{} << #op << " does not apply to "        \
-            << typeid(x).name()).str()); }
+#define τunfallthrough(op)                                              \
+  [](πi &i, auto &&x) -> πv                                             \
+  { i.fail((Ss{} << #op << " does not apply to "                        \
+            << boost::core::demangle(typeid(x).name())).str()); }
 
-#define τbinfallthrough(op)                             \
-  [](πi &i, auto &&x, auto &&y) -> πv                   \
-  { i.fail((Ss{} << #op << " does not apply to "        \
-            << typeid(x).name() << " and "              \
-            << typeid(y).name()).str()); }
+#define τbinfallthrough(op)                                             \
+  [](πi &i, auto &&x, auto &&y) -> πv                                   \
+  { i.fail((Ss{} << #op << " does not apply to "                        \
+            << boost::core::demangle(typeid(x).name()) << " and "       \
+            << boost::core::demangle(typeid(y).name())).str()); }
 
 
 #define τspan_binop(t, op, a, b)                                        \
