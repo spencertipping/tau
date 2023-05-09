@@ -54,12 +54,16 @@ inline πfs πmc(πmsf const &f, πf const &x)
 
 inline πf πdc(πdf const &f, πf const &x, πf const &y)
 {
-  return [=](πi &i) -> πv { return f(i, x(i), y(i)); };
+  return [=](πi &i) -> πv
+    { auto a = x(i);
+      return f(i, mo(a), y(i)); };
 }
 
 inline πfs πdc(πdsf const &f, πf const &x, πf const &y)
 {
-  return [=](πi &i) -> πvs { return f(i, x(i), y(i)); };
+  return [=](πi &i) -> πvs
+    { auto a = x(i);
+      return f(i, mo(a), y(i)); };
 }
 
 // NOTE: triadic operators are by default lazy when closed
@@ -89,8 +93,8 @@ Tt πf πde(T &&f, πf &&x, πf &&y)
   return [f=fo<T>(f), x=mo(x), y=mo(y)](πi &i) -> πv
     { let a = x(i);
       let b = y(i);
-      return std::visit([&](let &a, let &b) { return f(i, a, b); },
-                        a.v_, b.v_); };
+      return std::visit([&](auto &&a, auto &&b) { return f(i, mo(a), mo(b)); },
+                        mo(a).v_, mo(b).v_); };
 }
 
 
