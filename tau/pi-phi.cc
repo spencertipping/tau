@@ -17,6 +17,7 @@ namespace τ
 φ<πf> πφcore_a()
 {
   slet r = φd<πf>("πcore_a",
+                  "y", φR<πf>([](πi &i) { return i.y(); }),
                   "A", φR<πf>([](πi &i) { return i.y(); }),
                   "B", φR<πf>([](πi &i) { return i.y()[1]; }),
                   "C", φR<πf>([](πi &i) { return i.y()[2]; }),
@@ -25,6 +26,8 @@ namespace τ
                   "F", φR<πf>([](πi &i) { return i.y()[5]; }),
                   "G", φR<πf>([](πi &i) { return i.y()[6]; }),
                   "H", φR<πf>([](πi &i) { return i.y()[7]; }),
+                  "$", φm(πφword(), [](St n) -> πf
+                    { return [=](πi &i) { return i.vs[n]; }; }),
                   "",  φm(πφlit(), πvq));
   return r;
 }
@@ -158,12 +161,19 @@ namespace τ
 }
 
 
+φ<St> πφword()
+{
+  slet r = φcs("abcdefghjiklmnopqrstuvxyz", false, 1);
+  return r;
+}
+
+
 φ<πname> πφname()
 {
   slet r = φ2("name", φl("'"),
               φa("name",
-                 φm(πφstr(), [](St x) { return πname{x}; }),
-                 φm(φcs("abcdefghjiklmnopqrstuvxyz", false, 1), [](St x) { return πname{x}; })));
+                 φm(πφstr(),  [](St x) { return πname{x}; }),
+                 φm(πφword(), [](St x) { return πname{x}; })));
   return r;
 }
 

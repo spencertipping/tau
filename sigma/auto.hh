@@ -37,9 +37,9 @@ template<> struct φauto_<St>  { static φ<St>  p() { return πφwrap(πφstr())
 template<> struct φauto_<πv>  { static φ<πv>  p() { return πφwrap(πφlit());   } };
 
 template<> struct φauto_<σ::σident>
-{ static φ<σ::σident> p() { return φm(πφwrap(φre("[a-z][a-z_0-9']*")), [](V<St> x) { return σ::σident{x.front()}; }); } };
+{ static φ<σ::σident> p() { return φm(πφwrap(φre("[a-z][a-z_0-9']*")), [](Vc<St> &x) { return σ::σident{x.front()}; }); } };
 
-template<> struct φauto_<πf>  { static φ<πf>  p() { return φL<πf>(σ::φπa);  } };
+template<> struct φauto_<πf>  { static φ<πf>  p() { return φL<πf>(σ::φπa); } };
 template<> struct φauto_<Γ>   { static φ<Γ>   p() { return φL<Γ> (σ::φΓa); } };
 
 template<> struct φauto_<Ψ0>  { static φ<Ψ0>  p() { return σ::φΨ0(); } };

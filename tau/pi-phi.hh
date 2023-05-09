@@ -45,6 +45,9 @@ namespace τ
 // 1. A parser for atoms; i.e. `[]` is required around any operators
 // 2. A parser for single-valued expressions
 // 3. A parser for multi-valued expressions
+//
+// NOTE: you must hold references to all returned parsers for any of
+// them to be valid
 
 T<φ<πf>, φ<πf>, φ<πfs>>
 πφ(φ<πf>  a = πφcore_a(),
@@ -61,6 +64,7 @@ T<φ<πf>, φ<πf>, φ<πfs>>
 
 
 // Built-in language elements
+φ<St> πφword();
 φ<St> πφws();
 φ<St> πφlc();
 φ<St> πφig();
@@ -72,11 +76,8 @@ T<φ<πf>, φ<πf>, φ<πfs>>
 φ<St> πφrp();
 
 
-template<class X>
-φ<X> πφwrap(φ<X> p) { return φ2("wrap", πφig(), p, πφig()); }
-
-template<class X>
-φ<X> πφgroup(φ<X> p) { return φ2("[]", πφlb(), πφwrap(p), πφrb()); }
+Tt φ<T> πφwrap (φ<T> p) { return φ2("wrap", πφig(), p, πφig()); }
+Tt φ<T> πφgroup(φ<T> p) { return φ2("[]", πφlb(), πφwrap(p), πφrb()); }
 
 
 // Basic literals
