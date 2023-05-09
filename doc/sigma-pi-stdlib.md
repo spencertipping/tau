@@ -23,27 +23,27 @@ $ diff <(bin/sigma ':foo [n10p[A+1]] :bar [n20] $foo M?F') <(seq 10)
 
 
 ## Literals (`L`)
-| Symbol   | Description                              |
-|----------|------------------------------------------|
-| `ne`     | exponential constant                     |
-| `nf`     | φ numeric constant                       |
-| `np`     | π numeric constant                       |
-| `nt`     | τ numeric constant                       |
-| `ga`     | α signal                                 |
-| `gk`     | κ signal                                 |
-| `gi`     | ι signal                                 |
-| `gt`     | τ signal                                 |
-| `gw`     | ω signal                                 |
-| `at`     | `true` atom                              |
-| `af`     | `false` atom                             |
-| `an`     | `null` atom                              |
-| `/`      | regex **FIXME: `/` is useful elsewhere** |
-| `0`..`9` | numeric literal                          |
-| `'`      | name literal                             |
-| `".."`   | string literal                           |
-| `[]`     | subexpression grouping                   |
-| `()`     | sub-η as tuple                           |
-| `{}`     | quote expression as function             |
+| Symbol   | Description                  |
+|----------|------------------------------|
+| `ne`     | exponential constant         |
+| `nf`     | φ numeric constant           |
+| `np`     | π numeric constant           |
+| `nt`     | τ numeric constant           |
+| `ga`     | α signal                     |
+| `gk`     | κ signal                     |
+| `gi`     | ι signal                     |
+| `gt`     | τ signal                     |
+| `gw`     | ω signal                     |
+| `at`     | `true` atom                  |
+| `af`     | `false` atom                 |
+| `an`     | `null` atom                  |
+| `/`      | regex                        |
+| `0`..`9` | numeric literal              |
+| `'`      | name literal                 |
+| `".."`   | string literal               |
+| `[]`     | subexpression grouping       |
+| `()`     | sub-η as tuple               |
+| `{}`     | quote expression as function |
 
 
 ## Variables (`v`)

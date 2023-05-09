@@ -141,19 +141,19 @@ struct πv final
   πv &operator=(ηic &x)
     { switch (x.t())
       {
-      case ηtype::sig:       v_ = x.sig();  break;
-      case ηtype::n_int:     v_ = x.i();    break;
-      case ηtype::n_float:   v_ = x.f();    break;
-      case ηtype::string:    v_ = x.s();    break;
-      case ηtype::name:      v_ = x.n();    break;
-      case ηtype::atom:      v_ = x.a();    break;
-      case ηtype::η:         v_ = x.η();    break;
-      case ηtype::int8s:     v_ = x.i8s();  break;
-      case ηtype::int16s:    v_ = x.i16s(); break;
-      case ηtype::int32s:    v_ = x.i32s(); break;
-      case ηtype::int64s:    v_ = x.i64s(); break;
-      case ηtype::float32s:  v_ = x.f32s(); break;
-      case ηtype::float64s:  v_ = x.f64s(); break;
+      case ηtype::sig:      v_ = x.sig();  break;
+      case ηtype::n_int:    v_ = x.i();    break;
+      case ηtype::n_float:  v_ = x.f();    break;
+      case ηtype::string:   v_ = x.s();    break;
+      case ηtype::name:     v_ = x.n();    break;
+      case ηtype::atom:     v_ = x.a();    break;
+      case ηtype::η:        v_ = x.η();    break;
+      case ηtype::int8s:    v_ = x.i8s();  break;
+      case ηtype::int16s:   v_ = x.i16s(); break;
+      case ηtype::int32s:   v_ = x.i32s(); break;
+      case ηtype::int64s:   v_ = x.i64s(); break;
+      case ηtype::float32s: v_ = x.f32s(); break;
+      case ηtype::float64s: v_ = x.f64s(); break;
         TA(*this, "πv= invalid type: " << x.t());
       }
       return *this; }
