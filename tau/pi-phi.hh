@@ -49,6 +49,18 @@ namespace τ
 // NOTE: you must hold references to all returned parsers for any of
 // them to be valid
 
+// FIXME TODO: πφ requires stateful initialization, which is a problem
+// for φauto because we don't have a simple way to specify function args
+// for auto-filled parameters. This type of grammar should be a struct
+// with template args that provide dependencies.
+//
+// This also fixes the hold-onto-all-tuple-elements issue.
+
+// NOTE: the new structure here should be two parsers: φ<πf> for atoms
+// and F<φ<F<πf(πf)>>(φ<πf>)> for right-hand operators. These should be
+// struct members that are then fed into a virtual grammar constructor
+// and are initialized by derived classes.
+
 T<φ<πf>, φ<πf>, φ<πfs>>
 πφ(φ<πf>  a = πφcore_a(),
    φ<πmf> m = πφcore_m(),
