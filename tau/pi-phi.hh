@@ -61,8 +61,24 @@ namespace τ
 // struct members that are then fed into a virtual grammar constructor
 // and are initialized by derived classes.
 
+φ<πfs> πφfs(φ<πfs> f);
+
+struct πφ final
+{
+  πφ(φ<πf>,
+     F<φ<F<πf (πf)>>(φ<πf>, φ<πfs>)> const&,
+     F<φ<F<πfs(πf)>>(φ<πf>, φ<πfs>)> const&);
+
+  φ<F<πf (πf)>> os;
+  φ<F<πfs(πf)>> op;
+  φ<πf>         a;
+  φ<πf>         s;
+  φ<πfs>        p;
+};
+
+
 T<φ<πf>, φ<πf>, φ<πfs>>
-πφ(φ<πf>  a = πφcore_a(),
+πφ_(φ<πf>  a = πφcore_a(),
    φ<πmf> m = πφcore_m(),
    φ<πdf> d = πφcore_d(),
    φ<πtf> t = πφcore_t(),

@@ -231,7 +231,7 @@ namespace τ
 // implement brackets-as-ops
 
 T<φ<πf>, φ<πf>, φ<πfs>>
-πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t,
+πφ_(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t,
    φ<πmsf> ms, φ<πdsf> ds, φ<πtsf> ts,
    φ<πsmf> sm, φ<πsmsf> sms)
 {
@@ -262,6 +262,37 @@ T<φ<πf>, φ<πf>, φ<πfs>>
        { return [f](πi &i) { πvs r; r.push_back(f(i)); return r; }; });
 
   return {pa, ps, pp};
+}
+
+
+πφ::πφ(φ<πf>                                  a0,
+       F<φ<F<πf (πf)>>(φ<πf>, φ<πfs>)> const &os_,
+       F<φ<F<πfs(πf)>>(φ<πf>, φ<πfs>)> const &op_)
+{
+  a = φa0<πf> ("πa"); auto &a_ = a.as<φa_<πf>> ();
+  s = φa0<πf> ("πs"); auto &s_ = s.as<φa_<πf>> ();
+  p = φa0<πfs>("πp"); auto &p_ = p.as<φa_<πfs>>();
+  p = πφfs(φ1("πp₁", p, φo(φl(","))));
+
+  // Important: if we don't weaken these, we get circular references which will
+  // hold the parsers beyond this struct's demise
+  let aw = φW(a);
+  let sw = φW(s);
+  let pw = φW(p);
+
+  os = os_(sw, pw);
+  op = op_(sw, pw);
+
+  let te = φ2("()", πφlp(), φm(pw, [](πfs &&f) -> πf
+    { return [f=mo(f)](πi &i) -> πv
+      { return {Sp<V<πv>>{new V<πv>{f(i)}}}; }; }), φo(πφrp()));
+
+  a_ << te << πφgroup(sw) << πφwrap(a0);
+  s_ << a
+     << φm(φs("πφos", aw, os), [](let &x) -> πf { let &[a, f] = x; return f(a); });
+  p_ << φm(sw, [](auto &&f)
+           -> πfs { return [f=mo(f)](πi &i) { πvs r; r.push_back(f(i)); return r; }; })
+     << φm(φs("πφop", aw, op), [](let &x) -> πfs { let &[a, f] = x; return f(a); });
 }
 
 
