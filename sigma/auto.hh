@@ -8,20 +8,19 @@
 namespace σ
 {
 
+τ::φ<τ::πf>  φπa();
+τ::φ<τ::πf>  φπs();
+τ::φ<τ::πfs> φπp();
+τ::φ<τ::Γ>   φΓa();
+τ::φ<τ::Ψ0>  φΨ0();
+τ::φ<τ::Ψ1>  φΨ1();
+τ::φ<τ::Ψ2>  φΨ2();
+τ::φ<τ::Ψ4>  φΨ4();
 
-τ::φ<τ::πf> φπa();
-τ::φ<τ::Γ>  φΓa();
-τ::φ<τ::Ψ0> φΨ0();
-τ::φ<τ::Ψ1> φΨ1();
-τ::φ<τ::Ψ2> φΨ2();
-τ::φ<τ::Ψ4> φΨ4();
-
-
-struct σident
-{
-  τ::St n;
-};
-
+struct σident  { τ::St  n; };
+struct σrbrack { τ::πfs fs; };
+struct σrparen { τ::πfs fs; };
+struct σrbrace { τ::πfs fs; };
 
 }
 
@@ -38,6 +37,15 @@ template<> struct φauto_<πv>  { static φ<πv>  p() { return πφwrap(πφlit(
 
 template<> struct φauto_<σ::σident>
 { static φ<σ::σident> p() { return φm(πφwrap(φre("[a-z][a-z_0-9']*")), [](Vc<St> &x) { return σ::σident{x.front()}; }); } };
+
+template<> struct φauto_<σ::σrbrack>
+{ static φ<σ::σrbrack> p() { return φm(φ1("σ]", σ::φπp(), πφwrap(φl("]"))), [](πfs &&x) { return σ::σrbrack{mo(x)}; }); } };
+
+template<> struct φauto_<σ::σrparen>
+{ static φ<σ::σrparen> p() { return φm(φ1("σ)", σ::φπp(), πφwrap(φl(")"))), [](πfs &&x) { return σ::σrparen{mo(x)}; }); } };
+
+template<> struct φauto_<σ::σrbrace>
+{ static φ<σ::σrbrace> p() { return φm(φ1("σ}", σ::φπp(), πφwrap(φl("}"))), [](πfs &&x) { return σ::σrbrace{mo(x)}; }); } };
 
 template<> struct φauto_<πf>  { static φ<πf>  p() { return φL<πf>(σ::φπa); } };
 template<> struct φauto_<Γ>   { static φ<Γ>   p() { return φL<Γ> (σ::φΓa); } };

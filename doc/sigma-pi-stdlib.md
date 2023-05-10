@@ -20,7 +20,7 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 R?        R                       R ?R     ?    ??
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-π    mLSLddddLLdd dLLLL dSmddddddLLtL
+π    mLSLddddLLdd dLLLL dSmddSdddLLtL
 ```
 
 "Status" refers to implementation status and is one of the following:
@@ -135,7 +135,6 @@ $ diff <(bin/sigma ':foo [n10p[y+1]] :bar [n20] $foo M?F') <(seq 10)
 | `\|\|`   | N      |                  | logical or`                     |
 | `.`      | N      | map key          | map element access              |
 | `:`      | N      | name-str value   | bind variable                   |
-| `,`      | N      | lhs rhs          | write (return RHS)              |
 | `;`      | N      | lhs rhs          | sequence (return RHS)           |
 
 
@@ -145,4 +144,4 @@ Ternary functions are placed between the first and second arguments; the third i
 | Symbol | Status | Arguments      | Description           |
 |--------|--------|----------------|-----------------------|
 | `?`    | I      | b t e          | conditional           |
-| `s`    | N      | xs lower upper | substr/subarray/slice |
+| `s`    | R      | xs lower upper | substr/subarray/slice |

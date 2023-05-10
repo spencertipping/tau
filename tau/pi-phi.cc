@@ -223,6 +223,13 @@ namespace τ
 }
 
 
+// TODO: simplify this parse model significantly; each op-parse thing
+// should just be a function that accepts the left operand and returns
+// a πf or πfs
+//
+// This gives us full parse-continuation control, which we need to
+// implement brackets-as-ops
+
 T<φ<πf>, φ<πf>, φ<πfs>>
 πφ(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t,
    φ<πmsf> ms, φ<πdsf> ds, φ<πtsf> ts,
@@ -231,7 +238,7 @@ T<φ<πf>, φ<πf>, φ<πfs>>
   let pa  = φa0<πf> ("πa");  auto &a_ = pa .as<φa_<πf>>();
   let ps  = φa0<πf> ("πs");  auto &s_ = ps .as<φa_<πf>>();
   let pp_ = φa0<πfs>("πp");  auto &p_ = pp_.as<φa_<πfs>>();
-  let pp  = πφfs(pp_);
+  let pp  = πφfs(φ1("πfs1", pp_, φo(φl(","))));
 
   let aw = φW(pa);
   let sw = φW(ps);

@@ -65,6 +65,10 @@ true
 (10 11 12 13 14 15)
 $ bin/pi-phi '"foo" + "bar"'
 "foobar"
+$ bin/pi-phi '(1 2 3)' '(1,2,3)' '(1, 2, 3)'
+(1 2 3)
+(1 2 3)
+(1 2 3)
 ```
 
 Testing some builtins:
