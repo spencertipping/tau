@@ -13,6 +13,8 @@ namespace τ
 
 
 // Core language, for testing/example
+// TODO: port these to the new parser structure
+
 φ<πf>  πφcore_a();
 φ<πmf> πφcore_m();
 φ<πdf> πφcore_d();
@@ -26,69 +28,44 @@ namespace τ
 φ<πsmsf> πφcore_sms();
 
 
-// Constructs a full π grammar using the provided elemental parsers:
-//
-// a = atom
-// m = monadic operator (just the operator)
-// d = dyadic operator
-// t = ternary operator
-//
-// ms = monadic plural operator
-// ds = dyadic plural operator
-// ts = ternary plural operator
-//
-// sm = monadic operator consuming plural values
-// sms = monadic operator producing and consuming plural values
-//
-// πφ returns the following parser objects:
-//
-// 1. A parser for atoms; i.e. `[]` is required around any operators
-// 2. A parser for single-valued expressions
-// 3. A parser for multi-valued expressions
-//
-// NOTE: you must hold references to all returned parsers for any of
-// them to be valid
-
-// FIXME TODO: πφ requires stateful initialization, which is a problem
-// for φauto because we don't have a simple way to specify function args
-// for auto-filled parameters. This type of grammar should be a struct
-// with template args that provide dependencies.
-//
-// This also fixes the hold-onto-all-tuple-elements issue.
-
-// NOTE: the new structure here should be two parsers: φ<πf> for atoms
-// and F<φ<F<πf(πf)>>(φ<πf>)> for right-hand operators. These should be
-// struct members that are then fed into a virtual grammar constructor
-// and are initialized by derived classes.
-
 φ<πfs> πφfs(φ<πfs> f);
+
+
+// π grammar generated from core parsers, written here in function
+// notation:
+//
+// φ<πf>: an individual atom
+// (φ<πf>, φ<πfs>) → φ<πf>: singular prefix operator
+// (φ<πf>, φ<πfs>) → φ<πfs>: plural prefix operator
+// (φ<πf>, φ<πfs>) → φ<πf → πf>: singular postfix operator
+// (φ<πf>, φ<πfs>) → φ<πf → πfs>: plural postfix operator
+//
+// Here, φ<πf> is the compiled singular-expression parser and φ<πfs> is
+// the compiled plural-expression parser. In the returned φs, πf → x
+// means "take the left-hand operand and return the full expression";
+// these parsers consume the continuation after the left operand.
+//
+// At every position in the source, at most one of the five parsers
+// should accept any continuation. If more than one accepts, then the
+// grammar is ambiguous and depends on preferential ordering (which may
+// be acceptable, but isn't ideal).
 
 struct πφ final
 {
   πφ(φ<πf>,
+     F<φ<πf>        (φ<πf>, φ<πfs>)> const&,
+     F<φ<πfs>       (φ<πf>, φ<πfs>)> const&,
      F<φ<F<πf (πf)>>(φ<πf>, φ<πfs>)> const&,
      F<φ<F<πfs(πf)>>(φ<πf>, φ<πfs>)> const&);
 
-  φ<F<πf (πf)>> os;
-  φ<F<πfs(πf)>> op;
-  φ<πf>         a;
-  φ<πf>         s;
-  φ<πfs>        p;
+  φ<F<πf (πf)>> os;  // compiled postfix singular
+  φ<F<πfs(πf)>> op;  // compiled postfix plural
+  φ<πf>         es;  // compiled prefix singular
+  φ<πfs>        ep;  // compiled prefix plural
+  φ<πf>         a;   // atom
+  φ<πf>         s;   // singular expression
+  φ<πfs>        p;   // plural expression
 };
-
-
-T<φ<πf>, φ<πf>, φ<πfs>>
-πφ_(φ<πf>  a = πφcore_a(),
-   φ<πmf> m = πφcore_m(),
-   φ<πdf> d = πφcore_d(),
-   φ<πtf> t = πφcore_t(),
-
-   φ<πmsf> ms = πφcore_ms(),
-   φ<πdsf> ds = πφcore_ds(),
-   φ<πtsf> ts = πφcore_ts(),
-
-   φ<πsmf>  sm  = πφcore_sm(),
-   φ<πsmsf> sms = πφcore_sms());
 
 
 // Built-in language elements

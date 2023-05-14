@@ -223,49 +223,9 @@ namespace τ
 }
 
 
-// TODO: simplify this parse model significantly; each op-parse thing
-// should just be a function that accepts the left operand and returns
-// a πf or πfs
-//
-// This gives us full parse-continuation control, which we need to
-// implement brackets-as-ops
-
-T<φ<πf>, φ<πf>, φ<πfs>>
-πφ_(φ<πf> a, φ<πmf> m, φ<πdf> d, φ<πtf> t,
-   φ<πmsf> ms, φ<πdsf> ds, φ<πtsf> ts,
-   φ<πsmf> sm, φ<πsmsf> sms)
-{
-  let pa  = φa0<πf> ("πa");  auto &a_ = pa .as<φa_<πf>>();
-  let ps  = φa0<πf> ("πs");  auto &s_ = ps .as<φa_<πf>>();
-  let pp_ = φa0<πfs>("πp");  auto &p_ = pp_.as<φa_<πfs>>();
-  let pp  = πφfs(φ1("πfs1", pp_, φo(φl(","))));
-
-  let aw = φW(pa);
-  let sw = φW(ps);
-  let pw = φW(pp);
-
-  let te = φ2("()", πφlp(), φm(pw, [](πfs &&f) -> πf
-    { return [f=mo(f)](πi &i) -> πv
-      { return {Sp<V<πv>>{new V<πv>{f(i)}}}; }; }), φo(πφrp()));
-
-  a_ << πφgroup(sw) << te << πφwrap(a);
-
-  s_ << φm(φs("mf",     πφwrap(m), sw),     [](let &r) -> πf { let &[m, x]       = r; return πmc(m, x); })
-     << φm(φs("df", aw, πφwrap(d), sw),     [](let &r) -> πf { let &[x, d, y]    = r; return πdc(d, x, y); })
-     << φm(φs("tf", aw, πφwrap(t), sw, sw), [](let &r) -> πf { let &[x, t, y, z] = r; return πtc(t, x, y, z); })
-     << aw;
-
-  p_ << φm(φs("ms",     πφwrap(ms), sw),     [](let &r) -> πfs { let &[m, x]       = r; return πmc(m, x); })
-     << φm(φs("ds", aw, πφwrap(ds), sw),     [](let &r) -> πfs { let &[x, d, y]    = r; return πdc(d, x, y); })
-     << φm(φs("ts", aw, πφwrap(ts), sw, sw), [](let &r) -> πfs { let &[x, t, y, z] = r; return πtc(t, x, y, z); })
-     << φm(sw,                               [](let &f) -> πfs
-       { return [f](πi &i) { πvs r; r.push_back(f(i)); return r; }; });
-
-  return {pa, ps, pp};
-}
-
-
 πφ::πφ(φ<πf>                                  a0,
+       F<φ<πf>        (φ<πf>, φ<πfs>)> const &es_,
+       F<φ<πfs>       (φ<πf>, φ<πfs>)> const &ep_,
        F<φ<F<πf (πf)>>(φ<πf>, φ<πfs>)> const &os_,
        F<φ<F<πfs(πf)>>(φ<πf>, φ<πfs>)> const &op_)
 {
@@ -280,8 +240,11 @@ T<φ<πf>, φ<πf>, φ<πfs>>
   let sw = φW(s);
   let pw = φW(p);
 
+  // These parsers are sufficiently weak and can be used directly
   os = os_(sw, pw);
   op = op_(sw, pw);
+  es = es_(sw, pw);
+  ep = ep_(sw, pw);
 
   let te = φ2("()", πφlp(), φm(pw, [](πfs &&f) -> πf
     { return [f=mo(f)](πi &i) -> πv
@@ -289,9 +252,11 @@ T<φ<πf>, φ<πf>, φ<πfs>>
 
   a_ << te << πφgroup(sw) << πφwrap(a0);
   s_ << a
+     << es
      << φm(φs("πφos", aw, os), [](let &x) -> πf { let &[a, f] = x; return f(a); });
   p_ << φm(sw, [](auto &&f)
            -> πfs { return [f=mo(f)](πi &i) { πvs r; r.push_back(f(i)); return r; }; })
+     << ep
      << φm(φs("πφop", aw, op), [](let &x) -> πfs { let &[a, f] = x; return f(a); });
 }
 
