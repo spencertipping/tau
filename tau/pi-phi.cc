@@ -125,7 +125,7 @@ namespace τ
 φ<πdsf> πφcore_ds() { slet r = φF<πdsf>(); return r; }
 φ<πtsf> πφcore_ts() { slet r = φF<πtsf>(); return r; }
 
-φ<πsmf>  πφcore_sm()  { slet r = φF<πsmf>(); return r; }
+φ<πsmf>  πφcore_sm()  { slet r = φF<πsmf>();  return r; }
 φ<πsmsf> πφcore_sms() { slet r = φF<πsmsf>(); return r; }
 
 

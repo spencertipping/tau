@@ -19,7 +19,7 @@ template<class... Xs, class T>
 auto φauto(F<T(Xs...)> const &f) -> φ<decltype(f(std::declval<Xs>()...))>
 {
   if constexpr (sizeof...(Xs) == 0)
-                 return φm(φR<int>(0), [f](int x) -> T { return f(); });
+                 return φm(φR<int>(0), [f](int) -> T { return f(); });
   else
     return φm(φs("auto", φauto_<De<Xs>>::p()...),
               [f](auto xs) -> T { return std::apply(f, xs); });

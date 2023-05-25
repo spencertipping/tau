@@ -50,6 +50,12 @@ namespace τ
 // grammar is ambiguous and depends on preferential ordering (which may
 // be acceptable, but isn't ideal).
 
+// TODO: this struct should be generated from a prefix dict so we can
+// more easily extend the grammar
+
+// TODO: πφ can use templates to implement stateful φauto for its constituent
+// functions; this way we sidestep the global-parser problem
+
 struct πφ final
 {
   πφ(φ<πf>,
