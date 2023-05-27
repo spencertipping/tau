@@ -7,6 +7,8 @@ A π program is just a C++ lambda of the form `F<πv(πi&)>`, where `πi` is a s
 
 The return value is the evaluated value of the expression, after side effects against `πi`.
 
+**TODO:** rework this; we should use a single η heap buffer with a stack of offset registers and shallow GC. Duplicating values for C++ heap encoding is slow and insane.
+
 
 ## `πv` runtime values
 `πv` can encode each of the alternatives in [η](eta.md), plus some that can't be serialized:

@@ -7,6 +7,8 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** GC the source and documentation for the sigma refactor
 
+**TODO:** fixes as outlined in [pi-int](doc/pi-int.md): we need to redo the pi interpreter logic and heap storage
+
 
 ## Compute model
 ```
