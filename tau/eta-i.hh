@@ -28,6 +28,9 @@ struct ηi final
   ηi(u8c *a, uN l) : a_(a),        l_(l)              { decode_cb(); }
   ηi(Sn<u8c> s)    : a_(s.data()), l_(s.size_bytes()) { decode_cb(); }
 
+  ηi &operator=(ηi const&) = default;
+  ηi &operator=(Sn<u8c> const &s) { a_ = s.data(); l_ = s.size_bytes(); decode_cb(); return *this; }
+
   ηtype       t()    const { return Sc<ηtype>(*a_ >> 4); }
   u8c     *data()    const { return a_ + c_; }
   u8c    *odata()    const { return a_; }
