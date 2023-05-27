@@ -2,7 +2,6 @@
 #define τπint_h
 
 
-#include "pi-val.hh"
 #include "xiio.hh"
 #include "tau.hh"
 
@@ -17,7 +16,7 @@ struct πi
   ξi        i;   // input stream (if streaming)
   ξo        o;   // output stream (if streaming)
   ηm        m;   // buffered input value (if not streaming)
-  M<St, πv> vs;  // stored variables
+  //M<St, πv> vs;  // stored variables (TODO: rewrite)
 
   πi()                            {}
   πi(ηic &x)       : m(x)         {}

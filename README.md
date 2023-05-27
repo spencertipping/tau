@@ -7,7 +7,9 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 **TODO:** GC the source and documentation for the sigma refactor
 
-**TODO:** fixes as outlined in [pi-int](doc/pi-int.md): we need to redo the pi interpreter logic and heap storage
+**TODO:** finish the pi-int/GC rework
+
+**TODO:** delete all current pi-fn, replace with eta-auto (**NOTE:** `std::visit` dispatch is not possible unless we are using variants, so it doesn't apply to `η` values)
 
 
 ## Compute model
