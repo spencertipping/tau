@@ -24,7 +24,5 @@ GC has the following properties:
 1. All values are flat; they cannot refer to one another
 2. The root set consists entirely of off-heap registers that define origin + extent
 3. Values are typically buffered before being committed to the heap, deferring GC
-
-**TODO:** we need to define semispace locking semantics so we guarantee that source values live long enough to copy into destination values (where we have such dependencies)
-
-**TODO:** strongly specify how nested values are handled: we probably want to preserve containment because the root set is unlikely to be so large that this is prohibitive (i.e. we can sort it)
+4. Nesting is preserved; if `ref1` is inside `ref2`, then this is also true post-GC (not semantically important; we just do this for performance, to avoid duplicating inner values)
+5. Because source values may refer to the heap, we use a semispace algorithm to collect-on-allocation and we preserve the old heap until all values are written

@@ -229,6 +229,8 @@ namespace τ
        F<φ<F<πf (πf)>>(φ<πf>, φ<πfs>)> const &os_,
        F<φ<F<πfs(πf)>>(φ<πf>, φ<πfs>)> const &op_)
 {
+  // TODO: rewrite all of this (see doc/pi-phi.md)
+
   a = φa0<πf> ("πa"); auto &a_ = a.as<φa_<πf>> ();
   s = φa0<πf> ("πs"); auto &s_ = s.as<φa_<πf>> ();
   p = φa0<πfs>("πp"); auto &p_ = p.as<φa_<πfs>>();
