@@ -18,6 +18,12 @@ The heap is a linear buffer of non-prefixed η values; for example, a heap consi
 Registers, i.e. heap pointers, encode the beginning and length of the value they refer to. In this case, the two register values for this heap would be `0+2` and `2+2`.
 
 
+## Stack values vs η plurality
+Each register/stack value can refer to a η buffer, and each η buffer can hold multiple values. A function can destructure the stack: `(args...) → T<result...>`, or it can coerce its arguments as singles: `(i64, f64, St) -> i64`, or it can accept its arguments as tuples to destructure: `(T<i64, f64>, T<St, St>) -> T<f64, i64>`.
+
+Bare arguments bound as `ηi` or `Sn<u8c>` will match the η value directly. You can extract a single embedded element using `T<ηi>` or `T<Sn<u8c>>`.
+
+
 ## GC
 GC has the following properties:
 
