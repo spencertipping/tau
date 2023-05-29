@@ -18,18 +18,21 @@ PO ηscmp(ηi a, ηi b)
 }
 
 
-u64 ηi::ts() const
+// Result bit ordering: 0xnedcba9876543210 -- where 0 is the first type, etc.
+// Unspecified types are 0xf. The most-significant four bits encode the number
+// of values in the set.
+ηts ηi::ts() const
 {
-  u64 r = 0xffffffffffffffffull;
+  u64 r = 0x0fffffffffffffffull;
   ηi  i = *this;
   uN  n = 0;
-  while (i.has_next() && n < 16)
+  while (i.has_next() && n < 15)
   {
-    r = r << 4 | Sc<u8>(i.t());
+    r = r & ~(0xf << n * 4) | Sc<u64>(i.t()) << n * 4;
     ++i;
     ++n;
   }
-  return r;
+  return {r | n << 60};
 }
 
 

@@ -58,6 +58,30 @@ enum class ηtype : u8
 };
 
 
+// A set of type codes packed into bits. Used to encode the type of each
+// value within a η record, for fast function dispatching.
+//
+// The most-significant 4-bit value is the number of items in the set.
+struct ηts final
+{
+  constexpr ηts(u64 x_)      : x(x_) {}
+  constexpr ηts(Il<ηtype> l) : x(l.size() << 60)
+    { uN i = 0;
+      for (let y : l) x |= u64(y) << i++ * 4; }
+
+  constexpr ηtype operator[](uN i) const { return ηtype(x >> (i * 4) & 0xf); }
+  constexpr uN          size()     const { return x >> 60; }
+
+  // Returns true if a function whose arguments are this set's types can be
+  // applied to a value whose types are y.
+  constexpr bool operator()(ηts y) const
+    { let s = std::min(size(), y.size());
+      return x & ~(-1ull << s * 4) == y.x & ~(-1ull << s * 4); }
+
+  u64 x;
+};
+
+
 // Number of bytes used to encode the size, or 0 if the size is directly
 // inlined into the control byte
 inline uN ηsb(uN s)
@@ -101,6 +125,7 @@ inline uN ηcb(Sn<u8> b, ηtype t, uN s)
 O &operator<<(O&, ηsig);
 O &operator<<(O&, ηatom);
 O &operator<<(O&, ηtype);
+O &operator<<(O&, ηts);
 
 
 }

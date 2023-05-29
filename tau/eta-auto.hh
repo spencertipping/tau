@@ -9,6 +9,10 @@ namespace τ
 {
 
 
+// TODO: implement new system as per doc/eta-cpp.md
+// TODO: template function that creates ηts from function args
+
+
 Tt struct ηauto_;
 
 template<> struct ηauto_<i8>  { static i8  v(ηic &i) { return i.i(); } };

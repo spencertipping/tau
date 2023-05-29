@@ -5,6 +5,15 @@ namespace τ
 {
 
 
+O &operator<<(O &s, ηts ts)
+{
+  s << "ηts[";
+  for (uN i = 0; i < ts.size(); ++i)
+    s << (i ? " " : "") << ts[i];
+  return s << "]";
+}
+
+
 O &operator<<(O &s, ηtype t)
 {
   switch (t)

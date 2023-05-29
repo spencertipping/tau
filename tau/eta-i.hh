@@ -50,10 +50,9 @@ struct ηi final
   ηi &operator++()    { *this = next(); return *this; }
   ηi  operator++(int) { let r = *this; ++*this; return r; }
 
-
-  // Construct a typeset that describes up to the first 16 types of items
-  // in this η.
-  u64 ts() const;
+  // Type of each element within this η record, up to the first 15 (used for
+  // fast dispatch)
+  ηts ts() const;
 
 
   struct it
