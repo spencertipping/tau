@@ -4,6 +4,7 @@
 **η is designed for simplicity above almost all else.** As the interop format, I'm going to end up writing multiple η libraries -- C++, Rust, Python, and maybe Go.
 
 + [η signal conventions](eta-signals.md)
++ [η/C++ destructuring](eta-cpp.md)
 
 
 ```bash
@@ -63,23 +64,3 @@ Tuples and maps are both encoded into the stream by having multiple values. For 
 `0x6_` is used to assign names to some stream values, which is done in the context of a map. For example, `63 f o o 11 02 63 b a r 11 05` corresponds to `{"foo":2, "bar":5}`.
 
 There is no requirement that an η stream contain only name-prefixed things or only un-prefixed things, although these are common configurations. There is also no requirement about the relative layout of named/unnamed things. This is a feature: since values closer to the front of the stream are faster to decode, strategic ordering can improve performance.
-
-
-## Local values
-[π](pi.md) defines a C++ native API that provides in-memory values. In practice this is just a `std::variant` that contains each η type as an alternative:
-
-+ `τ::ηsig`
-+ `τ::i64`
-+ `τ::f64`
-+ `τ::St`
-+ `τ::ηatom`
-+ `τ::η` (for sub-η)
-+ `τ::P<τ::St, τ::η>` for name prefixes
-+ `τ::Sn<τ::i8b>`
-+ `τ::Sn<τ::i16b>`
-+ `τ::Sn<τ::i32b>`
-+ `τ::Sn<τ::i64b>`
-+ `τ::Sn<τ::f32b>`
-+ `τ::Sn<τ::f64b>`
-
-**NOTE:** `πv` may also contain other values.

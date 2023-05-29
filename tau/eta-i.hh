@@ -51,6 +51,11 @@ struct ηi final
   ηi  operator++(int) { let r = *this; ++*this; return r; }
 
 
+  // Construct a typeset that describes up to the first 16 types of items
+  // in this η.
+  u64 ts() const;
+
+
   struct it
   {
     Sn<u8c> x;

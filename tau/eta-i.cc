@@ -18,6 +18,21 @@ PO ηscmp(ηi a, ηi b)
 }
 
 
+u64 ηi::ts() const
+{
+  u64 r = 0xffffffffffffffffull;
+  ηi  i = *this;
+  uN  n = 0;
+  while (i.has_next() && n < 16)
+  {
+    r = r << 4 | Sc<u8>(i.t());
+    ++i;
+    ++n;
+  }
+  return r;
+}
+
+
 PO ηi::operator<=>(ηi const &x) const
 {
   let tc = t() <=> x.t();
