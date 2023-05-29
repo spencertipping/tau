@@ -11,6 +11,7 @@ namespace τ
 
 // TODO: implement new system as per doc/eta-cpp.md
 // TODO: template function that creates ηts from function args
+// TODO: function to convert ηi to T<...>, then ηauto = std::apply
 
 
 Tt struct ηauto_;
@@ -26,6 +27,7 @@ template<> struct ηauto_<bool>  { static bool  v(ηic &i) { return i.b(); } };
 template<> struct ηauto_<ηsig>  { static ηsig  v(ηic &i) { return i.sig(); } };
 template<> struct ηauto_<ηatom> { static ηatom v(ηic &i) { return i.a(); } };
 
+// FIXME: should be identity
 template<> struct ηauto_<ηi>  { static ηi  v(ηic &i) { return i.η(); } };
 
 template<> struct ηauto_<Stv> { static Stv v(ηic &i) { return i.s(); } };
