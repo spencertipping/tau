@@ -14,12 +14,12 @@ using namespace τ;
 {
   static φ<Ψ2> r = φL<Ψ2>([]()
     { return φd<Ψ2>("Ψ2",
-                    "g",   φauto(Γg),
+                    // "g",   φauto(Γg),
                     "-",   φauto(Γid),
                     "M?",  φauto(ΓMq),
                     "M??", φauto(ΓMqq),
-                    "N",   φauto(ΓN),
-                    "p",   φauto(Γp)
+                    "N",   φauto(ΓN)
+                    //                   "p",   φauto(Γp)
                     /*"j",  φauto(Γj),
                       "k",  φauto(Γk),
                       "rp", φauto(Γrp),
@@ -78,11 +78,13 @@ using namespace τ;
 }
 
 
+/*
 Ψ2 Γp(πf f)
 {
   return {[=](ψ q, ξi i, ξo o, Ψaux)
     { ηl(i, o, [&](ηi x) { πi j{i, o}; o.r() << f(j); }); }, "p[]"};
 }
+*/
 
 
 Ψ2 Γg(πf f)

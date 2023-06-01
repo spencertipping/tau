@@ -34,14 +34,14 @@ using namespace τ;
       while (1) t.dt(now() + 1s); }};
 }
 
-Ψ1 Γi(πv v)
+Ψ1 Γi(ηmc &v)
 {
-  return {[=](ψ q, ξo o, Ψaux) { o.r() << v; }};
+  return {[=](ψ q, ξo o, Ψaux) { o.r() << v.y(); }};
 }
 
-Ψ1 ΓI(πv v)
+Ψ1 ΓI(ηmc &v)
 {
-  return {[=](ψ q, ξo o, Ψaux) { while (o) o.r() << v; }};
+  return {[=](ψ q, ξo o, Ψaux) { while (o) o.r() << v.y(); }};
 }
 
 Ψ1 Γn(i64 l)

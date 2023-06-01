@@ -30,7 +30,6 @@
 #include "tau/phi-auto.hh"
 
 #include "tau/pi-int.hh"
-#include "tau/pi-fn-eta.hh"
 #include "tau/pi-phi.hh"
 
 #include "tau/Xi.hh"

@@ -16,29 +16,49 @@ namespace τ
 
 Tt struct ηauto_;
 
-template<> struct ηauto_<i8>  { static i8  v(ηic &i) { return i.i(); } };
-template<> struct ηauto_<i16> { static i16 v(ηic &i) { return i.i(); } };
-template<> struct ηauto_<i32> { static i32 v(ηic &i) { return i.i(); } };
-template<> struct ηauto_<i64> { static i64 v(ηic &i) { return i.i(); } };
-template<> struct ηauto_<f32> { static f32 v(ηic &i) { return i.f(); } };
-template<> struct ηauto_<f64> { static f64 v(ηic &i) { return i.f(); } };
+#define deft(ct, yt, ve) \
+  template<> struct ηauto_<ct> { sletc t = ηtype::yt; static ct v(ηic &i) { return ve; } };
 
-template<> struct ηauto_<bool>  { static bool  v(ηic &i) { return i.b(); } };
-template<> struct ηauto_<ηsig>  { static ηsig  v(ηic &i) { return i.sig(); } };
-template<> struct ηauto_<ηatom> { static ηatom v(ηic &i) { return i.a(); } };
+deft(i8,  n_int,   i.i())
+deft(i16, n_int,   i.i())
+deft(i32, n_int,   i.i())
+deft(i64, n_int,   i.i())
+deft(f32, n_float, i.f())
+deft(f64, n_float, i.f())
 
-// FIXME: should be identity
-template<> struct ηauto_<ηi>  { static ηi  v(ηic &i) { return i.η(); } };
+deft(bool,  atom, i.b())
+deft(ηsig,  sig,  i.sig())
+deft(ηatom, atom, i.a())
 
-template<> struct ηauto_<Stv> { static Stv v(ηic &i) { return i.s(); } };
-template<> struct ηauto_<St>  { static St  v(ηic &i) { return St{i.s()}; } };
+deft(ηi, η, i)
 
-template<> struct ηauto_<Sn<i8bc>>  { static Sn<i8bc>  v(ηic &i) { return i.i8s(); } };
-template<> struct ηauto_<Sn<i16bc>> { static Sn<i16bc> v(ηic &i) { return i.i16s(); } };
-template<> struct ηauto_<Sn<i32bc>> { static Sn<i32bc> v(ηic &i) { return i.i32s(); } };
-template<> struct ηauto_<Sn<i64bc>> { static Sn<i64bc> v(ηic &i) { return i.i64s(); } };
-template<> struct ηauto_<Sn<f32bc>> { static Sn<f32bc> v(ηic &i) { return i.f32s(); } };
-template<> struct ηauto_<Sn<f64bc>> { static Sn<f64bc> v(ηic &i) { return i.f64s(); } };
+deft(Stv, string, i.s())
+deft(St,  string, St{i.s()})
+
+deft(Sn<i8bc>,  int8s,    i.i8s())
+deft(Sn<i16bc>, int16s,   i.i16s())
+deft(Sn<i32bc>, int32s,   i.i32s())
+deft(Sn<i64bc>, int64s,   i.i64s())
+deft(Sn<f32bc>, float32s, i.f32s())
+deft(Sn<f64bc>, float64s, i.f64s())
+
+template<class X>
+struct ηauto_<T<X>>
+{
+  sletc t = ηtype::η;
+  static T<X> v(ηic &i) { return {ηauto_<X>::v(i)}; }
+};
+
+template<class X, class Y, class... Xs>
+struct ηauto_<T<X, Y, Xs...>>
+{
+  sletc t = ηtype::η;
+  static T<X, Y, Xs...> v(ηic &i)
+    { return std::tuple_cat({ηauto_<X>::v(i)},
+                            ηauto_<T<Y, Xs...>>::v(i.next())); }
+};
+
+#undef deft
 
 
 template<uS I, class R, class... Xs, class... Ys>
@@ -47,9 +67,8 @@ R ηauto__(F<R(Xs...)> const &f, Sn<u8c> i, Ys&&... ys)
   if constexpr (I == sizeof...(Xs)) return f(std::forward<Ys>(ys)...);
   else
   {
-    using T = std::tuple_element_t<I, T<Xs...>>;
     ηi    j = i;
-    auto  x = ηauto_<T>::v(j);
+    auto  x = ηauto_<std::tuple_element_t<I, T<Xs...>>>::v(j);
     return ηauto__<I + 1>(f, j.after(), std::forward<Ys>(ys)..., x);
   }
 }

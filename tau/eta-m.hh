@@ -18,7 +18,7 @@ typedef ηm const ηmc;
 struct ηm final
 {
   ηm()     = default;
-  ηm(ηm&)  = default;
+  ηm(ηmc&) = default;
   ηm(ηm&&) = default;
   ηm(ηic &x) { *this = x; }
 
@@ -36,6 +36,9 @@ struct ηm final
 
   Tt ηm &operator<<(T const &x) { ηo{ηoc<B&>(x_)} << x; return *this; }
 
+  ηm &name(Stc  &s) { ηo{ηoc<B&>(x_)}.name(s); return *this; }
+  ηm &k   (Stvc &s) { ηo{ηoc<B&>(x_)}.k(s);    return *this; }
+
   B x_;
 };
 
@@ -44,6 +47,9 @@ Tt ηo<T> &operator<<(ηo<T> &x, ηmc &y)
 {
   return x << Sn<u8c>{y.x_.data(), y.x_.size()};
 }
+
+
+O &operator<<(O&, ηmc&);
 
 
 }

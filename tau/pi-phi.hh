@@ -4,12 +4,17 @@
 #include "phi.hh"
 #include "phi-ctor.hh"
 #include "phi-auto.hh"
-#include "pi-val.hh"
 
 #include "begin.hh"
 
 namespace τ
 {
+
+
+struct πf {};
+struct πfs {};
+
+struct πname { St x; };
 
 
 // π grammar generated from core parsers, written here in function
@@ -92,11 +97,9 @@ Tt φ<T> πφgroup(φ<T> p) { return φ2("[]", πφlb(), πφwrap(p), πφrb());
 φ<i64> πφint();
 
 φ<f64>   πφfloat();
-φ<πname> πφname();
 φ<St>    πφstr_escape();
 φ<St>    πφstr();
-
-φ<πv> πφlit();
+φ<πname> πφname();
 
 
 }

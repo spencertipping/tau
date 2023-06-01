@@ -19,9 +19,9 @@ static bool http_req_parse(Stc &b, ξo o)
 
   Stc hs = m[3].str();
   Re  hr(R"(([A-Za-z0-9-]+): ([^\r\n]*)\r\n)");
-  πv  h; h.v_ = Sp<M<St, πv>>{new M<St, πv>};
+  ηm  h;
   for (Rsi i(hs.begin(), hs.end(), hr), e; i != e; ++i)
-    (*h.m())[(*i)[1].str()] = (*i)[2].str();
+    h.k((*i)[1].str()) << (*i)[2].str();
 
   w << h;
   return true;

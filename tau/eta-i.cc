@@ -28,11 +28,11 @@ PO ηscmp(ηi a, ηi b)
   uN  n = 0;
   while (i.has_next() && n < 15)
   {
-    r = r & ~(0xf << n * 4) | Sc<u64>(i.t()) << n * 4;
+    r = r & ~(0xf << n * 4) | u64(i.t()) << n * 4;
     ++i;
     ++n;
   }
-  return {r | n << 60};
+  return {r | u64(n) << 60};
 }
 
 
