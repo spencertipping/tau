@@ -45,12 +45,12 @@ void πh::mark(πhr const &r)
 πhr πh::move(πhr const &r)
 {
   A(hn_, "πh::move(" << r << ") called outside of gc");
-  if (let d = *Rc<uN*>(hn_->data() + r.o)) return {d, r.l};
+  if (let d = *Rc<uN*>(hn_->data() + r.o)) return {d, r.l, r.i};
 
   let d = h_.size() + uNs;
   h_.append(hn_->data() + r.o - uNs, r.l + uNs);
   *Rc<uN*>(hn_->data() + r.o) = d;
-  return {d, r.l};
+  return {d, r.l, r.i};
 }
 
 

@@ -18,12 +18,7 @@ struct πhr final
 {
   uN o;  // offset relative to start of heap
   uN l;  // length in bytes
-
-  bool contains(πhr const &r) const
-    { return r.o >= o && r.o + r.l <= o + l; }
-
-  bool operator< (πhr const &r) const { return o < r.o; }
-  bool operator==(πhr const &r) const { return o == r.o && l == r.l; }
+  uN i;  // inner offset
 };
 
 
@@ -59,23 +54,26 @@ protected:
 // operator<<. This is generally safe because operator<< accepts a materialized
 // result.
 //
-// GC is simple because πhrs cannot contain one another. This means we can
-// relocate-on-mark and store a small relocation header prior to each value
-// so we can quickly track the new location.
+// πhrs can contain one another, but we collect only toplevel references. This
+// means that inner objects hold references to their parents even if the other
+// parent data is not referred to.
 struct πh final
 {
   πh(uN hr = 1048576) : hr_(hr), hn_(nullptr) { h_.reserve(hr); }
 
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
-  ηi operator[](πhr const &r) const { return ηi{h_.data() + r.o, r.l}; }
+  ηi operator[](πhr const &r) const { return ηi{h_.data() + r.o + r.i, r.l}; }
+
+  // Refer to a ηi already on the heap and contained within a heap ref.
+  πhr i(πhr r, ηi y) const { return {r.o, y.lsize(), uN(y.odata() - (h_.data() + r.o))}; }
 
   // Write a value into the heap and return a reference to it.
   Tt πhr operator<<(T const &x)
     { A(!r_.l, "πh<< is not re-entrant");
       A(!hn_,  "πh<< during GC");
       ηo<πh&>{ηoc<πh&>{*this}, ηauto_<T>::n} << x;  // calls .ref()
-      let r = r_; r_ = {0, 0};
+      let r = r_; r_ = {0, 0, 0};
       return r; }
 
   // Called during operator<< to set the πhr of the value being written.
@@ -118,6 +116,16 @@ struct πhv
 
 protected:
   πh &h;
+};
+
+
+// A stack-shaped view of a heap, with a stack of heap refs
+struct πhsv : public virtual πhv
+{
+  πhsv(πh &h_) : πhv(h_) {}
+  void mark() { for (let  &r : xs)     h.mark(r); }
+  void move() { for (auto &r : xs) r = h.move(r); }
+  V<πhr> xs;
 };
 
 
