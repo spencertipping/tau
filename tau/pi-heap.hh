@@ -18,6 +18,12 @@ struct πhr final
 {
   uN o;  // offset relative to start of heap
   uN l;  // length in bytes
+
+  bool contains(πhr const &r) const
+    { return r.o >= o && r.o + r.l <= o + l; }
+
+  bool operator< (πhr const &r) const { return o < r.o; }
+  bool operator==(πhr const &r) const { return o == r.o && l == r.l; }
 };
 
 
@@ -48,6 +54,8 @@ struct πh final
 {
   πh(uN s = 65536) : gc_(false) { h_.reserve(s); }
 
+  // Read a value from the heap. Note that the result is not auto-updated
+  // during GC, so you'll need to re-create the ηi if a GC may have happened.
   ηi operator[](πhr r) const { return ηi{h_.data() + r.o, r.l}; }
 
   // Write a value into the heap and return a reference to it.
@@ -56,9 +64,6 @@ struct πh final
       ηo<πh&>{ηoc<πh&>{*this}, ηauto_<T>::n} << x;  // calls .ref()
       let r = r_; r_ = {0, 0};
       return r; }
-
-  void adv(πhv *v) { vs_.insert(v); }
-  void rmv(πhv *v) { vs_.erase(v); }
 
   // Called during operator<< to set the πhr of the value being written.
   // We don't always know this up front because GC can happen during a write,
@@ -71,12 +76,15 @@ struct πh final
   void mark(πhr);  // Mark a πhr as reachable. Called by πhv.
   πhr  move(πhr);  // Ask for the new location of a πhr. Called by πhv.
 
+  void adv(πhv *v) { vs_.insert(v); }
+  void rmv(πhv *v) { vs_.erase(v); }
+
   B &h() { return h_; }
 
 protected:
   B       h_;
-  S<πhv*> vs_;
   πhr     r_;
+  S<πhv*> vs_;
   bool    gc_;  // is GC in progress?
 };
 
