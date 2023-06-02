@@ -50,6 +50,11 @@ protected:
 // current heap data. The heap is compacted during GC, so πhrs must be
 // updated. This is done using heap views, which are notified when the heap
 // is GC'd and can then update their πhrs.
+//
+// The GC algorithm is designed for simple, atomic C++ functions which
+// receive η-packed values and return things which can be written out using
+// operator<<. This is generally safe because operator<< accepts a materialized
+// result.
 struct πh final
 {
   πh(uN s = 65536) : gc_(false) { h_.reserve(s); }
