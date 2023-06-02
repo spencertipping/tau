@@ -42,7 +42,7 @@ template<> struct ηoc<B&> final
 };
 
 
-// Inline output writer for η values, in this case into a ξ.
+// Inline output writer for η values, for example into a ξ.
 //
 // This object accepts a stream of values that may overflow the initial
 // allocation. If this happens, the next stream operation may block, but your

@@ -14,38 +14,45 @@ namespace τ
 // TODO: function to convert ηi to T<...>, then ηauto = std::apply
 
 
+// ηauto_<T> provides information about how T maps to η values, in particular
+// the η type, an approximate size in bytes (used for heap reservations), and
+// a function to convert from η to T.
 Tt struct ηauto_;
 
-#define deft(ct, yt, ve) \
-  template<> struct ηauto_<ct> { sletc t = ηtype::yt; static ct v(ηic &i) { return ve; } };
+#define deft(ct, s, yt, ve)                                             \
+  template<> struct ηauto_<ct>                                          \
+  { sletc t = ηtype::yt;                                                \
+    sletc n = s;                                                        \
+    static ct v(ηic &i) { return ve; } };
 
-deft(i8,  n_int,   i.i())
-deft(i16, n_int,   i.i())
-deft(i32, n_int,   i.i())
-deft(i64, n_int,   i.i())
-deft(f32, n_float, i.f())
-deft(f64, n_float, i.f())
+deft(i8,  2, n_int,   i.i())
+deft(i16, 3, n_int,   i.i())
+deft(i32, 5, n_int,   i.i())
+deft(i64, 9, n_int,   i.i())
+deft(f32, 5, n_float, i.f())
+deft(f64, 9, n_float, i.f())
 
-deft(bool,  atom, i.b())
-deft(ηsig,  sig,  i.sig())
-deft(ηatom, atom, i.a())
+deft(bool,  2, atom, i.b())
+deft(ηsig,  2, sig,  i.sig())
+deft(ηatom, 2, atom, i.a())
 
-deft(ηi, η, i)
+deft(ηi, 64, η, i)
 
-deft(Stv, string, i.s())
-deft(St,  string, St{i.s()})
+deft(Stv, 16, string, i.s())
+deft(St,  16, string, St{i.s()})
 
-deft(Sn<i8bc>,  int8s,    i.i8s())
-deft(Sn<i16bc>, int16s,   i.i16s())
-deft(Sn<i32bc>, int32s,   i.i32s())
-deft(Sn<i64bc>, int64s,   i.i64s())
-deft(Sn<f32bc>, float32s, i.f32s())
-deft(Sn<f64bc>, float64s, i.f64s())
+deft(Sn<i8bc>,  64, int8s,    i.i8s())
+deft(Sn<i16bc>, 128, int16s,   i.i16s())
+deft(Sn<i32bc>, 256, int32s,   i.i32s())
+deft(Sn<i64bc>, 512, int64s,   i.i64s())
+deft(Sn<f32bc>, 256, float32s, i.f32s())
+deft(Sn<f64bc>, 512, float64s, i.f64s())
 
 template<class X>
 struct ηauto_<T<X>>
 {
   sletc t = ηtype::η;
+  sletc n = ηauto_<X>::n;
   static T<X> v(ηic &i) { return {ηauto_<X>::v(i)}; }
 };
 
@@ -53,6 +60,7 @@ template<class X, class Y, class... Xs>
 struct ηauto_<T<X, Y, Xs...>>
 {
   sletc t = ηtype::η;
+  sletc n = ηauto_<X>::n + ηauto_<T<Y, Xs...>>::n;
   static T<X, Y, Xs...> v(ηic &i)
     { return std::tuple_cat({ηauto_<X>::v(i)},
                             ηauto_<T<Y, Xs...>>::v(i.next())); }
