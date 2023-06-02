@@ -55,13 +55,17 @@ protected:
 // receive η-packed values and return things which can be written out using
 // operator<<. This is generally safe because operator<< accepts a materialized
 // result.
+//
+// GC is simple because πhrs cannot contain one another. This means we can
+// relocate-on-mark and store a small relocation header prior to each value
+// so we can quickly track the new location.
 struct πh final
 {
-  πh(uN s = 65536) : gc_(false) { h_.reserve(s); }
+  πh(uN s = 65536) : hn_(nullptr) { h_.reserve(s); }
 
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
-  ηi operator[](πhr r) const { return ηi{h_.data() + r.o, r.l}; }
+  ηi operator[](πhr const &r) const { return ηi{h_.data() + r.o, r.l}; }
 
   // Write a value into the heap and return a reference to it.
   Tt πhr operator<<(T const &x)
@@ -78,8 +82,8 @@ struct πh final
   // GC with the specified amount of headroom for a new value that is going
   // to be written.
   void gc(uN);
-  void mark(πhr);  // Mark a πhr as reachable. Called by πhv.
-  πhr  move(πhr);  // Ask for the new location of a πhr. Called by πhv.
+  void mark(πhr const&);  // Mark a πhr as reachable. Called by πhv.
+  πhr  move(πhr const&);  // Ask for the new location of a πhr. Called by πhv.
 
   void adv(πhv *v) { vs_.insert(v); }
   void rmv(πhv *v) { vs_.erase(v); }
@@ -89,8 +93,8 @@ struct πh final
 protected:
   B       h_;
   πhr     r_;
+  B      *hn_;  // next heap
   S<πhv*> vs_;
-  bool    gc_;  // is GC in progress?
 };
 
 
@@ -109,6 +113,9 @@ struct πhv
 protected:
   πh &h;
 };
+
+
+O &operator<<(O&, πhr const&);
 
 
 }
