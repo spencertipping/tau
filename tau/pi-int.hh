@@ -12,6 +12,8 @@ namespace τ
 // π program interpreter
 struct πi final
 {
+protected:
+  πh h;
 };
 
 

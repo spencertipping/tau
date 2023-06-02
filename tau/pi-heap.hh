@@ -27,13 +27,15 @@ struct πhr final
 };
 
 
+B &πh_b(πh &h);
+
+
 // Writer for π heap value: informs the heap when a value is committed,
 // and calls gc() for oversized values.
 template<> struct ηoc<πh&> final
 {
-  ηoc(πh &h_) : h(h_), s(0) {}
+  ηoc(πh &h_) : h(h_), b(πh_b(h_)), s(0) {}
 
-  B     &b      ();
   bool   expired() { return false; }
   void   abort  ();
   void   commit (uN n);
@@ -41,6 +43,7 @@ template<> struct ηoc<πh&> final
 
 protected:
   πh &h;
+  B  &b;
   uN  s;  // last committed size
 };
 
@@ -61,7 +64,7 @@ protected:
 // so we can quickly track the new location.
 struct πh final
 {
-  πh(uN s = 65536) : hn_(nullptr) { h_.reserve(s); }
+  πh(uN hr = 1048576) : hr_(hr), hn_(nullptr) { h_.reserve(hr); }
 
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
@@ -70,6 +73,7 @@ struct πh final
   // Write a value into the heap and return a reference to it.
   Tt πhr operator<<(T const &x)
     { A(!r_.l, "πh<< is not re-entrant");
+      A(!hn_,  "πh<< during GC");
       ηo<πh&>{ηoc<πh&>{*this}, ηauto_<T>::n} << x;  // calls .ref()
       let r = r_; r_ = {0, 0};
       return r; }
@@ -91,10 +95,12 @@ struct πh final
   B &h() { return h_; }
 
 protected:
-  B       h_;
-  πhr     r_;
-  B      *hn_;  // next heap
-  S<πhv*> vs_;
+  B       h_;   // current heap
+  πhr     r_;   // last reference committed to heap
+  uN      s_;   // live-set size
+  uNc     hr_;  // headroom for new heap sizes
+  B      *hn_;  // next heap (during GC, otherwise null)
+  S<πhv*> vs_;  // heap views, which are notified when the heap is GCd
 };
 
 

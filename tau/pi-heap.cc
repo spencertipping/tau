@@ -5,46 +5,52 @@ namespace τ
 {
 
 
-B   &ηoc<πh&>::b     ()     { return h.h(); }
-void ηoc<πh&>::abort ()     {        b().resize(s);                    s = 0; }
-void ηoc<πh&>::commit(uN n) { if (n) b().resize(s + n), h.ref({s, n}); s = 0; }
+B &πh_b(πh &h) { return h.h(); }
+
+
+void ηoc<πh&>::abort ()     {        b.resize(s);                          s = 0; }
+void ηoc<πh&>::commit(uN n) { if (n) b.resize(s + uNs + n), h.ref({s, n}); s = 0; }
 
 Sn<u8> ηoc<πh&>::iptr(uN n)
 {
   A(!s, "ηoc<πh&>::iptr(" << n << ") called with uncommitted data");
-  if (b().size() + n > b().capacity()) h.gc(n);
-  b().resize((s = b().size()) + n);
-  return {b().data() + s, n};
+  if (b.size() + n + uNs > b.capacity()) h.gc(n + uNs);
+  b.resize((s = b.size()) + uNs + n);
+  *Rc<uN*>(b.data() + s) = 0;  // initialize relocation marker
+  return {b.data() + s + uNs, n};
 }
 
 
 void πh::gc(uN l)
 {
   A(!hn_, "πh::gc(" << l << ") called recursively");
-  hn_ = new B;
-  for (let v : vs_) v->mark();
-
-  // TODO: calculate new heap size, reserve next heap
-
-  for (let v : vs_) v->move();
-
-  h_.swap(*hn_);
-  delete hn_; hn_ = nullptr;
+  B hn;
+  hn_ = &hn;
+  s_  = 0;
+  for (let v : vs_) v->mark();  // calculate live-set size
+  hn_->reserve(std::max(s_ * 4, s_ + l + hr_));
+  h_.swap(hn);
+  for (let v : vs_) v->move();  // move objects to new heap
+  hn_ = nullptr;
 }
 
 
 void πh::mark(πhr const &r)
 {
   A(hn_, "πh::mark(" << r << ") called outside of gc");
-  TODO("mark");
+  s_ += r.l;
 }
 
 
 πhr πh::move(πhr const &r)
 {
   A(hn_, "πh::move(" << r << ") called outside of gc");
-  TODO("move");
-  return r;
+  if (let d = *Rc<uN*>(hn_->data() + r.o)) return {d, r.l};
+
+  let d = h_.size() + uNs;
+  h_.append(hn_->data() + r.o - uNs, r.l + uNs);
+  *Rc<uN*>(hn_->data() + r.o) = d;
+  return {d, r.l};
 }
 
 
