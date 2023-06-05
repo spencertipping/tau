@@ -12,6 +12,7 @@ namespace τ
 // π program interpreter
 
 // TODO: add stack accessors
+// TODO: add πauto stack modifiers (from C++ functions)
 struct πi final
 {
 protected:
