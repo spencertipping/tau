@@ -56,4 +56,4 @@ I should probably outline use cases for each of these sidecar types.
 
 ...what if `s` is just a stack and the primary connection is the top? Then fetching a variable is putting a new thing on top of the stack. That makes a lot of sense.
 
-**NOTE:** Ξ scope means we don't need π scope for this, which is great. Maybe π doesn't need to be a real thing at all; we can probably just thread state through Ξ and substitute stuff with Γ operators.
+**NOTE:** [Γ](Gamma.md) is parsed on its own, without using [π](pi.md) for language support. This matters because stuff like scoping mechanics must be provided by Ξ (which is why we have scope IDs).

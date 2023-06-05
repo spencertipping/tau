@@ -51,6 +51,13 @@ install_deps()
 }
 
 
+todos()
+{
+  ag TODO doc tau sigma
+  echo -e "\033[1;32m$(ag TODO doc tau sigma | wc -l) TODO(s) total\033[0;0m"
+}
+
+
 run()
 {
   if [[ ${HOSTNAME:0:1} == i ]]; then
@@ -68,5 +75,6 @@ case $cmd in
   sync)  sync "$@" ;;
   pull)  pull "$@" ;;
   deps)  install_deps "$@" ;;
+  todo*) todos "$@" ;;
   *)     run $cmd "$@" ;;
 esac

@@ -1,15 +1,24 @@
 # τ: programming in 𝓛 space
-τ is a runtime system built around temporary steady states. If a bash command like `cat ... | grep ... | gzip > ...` defines a pipeline in a time-invariant way, then τ extends this by adding the ability to modify and extend the pipeline at runtime; that is, each part of the program is time-invariant but there are step changes. ([`ni`](https://github.com/spencertipping/ni) captures some of this, but ultimately falls short.)
+τ is a runtime system built around decaying steady states. If a bash command like `cat ... | grep ... | gzip > ...` defines a pipeline in a time-invariant way, then τ extends this by adding the ability to modify and extend the pipeline at runtime; that is, each part of the program is time-invariant but there are step changes. ([`ni`](https://github.com/spencertipping/ni) captures some of this, but ultimately falls short.)
 
 Another way to think of it is that τ is to `ni` what the Laplace transform is to the Fourier transform: we can now describe systems that are locally time-invariant but which nonetheless change over time.
 
 The τ runtime ships with the [σ standard library](doc/sigma.md).
 
-**TODO:** GC the source and documentation for the sigma refactor
 
-**TODO:** finish the pi-int/GC rework
+## TODOs
+1. Test `pi-heap` GC
+2. Consolidate `bin/scratch` and other tests into a single binary with a toplevel test-module selector
+3. Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
+4. GC τ source after σ refactor
 
-**TODO:** delete all current pi-fn, replace with eta-auto (**NOTE:** `std::visit` dispatch is not possible unless we are using variants, so it doesn't apply to `η` values)
+
+## Scratch tests
+```bash
+$ bin/scratch
+3, 4, hi there, 八次不
+abc不西
+```
 
 
 ## Compute model
@@ -35,18 +44,18 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 τ implements an eager dataflow GC that deallocates ψs as soon as nobody depends on their ξ outputs. Destroying a ψ frees all of its global resources, including C++ data structures and any inbound ξs, which may in turn cause more ψs to be freed.
 
-This τ GC corresponds to a signal exponentially decaying below the noise floor in the 𝓛 metaphor.
+This τ GC corresponds to a signal exponentially decaying below the noise floor in the 𝓛 metaphor. At that point we quantize it to zero and it vanishes from computation.
 
 
 ## Language model
-τ programs are written as a series of compositional dataflow equations that involve associative channel-vector transformations.
+τ programs are written as a series of compositional dataflow equations that involve associative ξ-vector transformations called Γs.
 
 + [Ξ](doc/Xi.md): monomorphic, immutable cables of ξs
 + [Γ](doc/Gamma.md): polymorphic, immutable Ξ transformers
 + [Ψ](doc/Psi.md): monomorphic stream transformers
 + [φ](doc/phi.md): parser combinators
 
-These are compiler objects, meaning that they don't actually contain live resources. Instead, Γs are functions that take Ξs as inputs and return Ξs as outputs, constructing native resources in the process.
+These are compiler objects, meaning that they don't actually contain live resources. Instead, Γs are functions that take Ξs as inputs and return Ξs as outputs, constructing any required native resources in the process.
 
 Ξs have a relatively complex state space including a stack of ξ duplexes, variable bindings, and keyed sidecar ξs. Structurally, Ξ acts as an interpreter state for Γs, which are applied concatenatively.
 
@@ -55,36 +64,10 @@ These are compiler objects, meaning that they don't actually contain live resour
 + [Data processing](doc/data-processing.md)
 + [Web applications](doc/web-applications.md)
 
-**TODO:** formalize/test Λ scheduling system; right now there are some edge cases involving CPU blocking and Θ races
-
-
-## Scratch tests
-```bash
-$ bin/scratch
-3, 4, hi there, 八次不
-abc不西
-```
-
 
 ## Linux setup
 ```sh
-$ sudo apt install -y \
-       docker.io build-essential \
-       libboost-context-dev libzstd-dev libsqlite3-dev
+$ ./build deps
 ```
 
-To get everything in `dev/hackery`, this might be a start (but no promises):
-
-```sh
-$ sudo dpkg --add-architecture i386
-$ sudo apt install -y \
-       build-essential \
-       libboost-context-dev \
-       libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev \
-       libxcb-xinput-dev \
-       g++-multilib-i686-linux-gnu \
-       libc6-dbg{,:i386} \
-       libstdc++6-12-dbg{,:i386} \
-       libpango1.0-dev libcairo2-dev \
-       libzstd-dev libcurl4-openssl-dev
-```
+**NOTE:** emscripten builds require a docker image that refers to internal infrastructure; if you can edit `dev/emsdk` to refer to the `emscripten/emsdk` image to use the stock image.
