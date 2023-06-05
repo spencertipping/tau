@@ -59,14 +59,14 @@ protected:
 // parent data is not referred to.
 struct πh final
 {
-  πh(uN hr = 1048576) : hr_(hr), hn_(nullptr) { h_.reserve(hr); }
+  πh(uN hr = 1048576) : r_{0, 0, 0}, s_(0), hr_(hr), hn_(nullptr) { h_.reserve(hr); }
 
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
   ηi operator[](πhr const &r) const { return ηi{h_.data() + r.o + r.i, r.l}; }
 
   // Refer to a ηi already on the heap and contained within a heap ref.
-  πhr i(πhr r, ηi y) const { return {r.o, y.lsize(), uN(y.odata() - (h_.data() + r.o))}; }
+  πhr i(πhr const &r, ηi y) const { return {r.o, y.lsize(), uN(y.odata() - (h_.data() + r.o))}; }
 
   // Write a value into the heap and return a reference to it.
   Tt πhr operator<<(T const &x)
@@ -79,7 +79,7 @@ struct πh final
   // Called during operator<< to set the πhr of the value being written.
   // We don't always know this up front because GC can happen during a write,
   // which will rearrange the heap and change the result.
-  void ref(πhr r) { r_ = r; }
+  void ref(πhr const &r) { r_ = r; }
 
   // GC with the specified amount of headroom for a new value that is going
   // to be written.
@@ -90,7 +90,11 @@ struct πh final
   void adv(πhv *v) { vs_.insert(v); }
   void rmv(πhv *v) { vs_.erase(v); }
 
+  uN lss() const { return s_; }
+  uN hr()  const { return hr_; }
+
   B &h() { return h_; }
+  B const &h() const { return h_; }
 
 protected:
   B       h_;   // current heap
@@ -129,6 +133,18 @@ struct πhsv : public virtual πhv
 };
 
 
+// A heap view that manages local variables
+struct πhlv : public virtual πhv
+{
+  πhlv(πh &h_) : πhv(h_) {}
+  void mark() { for (let  &r : xs)      h.mark(*r); }
+  void move() { for (auto &r : xs) *r = h.move(*r); }
+  πhlv &operator<<(πhr &r) { xs.push_back(&r); return *this; }
+  V<πhr*> xs;
+};
+
+
+O &operator<<(O&, πh const&);
 O &operator<<(O&, πhr const&);
 
 

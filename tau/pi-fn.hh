@@ -10,16 +10,39 @@ namespace τ
 
 // A π function that can act on an interpreter, and which adjusts the
 // stack size by N.
-//
-// TODO: think about the representation; we should be able to flatten the
-// function down to a series of C++ fn pointers or std::function objects,
-// and it's not entirely clear that virtual objects are necessary.
 template<iN N>
 struct πf
 {
-  virtual ~πf() {}
-  virtual void operator()(πi&) const = 0;
+  πf() = default;
+  πf(St s, F<void(πi&)> const &f) { ss.push_back(s); fs.push_back(f); }
+
+  void operator()(πi &i) const { for (let &f : fs) f(i); }
+
+  template<iN M>
+  πf<N + M> operator|(πf<M> const &f) const
+    { πf<N + M> r;
+      std::copy(  ss.begin(),   ss.end(), std::back_inserter(r.ss));
+      std::copy(f.ss.begin(), f.ss.end(), std::back_inserter(r.ss));
+      std::copy(  fs.begin(),   fs.end(), std::back_inserter(r.fs));
+      std::copy(f.fs.begin(), f.fs.end(), std::back_inserter(r.fs));
+      return r; }
+
+  V<St>           ss;
+  V<F<void(πi&)>> fs;
 };
+
+
+template<iN N>
+O &operator<<(O &s, πf<N> &f)
+{
+  s << "πf<" << N << ">[";
+  bool first = true;
+  for (let &x : f.ss)
+  { s << x;
+    if (first) first = false;
+    else       s << ", "; }
+  return s << "]";
+}
 
 
 }

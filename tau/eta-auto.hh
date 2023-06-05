@@ -10,7 +10,6 @@ namespace τ
 
 
 // TODO: implement new system as per doc/eta-cpp.md
-// TODO: template function that creates ηts from function args
 // TODO: function to convert ηi to T<...>, then ηauto = std::apply
 
 
@@ -19,10 +18,10 @@ namespace τ
 // a function to convert from η to T.
 Tt struct ηauto_;
 
-#define deft(ct, s, yt, ve)                                             \
-  template<> struct ηauto_<ct>                                          \
-  { sletc t = ηtype::yt;                                                \
-    sletc n = s;                                                        \
+#define deft(ct, s, yt, ve)                    \
+  template<> struct ηauto_<ct>                 \
+  { sletc t = ηtype::yt;                       \
+    sletc n = s;                               \
     static ct v(ηic &i) { return ve; } };
 
 deft(i8,  2, n_int,   i.i())
@@ -40,6 +39,7 @@ deft(ηi, 64, η, i)
 
 deft(Stv, 16, string, i.s())
 deft(St,  16, string, St{i.s()})
+deft(chc*, 16, string, (A(0, "η → const char*"), nullptr))
 
 deft(Sn<i8bc>,  64, int8s,    i.i8s())
 deft(Sn<i16bc>, 128, int16s,   i.i16s())
@@ -47,6 +47,14 @@ deft(Sn<i32bc>, 256, int32s,   i.i32s())
 deft(Sn<i64bc>, 512, int64s,   i.i64s())
 deft(Sn<f32bc>, 256, float32s, i.f32s())
 deft(Sn<f64bc>, 512, float64s, i.f64s())
+
+template<uN N>
+struct ηauto_<char[N]>
+{
+  sletc t = ηtype::string;
+  sletc n = N;
+  static char const *v(ηic &i) { A(0, "η → char[" << N << "]"); return nullptr; }
+};
 
 template<class X>
 struct ηauto_<T<X>>
@@ -69,6 +77,7 @@ struct ηauto_<T<X, Y, Xs...>>
 #undef deft
 
 
+// TODO: can we delete this?
 template<uS I, class R, class... Xs, class... Ys>
 R ηauto__(F<R(Xs...)> const &f, Sn<u8c> i, Ys&&... ys)
 {
@@ -82,14 +91,16 @@ R ηauto__(F<R(Xs...)> const &f, Sn<u8c> i, Ys&&... ys)
 }
 
 
+// TODO: these functions need to be reworked so we can handle tuples
+
 template<class R, class... Xs>
-auto ηauto(F<R(Xs...)> const &f)
+auto ηauto1(F<R(Xs...)> const &f)
 {
   return [=](ηi const &i) -> R { return ηauto__<0>(f, i.all()); };
 }
 
 template<class R, class... Xs>
-auto ηauto(R(*f)(Xs...))
+auto ηauto1(R(*f)(Xs...))
 {
   return ηauto(F<R(Xs...)>(f));
 }

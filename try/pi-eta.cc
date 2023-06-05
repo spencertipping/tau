@@ -42,11 +42,30 @@ void try_variant_cast()
 }
 
 
+void try_gc()
+{
+  πh   h;
+  πhlv l{h};
+  πhr  a = h << std::make_tuple(1, "foo", 3.14);
+  πhr  b = h << std::make_tuple(2, "bar", 2.71, "WOOHOO");
+  l << a << b;
+  a = h << "baz bok";
+  cout << "h = " << h << "a = " << a << ", b = " << b << endl;
+  cout << "a = " << h[a] << ", b = " << h[b] << endl;
+  h.gc(0);
+  cout << "h = " << h << "a = " << a << ", b = " << b << endl;
+  cout << "a = " << h[a] << ", b = " << h[b] << endl;
+}
+
+
 int main()
 {
+  τassert_begin
   try_polymorphic_functions();
   try_variant_cast();
+  try_gc();
   return 0;
+  τassert_end
 }
 
 

@@ -13,7 +13,8 @@ namespace τ
 struct πi final
 {
 protected:
-  πh h;
+  πh   h;
+  πhsv s{h};
 };
 
 

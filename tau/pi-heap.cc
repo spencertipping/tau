@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "pi-heap.hh"
 #include "begin.hh"
 
@@ -8,8 +10,8 @@ namespace τ
 B &πh_b(πh &h) { return h.h(); }
 
 
-void ηoc<πh&>::abort ()     {        b.resize(s);                          s = 0; }
-void ηoc<πh&>::commit(uN n) { if (n) b.resize(s + uNs + n), h.ref({s, n}); s = 0; }
+void ηoc<πh&>::abort ()     {        b.resize(s);                                   s = 0; }
+void ηoc<πh&>::commit(uN n) { if (n) b.resize(s + uNs + n), h.ref({s + uNs, n, 0}); s = 0; }
 
 Sn<u8> ηoc<πh&>::iptr(uN n)
 {
@@ -45,18 +47,31 @@ void πh::mark(πhr const &r)
 πhr πh::move(πhr const &r)
 {
   A(hn_, "πh::move(" << r << ") called outside of gc");
-  if (let d = *Rc<uN*>(hn_->data() + r.o)) return {d, r.l, r.i};
+  if (let d = *Rc<uN*>(hn_->data() + r.o - uNs)) return {d, r.l, r.i};
 
   let d = h_.size() + uNs;
   h_.append(hn_->data() + r.o - uNs, r.l + uNs);
-  *Rc<uN*>(hn_->data() + r.o) = d;
+  *Rc<uN*>(hn_->data() + r.o - uNs) = d;
   return {d, r.l, r.i};
+}
+
+
+O &operator<<(O &s, πh const &h)
+{
+  s << "πh[s=" << h.h().size() << " c=" << h.h().capacity()
+    << " lss=" << h.lss() << " hr=" << h.hr() << "]";
+  for (uN i = 0; i < h.h().size(); ++i)
+  {
+    if (i % 16 == 0) s << "\n ";
+    s << " " << std::hex << std::setw(2) << std::setfill('0') << (int) h.h()[i];
+  }
+  return s << std::endl << std::dec << std::setw(0) << std::setfill(' ');
 }
 
 
 O &operator<<(O &s, πhr const &r)
 {
-  return s << r.o << "+" << r.l;
+  return s << r.o << "+" << r.l << ":" << r.i;
 }
 
 

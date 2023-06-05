@@ -7,8 +7,8 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 
 ## TODOs
-1. Test `pi-heap` GC
-2. Consolidate `bin/scratch` and other tests into a single binary with a toplevel test-module selector
+1. Write `pi-fn`
+2. Test `pi-heap` GC
 3. Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
 4. GC τ source after σ refactor
 
@@ -68,6 +68,7 @@ These are compiler objects, meaning that they don't actually contain live resour
 ## Linux setup
 ```sh
 $ ./build deps
+$ make
 ```
 
 **NOTE:** emscripten builds require a docker image that refers to internal infrastructure; if you can edit `dev/emsdk` to refer to the `emscripten/emsdk` image to use the stock image.
