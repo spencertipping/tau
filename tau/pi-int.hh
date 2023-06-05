@@ -10,6 +10,8 @@ namespace τ
 
 
 // π program interpreter
+
+// TODO: add stack accessors
 struct πi final
 {
 protected:

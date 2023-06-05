@@ -7,10 +7,8 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 
 ## TODOs
-1. Write `pi-fn`
-2. Test `pi-heap` GC
-3. Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
-4. GC τ source after σ refactor
+1. Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
+2. GC τ source after σ refactor
 
 
 ## Scratch tests
