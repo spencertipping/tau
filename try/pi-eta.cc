@@ -52,6 +52,10 @@ void try_gc()
   a = h << "baz bok";
   cout << "h = " << h << "a = " << a << ", b = " << b << endl;
   cout << "a = " << h[a] << ", b = " << h[b] << endl;
+  b = h.i(b, h[b].next());
+  cout << "h = " << h << "a = " << a << ", b = " << b << endl;
+  cout << "a = " << h[a] << ", b = " << h[b] << endl;
+  cout << "GC" << endl;
   h.gc(0);
   cout << "h = " << h << "a = " << a << ", b = " << b << endl;
   cout << "a = " << h[a] << ", b = " << h[b] << endl;

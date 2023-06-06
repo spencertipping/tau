@@ -63,10 +63,12 @@ struct πh final
 
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
-  ηi operator[](πhr const &r) const { return ηi{h_.data() + r.o + r.i, r.l}; }
+  ηi operator[](πhr const &r) const
+    { return ηi{h_.data() + r.o + r.i, r.l - r.i}; }
 
   // Refer to a ηi already on the heap and contained within a heap ref.
-  πhr i(πhr const &r, ηi y) const { return {r.o, y.lsize(), uN(y.odata() - (h_.data() + r.o))}; }
+  πhr i(πhr const &r, ηi y) const
+    { return {r.o, r.l, uN(y.odata() - (h_.data() + r.o))}; }
 
   // Write a value into the heap and return a reference to it.
   Tt πhr operator<<(T const &x)

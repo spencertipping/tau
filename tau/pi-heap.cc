@@ -40,7 +40,7 @@ void πh::gc(uN l)
 void πh::mark(πhr const &r)
 {
   A(hn_, "πh::mark(" << r << ") called outside of gc");
-  s_ += r.l;
+  s_ += r.l + uNs;
 }
 
 
