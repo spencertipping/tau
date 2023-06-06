@@ -24,7 +24,7 @@ void try_eta_auto1()
 
   ηi i = x.y();
 
-  let fa = ηauto(f);
+  let fa = ηhauto(f);
   cout << "fa(i) = "    << fa(i) << endl;
   cout << "fa(i[2]) = " << fa(i[2]) << endl;
 }
@@ -32,7 +32,7 @@ void try_eta_auto1()
 
 void try_eta_auto2()
 {
-  let ga = ηauto(g);
+  let ga = ηhauto(g);
   ηm x; x << 1 << "foo" << 2 << "barbif";
   ηm y;
   y << ga(x.y());    cout << "ga(i) = "    << y << endl; y.clear();

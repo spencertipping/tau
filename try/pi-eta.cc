@@ -42,6 +42,12 @@ void try_variant_cast()
 }
 
 
+void try_auto()
+{
+  cout << "TODO: try_auto" << endl;
+}
+
+
 void try_gc()
 {
   πh   h;
@@ -67,6 +73,7 @@ int main()
   τassert_begin
   try_polymorphic_functions();
   try_variant_cast();
+  try_auto();
   try_gc();
   return 0;
   τassert_end

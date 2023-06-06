@@ -40,7 +40,7 @@ O &operator<<(O &s, πf<N> &f)
   for (let &x : f.ss)
   { s << x;
     if (first) first = false;
-    else       s << ", "; }
+    else       s << " "; }
   return s << "]";
 }
 

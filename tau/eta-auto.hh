@@ -2,21 +2,17 @@
 #define τηauto_h
 
 #include "eta-i.hh"
-
 #include "begin.hh"
 
 namespace τ
 {
 
 
-// TODO: implement new system as per doc/eta-cpp.md
-// TODO: function to convert ηi to T<...>, then ηauto = std::apply
-
-
 // ηauto_<T> provides information about how T maps to η values, in particular
 // the η type, an approximate size in bytes (used for heap reservations), and
 // a function to convert from η to T.
 Tt struct ηauto_;
+
 
 #define deft(ct, s, yt, ve)                    \
   template<> struct ηauto_<ct>                 \
@@ -70,39 +66,44 @@ struct ηauto_<T<X, Y, Xs...>>
   sletc t = ηtype::η;
   sletc n = ηauto_<X>::n + ηauto_<T<Y, Xs...>>::n;
   static T<X, Y, Xs...> v(ηic &i)
-    { return std::tuple_cat({ηauto_<X>::v(i)},
+    { return std::tuple_cat(T<X>{ηauto_<X>::v(i)},
                             ηauto_<T<Y, Xs...>>::v(i.next())); }
 };
 
 #undef deft
 
 
-// TODO: can we delete this?
-template<uS I, class R, class... Xs, class... Ys>
-R ηauto__(F<R(Xs...)> const &f, Sn<u8c> i, Ys&&... ys)
-{
-  if constexpr (I == sizeof...(Xs)) return f(std::forward<Ys>(ys)...);
-  else
-  {
-    ηi    j = i;
-    auto  x = ηauto_<std::tuple_element_t<I, T<Xs...>>>::v(j);
-    return ηauto__<I + 1>(f, j.after(), std::forward<Ys>(ys)..., x);
-  }
-}
-
-
-// TODO: these functions need to be reworked so we can handle tuples
-
+// Convert a C++ function to one that accepts a ηi to unpack its arguments.
 template<class R, class... Xs>
-auto ηauto1(F<R(Xs...)> const &f)
+auto ηhauto(F<R(Xs...)> &&f)
 {
-  return [=](ηi const &i) -> R { return ηauto__<0>(f, i.all()); };
+  return [f=mo(f)](ηic &i) -> R
+    { return std::apply(f, ηauto_<T<Xs...>>::v(i)); };
 }
 
 template<class R, class... Xs>
-auto ηauto1(R(*f)(Xs...))
+auto ηhauto(R(*f)(Xs...))
 {
-  return ηauto(F<R(Xs...)>(f));
+  return [=](ηic &i) -> R
+    { return std::apply(f, ηauto_<T<Xs...>>::v(i)); };
+}
+
+
+// Convert a C++ function to one that accepts a single ηi for each of its
+// arguments.
+template<class R, class... Xs, class... Ys>
+auto ηvauto(F<R(Xs...)> &&f)
+{
+  // NOTE: each Ys is a ηic
+  return [f=mo(f)](Ys const&... ys) -> R
+    { return f(ηauto_<Xs>::v(ys)...); };
+}
+
+template<class R, class... Xs, class... Ys>
+auto ηvauto(R(*f)(Xs...))
+{
+  return [=](Ys const&... ys) -> R
+    { return f(ηauto_<Xs>::v(ys)...); };
 }
 
 
