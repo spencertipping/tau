@@ -135,7 +135,7 @@ struct πhsv : public virtual πhv
 };
 
 
-// A heap view that manages local variables
+// A heap view that manages C++ native variables
 struct πhlv : public virtual πhv
 {
   πhlv(πh &h_) : πhv(h_) {}
@@ -143,6 +143,16 @@ struct πhlv : public virtual πhv
   void move() { for (auto &r : xs) *r = h.move(*r); }
   πhlv &operator<<(πhr &r) { xs.push_back(&r); return *this; }
   V<πhr*> xs;
+};
+
+
+// A heap view that manages a string map of heap refs
+struct πhmv : public virtual πhv
+{
+  πhmv(πh &h_) : πhv(h_) {}
+  void mark() { for (let  &r : xs)            h.mark(r.second); }
+  void move() { for (auto &r : xs) r.second = h.move(r.second); }
+  M<St, πhr> xs;
 };
 
 

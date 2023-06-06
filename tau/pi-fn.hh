@@ -11,7 +11,7 @@ namespace τ
 // A π function that can act on an interpreter, and which adjusts the
 // stack size by N.
 template<iN N>
-struct πf
+struct πf final
 {
   πf() = default;
   πf(St s, F<void(πi&)> const &f) { ss.push_back(s); fs.push_back(f); }

@@ -5,13 +5,14 @@
 #include "phi-ctor.hh"
 #include "phi-auto.hh"
 
+#include "pi-fn.hh"
+
 #include "begin.hh"
 
 namespace τ
 {
 
 
-struct πf {};
 struct πfs {};
 
 struct πname { St x; };
@@ -51,18 +52,18 @@ struct πname { St x; };
 
 struct πφ final
 {
-  πφ(φ<πf>,
-     F<φ<πf>        (φ<πf>, φ<πfs>)> const&,
-     F<φ<πfs>       (φ<πf>, φ<πfs>)> const&,
-     F<φ<F<πf (πf)>>(φ<πf>, φ<πfs>)> const&,
-     F<φ<F<πfs(πf)>>(φ<πf>, φ<πfs>)> const&);
+  πφ(φ<πf<1>>,
+     F<φ<πf<1>>     (φ<πf<1>>, φ<πfs>)> const&,
+     F<φ<πfs>       (φ<πf<1>>, φ<πfs>)> const&,
+     F<φ<F<πf<1> (πf<1>)>>(φ<πf<1>>, φ<πfs>)> const&,
+     F<φ<F<πfs(πf<1>)>>(φ<πf<1>>, φ<πfs>)> const&);
 
-  φ<F<πf (πf)>> os;  // compiled postfix singular
-  φ<F<πfs(πf)>> op;  // compiled postfix plural
-  φ<πf>         es;  // compiled prefix singular
+  φ<F<πf<1> (πf<1>)>> os;  // compiled postfix singular
+  φ<F<πfs(πf<1>)>> op;  // compiled postfix plural
+  φ<πf<1>>         es;  // compiled prefix singular
   φ<πfs>        ep;  // compiled prefix plural
-  φ<πf>         a;   // atom
-  φ<πf>         s;   // singular expression
+  φ<πf<1>>         a;   // atom
+  φ<πf<1>>         s;   // singular expression
   φ<πfs>        p;   // plural expression
 };
 
