@@ -154,7 +154,7 @@ typedef int fd_t;
 
 template<class T, uN S>    using Ar = std::array<T, S>;
 template<class... T>       using D  = std::deque<T...>;
-template<class... T>       using F  = std::function<T...>;
+template<class T>          using F  = std::function<T>;
 template<class... T>       using Il = std::initializer_list<T...>;
 template<class T>          using H  = std::hash<T>;
 template<class T>          using Lg = std::lock_guard<T>;

@@ -7,3 +7,7 @@
 + [π grammar](pi-phi.md)
 + [π function](pi-fn.md)
 + [σ/π stdlib](sigma-pi-stdlib.md)
+
+
+## Horizontal, vertical, and plurality
+**TODO:** `πi` contains multiple values (vertical), each of which may have multiple `η` stream entries (horizontal). The question here is how we intend to address these values and possibly convert between them.

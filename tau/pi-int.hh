@@ -12,23 +12,27 @@ namespace τ
 // π program interpreter
 struct πi final
 {
-  πi &push(πhr const &r) { s.xs.push_back(r);      return *this; }
-  πi &push(ηi  const &i) { s.xs.push_back(h << i); return *this; }
+  πi &push(πhr const &r) { s_.xs.push_back(r);       return *this; }
+  πi &push(ηi  const &i) { s_.xs.push_back(h_ << i); return *this; }
   πi &push(πhr const &r, ηi const &i)
-    { s.xs.push_back(h.i(r, i)); return *this; }
+    { s_.xs.push_back(h_.i(r, i)); return *this; }
 
-  πhr peek() const { return s.xs.back(); }
-  πhr pop()        { let r = s.xs.back(); s.xs.pop_back(); return r; }
+  πhr peek() const { return s_.xs.back(); }
+  πhr pop()        { let r = s_.xs.back(); s_.xs.pop_back(); return r; }
 
   ηi ypeek() const { return (*this)[peek()]; }
   ηi ypop()        { return (*this)[pop()]; }
 
-  ηi operator[](πhr const &r) const { return h[r]; }
+  ηi operator[](πhr const &r) const { return h_[r]; }
+
+  Tt πhr operator<<(T const &x) { return h_ << x; }
+
+  πh &h() { return h_; }
 
 protected:
-  πh   h;
-  πhsv s{h};  // data stack
-  πhmv m{h};  // named bindings
+  πh   h_;
+  πhsv s_{h_};  // data stack
+  πhmv m_{h_};  // named bindings
 };
 
 

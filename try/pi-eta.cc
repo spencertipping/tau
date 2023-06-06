@@ -44,7 +44,13 @@ void try_variant_cast()
 
 void try_auto()
 {
-  cout << "TODO: try_auto" << endl;
+  πf<-1> f = πvauto("test", [](i64 x, St y) -> St
+    { return (Ss{} << "f(" << x << "," << y << ")").str(); });
+  πi i;
+  i.push(i << "foo");
+  i.push(i << 5);
+  f(i);
+  cout << i[i.peek()] << endl;
 }
 
 

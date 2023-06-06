@@ -69,7 +69,9 @@ bin/sigma-wasm.a: $(sigma_wasm_os)
 #	$(linux_cc) $(linux_ldflags) -o $@ $^ $(linux_libs)
 bin/%: $(tau_linux_os) bin/linux-bin/%.o
 	$(linux_cc) $(linux_ldflags) -o $@ $^ $(linux_libs)
-bin/%.js: $(tau_wasm_os) $(sigma_wasm_os) bin/wasm-bin/%.o
+#bin/%.js: $(tau_wasm_os) $(sigma_wasm_os) bin/wasm-bin/%.o
+#	$(wasm_cc) $(wasm_ldflags) -o $@ $^ $(wasm_libs)
+bin/%.js: $(tau_wasm_os) bin/wasm-bin/%.o
 	$(wasm_cc) $(wasm_ldflags) -o $@ $^ $(wasm_libs)
 
 

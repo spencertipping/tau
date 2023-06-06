@@ -7,7 +7,7 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 
 ## TODOs
-1. `πauto` for ηauto-π natives (also `πf` ctor for these)
+1. Describe [π vertical/horizontal semantics](doc/pi.md)
 2. Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
 3. GC τ source after σ refactor
 
