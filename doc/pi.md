@@ -11,3 +11,5 @@
 
 ## Horizontal, vertical, and plurality
 **TODO:** `πi` contains multiple values (vertical), each of which may have multiple `η` stream entries (horizontal). The question here is how we intend to address these values and possibly convert between them.
+
+**NOTE:** all plurality must be horizontal because function arity is fixed
