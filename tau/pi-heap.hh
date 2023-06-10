@@ -68,8 +68,13 @@ struct πh final
 
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
+  //
+  // FIXME: r.l is overloaded here; we need to track the length of inner objects
+  // independently from the length of the outer object. This will cause major
+  // bugs otherwise.
   ηi operator[](πhr const &r) const
-    { return ηi{h_.data() + r.o + r.i, r.l - r.i}; }
+    { TODO("fix up inner object lengths");
+      return ηi{h_.data() + r.o + r.i, r.l - r.i}; }
 
   // Refer to a ηi already on the heap and contained within a heap ref.
   πhr i(πhr const &r, ηi y) const
