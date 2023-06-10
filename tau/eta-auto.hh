@@ -54,12 +54,13 @@ struct ηauto_<char[N]>
   // instead of introducing those problems, we just don't support this case
 };
 
+// TODO: create a type that lets us drill into a ηi for nested unpacking
+
 template<class X>
 struct ηauto_<T<X>>
 {
   sletc t = ηtype::η;
   sletc n = ηauto_<X>::n;
-  // FIXME: we should peel a layer here like we do with T<X, Y, ...>
   static T<X> v(ηic &i) { return {ηauto_<X>::v(i)}; }
 };
 
@@ -69,9 +70,6 @@ struct ηauto_<T<X, Y, Xs...>>
   sletc t = ηtype::η;
   sletc n = ηauto_<X>::n + ηauto_<T<Y, Xs...>>::n;
   static T<X, Y, Xs...> v(ηic &i)
-  // FIXME: ::v(i.y()), not ::v(i); but this requires us to peel the outer
-  // layer, which in turn means we need this recursive template thing to
-  // not do any further peeling
     { return std::tuple_cat(T<X>{ηauto_<X>::v(i)},
                             ηauto_<T<Y, Xs...>>::v(i.next())); }
 };
