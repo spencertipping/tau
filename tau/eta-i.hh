@@ -198,6 +198,9 @@ struct ηi final
       return {Rc<f64bc*>(data()), size() >> 3}; }
 
 
+  // TODO: convert-to-x methods, which don't apply strict type checking
+
+
 private:
   u8c *a_;  // control byte location
   uN   l_;  // outer buffer length
