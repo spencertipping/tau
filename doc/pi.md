@@ -38,8 +38,8 @@ All stack values are heap references, and functions may manipulate them directly
 ```cpp
 πhr map_lookup(πi &i, πhr m, Stv k)
 {
-  let v = i[m][k];   // i[m] returns ηi, i[m][k] does the map fetch
-  return i.i(m, v);  // create inner ref to the value, within m
+  let v = i[m][k];         // i[m] returns ηi, i[m][k] does the map fetch
+  return i.i(m, v.one());  // create inner ref to the value, within m
 }
 ```
 

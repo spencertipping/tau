@@ -47,6 +47,8 @@ struct ηi final
   bool    has_next() const { return l_ > osize(); }
   ηi      next()     const { return {adata(), has_next() ? asize() : 0}; }
 
+  ηi      one()      const { return {a_, osize()}; }
+
   ηi &operator++()    { *this = next(); return *this; }
   ηi  operator++(int) { let r = *this; ++*this; return r; }
 

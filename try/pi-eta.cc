@@ -109,7 +109,7 @@ void try_gc_auto()
     "map_lookup", [](πi &i, πhr m, St k) -> πhr
       { πhgl l{i.h()};  // no GC is possible in this function
         let v = i[m][k];
-        return i.i(m, v); });
+        return i.i(m, v.one()); });
 
   πf<-2> map_append = πvauto(
     "map_append", [](πi &i, πhr m, St k, πhr v) -> πhr
@@ -137,13 +137,17 @@ void try_gc_auto()
   map_append(i);
   cout << "m = " << i[i.peek()] << endl;
 
-  i.push(i << "bar"); i.swap();  // m' "bar" m
-  map_lookup(i);
-  cout << "m'[bar] = " << i[i.pop()] << endl;
+  i.swap(); i.pop();             // m'
 
-  i.push(i << "foo"); i.swap();  // m' "foo" m
+  i.push(i.peek());
+  i.push(i << "foo"); i.swap();  // m' "foo" m'
   map_lookup(i);
   cout << "m'[foo] = " << i[i.pop()] << endl;
+
+  i.push(i.peek());
+  i.push(i << "bar"); i.swap();  // m' "bar" m'
+  map_lookup(i);
+  cout << "m'[bar] = " << i[i.pop()] << endl;
 
   cout << "GC auto OK" << endl;
 }
