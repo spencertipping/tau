@@ -22,7 +22,7 @@ struct πhr final
 };
 
 
-B &πh_b(πh &h);
+B &πh_b(πh &h);  // NOTE: required to break circular dependency
 
 
 // Writer for π heap value: informs the heap when a value is committed,
@@ -86,6 +86,7 @@ struct πh final
   // GC with the specified amount of headroom for a new value that is going
   // to be written.
   void gc(uN);
+  void reserve(uN);
   void mark(πhr const&);  // Mark a πhr as reachable. Called by πhv.
   πhr  move(πhr const&);  // Ask for the new location of a πhr. Called by πhv.
 

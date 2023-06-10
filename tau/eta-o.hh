@@ -13,6 +13,7 @@ namespace τ
 
 
 // ηoc: output container for ηo writers
+// NOTE: there may be more of these
 Tt struct ηoc;
 
 template<> struct ηoc<ξ> final
@@ -129,6 +130,11 @@ private:
 
   bool reserve(uN l);
 };
+
+
+// IMPORTANT: keep these functions in the header file; if we don't, then
+// it becomes impossible to create new ηo<> instances (which π does for
+// its internal heap IO, at least at the time of this comment).
 
 
 Tt ηo<T> &ηo<T>::operator<<(Sn<u8c> const &xs)

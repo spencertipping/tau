@@ -33,7 +33,6 @@ deft(bool,  2, atom, i.b())
 deft(ηsig,  2, sig,  i.sig())
 deft(ηatom, 2, atom, i.a())
 
-
 deft(Stv,  16, string, i.s())
 deft(St,   16, string, St{i.s()})
 deft(chc*, 16, string, (A(0, "η → const char*"), nullptr))
@@ -50,7 +49,9 @@ struct ηauto_<char[N]>
 {
   sletc t = ηtype::string;
   sletc n = N;
-  static chc *v(ηic &i) { A(0, "η → char[" << N << "]"); return nullptr; }
+
+  // NOTE: these values require explicit delete[], which is error-prone;
+  // instead of introducing those problems, we just don't support this case
 };
 
 template<class X>
@@ -58,6 +59,7 @@ struct ηauto_<T<X>>
 {
   sletc t = ηtype::η;
   sletc n = ηauto_<X>::n;
+  // FIXME: we should peel a layer here like we do with T<X, Y, ...>
   static T<X> v(ηic &i) { return {ηauto_<X>::v(i)}; }
 };
 
@@ -67,8 +69,24 @@ struct ηauto_<T<X, Y, Xs...>>
   sletc t = ηtype::η;
   sletc n = ηauto_<X>::n + ηauto_<T<Y, Xs...>>::n;
   static T<X, Y, Xs...> v(ηic &i)
+  // FIXME: ::v(i.y()), not ::v(i); but this requires us to peel the outer
+  // layer, which in turn means we need this recursive template thing to
+  // not do any further peeling
     { return std::tuple_cat(T<X>{ηauto_<X>::v(i)},
                             ηauto_<T<Y, Xs...>>::v(i.next())); }
+};
+
+template<>
+struct ηauto_<V<ηi>>
+{
+  // NOTE: no t or n because V<ηi> is read-only (i.e. we don't serialize
+  // V<ηi> back to η directly)
+  static V<ηi> v(ηic &i)
+    { ηi j = i;
+      V<ηi> r;
+      r.push_back(j);
+      while (j.has_next()) r.push_back(j = j.next());
+      return r; }
 };
 
 #undef deft

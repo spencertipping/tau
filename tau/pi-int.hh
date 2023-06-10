@@ -23,7 +23,8 @@ struct πi final
   ηi ypeek() const { return (*this)[peek()]; }
   ηi ypop()        { return (*this)[pop()]; }
 
-  ηi operator[](πhr const &r) const { return h_[r]; }
+  ηi operator[](πhr const &r)              const { return h_[r]; }
+  πhr         i(πhr const &r, ηi const &i) const { return h_.i(r, i); }
 
   Tt πhr operator<<(T const &x) { return h_ << x; }
 

@@ -16,10 +16,16 @@ void ηoc<πh&>::commit(uN n) { if (n) b.resize(s + uNs + n), h.ref({s + uNs, n,
 Sn<u8> ηoc<πh&>::iptr(uN n)
 {
   A(!s, "ηoc<πh&>::iptr(" << n << ") called with uncommitted data");
-  if (b.size() + n + uNs > b.capacity()) h.gc(n + uNs);
+  h.reserve(n);
   b.resize((s = b.size()) + uNs + n);
   *Rc<uN*>(b.data() + s) = 0;  // initialize relocation marker
   return {b.data() + s + uNs, n};
+}
+
+
+void πh::reserve(uN l)
+{
+  if (h_.size() + l + uNs > h_.capacity()) gc(l + uNs);
 }
 
 

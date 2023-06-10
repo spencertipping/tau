@@ -22,16 +22,18 @@ abc不西
 
 ## Compute model
 ```
-+-----------------------------------------+
-| τ : Λ, epoll, ψ GC root                 |
-|                                         |
-| +-------------+     +---+         +---+ |
-| | ψ : globals |     | ψ |----ξ--->| ψ | |
-| |             |--ξ->|   | ...     +---+ |
-| | λ₁ λ₂ ...   |     | λ |               |
-| +-------------+     +---+               |
-+-----------------------------------------+
++---------------------------------------+
+| τ : Λ, epoll, ψ GC root               |
+|                                       |
+| +-----------+     +---+         +---+ |
+| | ψ         |     | ψ |----ξ--->| ψ | |
+| |           |--ξ->|   | ...     +---+ |
+| | λ₁ λ₂ ... |     | λ |               |
+| +-----------+     +---+               |
++---------------------------------------+
 ```
+
+Note that ξs may point in arbitrary directions, i.e. some may point right-to-left and create graph cycles. Any cyclic ξs weakly refer to their sources, as ψ GC is driven by reference counting.
 
 + [τ](doc/tau.md) is the toplevel compute context, one per UNIX/WASM process
 + [Λ](doc/Lambda.md) is the λ threading manager
