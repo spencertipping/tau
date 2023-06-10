@@ -1,6 +1,7 @@
 #ifndef τπauto_h
 #define τπauto_h
 
+#include "ctypes.hh"
 #include "pi-fn.hh"
 #include "begin.hh"
 
@@ -13,8 +14,11 @@ namespace τ
 // a GC to happen before any arguments are unpacked.
 template<uN I> struct πhr_ { sletc s = I; };
 
-template<class T> struct is_πhr_          : std::false_type {};
-template<uN I>    struct is_πhr_<πhr_<I>> : std::true_type {};
+Tt             struct is_πhr_          : std::false_type {};
+template<uN I> struct is_πhr_<πhr_<I>> : std::true_type {};
+
+Tt                    struct is_tuple_           : std::false_type {};
+template<class... Xs> struct is_tuple_<T<Xs...>> : std::true_type {};
 
 
 // Collects arguments from the interpreter stack and calls a function,
@@ -43,14 +47,53 @@ R πvauto__(F<R(Xs...)> const &f, πi &i, Ys&&... ys)
 }
 
 
-// TODO: handle vertical → horizontal tuple returns
+// Count the number of stack pops that will happen to fill these arguments
+// from the interpreter stack.
+template<uS I, class... Xs> constexpr int πn_stackpops()
+{
+  if constexpr (I == sizeof...(Xs)) return 0;
+  else
+  {
+    using X = std::tuple_element_t<I, T<Xs...>>;
+    if constexpr (is_πhr_<X>::value || Eq<X, πi&>) return     πn_stackpops<I + 1, Xs...>();
+    else                                           return 1 + πn_stackpops<I + 1, Xs...>();
+  }
+}
+
+
+// Convert a function's return value to a vertical series of η-castable
+// things, each of which will be pushed as a separate stack entry.
+Tt struct πvrauto_
+{
+  sletc n = 1;
+  static void push(πi &i, T const &x)
+    { if constexpr (Eq<T, πhr>) i.push(     x);
+      else                      i.push(i << x); }
+};
+
+template<> struct πvrauto_<void>
+{
+  sletc n = 0;
+};
+
+template<class... Xs> struct πvrauto_<T<Xs...>>
+{
+  sletc n = sizeof...(Xs);
+  static void push(πi &i, T<Xs...> const &x)
+    { vpush<0>(i, x); }
+  template<uN I> static void vpush(πi &i, T<Xs...> const &x)
+    { πvrauto_<std::tuple_element_t<I, T<Xs...>>>::push(i, std::get<I>(x));
+      if constexpr (I < sizeof...(Xs) - 1) vpush<I + 1>(i, x); }
+};
+
 
 template<class R, class... Xs>
-πf<1 - (int) sizeof...(Xs)> πvauto_(Stc &n, F<R(Xs...)> const &f)
+πf<πvrauto_<R>::n - πn_stackpops<0, Xs...>()>
+πvauto_(Stc &n, F<R(Xs...)> const &f)
 {
   return {n, [=](πi &i)
-    { if constexpr (Eq<R, πhr>) i.push(     πvauto__<0>(f, i));
-      else                      i.push(i << πvauto__<0>(f, i)); }};
+    { if constexpr (Eq<R, void>) πvauto__<0>(f, i);
+      else  πvrauto_<R>::push(i, πvauto__<0>(f, i)); }};
 }
 
 template<class F>

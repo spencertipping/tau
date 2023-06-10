@@ -71,9 +71,10 @@ Tt struct ηo final
   // Direct append: hopefully the content is valid η data
   ηo &operator<<(Sn<u8c> const &xs);
 
-
+  // NOTE: these are synonymous, but named differently to help C++ figure out
+  // which overload to use.
   ηo &name(Stc &s);
-  ηo &k(Stvc &s);
+  ηo &k   (Stvc &s);
 
   template<class U>
   ηo &v(U &&x) { return *this << std::forward<U>(x); }

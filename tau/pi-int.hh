@@ -20,6 +20,8 @@ struct πi final
   πhr peek() const { return s_.xs.back(); }
   πhr pop()        { let r = s_.xs.back(); s_.xs.pop_back(); return r; }
 
+  πi &swap() { std::swap(s_.xs.back(), s_.xs[s_.xs.size() - 2]); return *this; }
+
   ηi ypeek() const { return (*this)[peek()]; }
   ηi ypop()        { return (*this)[pop()]; }
 
@@ -27,6 +29,10 @@ struct πi final
   πhr         i(πhr const &r, ηi const &i) const { return h_.i(r, i); }
 
   Tt πhr operator<<(T const &x) { return h_ << x; }
+  ηo<πh&>         r(uN s = 64)  { return h_.r(s); }
+  πhr           ref()           { return h_.ref(); }
+
+  πhr r(uN s, F<void(ηo<πh&>)> const &f) { f(r(s)); return ref(); }
 
   πh &h() { return h_; }
 

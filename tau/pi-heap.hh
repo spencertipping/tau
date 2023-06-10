@@ -59,7 +59,8 @@ protected:
 // parent data is not referred to.
 struct πh final
 {
-  πh(uN hr = 1048576) : r_{0, 0, 0}, s_(0), hr_(hr), hn_(nullptr) { h_.reserve(hr); }
+  πh(uN hr = 1048576) : r_{0, 0, 0}, s_(0), gs_(0), hr_(hr), hn_(nullptr), ls_(0)
+    { h_.reserve(hr); }
 
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
@@ -74,14 +75,26 @@ struct πh final
   Tt πhr operator<<(T const &x)
     { A(!r_.l, "πh<< is not re-entrant");
       A(!hn_,  "πh<< during GC");
-      ηo<πh&>{ηoc<πh&>{*this}, ηauto_<T>::n} << x;  // calls .ref()
-      let r = r_; r_ = {0, 0, 0};
+      r(ηauto_<T>::n) << x;  // calls .ref() on destruct
+      let r = ref();
+      r_ = {0, 0, 0};
       return r; }
+
+  // Create a η output writer that will write to the heap. Call .ref() to
+  // get the new value's address.
+  ηo<πh&> r(uN s = 64)
+    { r_ = {0, 0, 0};
+      return ηo<πh&>{ηoc<πh&>{*this}, s}; }
 
   // Called during operator<< to set the πhr of the value being written.
   // We don't always know this up front because GC can happen during a write,
   // which will rearrange the heap and change the result.
   void ref(πhr const &r) { r_ = r; }
+  πhr  ref()
+    { A(r_.o, "πh::ref() with no result");
+      let r = r_;
+      r_ = {0, 0, 0};
+      return r; }
 
   // GC with the specified amount of headroom for a new value that is going
   // to be written.
@@ -95,17 +108,22 @@ struct πh final
 
   uN lss() const { return s_; }
   uN hr()  const { return hr_; }
+  uN gcs() const { return gs_; }
 
-  B &h() { return h_; }
+  B       &h()       { return h_; }
   B const &h() const { return h_; }
 
 protected:
   B       h_;   // current heap
   πhr     r_;   // last reference committed to heap
   uN      s_;   // live-set size
+  uN      gs_;  // number of GCs
   uNc     hr_;  // headroom for new heap sizes
   B      *hn_;  // next heap (during GC, otherwise null)
   S<πhv*> vs_;  // heap views, which are notified when the heap is GCd
+  iN      ls_;  // number of GC locks
+
+  friend struct πhgl;
 };
 
 
@@ -154,6 +172,16 @@ struct πhmv : public virtual πhv
   void mark() { for (let  &r : xs)            h.mark(r.second); }
   void move() { for (auto &r : xs) r.second = h.move(r.second); }
   M<St, πhr> xs;
+};
+
+
+// Lock the heap so no GC can occur. This is used by user code to guarantee
+// that values aren't moved out from under them when they don't expect it.
+struct πhgl final
+{
+  πhgl(πh &h_) : h(h_) { ++h.ls_; }
+  ~πhgl()              { --h.ls_; }
+  πh &h;
 };
 
 

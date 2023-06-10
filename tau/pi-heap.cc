@@ -32,6 +32,7 @@ void πh::reserve(uN l)
 void πh::gc(uN l)
 {
   A(!hn_, "πh::gc(" << l << ") called recursively");
+  A(!ls_, "πh::gc(" << l << ") called with " << ls_ << " GC lock(s)");
   B hn;
   hn_ = &hn;
   s_  = 0;
@@ -40,6 +41,7 @@ void πh::gc(uN l)
   h_.swap(hn);
   for (let v : vs_) v->move();  // move objects to new heap
   hn_ = nullptr;
+  ++gs_;
 }
 
 

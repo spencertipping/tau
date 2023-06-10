@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <functional>
+#include <ios>
 #include <iostream>
 #include <typeinfo>
 #include <type_traits>
@@ -54,23 +56,121 @@ void try_auto()
 }
 
 
+void try_auto2()
+{
+  πf<0> f = πvauto("test", [](i64 x, St y) -> T<St, St>
+                   { return {
+                       (Ss{} << "f(" << x << "," << y << ")").str(),
+                       "the second string"}; });
+  πi i;
+  i.push(i << "foo");
+  i.push(i << 5);
+  f(i);
+  cout << i[i.pop()] << endl;
+  cout << i[i.pop()] << endl;
+}
+
+
 void try_gc()
 {
+  sletc debug = false;
   πh   h;
   πhlv l{h};
   πhr  a = h << std::make_tuple(1, "foo", 3.14);
   πhr  b = h << std::make_tuple(2, "bar", 2.71, "WOOHOO");
   l << a << b;
+
   a = h << "baz bok";
-  cout << "h = " << h << "a = " << a << ", b = " << b << endl;
-  cout << "a = " << h[a] << ", b = " << h[b] << endl;
+  if (debug) cout << "h = " << h << "a = " << a << ", b = " << b << endl;
+  if (debug) cout << "a = " << h[a] << ", b = " << h[b] << endl;
+  A((Ss{} << h[a]).str() == "\"baz bok\"", "step 1: h[a] = " << h[a]);
+  A((Ss{} << h[b]).str() == "2 \"bar\" 2.71 \"WOOHOO\"", "step 1: h[b] = " << h[b]);
+
   b = h.i(b, h[b].next());
-  cout << "h = " << h << "a = " << a << ", b = " << b << endl;
-  cout << "a = " << h[a] << ", b = " << h[b] << endl;
-  cout << "GC" << endl;
+  if (debug) cout << "h = " << h << "a = " << a << ", b = " << b << endl;
+  if (debug) cout << "a = " << h[a] << ", b = " << h[b] << endl;
+  A((Ss{} << h[a]).str() == "\"baz bok\"", "step 2: h[a] = " << h[a]);
+  A((Ss{} << h[b]).str() == "\"bar\" 2.71 \"WOOHOO\"", "step 2: h[b] = " << h[b]);
+  if (debug) cout << "GC" << endl;
+
   h.gc(0);
-  cout << "h = " << h << "a = " << a << ", b = " << b << endl;
-  cout << "a = " << h[a] << ", b = " << h[b] << endl;
+
+  if (debug) cout << "h = " << h << "a = " << a << ", b = " << b << endl;
+  if (debug) cout << "a = " << h[a] << ", b = " << h[b] << endl;
+  A((Ss{} << h[a]).str() == "\"baz bok\"", "step 3: h[a] = " << h[a]);
+  A((Ss{} << h[b]).str() == "\"bar\" 2.71 \"WOOHOO\"", "step 3: h[b] = " << h[b]);
+  cout << "GC OK" << endl;
+}
+
+
+void try_gc_auto()
+{
+  πf<-1> map_lookup = πvauto(
+    "map_lookup", [](πi &i, πhr m, St k) -> πhr
+      { πhgl l{i.h()};  // no GC is possible in this function
+        cout << "i[m] lsize = " << i[m].lsize() << endl;
+        cout << "i[m] bytes = "
+             << std::hex
+             << (int) i[m].odata()[0] << " "
+             << (int) i[m].odata()[1] << " "
+             << (int) i[m].odata()[2] << " "
+             << (int) i[m].odata()[3] << " "
+             << (int) i[m].odata()[4] << " "
+             << (int) i[m].odata()[5] << " "
+             << (int) i[m].odata()[6] << " "
+             << (int) i[m].odata()[7] << " "
+             << std::dec
+             << endl;
+
+        cout << "about to deref " << i[m] << " at ";
+        cout << k << " (" << k.size() << " bytes)" << endl;
+        let v = i[m][k];
+        cout << "got " << v << endl;
+        return i.i(m, v); });
+
+  πf<-2> map_append = πvauto(
+    "map_append", [](πi &i, πhr m, St k, πhr v) -> πhr
+      { πhlv hv{i.h()};
+        hv << m << v;
+        let gcs = i.h().gcs();
+        return i.r(i.h().hr() + 1,  // force a GC with a large reservation
+                   [&](auto &&r)
+                     { A(i.h().gcs() > gcs, "map_append didn't GC");
+                       πhgl l{i.h()};
+                       for (ηi x : i[m]) r << x;
+                       r.k(k) << i[v]; }); });
+
+  πi i;
+  i.push(i.r(64, [](auto r) { r.k("foo") << "bar"; }));
+  cout << "stack top = " << i[i.peek()] << endl;
+
+
+  i.push(i.peek());
+  i.push(i << "foo"); i.swap();
+  let m = i.peek();
+  cout << "i[m] bytes before call = "
+       << std::hex
+       << (int) i[m].odata()[0] << " "
+       << (int) i[m].odata()[1] << " "
+       << (int) i[m].odata()[2] << " "
+       << (int) i[m].odata()[3] << " "
+       << (int) i[m].odata()[4] << " "
+       << (int) i[m].odata()[5] << " "
+       << (int) i[m].odata()[6] << " "
+       << (int) i[m].odata()[7] << " "
+       << std::dec
+       << endl;
+
+  map_lookup(i);
+  cout << "m[foo] = " << i[i.pop()] << endl;
+
+  i.push(i.peek());              // m m
+  i.push(i << 13.5);  i.swap();  // m 13.5 m
+  i.push(i << "bar"); i.swap();  // m "bar" 13.5 m
+  map_append(i);
+  cout << "m = " << i[i.pop()] << endl;
+
+  cout << "GC auto OK" << endl;
 }
 
 
@@ -80,7 +180,9 @@ int main()
   try_polymorphic_functions();
   try_variant_cast();
   try_auto();
+  try_auto2();
   try_gc();
+  try_gc_auto();
   return 0;
   τassert_end
 }

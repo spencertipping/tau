@@ -49,3 +49,32 @@ Your function must handle this in one of a few ways:
 1. Accept a `πhr_<N>` argument to reserve `N` heap bytes before unpacking any further arguments (typically this comes first), then allocate no more than `N` bytes
 2. Create a `πhlv{}` to update local `πhr`s when a GC happens, and accept all arguments only as by-value or `πhr` types
 3. Construct returned values inside the function with (2), then return with `T<πhr, ...>`
+
+For example, here's a function that returns a new map with an additional k/v binding on the end:
+
+```cpp
+πhr map_append(πi &i, πhr m, St k, πhr v)
+{
+  πhlv hv{i.h()};
+  hv << m << v;  // track values for GC, which may happen during i.r()
+
+  // Add a new value to the map, reserving two bytes for the key control+size
+  // and 8 bytes for any container size changes (this is generous, but that's
+  // fine).
+  //
+  // NOTE: we must re-dereference i[m] and i[v] inside the function because
+  // i.r() may cause a GC that relocates m and v, which would invalidate the
+  // resulting ηi objects. That is, i.r() creates a GC barrier between the
+  // outside and inside of its lambda.
+  return i.r(i[m].lsize() + k.size() + 2 + i[v].osize() + 8,
+             [&](auto &&r)
+    {
+      // At this point we've reserved enough memory to safely write things without
+      // any further GC happening. We guarantee this by creating a πhgl, which
+      // locks GC while in scope.
+      πhgl l{i.h()};
+      for (ηi x : i[m]) r << x;  // copy existing map entries
+      r.k(k) << i[v];            // add new entry
+    });
+}
+```
