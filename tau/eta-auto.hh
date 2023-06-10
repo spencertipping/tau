@@ -13,6 +13,9 @@ namespace τ
 // a function to convert from η to T.
 Tt struct ηauto_;
 
+// ηY<T> contains a T that will be unpacked from an inner η.
+Tt struct ηY { T v; };
+
 
 #define deft(ct, s, yt, ve)                    \
   template<> struct ηauto_<ct>                 \
@@ -44,6 +47,13 @@ deft(Sn<i64bc>, 512, int64s,   i.i64s())
 deft(Sn<f32bc>, 256, float32s, i.f32s())
 deft(Sn<f64bc>, 512, float64s, i.f64s())
 
+Tt struct ηauto_<ηY<T>>
+{
+  sletc t = ηtype::η;
+  sletc n = 64;
+  static ηY<T> v(ηic &i) { return {ηauto_<T>::v(i.η())}; }
+};
+
 template<uN N>
 struct ηauto_<char[N]>
 {
@@ -53,8 +63,6 @@ struct ηauto_<char[N]>
   // NOTE: these values require explicit delete[], which is error-prone;
   // instead of introducing those problems, we just don't support this case
 };
-
-// TODO: create a type that lets us drill into a ηi for nested unpacking
 
 template<class X>
 struct ηauto_<T<X>>
