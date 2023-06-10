@@ -141,6 +141,10 @@ void try_gc_auto()
   map_lookup(i);
   cout << "m'[bar] = " << i[i.pop()] << endl;
 
+  i.push(i << "foo"); i.swap();  // m' "foo" m
+  map_lookup(i);
+  cout << "m'[foo] = " << i[i.pop()] << endl;
+
   cout << "GC auto OK" << endl;
 }
 

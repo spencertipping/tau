@@ -12,6 +12,9 @@ struct πhr;
 struct πh;
 struct πhv;
 
+typedef u32 πhrn;
+sletc πhrns = sizeof(πhrn);
+
 
 O &operator<<(O&, πh const&);
 O &operator<<(O&, πhr const&);
@@ -20,9 +23,10 @@ O &operator<<(O&, πhr const&);
 // Reference to π heap value
 struct πhr final
 {
-  uN o;  // offset relative to start of heap
-  uN l;  // length in bytes
-  uN i;  // inner offset
+  πhrn o;   // offset relative to start of heap
+  πhrn l;   // whole-allocation length in bytes
+  πhrn i;   // inner offset
+  πhrn il;  // inner length
 };
 
 
@@ -63,22 +67,19 @@ protected:
 // parent data is not referred to.
 struct πh final
 {
-  πh(uN hr = 1048576) : r_{0, 0, 0}, s_(0), gs_(0), hr_(hr), hn_(nullptr), ls_(0)
+  πh(uN hr = 1048576) : r_{0, 0, 0, 0}, s_(0), gs_(0), hr_(hr),
+                        hn_(nullptr), ls_(0)
     { h_.reserve(hr); }
 
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
-  //
-  // FIXME: r.l is overloaded here; we need to track the length of inner objects
-  // independently from the length of the outer object. This will cause major
-  // bugs otherwise.
   ηi operator[](πhr const &r) const
-    { TODO("fix up inner object lengths");
-      return ηi{h_.data() + r.o + r.i, r.l - r.i}; }
+    { return ηi{h_.data() + r.o + r.i, r.il}; }
 
-  // Refer to a ηi already on the heap and contained within a heap ref.
+  // Refer to a ηi already on the heap and contained within a heap ref; that is,
+  // create an inner reference.
   πhr i(πhr const &r, ηi y) const
-    { return {r.o, r.l, uN(y.odata() - (h_.data() + r.o))}; }
+    { return {r.o, r.l, πhrn(y.odata() - (h_.data() + r.o)), πhrn(y.lsize())}; }
 
   // Write a value into the heap and return a reference to it.
   Tt πhr operator<<(T const &x)
@@ -90,7 +91,7 @@ struct πh final
   // Create a η output writer that will write to the heap. Call .ref() to
   // get the new value's address.
   ηo<πh&> r(uN s = 64)
-    { r_ = {0, 0, 0};
+    { r_ = {0, 0, 0, 0};
       return ηo<πh&>{ηoc<πh&>{*this}, s}; }
 
   // Called during operator<< to set the πhr of the value being written.
@@ -100,7 +101,7 @@ struct πh final
   πhr  ref()
     { A(r_.o, "πh::ref() with no result");
       let r = r_;
-      r_ = {0, 0, 0};
+      r_ = {0, 0, 0, 0};
       return r; }
 
   // GC with the specified amount of headroom for a new value that is going
