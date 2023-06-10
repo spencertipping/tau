@@ -73,8 +73,8 @@ For example, here's a function that returns a new map with an additional k/v bin
       // any further GC happening. We guarantee this by creating a πhgl, which
       // locks GC while in scope.
       πhgl l{i.h()};
-      for (ηi x : i[m]) r << x;  // copy existing map entries
-      r.k(k) << i[v];            // add new entry
+      r << i[m].all();       // copy existing map entries
+      r.k(k) << i[v].all();  // add new entry
     });
 }
 ```

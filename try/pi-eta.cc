@@ -108,24 +108,7 @@ void try_gc_auto()
   πf<-1> map_lookup = πvauto(
     "map_lookup", [](πi &i, πhr m, St k) -> πhr
       { πhgl l{i.h()};  // no GC is possible in this function
-        cout << "i[m] lsize = " << i[m].lsize() << endl;
-        cout << "i[m] bytes = "
-             << std::hex
-             << (int) i[m].odata()[0] << " "
-             << (int) i[m].odata()[1] << " "
-             << (int) i[m].odata()[2] << " "
-             << (int) i[m].odata()[3] << " "
-             << (int) i[m].odata()[4] << " "
-             << (int) i[m].odata()[5] << " "
-             << (int) i[m].odata()[6] << " "
-             << (int) i[m].odata()[7] << " "
-             << std::dec
-             << endl;
-
-        cout << "about to deref " << i[m] << " at ";
-        cout << k << " (" << k.size() << " bytes)" << endl;
         let v = i[m][k];
-        cout << "got " << v << endl;
         return i.i(m, v); });
 
   πf<-2> map_append = πvauto(
@@ -137,30 +120,14 @@ void try_gc_auto()
                    [&](auto &&r)
                      { A(i.h().gcs() > gcs, "map_append didn't GC");
                        πhgl l{i.h()};
-                       for (ηi x : i[m]) r << x;
-                       r.k(k) << i[v]; }); });
+                       r << i[m].all();
+                       r.k(k) << i[v].all(); }); });
 
   πi i;
-  i.push(i.r(64, [](auto r) { r.k("foo") << "bar"; }));
-  cout << "stack top = " << i[i.peek()] << endl;
+  i.push(i.r(64, [](auto &&r) { r.k("foo") << "bar"; }));
 
-
-  i.push(i.peek());
-  i.push(i << "foo"); i.swap();
-  let m = i.peek();
-  cout << "i[m] bytes before call = "
-       << std::hex
-       << (int) i[m].odata()[0] << " "
-       << (int) i[m].odata()[1] << " "
-       << (int) i[m].odata()[2] << " "
-       << (int) i[m].odata()[3] << " "
-       << (int) i[m].odata()[4] << " "
-       << (int) i[m].odata()[5] << " "
-       << (int) i[m].odata()[6] << " "
-       << (int) i[m].odata()[7] << " "
-       << std::dec
-       << endl;
-
+  i.push(i.peek());              // m m
+  i.push(i << "foo"); i.swap();  // m "foo" m
   map_lookup(i);
   cout << "m[foo] = " << i[i.pop()] << endl;
 
@@ -168,7 +135,11 @@ void try_gc_auto()
   i.push(i << 13.5);  i.swap();  // m 13.5 m
   i.push(i << "bar"); i.swap();  // m "bar" 13.5 m
   map_append(i);
-  cout << "m = " << i[i.pop()] << endl;
+  cout << "m = " << i[i.peek()] << endl;
+
+  i.push(i << "bar"); i.swap();  // m' "bar" m
+  map_lookup(i);
+  cout << "m'[bar] = " << i[i.pop()] << endl;
 
   cout << "GC auto OK" << endl;
 }

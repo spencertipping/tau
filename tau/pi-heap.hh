@@ -13,6 +13,10 @@ struct πh;
 struct πhv;
 
 
+O &operator<<(O&, πh const&);
+O &operator<<(O&, πhr const&);
+
+
 // Reference to π heap value
 struct πhr final
 {
@@ -76,9 +80,7 @@ struct πh final
     { A(!r_.l, "πh<< is not re-entrant");
       A(!hn_,  "πh<< during GC");
       r(ηauto_<T>::n) << x;  // calls .ref() on destruct
-      let r = ref();
-      r_ = {0, 0, 0};
-      return r; }
+      return ref(); }
 
   // Create a η output writer that will write to the heap. Call .ref() to
   // get the new value's address.
@@ -183,10 +185,6 @@ struct πhgl final
   ~πhgl()              { --h.ls_; }
   πh &h;
 };
-
-
-O &operator<<(O&, πh const&);
-O &operator<<(O&, πhr const&);
 
 
 }
