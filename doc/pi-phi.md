@@ -54,5 +54,5 @@ def_psp("@", [](πP<i64> n, πi &i, πhr xs) -> πhr
 let f = [](πP<i64> n, πi &i, πhr xs) -> πhr { return i.i(xs, i[xs][*n]); };
 psp_.def("@", φauto(*this, [](πP<i64> &&n)
   { return πvauto("@", [=](πi &i, πhr xs) -> πhr  // → πf<0>
-    { return std::bind(f, n)(i, xs); }); }));
+    { return f(n, i, xs); }); }));
 ```

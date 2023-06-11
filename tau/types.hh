@@ -58,6 +58,9 @@ auto tat_(T<Xs...> const &t, Is<I...>) { return std::make_tuple(std::get<I>(t)..
 template<class X, class Y>
 auto tcons(X &&x, Y &&xs) { return std::tuple_cat(std::make_tuple(std::forward<X>(x)), std::forward<Y>(xs)); }
 
+template<class X, class Y>         struct Tcons_;
+template<class... Xs, class... Ys> struct Tcons_<T<Xs...>, T<Ys...>> { using t = T<Xs..., Ys...>; };
+
 
 template<uS n, class X>  struct offset_;
 template<uS n, uS... Xs> struct offset_<n, Is<Xs...>> { using t = Is<Xs + n...>; };
