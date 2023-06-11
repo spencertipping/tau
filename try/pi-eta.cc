@@ -4,6 +4,7 @@
 #include <iostream>
 #include <typeinfo>
 #include <type_traits>
+
 #include "../tau.hh"
 
 using namespace τ;
@@ -106,13 +107,12 @@ void try_gc()
 void try_gc_auto()
 {
   πf<-1> map_lookup = πvauto(
-    "map_lookup", [](πi &i, πhr m, St k) -> πhr
+    "m[]", [](πi &i, πhr m, St k) -> πhr
       { πhgl l{i.h()};  // no GC is possible in this function
-        let v = i[m][k];
-        return i.i(m, v.one()); });
+        return i.i(m, i[m][k].one()); });
 
   πf<-2> map_append = πvauto(
-    "map_append", [](πi &i, πhr m, St k, πhr v) -> πhr
+    "m++", [](πi &i, πhr m, St k, πhr v) -> πhr
       { πhlv hv{i.h()};
         hv << m << v;
         let gcs = i.h().gcs();
@@ -123,31 +123,31 @@ void try_gc_auto()
                        r << i[m].all();
                        r.k(k) << i[v].all(); }); });
 
+  πf<1> push_map1 = πvauto(
+    "{m}", [](πi &i) -> πhr
+      { return i.r(64, [](auto &&r) { r.k("foo") << "bar"; }); });
+
+  πf<1>  push_foo  = πvauto("'foo", []() { return "foo"; });
+  πf<1>  push_bar  = πvauto("'bar", []() { return "bar"; });
+  πf<1>  push_13p5 = πvauto("13.5", []() { return 13.5; });
+  πf<0>  swap      = πvauto("%",    [](πhr x, πhr y) { return std::make_tuple(y, x); });
+  πf<1>  dup       = πvauto(":",    [](πhr x)        { return std::make_tuple(x, x); });
+  πf<-1> drop      = πvauto("_",    [](πhr x)        { });
+
   πi i;
-  i.push(i.r(64, [](auto &&r) { r.k("foo") << "bar"; }));
 
-  i.push(i.peek());              // m m
-  i.push(i << "foo"); i.swap();  // m "foo" m
-  map_lookup(i);
-  cout << "m[foo] = " << i[i.pop()] << endl;
+  let p1 = push_map1 | dup | push_foo | swap | map_lookup;
+  cout << "m[foo]  via " << p1 << " = " << p1(i).ypop() << endl;
 
-  i.push(i.peek());              // m m
-  i.push(i << 13.5);  i.swap();  // m 13.5 m
-  i.push(i << "bar"); i.swap();  // m "bar" 13.5 m
-  map_append(i);
-  cout << "m = " << i[i.peek()] << endl;
+  let p2 = dup | push_13p5 | swap | push_bar | swap | map_append
+    | swap | drop | dup;
+  cout << "m'      via " << p2 << " = " << p2(i).ypop() << endl;
 
-  i.swap(); i.pop();             // m'
+  let p3 = dup | push_foo | swap | map_lookup;
+  cout << "m'[foo] via " << p3 << " = " << p3(i).ypop() << endl;
 
-  i.push(i.peek());
-  i.push(i << "foo"); i.swap();  // m' "foo" m'
-  map_lookup(i);
-  cout << "m'[foo] = " << i[i.pop()] << endl;
-
-  i.push(i.peek());
-  i.push(i << "bar"); i.swap();  // m' "bar" m'
-  map_lookup(i);
-  cout << "m'[bar] = " << i[i.pop()] << endl;
+  let p4 = dup | push_bar | swap | map_lookup;
+  cout << "m'[bar] via " << p4 << " = " << p4(i).ypop() << endl;
 
   cout << "GC auto OK" << endl;
 }

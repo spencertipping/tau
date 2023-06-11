@@ -80,10 +80,10 @@ template<class... Xs> struct πvrauto_<T<Xs...>>
 {
   sletc n = sizeof...(Xs);
   static void push(πi &i, T<Xs...> const &x)
-    { vpush<0>(i, x); }
-  template<uN I> static void vpush(πi &i, T<Xs...> const &x)
+    { vpush<sizeof...(Xs) - 1>(i, x); }
+  template<iN I> static void vpush(πi &i, T<Xs...> const &x)
     { πvrauto_<std::tuple_element_t<I, T<Xs...>>>::push(i, std::get<I>(x));
-      if constexpr (I < sizeof...(Xs) - 1) vpush<I + 1>(i, x); }
+      if constexpr (I > 0) vpush<I - 1>(i, x); }
 };
 
 

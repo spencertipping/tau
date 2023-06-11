@@ -13,19 +13,14 @@ namespace τ
 {
 
 
-struct πfs {};
-
-struct πname { St x; };
-
-
 // π grammar generated from core parsers, written here in function
 // notation:
 //
-// φ<πf>: an individual atom
-// (φ<πf>, φ<πfs>) → φ<πf>: singular prefix operator
-// (φ<πf>, φ<πfs>) → φ<πfs>: plural prefix operator
-// (φ<πf>, φ<πfs>) → φ<πf → πf>: singular postfix operator
-// (φ<πf>, φ<πfs>) → φ<πf → πfs>: plural postfix operator
+// φ<πf<1>>: an atom
+// (φ<πf<1>>, φ<πf<1>>) → φ<πf<0>>: singular prefix operator
+// (φ<πf<1>>, φ<πf<1>>) → φ<πf<0>>: plural prefix operator
+// (φ<πf<1>>, φ<πf<1>>) → φ<πf → πf>: singular postfix operator
+// (φ<πf<1>>, φ<πf<1>>) → φ<πf → πfs>: plural postfix operator
 //
 // Here, φ<πf> is the compiled singular-expression parser and φ<πfs> is
 // the compiled plural-expression parser. In the returned φs, πf → x
@@ -52,25 +47,12 @@ struct πname { St x; };
 
 struct πφ final
 {
-  πφ(φ<πf<1>>,
-     F<φ<πf<1>>     (φ<πf<1>>, φ<πfs>)> const&,
-     F<φ<πfs>       (φ<πf<1>>, φ<πfs>)> const&,
-     F<φ<F<πf<1> (πf<1>)>>(φ<πf<1>>, φ<πfs>)> const&,
-     F<φ<F<πfs(πf<1>)>>(φ<πf<1>>, φ<πfs>)> const&);
-
-  φ<F<πf<1> (πf<1>)>> os;  // compiled postfix singular
-  φ<F<πfs(πf<1>)>> op;  // compiled postfix plural
-  φ<πf<1>>         es;  // compiled prefix singular
-  φ<πfs>        ep;  // compiled prefix plural
-  φ<πf<1>>         a;   // atom
-  φ<πf<1>>         s;   // singular expression
-  φ<πfs>        p;   // plural expression
 };
 
 
 // Take a single plural-element context and parse multiple of them,
-// splicing the results into a single output list
-φ<πfs> πφfs(φ<πfs>);
+// splicing the results into a single output η stream.
+φ<πf<1>> πφfs(φ<πf<1>>);
 
 
 // Built-in language elements
@@ -100,7 +82,7 @@ Tt φ<T> πφgroup(φ<T> p) { return φ2("[]", πφlb(), πφwrap(p), πφrb());
 φ<f64>   πφfloat();
 φ<St>    πφstr_escape();
 φ<St>    πφstr();
-φ<πname> πφname();
+φ<ηname> πφname();
 
 
 }

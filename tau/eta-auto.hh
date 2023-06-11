@@ -25,6 +25,7 @@ Tt struct ηY { T v; };
 
 deft(ηi, 64, η, i)  // ηis are passed through
 
+
 deft(i8,  2, n_int,   i.i())
 deft(i16, 3, n_int,   i.i())
 deft(i32, 5, n_int,   i.i())
@@ -36,9 +37,10 @@ deft(bool,  2, atom, i.b())
 deft(ηsig,  2, sig,  i.sig())
 deft(ηatom, 2, atom, i.a())
 
-deft(Stv,  16, string, i.s())
-deft(St,   16, string, St{i.s()})
-deft(chc*, 16, string, (A(0, "η → const char*"), nullptr))
+deft(ηname, 16, name,   ηname{St{i.n()}})
+deft(Stv,   16, string, i.s())
+deft(St,    16, string, St{i.s()})
+deft(chc*,  16, string, (A(0, "η → const char*"), nullptr))
 
 deft(Sn<i8bc>,  64,  int8s,    i.i8s())
 deft(Sn<i16bc>, 128, int16s,   i.i16s())

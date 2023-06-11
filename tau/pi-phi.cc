@@ -51,12 +51,12 @@ namespace τ
 }
 
 
-φ<πname> πφname()
+φ<ηname> πφname()
 {
   slet r = φ2("name", φl("'"),
               φa("name",
-                 φm(πφstr(),  [](St x) { return πname{x}; }),
-                 φm(πφword(), [](St x) { return πname{x}; })));
+                 φm(πφstr(),  [](St x) { return ηname{x}; }),
+                 φm(πφword(), [](St x) { return ηname{x}; })));
   return r;
 }
 

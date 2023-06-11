@@ -21,7 +21,7 @@ PO ηscmp(ηi a, ηi b)
 // Result bit ordering: 0xnedcba9876543210 -- where 0 is the first type, etc.
 // Unspecified types are 0xf. The most-significant four bits encode the number
 // of values in the set.
-ηts ηi::ts() const
+ηtl ηi::ts() const
 {
   u64 r = 0x0fffffffffffffffull;
   ηi  i = *this;

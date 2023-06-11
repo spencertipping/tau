@@ -16,7 +16,7 @@ struct πf final
   πf() = default;
   πf(St s, F<void(πi&)> const &f) { ss.push_back(s); fs.push_back(f); }
 
-  void operator()(πi &i) const { for (let &f : fs) f(i); }
+  πi &operator()(πi &i) const { for (let &f : fs) f(i); return i; }
 
   template<iN M>
   πf<N + M> operator|(πf<M> const &f) const
@@ -33,14 +33,14 @@ struct πf final
 
 
 template<iN N>
-O &operator<<(O &s, πf<N> &f)
+O &operator<<(O &s, πf<N> const &f)
 {
   s << "πf<" << N << ">[";
   bool first = true;
   for (let &x : f.ss)
-  { s << x;
-    if (first) first = false;
-    else       s << " "; }
+  { if (first) first = false;
+    else       s << " ";
+    s << x; }
   return s << "]";
 }
 

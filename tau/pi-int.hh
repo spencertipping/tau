@@ -20,6 +20,8 @@ struct πi final
   πhr peek() const { return s_.xs.back(); }
   πhr pop()        { let r = s_.xs.back(); s_.xs.pop_back(); return r; }
 
+  πi &dup()  { return push(peek()); }
+  πi &drop() { pop(); return *this; }
   πi &swap() { std::swap(s_.xs.back(), s_.xs[s_.xs.size() - 2]); return *this; }
 
   ηi ypeek() const { return (*this)[peek()]; }

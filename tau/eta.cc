@@ -5,9 +5,9 @@ namespace τ
 {
 
 
-O &operator<<(O &s, ηts ts)
+O &operator<<(O &s, ηtl ts)
 {
-  s << "ηts[";
+  s << "ηtl[";
   for (uN i = 0; i < ts.size(); ++i)
     s << (i ? " " : "") << ts[i];
   return s << "]";
@@ -31,7 +31,7 @@ O &operator<<(O &s, ηtype t)
   case ηtype::float32s: return s << "f32s";
   case ηtype::float64s: return s << "f64s";
   case ηtype::η:        return s << "η";
-  default:              return s << "t" << Sc<int>(t);
+  default:              return s << "t" << int(t);
   }
 }
 
@@ -42,7 +42,7 @@ O &operator<<(O &s, ηatom a)
   case ηatom::ηfalse: return s << "false";
   case ηatom::ηtrue:  return s << "true";
   case ηatom::ηnull:  return s << "null";
-  default:            return s << "a" << Sc<int>(a);
+  default:            return s << "a" << int(a);
   }
 }
 
@@ -58,8 +58,14 @@ O &operator<<(O &s, ηsig x)
   case ηsig::Ω: return s << "Ω";
   case ηsig::ρ: return s << "ρ";
   case ηsig::θ: return s << "θ";
-  default:      return s << "s" << Sc<int>(x);
+  default:      return s << "s" << int(x);
   }
+}
+
+
+O &operator<<(O &s, ηname const &n)
+{
+  return s << "'" << n.x;
 }
 
 

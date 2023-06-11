@@ -54,7 +54,7 @@ struct ηi final
 
   // Type of each element within this η record, up to the first 15 (used for
   // fast dispatch)
-  ηts ts() const;
+  ηtl ts() const;
 
 
   struct it
@@ -200,7 +200,7 @@ struct ηi final
       return {Rc<f64bc*>(data()), size() >> 3}; }
 
 
-  // TODO: convert-to-x methods, which don't apply strict type checking
+
 
 
 private:

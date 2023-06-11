@@ -52,10 +52,9 @@ void πh::gc(uN l)
   hn_ = &hn;
   s_  = 0;
   for (let v : vs_) v->mark();  // calculate live-set size
-  let hns = std::max(s_ * 4, s_ + l + hr_);
-  A(πhrn(hns) == hns,
-    "πh heap size overflow: requested " << hns
-    << " bytes, max is " << Nl<πhrn>::max());
+  let hns = std::min(std::max(s_ * 4, s_ + l + hr_), uN(Nl<πhrn>::max()));
+  A(hns >= s_ + l + hr_,
+    "πh overflow: need " << s_ + l + hr_ << " bytes, max is " << Nl<πhrn>::max());
   hn_->reserve(hns);
   h_.swap(hn);
   for (let v : vs_) v->move();  // move objects to new heap

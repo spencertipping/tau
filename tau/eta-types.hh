@@ -58,15 +58,21 @@ enum class ηtype : u8
 };
 
 
+struct ηname
+{
+  St x;
+};
+
+
 // An ordered list of types packed into a 64-bit int, with the top four
 // bits reserved for the number of elements in the list.
 //
 // Elements are stored at fixed positions, so the first element of the list
 // always occupies the lowest four bits. This provides fast prefix matches.
-struct ηts final
+struct ηtl final
 {
-  constexpr ηts(u64 x_)      : x(x_) {}
-  constexpr ηts(Il<ηtype> l) : x(-1ull)
+  constexpr ηtl(u64 x_)      : x(x_) {}
+  constexpr ηtl(Il<ηtype> l) : x(-1ull)
     { A(l.size() < 16, "ηts overflow: " << l.size() << " elements");
       for (let y : l) x <<= 4, x |= u64(y);
       x = x & 0x0fffffffffffffffull | u64(l.size()) << 60; }
@@ -76,7 +82,7 @@ struct ηts final
 
   // Returns true if a function whose arguments are this set's types can be
   // applied to a value whose types are y.
-  constexpr bool operator()(ηts y) const
+  constexpr bool operator()(ηtl y) const
     { return x & ~(-1ull << size() * 4) == y.x & ~(-1ull << size() * 4); }
 
   u64 x;
@@ -126,7 +132,8 @@ inline uN ηcb(Sn<u8> b, ηtype t, uN s)
 O &operator<<(O&, ηsig);
 O &operator<<(O&, ηatom);
 O &operator<<(O&, ηtype);
-O &operator<<(O&, ηts);
+O &operator<<(O&, ηtl);
+O &operator<<(O&, ηname const&);
 
 
 }

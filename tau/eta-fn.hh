@@ -13,9 +13,8 @@ namespace τ
 
 template<class... Xs> struct ηfn_ts
 {
-  sletc ts = ηts{ηauto_<Xs>::t...};
+  sletc ts = ηtl{ηauto_<Xs>::t...};
 };
-
 
 
 }
