@@ -13,40 +13,31 @@ namespace τ
 {
 
 
-// π grammar generated from core parsers, written here in function
-// notation:
-//
-// φ<πf<1>>: an atom
-// (φ<πf<1>>, φ<πf<1>>) → φ<πf<0>>: singular prefix operator
-// (φ<πf<1>>, φ<πf<1>>) → φ<πf<0>>: plural prefix operator
-// (φ<πf<1>>, φ<πf<1>>) → φ<πf → πf>: singular postfix operator
-// (φ<πf<1>>, φ<πf<1>>) → φ<πf → πfs>: plural postfix operator
-//
-// Here, φ<πf> is the compiled singular-expression parser and φ<πfs> is
-// the compiled plural-expression parser. In the returned φs, πf → x
-// means "take the left-hand operand and return the full expression";
-// these parsers consume the continuation after the left operand.
-//
-// At every position in the source, at most one of the five parsers
-// should accept any continuation. If more than one accepts, then the
-// grammar is ambiguous and depends on preferential ordering (which may
-// be acceptable, but isn't ideal).
+// Indicate that a value should be constructed at parse-time
+Tt struct πP
+{
+  T       &operator*()       { return x; }
+  T const &operator*() const { return x; }
+  T x;
+};
 
-// TODO: this struct should be generated from a prefix dict so we can
-// more easily extend the grammar
+Tt struct is_πP_        : std::false_type {};
+Tt struct is_πP_<πP<T>> : std::true_type {};
 
-// TODO: πφ can use templates to implement stateful φauto for its
-// constituent functions; this way we sidestep the global-parser problem
 
-// TODO: write an example π operator function and define our expectations
-// about how its arguments would be auto-filled
-//
-// NOTE: we need one-off .def("prefix", []() {}) calls in order to
-// accommodate pre-auto parse template functions; some of the args to these
-// functions will be πf or πfs, which will be filled by s and p from πφ.
+// TODO: a struct that splits an argument list into two packs, one for
+// the parse-time arguments and one for the run-time arguments.
+
 
 struct πφ final
 {
+  // TODO: design this in pi-phi.md first, then implement here
+protected:
+  φ<πf<1>> a_;      // atoms (alt)
+  φ<πf<0>> spre_;   // singular prefix operators (dispatch)
+  φ<πf<0>> spost_;  // singular postfix operators (dispatch)
+  φ<πf<0>> ppre_;   // plural prefix operators (dispatch)
+  φ<πf<0>> ppost_;  // plural postfix operators (dispatch)
 };
 
 

@@ -17,7 +17,7 @@ namespace τ
 //
 // Because parsers may rely on state, φauto() first accepts an object that
 // provides the parser for a given type. This object should implement a
-// p(T const&) method that returns a parser for type T.
+// p(T&&) method that returns a parser for type T.
 //
 // It's possible to define a parser for nullary functions; the result is
 // a function that will consume no input, but will be called separately per

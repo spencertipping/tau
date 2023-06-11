@@ -14,7 +14,7 @@
 
 If I write an expression like `3 + 4`, `3` and `4` are _vertical_ in the sense that each occupies a separate interpreter stack entry; they are not combined into the same η stream. If, on the other hand, I write `3 4` in plural context, `3` and `4` are written sequentially into the same η buffer and occupy just one stack entry. `3` and `4` are _horizontal_. A function could access these values using a parameter of type `T<i64, i64>`.
 
-Plurality arises in contexts where we want to be able to splice values; it's basically the list context in Perl. Plural values are always horizontal because their arity is known only at runtime, whereas stack slot displacements must be known at compile-time. C++ function arguments are vertically bound to π interpreters, meaning that each arrives from a different stack slot. For example:
+Plurality arises in contexts where we want to be able to splice values; it's basically the list context in Perl. See [pi-phi.md](pi-phi.md) for a more technical explanation. Plural values are always horizontal because their arity is known only at runtime, whereas stack slot displacements must be known at compile-time. C++ function arguments are vertically bound to π interpreters, meaning that each arrives from a different stack slot. For example:
 
 ```cpp
 f(i64, f64)           // v-unpack two stack slots, fetch first η-subvalue of each

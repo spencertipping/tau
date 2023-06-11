@@ -87,19 +87,19 @@ template<class... Xs> struct πvrauto_<T<Xs...>>
 };
 
 
-template<class R, class... Xs>
+template<class R, class... Xs, class... Ys>
 πf<πvrauto_<R>::n - πn_stackpops<0, Xs...>()>
-πvauto_(Stc &n, F<R(Xs...)> const &f)
+πvauto_(Stc &n, F<R(Xs...)> const &f, Ys&&... ys)
 {
   return {n, [=](πi &i)
-    { if constexpr (Eq<R, void>) πvauto__<0>(f, i);
-      else  πvrauto_<R>::push(i, πvauto__<0>(f, i)); }};
+    { if constexpr (Eq<R, void>) πvauto__<0>(f, i, ys...);
+      else  πvrauto_<R>::push(i, πvauto__<0>(f, i, ys...)); }};
 }
 
-template<class F>
-auto πvauto(Stc &n, F const &f)
+template<class F, class... Ys>
+auto πvauto(Stc &n, F const &f, Ys&&... ys)
 {
-  return πvauto_(n, std::function(f));
+  return πvauto_(n, std::function(f), std::forward<Ys>(ys)...);
 }
 
 
