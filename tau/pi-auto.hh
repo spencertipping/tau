@@ -3,22 +3,58 @@
 
 #include "ctypes.hh"
 #include "pi-fn.hh"
+#include "pi-phi-markers.hh"
 #include "begin.hh"
 
 namespace τ
 {
 
 
-// A marker to indicate that the π interpreter should reserve the specified
-// number of bytes of memory in its heap before proceeding. This can force
-// a GC to happen before any arguments are unpacked.
-template<uN I> struct πhr_ { sletc s = I; };
+template<class... Xs> struct πPsplit_;
 
-Tt             struct is_πhr_          : std::false_type {};
-template<uN I> struct is_πhr_<πhr_<I>> : std::true_type {};
+template<> struct πPsplit_<>
+{
+  using P = T<>;  // parse-time arguments
+  using R = T<>;  // runtime arguments
+};
 
-Tt                    struct is_tuple_           : std::false_type {};
-template<class... Xs> struct is_tuple_<T<Xs...>> : std::true_type {};
+template<class X, class... Xs> struct πPsplit_<X, Xs...>
+{
+  using P = typename Co<is_πP_<X>::value,
+                        typename Tcons_<T<X>, typename πPsplit_<Xs...>::P>::t,
+                        typename πPsplit_<Xs...>::R>::t;
+  using R = typename Co<is_πP_<X>::value,
+                        typename πPsplit_<Xs...>::P,
+                        typename Tcons_<T<X>, typename πPsplit_<Xs...>::R>::t>::t;
+};
+
+
+template<class P, class R> struct πPsplit__;
+template<class... Ps, class... Rs> struct πPsplit__<T<Ps...>, T<Rs...>>
+{
+  Tt static auto f(St n, F<T(Ps..., Rs...)> &&f)
+    { return [n, f=mo(f)](Ps&&... ps)
+      { return πvauto(n, [=, f=mo(f)](Rs&&... rs)
+        { return f(ps..., rs...); }); }; }
+};
+
+
+// Split a function and prepare it to be used with φauto. This is called by
+// πφ when defining grammar elements.
+template<class T, class... Xs>
+auto πPsplit(St n, F<T(Xs...)> &&f)
+{
+  return πPsplit__<typename πPsplit_<Xs...>::P,
+                   typename πPsplit_<Xs...>::R>::f(n, f);
+}
+
+
+// Transform a single function argument from a stack entry to a C++ value.
+Tt                struct πvauto1_          { sletc n = 1; static auto f(πi &i) { return ηauto_<T>::v(i[i.pop()]); } };
+template<>        struct πvauto1_<πhr>     { sletc n = 1; static auto f(πi &i) { return i.pop(); } };
+template<is_πv X> struct πvauto1_<X>       { sletc n = 1; static auto f(πi &i) { return X{πvauto1_<typename X::T>::f(i)}; } };
+template<uN N>    struct πvauto1_<πhr_<N>> { sletc n = 0; static auto f(πi &i) { return πhr_<N>{}; } };
+template<>        struct πvauto1_<πi&>     { sletc n = 0; static πi  &f(πi &i) { return i; } };
 
 
 // Collects arguments from the interpreter stack and calls a function,
@@ -30,20 +66,9 @@ R πvauto__(F<R(Xs...)> const &f, πi &i, Ys&&... ys)
 {
   if constexpr (I == sizeof...(Xs)) return f(std::forward<Ys>(ys)...);
   else
-  {
-    using X = std::tuple_element_t<I, T<Xs...>>;
-    if constexpr (Eq<X, πi&>)
-      return πvauto__<I + 1>(f, i, std::forward<Ys>(ys)..., i);
-    else if constexpr (is_πhr_<X>::value)
-    {
-      i.h().reserve(X::s);
-      return πvauto__<I + 1>(f, i, std::forward<Ys>(ys)..., {});
-    }
-    else if constexpr (Eq<X, πhr>)
-      return πvauto__<I + 1>(f, i, std::forward<Ys>(ys)..., i.pop());
-    else
-      return πvauto__<I + 1>(f, i, std::forward<Ys>(ys)..., ηauto_<X>::v(i[i.pop()]));
-  }
+    return πvauto__<I + 1>(
+      f, i, std::forward<Ys>(ys)...,
+      πvauto1_<std::tuple_element_t<I, T<Xs...>>>::f(i));
 }
 
 
@@ -52,12 +77,8 @@ R πvauto__(F<R(Xs...)> const &f, πi &i, Ys&&... ys)
 template<uS I, class... Xs> constexpr int πn_stackpops()
 {
   if constexpr (I == sizeof...(Xs)) return 0;
-  else
-  {
-    using X = std::tuple_element_t<I, T<Xs...>>;
-    if constexpr (is_πhr_<X>::value || Eq<X, πi&>) return     πn_stackpops<I + 1, Xs...>();
-    else                                           return 1 + πn_stackpops<I + 1, Xs...>();
-  }
+  else return πvauto1_<std::tuple_element_t<I, T<Xs...>>>::n
+         + πn_stackpops<I + 1, Xs...>();
 }
 
 

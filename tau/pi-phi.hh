@@ -5,99 +5,14 @@
 #include "phi.hh"
 #include "phi-ctor.hh"
 #include "phi-auto.hh"
-
 #include "pi-fn.hh"
+#include "pi-phi-basic.hh"
+#include "pi-phi-markers.hh"
 
 #include "begin.hh"
 
 namespace τ
 {
-
-
-// Take a single plural-element context and parse multiple of them,
-// splicing the results into a single output η stream.
-φ<πf<1>> πφfs(φ<πf<1>>);
-
-
-// Built-in language elements
-φ<St> πφword();  // an ident-like bareword
-φ<St> πφws();    // whitespace
-φ<St> πφlc();    // line comment
-φ<St> πφig();    // ignored things (whitespace + line comments)
-
-φ<St> πφlb();    // wrapped left bracket
-φ<St> πφrb();    // wrapped right bracket
-
-φ<St> πφlp();    // wrapped left paren
-φ<St> πφrp();    // wrapped right paren
-
-
-Tt φ<T> πφwrap (φ<T> p) { return φ2("wrap", πφig(), p, πφig()); }
-Tt φ<T> πφgroup(φ<T> p) { return φ2("[]", πφlb(), πφwrap(p), πφrb()); }
-
-
-// Basic literals
-φ<i64> πφint_dec();
-φ<i64> πφint_hex();
-φ<i64> πφint_oct();
-φ<i64> πφint_bin();
-φ<i64> πφint();
-
-φ<f64>   πφfloat();
-φ<St>    πφstr_escape();
-φ<St>    πφstr();
-φ<ηname> πφname();
-
-
-// Indicate that a value should be constructed at parse-time
-Tt struct πP
-{
-  T       &operator*()       { return x; }
-  T const &operator*() const { return x; }
-  T x;
-};
-
-Tt struct is_πP_        : std::false_type {};
-Tt struct is_πP_<πP<T>> : std::true_type {};
-
-
-template<class... Xs> struct πPsplit_;
-
-template<> struct πPsplit_<>
-{
-  using P = T<>;  // parse-time arguments
-  using R = T<>;  // runtime arguments
-};
-
-template<class X, class... Xs> struct πPsplit_<X, Xs...>
-{
-  using P = typename Co<is_πP_<X>::value,
-                        typename Tcons_<T<X>, typename πPsplit_<Xs...>::P>::t,
-                        typename πPsplit_<Xs...>::R>::t;
-  using R = typename Co<is_πP_<X>::value,
-                        typename πPsplit_<Xs...>::P,
-                        typename Tcons_<T<X>, typename πPsplit_<Xs...>::R>::t>::t;
-};
-
-
-template<class P, class R> struct πPsplit__;
-template<class... Ps, class... Rs> struct πPsplit__<T<Ps...>, T<Rs...>>
-{
-  Tt static auto f(St n, F<T(Ps..., Rs...)> &&f)
-    { return [n, f=mo(f)](Ps&&... ps)
-      { return πvauto(n, [=, f=mo(f)](Rs&&... rs)
-        { return f(ps..., rs...); }); }; }
-};
-
-
-// Split a function and prepare it to be used with φauto. This is called by
-// πφ when defining grammar elements.
-template<class T, class... Xs>
-auto πPsplit(St n, F<T(Xs...)> &&f)
-{
-  return πPsplit__<typename πPsplit_<Xs...>::P,
-                   typename πPsplit_<Xs...>::R>::f(n, f);
-}
 
 
 // An extensible π grammar. See pi-phi.md for details.
@@ -133,6 +48,11 @@ struct πφ final
   auto p(St&&)    const { return πφstr(); }
   auto p(ηname&&) const { return πφname(); }
 
+  template<chc *S> auto p(φaL<S>&&) const { return φl(St{S}); }
+  template<chc *S> auto p(φaO<S>&&) const { return φo(φl(St{S})); }
+  template<chc *S, bool N, u32 L, u32 U> auto p(φaCs<S, N, L, U>&&) const
+    { return φcs(S, N, L, U); }
+
 
 protected:
   Tt πφ &def_(φ<πf<0>> &d, St n, T f)
@@ -140,7 +60,8 @@ protected:
       d.as<φd_<πf<0>>>().def(n, p);
       return *this; }
 
-  // TODO: define toplevel parsers
+  φ<πf<1>> se_;   // singular expressions
+  φ<πf<1>> pe_;   // plural expressions
 
   φ<πf<1>> s_;    // singular atoms (alt)
   φ<πf<1>> p_;    // plural atoms (alt)

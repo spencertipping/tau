@@ -44,14 +44,17 @@ Of these, `def_sa` and `def_pa` are the only methods that pass parsers directly 
 Internally, `def_XXp` must insert a `φ<πf<0>>` into a dispatch table; but it's inconvenient to write parsers that return `πf` lambdas. Instead, we inline a bunch of that logic by allowing the `fn` argument to define both parse-time and runtime parameters. For example, let's create an `@n` prefix operator that selects the `n`th element from a plural operand. `n` is a parse-time integer, so our function takes a mixture of parse-time and runtime values:
 
 ```cpp
-def_psp("@", [](πP<i64> n, πi &i, πhr xs) -> πhr
+def_psp("@", [](πP<i64> n, πi &i, πp<πhr> xs) -> πhr
   { return i.i(xs, i[xs][*n]); });
 ```
 
-`πP<T>` is a marker type that says "this happens at parse time"; the remaining arguments are passed to `πauto` to apply to the interpreter. The result is equivalent to:
+`πP<T>` is a marker type that says "this happens at parse time"; the remaining arguments are passed to `πauto` to apply to the interpreter.
+
+`πpe<T>` is a marker type that says "this stack entry should be parsed from a plural expression". Each stack-sourced argument can have such an annotation, which is incorporated into the operator's parser.
 
 ```cpp
-let f = [](πP<i64> n, πi &i, πhr xs) -> πhr { return i.i(xs, i[xs][*n]); };
+let f = [](πP<i64> n, πi &i, πhr xs) -> πhr
+        { return i.i(xs, i[xs][*n]); };
 psp_.def("@", φauto(*this, [](πP<i64> &&n)
   { return πvauto("@", [=](πi &i, πhr xs) -> πhr  // → πf<0>
     { return f(n, i, xs); }); }));
