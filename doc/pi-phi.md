@@ -50,6 +50,8 @@ def_psp("@", [](πP<i64> n, πi &i, πp<πhr> xs) -> πhr
 
 `πP<T>` is a marker type that says "this happens at parse time"; the remaining arguments are passed to `πauto` to apply to the interpreter.
 
+**NOTE:** these functions can also take `M<πf<1> const &>` refs, where `M<>` is a marker type, which gives them the ability to lazily evaluate their operands. I don't think we need generalized-arity πfs at this point.
+
 `πpe<T>` is a marker type that says "this stack entry should be parsed from a plural expression". Each stack-sourced argument can have such an annotation, which is incorporated into the operator's parser.
 
 ```cpp
