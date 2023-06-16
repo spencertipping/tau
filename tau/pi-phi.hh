@@ -15,33 +15,10 @@ namespace τ
 {
 
 
-struct πφP
-{
-  Tt auto p(πP<T>&&) const
-    { return φm(p(std::declval<T>()), [](T &&x) { return πP<T>{x}; }); }
-};
-
-struct πφlit
-{
-  auto p(i64&&)   const { return πφint(); }
-  auto p(f64&&)   const { return πφfloat(); }
-  auto p(St&&)    const { return πφstr(); }
-  auto p(ηname&&) const { return πφname(); }
-};
-
-struct πφstr
-{
-  template<chc *S> auto p(φaL<S>&&) const { return φl(St{S}); }
-  template<chc *S> auto p(φaO<S>&&) const { return φo(φl(St{S})); }
-  template<chc *S, bool N, u32 L, u32 U> auto p(φaCs<S, N, L, U>&&) const
-    { return φcs(S, N, L, U); }
-};
-
-
 // An extensible π grammar. See pi-phi.md for details.
 //
-// To use this struct, inherit from it and structs like the above to add
-// parsers.
+// To use this struct, inherit from it for the core grammar and mix in
+// structs from pi-phi-basic to add parsers.
 struct πφ_
 {
   πφ_() : s_  (φa0<πf<1>>("πs")),
@@ -67,6 +44,11 @@ struct πφ_
   Tt πφ_ &def_sp (St n, T f) { return def_(sp_,  n, f); }
   Tt πφ_ &def_pp (St n, T f) { return def_(pp_,  n, f); }
 
+  auto p(πsa<πf<1>>&&) const { return s_; }
+  auto p(πpa<πf<1>>&&) const { return p_; }
+  auto p(πse<πf<1>>&&) const { return se_; }
+  auto p(πpe<πf<1>>&&) const { return pe_; }
+
 
 protected:
   Tt πφ_ &def_(φ<πf<0>> &d, St n, T f)
@@ -79,6 +61,7 @@ protected:
 
   φ<πf<1>> s_;    // singular atoms (alt)
   φ<πf<1>> p_;    // plural atoms (alt)
+
   φ<πf<0>> ssp_;  // singular-operand, singular-return prefix (dispatch)
   φ<πf<0>> psp_;  // plural-operand, singular-return prefix (dispatch)
   φ<πf<0>> spp_;  // singular-operand, plural-return prefix (dispatch)

@@ -5,6 +5,7 @@
 #include "phi.hh"
 #include "phi-ctor.hh"
 #include "phi-auto.hh"
+#include "pi-phi-markers.hh"
 #include "pi-fn.hh"
 
 #include "begin.hh"
@@ -46,6 +47,35 @@ Tt φ<T> πφgroup(φ<T> p) { return φ2("[]", πφlb(), πφwrap(p), πφrb());
 φ<St>    πφstr_escape();
 φ<St>    πφstr();
 φ<ηname> πφname();
+
+
+// Parser packs for πφ: these are bundles of parsers that can be used
+// to construct a grammar.
+
+struct πφP
+{
+  Tt auto p(πP<T>&&) const
+    { return φm(p(std::declval<T>()), [](T &&x) { return πP<T>{x}; }); }
+};
+
+struct πφlit
+{
+  auto p(i64&&)   const { return πφint(); }
+  auto p(f64&&)   const { return πφfloat(); }
+  auto p(St&&)    const { return πφstr(); }
+  auto p(ηname&&) const { return πφname(); }
+};
+
+struct πφstr
+{
+  template<chc *S> auto p(φaL<S>&&) const { return φl(St{S}); }
+  template<chc *S> auto p(φaO<S>&&) const
+    { return φm(φo(φl(St{S})), [](auto &&x) { return φaCs<S>{mo(x)}; }); }
+
+  template<chc *S, bool N, u32 L, u32 U> auto p(φaCs<S, N, L, U>&&) const
+    { return φm(φcs(S, N, L, U),
+                [](auto &&x) { return φaCs<S, N, L, U>{mo(x)}; }); }
+};
 
 
 }

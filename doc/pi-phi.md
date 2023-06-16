@@ -8,7 +8,6 @@ p ::= (p_atom | sp_pre s | pp_pre p) p_post  ← fixed
 
 p_atom ::= (s_atom ','?)* | ...              ← extensible
 s_atom ::= '(' p_atom ')' | ...              ← extensible
-
 ```
 
 `s` is a singular expression, `p` is a plural expression, and:
