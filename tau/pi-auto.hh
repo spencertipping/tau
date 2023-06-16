@@ -20,12 +20,12 @@ template<> struct πPsplit_<>
 
 template<class X, class... Xs> struct πPsplit_<X, Xs...>
 {
-  using P = typename Co<is_πP_<X>::value,
-                        typename Tcons_<T<X>, typename πPsplit_<Xs...>::P>::t,
-                        typename πPsplit_<Xs...>::R>::t;
-  using R = typename Co<is_πP_<X>::value,
-                        typename πPsplit_<Xs...>::P,
-                        typename Tcons_<T<X>, typename πPsplit_<Xs...>::R>::t>::t;
+  using P = Co<is_πP_<X>::value,
+               typename Tcons_<T<X>, typename πPsplit_<Xs...>::P>::t,
+               typename πPsplit_<Xs...>::R>;
+  using R = Co<is_πP_<X>::value,
+               typename πPsplit_<Xs...>::P,
+               typename Tcons_<T<X>, typename πPsplit_<Xs...>::R>::t>;
 };
 
 

@@ -27,9 +27,18 @@ struct πf final
       std::copy(f.fs.begin(), f.fs.end(), std::back_inserter(r.fs));
       return r; }
 
+  πf<N> &operator<<(πf<0> const &f)
+    { std::copy(f.ss.begin(), f.ss.end(), std::back_inserter(ss));
+      std::copy(f.fs.begin(), f.fs.end(), std::back_inserter(fs));
+      return *this; }
+
   V<St>           ss;
   V<F<void(πi&)>> fs;
 };
+
+
+typedef πf<0> π0;
+typedef πf<1> π1;
 
 
 template<iN N>

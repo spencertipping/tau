@@ -2,9 +2,9 @@
 π is an APL-style infix expression language with singular and plural value contexts and no relative operator precedence. It has some basic extensible grammar structures:
 
 ```
-s ::= (s_atom | ss_pre s) s_post | ps_pre p  ← fixed
-p ::= (p_atom | sp_pre s | pp_pre p) p_post  ← fixed
-π ::= (s | p) ('`' (s | p))*                 ← fixed
+s ::= (s_atom | ss_pre s) s_post* | ps_pre p  ← fixed
+p ::= (p_atom | sp_pre s | pp_pre p) p_post*  ← fixed
+π ::= (s | p) ('`' (s | p))*                  ← fixed
 
 p_atom ::= (s_atom ','?)* | ...              ← extensible
 s_atom ::= '(' p_atom ')' | ...              ← extensible
@@ -35,6 +35,10 @@ A `πφ` instance provides several methods that allow you to define extensions:
 + `.def_pp(name, fn)`
 
 Of these, `def_sa` and `def_pa` are the only methods that pass parsers directly through to the underlying grammar (albeit wrapping them in optional whitespace and comments). The others are transformed from functions that accept η-compatible arguments and produce η-compatible results.
+
+
+## FFI and parser generation
+**TODO**
 
 
 ## π function conversion

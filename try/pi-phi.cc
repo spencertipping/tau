@@ -16,7 +16,7 @@ using namespace std;
 void try_pi_phi()
 {
   πφ f;
-  f.def_sp("+", [](πfsa a) {  })
+  f.def_sp("+", [](πi &i, πpe<π1> a) { return a.x(i); });
 }
 
 
@@ -72,6 +72,7 @@ void try_gc_auto()
 int main()
 {
   τassert_begin
+  try_pi_phi();
   try_gc_auto();
   return 0;
   τassert_end

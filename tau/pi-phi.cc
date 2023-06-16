@@ -12,6 +12,31 @@ namespace τ
 {
 
 
+πφ_::πφ_()
+  : se_ (φa0<π1>("πse")),
+    pe_ (φa0<π1>("πpe")),
+    s_  (φa0<π1>("πs")),
+    p_  (φa0<π1>("πp")),
+    ssp_(φd <π0>("πssp")),
+    psp_(φd <π0>("πpsp")),
+    spp_(φd <π0>("πspp")),
+    ppp_(φd <π0>("πppp")),
+    sp_ (φd <π0>("πsp")),
+    pp_ (φd <π0>("πpp"))
+{
+  let s1 = s_ | (ssp_ & φW(se_)) % pre;  // s_atom | ss_pre s
+  let s2 =      (psp_ & φW(pe_)) % pre;  // ps_pre p
+  let s3 = (s1 & φn(sp_)) % post;        // (s_atom | ss_pre s) s_post*
+  se_.as<φa_<π1>>() << s3 << s2;
+
+  let p1 = p_
+    | (spp_ & φW(se_)) % pre
+    | (ppp_ & φW(pe_)) % pre;
+  let p2 = (p1 & φn(pp_)) % post;
+  pe_.as<φa_<π1>>() << p1 << p2;
+}
+
+
 φ<St> πφws() { slet r = φcs(" \t\n\r", false, 1);                      return r; }
 φ<St> πφlc() { slet r = φq("lc", φl("# ", ""), φcs("\n", true));       return r; }
 φ<St> πφig() { slet r = φq("ign", φn(φa<St>("ign0", πφws(), πφlc()))); return r; }

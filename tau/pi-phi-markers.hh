@@ -13,10 +13,15 @@ namespace τ
 {
 
 
-template<chc *S> struct φaL {};             // auto literal
-template<chc *S> struct φaO { Op<St> x; };  // auto optional
+template<chc *S> struct φaL { using t = St;     t x; };  // auto literal
+template<chc *S> struct φaO { using t = Op<St>; t x; };  // auto optional
 template<chc *S, bool N = false, u32 L = 0, u32 U = Nl<u32>::max()>
-struct φaCs { St x; };  // auto charset
+struct φaCs { using t = St; t x; };  // auto charset
+
+template<class... Xs> struct φaA;    // auto alternation
+template<class X, class... Xs> struct φaA<X, Xs...>
+{ using t = typename X::t; t x; };
+
 
 Tt struct πsa { using t = T; T x; };  // singular atom
 Tt struct πpa { using t = T; T x; };  // plural atom

@@ -68,13 +68,19 @@ struct πφlit
 
 struct πφstr
 {
-  template<chc *S> auto p(φaL<S>&&) const { return φl(St{S}); }
+  template<chc *S> auto p(φaL<S>&&) const
+    { return φm(φl(St{S}), [](auto &&x) { return φaL<S>{mo(x)}; }); }
+
   template<chc *S> auto p(φaO<S>&&) const
     { return φm(φo(φl(St{S})), [](auto &&x) { return φaCs<S>{mo(x)}; }); }
 
   template<chc *S, bool N, u32 L, u32 U> auto p(φaCs<S, N, L, U>&&) const
     { return φm(φcs(S, N, L, U),
                 [](auto &&x) { return φaCs<S, N, L, U>{mo(x)}; }); }
+
+  template<class... Xs> auto p(φaA<Xs...>&&) const
+    { return φm(φa(p(std::declval<Xs>())...),
+                [](auto &&x) { return φaA<Xs...>{mo(x)}; }); }
 };
 
 
