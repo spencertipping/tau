@@ -34,6 +34,12 @@ namespace τ
     | (ppp_ & φW(pe_)) % pre;
   let p2 = (p1 & φn(pp_)) % post;
   pe_.as<φa_<π1>>() << p1 << p2;
+
+  def_sa(πφgroup(se_));
+  def_pa(πφgroup(pe_));
+
+  // TODO: (s ','?)* case
+  // TODO: '(' p ')' case
 }
 
 

@@ -6,11 +6,10 @@
 #include <type_traits>
 
 #include "../tau.hh"
+#include "../tau/begin.hh"
 
 using namespace τ;
 using namespace std;
-
-#include "../tau/begin.hh"
 
 
 void try_pi_phi()

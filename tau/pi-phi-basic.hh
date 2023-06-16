@@ -34,6 +34,7 @@ namespace τ
 
 Tt φ<T> πφwrap (φ<T> p) { return φ2("wrap", πφig(), p, πφig()); }
 Tt φ<T> πφgroup(φ<T> p) { return φ2("[]", πφlb(), πφwrap(p), πφrb()); }
+Tt φ<T> πφparen(φ<T> p) { return φ2("()", πφlp(), πφwrap(p), πφrp()); }
 
 
 // Basic literals
