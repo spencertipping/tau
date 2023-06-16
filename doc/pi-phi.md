@@ -25,8 +25,8 @@ All of these are extensible dispatch parsers and `s_atom` and `p_atom` are exten
 ## Extending the π grammar
 A `πφ` instance provides several methods that allow you to define extensions:
 
-+ `.def_sa(φ<πf<1>>)`: define a new singular atom
-+ `.def_pa(φ<πf<1>>)`: define a new plural atom
++ `.def_sa(φ<π1>)`: define a new singular atom
++ `.def_pa(φ<π1>)`: define a new plural atom
 + `.def_ssp(name, fn)`: define a new `ss_pre` operator (see below)
 + `.def_psp(name, fn)`
 + `.def_spp(name, fn)`
@@ -38,7 +38,40 @@ Of these, `def_sa` and `def_pa` are the only methods that pass parsers directly 
 
 
 ## FFI and parser generation
-**TODO**
+The goal of π FFI is to derive as much interfacing information as possible from the function signature. For example, a lazy ternary operator should be definable like this:
+
+```cpp
+def_sp("?", [](πi &i, bool c, πse<π1> const &t, φaL<":">, πse<π1> const &e)
+  { c ? t.x(i) : e.x(i);
+    return i.pop(); });
+```
+
+There's a lot going on here. First, each parameter may introduce a parser into the operator sequence. In this case we have three: `πse<π1>`, `φaL<":">`, and `πse<π1>`. `bool` is assumed to be present on the stack already since it's the left operand. This means our operator will be parsed using this grammar:
+
+```
+'?' s ':' s
+```
+
+
+### Stack vs immediate operands
+Why is `bool` pulled from the stack while `πse<π1>` is parsed? It has to do with the argument class, which is one of:
+
++ Static: things like `πi&` and `πhr_<N>`, which have nothing to do with the stack nor parsing
++ Parse-time: things which are not stored on the stack, e.g. `πse<π1>`, `φa...`, or `πP<T>`
++ Runtime: things which are stored on the stack, and which can be η-decoded, e.g. `bool`, `πhr`, and other such types (`ηauto` covers these)
+
+Of these, only parse-time values contribute to the operator's grammar, and only runtime values contribute to the operator's stack actions. Operands are popped from the stack left-first, so `[](int, double) {...}` will pop an `int` η first, then a `double`.
+
+Note that most runtime types can be converted to parse-time types using `πP`:
+
+```cpp
+def_sp("@", [](i64     n, πhr x) -> πhr {...});  // won't compile; this is πf<-1>
+def_sp("@", [](πP<i64> n, πhr x) -> πhr {...});  // this is ok
+```
+
+
+### Auto-constructing a `πf<N>`
+`πf<N>` takes only a `πi&` and must construct the remaining function arguments. Parse-time arguments are stored as closure data and passed in as constants since they are runtime-invariant.
 
 
 ## π function conversion

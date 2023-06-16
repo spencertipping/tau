@@ -32,6 +32,9 @@ struct πf final
       std::copy(f.fs.begin(), f.fs.end(), std::back_inserter(fs));
       return *this; }
 
+  πf<N> &operator<<(V<πf<0>> const &f)
+    { for (let &x : f) *this << x; return *this; }
+
   V<St>           ss;
   V<F<void(πi&)>> fs;
 };

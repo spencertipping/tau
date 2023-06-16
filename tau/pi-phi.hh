@@ -19,7 +19,8 @@ namespace τ
 // An extensible π grammar. See pi-phi.md for details.
 //
 // To use this struct, inherit from it for the core grammar and mix in
-// structs from pi-phi-basic to add parsers.
+// structs from pi-phi-basic.hh to add parsers. For example,
+// struct πφ below.
 struct πφ_
 {
   πφ_();
@@ -28,9 +29,7 @@ struct πφ_
 
   static π1 pre (π0 a, π1 b) { return b | a; }
   static π1 post(π1 a, V<π0> const &b)
-    { π1 r = a;
-      for (let &x : b) r << x;
-      return r; }
+    { π1 r = a; r << b; return r; }
 
 
   πφ_ &def_sa(φ<π1> p) { s_.as<φa_<π1>>() << p; return *this; }
@@ -52,7 +51,7 @@ struct πφ_
 protected:
   Tt πφ_ &def_(φ<π0> &d, St n, T f)
     { let p = φauto(*this, πPsplit(n, std::function(f)));
-      d.as<φd_<πf<0>>>().def(n, p);
+      d.as<φd_<π0>>().def(n, p);
       return *this; }
 
   φ<π1> se_;   // singular expressions
@@ -70,6 +69,7 @@ protected:
 };
 
 
+// Example instantiation of πφ_
 struct πφ : public πφ_,
             public πφP,
             public πφlit,

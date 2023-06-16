@@ -80,7 +80,7 @@ struct πφstr
                 [](auto &&x) { return φaCs<S, N, L, U>{mo(x)}; }); }
 
   template<class... Xs> auto p(φaA<Xs...>&&) const
-    { return φm(φa(p(std::declval<Xs>())...),
+    { return φm(φa("φaA<...>", p(std::declval<Xs>())...),
                 [](auto &&x) { return φaA<Xs...>{mo(x)}; }); }
 };
 
