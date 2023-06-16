@@ -56,9 +56,14 @@ There's a lot going on here. First, each parameter may introduce a parser into t
 ### Stack vs immediate operands
 Why is `bool` pulled from the stack while `πse<π1>` is parsed? It has to do with the argument class, which is one of:
 
-+ **Static:** things like `πi&` and `πhr_<N>`, which have nothing to do with the stack nor parsing
-+ **Parse-time:** things which are not stored on the stack, e.g. `πse<π1>`, `φa...`, or `πP<T>`
-+ **Runtime:** things which are stored on the stack, and which can be η-decoded, e.g. `bool`, `πhr`, and other such types (`ηauto` covers these)
++ **Meta:** things like `πi&` and `πhr_<N>`, which have nothing to do with the stack nor parsing
++ **Constant:** things which are not stored on the stack, e.g. `πse<π1>`, `φa...`, or `πP<T>`
++ **Immediate:** things which have an expression-mode annotation for parsing and are stored on the stack, e.g. `πse<i64>`
++ **Stack:** things which are stored on the stack up front, and which can be η-decoded, e.g. `bool`, `πhr`, and other such types (`ηauto` covers these)
+
+Each immediate is inlined as a `πf<1>` that is prepended to the resulting function. This results in immediates being present above stack arguments, which may or may not be how the argument list is arranged.
+
+**FIXME:** this is a lie; we can always push stack-runtime arguments to the beginning or end of the arglist, so maybe we should do that instead of allowing them to be mixed together
 
 Of these, only parse-time values contribute to the operator's grammar, and only runtime values contribute to the operator's stack actions. Operands are popped from the stack left-first, so `[](int, double) {...}` will pop an `int` η first, then a `double`.
 
