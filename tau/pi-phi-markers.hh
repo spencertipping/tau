@@ -46,7 +46,7 @@ Tt struct is_πv_<πpe<T>> : std::true_type {};
 Tt concept is_πv = is_πv_<T>::value;
 
 
-// Indicate that a value should be constructed at parse-time
+// Indicate that a value should be constructed at parse-time.
 Tt struct πP
 {
   T       &operator*()       { return x; }
