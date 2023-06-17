@@ -42,16 +42,18 @@ struct πφ_
   Tt πφ_ &def_sp (St n, T f) { return def_(sp_,  n, f); }
   Tt πφ_ &def_pp (St n, T f) { return def_(pp_,  n, f); }
 
-  auto p(πsa<π1>&&) const { return s_; }
-  auto p(πpa<π1>&&) const { return p_; }
-  auto p(πse<π1>&&) const { return se_; }
-  auto p(πpe<π1>&&) const { return pe_; }
+  // NOTE: returning the wrong type is intentional. Every πsa<T> should
+  // arise from a π1 that we parse, and it's up to πauto to convert the
+  // π1 to T using immediate stack indirection.
+  Tt φ<πsa<π1>> p(πsa<T> const&) const { return φm(s_,  [](π1 &&x) { return πsa<π1>{mo(x)}; }); }
+  Tt φ<πpa<π1>> p(πpa<T> const&) const { return φm(p_,  [](π1 &&x) { return πpa<π1>{mo(x)}; }); }
+  Tt φ<πse<π1>> p(πse<T> const&) const { return φm(se_, [](π1 &&x) { return πse<π1>{mo(x)}; }); }
+  Tt φ<πpe<π1>> p(πpe<T> const&) const { return φm(pe_, [](π1 &&x) { return πpe<π1>{mo(x)}; }); }
 
 
 protected:
-  Tt πφ_ &def_(φ<π0> &d, St n, T f)
-    { let p = φauto(*this, πPsplit(n, std::function(f)));
-      d.as<φd_<π0>>().def(n, p);
+  Tt πφ_ &def_(φ<π0> &d, Stc &n, T f)
+    { d.as<φd_<π0>>().def(n, πauto(*this, n, std::function(f)));
       return *this; }
 
   φ<π1> se_;   // singular expressions

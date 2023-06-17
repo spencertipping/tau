@@ -62,6 +62,15 @@ template<class X, class Y>         struct Tcons_;
 template<class... Xs, class... Ys> struct Tcons_<T<Xs...>, T<Ys...>> { using t = T<Xs..., Ys...>; };
 
 
+template<class X, class... Xs, uS... Is>
+T<Xs...> tdrop_(T<X, Xs...> const &xs, std::index_sequence<Is...>)
+{ return std::make_tuple(std::get<Is + 1>(xs)...); }
+
+template<class X, class... Xs>
+T<Xs...> tdrop(T<X, Xs...> const &xs)
+{ return tdrop_(xs, std::index_sequence_for<Xs...>{}); }
+
+
 template<uS n, class X>  struct offset_;
 template<uS n, uS... Xs> struct offset_<n, Is<Xs...>> { using t = Is<Xs + n...>; };
 template<uS n, class X>  using  offset = typename offset_<n, X>::t;

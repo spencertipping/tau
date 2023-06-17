@@ -2,6 +2,7 @@
 #define τπauto_h
 
 #include "ctypes.hh"
+#include "types.hh"
 #include "eta-auto.hh"
 #include "pi-fn.hh"
 #include "pi-int.hh"
@@ -65,7 +66,7 @@ template<> struct πautoclassify_<>
 // NOTE: it's important to preserve ordering
 template<πautometa X, class... Xs> struct πautoclassify_<X, Xs...>
 {
-  using M = typename Tcons_<X, typename πautoclassify_<Xs...>::M>::t;
+  using M = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::M>::t;
   using C = typename πautoclassify_<Xs...>::C;
   using I = typename πautoclassify_<Xs...>::I;
   using S = typename πautoclassify_<Xs...>::S;
@@ -75,10 +76,10 @@ template<πautometa X, class... Xs> struct πautoclassify_<X, Xs...>
 template<πautoconst X, class... Xs> struct πautoclassify_<X, Xs...>
 {
   using M = typename πautoclassify_<Xs...>::M;
-  using C = typename Tcons_<X, typename πautoclassify_<Xs...>::C>::t;
+  using C = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::C>::t;
   using I = typename πautoclassify_<Xs...>::I;
   using S = typename πautoclassify_<Xs...>::S;
-  using P = typename Tcons_<X, typename πautoclassify_<Xs...>::P>::t;
+  using P = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::P>::t;
 
   // No meta args may come after const
   static_assert(std::tuple_size_v<M> == 0, "meta arg after const");
@@ -88,9 +89,9 @@ template<πautoimmed X, class... Xs> struct πautoclassify_<X, Xs...>
 {
   using M = typename πautoclassify_<Xs...>::M;
   using C = typename πautoclassify_<Xs...>::C;
-  using I = typename Tcons_<X, typename πautoclassify_<Xs...>::I>::t;
+  using I = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::I>::t;
   using S = typename πautoclassify_<Xs...>::S;
-  using P = typename Tcons_<X, typename πautoclassify_<Xs...>::P>::t;
+  using P = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::P>::t;
 
   // No meta args may come after immed
   static_assert(std::tuple_size_v<M> == 0, "meta arg after immed");
@@ -101,7 +102,7 @@ template<πautostack X, class... Xs> struct πautoclassify_<X, Xs...>
   using M = typename πautoclassify_<Xs...>::M;
   using C = typename πautoclassify_<Xs...>::C;
   using I = typename πautoclassify_<Xs...>::I;
-  using S = typename Tcons_<X, typename πautoclassify_<Xs...>::S>::t;
+  using S = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::S>::t;
   using P = typename πautoclassify_<Xs...>::P;
 
   // No const, meta, or immed args may come after stack
@@ -132,7 +133,7 @@ template<is_πv        T> struct πauto1_<T> { static auto f(πi &i) { return T{
 // of unpacking-into-call-args because evaluation order matters.
 
 template<uS I,         // destination function arg (FFI function)
-         uS J,         // closure tuple position
+         iN J,         // closure tuple position
          class R,      // function's return type
          class... Xs,  // function arg types
          class... Cs,  // closure value types
@@ -148,13 +149,30 @@ R πauto_apply_(F<R(Xs...)> const &f,
   else
   {
     using X = std::tuple_element_t<I, T<Xs...>>;
-    if constexpr (πautoclassify_<X>::c == πautoclass::constant)
+    if constexpr (πautoclass_<De<X>>::c == πautoclass::constant)
       return πauto_apply_<I + 1, J + 1>(
         f, t, i, std::forward<Ys>(ys)..., std::get<J>(t));
     else
       return πauto_apply_<I + 1, J>(
         f, t, i, std::forward<Ys>(ys)..., πauto1_<X>::f(i));
   }
+}
+
+
+// Return two tuples: one containing constants and the other containing
+// immediates.
+inline P<T<>, T<>> πauto_ci_split_(T<> const&) { return P<T<>, T<>>{}; }
+
+template<class X, class... Xs>
+P<typename πautoclassify_<X, Xs...>::C,
+  typename πautoclassify_<X, Xs...>::I>
+πauto_ci_split_(T<X, Xs...> const &t)
+{
+  auto [c, i] = πauto_ci_split_(tdrop(t));
+  if constexpr (πautoclass_<De<X>>::c == πautoclass::constant)
+    return {std::tuple_cat({std::get<0>(t)}, c), i};
+  else
+    return {c, std::tuple_cat({std::get<0>(t)}, i)};
 }
 
 
@@ -184,31 +202,55 @@ template<class... Xs> struct πvrauto_<T<Xs...>>
 };
 
 
+// Construct a πf<N> from an inner FFI function and a tuple of closure values.
 template<class R, class... Xs, class... Cs>
-auto πvauto_(Stc &n, F<R(Xs...)> const &f, T<Cs...> &&t)
+auto πauto_(Stc &n, F<R(Xs...)> const &f, T<Cs...> &&t)
 {
   // Stack delta = returned values - stack inputs
-  sletc rvals = πvrauto_<R>::n;
-  sletc svals = std::tuple_size_v<typename πautoclassify_<Xs...>::S>;
+  sletc rvals = int(πvrauto_<R>::n);
+  sletc svals = int(std::tuple_size_v<typename πautoclassify_<Xs...>::S>);
   return πf<rvals - svals>{n, [t=mo(t), f](πi &i)
-    { if constexpr (Eq<R, void>) π<0>(f, t, i);
-      else  πvrauto_<R>::push(i, πvauto__<0>(f, t, i)); }};
+    { if constexpr (Eq<R, void>) πauto_apply_<0, 0>(f, t, i);
+      else  πvrauto_<R>::push(i, πauto_apply_<0, 0>(f, t, i)); }};
 }
+
+
+// Push immediate arguments in reverse order onto the stack, in this case by
+// inlining each.
+template<iN I, class... Xs>
+auto πauto_ipush_(T<Xs...> const &t)
+{
+  if constexpr (I < 0) return π0{};
+  else                 return std::get<I>(t) | πauto_ipush_<I - 1>(tdrop(t));
+}
+
+
+// Generate a parser for a tuple of types
+// NOTE: return type is not φ<T<Xs...>> because the parsers may be immediate π1
+template<class A, class... Xs>
+auto πauto_parser_(A const &a, Stc &n, T<Xs...> const&)
+{ return φs(n, a.p(std::declval<De<Xs>>())...); }
+
+
+// Convert without parsing: this converts C++ into πf<N>
+template<class F>
+auto πauto(Stc &n, F const &f) { return πauto_(n, std::function(f), T<>{}); }
 
 
 // Convert a C++ FFI function to a parser that generates all constants and
 // returns a πf<N> that produces intermediates and then pops/decodes all values
 // into the wrapped function.
 template<class A, class... Xs, class R>
-auto πauto_(A const &a, Stc &n, F<R(Xs...)> const &f)
+auto πauto(A const &a, Stc &n, F<R(Xs...)> const &f)
 {
   using Cl = πautoclassify_<Xs...>;
-  return φm(φs(n, a.p(std::declval<De<Xs>>())...),
-            [f](typename Cl::P &&t)
-              {
-                // TODO: split t into C and I
-
-              });
+  using P  = typename Cl::P;
+  using I  = typename Cl::I;
+  sletc N  = iN(std::tuple_size_v<I>);
+  return φm(πauto_parser_(a, n, std::declval<P>()),
+            [n, f](P &&t)
+              { auto [c, i] = πauto_ci_split_(t);
+                return πauto_ipush_<N - 1>(i) | πauto_(n, f, mo(c)); });
 }
 
 

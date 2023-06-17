@@ -21,9 +21,9 @@ enum ηauto_ops
 // a function to convert from η to T.
 Tt struct ηauto_ { sletc ops = 0; };
 
-Tt concept ηauto_encode = ηauto_<T>::ops & ηauto_op_encode;
-Tt concept ηauto_decode = ηauto_<T>::ops & ηauto_op_decode;
-Tt concept ηauto_type   = ηauto_<T>::ops & ηauto_op_type;
+Tt concept ηauto_encode = (ηauto_<T>::ops & ηauto_op_encode) != 0;
+Tt concept ηauto_decode = (ηauto_<T>::ops & ηauto_op_decode) != 0;
+Tt concept ηauto_type   = (ηauto_<T>::ops & ηauto_op_type)   != 0;
 
 
 // ηY<T> contains a T that will be unpacked from an inner η.

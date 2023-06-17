@@ -30,7 +30,9 @@ struct πi final
   ηi operator[](πhr const &r)              const { return h_[r]; }
   πhr         i(πhr const &r, ηi const &i) const { return h_.i(r, i); }
 
-  Tt πhr operator<<(T const &x) { return h_ << x; }
+  template<ηauto_encode T>
+  πhr operator<<(T const &x) { return h_ << x; }
+
   ηo<πh&>         r(uN s = 64)  { return h_.r(s); }
   πhr           ref()           { return h_.ref(); }
 

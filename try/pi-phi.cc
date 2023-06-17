@@ -15,18 +15,18 @@ using namespace std;
 void try_pi_phi()
 {
   πφ f;
-  f.def_sp("+", [](πi &i, πpe<π1> a) { return a.x(i); });
+  f.def_sp("+", [](πi &i, πpe<π1> a, i64 s) { return a.x(i); });
 }
 
 
 void try_gc_auto()
 {
-  πf<-1> map_lookup = πvauto(
+  πf<-1> map_lookup = πauto(
     "m[]", [](πi &i, πhr m, St k) -> πhr
       { πhgl l{i.h()};  // no GC is possible in this function
         return i.i(m, i[m][k].one()); });
 
-  πf<-2> map_append = πvauto(
+  πf<-2> map_append = πauto(
     "m++", [](πi &i, πhr m, St k, πhr v) -> πhr
       { πhlv hv{i.h()};
         hv << m << v;
@@ -38,16 +38,16 @@ void try_gc_auto()
                        r << i[m].all();
                        r.k(k) << i[v].all(); }); });
 
-  πf<1> push_map1 = πvauto(
+  πf<1> push_map1 = πauto(
     "{m}", [](πi &i) -> πhr
       { return i.r(64, [](auto &&r) { r.k("foo") << "bar"; }); });
 
-  πf<1>  push_foo  = πvauto("'foo", []() { return "foo"; });
-  πf<1>  push_bar  = πvauto("'bar", []() { return "bar"; });
-  πf<1>  push_13p5 = πvauto("13.5", []() { return 13.5; });
-  πf<0>  swap      = πvauto("%",    [](πhr x, πhr y) { return std::make_tuple(y, x); });
-  πf<1>  dup       = πvauto(":",    [](πhr x)        { return std::make_tuple(x, x); });
-  πf<-1> drop      = πvauto("_",    [](πhr x)        { });
+  πf<1>  push_foo  = πauto("'foo", []() { return "foo"; });
+  πf<1>  push_bar  = πauto("'bar", []() { return "bar"; });
+  πf<1>  push_13p5 = πauto("13.5", []() { return 13.5; });
+  πf<0>  swap      = πauto("%",    [](πhr x, πhr y) { return std::make_tuple(y, x); });
+  πf<1>  dup       = πauto(":",    [](πhr x)        { return std::make_tuple(x, x); });
+  πf<-1> drop      = πauto("_",    [](πhr x)        { });
 
   πi i;
 
