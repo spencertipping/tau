@@ -13,9 +13,9 @@ namespace τ
 {
 
 
-template<chc *S> struct φaL { using t = St;     t x; };  // auto literal
-template<chc *S> struct φaO { using t = Op<St>; t x; };  // auto optional
-template<chc *S, bool N = false, u32 L = 0, u32 U = Nl<u32>::max()>
+template<char... S> struct φaL { using t = St;     t x; };  // auto literal
+template<char... S> struct φaO { using t = Op<St>; t x; };  // auto optional
+template<bool N = false, u32 L = 0, u32 U = Nl<u32>::max(), char... S>
 struct φaCs { using t = St; t x; };  // auto charset
 
 template<class... Xs> struct φaA;    // auto alternation
@@ -24,9 +24,9 @@ template<class X, class... Xs> struct φaA<X, Xs...>
 
 // Detect instances of the above parser-arguments
 Tt struct is_πφ_ : std::false_type {};
-template<chc *S> struct is_πφ_<φaL<S>> : std::true_type {};
-template<chc *S> struct is_πφ_<φaO<S>> : std::true_type {};
-template<chc *S, bool N, u32 L, u32 U> struct is_πφ_<φaCs<S, N, L, U>> : std::true_type {};
+template<char... S> struct is_πφ_<φaL<S...>> : std::true_type {};
+template<char... S> struct is_πφ_<φaO<S...>> : std::true_type {};
+template<char... S, bool N, u32 L, u32 U> struct is_πφ_<φaCs<N, L, U, S...>> : std::true_type {};
 template<class... Xs> struct is_πφ_<φaA<Xs...>> : std::true_type {};
 
 Tt concept is_πφ = is_πφ_<T>::value;
@@ -56,14 +56,6 @@ Tt struct πP
 
 Tt struct is_πP_        : std::false_type {};
 Tt struct is_πP_<πP<T>> : std::true_type {};
-
-// While not technically πP derivatives, these parsers make sense only
-// at parse time; they don't correspond to any runtime π values. No sense
-// in requiring the user to wrap them with πP.
-template<chc *S> struct is_πP_<φaL<S>> : std::true_type {};
-template<chc *S> struct is_πP_<φaO<S>> : std::true_type {};
-template<chc *S, bool N, u32 L, u32 U>
-struct is_πP_<φaCs<S, N, L, U>> : std::true_type {};
 
 
 // A marker to indicate that the π interpreter should reserve the specified

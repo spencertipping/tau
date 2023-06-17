@@ -21,10 +21,13 @@ namespace τ
 // To use this struct, inherit from it for the core grammar and mix in
 // structs from pi-phi-basic.hh to add parsers. For example,
 // struct πφ below.
-struct πφ_
+template<class πφ> struct πφ_
 {
   πφ_();
   virtual ~πφ_() {}
+
+  πφ       &self()       { return *Rc<πφ*>(this); }
+  πφ const &self() const { return *Rc<πφ const*>(this); }
 
 
   // Helpers for prefix and postfix operators
@@ -33,20 +36,21 @@ struct πφ_
     { π1 r = a; r << b; return r; }
 
 
+  // Toplevel parser access (FIXME: multiple expressions as per spec)
   φ<π1> ts() const { return se_; }
   φ<π1> tp() const { return pe_; }
 
 
-  // TODO: CRTP for these, or return void
-  πφ_ &def_sa(φ<π1> p) { s_.as<φa_<π1>>() << p; return *this; }
-  πφ_ &def_pa(φ<π1> p) { p_.as<φa_<π1>>() << p; return *this; }
+  πφ &def_sa(φ<π1> p) { s_.as<φa_<π1>>() << p; return self(); }
+  πφ &def_pa(φ<π1> p) { p_.as<φa_<π1>>() << p; return self(); }
 
-  Tt πφ_ &def_ssp(St n, T f) { return def_(ssp_, n, f); }
-  Tt πφ_ &def_psp(St n, T f) { return def_(psp_, n, f); }
-  Tt πφ_ &def_spp(St n, T f) { return def_(spp_, n, f); }
-  Tt πφ_ &def_ppp(St n, T f) { return def_(ppp_, n, f); }
-  Tt πφ_ &def_sp (St n, T f) { return def_(sp_,  n, f); }
-  Tt πφ_ &def_pp (St n, T f) { return def_(pp_,  n, f); }
+  Tt πφ &def_ssp(St n, T f) { return def_(ssp_, n, f); }
+  Tt πφ &def_psp(St n, T f) { return def_(psp_, n, f); }
+  Tt πφ &def_spp(St n, T f) { return def_(spp_, n, f); }
+  Tt πφ &def_ppp(St n, T f) { return def_(ppp_, n, f); }
+  Tt πφ &def_sp (St n, T f) { return def_(sp_,  n, f); }
+  Tt πφ &def_pp (St n, T f) { return def_(pp_,  n, f); }
+
 
   // NOTE: returning the wrong type is intentional. Every πsa<T> should
   // arise from a π1 that we parse, and it's up to πauto to convert the
@@ -58,9 +62,9 @@ struct πφ_
 
 
 protected:
-  Tt πφ_ &def_(φ<π0> &d, Stc &n, T f)
-    { d.as<φd_<π0>>().def(n, πauto(*this, n, std::function(f)));
-      return *this; }
+  Tt πφ &def_(φ<π0> &d, Stc &n, T f)
+    { d.as<φd_<π0>>().def(n, πauto(self(), n, std::function(f)));
+      return self(); }
 
   φ<π1> se_;   // singular expressions
   φ<π1> pe_;   // plural expressions
@@ -77,11 +81,49 @@ protected:
 };
 
 
+template<class πφ>
+πφ_<πφ>::πφ_()
+  : se_ (φa0<π1>("πse")),
+    pe_ (φa0<π1>("πpe")),
+    s_  (φa0<π1>("πs")),
+    p_  (φa0<π1>("πp")),
+    ssp_(φd <π0>("πssp")),
+    psp_(φd <π0>("πpsp")),
+    spp_(φd <π0>("πspp")),
+    ppp_(φd <π0>("πppp")),
+    sp_ (φd <π0>("πsp")),
+    pp_ (φd <π0>("πpp"))
+{
+  let s1 = s_ | (ssp_ & φW(se_)) % pre;  // s_atom | ss_pre s
+  let s2 =      (psp_ & φW(pe_)) % pre;  // ps_pre p
+  let s3 = (s1 & φn(sp_)) % post;        // (s_atom | ss_pre s) s_post*
+  se_.as<φa_<π1>>() << s3 << s2;
+
+  let p1 = p_
+    | (spp_ & φW(se_)) % pre
+    | (ppp_ & φW(pe_)) % pre;
+  let p2 = (p1 & φn(pp_)) % post;
+  pe_.as<φa_<π1>>() << p1 << p2;
+
+  def_sa(πφgroup(se_));
+  def_pa(πφgroup(pe_));
+
+  // TODO: (s ','?)* case
+  // TODO: '(' p ')' case
+}
+
+
 // Example instantiation of πφ_
-struct πφ : public πφ_,
-            public πφP,
-            public πφlit,
-            public πφstr {};
+struct πφ : public πφ_<πφ>,
+            πφP,
+            πφstr,
+            πφlit
+{
+  using πφ_<πφ>::p;
+  using πφP::p;
+  using πφstr::p;
+  using πφlit::p;
+};
 
 
 }

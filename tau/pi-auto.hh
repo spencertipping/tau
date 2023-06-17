@@ -161,16 +161,21 @@ R πauto_apply_(F<R(Xs...)> const &f,
 
 // Return two tuples: one containing constants and the other containing
 // immediates.
-inline P<T<>, T<>> πauto_ci_split_(T<> const&) { return P<T<>, T<>>{}; }
+//
+// NOTE: this function uses two tuples. The first provides type information,
+// the second provides the actual values. This is to accommodate the conversion
+// from πsa<i64> to πsa<π1>, which would otherwise cause all πsa and similar
+// to be misclassified as constants.
+inline P<T<>, T<>> πauto_ci_split_(T<>*, let&) { return P<T<>, T<>>{}; }
 
 template<class X, class... Xs>
-auto πauto_ci_split_(T<X, Xs...> const &t)
+auto πauto_ci_split_(T<X, Xs...> *n, let &t)
 {
-  auto [c, i] = πauto_ci_split_(tdrop(t));
+  auto [c, i] = πauto_ci_split_(null<T<Xs...>>(), tdrop(t));
   if constexpr (πautoclass_<De<X>>::c == πautoclass::constant)
-    return std::make_pair(std::tuple_cat(T<X>{std::get<0>(t)}, c), i);
+    return std::make_pair(std::tuple_cat(std::make_tuple(std::get<0>(t)), c), i);
   else
-    return std::make_pair(c, std::tuple_cat(T<X>{std::get<0>(t)}, i));
+    return std::make_pair(c, std::tuple_cat(std::make_tuple(std::get<0>(t)), i));
 }
 
 
@@ -204,10 +209,12 @@ template<class... Xs> struct πvrauto_<T<Xs...>>
 template<class R, class... Xs, class... Cs>
 auto πauto_(Stc &n, F<R(Xs...)> const &f, T<Cs...> &&t)
 {
-  // Stack delta = returned values - stack inputs
+  // Stack delta = returned values - stack inputs - immediate inputs
+  using Cl = πautoclassify_<Xs...>;
   sletc rvals = int(πvrauto_<R>::n);
-  sletc svals = int(std::tuple_size_v<typename πautoclassify_<Xs...>::S>);
-  return πf<rvals - svals>{n, [t=mo(t), f](πi &i)
+  sletc svals = int(std::tuple_size_v<typename Cl::S>);
+  sletc ivals = int(std::tuple_size_v<typename Cl::I>);
+  return πf<rvals - svals - ivals>{n, [t=mo(t), f](πi &i)
     { if constexpr (Eq<R, void>) πauto_apply_<0, 0>(f, t, i);
       else  πvrauto_<R>::push(i, πauto_apply_<0, 0>(f, t, i)); }};
 }
@@ -220,7 +227,9 @@ inline π0 πauto_ipush_(T<> const&) { return π0{}; }
 template<class X, class... Xs>
 auto πauto_ipush_(T<X, Xs...> const &t)
 {
-  return std::get<sizeof...(Xs)>(t) | πauto_ipush_(tdrop(t));
+  // NOTE: here, t contains M<π1>, where M is πsa, πpa, πse, or πpe
+  static_assert(is_πv_<X>::value);
+  return std::get<sizeof...(Xs)>(t).x | πauto_ipush_(tdrop(t));
 }
 
 
@@ -246,7 +255,7 @@ auto πauto(A const &a, Stc &n, F<R(Xs...)> const &f)
   using P  = typename Cl::P;
   return φm(πauto_parser_(a, n, null<P>()),
             [n, f](auto &&t)
-              { auto [c, i] = πauto_ci_split_(t);
+              { auto [c, i] = πauto_ci_split_(null<P>(), t);
                 return πauto_ipush_(i) | πauto_(n, f, mo(c)); });
 }
 

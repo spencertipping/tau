@@ -20,12 +20,17 @@ void try_pi_phi()
                                        [x]() { return x; }); }));
 
   πi i;
-  f.def_sp("+", [](       πpe<i64> x, i64 y) { return x.x + y; });
-  f.def_sp(":", [](πi &i, πpe<π1>  x, i64 y) { x.x(i); return i[i.pop()].i() + y; });
+  f.def_sp("+", [](       πse<i64> x, i64 y) { return x.x + y; });
+  f.def_sp("%", [](πi &i, πse<π1>  x, i64 y) { x.x(i); return i[i.pop()].i() + y; });
+  f.def_sp("?", [](πi &i, πse<π1> x, φaL<':'>, πse<π1> y, i64 c)
+    { c ? x.x(i) : y.x(i);
+      return i.pop(); });
 
-  π1 f0 = φE(f.ts())("3").r();   f0(i); cout << "πφ:f0 → " << i[i.pop()] << endl;
-  π1 f1 = φE(f.ts())("3+4").r(); f1(i); cout << "πφ:f1 → " << i[i.pop()] << endl;
-  π1 f2 = φE(f.ts())("3:4").r(); f2(i); cout << "πφ:f2 → " << i[i.pop()] << endl;
+  π1 f0 = φE(f.ts())("3").r();   cout << "f0 = " << f0 << endl; f0(i); cout << i << "πφ:f0 → " << i[i.pop()] << endl;
+  π1 f1 = φE(f.ts())("3+4").r(); cout << "f1 = " << f1 << endl; f1(i); cout << i << "πφ:f1 → " << i[i.pop()] << endl;
+  π1 f2 = φE(f.ts())("3%4").r(); cout << "f2 = " << f2 << endl; f2(i); cout << i << "πφ:f2 → " << i[i.pop()] << endl;
+  π1 f3 = φE(f.ts())("0?1:6").r(); cout << "f3 = " << f3 << endl; f3(i); cout << i << "πφ:f3 → " << i[i.pop()] << endl;
+  π1 f4 = φE(f.ts())("1?1:6").r(); cout << "f4 = " << f4 << endl; f4(i); cout << i << "πφ:f4 → " << i[i.pop()] << endl;
   cout << "try_pi_phi OK" << endl;
 }
 
