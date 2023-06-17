@@ -74,30 +74,3 @@ Immediate and stack arguments are unpacked top-to-bottom. This means immediates 
 `πf<N>` takes only a `πi&` and must construct the remaining function arguments. Parse-time arguments are stored as closure data and passed in as constants since they are runtime-invariant. Statics are calculated from the `πi&`, and runtime arguments are pulled from the stack and `ηauto` converted to C++ parameters.
 
 All of this takes the form of a nested C++ function, the outer layer of which is transformed with `φauto` (receiving `Xs&&...` arguments), the inner layer transformed with `πvauto` (receiving `Ys&&...`), and calling the user function by splicing the arguments one by one to match the original ordering. This involves `πautoclass_<T>` to classify each argument into one of the categories above and handling it accordingly.
-
-
-## π function conversion
-**TODO:** delete this section once it's incorporated into the above
-
-`def_XXp` methods all define prefix operators, which are self-contained dispatch table entries that ultimately return `πf<0>` -- that is, the operand is computed first and then the operator transforms it, netting the same number of stack entries. (Plural values are always horizontal, so the stack nets zero whether singular or plural.)
-
-Internally, `def_XXp` must insert a `φ<πf<0>>` into a dispatch table; but it's inconvenient to write parsers that return `πf` lambdas. Instead, we inline a bunch of that logic by allowing the `fn` argument to define both parse-time and runtime parameters. For example, let's create an `@n` prefix operator that selects the `n`th element from a plural operand. `n` is a parse-time integer, so our function takes a mixture of parse-time and runtime values:
-
-```cpp
-def_psp("@", [](πP<i64> n, πi &i, πp<πhr> xs) -> πhr
-  { return i.i(xs, i[xs][*n]); });
-```
-
-`πP<T>` is a marker type that says "this happens at parse time"; the remaining arguments are passed to `πauto` to apply to the interpreter.
-
-**NOTE:** these functions can also take `M<πf<1> const &>` refs, where `M<>` is a marker type, which gives them the ability to lazily evaluate their operands. I don't think we need generalized-arity πfs at this point.
-
-`πpe<T>` is a marker type that says "this stack entry should be parsed from a plural expression". Each stack-sourced argument can have such an annotation, which is incorporated into the operator's parser.
-
-```cpp
-let f = [](πP<i64> n, πi &i, πhr xs) -> πhr
-        { return i.i(xs, i[xs][*n]); };
-psp_.def("@", φauto(*this, [](πP<i64> &&n)
-  { return πvauto("@", [=](πi &i, πhr xs) -> πhr  // → πf<0>
-    { return f(n, i, xs); }); }));
-```
