@@ -22,6 +22,15 @@ template<class... Xs> struct φaA;    // auto alternation
 template<class X, class... Xs> struct φaA<X, Xs...>
 { using t = typename X::t; t x; };
 
+// Detect instances of the above parser-arguments
+Tt struct is_πφ_ : std::false_type {};
+template<chc *S> struct is_πφ_<φaL<S>> : std::true_type {};
+template<chc *S> struct is_πφ_<φaO<S>> : std::true_type {};
+template<chc *S, bool N, u32 L, u32 U> struct is_πφ_<φaCs<S, N, L, U>> : std::true_type {};
+template<class... Xs> struct is_πφ_<φaA<Xs...>> : std::true_type {};
+
+Tt concept is_πφ = is_πφ_<T>::value;
+
 
 Tt struct πsa { using t = T; T x; };  // singular atom
 Tt struct πpa { using t = T; T x; };  // plural atom

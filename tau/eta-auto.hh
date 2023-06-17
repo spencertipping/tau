@@ -8,23 +8,36 @@ namespace τ
 {
 
 
+enum ηauto_ops
+{
+  ηauto_op_decode = 1,
+  ηauto_op_encode = 2,
+  ηauto_op_type   = 4,
+};
+
+
 // ηauto_<T> provides information about how T maps to η values, in particular
 // the η type, an approximate size in bytes (used for heap reservations), and
 // a function to convert from η to T.
-Tt struct ηauto_;
+Tt struct ηauto_ { sletc ops = 0; };
+
+Tt concept ηauto_encode = ηauto_<T>::ops & ηauto_op_encode;
+Tt concept ηauto_decode = ηauto_<T>::ops & ηauto_op_decode;
+Tt concept ηauto_type   = ηauto_<T>::ops & ηauto_op_type;
+
 
 // ηY<T> contains a T that will be unpacked from an inner η.
 Tt struct ηY { T v; };
 
 
-#define deft(ct, s, yt, ve)                    \
-  template<> struct ηauto_<ct>                 \
-  { sletc t = ηtype::yt;                       \
-    sletc n = s;                               \
+#define deft(ct, s, yt, ve)                                             \
+  template<> struct ηauto_<ct>                                          \
+  { sletc ops = ηauto_op_decode | ηauto_op_encode | ηauto_op_type;      \
+    sletc t = ηtype::yt;                                                \
+    sletc n = s;                                                        \
     static ct v(ηic &i) { return ve; } };
 
 deft(ηi, 64, η, i)  // ηis are passed through
-
 
 deft(i8,  2, n_int,   i.i())
 deft(i16, 3, n_int,   i.i())
@@ -51,6 +64,7 @@ deft(Sn<f64bc>, 512, float64s, i.f64s())
 
 Tt struct ηauto_<ηY<T>>
 {
+  sletc ops = ηauto_op_decode | ηauto_op_encode | ηauto_op_type;
   sletc t = ηtype::η;
   sletc n = 64;
   static ηY<T> v(ηic &i) { return {ηauto_<T>::v(i.η())}; }
@@ -59,6 +73,7 @@ Tt struct ηauto_<ηY<T>>
 template<uN N>
 struct ηauto_<char[N]>
 {
+  sletc ops = ηauto_op_encode | ηauto_op_type;
   sletc t = ηtype::string;
   sletc n = N;
 
@@ -69,6 +84,7 @@ struct ηauto_<char[N]>
 template<class X>
 struct ηauto_<T<X>>
 {
+  sletc ops = ηauto_op_decode | ηauto_op_encode | ηauto_op_type;
   sletc t = ηtype::η;
   sletc n = ηauto_<X>::n;
   static T<X> v(ηic &i) { return {ηauto_<X>::v(i)}; }
@@ -77,6 +93,7 @@ struct ηauto_<T<X>>
 template<class X, class Y, class... Xs>
 struct ηauto_<T<X, Y, Xs...>>
 {
+  sletc ops = ηauto_op_decode | ηauto_op_encode | ηauto_op_type;
   sletc t = ηtype::η;
   sletc n = ηauto_<X>::n + ηauto_<T<Y, Xs...>>::n;
   static T<X, Y, Xs...> v(ηic &i)
@@ -87,6 +104,8 @@ struct ηauto_<T<X, Y, Xs...>>
 template<>
 struct ηauto_<V<ηi>>
 {
+  sletc ops = ηauto_op_encode;
+
   // NOTE: no t or n because V<ηi> is read-only (i.e. we don't serialize
   // V<ηi> back to η directly)
   static V<ηi> v(ηic &i)

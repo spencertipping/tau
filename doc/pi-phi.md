@@ -61,18 +61,13 @@ Why is `bool` pulled from the stack while `πse<π1>` is parsed? It has to do wi
 + **Immediate:** things which have an expression-mode annotation for parsing and are stored on the stack, e.g. `πse<i64>`
 + **Stack:** things which are stored on the stack up front, and which can be η-decoded, e.g. `bool`, `πhr`, and other such types (`ηauto` covers these)
 
-Each immediate is inlined as a `πf<1>` that is prepended to the resulting function. This results in immediates being present above stack arguments, which may or may not be how the argument list is arranged.
+Each immediate is inlined as a `πf<1>` that is prepended to the resulting function. This results in immediates being present above stack arguments. As a result, arguments must be ordered like this:
 
-**FIXME:** this is a lie; we can always push stack-runtime arguments to the beginning or end of the arglist, so maybe we should do that instead of allowing them to be mixed together
-
-Of these, only parse-time values contribute to the operator's grammar, and only runtime values contribute to the operator's stack actions. Operands are popped from the stack left-first, so `[](int, double) {...}` will pop an `int` η first, then a `double`.
-
-Note that most runtime types can be converted to parse-time types using `πP`:
-
-```cpp
-def_sp("@", [](i64     n, πhr x) -> πhr {...});  // won't compile; this is πf<-1>
-def_sp("@", [](πP<i64> n, πhr x) -> πhr {...});  // this is ok
 ```
+meta* (const | immed)* stack*
+```
+
+Immediate and stack arguments are unpacked top-to-bottom. This means immediates are prepended right-to-left, then all arguments are unpacked in interpreter stack order (with interspersed constants as appropriate).
 
 
 ### Auto-constructing a `πf<N>`

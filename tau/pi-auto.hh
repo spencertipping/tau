@@ -2,7 +2,9 @@
 #define τπauto_h
 
 #include "ctypes.hh"
+#include "eta-auto.hh"
 #include "pi-fn.hh"
+#include "pi-int.hh"
 #include "pi-phi-markers.hh"
 #include "begin.hh"
 
@@ -10,43 +12,90 @@ namespace τ
 {
 
 
-template<class... Xs> struct πPsplit_;
-
-template<> struct πPsplit_<>
+// See doc/pi-phi.md for an explanation of these classes
+enum class πautoclass
 {
-  using P = T<>;  // parse-time arguments
-  using R = T<>;  // runtime arguments
-};
-
-template<class X, class... Xs> struct πPsplit_<X, Xs...>
-{
-  using P = Co<is_πP_<X>::value,
-               typename Tcons_<T<X>, typename πPsplit_<Xs...>::P>::t,
-               typename πPsplit_<Xs...>::R>;
-  using R = Co<is_πP_<X>::value,
-               typename πPsplit_<Xs...>::P,
-               typename Tcons_<T<X>, typename πPsplit_<Xs...>::R>::t>;
+  meta,
+  constant,
+  immediate,
+  stack
 };
 
 
-template<class P, class R> struct πPsplit__;
-template<class... Ps, class... Rs> struct πPsplit__<T<Ps...>, T<Rs...>>
+Tt struct πautoclass_;
+Tt concept πautometa  = πautoclass_<De<T>>::c == πautoclass::meta;
+Tt concept πautoconst = πautoclass_<De<T>>::c == πautoclass::constant;
+Tt concept πautoimmed = πautoclass_<De<T>>::c == πautoclass::immediate;
+Tt concept πautostack = πautoclass_<De<T>>::c == πautoclass::stack;
+
+template<>     struct πautoclass_<πi>      { sletc c = πautoclass::meta; };
+template<uN N> struct πautoclass_<πhr_<N>> { sletc c = πautoclass::meta; };
+
+template<is_πφ T> struct πautoclass_<T>     { sletc c = πautoclass::constant; };
+Tt                struct πautoclass_<πP<T>> { sletc c = πautoclass::constant; };
+
+// NOTE: πsa and friends can apply to both eager values (which are stack-compatible)
+// and lazy values (which are encoded as πf<N>).
+template<πautostack T> struct πautoclass_<πsa<T>> { sletc c = πautoclass::immediate; };
+template<πautostack T> struct πautoclass_<πpa<T>> { sletc c = πautoclass::immediate; };
+template<πautostack T> struct πautoclass_<πse<T>> { sletc c = πautoclass::immediate; };
+template<πautostack T> struct πautoclass_<πpe<T>> { sletc c = πautoclass::immediate; };
+
+template<iN N> struct πautoclass_<πsa<πf<N>>> { sletc c = πautoclass::constant; };
+template<iN N> struct πautoclass_<πpa<πf<N>>> { sletc c = πautoclass::constant; };
+template<iN N> struct πautoclass_<πse<πf<N>>> { sletc c = πautoclass::constant; };
+template<iN N> struct πautoclass_<πpe<πf<N>>> { sletc c = πautoclass::constant; };
+
+template<>               struct πautoclass_<πhr> { sletc c = πautoclass::stack; };
+template<ηauto_decode T> struct πautoclass_<T>   { sletc c = πautoclass::stack; };
+
+
+// Split all function args into separate lists, each of which occurs in the same
+// order as the original
+template<class... Xs> struct πautoclassify_;
+template<> struct πautoclassify_<>
 {
-  Tt static auto f(St n, F<T(Ps..., Rs...)> &&f)
-    { return [n, f=mo(f)](Ps&&... ps)
-      { return πvauto(n, [=, f=mo(f)](Rs&&... rs)
-        { return f(ps..., rs...); }); }; }
+  using M = T<>;
+  using C = T<>;
+  using I = T<>;
+  using S = T<>;
+};
+
+// NOTE: it's important to preserve ordering
+template<πautometa X, class... Xs> struct πautoclassify_<X, Xs...>
+{
+  using M = typename Tcons_<X, typename πautoclassify_<Xs...>::M>::t;
+  using C = typename πautoclassify_<Xs...>::C;
+  using I = typename πautoclassify_<Xs...>::I;
+  using S = typename πautoclassify_<Xs...>::S;
+};
+
+template<πautoconst X, class... Xs> struct πautoclassify_<X, Xs...>
+{
+  using M = typename πautoclassify_<Xs...>::M;
+  using C = typename Tcons_<X, typename πautoclassify_<Xs...>::C>::t;
+  using I = typename πautoclassify_<Xs...>::I;
+  using S = typename πautoclassify_<Xs...>::S;
+};
+
+template<πautoimmed X, class... Xs> struct πautoclassify_<X, Xs...>
+{
+  using M = typename πautoclassify_<Xs...>::M;
+  using C = typename πautoclassify_<Xs...>::C;
+  using I = typename Tcons_<X, typename πautoclassify_<Xs...>::I>::t;
+  using S = typename πautoclassify_<Xs...>::S;
+};
+
+template<πautostack X, class... Xs> struct πautoclassify_<X, Xs...>
+{
+  using M = typename πautoclassify_<Xs...>::M;
+  using C = typename πautoclassify_<Xs...>::C;
+  using I = typename πautoclassify_<Xs...>::I;
+  using S = typename Tcons_<X, typename πautoclassify_<Xs...>::S>::t;
 };
 
 
-// Split a function and prepare it to be used with φauto. This is called by
-// πφ when defining grammar elements.
-template<class T, class... Xs>
-auto πPsplit(St n, F<T(Xs...)> &&f)
-{
-  return πPsplit__<typename πPsplit_<Xs...>::P,
-                   typename πPsplit_<Xs...>::R>::f(n, f);
-}
+// TODO: dual-lambda conversion using the above classifiers
 
 
 // Transform a single function argument from a stack entry to a C++ value.
