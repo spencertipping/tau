@@ -122,7 +122,7 @@ template<>     struct πauto1_<πhr>     { static auto f(πi &i) { return i.pop(
 template<uN N> struct πauto1_<πhr_<N>> { static auto f(πi &i) { return πhr_<N>{}; } };
 
 template<ηauto_decode T> struct πauto1_<T> { static auto f(πi &i) { return ηauto_<T>::v(i[i.pop()]); } };
-template<is_πv        T> struct πauto1_<T> { static auto f(πi &i) { return T{πauto1_<typename T::T>::f(i)}; } };
+template<is_πv        T> struct πauto1_<T> { static auto f(πi &i) { return T{πauto1_<typename T::t>::f(i)}; } };
 
 
 // Fills arguments for an FFI function, drawing values from the parsed-constant
@@ -164,15 +164,13 @@ R πauto_apply_(F<R(Xs...)> const &f,
 inline P<T<>, T<>> πauto_ci_split_(T<> const&) { return P<T<>, T<>>{}; }
 
 template<class X, class... Xs>
-P<typename πautoclassify_<X, Xs...>::C,
-  typename πautoclassify_<X, Xs...>::I>
-πauto_ci_split_(T<X, Xs...> const &t)
+auto πauto_ci_split_(T<X, Xs...> const &t)
 {
   auto [c, i] = πauto_ci_split_(tdrop(t));
   if constexpr (πautoclass_<De<X>>::c == πautoclass::constant)
-    return {std::tuple_cat({std::get<0>(t)}, c), i};
+    return std::make_pair(std::tuple_cat(T<X>{std::get<0>(t)}, c), i);
   else
-    return {c, std::tuple_cat({std::get<0>(t)}, i)};
+    return std::make_pair(c, std::tuple_cat(T<X>{std::get<0>(t)}, i));
 }
 
 
@@ -217,19 +215,20 @@ auto πauto_(Stc &n, F<R(Xs...)> const &f, T<Cs...> &&t)
 
 // Push immediate arguments in reverse order onto the stack, in this case by
 // inlining each.
-template<iN I, class... Xs>
-auto πauto_ipush_(T<Xs...> const &t)
+inline π0 πauto_ipush_(T<> const&) { return π0{}; }
+
+template<class X, class... Xs>
+auto πauto_ipush_(T<X, Xs...> const &t)
 {
-  if constexpr (I < 0) return π0{};
-  else                 return std::get<I>(t) | πauto_ipush_<I - 1>(tdrop(t));
+  return std::get<sizeof...(Xs)>(t) | πauto_ipush_(tdrop(t));
 }
 
 
 // Generate a parser for a tuple of types
 // NOTE: return type is not φ<T<Xs...>> because the parsers may be immediate π1
 template<class A, class... Xs>
-auto πauto_parser_(A const &a, Stc &n, T<Xs...> const&)
-{ return φs(n, a.p(std::declval<De<Xs>>())...); }
+auto πauto_parser_(A const &a, Stc &n, T<Xs...>&)
+{ return φs(n, a.p(null<De<Xs>>())...); }
 
 
 // Convert without parsing: this converts C++ into πf<N>
@@ -245,12 +244,10 @@ auto πauto(A const &a, Stc &n, F<R(Xs...)> const &f)
 {
   using Cl = πautoclassify_<Xs...>;
   using P  = typename Cl::P;
-  using I  = typename Cl::I;
-  sletc N  = iN(std::tuple_size_v<I>);
-  return φm(πauto_parser_(a, n, std::declval<P>()),
-            [n, f](P &&t)
+  return φm(πauto_parser_(a, n, null<P>()),
+            [n, f](auto &&t)
               { auto [c, i] = πauto_ci_split_(t);
-                return πauto_ipush_<N - 1>(i) | πauto_(n, f, mo(c)); });
+                return πauto_ipush_(i) | πauto_(n, f, mo(c)); });
 }
 
 

@@ -41,7 +41,7 @@ Of these, `def_sa` and `def_pa` are the only methods that pass parsers directly 
 The goal of π FFI is to derive as much interfacing information as possible from the function signature. For example, a lazy ternary operator should be definable like this:
 
 ```cpp
-def_sp("?", [](πi &i, bool c, πse<π1> const &t, φaL<":">, πse<π1> const &e)
+def_sp("?", [](πi &i, πse<π1> const &t, φaL<":">, πse<π1> const &e, bool c)
   { c ? t.x(i) : e.x(i);
     return i.pop(); });
 ```

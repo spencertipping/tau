@@ -46,6 +46,10 @@ using namespace std::placeholders;
 template<class T> using Id = typename std::type_identity<T>::type;
 
 
+// Return a null (exploding) reference to a type
+template<class T> T &null() { return *(T*)nullptr; }
+
+
 // Widening away from i8/u8 so we can print stuff easily
 template<class T> If<sizeof(T) == 1, int> widen(T x) { return x; }
 template<class T> If<sizeof(T) != 1, T>   widen(T x) { return x; }

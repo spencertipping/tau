@@ -27,11 +27,17 @@ struct πφ_
   virtual ~πφ_() {}
 
 
+  // Helpers for prefix and postfix operators
   static π1 pre (π0 a, π1 b) { return b | a; }
   static π1 post(π1 a, V<π0> const &b)
     { π1 r = a; r << b; return r; }
 
 
+  φ<π1> ts() const { return se_; }
+  φ<π1> tp() const { return pe_; }
+
+
+  // TODO: CRTP for these, or return void
   πφ_ &def_sa(φ<π1> p) { s_.as<φa_<π1>>() << p; return *this; }
   πφ_ &def_pa(φ<π1> p) { p_.as<φa_<π1>>() << p; return *this; }
 
@@ -45,10 +51,10 @@ struct πφ_
   // NOTE: returning the wrong type is intentional. Every πsa<T> should
   // arise from a π1 that we parse, and it's up to πauto to convert the
   // π1 to T using immediate stack indirection.
-  Tt φ<πsa<π1>> p(πsa<T> const&) const { return φm(s_,  [](π1 &&x) { return πsa<π1>{mo(x)}; }); }
-  Tt φ<πpa<π1>> p(πpa<T> const&) const { return φm(p_,  [](π1 &&x) { return πpa<π1>{mo(x)}; }); }
-  Tt φ<πse<π1>> p(πse<T> const&) const { return φm(se_, [](π1 &&x) { return πse<π1>{mo(x)}; }); }
-  Tt φ<πpe<π1>> p(πpe<T> const&) const { return φm(pe_, [](π1 &&x) { return πpe<π1>{mo(x)}; }); }
+  Tt φ<πsa<π1>> p(πsa<T>&) const { return φm(s_,  [](π1 &&x) { return πsa<π1>{mo(x)}; }); }
+  Tt φ<πpa<π1>> p(πpa<T>&) const { return φm(p_,  [](π1 &&x) { return πpa<π1>{mo(x)}; }); }
+  Tt φ<πse<π1>> p(πse<T>&) const { return φm(se_, [](π1 &&x) { return πse<π1>{mo(x)}; }); }
+  Tt φ<πpe<π1>> p(πpe<T>&) const { return φm(pe_, [](π1 &&x) { return πpe<π1>{mo(x)}; }); }
 
 
 protected:

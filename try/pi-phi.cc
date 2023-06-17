@@ -15,7 +15,18 @@ using namespace std;
 void try_pi_phi()
 {
   πφ f;
-  f.def_sp("+", [](πi &i, πpe<π1> a, i64 s) { return a.x(i); });
+  f.def_sa(φm(πφint(),
+              [](i64 x) { return πauto((Ss{} << x).str(),
+                                       [x]() { return x; }); }));
+
+  πi i;
+  f.def_sp("+", [](       πpe<i64> x, i64 y) { return x.x + y; });
+  f.def_sp(":", [](πi &i, πpe<π1>  x, i64 y) { x.x(i); return i[i.pop()].i() + y; });
+
+  π1 f0 = φE(f.ts())("3").r();   f0(i); cout << "πφ:f0 → " << i[i.pop()] << endl;
+  π1 f1 = φE(f.ts())("3+4").r(); f1(i); cout << "πφ:f1 → " << i[i.pop()] << endl;
+  π1 f2 = φE(f.ts())("3:4").r(); f2(i); cout << "πφ:f2 → " << i[i.pop()] << endl;
+  cout << "try_pi_phi OK" << endl;
 }
 
 
