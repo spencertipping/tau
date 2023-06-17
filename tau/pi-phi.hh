@@ -51,10 +51,10 @@ struct πφ_
   // NOTE: returning the wrong type is intentional. Every πsa<T> should
   // arise from a π1 that we parse, and it's up to πauto to convert the
   // π1 to T using immediate stack indirection.
-  Tt φ<πsa<π1>> p(πsa<T>&) const { return φm(s_,  [](π1 &&x) { return πsa<π1>{mo(x)}; }); }
-  Tt φ<πpa<π1>> p(πpa<T>&) const { return φm(p_,  [](π1 &&x) { return πpa<π1>{mo(x)}; }); }
-  Tt φ<πse<π1>> p(πse<T>&) const { return φm(se_, [](π1 &&x) { return πse<π1>{mo(x)}; }); }
-  Tt φ<πpe<π1>> p(πpe<T>&) const { return φm(pe_, [](π1 &&x) { return πpe<π1>{mo(x)}; }); }
+  Tt φ<πsa<π1>> p(πsa<T>*) const { return φm(s_,  [](π1 &&x) { return πsa<π1>{mo(x)}; }); }
+  Tt φ<πpa<π1>> p(πpa<T>*) const { return φm(p_,  [](π1 &&x) { return πpa<π1>{mo(x)}; }); }
+  Tt φ<πse<π1>> p(πse<T>*) const { return φm(se_, [](π1 &&x) { return πse<π1>{mo(x)}; }); }
+  Tt φ<πpe<π1>> p(πpe<T>*) const { return φm(pe_, [](π1 &&x) { return πpe<π1>{mo(x)}; }); }
 
 
 protected:

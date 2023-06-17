@@ -55,31 +55,31 @@ Tt φ<T> πφparen(φ<T> p) { return φ2("()", πφlp(), πφwrap(p), πφrp());
 
 struct πφP
 {
-  Tt auto p(πP<T>&&) const
-    { return φm(p(std::declval<T>()), [](T &&x) { return πP<T>{x}; }); }
+  Tt auto p(πP<T>*) const
+    { return φm(p(null<T>()), [](auto &&x) { return πP{x}; }); }
 };
 
 struct πφlit
 {
-  auto p(i64&&)   const { return πφint(); }
-  auto p(f64&&)   const { return πφfloat(); }
-  auto p(St&&)    const { return πφstr(); }
-  auto p(ηname&&) const { return πφname(); }
+  auto p(i64*)   const { return πφint(); }
+  auto p(f64*)   const { return πφfloat(); }
+  auto p(St*)    const { return πφstr(); }
+  auto p(ηname*) const { return πφname(); }
 };
 
 struct πφstr
 {
-  template<chc *S> auto p(φaL<S>&&) const
+  template<chc *S> auto p(φaL<S>*) const
     { return φm(φl(St{S}), [](auto &&x) { return φaL<S>{mo(x)}; }); }
 
-  template<chc *S> auto p(φaO<S>&&) const
+  template<chc *S> auto p(φaO<S>*) const
     { return φm(φo(φl(St{S})), [](auto &&x) { return φaCs<S>{mo(x)}; }); }
 
-  template<chc *S, bool N, u32 L, u32 U> auto p(φaCs<S, N, L, U>&&) const
+  template<chc *S, bool N, u32 L, u32 U> auto p(φaCs<S, N, L, U>*) const
     { return φm(φcs(S, N, L, U),
                 [](auto &&x) { return φaCs<S, N, L, U>{mo(x)}; }); }
 
-  template<class... Xs> auto p(φaA<Xs...>&&) const
+  template<class... Xs> auto p(φaA<Xs...>*) const
     { return φm(φa("φaA<...>", p(std::declval<Xs>())...),
                 [](auto &&x) { return φaA<Xs...>{mo(x)}; }); }
 };

@@ -227,7 +227,7 @@ auto πauto_ipush_(T<X, Xs...> const &t)
 // Generate a parser for a tuple of types
 // NOTE: return type is not φ<T<Xs...>> because the parsers may be immediate π1
 template<class A, class... Xs>
-auto πauto_parser_(A const &a, Stc &n, T<Xs...>&)
+auto πauto_parser_(A const &a, Stc &n, T<Xs...>*)
 { return φs(n, a.p(null<De<Xs>>())...); }
 
 
