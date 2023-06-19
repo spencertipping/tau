@@ -6,6 +6,7 @@
 #include "eta-types.hh"
 
 #include "begin.hh"
+#include <string>
 
 namespace τ
 {
@@ -15,16 +16,21 @@ struct ηi;
 
 typedef ηi const ηic;
 
+// NOTE: copy is intentional
+O &operator<<(O&, ηi);
+
 
 // Compare ηis and all following elements -- i.e. consider each to be
 // the beginning of a series, not in isolation.
+//
+// NOTE: it's correct to copy arguments here; see ηscmp implementation
 PO ηscmp(ηi, ηi);
 
 
 // η input: read from fixed location in memory
 struct ηi final
 {
-  ηi(ηi const&) = default;
+  ηi(ηic&) = default;
   ηi(u8c *a, uN l) : a_(a),        l_(l)              { decode_cb(); }
   ηi(Sn<u8c> s)    : a_(s.data()), l_(s.size_bytes()) { decode_cb(); }
 
@@ -200,7 +206,45 @@ struct ηi final
       return {Rc<f64bc*>(data()), size() >> 3}; }
 
 
+  i64 ci() const
+    { switch (t())
+      {
+      case ηtype::n_int:   return i();
+      case ηtype::n_float: return i64(f());
+      case ηtype::atom:    return a() == ηatom::ηtrue;
+      case ηtype::string:  return std::stoll(St{s()});
+      default: A(0, "η::ci(" << t() << "=" << *this << ")"); return 0;
+      } }
 
+  f64 cf() const
+    { switch (t())
+      {
+      case ηtype::n_int:   return f64(i());
+      case ηtype::n_float: return f();
+      case ηtype::string:  return std::stod(St{s()});
+      default: A(0, "η::cf(" << t() << "=" << *this << ")"); return 0;
+      } }
+
+  bool cb() const
+    { switch (t())
+      {
+      case ηtype::n_int:   return i();
+      case ηtype::n_float: return f() != 0.0 && !std::isnan(f());
+      case ηtype::atom:    return b();
+      case ηtype::string:  return !s().empty();
+      default: A(0, "η::cb(" << t() << "=" << *this << ")"); return 0;
+      } }
+
+  St cs() const
+    { switch (t())
+      {
+      case ηtype::n_int:   return (Ss{} << i()).str();
+      case ηtype::n_float: return (Ss{} << f()).str();
+      case ηtype::atom:    return (Ss{} << a()).str();
+      case ηtype::name:    return St{n()};
+      case ηtype::string:  return St{s()};
+      default: A(0, "η::cs(" << t() << "=" << *this << ")"); return 0;
+      } }
 
 
 private:
@@ -211,9 +255,6 @@ private:
 
   void decode_cb();
 };
-
-
-O &operator<<(O&, ηi);
 
 
 }

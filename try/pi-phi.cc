@@ -20,10 +20,16 @@ void pi(Stc &s)
                                        [x]() { return x; }); }));
 
   πi i;
+
+  f.def_sa(φm(φl("FAIL"),
+              [](St x) { return πauto("FAIL", []()
+                { cerr << "FAIL" << endl;
+                  return 0; }); }));
+
   f.def_sp("+", [](       πse<i64> x, i64 y) { return x.x + y; });
   f.def_sp("-", [](       πse<i64> x, i64 y) { return y - x.x; });
-  f.def_sp(">", [](       πse<i64> x, i64 y) { return x.x < y; });
-  f.def_sp("<", [](       πse<i64> x, i64 y) { return x.x > y; });
+  f.def_sp(">", [](       πse<ηi>  x, ηi  y) { return x.x < y; });
+  f.def_sp("<", [](       πse<ηi>  x, ηi  y) { return x.x > y; });
   f.def_sp("%", [](πi &i, πse<π1>  x, i64 y) { x.x(i); return i[i.pop()].i() + y; });
   f.def_sp("?", [](πi &i, πse<π1> x, φaL<':'>, πse<π1> y, i64 c)
     { c ? x.x(i) : y.x(i);
@@ -51,16 +57,23 @@ void pi(Stc &s)
 
 void try_pi_phi()
 {
+  pi("FAIL");
   pi("3");
   pi("3+4");
+  pi("3 + FAIL");
   pi("3%4");
   pi("3 % 4");
+  pi("3 % FAIL");
   pi("1 ? 2 : 3");
   pi("0 ? 2 : 3");
+  pi("1 ? 2 : FAIL");
+  pi("0 ? FAIL : 3");
   pi("[1 - 2] ? 2 : 3");
   pi("[1 - 1] ? 2 : 3");
   pi("[1 - 2] ?? 2 3");
   pi("[1 - 1] ?? 2 3");
+  pi("[1 - 2] ?? 2 FAIL");
+  pi("[1 - 1] ?? FAIL 3");
 
   pi("10 ! >5 # condition\n : - 1 # body");
 

@@ -36,7 +36,7 @@ PO ηscmp(ηi a, ηi b)
 }
 
 
-PO ηi::operator<=>(ηi const &x) const
+PO ηi::operator<=>(ηic &x) const
 {
   let tc = t() <=> x.t();
   if (tc != SO::equal) return tc;
@@ -129,7 +129,7 @@ void ηi::decode_cb()
 }
 
 
-static O &yone(O &s, ηi i)
+static O &yone(O &s, ηic &i)
 {
   switch (i.t())
   {

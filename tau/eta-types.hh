@@ -58,9 +58,31 @@ enum class ηtype : u8
 };
 
 
+// Alternative type used to mark the fact that this thing is meant to be
+// a name rather than a string. Otherwise we'd have ambiguity at the C++
+// type-mapping level (e.g. in ηauto).
 struct ηname
 {
   St x;
+};
+
+
+// An unordered set of types encoded as a 16-bit mask.
+struct ηts final
+{
+  constexpr ηts(u16 x_)      : x(x_) {}
+  constexpr ηts(Il<ηtype> l) : x(0) { for (let y : l) x |= 1 << u8(y); }
+
+  constexpr bool operator[](ηtype t) const { return x & 1 << u8(t); }
+  constexpr bool      empty()        const { return x == 0; }
+
+  constexpr ηts operator|(ηts y) const { return u16(x |  y.x); }
+  constexpr ηts operator&(ηts y) const { return u16(x &  y.x); }
+  constexpr ηts operator^(ηts y) const { return u16(x ^  y.x); }
+  constexpr ηts operator-(ηts y) const { return u16(x & ~y.x); }
+  constexpr ηts operator+(ηts y) const { return *this | y; }
+
+  u16 x;
 };
 
 
@@ -87,6 +109,11 @@ struct ηtl final
 
   u64 x;
 };
+
+
+// Least-upper-bound: use this to determine the return type of most binary
+// operators, e.g. a + b.
+ηtype ηlub(ηtype a, ηtype b);
 
 
 // Number of bytes used to encode the size, or 0 if the size is directly
@@ -132,6 +159,7 @@ inline uN ηcb(Sn<u8> b, ηtype t, uN s)
 O &operator<<(O&, ηsig);
 O &operator<<(O&, ηatom);
 O &operator<<(O&, ηtype);
+O &operator<<(O&, ηts);
 O &operator<<(O&, ηtl);
 O &operator<<(O&, ηname const&);
 

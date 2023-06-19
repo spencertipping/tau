@@ -5,6 +5,39 @@ namespace τ
 {
 
 
+ηtype ηlub(ηtype a, ηtype b)
+{
+  sletc sn  = ηts({ηtype::n_int, ηtype::n_float});
+  sletc ss  = ηts({ηtype::n_int, ηtype::n_float, ηtype::atom, ηtype::string});
+  sletc svi = ηts({ηtype::int8s, ηtype::int16s, ηtype::int32s, ηtype::int64s});
+  sletc svf = ηts({ηtype::float32s, ηtype::float64s});
+  sletc sv  = svi | svf;
+
+  if (a == b) return a;
+  if (sn[a] && sn[b]) return ηtype::n_float;
+  if (ss[a] && ss[b]) return ηtype::string;
+  if (sv[a] && sv[b]) return std::max(a, b);
+  if (sv[a] && sn[b]) return a;  // right broadcast
+  if (sn[a] && sv[b]) return b;  // left broadcast
+  return ηtype::invalid;
+}
+
+
+O &operator<<(O &s, ηts ts)
+{
+  s << "ηts[";
+  bool first = true;
+  for (uN i = 0; i < 16; ++i)
+    if (ts.x & (1 << i))
+    {
+      if (first) first = false;
+      else s << " ";
+      s << ηtype(i);
+    }
+  return s << "]";
+}
+
+
 O &operator<<(O &s, ηtl ts)
 {
   s << "ηtl[";

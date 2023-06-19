@@ -27,7 +27,7 @@ Tt concept ηauto_type   = (ηauto_<T>::ops & ηauto_op_type)   != 0;
 
 
 // ηY<T> contains a T that will be unpacked from an inner η.
-Tt struct ηY { T v; };
+Tt struct ηY { T x; };
 
 
 #define deft(ct, s, yt, ve)                                             \
@@ -39,21 +39,20 @@ Tt struct ηY { T v; };
 
 deft(ηi, 64, η, i)  // ηis are passed through
 
-deft(i8,  2, n_int,   i.i())
-deft(i16, 3, n_int,   i.i())
-deft(i32, 5, n_int,   i.i())
-deft(i64, 9, n_int,   i.i())
-deft(f32, 5, n_float, i.f())
-deft(f64, 9, n_float, i.f())
+deft(i8,  2, n_int,   i.ci())
+deft(i16, 3, n_int,   i.ci())
+deft(i32, 5, n_int,   i.ci())
+deft(i64, 9, n_int,   i.ci())
+deft(f32, 5, n_float, i.cf())
+deft(f64, 9, n_float, i.cf())
 
-deft(bool,  2, atom, i.b())
+deft(bool,  2, atom, i.cb())
 deft(ηsig,  2, sig,  i.sig())
 deft(ηatom, 2, atom, i.a())
 
 deft(ηname, 16, name,   ηname{St{i.n()}})
 deft(Stv,   16, string, i.s())
-deft(St,    16, string, St{i.s()})
-deft(chc*,  16, string, (A(0, "η → const char*"), nullptr))
+deft(St,    16, string, St{i.cs()})
 
 deft(Sn<i8bc>,  64,  int8s,    i.i8s())
 deft(Sn<i16bc>, 128, int16s,   i.i16s())
@@ -70,16 +69,25 @@ Tt struct ηauto_<ηY<T>>
   static ηY<T> v(ηic &i) { return {ηauto_<T>::v(i.η())}; }
 };
 
+
+// NOTE: these values require explicit delete[], which is error-prone;
+// instead of introducing those problems, we just don't support decoding
+// for these.
+template<> struct ηauto_<chc*>
+{
+  sletc ops = ηauto_op_encode | ηauto_op_type;
+  sletc t = ηtype::string;
+  sletc n = 16;
+};
+
 template<uN N>
 struct ηauto_<char[N]>
 {
   sletc ops = ηauto_op_encode | ηauto_op_type;
   sletc t = ηtype::string;
   sletc n = N;
-
-  // NOTE: these values require explicit delete[], which is error-prone;
-  // instead of introducing those problems, we just don't support this case
 };
+
 
 template<class X>
 struct ηauto_<T<X>>
@@ -120,35 +128,33 @@ struct ηauto_<V<ηi>>
 
 
 // Convert a C++ function to one that accepts a ηi to unpack its arguments.
-template<class R, class... Xs>
-auto ηhauto(F<R(Xs...)> &&f)
+template<class F>
+auto ηhauto(F const &f)
 {
-  return [f=mo(f)](ηic &i) -> R
-    { return std::apply(f, ηauto_<T<Xs...>>::v(i)); };
+  return ηhauto_(std::function(f));
 }
 
 template<class R, class... Xs>
-auto ηhauto(R(*f)(Xs...))
+auto ηhauto_(F<R(Xs...)> &&f)
 {
-  return [=](ηic &i) -> R
+  return [f=mo(f)](ηic &i) -> R
     { return std::apply(f, ηauto_<T<Xs...>>::v(i)); };
 }
 
 
 // Convert a C++ function to one that accepts a single ηi for each of its
 // arguments.
-template<class R, class... Xs, class... Ys>
-auto ηvauto(F<R(Xs...)> &&f)
+template<class F>
+auto ηvauto(F const &f)
 {
-  // NOTE: each Ys is a ηic
-  return [f=mo(f)](Ys const&... ys) -> R
-    { return f(ηauto_<Xs>::v(ys)...); };
+  return ηvauto_(std::function(f));
 }
 
 template<class R, class... Xs, class... Ys>
-auto ηvauto(R(*f)(Xs...))
+auto ηvauto_(F<R(Xs...)> &&f)
 {
-  return [=](Ys const&... ys) -> R
+  // NOTE: each Ys is a ηic
+  return [f=mo(f)](Ys const&... ys) -> R
     { return f(ηauto_<Xs>::v(ys)...); };
 }
 
