@@ -56,7 +56,7 @@ wasm:  $(try_wasm_bins)  bin/tau-wasm.a  bin/sigma-wasm.a
 
 
 linux-size: bin/pi-phi
-	@echo -n "gzip -9 bin/pi-phi = "; cat bin/pi-phi | gzip -9 | wc -c
+	@echo -n "wc -c bin/pi-phi = "; wc -c bin/pi-phi
 
 wasm-size: bin/pi-phi.js
 	@echo -n "gzip -9 bin/pi-phi.js   = "; cat bin/pi-phi.js   | gzip -9 | wc -c
