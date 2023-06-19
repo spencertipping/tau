@@ -31,14 +31,12 @@ void pi(Stc &s)
 
   // Functional-style while loop
   f.def_sp("!", [](πi &i, πst<π0> c, φaL<':'>, πst<π0> b, πhr x)
-    { πhlv v{i.h()}; v << x;
+    { i.push(x);                              // stack = [x]
       while (1)
-      { i.push(x);
-        c.x(i);
-        if (!i[i.pop()].b()) return x;
-        i.push(x);
-        b.x(i);
-        x = i.pop(); } });
+      { i.dup();                              // stack = [x x]
+        c.x(i);                               // stack = [c(x) x]
+        if (!i[i.pop()].b()) return i.pop();  // stack = [x]
+        b.x(i); } });                         // stack = [x']
 
   cout << s << " → ";
   π1 g = φE(f.ts())(s).r(); cout << g << " → ";
