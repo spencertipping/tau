@@ -12,7 +12,7 @@ using namespace τ;
 using namespace std;
 
 
-void try_pi_phi()
+void pi(Stc &s)
 {
   πφ f;
   f.def_sa(φm(πφint(),
@@ -21,16 +21,45 @@ void try_pi_phi()
 
   πi i;
   f.def_sp("+", [](       πse<i64> x, i64 y) { return x.x + y; });
+  f.def_sp("-", [](       πse<i64> x, i64 y) { return y - x.x; });
+  f.def_sp(">", [](       πse<i64> x, i64 y) { return x.x < y; });
+  f.def_sp("<", [](       πse<i64> x, i64 y) { return x.x > y; });
   f.def_sp("%", [](πi &i, πse<π1>  x, i64 y) { x.x(i); return i[i.pop()].i() + y; });
   f.def_sp("?", [](πi &i, πse<π1> x, φaL<':'>, πse<π1> y, i64 c)
     { c ? x.x(i) : y.x(i);
       return i.pop(); });
 
-  π1 f0 = φE(f.ts())("3").r();   cout << "f0 = " << f0 << endl; f0(i); cout << i << "πφ:f0 → " << i[i.pop()] << endl;
-  π1 f1 = φE(f.ts())("3+4").r(); cout << "f1 = " << f1 << endl; f1(i); cout << i << "πφ:f1 → " << i[i.pop()] << endl;
-  π1 f2 = φE(f.ts())("3%4").r(); cout << "f2 = " << f2 << endl; f2(i); cout << i << "πφ:f2 → " << i[i.pop()] << endl;
-  π1 f3 = φE(f.ts())("0?1:6").r(); cout << "f3 = " << f3 << endl; f3(i); cout << i << "πφ:f3 → " << i[i.pop()] << endl;
-  π1 f4 = φE(f.ts())("1?1:6").r(); cout << "f4 = " << f4 << endl; f4(i); cout << i << "πφ:f4 → " << i[i.pop()] << endl;
+  // Functional-style while loop
+  f.def_sp("!", [](πi &i, πst<π0> c, φaL<':'>, πst<π0> b, πhr x)
+    { πhlv v{i.h()}; v << x;
+      while (1)
+      { i.push(x);
+        c.x(i);
+        if (!i[i.pop()].b()) return x;
+        i.push(x);
+        b.x(i);
+        x = i.pop(); } });
+
+  cout << s << " → ";
+  π1 g = φE(f.ts())(s).r(); cout << g << " → ";
+  g(i);
+  cout << i[i.pop()] << endl;
+}
+
+
+void try_pi_phi()
+{
+  pi("3");
+  pi("3+4");
+  pi("3%4");
+  pi("3 % 4");
+  pi("1 ? 2 : 3");
+  pi("0 ? 2 : 3");
+  pi("[1 - 2] ? 2 : 3");
+  pi("[1 - 1] ? 2 : 3");
+
+  pi("10!>5:-1");
+
   cout << "try_pi_phi OK" << endl;
 }
 
@@ -84,7 +113,7 @@ void try_gc_auto()
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
   τassert_begin
   try_pi_phi();

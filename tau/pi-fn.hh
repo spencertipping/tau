@@ -47,7 +47,7 @@ typedef πf<1> π1;
 template<iN N>
 O &operator<<(O &s, πf<N> const &f)
 {
-  s << "πf<" << N << ">[";
+  s << "[";
   bool first = true;
   for (let &x : f.ss)
   { if (first) first = false;

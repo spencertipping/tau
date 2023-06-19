@@ -47,6 +47,9 @@ template<iN N> struct πautoclass_<πpa<πf<N>>> { sletc c = πautoclass::consta
 template<iN N> struct πautoclass_<πse<πf<N>>> { sletc c = πautoclass::constant; };
 template<iN N> struct πautoclass_<πpe<πf<N>>> { sletc c = πautoclass::constant; };
 
+template<> struct πautoclass_<πst<π0>> { sletc c = πautoclass::constant; };
+template<> struct πautoclass_<πpt<π0>> { sletc c = πautoclass::constant; };
+
 template<>               struct πautoclass_<πhr> { sletc c = πautoclass::stack; };
 template<ηauto_decode T> struct πautoclass_<T>   { sletc c = πautoclass::stack; };
 
@@ -240,6 +243,19 @@ auto πauto_parser_(A const &a, Stc &n, T<Xs...>*)
 { return φs(n, a.p(null<De<Xs>>())...); }
 
 
+// Generate a function name from the base and a tuple of all constants that were
+// captured at parse-time. Constants must be writable to std::ostream.
+template<class... Xs>
+St πauto_name_(Stc &n, T<Xs...> const &cs)
+{
+  if (!std::tuple_size_v<T<Xs...>>) return n;
+  Ss r;
+  r << n;
+  std::apply([&](auto&&... xs) { (void)(r << ... << xs); }, cs);
+  return r.str();
+}
+
+
 // Convert without parsing: this converts C++ into πf<N>
 template<class F>
 auto πauto(Stc &n, F const &f) { return πauto_(n, std::function(f), T<>{}); }
@@ -256,7 +272,7 @@ auto πauto(A const &a, Stc &n, F<R(Xs...)> const &f)
   return φm(πauto_parser_(a, n, null<P>()),
             [n, f](auto &&t)
               { auto [c, i] = πauto_ci_split_(null<P>(), t);
-                return πauto_ipush_(i) | πauto_(n, f, mo(c)); });
+                return πauto_ipush_(i) | πauto_(πauto_name_(n, c), f, mo(c)); });
 }
 
 

@@ -37,8 +37,10 @@ template<class πφ> struct πφ_
 
 
   // Toplevel parser access (FIXME: multiple expressions as per spec)
-  φ<π1> ts() const { return se_; }
-  φ<π1> tp() const { return pe_; }
+  φ<π1> ts()  const { return wse_; }
+  φ<π1> tp()  const { return wpe_; }
+  φ<π0> tsp() const { return wsp_; }
+  φ<π0> tpp() const { return wpp_; }
 
 
   πφ &def_sa(φ<π1> p) { s_.as<φa_<π1>>() << p; return self(); }
@@ -55,10 +57,15 @@ template<class πφ> struct πφ_
   // NOTE: returning the wrong type is intentional. Every πsa<T> should
   // arise from a π1 that we parse, and it's up to πauto to convert the
   // π1 to T using immediate stack indirection.
-  Tt φ<πsa<π1>> p(πsa<T>*) const { return φm(s_,  [](π1 &&x) { return πsa<π1>{mo(x)}; }); }
-  Tt φ<πpa<π1>> p(πpa<T>*) const { return φm(p_,  [](π1 &&x) { return πpa<π1>{mo(x)}; }); }
-  Tt φ<πse<π1>> p(πse<T>*) const { return φm(se_, [](π1 &&x) { return πse<π1>{mo(x)}; }); }
-  Tt φ<πpe<π1>> p(πpe<T>*) const { return φm(pe_, [](π1 &&x) { return πpe<π1>{mo(x)}; }); }
+  Tt φ<πsa<π1>> p(πsa<T>*) const { return φm(ws_,  [](π1 &&x) { return πsa<π1>{mo(x)}; }); }
+  Tt φ<πpa<π1>> p(πpa<T>*) const { return φm(wp_,  [](π1 &&x) { return πpa<π1>{mo(x)}; }); }
+  Tt φ<πse<π1>> p(πse<T>*) const { return φm(wse_, [](π1 &&x) { return πse<π1>{mo(x)}; }); }
+  Tt φ<πpe<π1>> p(πpe<T>*) const { return φm(wpe_, [](π1 &&x) { return πpe<π1>{mo(x)}; }); }
+
+  // These are typed as expected because they must be treated as lazy
+  // functions, which is consistent with the type signature.
+  φ<πst<π0>> p(πst<π0>*) const { return φm(wsp_, [](π0 &&x) { return πst<π0>{mo(x)}; }); }
+  φ<πpt<π0>> p(πpt<π0>*) const { return φm(wpp_, [](π0 &&x) { return πpt<π0>{mo(x)}; }); }
 
 
 protected:
@@ -78,6 +85,19 @@ protected:
   φ<π0> ppp_;  // plural-operand, plural-return prefix (dispatch)
   φ<π0> sp_;   // singular → singular postfix (dispatch)
   φ<π0> pp_;   // plural → plural postfix (dispatch)
+
+  // Wrapped versions of the above, which allow whitespace
+  φ<π1> wse_;  // wrap(se_)
+  φ<π1> wpe_;
+  φ<π1> ws_;
+  φ<π1> wp_;
+
+  φ<π0> wssp_;
+  φ<π0> wpsp_;
+  φ<π0> wspp_;
+  φ<π0> wppp_;
+  φ<π0> wsp_;
+  φ<π0> wpp_;
 };
 
 
@@ -92,21 +112,32 @@ template<class πφ>
     spp_(φd <π0>("πspp")),
     ppp_(φd <π0>("πppp")),
     sp_ (φd <π0>("πsp")),
-    pp_ (φd <π0>("πpp"))
+    pp_ (φd <π0>("πpp")),
+
+    wse_ (πφwrap(se_)),
+    wpe_ (πφwrap(pe_)),
+    ws_  (πφwrap(s_)),
+    wp_  (πφwrap(p_)),
+    wssp_(πφwrap(ssp_)),
+    wpsp_(πφwrap(psp_)),
+    wspp_(πφwrap(spp_)),
+    wppp_(πφwrap(ppp_)),
+    wsp_ (πφwrap(sp_)),
+    wpp_ (πφwrap(pp_))
 {
-  let s1 = s_ | (ssp_ & φW(se_)) % pre;  // s_atom | ss_pre s
-  let s2 =      (psp_ & φW(pe_)) % pre;  // ps_pre p
-  let s3 = (s1 & φn(sp_)) % post;        // (s_atom | ss_pre s) s_post*
+  let s1 = ws_ | (wssp_ & φW(wse_)) % pre;  // s_atom | ss_pre s
+  let s2 =       (wpsp_ & φW(wpe_)) % pre;  // ps_pre p
+  let s3 = (s1 & φn(wsp_)) % post;          // (s_atom | ss_pre s) s_post*
   se_.as<φa_<π1>>() << s3 << s2;
 
-  let p1 = p_
-    | (spp_ & φW(se_)) % pre
-    | (ppp_ & φW(pe_)) % pre;
-  let p2 = (p1 & φn(pp_)) % post;
+  let p1 = wp_
+    | (wspp_ & φW(wse_)) % pre
+    | (wppp_ & φW(wpe_)) % pre;
+  let p2 = (p1 & φn(wpp_)) % post;
   pe_.as<φa_<π1>>() << p1 << p2;
 
-  def_sa(πφgroup(se_));
-  def_pa(πφgroup(pe_));
+  def_sa(πφgroup(wse_));
+  def_pa(πφgroup(wpe_));
 
   // TODO: (s ','?)* case
   // TODO: '(' p ')' case
