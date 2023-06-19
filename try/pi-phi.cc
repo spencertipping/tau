@@ -56,7 +56,7 @@ void try_pi_phi()
   pi("[1 - 2] ? 2 : 3");
   pi("[1 - 1] ? 2 : 3");
 
-  pi("10!>5:-1");
+  pi("10 ! >5 # condition\n : - 1 # body");
 
   cout << "try_pi_phi OK" << endl;
 }
