@@ -29,6 +29,10 @@ void pi(Stc &s)
     { c ? x.x(i) : y.x(i);
       return i.pop(); });
 
+  f.def_sp("??", [](πi &i, πse<π1> x, πse<π1> y, i64 c)
+    { c ? x.x(i) : y.x(i);
+      return i.pop(); });
+
   // Functional-style while loop
   f.def_sp("!", [](πi &i, πst<π0> c, φaL<':'>, πst<π0> b, πhr x)
     { i.push(x);                              // stack = [x]
@@ -55,6 +59,8 @@ void try_pi_phi()
   pi("0 ? 2 : 3");
   pi("[1 - 2] ? 2 : 3");
   pi("[1 - 1] ? 2 : 3");
+  pi("[1 - 2] ?? 2 3");
+  pi("[1 - 1] ?? 2 3");
 
   pi("10 ! >5 # condition\n : - 1 # body");
 
