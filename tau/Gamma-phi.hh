@@ -6,6 +6,7 @@
 #include "Gamma.hh"
 #include "Gamma-phi-basic.hh"
 #include "Psi.hh"
+#include "pi-phi.hh"
 
 #include "begin.hh"
 
@@ -14,7 +15,7 @@ namespace τ
 
 
 // An extensible Γ grammar. See pi-phi.hh for a similar construct for π.
-template<class Γφ> struct Γφ_
+template<class Γφ, class πφ = πφ0> struct Γφ_
 {
   Γφ_();
   Γφ_(Γφ_ const&) = delete;
@@ -23,6 +24,9 @@ template<class Γφ> struct Γφ_
 
   Γφ       &self()       { return *Rc<Γφ*>(this); }
   Γφ const &self() const { return *Rc<Γφ const*>(this); }
+
+  πφ       &pi()         { return pf_; }
+  πφ const &pi()   const { return pf_; }
 
 
   Tt Γφ &def_g (Stc &n, T const &f) { return def_(g_,  n, f); }
@@ -38,11 +42,20 @@ template<class Γφ> struct Γφ_
   auto p(Ψ2*) const { return wp2_; }
   auto p(Ψ4*) const { return wp4_; }
 
+  Tt auto p(πsa<T> *x) const { return pf_.p(x); }
+  Tt auto p(πpa<T> *x) const { return pf_.p(x); }
+  Tt auto p(πse<T> *x) const { return pf_.p(x); }
+  Tt auto p(πpe<T> *x) const { return pf_.p(x); }
+  Tt auto p(πst<T> *x) const { return pf_.p(x); }
+  Tt auto p(πpt<T> *x) const { return pf_.p(x); }
+
 
 protected:
   template<class T, class F> Γφ &def_(φ<T> &d, Stc &n, F const &f)
     { d.template as<φd_<T>>().def(n, φauto(self(), std::function(f)));
       return self(); }
+
+  πφ    pf_;  // provider for π expressions
 
   φ<Γ>  e_;   // Γ-coerced expressions
   φ<Γ>  a_;   // Γ-coerced atoms
@@ -68,8 +81,8 @@ protected:
 φ<Γ> ΓφΨdir(Stc&, Ψd, φ<Ψ0>, φ<Ψ1>, φ<Ψ2>, φ<Ψ4>);
 
 
-template<class Γφ>
-Γφ_<Γφ>::Γφ_()
+template<class Γφ, class πφ>
+Γφ_<Γφ, πφ>::Γφ_()
   : e_ (φa0<Γ>("Γe")),
     a_ (φa0<Γ>("Γa")),
     g_ (φd<Γ> ("Γg")),
