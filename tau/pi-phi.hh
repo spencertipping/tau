@@ -114,16 +114,16 @@ template<class πφ>
     sp_ (φd <π0>("πsp")),
     pp_ (φd <π0>("πpp")),
 
-    wse_ (πφwrap(se_)),
-    wpe_ (πφwrap(pe_)),
-    ws_  (πφwrap(s_)),
-    wp_  (πφwrap(p_)),
-    wssp_(πφwrap(ssp_)),
-    wpsp_(πφwrap(psp_)),
-    wspp_(πφwrap(spp_)),
-    wppp_(πφwrap(ppp_)),
-    wsp_ (πφwrap(sp_)),
-    wpp_ (πφwrap(pp_))
+    wse_ (πφwrap(φW(se_))),
+    wpe_ (πφwrap(φW(pe_))),
+    ws_  (πφwrap(φW(s_))),
+    wp_  (πφwrap(φW(p_))),
+    wssp_(πφwrap(φW(ssp_))),
+    wpsp_(πφwrap(φW(psp_))),
+    wspp_(πφwrap(φW(spp_))),
+    wppp_(πφwrap(φW(ppp_))),
+    wsp_ (πφwrap(φW(sp_))),
+    wpp_ (πφwrap(φW(pp_)))
 {
   let s1 = ws_ | (wssp_ & φW(wse_)) % pre;  // s_atom | ss_pre s
   let s2 =       (wpsp_ & φW(wpe_)) % pre;  // ps_pre p
@@ -148,12 +148,14 @@ template<class πφ>
 struct πφ : public πφ_<πφ>,
             πφP,
             πφstr,
-            πφlit
+            πφlit,
+            πφbrack
 {
   using πφ_<πφ>::p;
   using πφP::p;
   using πφstr::p;
   using πφlit::p;
+  using πφbrack::p;
 };
 
 

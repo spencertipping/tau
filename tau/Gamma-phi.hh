@@ -12,7 +12,7 @@ namespace τ
 {
 
 
-P<φ<Γ>, φ<Γ>> Γφ(φ<Γ>, φ<Ψ0>, φ<Ψ1>, φ<Ψ2>, φ<Ψ4>);
+// TODO: Γφ class, like πφ
 
 
 // Built-in language elements

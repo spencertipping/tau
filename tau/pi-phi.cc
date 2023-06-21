@@ -18,9 +18,10 @@ namespace τ
 
 φ<St> πφlb() { slet r = πφwrap(φl("[")); return r; }
 φ<St> πφrb() { slet r = πφwrap(φl("]")); return r; }
-
 φ<St> πφlp() { slet r = πφwrap(φl("(")); return r; }
 φ<St> πφrp() { slet r = πφwrap(φl(")")); return r; }
+φ<St> πφlB() { slet r = πφwrap(φl("{")); return r; }
+φ<St> πφrB() { slet r = πφwrap(φl("}")); return r; }
 
 
 φ<i64> πφint()     { slet r = φa("int", πφint_hex(), πφint_bin(), πφint_oct(), πφint_dec()); return r; }
@@ -47,6 +48,14 @@ namespace τ
 φ<St> πφword()
 {
   slet r = φcs("abcdefghjiklmnopqrstuvxyz", false, 1);
+  return r;
+}
+
+
+φ<πident> πφident()
+{
+  slet r = φm(πφwrap(φre("[a-z][a-z_0-9']*")),
+              [](Vc<St> &x) { return πident{x.front()}; });
   return r;
 }
 

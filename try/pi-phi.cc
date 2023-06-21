@@ -12,6 +12,7 @@ using namespace τ;
 using namespace std;
 
 
+// Run a single π program with a minimal "standard library".
 void pi(Stc &s)
 {
   πφ f;
