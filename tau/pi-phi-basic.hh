@@ -16,7 +16,7 @@ namespace τ
 
 // Take a single plural-element context and parse multiple of them,
 // splicing the results into a single output η stream.
-φ<π1> πφfs(φ<π1>);
+φ<π1> πφnp(φ<π1>);
 
 
 struct πident { St x; };
@@ -40,6 +40,8 @@ Tt struct πrbrace { T x; };  // a thing terminated by a right-brace
 φ<St> πφrp();  // wrapped right paren
 φ<St> πφlB();  // wrapped left brace
 φ<St> πφrB();  // wrapped right brace
+
+φ<St> πφco();  // wrapped comma
 
 
 Tt φ<T> πφwrap (φ<T> p) { return φ2("wrap", πφig(), p, πφig()); }

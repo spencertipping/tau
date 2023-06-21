@@ -12,6 +12,34 @@ namespace τ
 {
 
 
+static π1 np(V<π1> &&ps)
+{
+  Ss ns;
+  bool first = true;
+  for (let &p : ps)
+  {
+    if (first) first = false;
+    else       ns << "|";
+    ns << p;
+  }
+
+  return π1{ns.str(), [ps=mo(ps)](πi &i)
+    {
+      for (let &p : ps) p(i);  // push each onto stack in reverse order
+      // TODO
+
+    }};
+
+}
+
+
+φ<π1> πφnp(φ<π1> p)
+{
+  slet r = φm(φn(φ1("p','?", p, φo(πφco()))), np);
+  return r;
+}
+
+
 φ<St> πφws() { slet r = φcs(" \t\n\r", false, 1);                      return r; }
 φ<St> πφlc() { slet r = φq("lc", φl("# ", ""), φcs("\n", true));       return r; }
 φ<St> πφig() { slet r = φq("ign", φn(φa<St>("ign0", πφws(), πφlc()))); return r; }
@@ -22,6 +50,8 @@ namespace τ
 φ<St> πφrp() { slet r = πφwrap(φl(")")); return r; }
 φ<St> πφlB() { slet r = πφwrap(φl("{")); return r; }
 φ<St> πφrB() { slet r = πφwrap(φl("}")); return r; }
+
+φ<St> πφco() { slet r = πφwrap(φl(",")); return r; }
 
 
 φ<i64> πφint()     { slet r = φa("int", πφint_hex(), πφint_bin(), πφint_oct(), πφint_dec()); return r; }
@@ -93,18 +123,6 @@ namespace τ
                   return r; });
   return r;
 }
-
-
-/*
-φ<πfs> πφfs(φ<πfs> f)
-{
-  return φm(φn(f), [](V<πfs> &&x) -> πfs
-    { return [x = mo(x)](πi &i)
-      { πvs r;
-        for (let &p : x) for (let &y : p(i)) r.push_back(y);
-        return r; }; });
-}
-*/
 
 
 }

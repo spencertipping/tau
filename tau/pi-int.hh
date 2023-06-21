@@ -31,6 +31,11 @@ struct πi final
     { A(s_.xs.size() >= 2, "πi stack underflow (swap)");
       std::swap(s_.xs.back(), s_.xs[s_.xs.size() - 2]); return *this; }
 
+  uN         size()     const { return s_.xs.size(); }
+  πhr  operator[](uN i) const { return s_.xs[size() - i - 1]; }
+  πhr &operator[](uN i)       { return s_.xs[size() - i - 1]; }
+
+
   ηi ypeek() const { return (*this)[peek()]; }
   ηi ypop()        { return (*this)[pop()]; }
 
@@ -40,12 +45,13 @@ struct πi final
   template<ηauto_encode T>
   πhr operator<<(T const &x) { return h_ << x; }
 
-  ηo<πh&> r(uN s = 64) { return h_.r(s); }
-  πhr   ref()          { return h_.ref(); }
 
-  πhr r(uN s, F<void(ηo<πh&>)> const &f) { f(r(s)); return ref(); }
+  ηo<πh&> r(uN s = 64)                       { return h_.r(s); }
+  πhr   ref()                                { return h_.ref(); }
+  πhr     r(uN s, F<void(ηo<πh&>)> const &f) { f(r(s)); return ref(); }
 
   πh &h() { return h_; }
+
 
 protected:
   πh   h_;
