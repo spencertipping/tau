@@ -88,6 +88,10 @@ struct Γs_ : public virtual Γ_
 Γ operator|(Γ a, Γ b);
 
 
+// Combine many Γs into a single Γ
+Γ Γs(Vc<Γ>&);
+
+
 O &operator<<(O&, Γ const&);
 
 

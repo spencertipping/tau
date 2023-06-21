@@ -20,6 +20,15 @@ namespace τ
 }
 
 
+Γ Γs(Vc<Γ> &xs)
+{
+  if (xs.empty()) return Γ();
+  Γ r = xs.back();
+  for (iN i = xs.size() - 2; i >= 0; --i) r = xs[i] | r;
+  return r;
+}
+
+
 O &operator<<(O &s, Γ const &g)
 {
   return s << g.name();

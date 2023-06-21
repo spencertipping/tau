@@ -32,7 +32,7 @@ Tt concept πautostack = πautoclass_<De<T>>::c == πautoclass::stack;
 template<>     struct πautoclass_<πi>      { sletc c = πautoclass::meta; };
 template<uN N> struct πautoclass_<πhr_<N>> { sletc c = πautoclass::meta; };
 
-template<is_πφ T> struct πautoclass_<T>     { sletc c = πautoclass::constant; };
+template<is_φa T> struct πautoclass_<T>     { sletc c = πautoclass::constant; };
 Tt                struct πautoclass_<πP<T>> { sletc c = πautoclass::constant; };
 
 // NOTE: πsa and friends can apply to both eager values (which are stack-compatible)

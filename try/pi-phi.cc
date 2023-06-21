@@ -15,7 +15,7 @@ using namespace std;
 // Run a single π program with a minimal "standard library".
 void pi(Stc &s)
 {
-  πφ f;
+  πφ0 f;
   f.def_sa(φm(πφint(),
               [](i64 x) { return πauto((Ss{} << x).str(),
                                        [x]() { return x; }); }));
@@ -50,9 +50,13 @@ void pi(Stc &s)
         b.x(i); } });                         // stack = [x']
 
   cout << s << " → ";
+  let t1 = now();
   π1 g = φE(f.ts())(s).r(); cout << g << " → ";
+  let t2 = now();
   g(i);
-  cout << i[i.pop()] << endl;
+  let t3 = now();
+  cout << i[i.pop()];
+  cout << " | parse: " << t2 - t1 << ", eval: " << t3 - t2 << endl;
 }
 
 
@@ -77,6 +81,9 @@ void try_pi_phi()
   pi("[1 - 1] ?? FAIL 3");
 
   pi("10 ! >5 # condition\n : - 1 # body");
+
+  // Uncomment to enable this benchmark case
+  // pi("1000000 ! >1 # condition\n : - 1 # body");
 
   cout << "try_pi_phi OK" << endl;
 }

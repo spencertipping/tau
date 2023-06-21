@@ -25,11 +25,15 @@ static π1 np(V<π1> &&ps)
 
   return π1{ns.str(), [ps=mo(ps)](πi &i)
     {
-      for (let &p : ps) p(i);  // push each onto stack in reverse order
-      // TODO
-
+      uN s = 0;
+      for (let &p : ps) p(i), s += i.peek().l;  // push each onto stack in reverse order
+      let r = i.r(s, [&](auto &&o)
+        {
+          for (iN j = ps.size() - 1; j >= 0; --j) o << i[i[j]];
+          for (uN j = 0; j < ps.size(); ++j)      i.pop();
+        });
+      i.push(r);
     }};
-
 }
 
 

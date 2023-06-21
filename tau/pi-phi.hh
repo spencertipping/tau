@@ -5,6 +5,7 @@
 #include "phi.hh"
 #include "phi-ctor.hh"
 #include "phi-auto.hh"
+#include "phi-markers.hh"
 #include "pi-auto.hh"
 #include "pi-fn.hh"
 #include "pi-phi-basic.hh"
@@ -19,11 +20,13 @@ namespace τ
 // An extensible π grammar. See pi-phi.md for details.
 //
 // To use this struct, inherit from it for the core grammar and mix in
-// structs from pi-phi-basic.hh to add parsers. For example,
-// struct πφ below.
+// structs from pi-phi-basic.hh to add parsers. For example, struct πφ0
+// below.
 template<class πφ> struct πφ_
 {
   πφ_();
+  πφ_(πφ_ const&) = delete;
+  πφ_(πφ_&&)      = delete;
   virtual ~πφ_() {}
 
   πφ       &self()       { return *Rc<πφ*>(this); }
@@ -43,15 +46,15 @@ template<class πφ> struct πφ_
   φ<π0> tpp() const { return wpp_; }
 
 
-  πφ &def_sa(φ<π1> p) { s_.as<φa_<π1>>() << p; return self(); }
-  πφ &def_pa(φ<π1> p) { p_.as<φa_<π1>>() << p; return self(); }
+  πφ &def_sa(φ<π1> const &p) { s_.as<φa_<π1>>() << p; return self(); }
+  πφ &def_pa(φ<π1> const &p) { p_.as<φa_<π1>>() << p; return self(); }
 
-  Tt πφ &def_ssp(St n, T f) { return def_(ssp_, n, f); }
-  Tt πφ &def_psp(St n, T f) { return def_(psp_, n, f); }
-  Tt πφ &def_spp(St n, T f) { return def_(spp_, n, f); }
-  Tt πφ &def_ppp(St n, T f) { return def_(ppp_, n, f); }
-  Tt πφ &def_sp (St n, T f) { return def_(sp_,  n, f); }
-  Tt πφ &def_pp (St n, T f) { return def_(pp_,  n, f); }
+  Tt πφ &def_ssp(St n, T const &f) { return def_(ssp_, n, f); }
+  Tt πφ &def_psp(St n, T const &f) { return def_(psp_, n, f); }
+  Tt πφ &def_spp(St n, T const &f) { return def_(spp_, n, f); }
+  Tt πφ &def_ppp(St n, T const &f) { return def_(ppp_, n, f); }
+  Tt πφ &def_sp (St n, T const &f) { return def_(sp_,  n, f); }
+  Tt πφ &def_pp (St n, T const &f) { return def_(pp_,  n, f); }
 
 
   // NOTE: returning the wrong type is intentional. Every πsa<T> should
@@ -69,7 +72,7 @@ template<class πφ> struct πφ_
 
 
 protected:
-  Tt πφ &def_(φ<π0> &d, Stc &n, T f)
+  Tt πφ &def_(φ<π0> &d, Stc &n, T const &f)
     { d.as<φd_<π0>>().def(n, πauto(self(), n, std::function(f)));
       return self(); }
 
@@ -86,8 +89,8 @@ protected:
   φ<π0> sp_;   // singular → singular postfix (dispatch)
   φ<π0> pp_;   // plural → plural postfix (dispatch)
 
-  // Wrapped versions of the above, which allow whitespace
-  φ<π1> wse_;  // wrap(se_)
+  // Wrapped+weakened versions of the above, which allow whitespace
+  φ<π1> wse_;  // wrap(φW(se_))
   φ<π1> wpe_;
   φ<π1> ws_;
   φ<π1> wp_;
@@ -137,26 +140,23 @@ template<class πφ>
   pe_.as<φa_<π1>>() << p1 << p2;
 
   def_sa(πφgroup(wse_));
-  def_pa(πφgroup(wpe_));
+  def_pa(πφgroup(πφnp(wpe_)));
 
   // TODO: (s ','?)* case
-  // TODO: '(' p ')' case
 }
 
 
-// Example instantiation of πφ_
-struct πφ : public πφ_<πφ>,
-            πφP,
-            πφstr,
-            πφlit,
-            πφbrack
+template<class... Xs>
+struct πφ : public πφ_<πφ<Xs...>>, φauto_str, Xs...
 {
-  using πφ_<πφ>::p;
-  using πφP::p;
-  using πφstr::p;
-  using πφlit::p;
-  using πφbrack::p;
+  using πφ_<πφ<Xs...>>::p;
+  using φauto_str::p;
+  using Xs::p...;
 };
+
+
+// Example instantiation of πφ -- see sigma/ for actual stdlib code.
+typedef πφ<πφP, πφlit, πφbrack> πφ0;
 
 
 }
