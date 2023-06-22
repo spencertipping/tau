@@ -19,11 +19,9 @@ Tt struct Γe { T x; };
 
 
 // An extensible Γ grammar. See pi-phi.hh for a similar construct for π.
-template<class Γφ, class πφ = πφ0> struct Γφ_
+template<class Γφ, class πφ> struct Γφ_
 {
   Γφ_();
-  Γφ_(Γφ_ const&) = delete;
-  Γφ_(Γφ_&&)      = delete;
   virtual ~Γφ_() {}
 
   Γφ       &self()       { return *Rc<Γφ*>(this); }
@@ -43,6 +41,11 @@ template<class Γφ, class πφ = πφ0> struct Γφ_
   φ<Γ> ta() const { return wa_; }
   φ<Γ> te() const { return we_; }
 
+  // Parse a Γ program and return its parse result, which can be either
+  // success or failure. To assume success, use operator().
+  φr_<Γ> parse(Stc &s) const { return φE(te())(s); }
+  Γ operator()(Stc &s) const { return parse(s).r(); }
+
 
   auto p(Γa<Γ>*) const { return wa_; }
   auto p(Γe<Γ>*) const { return we_; }
@@ -53,12 +56,18 @@ template<class Γφ, class πφ = πφ0> struct Γφ_
   auto p(Ψ2*) const { return wp2_; }
   auto p(Ψ4*) const { return wp4_; }
 
+
   Tt auto p(πsa<T> *x) const { return pf_.p(x); }
   Tt auto p(πpa<T> *x) const { return pf_.p(x); }
   Tt auto p(πse<T> *x) const { return pf_.p(x); }
   Tt auto p(πpe<T> *x) const { return pf_.p(x); }
   Tt auto p(πst<T> *x) const { return pf_.p(x); }
   Tt auto p(πpt<T> *x) const { return pf_.p(x); }
+
+  // Parse-time evaluation of a π expression
+  φ<ηm> p(ηm*) const
+    { return φm(p(null<πpa<π1>>()), [](πpa<π1> &&f)
+        { ηm b; πi i; f.x(i); b << i[i.pop()]; return b; }); }
 
 
 protected:
@@ -120,13 +129,16 @@ template<class Γφ, class πφ>
 }
 
 
-template<class... Xs>
-struct Γφ : public Γφ_<Γφ<Xs...>>, φauto_str, Xs...
+template<class πφ, class... Xs>
+struct Γφ : public Γφ_<Γφ<πφ, Xs...>, πφ>, φauto_str, Xs...
 {
-  using Γφ_<Γφ>::p;
+  using Γφ_<Γφ<πφ, Xs...>, πφ>::p;
   using φauto_str::p;
   using Xs::p...;
 };
+
+
+typedef Γφ<πφ0> Γφ0;
 
 
 }

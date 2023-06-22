@@ -18,26 +18,28 @@ namespace τ
 //
 // Because parsers may rely on state, φauto() first accepts an object that
 // provides the parser for a given type. This object should implement a
-// p(T&&) method that returns a parser for type T.
+// p(T*) method that returns a parser for type T. (Note that the T* here
+// is always null; it's just being used for type selection.)
 //
 // It's possible to define a parser for nullary functions; the result is
 // a function that will consume no input, but will be called separately per
 // parse.
 
 template<class A, class... Xs, class T>
-auto φauto(A const &a, F<T(Xs...)> const &f) -> φ<decltype(f(std::declval<Xs>()...))>
+auto φauto_(A const &a, F<T(Xs...)> &&f)
+  -> φ<decltype(f(std::declval<Xs>()...))>
 {
   if constexpr (sizeof...(Xs) == 0)
-    return φm(φR<int>(0), [f](int) -> T { return f(); });
+    return φm(φR<int>(0), [f=mo(f)](int) -> T { return f(); });
   else
-    return φm(φs("auto", a.p(std::declval<De<Xs>>())...),
-              [f](auto &&xs) -> T { return std::apply(f, xs); });
+    return φm(φs("auto", a.p(null<De<Xs>>())...),
+              [f=mo(f)](auto &&xs) -> T { return std::apply(f, xs); });
 }
 
-template<class A, class... Xs, class T>
-auto φauto(A const &a, T(*f)(Xs...))
+template<class A, class F>
+auto φauto(A const &a, F const &f)
 {
-  return φauto(a, std::function(f));
+  return φauto_(a, std::function(f));
 }
 
 
@@ -56,7 +58,7 @@ struct φauto_str
                 [](auto &&x) { return φaCs<N, L, U, S...>{mo(x)}; }); }
 
   template<class... Xs> auto p(φaA<Xs...>*) const
-    { return φm(φa("φaA<...>", p(std::declval<Xs>())...),
+    { return φm(φa("φaA<...>", p(null<Xs>())...),
                 [](auto &&x) { return φaA<Xs...>{mo(x)}; }); }
 };
 

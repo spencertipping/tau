@@ -8,6 +8,7 @@
 #include "phi-markers.hh"
 #include "pi-auto.hh"
 #include "pi-fn.hh"
+#include "pi-int.hh"
 #include "pi-phi-basic.hh"
 #include "pi-phi-markers.hh"
 
@@ -25,8 +26,6 @@ namespace τ
 template<class πφ> struct πφ_
 {
   πφ_();
-  πφ_(πφ_ const&) = delete;
-  πφ_(πφ_&&)      = delete;
   virtual ~πφ_() {}
 
   πφ       &self()       { return *Rc<πφ*>(this); }

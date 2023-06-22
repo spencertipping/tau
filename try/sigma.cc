@@ -14,19 +14,19 @@ int main(int argc, char *argv[])
 
   try
   {
-    auto r = τ::φE(φΓ())(argv[1]);
+    auto r = σΓ().parse(τ::St{argv[1]});
     if (r.is_f())
     {
       cerr << "parse error at " << r.j << ": " << r.p().name() << endl;
       return 1;
     }
 
-    τ::τe t;
-    r.r()(τ::Ξ{t}.push());
+    τe t;
+    r.r()(Ξ{t}.push());
     t.go();
     return 0;
   }
-  catch (std::string s)
+  catch (τ::St s)
   {
     cerr << "runtime error: " << s << endl;
     return 1;

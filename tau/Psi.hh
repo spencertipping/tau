@@ -213,6 +213,33 @@ inline Γ ΓΨ(Ψ2 &&p, Ψd d = Ψd::f, St n = "") { return {new ΓΨ2_(mo(p), d
 inline Γ ΓΨ(Ψ4 &&p, Ψd d = Ψd::f, St n = "") { return {new ΓΨ4_(mo(p), d, n)}; }
 
 
+// Shorthand ways to create Ψs, i.e. with less function-arg overhead: Ψ is normal,
+// Ψc runs the constructor inline.
+inline Ψ0 Ψ (F<void(ξi)>          &&f, St n = "") { return {[f=mo(f)](ψ,   ξi i, Ψaux) { return f(i); }, n}; }
+inline Ψ0 Ψ (F<void(ψ, ξi)>       &&f, St n = "") { return {[f=mo(f)](ψ q, ξi i, Ψaux) { return f(q, i); }, n}; }
+inline Ψ0 Ψ (F<void(ψ, ξi, Ψaux)> &&f, St n = "") { return {mo(f), n}; }
+inline Ψ0 Ψc(F<void(ψ, ξi)>       &&f, St n = "") { return {[f=mo(f)](ψ q, ξi i, Ψaux) { return f(q, i); }, n, true}; }
+inline Ψ0 Ψc(F<void(ψ, ξi, Ψaux)> &&f, St n = "") { return {mo(f), n, true}; }
+
+inline Ψ1 Ψ (F<void(ξo)>          &&f, St n = "") { return {[f=mo(f)](ψ,   ξo o, Ψaux) { return f(o); }, n}; }
+inline Ψ1 Ψ (F<void(ψ, ξo)>       &&f, St n = "") { return {[f=mo(f)](ψ q, ξo o, Ψaux) { return f(q, o); }, n}; }
+inline Ψ1 Ψ (F<void(ψ, ξo, Ψaux)> &&f, St n = "") { return {mo(f), n}; }
+inline Ψ1 Ψc(F<void(ψ, ξo)>       &&f, St n = "") { return {[f=mo(f)](ψ q, ξo o, Ψaux) { return f(q, o); }, n, true}; }
+inline Ψ1 Ψc(F<void(ψ, ξo, Ψaux)> &&f, St n = "") { return {mo(f), n, true}; }
+
+inline Ψ2 Ψ (F<void(ξi, ξo)>          &&f, St n = "") { return {[f=mo(f)](ψ,   ξi i, ξo o, Ψaux) { return f(i, o); }, n}; }
+inline Ψ2 Ψ (F<void(ψ, ξi, ξo)>       &&f, St n = "") { return {[f=mo(f)](ψ q, ξi i, ξo o, Ψaux) { return f(q, i, o); }, n}; }
+inline Ψ2 Ψ (F<void(ψ, ξi, ξo, Ψaux)> &&f, St n = "") { return {mo(f), n}; }
+inline Ψ2 Ψc(F<void(ψ, ξi, ξo)>       &&f, St n = "") { return {[f=mo(f)](ψ q, ξi i, ξo o, Ψaux) { return f(q, i, o); }, n, true}; }
+inline Ψ2 Ψc(F<void(ψ, ξi, ξo, Ψaux)> &&f, St n = "") { return {mo(f), n, true}; }
+
+inline Ψ4 Ψ (F<void(ξi, ξo, ξo, ξi)>          &&f, St n = "") { return {[f=mo(f)](ψ,   ξi fi, ξo fo, ξo bo, ξi bi, Ψaux) { return f(fi, fo, bo, bi); }, n}; }
+inline Ψ4 Ψ (F<void(ψ, ξi, ξo, ξo, ξi)>       &&f, St n = "") { return {[f=mo(f)](ψ q, ξi fi, ξo fo, ξo bo, ξi bi, Ψaux) { return f(q, fi, fo, bo, bi); }, n}; }
+inline Ψ4 Ψ (F<void(ψ, ξi, ξo, ξo, ξi, Ψaux)> &&f, St n = "") { return {mo(f), n}; }
+inline Ψ4 Ψc(F<void(ψ, ξi, ξo, ξo, ξi)>       &&f, St n = "") { return {[f=mo(f)](ψ q, ξi fi, ξo fo, ξo bo, ξi bi, Ψaux) { return f(q, fi, fo, bo, bi); }, n, true}; }
+inline Ψ4 Ψc(F<void(ψ, ξi, ξo, ξo, ξi, Ψaux)> &&f, St n = "") { return {mo(f), n, true}; }
+
+
 }
 
 #include "end.hh"
