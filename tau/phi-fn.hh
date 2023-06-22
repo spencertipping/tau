@@ -164,7 +164,8 @@ struct φs_ : public virtual φ_<T<Xs...>>
   φs_(St name, φ<Xs>... p_) : φ_<T<Xs...>>(name), p(p_...) {}
 
   φr_<T<Xs...>> operator()(φc_ const &x) const noexcept
-    { return res<0>(go<0>(x, x.a(true, x.i()))); }
+    { if constexpr (sizeof...(Xs) == 0) return x.a(std::make_tuple(), x.i());
+      else return res<0>(go<0>(x, x.a(true, x.i()))); }
 
   T<φ<Xs>...> p;
 

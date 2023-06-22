@@ -26,32 +26,48 @@ template<bool C, class I, class O> struct Ψauto__;
 template<bool C, class... Is, class... Os>
 struct Ψauto__<C, T<Is...>, T<Os...>>
 {
+  // NOTE: ψ args are all passed by-value, so we don't need to forward anything here
   Tt static auto f(T &&f)
     {
-      if constexpr (C) return [f=mo(f)](Os const&... os) mutable { return Ψc([=, &f](Is... is) mutable { f(os..., is...); }); };
-      else             return [f=mo(f)](Os const&... os) mutable { return Ψ ([=, &f](Is... is) mutable { f(os..., is...); }); };
+      if constexpr (C) return [f=mo(f)](Os... os) { return Ψc([=, &f](Is... is) { f(os..., is...); }); };
+      else             return [f=mo(f)](Os... os) { return Ψ ([=, &f](Is... is) { f(os..., is...); }); };
     }
 };
 
 
+// Detect already-auto-transformed functions so we can return them directly.
+// In this case, "done" means there are no ψ-specific args.
+template<class... Xs>          struct Ψauto_is_done_;
+template<>                     struct Ψauto_is_done_<> { sletc v = true; };
+template<class X, class... Xs> struct Ψauto_is_done_<X, Xs...>
+{ sletc v = !is_ψarg<X> && Ψauto_is_done_<Xs...>::v; };
+
+
 // Curry a function of the form (parse_args..., psi_args...), returning
 // an inner call to Ψ() wrapping the inner function.
-template<iN I, bool C, class... Xs>
-auto Ψauto_(F<void(Xs...)> &&f)
+template<uS I, bool C, class... Xs>
+auto Ψauto0_(F<void(Xs...)> &&f)
 {
   if constexpr (!is_ψarg<std::tuple_element_t<I, T<Xs...>>>)
-    return Ψauto_<I + 1, C>(mo(f));
-  else
-    return Ψauto__<C,
-                   Tdrop<I, T<Xs...>>,
-                   Ttake<I, T<Xs...>>>::f(mo(f));
+                 return Ψauto0_<I + 1, C>(mo(f));
+  else return Ψauto__<C,
+                      Tdrop<I, T<Xs...>>,
+                      Ttake<I, T<Xs...>>>::f(mo(f));
 }
 
 
-template<bool C, class T>
+template<bool C, class R, class... Xs>
+auto Ψauto1_(F<R(Xs...)> &&f)
+{
+  if constexpr (Ψauto_is_done_<Xs...>::v) return f;
+  else                                    return Ψauto0_<0, C>(mo(f));
+}
+
+
+template<bool C = false, class T>
 auto Ψauto(T &&f)
 {
-  return Ψauto_<0, C>(std::function(f));
+  return Ψauto1_<C>(std::function(f));
 }
 
 

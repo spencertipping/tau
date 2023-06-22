@@ -46,6 +46,8 @@ void πshared(πφ &p)
   p.def_sp("-", [](πse<i64> x, i64 y) { return y - x.x; });
   p.def_sp(">", [](πse<ηi>  x, ηi  y) { return x.x < y; });
   p.def_sp("<", [](πse<ηi>  x, ηi  y) { return x.x > y; });
+
+  p.def_sp(">s", [](ηi x) { return (Ss{} << x << "\n").str(); });
 }
 
 
