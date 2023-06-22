@@ -37,6 +37,7 @@
 #include "tau/Xi.hh"
 #include "tau/Gamma.hh"
 #include "tau/Psi.hh"
+#include "tau/Psi-auto.hh"
 #include "tau/Gamma-phi.hh"
 
 

@@ -12,16 +12,17 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  τe t;
+  auto g = σΓ();
   try
   {
-    auto r = σΓ().parse(τ::St{argv[1]});
+    auto r = g.parse(τ::St{argv[1]});
     if (r.is_f())
     {
       cerr << "parse error at " << r.j << ": " << r.p().name() << endl;
       return 1;
     }
 
-    τe t;
     r.r()(Ξ{t}.push());
     t.go();
     return 0;

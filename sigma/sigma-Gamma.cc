@@ -5,11 +5,7 @@ namespace σ
 {
 
 using namespace std::literals;
-
-using τ::Ψ;
-using τ::ηm;
-using τ::i64;
-using τ::St;
+using namespace τ;
 
 
 Γφ σΓ()
@@ -25,20 +21,31 @@ using τ::St;
 
 void Γshared(Γφ &g)
 {
-  g .def_p0("F", []()      { return Ψ([](ξi i) { for (let x : i) (void) x; }); })
-    .def_p1("f", []()      { return Ψ([](ψ q, ξo o) { τe &t = q.t(); while (1) t.dt(τ::now() + 1s); }); })
-    .def_p1("i", [](ηm x)  { return Ψ([x=mo(x)](ξo o) { o.r() << x.y(); }); })
-    .def_p1("I", [](ηm x)  { return Ψ([x=mo(x)](ξo o) { while (o) o.r() << x.y(); }); })
-    .def_p1("n", [](i64 x) { return Ψ([=](ξo o) { for (i64 i = 0; i < x; ++i) o.r() << i; }); })
+  g .def_p0("F", [](             ξi i) { for (let x : i) (void) x; })
 
-    .def_p2("M?",  []()     { return Ψ([] (ξi i, ξo o) { for (let x : i) std::cout <<              x << std::endl, o << x; }); })
-    .def_p2("M??", [](St n) { return Ψ([=](ξi i, ξo o) { for (let x : i) std::cout << n << ": " << x << std::endl, o << x; }); });
+    .def_p1("f", [](        ψ q, ξo o) { τe &t = q.t(); while (1) t.dt(now() + 1s); })
+    .def_p1("i", [](ηm  x,       ξo o) { o << x.y(); })
+    .def_p1("I", [](ηm  x,       ξo o) { while (o) o << x.y(); })
+    .def_p1("n", [](i64 x,       ξo o) { for (i64 i = 0; i < x; ++i) o.r() << i; })
+
+    .def_p2("-",   [](           ξi i, ξo o) { for (let x : i) o << x; })
+    .def_p2("M?",  [](           ξi i, ξo o) { for (let x : i) std::cout <<              x << std::endl, o << x; })
+    .def_p2("M??", [](St n,      ξi i, ξo o) { for (let x : i) std::cout << n << ": " << x << std::endl, o << x; })
+    .def_p2("p",   [](πst<π0> f, ξi i, ξo o) { πi p; for (let x : i) { p.push(x); f.x(p); o << p[p.pop()]; } })
+    ;
 }
 
 
 void πshared(πφ &p)
 {
+  p.def_sa(φm(πφint(),
+              [](i64 x) { return πauto((Ss{} << x).str(),
+                                       [x]() { return x; }); }));
 
+  p.def_sp("+", [](πse<i64> x, i64 y) { return x.x + y; });
+  p.def_sp("-", [](πse<i64> x, i64 y) { return y - x.x; });
+  p.def_sp(">", [](πse<ηi>  x, ηi  y) { return x.x < y; });
+  p.def_sp("<", [](πse<ηi>  x, ηi  y) { return x.x > y; });
 }
 
 

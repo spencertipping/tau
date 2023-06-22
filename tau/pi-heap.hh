@@ -82,9 +82,11 @@ struct πh final
     { return {r.o, r.l, πhrn(y.odata() - (h_.data() + r.o)), πhrn(y.lsize())}; }
 
   // Write a value into the heap and return a reference to it.
+  // FIXME: this should be flat for ηi
   Tt πhr operator<<(T const &x)
     { A(!r_.l, "πh<< is not re-entrant");
       A(!hn_,  "πh<< during GC");
+      TODO("FIXME: πh<<; this is causing nesting issues");
       r(ηauto_<T>::n) << x;  // calls .ref() on destruct
       return ref(); }
 

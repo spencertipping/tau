@@ -31,9 +31,9 @@ struct πi final
     { A(s_.xs.size() >= 2, "πi stack underflow (swap)");
       std::swap(s_.xs.back(), s_.xs[s_.xs.size() - 2]); return *this; }
 
-  uN         size()     const { return s_.xs.size(); }
-  πhr  operator[](uN i) const { return s_.xs[size() - i - 1]; }
-  πhr &operator[](uN i)       { return s_.xs[size() - i - 1]; }
+  uN               size()     const { return s_.xs.size(); }
+  πhr const &operator[](uN i) const { return s_.xs[size() - i - 1]; }
+  πhr       &operator[](uN i)       { return s_.xs[size() - i - 1]; }
 
 
   ηi ypeek() const { return (*this)[peek()]; }

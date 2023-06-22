@@ -6,6 +6,7 @@
 #include "Gamma.hh"
 #include "Gamma-phi-basic.hh"
 #include "Psi.hh"
+#include "Psi-auto.hh"
 #include "pi-phi.hh"
 
 #include "begin.hh"
@@ -19,7 +20,8 @@ Tt struct Γe { T x; };
 
 
 // An extensible Γ grammar. See pi-phi.hh for a similar construct for π.
-template<class Γφ, class πφ> struct Γφ_
+template<class Γφ, class πφ>
+struct Γφ_
 {
   Γφ_();
   virtual ~Γφ_() {}
@@ -32,10 +34,16 @@ template<class Γφ, class πφ> struct Γφ_
 
 
   Tt Γφ &def_g (Stc &n, T const &f) { return def_(g_,  n, f); }
-  Tt Γφ &def_p0(Stc &n, T const &f) { return def_(p0_, n, f); }
-  Tt Γφ &def_p1(Stc &n, T const &f) { return def_(p1_, n, f); }
-  Tt Γφ &def_p2(Stc &n, T const &f) { return def_(p2_, n, f); }
-  Tt Γφ &def_p4(Stc &n, T const &f) { return def_(p4_, n, f); }
+
+  Tt Γφ &def_p0(Stc &n, T const &f) { return def_(p0_, n, Ψauto<false>(f)); }
+  Tt Γφ &def_p1(Stc &n, T const &f) { return def_(p1_, n, Ψauto<false>(f)); }
+  Tt Γφ &def_p2(Stc &n, T const &f) { return def_(p2_, n, Ψauto<false>(f)); }
+  Tt Γφ &def_p4(Stc &n, T const &f) { return def_(p4_, n, Ψauto<false>(f)); }
+
+  Tt Γφ &def_c0(Stc &n, T const &f) { return def_(p0_, n, Ψauto<true>(f)); }
+  Tt Γφ &def_c1(Stc &n, T const &f) { return def_(p1_, n, Ψauto<true>(f)); }
+  Tt Γφ &def_c2(Stc &n, T const &f) { return def_(p2_, n, Ψauto<true>(f)); }
+  Tt Γφ &def_c4(Stc &n, T const &f) { return def_(p4_, n, Ψauto<true>(f)); }
 
 
   φ<Γ> ta() const { return wa_; }
@@ -43,7 +51,7 @@ template<class Γφ, class πφ> struct Γφ_
 
   // Parse a Γ program and return its parse result, which can be either
   // success or failure. To assume success, use operator().
-  φr_<Γ> parse(Stc &s) const { return φE(te())(s); }
+  φr_<Γ> parse(Stc &s) const { return wee_(s); }
   Γ operator()(Stc &s) const { return parse(s).r(); }
 
 
@@ -66,7 +74,7 @@ template<class Γφ, class πφ> struct Γφ_
 
   // Parse-time evaluation of a π expression
   φ<ηm> p(ηm*) const
-    { return φm(p(null<πpa<π1>>()), [](πpa<π1> &&f)
+    { return φm(p(null<πsa<π1>>()), [](πsa<π1> &&f)
         { ηm b; πi i; f.x(i); b << i[i.pop()]; return b; }); }
 
 
@@ -92,6 +100,8 @@ protected:
   φ<Ψ1> wp1_;
   φ<Ψ2> wp2_;
   φ<Ψ4> wp4_;
+
+  φ<Γ>  wee_;  // φE(we_)
 };
 
 
@@ -117,7 +127,8 @@ template<class Γφ, class πφ>
     wp0_(Γφwrap(φW(p0_))),
     wp1_(Γφwrap(φW(p1_))),
     wp2_(Γφwrap(φW(p2_))),
-    wp4_(Γφwrap(φW(p4_)))
+    wp4_(Γφwrap(φW(p4_))),
+    wee_(φE(we_))
 {
   e_.as<φa_<Γ>>() << φm(φn(wa_, 1), Γs);
   a_.as<φa_<Γ>>()
