@@ -81,13 +81,13 @@ struct πh final
   πhr i(πhr const &r, ηi y) const
     { return {r.o, r.l, πhrn(y.odata() - (h_.data() + r.o)), πhrn(y.lsize())}; }
 
-  // Write a value into the heap and return a reference to it.
-  // FIXME: this should be flat for ηi
+  // Write a value into the heap and return a reference to it. ηi values are copied
+  // in their entirety; they are not boxed.
   Tt πhr operator<<(T const &x)
     { A(!r_.l, "πh<< is not re-entrant");
       A(!hn_,  "πh<< during GC");
-      TODO("FIXME: πh<<; this is causing nesting issues");
-      r(ηauto_<T>::n) << x;  // calls .ref() on destruct
+      if constexpr (Eq<T, ηi>) r(x.lsize())    << x.all();
+      else                     r(ηauto_<T>::n) << x;  // calls .ref() on destruct
       return ref(); }
 
   // Create a η output writer that will write to the heap. Call .ref() to
