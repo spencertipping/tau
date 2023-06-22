@@ -175,7 +175,7 @@ protected:
   Tdrop<i, T<φr_<Xs>...>> go(φc_ const &x, φr_<X> const &r0) const noexcept
     { if constexpr (i == sizeof...(Xs)) return {};
       else
-      { using Y = De<decltype(std::get<i>(std::declval<T<Xs...>>()))>;
+      { using Y = De<std::tuple_element_t<i, T<Xs...>>>;
         let r = r0.is_f() ? r0.template cast<Y>() : std::get<i>(p)(x);
         return tcons(r, go<i + 1>(x.at(r.j), r)); } }
 
