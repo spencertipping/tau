@@ -14,6 +14,10 @@ namespace τ
 {
 
 
+Tt struct Γa { T x; };
+Tt struct Γe { T x; };
+
+
 // An extensible Γ grammar. See pi-phi.hh for a similar construct for π.
 template<class Γφ, class πφ = πφ0> struct Γφ_
 {
@@ -36,6 +40,13 @@ template<class Γφ, class πφ = πφ0> struct Γφ_
   Tt Γφ &def_p4(Stc &n, T const &f) { return def_(p4_, n, f); }
 
 
+  φ<Γ> ta() const { return wa_; }
+  φ<Γ> te() const { return we_; }
+
+
+  auto p(Γa<Γ>*) const { return wa_; }
+  auto p(Γe<Γ>*) const { return we_; }
+
   auto p(Γ*)  const { return we_; }
   auto p(Ψ0*) const { return wp0_; }
   auto p(Ψ1*) const { return wp1_; }
@@ -57,8 +68,8 @@ protected:
 
   πφ    pf_;  // provider for π expressions
 
-  φ<Γ>  e_;   // Γ-coerced expressions
-  φ<Γ>  a_;   // Γ-coerced atoms
+  φ<Γ>  e_;   // Γ-coerced expressions (incl Ψ)
+  φ<Γ>  a_;   // Γ-coerced atoms (incl Ψ)
   φ<Γ>  g_;   // Γ atoms
   φ<Ψ0> p0_;  // Ψ0 atoms
   φ<Ψ1> p1_;  // Ψ1 atoms
