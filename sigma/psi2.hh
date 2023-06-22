@@ -10,12 +10,12 @@ namespace σ
 τ::φ<τ::Ψ2> φΨ2();
 
 
-τ::Ψ2 Γg(τ::πf);
+τ::Ψ2 Γg(τ::π1);
 τ::Ψ2 Γh();
-τ::Ψ2 Γj();  // sorted-join top two Ξ entries
+τ::Ψ2 Γj(τ::π1);    // sorted-join top two Ξ entries by expression
 τ::Ψ2 Γk();
-τ::Ψ2 Γp(τ::πf);
-τ::Ψ2 Γrp(τ::πf);
+τ::Ψ2 Γp(τ::π1);
+τ::Ψ2 Γrp(τ::π1);
 τ::Ψ2 Γrd(τ::i64);  // drop first N rows
 τ::Ψ2 Γrt(τ::i64);  // take first N rows
 τ::Ψ2 Γsshc();

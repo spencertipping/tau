@@ -4,8 +4,6 @@
 
 #include "tau.hh"
 
-#include "sigma/auto.hh"
-
 #include "sigma/psi0.hh"
 #include "sigma/psi1.hh"
 #include "sigma/psi2.hh"

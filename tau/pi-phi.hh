@@ -141,8 +141,6 @@ template<class πφ>
 
   def_sa(πφgroup(wse_));
   def_pa(πφgroup(πφnp(wpe_)));
-
-  // TODO: (s ','?)* case
 }
 
 

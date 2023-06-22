@@ -1,8 +1,6 @@
 #ifndef σΓ_h
 #define σΓ_h
 
-#include "auto.hh"
-
 #include "psi0.hh"
 #include "psi1.hh"
 #include "psi2.hh"
@@ -14,18 +12,11 @@ namespace σ
 {
 
 
-// FIXME: we don't need to define these parsers; instead, we should provide
-// components for core Γφ()
+τ::Γ Γvs(τ::πident);
+τ::Γ Γvg(τ::πident);
 
-τ::φ<τ::Γ> φΓ();
-τ::φ<τ::Γ> φΓa();
-
-
-τ::Γ Γvs(σident);
-τ::Γ Γvg(σident);
-
-τ::Γ Γdef(σident, τ::Γ);
-τ::Γ Γref(σident);
+τ::Γ Γdef(τ::πident, τ::Γ);
+τ::Γ Γref(τ::πident);
 τ::Γ Γsmux(τ::Mc<τ::St, τ::Γ>&);
 τ::Γ Γsdemux();
 τ::Γ Γdmux(τ::Γ);
@@ -35,7 +26,7 @@ namespace σ
 
 τ::Γ Γpush();
 τ::Γ Γdrop();
-τ::Γ Γdebug(σident);
+τ::Γ Γdebug(τ::πident);
 
 
 }
