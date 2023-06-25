@@ -53,6 +53,11 @@ struct πi final
   πh &h() { return h_; }
 
 
+  πhr mget(Stc &n)         const { return m_.xs.at(n); }
+  πi &mset(Stc &n, πhr const &x) { m_.xs[n] = x;   return *this; }
+  πi &mdel(Stc &n)               { m_.xs.erase(n); return *this; }
+
+
 protected:
   πh   h_;
   πhsv s_{h_};  // data stack

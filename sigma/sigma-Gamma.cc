@@ -38,9 +38,8 @@ void Γshared(Γφ &g)
 
 void πshared(πφ &p)
 {
-  p .def_sa(φm(φint_(),
-               [](i64 x) { return πauto((Ss{} << x).str(),
-                                        [x]() { return x; }); }))
+  p .def_sa([](i64 x)              { return πauto((Ss{} << x).str(), [x]() { return x; }); })
+    .def_sa([](φaL<'$'>, φident n) { return πf<1>{"$" + n.x, [=](πi &i) { return i.mget(n.x); }}; })
 
     .def_sp("+", [](πse<i64> x, i64 y) { return x.x + y; })
     .def_sp("-", [](πse<i64> x, i64 y) { return y - x.x; })

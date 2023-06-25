@@ -48,6 +48,9 @@ template<class πφ> struct πφ_
   πφ &def_sa(φ<π1> const &p) { s_.as<φa_<π1>>() << p; return self(); }
   πφ &def_pa(φ<π1> const &p) { p_.as<φa_<π1>>() << p; return self(); }
 
+  Tt If<!Eq<T, φ<π1>>, πφ> &def_sa(T const &f) { return def_sa(φauto(self(), f)); }
+  Tt If<!Eq<T, φ<π1>>, πφ> &def_pa(T const &f) { return def_pa(φauto(self(), f)); }
+
   Tt πφ &def_ssp(St n, T const &f) { return def_(ssp_, n, f); }
   Tt πφ &def_psp(St n, T const &f) { return def_(psp_, n, f); }
   Tt πφ &def_spp(St n, T const &f) { return def_(spp_, n, f); }
