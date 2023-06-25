@@ -79,6 +79,8 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 ### Ψ₂ half-duplex table
 **TODO:** design sort/join operators that work together to produce streaming τ-cyclic parallel sort
 
+**FIXME:** `p` should be a stream transformer, `P` should be standalone program that allows independent IO
+
 | Symbol  | Notes | Description                              |
 |---------|-------|------------------------------------------|
 | `g`     | π     | τ-grouped sort by π expression           |
