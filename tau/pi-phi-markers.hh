@@ -53,9 +53,6 @@ template<uN I> struct πhr_ { sletc s = I; };
 Tt             struct is_πhr_          : std::false_type {};
 template<uN I> struct is_πhr_<πhr_<I>> : std::true_type {};
 
-Tt                    struct is_tuple_           : std::false_type {};
-template<class... Xs> struct is_tuple_<T<Xs...>> : std::true_type {};
-
 
 Tt O &operator<<(O &s, πsa<T> const &x) { return s << x.x; }
 Tt O &operator<<(O &s, πpa<T> const &x) { return s << x.x; }

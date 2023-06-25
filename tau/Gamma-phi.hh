@@ -4,7 +4,6 @@
 #include "phi.hh"
 #include "phi-ctor.hh"
 #include "Gamma.hh"
-#include "Gamma-phi-basic.hh"
 #include "Psi.hh"
 #include "Psi-auto.hh"
 #include "pi-phi.hh"
@@ -55,8 +54,8 @@ struct Γφ_
   Γ operator()(Stc &s) const { return parse(s).r(); }
 
 
-  auto p(Γa<Γ>*) const { return φm(wa_, [](Γ x) { return Γa{x}; }); }
-  auto p(Γe<Γ>*) const { return φm(we_, [](Γ x) { return Γe{x}; }); }
+  auto p(Γa<Γ>*) const { return φm(wa_, [](Γ x) { return Γa<Γ>{x}; }); }
+  auto p(Γe<Γ>*) const { return φm(we_, [](Γ x) { return Γe<Γ>{x}; }); }
 
   auto p(Γ*)  const { return wa_; }
   auto p(Ψ0*) const { return wp0_; }
@@ -121,22 +120,22 @@ template<class Γφ, class πφ>
     p2_(φd<Ψ2>("Ψ2")),
     p4_(φd<Ψ4>("Ψ4")),
 
-    we_ (Γφwrap(φW(e_))),
-    wa_ (Γφwrap(φW(a_))),
-    wg_ (Γφwrap(φW(g_))),
-    wp0_(Γφwrap(φW(p0_))),
-    wp1_(Γφwrap(φW(p1_))),
-    wp2_(Γφwrap(φW(p2_))),
-    wp4_(Γφwrap(φW(p4_))),
+    we_ (φwrap(φW(e_))),
+    wa_ (φwrap(φW(a_))),
+    wg_ (φwrap(φW(g_))),
+    wp0_(φwrap(φW(p0_))),
+    wp1_(φwrap(φW(p1_))),
+    wp2_(φwrap(φW(p2_))),
+    wp4_(φwrap(φW(p4_))),
     wee_(φE(we_))
 {
   e_.as<φa_<Γ>>() << φm(φn(wa_, 1), Γs);
   a_.as<φa_<Γ>>()
     << wg_
-    << Γφgroup(we_)
+    << φgroup(we_)
     << ΓφΨdir("ΓΨ", Ψd::f, wp0_, wp1_, wp2_, wp4_)
-    << φ2("Γ|",  Γφwrap(φl("|")),  ΓφΨdir("Γ|",  Ψd::r, wp0_, wp1_, wp2_, wp4_))
-    << φ2("Γ\\", Γφwrap(φl("\\")), ΓφΨdir("Γ\\", Ψd::b, wp0_, wp1_, wp2_, wp4_));
+    << φ2("Γ|",  φwrap(φl("|")),  ΓφΨdir("Γ|",  Ψd::r, wp0_, wp1_, wp2_, wp4_))
+    << φ2("Γ\\", φwrap(φl("\\")), ΓφΨdir("Γ\\", Ψd::b, wp0_, wp1_, wp2_, wp4_));
 }
 
 
@@ -147,9 +146,6 @@ struct Γφ : public Γφ_<Γφ<πφ, Xs...>, πφ>, φauto_str, Xs...
   using φauto_str::p;
   using Xs::p...;
 };
-
-
-typedef Γφ<πφ0> Γφ0;
 
 
 }

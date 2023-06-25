@@ -45,6 +45,9 @@ using namespace std::placeholders;
 
 template<class T> using Id = typename std::type_identity<T>::type;
 
+Tt                    struct is_tuple_           : std::false_type {};
+template<class... Xs> struct is_tuple_<T<Xs...>> : std::true_type {};
+
 
 // Return a typed nullptr
 template<class T> T *null() { return (T*)nullptr; }

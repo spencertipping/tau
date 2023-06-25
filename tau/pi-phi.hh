@@ -11,6 +11,7 @@
 #include "pi-int.hh"
 #include "pi-phi-basic.hh"
 #include "pi-phi-markers.hh"
+#include "tau-phi.hh"
 
 #include "begin.hh"
 
@@ -21,8 +22,7 @@ namespace τ
 // An extensible π grammar. See pi-phi.md for details.
 //
 // To use this struct, inherit from it for the core grammar and mix in
-// structs from pi-phi-basic.hh to add parsers. For example, struct πφ0
-// below.
+// structs from pi-phi-basic.hh to add parsers.
 template<class πφ> struct πφ_
 {
   πφ_();
@@ -116,16 +116,16 @@ template<class πφ>
     sp_ (φd <π0>("πsp")),
     pp_ (φd <π0>("πpp")),
 
-    wse_ (πφwrap(φW(se_))),
-    wpe_ (πφwrap(φW(pe_))),
-    ws_  (πφwrap(φW(s_))),
-    wp_  (πφwrap(φW(p_))),
-    wssp_(πφwrap(φW(ssp_))),
-    wpsp_(πφwrap(φW(psp_))),
-    wspp_(πφwrap(φW(spp_))),
-    wppp_(πφwrap(φW(ppp_))),
-    wsp_ (πφwrap(φW(sp_))),
-    wpp_ (πφwrap(φW(pp_)))
+    wse_ (φwrap(φW(se_))),
+    wpe_ (φwrap(φW(pe_))),
+    ws_  (φwrap(φW(s_))),
+    wp_  (φwrap(φW(p_))),
+    wssp_(φwrap(φW(ssp_))),
+    wpsp_(φwrap(φW(psp_))),
+    wspp_(φwrap(φW(spp_))),
+    wppp_(φwrap(φW(ppp_))),
+    wsp_ (φwrap(φW(sp_))),
+    wpp_ (φwrap(φW(pp_)))
 {
   let s1 = ws_ | (wssp_ & φW(wse_)) % pre;  // s_atom | ss_pre s
   let s2 =       (wpsp_ & φW(wpe_)) % pre;  // ps_pre p
@@ -138,8 +138,8 @@ template<class πφ>
   let p2 = (p1 & φn(wpp_)) % post;
   pe_.as<φa_<π1>>() << p1 << p2;
 
-  def_sa(πφgroup(wse_));
-  def_pa(πφgroup(πφnp(wpe_)));
+  def_sa(φgroup(wse_));
+  def_pa(φgroup(πφnp(wpe_)));
 }
 
 
@@ -150,10 +150,6 @@ struct πφ : public πφ_<πφ<Xs...>>, φauto_str, Xs...
   using φauto_str::p;
   using Xs::p...;
 };
-
-
-// Example instantiation of πφ -- see sigma/ for actual stdlib code.
-typedef πφ<πφP, πφlit, πφbrack> πφ0;
 
 
 }

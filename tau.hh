@@ -29,6 +29,8 @@
 #include "tau/phi-ctor.hh"
 #include "tau/phi-auto.hh"
 
+#include "tau/tau-phi.hh"
+
 #include "tau/pi-int.hh"
 #include "tau/pi-heap.hh"
 #include "tau/pi-phi.hh"

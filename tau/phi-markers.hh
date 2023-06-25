@@ -28,8 +28,8 @@ template<class... Xs> struct is_φa_<φaA<Xs...>> : std::true_type {};
 Tt concept is_φa = is_φa_<T>::value;
 
 
-template<char... S>   O &operator<<(O &s, φaL<S...> const &x) { return s << "'" << St{S...} << "'"; }
-template<char... S>   O &operator<<(O &s, φaO<S...> const &x) { return s << "'" << St{S...} << "'?"; }
+template<char... S>   O &operator<<(O &s, φaL<S...>  const &x) { return s << "'" << St{S...} << "'"; }
+template<char... S>   O &operator<<(O &s, φaO<S...>  const &x) { return s << "'" << St{S...} << "'?"; }
 template<class... Xs> O &operator<<(O &s, φaA<Xs...> const &x) { return s << "φaA(" << x.x << ")"; }
 
 

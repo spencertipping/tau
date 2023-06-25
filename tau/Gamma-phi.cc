@@ -6,14 +6,6 @@ namespace τ
 {
 
 
-φ<St> Γφws() { return πφws(); }
-φ<St> Γφlc() { return πφlc(); }
-φ<St> Γφig() { return πφig(); }
-
-φ<St> Γφlb() { slet r = Γφwrap(φl("[")); return r; }
-φ<St> Γφrb() { slet r = Γφwrap(φl("]")); return r; }
-
-
 φ<Γ> ΓφΨdir(Stc &n, Ψd d,
             φ<Ψ0> p0, φ<Ψ1> p1, φ<Ψ2> p2, φ<Ψ4> p4)
 {
@@ -24,7 +16,7 @@ namespace τ
              φM(p4, [d](φc_ const &c, φr_<Ψ4> &&s) { return s.cast(ΓΨ(mo(s).r(), d, c.sub(s))); }));
 
   // Accept one, or assign the same direction to many
-  return p | φm(Γφgroup(φn(p, 1)), Γs);
+  return p | φm(φgroup(φn(p, 1)), Γs);
 }
 
 
