@@ -50,7 +50,10 @@ void Γnative(Γφ &g)
   g.def_p0(">F", ΓwF);
   g.def_p1("<F", ΓrF);
 
-  g.def_p1("T", [](i64 port, i64 addr, Γa<Γ> g, ψ q, ξo o)
+  g.def_p1("T", [](i64 addr,
+                   φaL<':'>, i64 port,
+                   φaL<':'>, Γa<Γ> g,
+                   ψ q, ξo o)
     {
       τe &t = q.t();
       fd_t fd = socket(AF_INET, SOCK_STREAM, 0);

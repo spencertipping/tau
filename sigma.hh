@@ -8,8 +8,8 @@ namespace σ
 {
 
 
-typedef τ::πφ0              πφ;
-typedef τ::Γφ<πφ, τ::πφlit> Γφ;
+typedef τ::πφ0                          πφ;
+typedef τ::Γφ<πφ, τ::πφlit, τ::πφbrack> Γφ;
 
 typedef τ::τe τe;
 typedef τ::Ξ  Ξ;

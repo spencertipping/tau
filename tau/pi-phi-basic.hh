@@ -19,6 +19,8 @@ namespace τ
 φ<π1> πφnp(φ<π1>);
 
 
+// TODO: factor these generic things into a separate file
+
 struct πident { St x; };
 
 Tt struct πrbrack { T x; };  // a thing terminated by a right-bracket

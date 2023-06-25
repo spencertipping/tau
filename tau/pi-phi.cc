@@ -44,6 +44,9 @@ static π1 np(V<π1> &&ps)
 }
 
 
+// FIXME: most of the parsers below are generic, not π-specific
+// We should move them into a generic file
+
 φ<St> πφws() { slet r = φcs(" \t\n\r", false, 1);                      return r; }
 φ<St> πφlc() { slet r = φq("lc", φl("# ", ""), φcs("\n", true));       return r; }
 φ<St> πφig() { slet r = φq("ign", φn(φa<St>("ign0", πφws(), πφlc()))); return r; }
@@ -98,8 +101,8 @@ static π1 np(V<π1> &&ps)
 {
   slet r = φ2("name", φl("'"),
               φa("name",
-                 φm(πφstr(),  [](St x) { return ηname{x}; }),
-                 φm(πφword(), [](St x) { return ηname{x}; })));
+                 φm(πφstr(),  [](St &&x) { return ηname{mo(x)}; }),
+                 φm(πφword(), [](St &&x) { return ηname{mo(x)}; })));
   return r;
 }
 
