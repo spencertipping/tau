@@ -14,7 +14,7 @@ The σ parser is split into context-specific branches, each of which has its own
 + [Ψ](Psi.md)
 + [π](pi.md)
 
-You can think about it like this: Γ transforms _cables_ (many streams), Ψ transforms _streams_ (vertical), and π transforms _rows_ (horizontal). Some Ψs accept π expressions to perform some horizontal transformation before or after manipulating the rows.
+You can think about it like this: Γ transforms Ξ _cables_ (many streams), Ψ transforms ξ _streams_ (vertical), and π transforms η _rows_ (horizontal). Some Ψs accept π expressions to perform some horizontal transformation before or after manipulating the rows.
 
 π is somewhat involved and its standard library is documented [separately](sigma-pi-stdlib.md).
 
