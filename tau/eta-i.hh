@@ -88,18 +88,14 @@ struct ηi final
   PO operator<=>(ηi const &x) const;
 
 
-  Sn<u8c> at(uN    i) const;
-  Sn<u8c> at(chc  *s) const;
-  Sn<u8c> at(Stc  &k) const;
-  Sn<u8c> at(Stvc &k) const;
+  Sn<u8c> at(uN)           const;
+  Sn<u8c> at(ηname const&) const;
 
 
   // NOTE: these will fail loudly if you request items that
   // don't exist (to verify, use .at() and check for .empty())
-  ηi operator[](uN i)    const { return at(i); }
-  ηi operator[](chc *s)  const { return at(s); }
-  ηi operator[](Stc &k)  const { return at(k); }
-  ηi operator[](Stvc &k) const { return at(k); }
+  ηi operator[](uN i)           const { return at(i); }
+  ηi operator[](ηname const &n) const { return at(n); }
 
 
   bool is_sig()  const { return t() == ηtype::sig; }

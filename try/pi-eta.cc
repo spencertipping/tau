@@ -107,12 +107,12 @@ void try_gc()
 void try_gc_auto()
 {
   πf<-1> map_lookup = πauto(
-    "m[]", [](πi &i, πhr m, St k) -> πhr
+    "m[]", [](πi &i, πhr m, ηname k) -> πhr
       { πhgl l{i.h()};  // no GC is possible in this function
         return i.i(m, i[m][k].one()); });
 
   πf<-2> map_append = πauto(
-    "m++", [](πi &i, πhr m, St k, πhr v) -> πhr
+    "m++", [](πi &i, πhr m, ηname k, πhr v) -> πhr
       { πhlv hv{i.h()};
         hv << m << v;
         let gcs = i.h().gcs();
@@ -121,11 +121,11 @@ void try_gc_auto()
                      { A(i.h().gcs() > gcs, "map_append didn't GC");
                        πhgl l{i.h()};
                        r << i[m].all();
-                       r.k(k) << i[v].all(); }); });
+                       r << k << i[v].all(); }); });
 
   πf<1> push_map1 = πauto(
     "{m}", [](πi &i) -> πhr
-      { return i.r(64, [](auto &&r) { r.k("foo") << "bar"; }); });
+      { return i.r(64, [](auto &&r) { r << ηname{"foo"} << "bar"; }); });
 
   πf<1>  push_foo  = πauto("'foo", []() { return "foo"; });
   πf<1>  push_bar  = πauto("'bar", []() { return "bar"; });

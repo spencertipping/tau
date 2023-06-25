@@ -12,6 +12,16 @@ namespace τ
 // π program interpreter
 struct πi final
 {
+  πi()          = default;
+  πi(πi const&) = default;
+  πi(πi&&)      = default;
+
+  πi(ξi fi)                      : fi_(fi) {}
+  πi(ξo fo)                      : fo_(fo) {}
+  πi(ξi fi, ξo fo)               : fi_(fi), fo_(fo) {}
+  πi(ξi fi, ξo fo, ξo bo, ξi bi) : fi_(fi), fo_(fo), bo_(bo), bi_(bi) {}
+
+
   πi &push(πhr const &r) { s_.xs.push_back(r);       return *this; }
   πi &push(ηi  const &i) { s_.xs.push_back(h_ << i); return *this; }
   πi &push(πhr const &r, ηi const &i)
@@ -42,8 +52,7 @@ struct πi final
   ηi operator[](πhr const &r)              const { return h_[r]; }
   πhr         i(πhr const &r, ηi const &i) const { return h_.i(r, i); }
 
-  template<ηauto_encode T>
-  πhr operator<<(T const &x) { return h_ << x; }
+  template<ηauto_encode T> πhr operator<<(T const &x) { return h_ << x; }
 
 
   ηo<πh&> r(uN s = 64)                       { return h_.r(s); }
@@ -53,15 +62,27 @@ struct πi final
   πh &h() { return h_; }
 
 
-  πhr mget(Stc &n)         const { return m_.xs.at(n); }
-  πi &mset(Stc &n, πhr const &x) { m_.xs[n] = x;   return *this; }
-  πi &mdel(Stc &n)               { m_.xs.erase(n); return *this; }
+  πhr  mg(Stc &n)         const { return m_.xs.at(n); }
+  bool mi(Stc &n)         const { return m_.xs.contains(n); }
+  πi  &ms(Stc &n, πhr const &x) { m_.xs[n] = x;   return *this; }
+  πi  &mx(Stc &n)               { m_.xs.erase(n); return *this; }
+
+
+  ξi &fi() { return fi_; }
+  ξo &fo() { return fo_; }
+  ξo &bo() { return bo_; }
+  ξi &bi() { return bi_; }
 
 
 protected:
   πh   h_;
   πhsv s_{h_};  // data stack
   πhmv m_{h_};  // named bindings
+
+  ξi   fi_;
+  ξo   fo_;
+  ξo   bo_;
+  ξi   bi_;
 
   friend O &operator<<(O&, πi const&);
 };

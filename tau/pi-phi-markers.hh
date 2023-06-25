@@ -14,6 +14,8 @@ namespace τ
 {
 
 
+Tt struct πt  { using t = T; T x; };  // π toplevel program
+
 Tt struct πsa { using t = T; T x; };  // singular atom
 Tt struct πpa { using t = T; T x; };  // plural atom
 Tt struct πse { using t = T; T x; };  // singular expression
@@ -23,6 +25,7 @@ Tt struct πst { using t = T; T x; };  // singular transformer
 Tt struct πpt { using t = T; T x; };  // plural transformer
 
 Tt struct is_πv_         : std::false_type {};
+Tt struct is_πv_<πt<T>>  : std::true_type {};
 Tt struct is_πv_<πsa<T>> : std::true_type {};
 Tt struct is_πv_<πpa<T>> : std::true_type {};
 Tt struct is_πv_<πse<T>> : std::true_type {};

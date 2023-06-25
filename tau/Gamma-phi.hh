@@ -4,6 +4,7 @@
 #include "phi.hh"
 #include "phi-ctor.hh"
 #include "Gamma.hh"
+#include "Gamma-auto.hh"
 #include "Psi.hh"
 #include "Psi-auto.hh"
 #include "pi-phi.hh"
@@ -32,7 +33,7 @@ struct Γφ_
   πφ const &pi()   const { return pf_; }
 
 
-  Tt Γφ &def_g (Stc &n, T const &f) { return def_(g_,  n, f); }
+  Tt Γφ &def_g (Stc &n, T const &f) { return def_(g_,  n, Γauto(f)); }
 
   Tt Γφ &def_p0(Stc &n, T const &f) { return def_(p0_, n, Ψauto<false>(f)); }
   Tt Γφ &def_p1(Stc &n, T const &f) { return def_(p1_, n, Ψauto<false>(f)); }
@@ -74,12 +75,12 @@ struct Γφ_
   // Parse-time evaluation of a π expression
   φ<ηm> p(ηm*) const
     { return φm(p(null<πsa<π1>>()), [](πsa<π1> &&f)
-        { ηm b; πi i; f.x(i); b << i[i.pop()]; return b; }); }
+      { ηm b; πi i; f.x(i); b << i.ypop().all(); return b; }); }
 
 
 protected:
-  template<class T, class F> Γφ &def_(φ<T> &d, Stc &n, F const &f)
-    { d.template as<φd_<T>>().def(n, φauto(self(), std::function(f)));
+  template<class T, class F> Γφ &def_(φ<T> &d, Stc &n, F &&f)
+    { d.template as<φd_<T>>().def(n, φauto(self(), std::function(std::forward<F>(f))));
       return self(); }
 
   πφ    pf_;  // provider for π expressions

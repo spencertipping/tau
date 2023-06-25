@@ -55,12 +55,12 @@ linux: $(try_linux_bins) bin/tau-linux.a bin/sigma-linux.a
 wasm:  $(try_wasm_bins)  bin/tau-wasm.a  bin/sigma-wasm.a
 
 
-linux-size: bin/pi-phi
-	@echo -n "wc -c bin/pi-phi = "; wc -c bin/pi-phi
+linux-size: bin/sigma
+	@echo -n "wc -c bin/sigma = "; wc -c bin/sigma
 
-wasm-size: bin/pi-phi.js
-	@echo -n "gzip -9 bin/pi-phi.js   = "; cat bin/pi-phi.js   | gzip -9 | wc -c
-	@echo -n "gzip -9 bin/pi-phi.wasm = "; cat bin/pi-phi.wasm | gzip -9 | wc -c
+wasm-size: bin/sigma.js
+	@echo -n "gzip -9 bin/sigma.js   = "; cat bin/sigma.js   | gzip -9 | wc -c
+	@echo -n "gzip -9 bin/sigma.wasm = "; cat bin/sigma.wasm | gzip -9 | wc -c
 
 
 bin/tau-linux.a: $(tau_linux_os)

@@ -56,10 +56,10 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 
 
 ### Ψ₀ table
-| Symbol | Notes | Description          |
-|--------|-------|----------------------|
-| `>F`   | fd    | write to FD          |
-| `F`    |       | consume data forever |
+| Symbol | Syntax | Description          |
+|--------|--------|----------------------|
+| `>F`   | fd     | write to FD          |
+| `F`    |        | consume data forever |
 
 
 ### Ψ₁ table
@@ -88,7 +88,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `K`     |       | remove signals                           |
 | `p`     | π     | π program                                |
 | `r`/`R` | π     | π row selector                           |
-| `r`     | int   | take/drop first N rows (per τ)           |
+| `rn`    | int   | take/drop first N rows (per τ)           |
 | `r+`    | int   | take/drop last N rows (per τ)            |
 | `s`     | P     | SSH client                               |
 | `t`     |       | TCP client                               |

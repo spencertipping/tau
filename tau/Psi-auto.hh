@@ -67,7 +67,7 @@ auto Ψauto1_(F<R(Xs...)> &&f)
 template<bool C = false, class T>
 auto Ψauto(T &&f)
 {
-  return Ψauto1_<C>(std::function(f));
+  return Ψauto1_<C>(std::function(std::forward<T>(f)));
 }
 
 

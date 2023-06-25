@@ -75,11 +75,6 @@ Tt struct ηo final
   // Direct append: hopefully the content is valid η data
   ηo &operator<<(Sn<u8c> const &xs);
 
-  // NOTE: these are synonymous, but named differently to help C++ figure out
-  // which overload to use.
-  ηo &name(Stc &s);
-  ηo &k   (Stvc &s);
-
   template<class U>
   ηo &v(U &&x) { return *this << std::forward<U>(x); }
 
@@ -98,6 +93,7 @@ Tt struct ηo final
   ηo &operator<<(Stc &s);
   ηo &operator<<(Stvc &s);
   ηo &operator<<(chc *s);
+  ηo &operator<<(ηname const &n);
 
   ηo &operator<<(bool b);
   ηo &operator<<(ηatom a);
@@ -130,7 +126,7 @@ Tt struct ηo final
 
 private:
   ηoc<T> o_;
-  Sn<u8> b_;  // invariant: this points to memory managed by *o, or null
+  Sn<u8> b_;  // invariant: this points to memory managed by *o, or is empty
   uN     s_;  // current number of bytes written to the stream
 
   bool reserve(uN l);
@@ -232,6 +228,17 @@ Tt ηo<T> &ηo<T>::operator<<(chc *s)
 }
 
 
+Tt ηo<T> &ηo<T>::operator<<(ηname const &n)
+{
+  let s = n.x.size();
+  if (!reserve(s + 1 + ηsb(s))) return *this;
+  s_ += ηcb(b_.subspan(s_), ηtype::name, s);
+  memcpy(b_.data() + s_, n.x.data(), s);
+  s_ += s;
+  return *this;
+}
+
+
 Tt ηo<T> &ηo<T>::operator<<(bool b)
 {
   if (!reserve(2)) return *this;
@@ -274,25 +281,6 @@ Tt ηo<T> &ηo<T>::operator<<(ηoc<B&> &o)
   s_ += ηcb(b_.subspan(s_), ηtype::η, sb);
   memcpy(b_.data() + s_, o.b.data(), sb);
   s_ += sb;
-  return *this;
-}
-
-
-Tt ηo<T> &ηo<T>::name(Stc &s)
-{
-  if (!reserve(s.size() + 1 + ηsb(s.size()))) return *this;
-  s_ += ηcb(b_.subspan(s_), ηtype::name, s.size());
-  memcpy(b_.data() + s_, s.data(), s.size());
-  s_ += s.size();
-  return *this;
-}
-
-Tt ηo<T> &ηo<T>::k(Stvc &s)
-{
-  if (!reserve(s.size() + 1 + ηsb(s.size()))) return *this;
-  s_ += ηcb(b_.subspan(s_), ηtype::name, s.size());
-  memcpy(b_.data() + s_, s.data(), s.size());
-  s_ += s.size();
   return *this;
 }
 

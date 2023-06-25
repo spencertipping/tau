@@ -27,6 +27,8 @@ struct ηm final
 
   operator ηi() const { return y(); }
   ηi        y() const { return ηi(x_.data(), x_.size()); }
+  Sn<u8c> all() const { return Sn<u8c>{x_.data(), x_.size()}; }
+  uN    lsize() const { return x_.size(); }
 
   ηm  &clear()       { x_.clear(); return *this; }
   bool empty() const {             return x_.empty(); }
@@ -35,9 +37,6 @@ struct ηm final
   PO operator<=>(ηmc &x) const { return y() <=> x.y(); }
 
   Tt ηm &operator<<(T const &x) { ηo{ηoc<B&>(x_)} << x; return *this; }
-
-  ηm &name(Stc  &s) { ηo{ηoc<B&>(x_)}.name(s); return *this; }
-  ηm &k   (Stvc &s) { ηo{ηoc<B&>(x_)}.k(s);    return *this; }
 
   B x_;
 };

@@ -70,24 +70,11 @@ Sn<u8c> ηi::at(uN i) const
   return {r.a_, i ? 0 : r.l_};
 }
 
-Sn<u8c> ηi::at(chc *s) const
-{
-  return at(St{s});
-}
-
-Sn<u8c> ηi::at(Stc &k) const
+Sn<u8c> ηi::at(ηname const &n) const
 {
   ηi r = *this;
   for (; r.has_next(); r = r.next())
-    if (r.is_n(k)) return r.after();
-  return {r.a_, 0};
-}
-
-Sn<u8c> ηi::at(Stvc &k) const
-{
-  ηi r = *this;
-  for (; r.has_next(); r = r.next())
-    if (r.is_n(k)) return r.after();
+    if (r.is_n(n.x)) return r.after();
   return {r.a_, 0};
 }
 

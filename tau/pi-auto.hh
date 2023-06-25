@@ -276,6 +276,13 @@ auto πauto(A const &a, Stc &n, F<R(Xs...)> const &f)
 }
 
 
+// Shorthand to push a constant
+Tt π1 πk(T const &x)
+{
+  return πauto((Ss{} << x).str(), [x](πi &i) { return x; });
+}
+
+
 }
 
 #include "end.hh"
