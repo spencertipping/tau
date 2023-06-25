@@ -17,7 +17,7 @@ let ΓrF = Ψauto([](fd_t fd, ψ q, ξo o)
     q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_RD); t.close(fd); });
     for (iS r;
          (r = t.read(fd, Rc<u8*>(d.data()), d.capacity())) > 0;)
-      o.r(r + 8) << Stv{d.data(), Sc<uN>(r)};
+      o.r(r + 8) << Stv{d.data(), uS(r)};
   });
 
 
@@ -25,8 +25,8 @@ let ΓwF = Ψauto([](fd_t fd, ψ q, ξi i)
   {
     τe &t = q.t();
     q.pin();
-    q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_WR); t.close(fd); });
     t.reg(fd, false, true);
+    q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_WR); t.close(fd); });
     for (let x : i)
       if (x.is_ω()) goto done;
       else if (x.is_s())
@@ -50,10 +50,7 @@ void Γnative(Γφ &g)
   g.def_p0(">F", ΓwF);
   g.def_p1("<F", ΓrF);
 
-  g.def_p1("T", [](i64 addr,
-                   φaL<':'>, i64 port,
-                   φaL<':'>, Γa<Γ> g,
-                   ψ q, ξo o)
+  g.def_p1("T", [](φig, i64 addr, φig, i64 port, φig, Γa<Γ> g, ψ q, ξo o)
     {
       τe &t = q.t();
       fd_t fd = socket(AF_INET, SOCK_STREAM, 0);
