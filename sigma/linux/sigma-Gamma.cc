@@ -49,7 +49,8 @@ void Γnative(Γφ &g)
 {
   g.def_p0(">F", ΓwF);
   g.def_p1("<F", ΓrF);
-  g.def_p1("T", [](i64 port, i64 addr, Γ g, ψ q, ξo o)
+
+  g.def_p1("T", [](i64 port, i64 addr, Γa<Γ> g, ψ q, ξo o)
     {
       τe &t = q.t();
       fd_t fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -68,7 +69,7 @@ void Γnative(Γφ &g)
       {
         let c = t.accept(fd, nullptr, nullptr);
         o.r() << c;
-        (ΓΨ(ΓrF(c)) | ΓΨ(ΓwF(c), Ψd::b) | g)(Ξ{t}.push());
+        (ΓΨ(ΓrF(c)) | ΓΨ(ΓwF(c), Ψd::b) | g.x)(Ξ{t}.push());
       }
     });
 }
@@ -76,7 +77,6 @@ void Γnative(Γφ &g)
 
 void πnative(πφ &p)
 {
-
 }
 
 

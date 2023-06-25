@@ -55,10 +55,10 @@ struct Γφ_
   Γ operator()(Stc &s) const { return parse(s).r(); }
 
 
-  auto p(Γa<Γ>*) const { return wa_; }
-  auto p(Γe<Γ>*) const { return we_; }
+  auto p(Γa<Γ>*) const { return φm(wa_, [](Γ x) { return Γa{x}; }); }
+  auto p(Γe<Γ>*) const { return φm(we_, [](Γ x) { return Γe{x}; }); }
 
-  auto p(Γ*)  const { return we_; }
+  auto p(Γ*)  const { return wa_; }
   auto p(Ψ0*) const { return wp0_; }
   auto p(Ψ1*) const { return wp1_; }
   auto p(Ψ2*) const { return wp2_; }

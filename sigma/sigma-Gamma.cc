@@ -38,16 +38,17 @@ void Γshared(Γφ &g)
 
 void πshared(πφ &p)
 {
-  p.def_sa(φm(πφint(),
-              [](i64 x) { return πauto((Ss{} << x).str(),
-                                       [x]() { return x; }); }));
+  p .def_sa(φm(πφint(),
+               [](i64 x) { return πauto((Ss{} << x).str(),
+                                        [x]() { return x; }); }))
 
-  p.def_sp("+", [](πse<i64> x, i64 y) { return x.x + y; });
-  p.def_sp("-", [](πse<i64> x, i64 y) { return y - x.x; });
-  p.def_sp(">", [](πse<ηi>  x, ηi  y) { return x.x < y; });
-  p.def_sp("<", [](πse<ηi>  x, ηi  y) { return x.x > y; });
+    .def_sp("+", [](πse<i64> x, i64 y) { return x.x + y; })
+    .def_sp("-", [](πse<i64> x, i64 y) { return y - x.x; })
+    .def_sp(">", [](πse<ηi>  x, ηi  y) { return x.x < y; })
+    .def_sp("<", [](πse<ηi>  x, ηi  y) { return x.x > y; })
 
-  p.def_sp(">s", [](ηi x) { return (Ss{} << x << "\n").str(); });
+    .def_sp(">s", [](ηi x) { return (Ss{} << x << "\n").str(); })
+    ;
 }
 
 
