@@ -53,7 +53,7 @@ Your function must handle this in one of a few ways:
 For example, here's a function that returns a new map with an additional k/v binding on the end:
 
 ```cpp
-πhr map_append(πi &i, πhr m, St k, πhr v)
+πhr map_append(πi &i, πhr m, ηname k, πhr v)
 {
   πhlv hv{i.h()};
   hv << m << v;  // track values for GC, which may happen during i.r()
@@ -74,7 +74,7 @@ For example, here's a function that returns a new map with an additional k/v bin
       // locks GC while in scope.
       πhgl l{i.h()};
       r << i[m].all();       // copy existing map entries
-      r.k(k) << i[v].all();  // add new entry
+      r << k << i[v].all();  // add new entry
     });
 }
 ```

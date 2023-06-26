@@ -22,6 +22,18 @@ s_atom ::= '(' p ')' | '[' s ']' | ...   ← extensible
 All of these are extensible dispatch parsers and `s_atom` and `p_atom` are extensible alternations.
 
 
+## Transformers
+In addition to normal expressions, which increase the stack depth by one, π also provides _transformers_, which are net-zero code snippets that assume an implied operand. Transformers make it possible to write `+1` to mean "a function which adds one to something".
+
+**TODO:** define transformers' behavior for plural values, if that's a thing
+
+**TODO:** define π stream transform behavior: we could use transformers?
+
+**TODO:** should this idea even exist? Seems low-overhead enough to just bind a variable
+
+How about `+1` turns into `x+1`, and we use a persistent "it register" `x`, like in Perl?
+
+
 ## Extending the π grammar
 A `πφ` instance provides several methods that allow you to define extensions:
 
@@ -73,4 +85,4 @@ Immediate and stack arguments are unpacked top-to-bottom. This means immediates 
 ### Auto-constructing a `πf<N>`
 `πf<N>` takes only a `πi&` and must construct the remaining function arguments. Parse-time arguments are stored as closure data and passed in as constants since they are runtime-invariant. Statics are calculated from the `πi&`, and runtime arguments are pulled from the stack and `ηauto` converted to C++ parameters.
 
-All of this takes the form of a nested C++ function, the outer layer of which is transformed with `φauto` (receiving `Xs&&...` arguments), the inner layer transformed with `πvauto` (receiving `Ys&&...`), and calling the user function by splicing the arguments one by one to match the original ordering. This involves `πautoclass_<T>` to classify each argument into one of the categories above and handling it accordingly.
+All of this takes the form of a nested C++ function, the outer layer of which is transformed with `φauto` (receiving `Xs&&...` arguments), the inner layer transformed with `πvauto` (receiving `Ys&&...`), and calling the user function by splicing the arguments one by one to match the original ordering. This involves `πautoclass_<T>` to classify each argument into one of the categories above and handling it accordingly. See [pi-auto](../tau/pi-auto.hh) for implementation.
