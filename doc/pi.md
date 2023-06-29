@@ -8,6 +8,20 @@
 + [π function](pi-fn.md)
 + [σ/π stdlib](sigma-pi-stdlib.md)
 
+```bash
+$ bin/sigma 'n10 p[x x>1 (x x>5) (x x+2 x x+1) x+1] M? F'
+0 false (0 false) (0 2 0 1) 1
+1 false (1 false) (1 3 1 2) 2
+2 true (2 false) (2 4 2 3) 3
+3 true (3 false) (3 5 3 4) 4
+4 true (4 false) (4 6 4 5) 5
+5 true (5 false) (5 7 5 6) 6
+6 true (6 true) (6 8 6 7) 7
+7 true (7 true) (7 9 7 8) 8
+8 true (8 true) (8 10 8 9) 9
+9 true (9 true) (9 11 9 10) 10
+```
+
 
 ## Proximal and distal values
 `x` and `y` are variables meaning "this" and "that", respectively. Unary contexts use `x` alone, whereas binary contexts (like sort comparators or key/value loops) use both.

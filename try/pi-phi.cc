@@ -41,13 +41,14 @@ void pi(Stc &s)
       return i.pop(); });
 
   // Functional-style while loop
-  f.def_sp("!", [](πi &i, πst<π0> c, φaL<':'>, πst<π0> b, πhr x)
+  f.def_sp("!", [](πi &i, πse<π1> c, φaL<':'>, πse<π1> b, πhr x)
     { i.push(x);                            // stack = [x]
+      i.def_x();
       while (1)
-      { i.dup();                            // stack = [x x]
-        c.x(i);                             // stack = [c(x) x]
-        if (!i.ypop().b()) return i.pop();  // stack = [x]
-        b.x(i); } });                       // stack = [x']
+      { c.x(i);                             // stack = [c(x)]
+        if (!i.ypop().b()) return i.x();
+        b.x(i);                             // stack = [x']
+        i.def_x(); } });
 
   cout << s << " → ";
   let t1 = now();

@@ -137,13 +137,6 @@ struct ηauto_<V<ηi>>
 #undef deft
 
 
-// Convert a C++ function to one that accepts a ηi to unpack its arguments.
-template<class F>
-auto ηhauto(F const &f)
-{
-  return ηhauto_(std::function(f));
-}
-
 template<class R, class... Xs>
 auto ηhauto_(F<R(Xs...)> &&f)
 {
@@ -151,14 +144,13 @@ auto ηhauto_(F<R(Xs...)> &&f)
     { return std::apply(f, ηauto_<T<Xs...>>::v(i)); };
 }
 
-
-// Convert a C++ function to one that accepts a single ηi for each of its
-// arguments.
+// Convert a C++ function to one that accepts a ηi to unpack its arguments.
 template<class F>
-auto ηvauto(F const &f)
+auto ηhauto(F const &f)
 {
-  return ηvauto_(std::function(f));
+  return ηhauto_(std::function(f));
 }
+
 
 template<class R, class... Xs, class... Ys>
 auto ηvauto_(F<R(Xs...)> &&f)
@@ -166,6 +158,14 @@ auto ηvauto_(F<R(Xs...)> &&f)
   // NOTE: each Ys is a ηic
   return [f=mo(f)](Ys const&... ys) -> R
     { return f(ηauto_<Xs>::v(ys)...); };
+}
+
+// Convert a C++ function to one that accepts a single ηi for each of its
+// arguments.
+template<class F>
+auto ηvauto(F const &f)
+{
+  return ηvauto_(std::function(f));
 }
 
 

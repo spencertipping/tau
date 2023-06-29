@@ -36,21 +36,24 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 ## Examples
 ```bash
 $ diff <(bin/sigma 'n10M?F') <(seq 0 9)
-$ echo 'TODO: re-enable failing cases in sigma-pi-stdlib.md' >&2
 ```
 
 These cases fail while I'm reworking the pi grammar:
 
-```sh
-$ diff <(bin/sigma 'n10p[y+1]M?F') <(seq 10)
-$ diff <(bin/sigma ':foo [n10p[y+1]] :bar [n20] $foo M?F') <(seq 10)
+```bash
+$ diff <(bin/sigma 'n10p[x+1]M?F') <(seq 10)
+$ diff <(bin/sigma ':foo [n10p[x+1]] :bar [n20] $foo M?F') <(seq 10)
 ```
 
 
 ## Input accessors (`η`)
 | Symbol | Status | Description |
 |--------|--------|-------------|
-| `y`    | I      | current η   |
+| `x`    | I      | "this"      |
+| `y`    | I      | "that"      |
+
+
+## **TODO:** rewrite everything below using the new grammar structure
 
 
 ## Literals (`L`)

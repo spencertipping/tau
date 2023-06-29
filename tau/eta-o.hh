@@ -266,7 +266,7 @@ Tt ηo<T> &ηo<T>::operator<<(ηsig s)
 
 Tt ηo<T> &ηo<T>::operator<<(ηic &i)
 {
-  let sb = i.osize();
+  let sb = i.lsize();
   if (!reserve(sb + 1 + ηsb(sb))) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::η, sb);
   memcpy(b_.data() + s_, i.odata(), sb);

@@ -51,12 +51,12 @@ void xi_keys_bench()
   t.l().c([&, w=w]() {
     for (i64 i = 0; !done; ++i)
       if (!w) return;
-      else    w.r().k("x").v(1).k("y").v(i);
+      else    w.r() << ηname{"x"} << 1 << ηname{"y"} << i;
     w.close();
   });
 
   t.l().c([&, r=r]() {
-    for (let x : r) s = x["y"].i();
+    for (let x : r) s = x[ηname{"y"}].i();
     cout << "ξ keys got final element: " << s << endl;
   });
 

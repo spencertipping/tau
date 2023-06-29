@@ -13,8 +13,6 @@ fa(i) = 4
 fa(i[2]) = 8
 ga(i) = 2 "afoo"
 ga(i[2]) = 3 "abarbif"
-$ seq 100000 | bin/cat | wc -l
-100000
 ```
 
 
