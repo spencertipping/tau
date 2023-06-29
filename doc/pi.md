@@ -20,6 +20,14 @@ $ bin/sigma 'n10 p[x x>1 (x x>5) (x x+2 x x+1) x+1] M? F'
 7 true (7 true) (7 9 7 8) 8
 8 true (8 true) (8 10 8 9) 9
 9 true (9 true) (9 11 9 10) 10
+$ bin/sigma 'n3 p[[x]+1] M? F'
+1
+2
+3
+$ bin/sigma 'n3 p[x [x]+1] M? F'
+0 1
+1 2
+2 3
 ```
 
 
