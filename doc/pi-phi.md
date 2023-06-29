@@ -22,20 +22,6 @@ s_atom ::= '(' p ')' | '[' s ']' | ...   ← extensible
 All of these are extensible dispatch parsers and `s_atom` and `p_atom` are extensible alternations.
 
 
-## Transformers
-**TODO:** delete transformers as an idea. There's no point; we can just auto-fill them to `x...`, like Perl does with its `$_` variable.
-
-In addition to normal expressions, which increase the stack depth by one, π also provides _transformers_, which are net-zero code snippets that assume an implied operand. Transformers make it possible to write `+1` to mean "a function which adds one to something".
-
-**TODO:** define transformers' behavior for plural values, if that's a thing
-
-**TODO:** define π stream transform behavior: we could use transformers?
-
-**TODO:** should this idea even exist? Seems low-overhead enough to just bind a variable
-
-How about `+1` turns into `x+1`, and we use a persistent "it register" `x`, like in Perl?
-
-
 ## Extending the π grammar
 A `πφ` instance provides several methods that allow you to define extensions:
 

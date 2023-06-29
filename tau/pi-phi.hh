@@ -46,16 +46,12 @@ template<class πφ> struct πφ_
 
 
   πφ &def_t (φ<π1> const &p) { t_ .as<φa_<π1>>() << p; return self(); }
-  πφ &def_sa(φ<π1> const &p) { s_ .as<φa_<π1>>() << p; return self(); }
-  πφ &def_pa(φ<π1> const &p) { p_ .as<φa_<π1>>() << p; return self(); }
-  πφ &def_st(φ<π0> const &p) { st_.as<φa_<π0>>() << p; return self(); }
-  πφ &def_pt(φ<π0> const &p) { pt_.as<φa_<π0>>() << p; return self(); }
+  πφ &def_sa(φ<π1> const &p) { sa_.as<φa_<π1>>() << p; return self(); }
+  πφ &def_pa(φ<π1> const &p) { pa_.as<φa_<π1>>() << p; return self(); }
 
   Tt If<!Eq<T, φ<π1>>, πφ> &def_t (T const &f) { return def_t (φauto(self(), f)); }
   Tt If<!Eq<T, φ<π1>>, πφ> &def_sa(T const &f) { return def_sa(φauto(self(), f)); }
   Tt If<!Eq<T, φ<π1>>, πφ> &def_pa(T const &f) { return def_pa(φauto(self(), f)); }
-  Tt If<!Eq<T, φ<π0>>, πφ> &def_st(T const &f) { return def_st(φauto(self(), f)); }
-  Tt If<!Eq<T, φ<π0>>, πφ> &def_pt(T const &f) { return def_pt(φauto(self(), f)); }
 
   Tt πφ &def_ssp(St n, T const &f) { return def_(ssp_, n, f); }
   Tt πφ &def_psp(St n, T const &f) { return def_(psp_, n, f); }
@@ -69,15 +65,10 @@ template<class πφ> struct πφ_
   // arise from a π1 that we parse, and it's up to πauto to convert the
   // π1 to T using immediate stack indirection. See pi-auto for details.
   Tt φ<πt <π1>> p(πt <T>*) const { return wt_  * [](π1 &&x) { return πt <π1>{mo(x)}; }; }
-  Tt φ<πsa<π1>> p(πsa<T>*) const { return ws_  * [](π1 &&x) { return πsa<π1>{mo(x)}; }; }
-  Tt φ<πpa<π1>> p(πpa<T>*) const { return wp_  * [](π1 &&x) { return πpa<π1>{mo(x)}; }; }
+  Tt φ<πsa<π1>> p(πsa<T>*) const { return wsa_ * [](π1 &&x) { return πsa<π1>{mo(x)}; }; }
+  Tt φ<πpa<π1>> p(πpa<T>*) const { return wpa_ * [](π1 &&x) { return πpa<π1>{mo(x)}; }; }
   Tt φ<πse<π1>> p(πse<T>*) const { return wse_ * [](π1 &&x) { return πse<π1>{mo(x)}; }; }
   Tt φ<πpe<π1>> p(πpe<T>*) const { return wpe_ * [](π1 &&x) { return πpe<π1>{mo(x)}; }; }
-
-  // These are typed as expected because they must be treated as lazy
-  // functions, which is consistent with the type signature.
-  φ<πst<π0>> p(πst<π0>*) const { return wst_ * [](π0 &&x) { return πst<π0>{mo(x)}; }; }
-  φ<πpt<π0>> p(πpt<π0>*) const { return wpt_ * [](π0 &&x) { return πpt<π0>{mo(x)}; }; }
 
 
 protected:
@@ -90,8 +81,8 @@ protected:
   φ<π1> se_;   // singular expressions (alt)
   φ<π1> pe_;   // plural expressions (alt)
 
-  φ<π1> s_;    // singular atoms (alt)
-  φ<π1> p_;    // plural atoms (alt)
+  φ<π1> sa_;    // singular atoms (alt)
+  φ<π1> pa_;    // plural atoms (alt)
 
   φ<π0> ssp_;  // singular-operand, singular-return prefix (dispatch)
   φ<π0> psp_;  // plural-operand, singular-return prefix (dispatch)
@@ -100,16 +91,13 @@ protected:
   φ<π0> sp_;   // singular → singular postfix (dispatch)
   φ<π0> pp_;   // plural → plural postfix (dispatch)
 
-  φ<π0> st_;   // singular-returning transformer (alt)
-  φ<π0> pt_;   // plural-returning transformer (alt)
-
   // Wrapped+weakened versions of the above, which allow whitespace
   φ<π1> wt_;   // wrap(φW(t_))
 
   φ<π1> wse_;
-  φ<π1> wpe_;
-  φ<π1> ws_;
-  φ<π1> wp_;
+  φ<π1> wpe_;  // πφnp(wrap(φW(pe_)) -- this one is different
+  φ<π1> wsa_;
+  φ<π1> wpa_;
 
   φ<π0> wssp_;
   φ<π0> wpsp_;
@@ -117,9 +105,6 @@ protected:
   φ<π0> wppp_;
   φ<π0> wsp_;
   φ<π0> wpp_;
-
-  φ<π0> wst_;
-  φ<π0> wpt_;
 };
 
 
@@ -128,52 +113,51 @@ template<class πφ>
   : t_  (φa0<π1>("π")),
     se_ (φa0<π1>("πse")),
     pe_ (φa0<π1>("πpe")),
-    s_  (φa0<π1>("πs")),
-    p_  (φa0<π1>("πp")),
+    sa_ (φa0<π1>("πsa")),
+    pa_ (φa0<π1>("πpa")),
     ssp_(φd <π0>("πssp")),
     psp_(φd <π0>("πpsp")),
     spp_(φd <π0>("πspp")),
     ppp_(φd <π0>("πppp")),
     sp_ (φd <π0>("πsp")),
     pp_ (φd <π0>("πpp")),
-    st_ (φa0<π0>("πst")),
-    pt_ (φa0<π0>("πpt")),
 
     wt_  (φwrap(φW(t_))),
     wse_ (φwrap(φW(se_))),
-    wpe_ (φwrap(φW(pe_))),
-    ws_  (φwrap(φW(s_))),
-    wp_  (φwrap(φW(p_))),
+    wpe_ (πφnp(φwrap(φW(pe_)))),
+    wsa_ (φwrap(φW(sa_))),
+    wpa_ (φwrap(φW(pa_))),
     wssp_(φwrap(φW(ssp_))),
     wpsp_(φwrap(φW(psp_))),
     wspp_(φwrap(φW(spp_))),
     wppp_(φwrap(φW(ppp_))),
     wsp_ (φwrap(φW(sp_))),
-    wpp_ (φwrap(φW(pp_))),
-    wst_ (φwrap(φW(st_))),
-    wpt_ (φwrap(φW(pt_)))
+    wpp_ (φwrap(φW(pp_)))
 {
-  let s1 = ws_ | (wssp_ & φW(wse_)) % pre;  // s_atom | ss_pre s
-  let s2 =       (wpsp_ & φW(wpe_)) % pre;  // ps_pre p
-  let s3 = (s1 & φn(wsp_)) % post;          // (s_atom | ss_pre s) s_post*
+  let s1 = wsa_ | (wssp_ & wse_) % pre;  // s_atom | ss_pre s
+  let s2 =        (wpsp_ & wpe_) % pre;  // ps_pre p
+  let s3 = (s1 & φn(wsp_)) % post;       // (s_atom | ss_pre s) s_post*
   se_.as<φa_<π1>>() << s3 << s2;
 
-  let p1 = wp_
-    | (wspp_ & φW(wse_)) % pre
-    | (wppp_ & φW(wpe_)) % pre;
+  let p1 = φa<π1>("πφp1",
+                  wpa_,
+                  wse_,
+                  (wspp_ & wse_) % pre,
+                  (wppp_ & wpe_) % pre);
   let p2 = (p1 & φn(wpp_)) % post;
-  pe_.as<φa_<π1>>() << p1 << p2 << wse_;
+  pe_.as<φa_<π1>>() << p2;
 
   def_sa(φgroup(wse_));
-  def_pa(φgroup(πφnp(wpe_)));
+  def_pa(φgroup(wpe_));
 
-  // TODO '(' ')' groups
-
-  def_st(wsp_);  // inline transform
-  def_pt(wpp_);  // inline transform
+  // Parens wrap a plural value into a single ηi
+  def_sa(φ2("()", φlp_(), wpe_, φrp_())
+         * [](π1 const &x)
+           { return x | π0{"η", [](πi &i)
+             { i.push(i << ηi{i.ypop().all()}); }}; });
 
   def_t((φn(φ1("πpe`", wpe_, φl("`"))) & wpe_)
-        % [](Vc<π1> &xs, π1 &y)
+        % [](Vc<π1> &xs, π1 const &y)
           { π0 r;
             for (let &x : xs) r << (x | πf<-1>{"_", [](πi &i) { i.pop(); }});
             return r | y; });

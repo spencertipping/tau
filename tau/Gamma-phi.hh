@@ -65,12 +65,11 @@ struct Γφ_
   auto p(Ψ4*) const { return wp4_; }
 
 
+  Tt auto p(πt <T> *x) const { return pf_.p(x); }
   Tt auto p(πsa<T> *x) const { return pf_.p(x); }
   Tt auto p(πpa<T> *x) const { return pf_.p(x); }
   Tt auto p(πse<T> *x) const { return pf_.p(x); }
   Tt auto p(πpe<T> *x) const { return pf_.p(x); }
-  Tt auto p(πst<T> *x) const { return pf_.p(x); }
-  Tt auto p(πpt<T> *x) const { return pf_.p(x); }
 
   // Parse-time evaluation of a π expression
   φ<ηm> p(ηm*) const

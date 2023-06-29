@@ -13,7 +13,7 @@ namespace τ
 
 
 // ηoc: output container for ηo writers
-// NOTE: there may be more of these
+// NOTE: there may be more of these than are defined here
 Tt struct ηoc;
 
 template<> struct ηoc<ξ> final

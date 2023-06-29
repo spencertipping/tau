@@ -63,10 +63,20 @@ deft(Sn<f64bc>, 512, float64s, i.f64s())
 
 Tt struct ηauto_<ηY<T>>
 {
-  sletc ops = ηauto_op_decode | ηauto_op_encode | ηauto_op_type;
+  sletc ops = ηauto_op_decode | ηauto_op_type;
   sletc t = ηtype::η;
   sletc n = 64;
   static ηY<T> v(ηic &i) { return {ηauto_<T>::v(i.η())}; }
+};
+
+
+// Inline value, which can be encoded and decoded but does not have
+// a type.
+template<> struct ηauto_<Sn<u8c>>
+{
+  sletc ops = ηauto_op_decode | ηauto_op_encode;
+  sletc n   = 64;
+  static Sn<u8c> v(ηic &i) { return i.all(); }
 };
 
 

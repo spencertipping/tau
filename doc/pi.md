@@ -9,6 +9,12 @@
 + [σ/π stdlib](sigma-pi-stdlib.md)
 
 
+## Proximal and distal values
+`x` and `y` are variables meaning "this" and "that", respectively. Unary contexts use `x` alone, whereas binary contexts (like sort comparators or key/value loops) use both.
+
+Unlike regular variables, `x` and `y` are read-only and written without the `$` prefix.
+
+
 ## C++ FFI and data layout
 π is a scripting interface that allows C++ functions to apply to η values; as such, it provides an `auto` interface to do most of the C++ type conversions for you. This is complicated only by the fact that π values occupy two dimensions: vertical and horizontal, and those terms probably don't mean what you expect them to.
 

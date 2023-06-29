@@ -42,13 +42,11 @@ template<πautostack T> struct πautoclass_<πpa<T>> { sletc c = πautoclass::im
 template<πautostack T> struct πautoclass_<πse<T>> { sletc c = πautoclass::immediate; };
 template<πautostack T> struct πautoclass_<πpe<T>> { sletc c = πautoclass::immediate; };
 
+template<iN N> struct πautoclass_<πt <πf<N>>> { sletc c = πautoclass::constant; };
 template<iN N> struct πautoclass_<πsa<πf<N>>> { sletc c = πautoclass::constant; };
 template<iN N> struct πautoclass_<πpa<πf<N>>> { sletc c = πautoclass::constant; };
 template<iN N> struct πautoclass_<πse<πf<N>>> { sletc c = πautoclass::constant; };
 template<iN N> struct πautoclass_<πpe<πf<N>>> { sletc c = πautoclass::constant; };
-
-template<> struct πautoclass_<πst<π0>> { sletc c = πautoclass::constant; };
-template<> struct πautoclass_<πpt<π0>> { sletc c = πautoclass::constant; };
 
 template<>               struct πautoclass_<πhr> { sletc c = πautoclass::stack; };
 template<ηauto_decode T> struct πautoclass_<T>   { sletc c = πautoclass::stack; };
@@ -124,7 +122,7 @@ template<>     struct πauto1_<πi&>     { static πi  &f(πi &i) { return i; } 
 template<>     struct πauto1_<πhr>     { static auto f(πi &i) { return i.pop(); } };
 template<uN N> struct πauto1_<πhr_<N>> { static auto f(πi &i) { return πhr_<N>{}; } };
 
-template<ηauto_decode T> struct πauto1_<T> { static auto f(πi &i) { return ηauto_<T>::v(i[i.pop()]); } };
+template<ηauto_decode T> struct πauto1_<T> { static auto f(πi &i) { return ηauto_<T>::v(i.ypop()); } };
 template<is_πv        T> struct πauto1_<T> { static auto f(πi &i) { return T{πauto1_<typename T::t>::f(i)}; } };
 
 

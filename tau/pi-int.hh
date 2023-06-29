@@ -9,6 +9,19 @@ namespace τ
 {
 
 
+// π interpreter registers
+struct πir final : public virtual πhv
+{
+  πir(πh &h) : πhv(h) {}
+
+  πhr x;
+  πhr y;
+
+  void mark() {     h.mark(x);     h.mark(y); }
+  void move() { x = h.move(x); y = h.move(y); }
+};
+
+
 // π program interpreter
 struct πi final
 {
@@ -24,7 +37,7 @@ struct πi final
 
   πi &push(πhr const &r) { s_.xs.push_back(r);       return *this; }
   πi &push(ηi  const &i) { s_.xs.push_back(h_ << i); return *this; }
-  πi &push(πhr const &r, ηi const &i)
+  πi &push(πhr const &r, ηic &i)
     { s_.xs.push_back(h_.i(r, i)); return *this; }
 
   πhr peek() const
@@ -49,15 +62,16 @@ struct πi final
   ηi ypeek() const { return (*this)[peek()]; }
   ηi ypop()        { return (*this)[pop()]; }
 
-  ηi operator[](πhr const &r)              const { return h_[r]; }
-  πhr         i(πhr const &r, ηi const &i) const { return h_.i(r, i); }
+  ηi operator[](πhr const &r)         const { return h_[r]; }
+  πhr         i(πhr const &r, ηic &i) const { return h_.i(r, i); }
 
-  template<ηauto_encode T> πhr operator<<(T const &x) { return h_ << x; }
+  template<ηauto_encode T>
+  πhr operator<<(T const &x) { return h_ << x; }
 
 
-  ηo<πh&> r(uN s = 64)                       { return h_.r(s); }
-  πhr   ref()                                { return h_.ref(); }
-  πhr     r(uN s, F<void(ηo<πh&>)> const &f) { f(r(s)); return ref(); }
+  ηo<πh&> r(uN s = 64)                         { return h_.r(s); }
+  πhr   ref()                                  { return h_.ref(); }
+  πhr     r(uN s, F<void(ηo<πh&>&&)> const &f) { f(r(s)); return ref(); }
 
   πh &h() { return h_; }
 
@@ -73,11 +87,22 @@ struct πi final
   ξo &bo() { return bo_; }
   ξi &bi() { return bi_; }
 
+  πhr &x() { return r_.x; }
+  πhr &y() { return r_.y; }
+
+  πi &def_x() { r_.x = pop(); return *this; }
+  πi &def_y() { r_.y = pop(); return *this; }
+
+  πi &clear_x()  { r_.x.clear(); return *this; }
+  πi &clear_y()  { r_.y.clear(); return *this; }
+  πi &clear_xy() { clear_x(); return clear_y(); }
+
 
 protected:
   πh   h_;
   πhsv s_{h_};  // data stack
   πhmv m_{h_};  // named bindings
+  πir  r_{h_};
 
   ξi   fi_;
   ξo   fo_;

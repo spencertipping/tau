@@ -27,6 +27,15 @@ struct πhr final
   πhrn l;   // whole-allocation length in bytes
   πhrn i;   // inner offset
   πhrn il;  // inner length
+
+  πhr()                                    : o(0),  l(0),  i(0),  il(0) {}
+  πhr(πhrn o_, πhrn l_, πhrn i_, πhrn il_) : o(o_), l(l_), i(i_), il(il_) {}
+
+  // NOTE: heap refs will always be offset positively from the beginning
+  // due to per-item padding.
+  explicit operator bool() const { return o; }
+
+  πhr &clear() { o = l = i = il = 0; return *this; }
 };
 
 
@@ -74,36 +83,37 @@ struct πh final
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
   ηi operator[](πhr const &r) const
-    { return ηi{h_.data() + r.o + r.i, r.il}; }
+    { A(r, "πh[null]");
+      return ηi{h_.data() + r.o + r.i, r.il}; }
 
   // Refer to a ηi already on the heap and contained within a heap ref; that is,
   // create an inner reference.
-  πhr i(πhr const &r, ηi y) const
-    { return {r.o, r.l, πhrn(y.odata() - (h_.data() + r.o)), πhrn(y.lsize())}; }
+  πhr i(πhr const &r, ηic &y) const
+    { A(r, "πh::i(null, " << y << ")");
+      return {r.o, r.l, πhrn(y.odata() - (h_.data() + r.o)), πhrn(y.lsize())}; }
 
   // Write a value into the heap and return a reference to it. ηi values are copied
   // in their entirety; they are not boxed.
   Tt πhr operator<<(T const &x)
-    { A(!r_.l, "πh<< is not re-entrant");
-      A(!hn_,  "πh<< during GC");
-      if constexpr (Eq<T, ηi>) r(x.lsize())    << x.all();
-      else                     r(ηauto_<T>::n) << x;  // calls .ref() on destruct
+    { A(!r_,  "πh<< is not re-entrant");
+      A(!hn_, "πh<< during GC");
+      r(ηauto_<T>::n) << x;  // calls .ref() on destruct
       return ref(); }
 
   // Create a η output writer that will write to the heap. Call .ref() to
   // get the new value's address.
   ηo<πh&> r(uN s = 64)
-    { r_ = {0, 0, 0, 0};
+    { r_.clear();
       return ηo<πh&>{ηoc<πh&>{*this}, s}; }
 
   // Called during operator<< to set the πhr of the value being written.
   // We don't always know this up front because GC can happen during a write,
   // which will rearrange the heap and change the result.
-  void ref(πhr const &r) { r_ = r; }
+  void ref(πhr const &r) { A(r, "πh::ref(null)"); r_ = r; }
   πhr  ref()
-    { A(r_.o, "πh::ref() with no result");
+    { A(r_, "πh::ref() with null stored value");
       let r = r_;
-      r_ = {0, 0, 0, 0};
+      r_.clear();
       return r; }
 
   // GC with the specified amount of headroom for a new value that is going

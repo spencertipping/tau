@@ -21,17 +21,12 @@ Tt struct πpa { using t = T; T x; };  // plural atom
 Tt struct πse { using t = T; T x; };  // singular expression
 Tt struct πpe { using t = T; T x; };  // plural expression
 
-Tt struct πst { using t = T; T x; };  // singular transformer
-Tt struct πpt { using t = T; T x; };  // plural transformer
-
 Tt struct is_πv_         : std::false_type {};
 Tt struct is_πv_<πt<T>>  : std::true_type {};
 Tt struct is_πv_<πsa<T>> : std::true_type {};
 Tt struct is_πv_<πpa<T>> : std::true_type {};
 Tt struct is_πv_<πse<T>> : std::true_type {};
 Tt struct is_πv_<πpe<T>> : std::true_type {};
-Tt struct is_πv_<πst<T>> : std::true_type {};
-Tt struct is_πv_<πpt<T>> : std::true_type {};
 
 Tt concept is_πv = is_πv_<T>::value;
 
@@ -57,13 +52,11 @@ Tt             struct is_πhr_          : std::false_type {};
 template<uN I> struct is_πhr_<πhr_<I>> : std::true_type {};
 
 
+Tt O &operator<<(O &s, πt <T> const &x) { return s << x.x; }
 Tt O &operator<<(O &s, πsa<T> const &x) { return s << x.x; }
 Tt O &operator<<(O &s, πpa<T> const &x) { return s << x.x; }
 Tt O &operator<<(O &s, πse<T> const &x) { return s << x.x; }
 Tt O &operator<<(O &s, πpe<T> const &x) { return s << x.x; }
-
-Tt O &operator<<(O &s, πst<T> const &x) { return s << x.x; }
-Tt O &operator<<(O &s, πpt<T> const &x) { return s << x.x; }
 
 Tt O &operator<<(O &s, πP<T>  const &x) { return s << x.x; }
 

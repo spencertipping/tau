@@ -31,8 +31,8 @@ PO ηscmp(ηi, ηi);
 struct ηi final
 {
   ηi(ηic&) = default;
-  ηi(u8c *a, uN l) : a_(a),        l_(l)              { decode_cb(); }
-  ηi(Sn<u8c> s)    : a_(s.data()), l_(s.size_bytes()) { decode_cb(); }
+  ηi(u8c *a, uN l)       : a_(a),        l_(l)              { decode_cb(); }
+  explicit ηi(Sn<u8c> s) : a_(s.data()), l_(s.size_bytes()) { decode_cb(); }
 
   ηi &operator=(ηi const&) = default;
   ηi &operator=(Sn<u8c> const &s) { a_ = s.data(); l_ = s.size_bytes(); decode_cb(); return *this; }
@@ -94,8 +94,8 @@ struct ηi final
 
   // NOTE: these will fail loudly if you request items that
   // don't exist (to verify, use .at() and check for .empty())
-  ηi operator[](uN i)           const { return at(i); }
-  ηi operator[](ηname const &n) const { return at(n); }
+  ηi operator[](uN i)           const { return ηi{at(i)}; }
+  ηi operator[](ηname const &n) const { return ηi{at(n)}; }
 
 
   bool is_sig()  const { return t() == ηtype::sig; }
