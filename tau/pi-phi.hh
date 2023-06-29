@@ -139,6 +139,9 @@ template<class πφ>
   let s3 = (s1 & φn(wsp_)) % post;       // (s_atom | ss_pre s) s_post*
   se_.as<φa_<π1>>() << s3 << s2;
 
+  // IMPORTANT: we must prefer wse_ to wpa_; otherwise we will force [] to
+  // always parse in plural context, which erases [s] as an s, which breaks
+  // singular postfix operators against [] groups.
   let p1 = φa<π1>("πφp1",
                   wse_,
                   wpa_,
