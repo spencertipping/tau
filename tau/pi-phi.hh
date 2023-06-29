@@ -140,8 +140,8 @@ template<class πφ>
   se_.as<φa_<π1>>() << s3 << s2;
 
   let p1 = φa<π1>("πφp1",
-                  wpa_,
                   wse_,
+                  wpa_,
                   (wspp_ & wse_) % pre,
                   (wppp_ & wpe_) % pre);
   let p2 = (p1 & φn(wpp_)) % post;
@@ -153,8 +153,7 @@ template<class πφ>
   // Parens wrap a plural value into a single ηi
   def_sa(φ2("()", φlp_(), wpe_, φrp_())
          * [](π1 const &x)
-           { return x | π0{"η", [](πi &i)
-             { i.push(i << ηi{i.ypop().all()}); }}; });
+           { return x | π0{"η", [](πi &i) { i.push(i.ypop()); }}; });
 
   def_t((φn(φ1("πpe`", wpe_, φl("`"))) & wpe_)
         % [](Vc<π1> &xs, π1 const &y)
