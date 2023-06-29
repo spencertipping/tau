@@ -45,7 +45,7 @@ auto φauto(A const &a, F const &f)
 
 // A bundle of automatic string parsers to mix into a grammar; see pi-phi.hh
 // or Gamma-phi.hh for examples.
-struct φauto_str
+template<class A> struct φauto_str
 {
   template<char... S> auto p(φaL<S...>*) const
     { return φm(φl(St{S...}), [](auto &&x) { return φaL<S...>{mo(x)}; }); }

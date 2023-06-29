@@ -55,10 +55,16 @@ void πshared(πφ &p)
     .def_sa([](ηname n)  { return πk(n); })
     .def_sa([](φaL<'x'>) { return π1{"x", [](πi &i) { i.push(i.x()); }}; })
     .def_sa([](φaL<'y'>) { return π1{"y", [](πi &i) { i.push(i.y()); }}; })
+
     .def_sa([](φaL<'$'>, φident n)
-      { return π1{"$" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
-    .def_sa([](φaL<':'>, φident n, πpa<π1> y)
-      { return π1{":" + n.x, [=](πi &i) { y.x(i); i.ms(n.x, i.peek()); }}; })
+      { return π1{"$" + n.x, [=](πi &i)
+        { let x = i.mg(n.x);
+          i.push(i.i(x, i[x].one())); }}; })
+
+    .def_pa([](φaL<'@'>, φident n)
+      { return π1{"@" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
+    .def_pa([](φident n, φaL<'='>, πpa<π1> y)
+      { return π1{n.x + "=", [=](πi &i) { y.x(i); i.ms(n.x, i.peek()); }}; })
 
     .def_sp("+",  [](πse<i64> y, i64 x) { return x + y.x; })
     .def_sp("-",  [](πse<i64> y, i64 x) { return x - y.x; })
@@ -88,12 +94,17 @@ void πshared(πφ &p)
 
     .def_spp("@", [](ηic &x) { return x.η().all(); })
 
-    .def_sp(">",  [](πse<ηi>  y, ηi  x) { return x > y.x; })
-    .def_sp(">=", [](πse<ηi>  y, ηi  x) { return x >= y.x; })
-    .def_sp("<",  [](πse<ηi>  y, ηi  x) { return x < y.x; })
-    .def_sp("<=", [](πse<ηi>  y, ηi  x) { return x <= y.x; })
-    .def_sp("==", [](πse<ηi>  y, ηi  x) { return (x <=> y.x) == PO::equivalent; })
-    .def_sp("!=", [](πse<ηi>  y, ηi  x) { return (x <=> y.x) != PO::equivalent; })
+    .def_sp(">",  [](πse<ηi> const &y, ηic &x) { return x > y.x; })
+    .def_sp(">=", [](πse<ηi> const &y, ηic &x) { return x >= y.x; })
+    .def_sp("<",  [](πse<ηi> const &y, ηic &x) { return x < y.x; })
+    .def_sp("<=", [](πse<ηi> const &y, ηic &x) { return x <= y.x; })
+    .def_sp("==", [](πse<ηi> const &y, ηic &x) { return (x <=> y.x) == PO::equivalent; })
+    .def_sp("!=", [](πse<ηi> const &y, ηic &x) { return (x <=> y.x) != PO::equivalent; })
+
+    .def_psp(":", [](πi &i, πP<ηname> const &n, πhr const &x)
+      { let r = i[x].at(n.x);
+        std::cout << "|r|: " << r.size() << std::endl;
+        return r.empty() ? i << ηsig::ω : i.i(x, ηi{r}.one()); })
 
     .def_sp("?", [](πi &i, πse<π1> const &y, φaL<':'>, πse<π1> const &z, bool c)
       { return (c ? y.x(i) : z.x(i)).pop(); })
@@ -101,7 +112,7 @@ void πshared(πφ &p)
     .def_pp("`", [](πi &i, πpe<π1> const &y, πhr const&)
       { return y.x(i).pop(); })
 
-    .def_sp(">s", [](ηi x) { return (Ss{} << x << "\n").str(); })
+    .def_sp(">s", [](ηic &x) { return (Ss{} << x << "\n").str(); })
     ;
 }
 

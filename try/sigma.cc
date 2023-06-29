@@ -6,10 +6,17 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  if (argc != 2)
+  bool debug = false;
+
+  if (argc < 2)
   {
     cerr << "Usage: " << argv[0] << " Γ" << endl;
     return 1;
+  }
+  else if (argc == 3)
+  {
+    debug = true;
+    ++argv, --argc;
   }
 
   τe t;
@@ -22,6 +29,8 @@ int main(int argc, char *argv[])
       cerr << "parse error at " << r.j << ": " << r.p().name() << endl;
       return 1;
     }
+
+    if (debug) cerr << "Γ = " << r.r() << endl;
 
     r.r()(Ξ{t}.push());
     t.go();

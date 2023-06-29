@@ -32,12 +32,25 @@ $ bin/sigma 'n3 p[x`x+1`x+2 x] M?F'
 2 0
 3 1
 4 2
-$ bin/sigma 'n3 p[:foo[x+1]`$foo+1] M?F'
+$ bin/sigma 'n3 p[foo=[x+1]`$foo+1] M?F'
 2
 3
 4
+```
+
+A few more tests:
+
+```bash
+$ bin/sigma 'n3 p[foo=[x+1 x+2 x<1]`@foo @foo] M?F'
+1 2 true 1 2 true
+2 3 false 2 3 false
+3 4 false 3 4 false
 $ bin/sigma 'n1p[1 @(2 3)] M?F'
 1 2 3
+$ bin/sigma "n1p[m=['a 3 'b 5] \` @m :'b] M?F"
+5
+$ bin/sigma "n1p[m=['a 3 'b 5] \` $m] M?F"
+'a
 ```
 
 

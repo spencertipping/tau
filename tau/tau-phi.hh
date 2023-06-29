@@ -62,13 +62,13 @@ Tt φ<T> φbrace(φ<T> p) { return φ2("{}", φlB_(), φwrap(p), φrB_()); }
 // to construct a grammar. See phi-auto, pi-phi, and Gamma-phi for
 // details.
 
-struct φlit
+template<class A> struct φlit
 {
   auto p(i64*) const { return φint_(); }
-  auto p(i32*) const { return φm(p(null<i64>()), [](i64 x) { return i32(x); }); }
-  auto p(i16*) const { return φm(p(null<i64>()), [](i64 x) { return i16(x); }); }
+  auto p(i32*) const { return φm(Sc<A const*>(this)->p(null<i64>()), [](i64 x) { return i32(x); }); }
+  auto p(i16*) const { return φm(Sc<A const*>(this)->p(null<i64>()), [](i64 x) { return i16(x); }); }
   auto p(f64*) const { return φfloat_(); }
-  auto p(f32*) const { return φm(p(null<f64>()), [](f64 x) { return f32(x); }); }
+  auto p(f32*) const { return φm(Sc<A const*>(this)->p(null<f64>()), [](f64 x) { return f32(x); }); }
 
   auto p(St*)     const { return φstr_(); }
   auto p(ηname*)  const { return φname_(); }
@@ -78,16 +78,16 @@ struct φlit
   auto p(φig*) const { return φm(φig_(), [](auto&&) { return φig{}; }); }
 };
 
-struct φbrack
+template<class A> struct φbrack
 {
   Tt auto p(φrbrack<T>*) const
-    { return φm(φ1("φ]", p(null<T>()), φrb_()), [](auto &&x) { return φrbrack{mo(x)}; }); }
+    { return φm(φ1("φ]", Sc<A const*>(this)->p(null<T>()), φrb_()), [](auto &&x) { return φrbrack{mo(x)}; }); }
 
   Tt auto p(φrparen<T>*) const
-    { return φm(φ1("φ)", p(null<T>()), φrp_()), [](auto &&x) { return φrparen{mo(x)}; }); }
+    { return φm(φ1("φ)", Sc<A const*>(this)->p(null<T>()), φrp_()), [](auto &&x) { return φrparen{mo(x)}; }); }
 
   Tt auto p(φrbrace<T>*) const
-    { return φm(φ1("φ}", p(null<T>()), φrB_()), [](auto &&x) { return φrbrace{mo(x)}; }); }
+    { return φm(φ1("φ}", Sc<A const*>(this)->p(null<T>()), φrB_()), [](auto &&x) { return φrbrace{mo(x)}; }); }
 };
 
 

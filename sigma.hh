@@ -8,8 +8,31 @@ namespace σ
 {
 
 
-typedef τ::πφ<τ::πφP, τ::φlit, τ::φbrack> πφ;
-typedef τ::Γφ<πφ,     τ::φlit, τ::φbrack> Γφ;
+struct πφ : public τ::πφ_<πφ>,
+            τ::φauto_str<πφ>,
+            τ::πφP<πφ>,
+            τ::φlit<πφ>,
+            τ::φbrack<πφ>
+{
+  using τ::πφ_<πφ>::p;
+  using τ::πφP<πφ>::p;
+  using τ::φbrack<πφ>::p;
+  using τ::φauto_str<πφ>::p;
+  using τ::φlit<πφ>::p;
+};
+
+
+struct Γφ : public τ::Γφ_<Γφ, πφ>,
+            τ::φauto_str<Γφ>,
+            τ::φlit<Γφ>,
+            τ::φbrack<Γφ>
+{
+  using τ::Γφ_<Γφ, πφ>::p;
+  using τ::φauto_str<Γφ>::p;
+  using τ::φlit<Γφ>::p;
+  using τ::φbrack<Γφ>::p;
+};
+
 
 typedef τ::τe τe;
 typedef τ::Ξ  Ξ;

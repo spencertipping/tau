@@ -152,6 +152,7 @@ template<class πφ>
 
   def_sa(φgroup(wse_));
   def_pa(φgroup(wpe_));
+  def_pa(wsa_);
 
   // Parens wrap a plural value into a single ηi
   def_sa(φ2("()", φlp_(), wpe_, φrp_())
@@ -164,15 +165,6 @@ template<class πφ>
             for (let &x : xs) r << (x | πf<-1>{"_", [](πi &i) { i.pop(); }});
             return r | y; });
 }
-
-
-template<class... Xs>
-struct πφ : public πφ_<πφ<Xs...>>, φauto_str, Xs...
-{
-  using πφ_<πφ<Xs...>>::p;
-  using φauto_str::p;
-  using Xs::p...;
-};
 
 
 }

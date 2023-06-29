@@ -20,10 +20,10 @@ namespace τ
 φ<π1> πφnp(φ<π1>);
 
 
-struct πφP
+template<class A> struct πφP
 {
   Tt auto p(πP<T>*) const
-    { return φm(p(null<T>()), [](auto &&x) { return πP{x}; }); }
+    { return φm(Sc<A const*>(this)->p(null<T>()), [](auto &&x) { return πP{x}; }); }
 };
 
 

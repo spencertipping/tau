@@ -104,7 +104,7 @@ struct πh final
   // get the new value's address.
   ηo<πh&> r(uN s = 64)
     { r_.clear();
-      return ηo<πh&>{ηoc<πh&>{*this}, s}; }
+      return ηo<πh&>{ηoc<πh&>{*this}, std::max(uN(2), s)}; }
 
   // Called during operator<< to set the πhr of the value being written.
   // We don't always know this up front because GC can happen during a write,

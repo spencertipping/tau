@@ -139,15 +139,6 @@ template<class Γφ, class πφ>
 }
 
 
-template<class πφ, class... Xs>
-struct Γφ : public Γφ_<Γφ<πφ, Xs...>, πφ>, φauto_str, Xs...
-{
-  using Γφ_<Γφ<πφ, Xs...>, πφ>::p;
-  using φauto_str::p;
-  using Xs::p...;
-};
-
-
 }
 
 #include "end.hh"
