@@ -45,13 +45,21 @@ $ bin/sigma 'n3 p[foo=[x+1 x+2 x<1]`@foo @foo] M?F'
 1 2 true 1 2 true
 2 3 false 2 3 false
 3 4 false 3 4 false
+$ bin/sigma 'n3 p[foo=[x+1 x+2 x<1]`@foo $foo] M?F'
+1 2 true 1
+2 3 false 2
+3 4 false 3
 $ bin/sigma 'n1p[1 @(2 3)] M?F'
 1 2 3
-$ bin/sigma "n1p[m=['a 3 'b 5] \` @m :'b] M?F"
-5
-$ bin/sigma "n1p[m=['a 3 'b 5] \` $m] M?F"
-'a
+$ bin/sigma "n3p['a x+1'b5:'a] M?F"  # this is broken
+1
+2
+3
+$ bin/sigma "n1p[m=['a3 'b5]\`\$m] M?F"
+a:
 ```
+
+**TODO:** plural/singular are problematic becuse we treat them too separately. In practice, "plural" should be a strict superset of singular like it is in Perl. This way we can't introduce colliding syntax.
 
 
 ## Proximal and distal values
