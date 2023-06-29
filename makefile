@@ -1,7 +1,7 @@
 linux_cc = g++
 wasm_cc  = dev/emsdk em++
 
-linux_cflags = $(shell cat compile_flags.txt) -O1
+linux_cflags = $(shell cat compile_flags.txt) -O3
 wasm_cflags  = $(shell cat compile_flags.txt) -O3 -flto -fexceptions \
                -Wno-mathematical-notation-identifier-extension
 
@@ -84,15 +84,15 @@ bin/linux/tau-%.o: tau/%.cc bin/linux/tau-%.d | bin
 bin/linux/taup-%.o: tau/linux/%.cc bin/linux/taup-%.d | bin
 	$(linux_cc) $(linux_cflags) -c -o $@ $<
 
-bin/linux/sigma-%.o: sigma/%.cc bin/linux/sigma-%.d | bin
-	$(linux_cc) $(linux_cflags) -c -o $@ $<
-bin/linux/sigmap-%.o: sigma/linux/%.cc bin/linux/sigmap-%.d | bin
-	$(linux_cc) $(linux_cflags) -c -o $@ $<
+bin/linux/sigma-%.o: sigma/%.cc bin/linux/sigma-%.d bin/tau.pch | bin
+	$(linux_cc) $(linux_cflags) -Ibin -c -o $@ $<
+bin/linux/sigmap-%.o: sigma/linux/%.cc bin/linux/sigmap-%.d bin/tau.pch | bin
+	$(linux_cc) $(linux_cflags) -Ibin -c -o $@ $<
 
-bin/linux-bin/%.o: try/%.cc bin/linux-bin/%.d | bin
-	$(linux_cc) $(linux_cflags) -c -o $@ $<
-bin/linux-bin/%.o: try/linux/%.cc bin/linux-bin/%.d | bin
-	$(linux_cc) $(linux_cflags) -c -o $@ $<
+bin/linux-bin/%.o: try/%.cc bin/linux-bin/%.d bin/tau.pch | bin
+	$(linux_cc) $(linux_cflags) -Ibin -c -o $@ $<
+bin/linux-bin/%.o: try/linux/%.cc bin/linux-bin/%.d bin/tau.pch | bin
+	$(linux_cc) $(linux_cflags) -Ibin -c -o $@ $<
 
 
 bin/wasm/tau-%.o: tau/%.cc bin/wasm/tau-%.d | bin
@@ -109,6 +109,10 @@ bin/wasm-bin/%.o: try/%.cc bin/wasm-bin/%.d | bin
 	$(wasm_cc) $(wasm_cflags) -c -o $@ $<
 bin/wasm-bin/%.o: try/wasm/%.cc bin/wasm-bin/%.d | bin
 	$(wasm_cc) $(wasm_cflags) -c -o $@ $<
+
+
+bin/%.pch: %.hh | bin
+	$(linux_cc) $(linux_cflags) -c -x c++-header -o $@ $<
 
 
 bin:

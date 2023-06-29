@@ -28,6 +28,16 @@ $ bin/sigma 'n3 p[x [x]+1] M? F'
 0 1
 1 2
 2 3
+$ bin/sigma 'n3 p[x`x+1`x+2 x] M?F'
+2 0
+3 1
+4 2
+$ bin/sigma 'n3 p[:foo[x+1]`$foo+1] M?F'
+2
+3
+4
+$ bin/sigma 'n1p[1 @(2 3)] M?F'
+1 2 3
 ```
 
 

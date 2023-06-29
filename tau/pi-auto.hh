@@ -118,12 +118,12 @@ template<πautostack X, class... Xs> struct πautoclassify_<X, Xs...>
 // to match all types that will classify as such.
 Tt struct πauto1_;
 
-template<>     struct πauto1_<πi&>     { static πi  &f(πi &i) { return i; } };
+template<>     struct πauto1_<πi>      { static πi  &f(πi &i) { return i; } };
 template<>     struct πauto1_<πhr>     { static auto f(πi &i) { return i.pop(); } };
 template<uN N> struct πauto1_<πhr_<N>> { static auto f(πi &i) { return πhr_<N>{}; } };
 
 template<ηauto_decode T> struct πauto1_<T> { static auto f(πi &i) { return ηauto_<T>::v(i.ypop()); } };
-template<is_πv        T> struct πauto1_<T> { static auto f(πi &i) { return T{πauto1_<typename T::t>::f(i)}; } };
+template<is_πv        T> struct πauto1_<T> { static auto f(πi &i) { return T{πauto1_<De<typename T::t>>::f(i)}; } };
 
 
 // Fills arguments for an FFI function, drawing values from the parsed-constant
@@ -155,7 +155,7 @@ R πauto_apply_(F<R(Xs...)> const &f,
         f, t, i, std::forward<Ys>(ys)..., std::get<J>(t));
     else
       return πauto_apply_<I + 1, J>(
-        f, t, i, std::forward<Ys>(ys)..., πauto1_<X>::f(i));
+        f, t, i, std::forward<Ys>(ys)..., πauto1_<De<X>>::f(i));
   }
 }
 

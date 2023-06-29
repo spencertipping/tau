@@ -50,16 +50,56 @@ void Γshared(Γφ &g)
 
 void πshared(πφ &p)
 {
-  p .def_sa([](i64 x)              { return πk(x); })
-    .def_sa([](ηname n)            { return πk(n); })
-    .def_sa([](φaL<'$'>, φident n) { return π1{"$" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
-    .def_sa([](φaL<'x'>)           { return π1{"x", [](πi &i) { i.push(i.x()); }}; })
-    .def_sa([](φaL<'y'>)           { return π1{"y", [](πi &i) { i.push(i.y()); }}; })
+  p .def_sa([](f64 x)    { return πk(x); })
+    .def_sa([](i64 x)    { return πk(x); })
+    .def_sa([](ηname n)  { return πk(n); })
+    .def_sa([](φaL<'x'>) { return π1{"x", [](πi &i) { i.push(i.x()); }}; })
+    .def_sa([](φaL<'y'>) { return π1{"y", [](πi &i) { i.push(i.y()); }}; })
+    .def_sa([](φaL<'$'>, φident n)
+      { return π1{"$" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
+    .def_sa([](φaL<':'>, φident n, πpa<π1> y)
+      { return π1{":" + n.x, [=](πi &i) { y.x(i); i.ms(n.x, i.peek()); }}; })
 
-    .def_sp("+", [](πse<i64> x, i64 y) { return x.x + y; })
-    .def_sp("-", [](πse<i64> x, i64 y) { return y - x.x; })
-    .def_sp(">", [](πse<ηi>  x, ηi  y) { return x.x < y; })
-    .def_sp("<", [](πse<ηi>  x, ηi  y) { return x.x > y; })
+    .def_sp("+",  [](πse<i64> y, i64 x) { return x + y.x; })
+    .def_sp("-",  [](πse<i64> y, i64 x) { return x - y.x; })
+    .def_sp("*",  [](πse<i64> y, i64 x) { return x * y.x; })
+    .def_sp("/",  [](πse<i64> y, i64 x) { return x / y.x; })
+    .def_sp("%",  [](πse<i64> y, i64 x) { return x % y.x; })
+    .def_sp("&",  [](πse<i64> y, i64 x) { return x & y.x; })
+    .def_sp("|",  [](πse<i64> y, i64 x) { return x | y.x; })
+    .def_sp("^",  [](πse<i64> y, i64 x) { return x ^ y.x; })
+
+    .def_ssp("~", [](i64 x) { return ~x; })
+    .def_ssp("_", [](i64 x) { return -x; })
+
+    .def_sp("+.", [](πse<f64> y, f64 x) { return x + y.x; })
+    .def_sp("-.", [](πse<f64> y, f64 x) { return x - y.x; })
+    .def_sp("*.", [](πse<f64> y, f64 x) { return x * y.x; })
+    .def_sp("/.", [](πse<f64> y, f64 x) { return x / y.x; })
+    .def_sp("%.", [](πse<f64> y, f64 x) { return fmod(x, y.x); })
+
+    .def_ssp("_.", [](f64 x) { return -x; })
+
+    .def_ssp("S.", [](f64 x) { return sin(x); })
+    .def_ssp("C.", [](f64 x) { return cos(x); })
+    .def_ssp("T.", [](f64 x) { return tan(x); })
+    .def_ssp("L.", [](f64 x) { return log(x); })
+    .def_ssp("E.", [](f64 x) { return exp(x); })
+
+    .def_spp("@", [](ηic &x) { return x.η().all(); })
+
+    .def_sp(">",  [](πse<ηi>  y, ηi  x) { return x > y.x; })
+    .def_sp(">=", [](πse<ηi>  y, ηi  x) { return x >= y.x; })
+    .def_sp("<",  [](πse<ηi>  y, ηi  x) { return x < y.x; })
+    .def_sp("<=", [](πse<ηi>  y, ηi  x) { return x <= y.x; })
+    .def_sp("==", [](πse<ηi>  y, ηi  x) { return (x <=> y.x) == PO::equivalent; })
+    .def_sp("!=", [](πse<ηi>  y, ηi  x) { return (x <=> y.x) != PO::equivalent; })
+
+    .def_sp("?", [](πi &i, πse<π1> const &y, φaL<':'>, πse<π1> const &z, bool c)
+      { return (c ? y.x(i) : z.x(i)).pop(); })
+
+    .def_pp("`", [](πi &i, πpe<π1> const &y, πhr const&)
+      { return y.x(i).pop(); })
 
     .def_sp(">s", [](ηi x) { return (Ss{} << x << "\n").str(); })
     ;
