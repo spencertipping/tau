@@ -16,9 +16,9 @@ uN ηo_iptrs()       { return ηo_iptrs_; }
 uN ηo_commits()     { return ηo_commits_; }
 uN ηo_side_allocs() { return ηo_side_allocs_; }
 
-void ηo_track_iptr()        { ++ηo_iptrs_; }
-void ηo_track_commit()      { ++ηo_commits_; }
-void ηo_track_side_allocs() { ++ηo_side_allocs_; }
+void ηo_track_iptr()       { ++ηo_iptrs_; }
+void ηo_track_commit()     { ++ηo_commits_; }
+void ηo_track_side_alloc() { ++ηo_side_allocs_; }
 
 
 }
