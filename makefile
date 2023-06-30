@@ -1,23 +1,28 @@
-cc_linux = g++
-cc_clang = clang++
-cc_debug = g++
-cc_wasm  = dev/emsdk em++
+cc_linux  = g++
+cc_clang  = clang++
+cc_debug  = g++
+cc_wasm   = dev/emsdk em++
+cc_wdebug = dev/emsdk em++
 
-ar_linux = ar
-ar_clang = ar
-ar_debug = ar
-ar_wasm  = dev/emsdk emar
+ar_linux  = ar
+ar_clang  = ar
+ar_debug  = ar
+ar_wasm   = dev/emsdk emar
+ar_wdebug = dev/emsdk emar
 
 cflags_linux = $(shell cat compile_flags.txt) -O3
-cflags_clang = $(shell cat compile_flags.txt) -O0 -g -DDEBUG
+cflags_clang = $(shell cat compile_flags.txt) -O0 -gdwarf-4 -DDEBUG
 cflags_debug = $(shell cat compile_flags.txt) -O0 -g -DDEBUG
 cflags_wasm  = $(shell cat compile_flags.txt) -O3 -flto -fexceptions \
                -Wno-mathematical-notation-identifier-extension
+cflags_wdebug = $(shell cat compile_flags.txt) -O1 -g -fexceptions \
+               -Wno-mathematical-notation-identifier-extension
 
-ldflags_linux =
-ldflags_clang =
-ldflags_debug =
-ldflags_wasm  = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB
+ldflags_linux  =
+ldflags_clang  =
+ldflags_debug  =
+ldflags_wasm   = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB -sSTACK_SIZE=256KB -sASYNCIFY_STACK_SIZE=256KB
+ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB -sSTACK_SIZE=256KB -sASYNCIFY_STACK_SIZE=256KB
 
 libs_linux = -lsqlite3 -lboost_context -lzstd
 libs_clang = -lsqlite3 -lboost_context -lzstd
@@ -26,7 +31,8 @@ libs_debug = -lsqlite3 -lboost_context -lzstd
   #-lharfbuzz -lcairo
   #-lxcb -lX11 -lGL -lX11-xcb
 
-libs_wasm =
+libs_wasm   =
+libs_wdebug =
 
 
 # Define the source and object files
@@ -35,14 +41,16 @@ sigma_cs = $(wildcard sigma/*.cc)
 try_cs   = $(wildcard try/*.cc)
 
 
-try_bins_linux = $(patsubst try/%.cc,       bin/%, $(try_cs)) \
-	         $(patsubst try/linux/%.cc, bin/%, $(try_cs_linux))
-try_bins_clang = $(patsubst try/%.cc,       bin/%-clang, $(try_cs)) \
-	         $(patsubst try/clang/%.cc, bin/%-clang, $(try_cs_clang))
-try_bins_debug = $(patsubst try/%.cc,       bin/%-debug, $(try_cs)) \
-	         $(patsubst try/debug/%.cc, bin/%-debug, $(try_cs_debug))
-try_bins_wasm  = $(patsubst try/%.cc,       bin/%.js, $(try_cs)) \
-	         $(patsubst try/wasm/%.cc,  bin/%.js, $(try_cs_wasm))
+try_bins_linux  = $(patsubst try/%.cc,        bin/%, $(try_cs)) \
+	          $(patsubst try/linux/%.cc,  bin/%, $(try_cs_linux))
+try_bins_clang  = $(patsubst try/%.cc,        bin/%-clang, $(try_cs)) \
+	          $(patsubst try/clang/%.cc,  bin/%-clang, $(try_cs_clang))
+try_bins_debug  = $(patsubst try/%.cc,        bin/%-debug, $(try_cs)) \
+	          $(patsubst try/debug/%.cc,  bin/%-debug, $(try_cs_debug))
+try_bins_wasm   = $(patsubst try/%.cc,        bin/%.js, $(try_cs)) \
+	          $(patsubst try/wasm/%.cc,   bin/%.js, $(try_cs_wasm))
+try_bins_wdebug = $(patsubst try/%.cc,        bin/%-debug.js, $(try_cs)) \
+	          $(patsubst try/wdebug/%.cc, bin/%-debug.js, $(try_cs_wdebug))
 
 
 define target
@@ -81,7 +89,7 @@ bin/$1-bin/%.o: try/$1/%.cc bin/$1-bin/%.d bin/tau.pch | bin
 endef
 
 
-$(foreach x, linux clang debug wasm, $(eval $(call target,$(x))))
+$(foreach x, linux clang debug wasm wdebug, $(eval $(call target,$(x))))
 
 
 all: linux wasm
@@ -103,7 +111,9 @@ bin/%-clang: $(tau_os_clang) $(sigma_os_clang) bin/clang-bin/%.o
 bin/%-debug: $(tau_os_debug) $(sigma_os_debug) bin/debug-bin/%.o
 	$(cc_debug) $(ldflags_debug) -o $@ $^ $(libs_debug)
 bin/%.js: $(tau_os_wasm) $(sigma_os_wasm) bin/wasm-bin/%.o
-	$(cc_debug) $(ldflags_wasm) -o $@ $^ $(libs_wasm)
+	$(cc_wasm) $(ldflags_wasm) -o $@ $^ $(libs_wasm)
+bin/%-debug.js: $(tau_os_wdebug) $(sigma_os_wdebug) bin/wdebug-bin/%.o
+	$(cc_wdebug) $(ldflags_wdebug) -o $@ $^ $(libs_wdebug)
 
 
 bin/%.pch: %.hh | bin
@@ -111,13 +121,14 @@ bin/%.pch: %.hh | bin
 
 
 bin:
-	mkdir -p bin/linux bin/linux-bin \
-	         bin/clang bin/clang-bin \
-	         bin/debug bin/debug-bin \
-                 bin/wasm  bin/wasm-bin
+	mkdir -p bin/linux  bin/linux-bin \
+	         bin/clang  bin/clang-bin \
+	         bin/debug  bin/debug-bin \
+	         bin/wasm   bin/wasm-bin \
+	         bin/wdebug bin/wdebug-bin
 
 
-.PHONY: clean linux-clean clang-clean debug-clean wasm-clean
+.PHONY: clean linux-clean clang-clean debug-clean wasm-clean wdebug-clean
 clean:
 	rm -rf bin
 
@@ -133,9 +144,13 @@ debug-clean:
 wasm-clean:
 	rm -f bin/wasm*/*
 
+wdebug-clean:
+	rm -f bin/wdebug*/*
+
 
 # Header file tracing
-header-deps: linux-header-deps clang-header-deps debug-header-deps wasm-header-deps
+header-deps: linux-header-deps clang-header-deps debug-header-deps \
+	     wasm-header-deps wdebug-header-deps
 
 
 define hdeps
@@ -161,4 +176,4 @@ bin/$1-bin/%.d: try/$1/%.cc | bin
 endef
 
 
-$(foreach x, linux clang debug wasm, $(eval $(call hdeps,$(x))))
+$(foreach x, linux clang debug wasm wdebug, $(eval $(call hdeps,$(x))))
