@@ -10,19 +10,23 @@ ar_debug  = ar
 ar_wasm   = dev/emsdk emar
 ar_wdebug = dev/emsdk emar
 
-cflags_linux = $(shell cat compile_flags.txt) -O3
-cflags_clang = $(shell cat compile_flags.txt) -O0 -gdwarf-4 -DDEBUG
-cflags_debug = $(shell cat compile_flags.txt) -O0 -g -DDEBUG
-cflags_wasm  = $(shell cat compile_flags.txt) -O3 -flto -fexceptions \
+cflags = $(shell cat compile_flags.txt)
+
+cflags_linux = $(cflags) -O3
+cflags_clang = $(cflags) -O0 -gdwarf-4 -DDEBUG
+cflags_debug = $(cflags) -O0 -g -DDEBUG
+cflags_wasm  = $(cflags) -O3 -flto -fexceptions \
                -Wno-mathematical-notation-identifier-extension
-cflags_wdebug = $(shell cat compile_flags.txt) -O1 -g -fexceptions \
+cflags_wdebug = $(cflags) -O1 -g -fexceptions \
                -Wno-mathematical-notation-identifier-extension
 
 ldflags_linux  =
 ldflags_clang  =
 ldflags_debug  =
-ldflags_wasm   = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB -sSTACK_SIZE=256KB -sASYNCIFY_STACK_SIZE=256KB
-ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB -sSTACK_SIZE=256KB -sASYNCIFY_STACK_SIZE=256KB
+ldflags_wasm   = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -sASYNCIFY_STACK_SIZE=1048576
+ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -sASYNCIFY_STACK_SIZE=1048576
+
+# NOTE: stack size args seem to have no effect for wasm
 
 libs_linux = -lsqlite3 -lboost_context -lzstd
 libs_clang = -lsqlite3 -lboost_context -lzstd
@@ -30,9 +34,15 @@ libs_debug = -lsqlite3 -lboost_context -lzstd
   #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
   #-lharfbuzz -lcairo
   #-lxcb -lX11 -lGL -lX11-xcb
-
 libs_wasm   =
 libs_wdebug =
+
+
+pch_linux  = bin/tau.pch
+pch_clang  =
+pch_debug  =
+pch_wasm   =
+pch_wdebug =
 
 
 # Define the source and object files
@@ -47,8 +57,8 @@ try_bins_clang  = $(patsubst try/%.cc,        bin/%-clang, $(try_cs)) \
 	          $(patsubst try/clang/%.cc,  bin/%-clang, $(try_cs_clang))
 try_bins_debug  = $(patsubst try/%.cc,        bin/%-debug, $(try_cs)) \
 	          $(patsubst try/debug/%.cc,  bin/%-debug, $(try_cs_debug))
-try_bins_wasm   = $(patsubst try/%.cc,        bin/%.js, $(try_cs)) \
-	          $(patsubst try/wasm/%.cc,   bin/%.js, $(try_cs_wasm))
+try_bins_wasm   = $(patsubst try/%.cc,        bin/%.html, $(try_cs)) \
+	          $(patsubst try/wasm/%.cc,   bin/%.html, $(try_cs_wasm))
 try_bins_wdebug = $(patsubst try/%.cc,        bin/%-debug.js, $(try_cs)) \
 	          $(patsubst try/wdebug/%.cc, bin/%-debug.js, $(try_cs_wdebug))
 
@@ -72,19 +82,19 @@ bin/tau-$1.a: $$(tau_os_$1)
 bin/sigma-$1.a: $$(sigma_os_$1)
 	$(ar_$1) rcs $$@ $$^
 
-bin/$1/tau-%.o: tau/%.cc bin/$1/tau-%.d | bin
-	$(cc_$1) $(cflags_$1) -c -o $$@ $$<
-bin/$1/taup-%.o: tau/$1/%.cc bin/$1/taup-%.d | bin
-	$(cc_$1) $(cflags_$1) -c -o $$@ $$<
-
-bin/$1/sigma-%.o: sigma/%.cc bin/$1/sigma-%.d bin/tau.pch | bin
+bin/$1/tau-%.o: tau/%.cc bin/$1/tau-%.d $(pch_$1) | bin
 	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
-bin/$1/sigmap-%.o: sigma/$1/%.cc bin/$1/sigmap-%.d bin/tau.pch | bin
+bin/$1/taup-%.o: tau/$1/%.cc bin/$1/taup-%.d $(pch_$1) | bin
 	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
 
-bin/$1-bin/%.o: try/%.cc bin/$1-bin/%.d bin/tau.pch | bin
+bin/$1/sigma-%.o: sigma/%.cc bin/$1/sigma-%.d $(pch_$1) | bin
 	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
-bin/$1-bin/%.o: try/$1/%.cc bin/$1-bin/%.d bin/tau.pch | bin
+bin/$1/sigmap-%.o: sigma/$1/%.cc bin/$1/sigmap-%.d $(pch_$1) | bin
+	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
+
+bin/$1-bin/%.o: try/%.cc bin/$1-bin/%.d $(pch_$1) | bin
+	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
+bin/$1-bin/%.o: try/$1/%.cc bin/$1-bin/%.d $(pch_$1) | bin
 	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
 endef
 
@@ -110,7 +120,7 @@ bin/%-clang: $(tau_os_clang) $(sigma_os_clang) bin/clang-bin/%.o
 	$(cc_clang) $(ldflags_clang) -o $@ $^ $(libs_clang)
 bin/%-debug: $(tau_os_debug) $(sigma_os_debug) bin/debug-bin/%.o
 	$(cc_debug) $(ldflags_debug) -o $@ $^ $(libs_debug)
-bin/%.js: $(tau_os_wasm) $(sigma_os_wasm) bin/wasm-bin/%.o
+bin/%.html: $(tau_os_wasm) $(sigma_os_wasm) bin/wasm-bin/%.o
 	$(cc_wasm) $(ldflags_wasm) -o $@ $^ $(libs_wasm)
 bin/%-debug.js: $(tau_os_wdebug) $(sigma_os_wdebug) bin/wdebug-bin/%.o
 	$(cc_wdebug) $(ldflags_wdebug) -o $@ $^ $(libs_wdebug)
