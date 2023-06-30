@@ -1,56 +1,54 @@
 # φ[π]
-π is an APL-style infix expression language with singular and plural value contexts and no relative operator precedence. It has some basic extensible grammar structures:
+π is an APL-style infix expression language with singular and plural value contexts and no relative operator precedence. Operators typically bind right-to-left, so `x+y+1` is equivalent to `x+[y+1]`. `[]` are used to group expressions, `()` construct sub-η values such as tuples or maps.
+
+
+## Singular and plural values
+[η](eta.md) is a format that supports multiple values per row. π works with this by adopting a Perl-style hybrid singular/plural evaluation model: `3` is a single int in a stack slot, `3 4` are two ints that will be packed into one stack slot.
+
+π views η values as combinations of _formed things_, each of which is a materialized η value stored on the heap somewhere. In the case of `3 4`, each is pushed separately and then they are fused into the resulting plural η record containing both (leaving the originals as garbage). If `$xs == 3 4`, then `$xs` is a single formed thing that refers to a heap entry. Here, `$xs` is a _singular_ value whereas `3 4` is _plural_ -- not because the values differ, but because they require different modes of construction.
+
+This difference extends to operators: `3 4 + 1` is the same as `3 5`, whereas `$xs + 1` evaluates to `3+1`, or `4`. (Other operators may inspect more values within an η, but `+` is scalar and it just looks at the first one.)
+
+So a plural value is just multiple singular values separated by commas and/or spaces. Here's the full grammar:
 
 ```
-s ::= (s_atom | ss_pre s) s_post* | ps_pre p  ← fixed
-p ::= (p_atom | sp_pre s | pp_pre p) p_post*  ← fixed
-π ::= (s | p) ('`' (s | p))*                  ← fixed
+π ::= (p '`')* p
+p ::= ((s ','?)+ | ppre p) ppost* ';'?
+s ::= (satom | spre s) spost*
 
-p_atom ::= (s ','?)* | '[' p ']' | ...   ← extensible
-s_atom ::= '(' p ')' | '[' s ']' | ...   ← extensible
+satom ::= '[' p ']' | '(' p ')' | ...
 ```
 
-`s` is a singular expression, `p` is a plural expression, and:
+`satom`, `spre`, `ppre`, `ppost`, and `spost` are all extensible parsers, some of which may refer back to `p` and `s` to parse subexpressions. For example, `?` is an `spost` whose parse continuation is `p ':' p`.
 
-+ `ss_pre`: a prefix operator whose operand and result are both singular
-+ `ps_pre`: a prefix operator whose operand is plural and result is singular
-+ `sp_pre`: ... singular ... plural
-+ `pp_pre`: ... plural ... plural
-+ `s_post`: the parse continuation of a singular value, which may include infix operators
-+ `p_post`: the parse continuation of a plural value, which may include infix operators
-
-All of these are extensible dispatch parsers and `s_atom` and `p_atom` are extensible alternations.
+`p` expressions self-optimize when possible: if only one element is parsed, then no splicing is done. This prevents values from being unnecessarily copied when they are already on the heap.
 
 
-## Extending the π grammar
-A `πφ` instance provides several methods that allow you to define extensions:
+## Greedy plurals
+Perl and π both share the _greedy-plural_ problem: operators that accept a plural RHS will, by default, consume the rest of an expression. For example, suppose `+/` is a plural prefix operator, so it expects a plural context to its right. Then `[1 2 +/ 3 4 5]` results in `3 4 5` being consumed by `+/`.
 
-+ `.def_sa(φ<π1>)`: define a new singular atom
-+ `.def_pa(φ<π1>)`: define a new plural atom
-+ `.def_ssp(name, fn)`: define a new `ss_pre` operator (see below)
-+ `.def_psp(name, fn)`
-+ `.def_spp(name, fn)`
-+ `.def_ppp(name, fn)`
-+ `.def_sp(name, fn)`: define a new `s_post` operator
-+ `.def_pp(name, fn)`
-
-Of these, `def_sa` and `def_pa` are the only methods that pass parsers directly through to the underlying grammar (albeit wrapping them in optional whitespace and comments). The others are transformed from functions that accept η-compatible arguments and produce η-compatible results.
+π works around greedy plurals by terminating a plural parse using `;`. This means you can write `1 2 +/ 3 4; 5` to indicate that `5` belongs to the outer plural context, not to the `+/` argument.
 
 
 ## FFI and parser generation
 The goal of π FFI is to derive as much interfacing information as possible from the function signature. For example, a lazy ternary operator should be definable like this:
 
 ```cpp
-def_sp("?", [](πi &i, πse<π1> const &t, φaL<':'>, πse<π1> const &e, bool c)
-  { c ? t.x(i) : e.x(i);
-    return i.pop(); });
+def_spost("?", [](πi &i, πpe<π1> const &t, φaL<':'>, πpe<π1> const &e, bool c)
+  { return (c ? t.x(i) : e.x(i)).pop(); });
 ```
 
-There's a lot going on here. First, each parameter may introduce a parser into the operator sequence. In this case we have three: `πse<π1>`, `φaL<":">`, and `πse<π1>`. `bool` is assumed to be present on the stack already since it's the left operand. This means our operator will be parsed using this grammar:
+There's a lot going on here. First, each parameter may introduce a parser into the operator sequence. In this case we have three: `πpe<π1>`, `φaL<":">`, and `πpe<π1>`. `bool` is assumed to be present on the stack already since it's the left operand. This means our operator will be parsed using this grammar:
 
 ```
-'?' s ':' s
+'?' p ':' p
 ```
+
+
+## Alternatives
+`def_spost()` and other functions can (1) accept multiple arguments, and (2) be called multiple times, in each case to define multiple parse alternatives.
+
+**TODO:** spec this out if necessary; it's pretty straightforward
 
 
 ### Stack vs immediate operands

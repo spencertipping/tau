@@ -6,7 +6,6 @@
 + [η signal conventions](eta-signals.md)
 + [η/C++ destructuring](eta-cpp.md)
 
-
 ```bash
 $ bin/eta
 fa(i) = 4
@@ -19,24 +18,24 @@ ga(i[2]) = 3 "abarbif"
 ## Format
 Each η value's size can be calculated in constant time, with the exception of the toplevel value which is a stream of values. Each value begins with a control byte, which describes the type and size-encoding of the thing that comes after it. There are 16 types and 16 size encodings:
 
-| High 4 bits | Type                             |
-|-------------|----------------------------------|
-| `0x0_`      | stream signal                    |
-| `0x1_`      | int (must be 1, 2, 4, or 8-byte) |
-| `0x2_`      | float (must be 4-byte or 8-byte) |
-| `0x3_`      | string                           |
-| `0x4_`      | atom (`true`/`false`/`null`)     |
-| `0x5_`      | sub-η stream (used for nesting)  |
-| `0x6_`      | name prefix                      |
-| `0x7_`      | **reserved**                     |
-| `0x8_`      | `int8s`                          |
-| `0x9_`      | `int16s`                         |
-| `0xa_`      | `int32s`                         |
-| `0xb_`      | `int64s`                         |
-| `0xc_`      | `float32s`                       |
-| `0xd_`      | `float64s`                       |
-| `0xe_`      | **reserved**                     |
-| `0xf_`      | **reserved**                     |
+| High 4 bits | Type                                        |
+|-------------|---------------------------------------------|
+| `0x0_`      | stream signal                               |
+| `0x1_`      | big-endian int (must be 1, 2, 4, or 8-byte) |
+| `0x2_`      | big-endian float (must be 4-byte or 8-byte) |
+| `0x3_`      | string                                      |
+| `0x4_`      | atom (`true`/`false`/`null`)                |
+| `0x5_`      | sub-η stream (used for nesting)             |
+| `0x6_`      | name prefix                                 |
+| `0x7_`      | **reserved**                                |
+| `0x8_`      | `int8s`                                     |
+| `0x9_`      | `int16s` (big-endian)                       |
+| `0xa_`      | `int32s` (big-endian)                       |
+| `0xb_`      | `int64s` (big-endian)                       |
+| `0xc_`      | `float32s` (big-endian)                     |
+| `0xd_`      | `float64s` (big-endian)                     |
+| `0xe_`      | **reserved**                                |
+| `0xf_`      | **reserved**                                |
 
 | Low 4 bits | Next bytes     | Size encoding |
 |------------|----------------|---------------|

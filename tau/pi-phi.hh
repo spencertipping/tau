@@ -66,7 +66,6 @@ template<class πφ> struct πφ_
   // π1 to T using immediate stack indirection. See pi-auto for details.
   Tt φ<πt <π1>> p(πt <T>*) const { return wt_  * [](π1 &&x) { return πt <π1>{mo(x)}; }; }
   Tt φ<πsa<π1>> p(πsa<T>*) const { return wsa_ * [](π1 &&x) { return πsa<π1>{mo(x)}; }; }
-  Tt φ<πpa<π1>> p(πpa<T>*) const { return wpa_ * [](π1 &&x) { return πpa<π1>{mo(x)}; }; }
   Tt φ<πse<π1>> p(πse<T>*) const { return wse_ * [](π1 &&x) { return πse<π1>{mo(x)}; }; }
   Tt φ<πpe<π1>> p(πpe<T>*) const { return wpe_ * [](π1 &&x) { return πpe<π1>{mo(x)}; }; }
 

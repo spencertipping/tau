@@ -63,7 +63,7 @@ void πshared(πφ &p)
 
     .def_pa([](φaL<'@'>, φident n)
       { return π1{"@" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
-    .def_pa([](φident n, φaL<'='>, πpa<π1> y)
+    .def_pa([](φident n, φaL<'='>, πsa<π1> y)
       { return π1{n.x + "=", [=](πi &i) { y.x(i); i.ms(n.x, i.peek()); }}; })
 
     .def_sp("+",  [](πse<i64> y, i64 x) { return x + y.x; })

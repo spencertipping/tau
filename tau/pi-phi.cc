@@ -16,6 +16,10 @@ static π1 np(V<π1> &&ps)
 {
   A(!ps.empty(), "np is not well-defined for empty lists");
 
+  // Important: short-circuit singular contexts so we reuse existing heap values
+  // without copying memory
+  if (ps.size() == 1) return mo(ps.front());
+
   Ss ns;
   bool first = true;
   for (let &p : ps)

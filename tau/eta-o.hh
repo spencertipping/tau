@@ -43,6 +43,17 @@ template<> struct ηoc<B&> final
 };
 
 
+// Performance counters so we can keep track of how many misses we have while
+// writing values
+void ηo_track_iptr();
+void ηo_track_commit();
+void ηo_track_side_alloc();
+
+uN ηo_iptrs();
+uN ηo_commits();
+uN ηo_side_allocs();
+
+
 // Inline output writer for η values, for example into a ξ.
 //
 // This object accepts a stream of values that may overflow the initial
@@ -63,12 +74,12 @@ Tt struct ηo final
 
   ηo(ηoc<T> o, uN c0 = 256) : o_(o), s_(0)
     { A(c0, "ηo with no initial capacity");
-      if (!o_.expired()) b_ = o_.iptr(c0);
+      if (!o_.expired()) b_ = o_.iptr(c0), ηo_track_iptr();
       else               λx(), τunreachable(); }
 
   ~ηo()
     { if (!o_.expired())
-        if (s_) o_.commit(s_);
+        if (s_) o_.commit(s_), ηo_track_commit();
         else    o_.abort(); }
 
 
@@ -335,6 +346,7 @@ Tt bool ηo<T>::reserve(uN l)
   {
     // Abort this allocation and create a new one at twice the current size
     // or s_ + l, whichever is larger.
+    ηo_track_side_alloc();
     u8 *b = new u8[s_];
     memcpy(b, b_.data(), s_);
     o_.abort();

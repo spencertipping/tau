@@ -38,13 +38,11 @@ Tt                struct πautoclass_<πP<T>> { sletc c = πautoclass::constant;
 // NOTE: πsa and friends can apply to both eager values (which are stack-compatible)
 // and lazy values (which are encoded as πf<N>).
 template<πautostack T> struct πautoclass_<πsa<T>> { sletc c = πautoclass::immediate; };
-template<πautostack T> struct πautoclass_<πpa<T>> { sletc c = πautoclass::immediate; };
 template<πautostack T> struct πautoclass_<πse<T>> { sletc c = πautoclass::immediate; };
 template<πautostack T> struct πautoclass_<πpe<T>> { sletc c = πautoclass::immediate; };
 
 template<iN N> struct πautoclass_<πt <πf<N>>> { sletc c = πautoclass::constant; };
 template<iN N> struct πautoclass_<πsa<πf<N>>> { sletc c = πautoclass::constant; };
-template<iN N> struct πautoclass_<πpa<πf<N>>> { sletc c = πautoclass::constant; };
 template<iN N> struct πautoclass_<πse<πf<N>>> { sletc c = πautoclass::constant; };
 template<iN N> struct πautoclass_<πpe<πf<N>>> { sletc c = πautoclass::constant; };
 
@@ -228,7 +226,7 @@ inline π0 πauto_ipush_(T<> const&) { return π0{}; }
 template<class X, class... Xs>
 auto πauto_ipush_(T<X, Xs...> const &t)
 {
-  // NOTE: here, t contains M<π1>, where M is πsa, πpa, πse, or πpe
+  // NOTE: here, t contains M<π1>, where M is πsa, πse, or πpe
   static_assert(is_πv_<X>::value);
   return std::get<sizeof...(Xs)>(t).x | πauto_ipush_(tdrop(t));
 }
