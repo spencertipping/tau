@@ -37,132 +37,100 @@ template<class πφ> struct πφ_
   static π1 post(π1 a, Vc<π0> &b) { π1 r = a; r << b; return r; }
 
 
-  φ<π1> t()   const { return wt_; }
+  φ<π1> t()  const { return wt_; }
+  φ<π1> ts() const { return wse_; }
+  φ<π1> tp() const { return wpe_; }
 
-  φ<π1> ts()  const { return wse_; }
-  φ<π1> tp()  const { return wpe_; }
-  φ<π0> tsp() const { return wsp_; }
-  φ<π0> tpp() const { return wpp_; }
+  Tt πφ &def_t (T const &f) { t_ .as<φa_<π1>>() << φauto(self(), f); return self(); }
+  Tt πφ &def_sa(T const &f) { sa_.as<φa_<π1>>() << φauto(self(), f); return self(); }
+  Tt πφ &def_se(T const &f) { se_.as<φa_<π1>>() << φauto(self(), f); return self(); }
+  Tt πφ &def_pe(T const &f) { pe_.as<φa_<π1>>() << φauto(self(), f); return self(); }
 
-
-  πφ &def_t (φ<π1> const &p) { t_ .as<φa_<π1>>() << p; return self(); }
-  πφ &def_sa(φ<π1> const &p) { sa_.as<φa_<π1>>() << p; return self(); }
-  πφ &def_pa(φ<π1> const &p) { pa_.as<φa_<π1>>() << p; return self(); }
-
-  Tt If<!Eq<T, φ<π1>>, πφ> &def_t (T const &f) { return def_t (φauto(self(), f)); }
-  Tt If<!Eq<T, φ<π1>>, πφ> &def_sa(T const &f) { return def_sa(φauto(self(), f)); }
-  Tt If<!Eq<T, φ<π1>>, πφ> &def_pa(T const &f) { return def_pa(φauto(self(), f)); }
-
-  Tt πφ &def_ssp(St n, T const &f) { return def_(ssp_, n, f); }
-  Tt πφ &def_psp(St n, T const &f) { return def_(psp_, n, f); }
-  Tt πφ &def_spp(St n, T const &f) { return def_(spp_, n, f); }
-  Tt πφ &def_ppp(St n, T const &f) { return def_(ppp_, n, f); }
-  Tt πφ &def_sp (St n, T const &f) { return def_(sp_,  n, f); }
-  Tt πφ &def_pp (St n, T const &f) { return def_(pp_,  n, f); }
+  template<class... Xs> πφ &def_ppre (Stc &n, Xs&&... xs) { return def_(ppre_,  n, std::forward<Xs>(xs)...); }
+  template<class... Xs> πφ &def_ppost(Stc &n, Xs&&... xs) { return def_(ppost_, n, std::forward<Xs>(xs)...); }
+  template<class... Xs> πφ &def_spre (Stc &n, Xs&&... xs) { return def_(spre_,  n, std::forward<Xs>(xs)...); }
+  template<class... Xs> πφ &def_spost(Stc &n, Xs&&... xs) { return def_(spost_, n, std::forward<Xs>(xs)...); }
 
 
   // NOTE: returning the wrong type is intentional. Every πsa<T> should
   // arise from a π1 that we parse, and it's up to πauto to convert the
   // π1 to T using immediate stack indirection. See pi-auto for details.
   Tt φ<πt <π1>> p(πt <T>*) const { return wt_  * [](π1 &&x) { return πt <π1>{mo(x)}; }; }
+  Tt φ<πpe<π1>> p(πpe<T>*) const { return wpe_ * [](π1 &&x) { return πpe<π1>{mo(x)}; }; }
   Tt φ<πsa<π1>> p(πsa<T>*) const { return wsa_ * [](π1 &&x) { return πsa<π1>{mo(x)}; }; }
   Tt φ<πse<π1>> p(πse<T>*) const { return wse_ * [](π1 &&x) { return πse<π1>{mo(x)}; }; }
-  Tt φ<πpe<π1>> p(πpe<T>*) const { return wpe_ * [](π1 &&x) { return πpe<π1>{mo(x)}; }; }
 
 
 protected:
-  Tt πφ &def_(φ<π0> &d, Stc &n, T const &f)
-    { d.as<φd_<π0>>().def(n, πauto(self(), n, std::function(f)));
-      return self(); }
+  πφ &def_(φ<π0>&, Stc&) { return self(); }
 
-  φ<π1> t_;    // toplevel program (alt)
+  template<class X, class... Xs>
+  πφ &def_(φ<π0> &d, Stc &n, X const &f, Xs&&... xs)
+    { auto &d_ = d.as<φd_<π0>>();
+      if (!d_.has(n)) d_.def(n, φa0<π0>(d.name() + n));
+      d_.at(n).as<φa_<π0>>() << πauto(self(), n, std::function(f));
+      return def_(d, n, std::forward<Xs>(xs)...); }
 
-  φ<π1> se_;   // singular expressions (alt)
-  φ<π1> pe_;   // plural expressions (alt)
 
-  φ<π1> sa_;    // singular atoms (alt)
-  φ<π1> pa_;    // plural atoms (alt)
-
-  φ<π0> ssp_;  // singular-operand, singular-return prefix (dispatch)
-  φ<π0> psp_;  // plural-operand, singular-return prefix (dispatch)
-  φ<π0> spp_;  // singular-operand, plural-return prefix (dispatch)
-  φ<π0> ppp_;  // plural-operand, plural-return prefix (dispatch)
-  φ<π0> sp_;   // singular → singular postfix (dispatch)
-  φ<π0> pp_;   // plural → plural postfix (dispatch)
+  φ<π1> t_;      // toplevel program (alt)
+  φ<π1> pe_;     // plural expressions (alt)
+  φ<π1> se_;     // singular expressions (alt)
+  φ<π1> sa_;     // singular atoms (alt)
+  φ<π0> ppre_;   // dsp
+  φ<π0> ppost_;  // dsp
+  φ<π0> spre_;   // dsp
+  φ<π0> spost_;  // dsp
 
   // Wrapped+weakened versions of the above, which allow whitespace
   φ<π1> wt_;   // wrap(φW(t_))
-
+  φ<π1> wpe_;  // πφnp(wrap(φW(p_)) -- this one is different due to splicing
   φ<π1> wse_;
-  φ<π1> wpe_;  // πφnp(wrap(φW(pe_)) -- this one is different
   φ<π1> wsa_;
-  φ<π1> wpa_;
-
-  φ<π0> wssp_;
-  φ<π0> wpsp_;
-  φ<π0> wspp_;
-  φ<π0> wppp_;
-  φ<π0> wsp_;
-  φ<π0> wpp_;
+  φ<π0> wppre_;
+  φ<π0> wppost_;
+  φ<π0> wspre_;
+  φ<π0> wspost_;
 };
 
 
 template<class πφ>
 πφ_<πφ>::πφ_()
-  : t_  (φa0<π1>("π")),
-    se_ (φa0<π1>("πse")),
-    pe_ (φa0<π1>("πpe")),
-    sa_ (φa0<π1>("πsa")),
-    pa_ (φa0<π1>("πpa")),
-    ssp_(φd <π0>("πssp")),
-    psp_(φd <π0>("πpsp")),
-    spp_(φd <π0>("πspp")),
-    ppp_(φd <π0>("πppp")),
-    sp_ (φd <π0>("πsp")),
-    pp_ (φd <π0>("πpp")),
+  : t_    (φa0<π1>("π")),
+    pe_   (φa0<π1>("πpe")),
+    se_   (φa0<π1>("πse")),
+    sa_   (φa0<π1>("πsa")),
+    ppre_ (φd <π0>("πppre")),
+    ppost_(φd <π0>("πppost")),
+    spre_ (φd <π0>("πspre")),
+    spost_(φd <π0>("πspost")),
 
-    wt_  (φwrap(φW(t_))),
-    wse_ (φwrap(φW(se_))),
-    wpe_ (πφnp(φwrap(φW(pe_)))),
-    wsa_ (φwrap(φW(sa_))),
-    wpa_ (φwrap(φW(pa_))),
-    wssp_(φwrap(φW(ssp_))),
-    wpsp_(φwrap(φW(psp_))),
-    wspp_(φwrap(φW(spp_))),
-    wppp_(φwrap(φW(ppp_))),
-    wsp_ (φwrap(φW(sp_))),
-    wpp_ (φwrap(φW(pp_)))
+    wt_    (     φwrap(φW(t_))),
+    wpe_   (πφnp(φwrap(φW(pe_)))),
+    wse_   (     φwrap(φW(se_))),
+    wsa_   (     φwrap(φW(sa_))),
+    wppre_ (     φwrap(φW(ppre_))),
+    wppost_(     φwrap(φW(ppost_))),
+    wspre_ (     φwrap(φW(spre_))),
+    wspost_(     φwrap(φW(spost_)))
 {
-  let s1 = wsa_ | (wssp_ & wse_) % pre;  // s_atom | ss_pre s
-  let s2 =        (wpsp_ & wpe_) % pre;  // ps_pre p
-  let s3 = (s1 & φn(wsp_)) % post;       // (s_atom | ss_pre s) s_post*
-  se_.as<φa_<π1>>() << s3 << s2;
-
-  // IMPORTANT: we must prefer wse_ to wpa_; otherwise we will force [] to
-  // always parse in plural context, which erases [s] as an s, which breaks
-  // singular postfix operators against [] groups.
-  let p1 = φa<π1>("πφp1",
-                  wse_,
-                  wpa_,
-                  (wspp_ & wse_) % pre,
-                  (wppp_ & wpe_) % pre);
-  let p2 = (p1 & φn(wpp_)) % post;
-  pe_.as<φa_<π1>>() << p2;
-
-  def_sa(φgroup(wse_));
-  def_pa(φgroup(wpe_));
-  def_pa(wsa_);
-
-  // Parens wrap a plural value into a single ηi
-  def_sa(φ2("()", φlp_(), wpe_, φrp_())
-         * [](π1 const &x)
-           { return x | π0{"η", [](πi &i) { i.push(i.ypop()); }}; });
-
+  // π ::= ... | (p '`')* p
   def_t((φn(φ1("πpe`", wpe_, φl("`"))) & wpe_)
         % [](Vc<π1> &xs, π1 const &y)
           { π0 r;
-            for (let &x : xs) r << (x | πf<-1>{"_", [](πi &i) { i.pop(); }});
+            for (let &x : xs) r << (x | πf_pop());
             return r | y; });
+
+  // p ::= ((s ','?)+ | ppre p) ppost* ';'?
+  let p1 = πφnp(wse_ << φo(φl(",")));  // (s ','?)+
+  let p2 = (wppre_ & wpe_) % pre;      // ppre p
+  def_pe(((p1 | p2) & φn(wppost_)) % post << φo(φl(";")));
+
+  // s ::= (satom | spre s) spost*
+  def_se(((wsa_ | (wspre_ & wse_) % pre) & φn(wspost_)) % post);
+
+  // satom ::= '[' p ']' | '(' p ')'
+  def_sa(φgroup(wpe_));
+  def_sa(φ2("()", φlp_(), wpe_, φrp_()) * [](π1 const &x) { return x | πf_η(); });
 }
 
 

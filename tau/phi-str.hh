@@ -24,6 +24,10 @@ Tt struct φd_ : public virtual φ_<T>
   φd_(St name, Xs const&... xs) : φ_<T>(name) { def(xs...); }
 
 
+  bool has(Stc &k) const { return ps.contains(k); }
+  φ<T> at (Stc &k) const { return ps.at(k); }
+
+
   template<class... Xs>
   φd_ &def(Stc &k, φ<T> p, Xs const&... xs)
     { A(!ps.contains(k), *this << ": redefining " << k);

@@ -155,8 +155,12 @@ Tt struct φ final
 };
 
 
-template<class T> O &operator<<(O &s, φ_<T> const &f) { return s << f.name(); }
-template<class T> O &operator<<(O &s, φ <T> const &f) { return s << f.name(); }
+Tt struct is_φ_       : std::false_type {};
+Tt struct is_φ_<φ<T>> : std::true_type {};
+
+
+Tt O &operator<<(O &s, φ_<T> const &f) { return s << f.name(); }
+Tt O &operator<<(O &s, φ <T> const &f) { return s << f.name(); }
 
 
 }

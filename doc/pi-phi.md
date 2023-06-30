@@ -12,14 +12,14 @@ This difference extends to operators: `3 4 + 1` is the same as `3 5`, whereas `$
 So a plural value is just multiple singular values separated by commas and/or spaces. Here's the full grammar:
 
 ```
-π ::= (p '`')* p
+π ::= ... | (p '`')* p
 p ::= ((s ','?)+ | ppre p) ppost* ';'?
 s ::= (satom | spre s) spost*
 
 satom ::= '[' p ']' | '(' p ')' | ...
 ```
 
-`satom`, `spre`, `ppre`, `ppost`, and `spost` are all extensible parsers, some of which may refer back to `p` and `s` to parse subexpressions. For example, `?` is an `spost` whose parse continuation is `p ':' p`.
+`π`, `satom`, `spre`, `ppre`, `ppost`, and `spost` are all extensible parsers, some of which may refer back to `p` and `s` to parse subexpressions. For example, `?` is an `spost` whose parse continuation is `p ':' p`.
 
 `p` expressions self-optimize when possible: if only one element is parsed, then no splicing is done. This prevents values from being unnecessarily copied when they are already on the heap.
 

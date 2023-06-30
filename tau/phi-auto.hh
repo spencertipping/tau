@@ -39,7 +39,8 @@ auto φauto_(A const &a, F<T(Xs...)> &&f)
 template<class A, class F>
 auto φauto(A const &a, F const &f)
 {
-  return φauto_(a, std::function(f));
+  if constexpr (!is_φ_<De<F>>::value) return φauto_(a, std::function(f));
+  else                                return f;
 }
 
 

@@ -40,8 +40,13 @@ struct πf final
 };
 
 
-typedef πf<0> π0;
-typedef πf<1> π1;
+typedef πf<0>  π0;
+typedef πf<1>  π1;
+typedef πf<-1> π_1;
+
+
+inline π_1 πf_pop() { return {"_", [](πi &i) { i.pop(); }}; }
+inline π0  πf_η()   { return {"η", [](πi &i) { i.push(i.ypop()); }}; }
 
 
 template<iN N>
