@@ -59,8 +59,8 @@ void πshared(πφ &p)
     .def_sa([](φaL<'$'>, φident n)
       { return π1{"$" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
 
-    .def_sa([](φident n, φaL<'='>, πsa<π1> y)
-      { return π1{n.x + "=", [=](πi &i) { y.x(i); i.ms(n.x, i.peek()); }}; })
+    .def_pe([](φident n, φaL<'='>, πpe<π1> y, πpe<π1> z)
+      { return π1{n.x + "=", [=](πi &i) { y.x(i); i.ms(n.x, i.pop()); z.x(i); }}; })
 
     .def_spost("+",  [](πse<i64> y, i64 x) { return x + y.x; })
     .def_spost("-",  [](πse<i64> y, i64 x) { return x - y.x; })
