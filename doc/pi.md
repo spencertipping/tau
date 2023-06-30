@@ -47,6 +47,8 @@ $ bin/sigma 'n3 p[foo=x+1 x+2 x<1;$foo $foo] M?F'
 3 4 false 3 4 false
 $ bin/sigma 'n1p[1 @(2 3)] M?F'
 1 2 3
+$ bin/sigma 'n1p1@(2 3);M?F'
+1 2 3
 $ bin/sigma "n3p[['a x+1'b5]:'a] M?F"
 1
 2
