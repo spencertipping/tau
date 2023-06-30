@@ -28,6 +28,11 @@ try_cs   = $(wildcard try/*.cc)
 tau_linux_cs   = $(wildcard tau/linux/*.cc)
 sigma_linux_cs = $(wildcard sigma/linux/*.cc)
 try_linux_cs   = $(wildcard try/linux/*.cc)
+
+tau_debug_cs   = $(wildcard tau/debug/*.cc)
+sigma_debug_cs = $(wildcard sigma/debug/*.cc)
+try_debug_cs   = $(wildcard try/debug/*.cc)
+
 tau_wasm_cs    = $(wildcard tau/wasm/*.cc)
 sigma_wasm_cs  = $(wildcard sigma/wasm/*.cc)
 try_wasm_cs    = $(wildcard try/wasm/*.cc)

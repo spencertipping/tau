@@ -15,9 +15,8 @@ namespace τ
 {
 
 
-// Take a single plural-element context and parse multiple of them,
-// splicing the results into a single output η stream.
-φ<π1> πφnp(φ<π1>);
+// Splice one or more η-producing elements into a single η
+π1 πφnp(V<π1>&&);
 
 
 template<class A> struct πφP

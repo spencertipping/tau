@@ -35,6 +35,10 @@ template<class πφ> struct πφ_
   // Helpers for prefix and postfix operators
   static π1 pre (π0 a, π1 b)      { return b | a; }
   static π1 post(π1 a, Vc<π0> &b) { π1 r = a; r << b; return r; }
+  static π1 seq (Vc<π1> &xs, π1 const &y)
+    { π0 r;
+      for (let &x : xs) r << (x | πf_pop());
+      return r | y; }
 
 
   φ<π1> t()  const { return wt_; }
@@ -83,7 +87,7 @@ protected:
 
   // Wrapped+weakened versions of the above, which allow whitespace
   φ<π1> wt_;   // wrap(φW(t_))
-  φ<π1> wpe_;  // πφnp(wrap(φW(p_)) -- this one is different due to splicing
+  φ<π1> wpe_;
   φ<π1> wse_;
   φ<π1> wsa_;
   φ<π0> wppre_;
@@ -104,25 +108,21 @@ template<class πφ>
     spre_ (φd <π0>("πspre")),
     spost_(φd <π0>("πspost")),
 
-    wt_    (     φwrap(φW(t_))),
-    wpe_   (πφnp(φwrap(φW(pe_)))),
-    wse_   (     φwrap(φW(se_))),
-    wsa_   (     φwrap(φW(sa_))),
-    wppre_ (     φwrap(φW(ppre_))),
-    wppost_(     φwrap(φW(ppost_))),
-    wspre_ (     φwrap(φW(spre_))),
-    wspost_(     φwrap(φW(spost_)))
+    wt_    (φwrap(φW(t_))),
+    wpe_   (φwrap(φW(pe_))),
+    wse_   (φwrap(φW(se_))),
+    wsa_   (φwrap(φW(sa_))),
+    wppre_ (φwrap(φW(ppre_))),
+    wppost_(φwrap(φW(ppost_))),
+    wspre_ (φwrap(φW(spre_))),
+    wspost_(φwrap(φW(spost_)))
 {
   // π ::= ... | (p '`')* p
-  def_t((φn(φ1("πpe`", wpe_, φl("`"))) & wpe_)
-        % [](Vc<π1> &xs, π1 const &y)
-          { π0 r;
-            for (let &x : xs) r << (x | πf_pop());
-            return r | y; });
+  def_t((φn(φ1("πpe`", wpe_, φl("`"))) & wpe_) % seq);
 
   // p ::= ((s ','?)+ | ppre p) ppost* ';'?
-  let p1 = πφnp(wse_ << φo(φl(",")));  // (s ','?)+
-  let p2 = (wppre_ & wpe_) % pre;      // ppre p
+  let p1 = φn(wse_ << φo(φco_()), 1) * πφnp;  // (s ','?)+
+  let p2 = (wppre_ & wpe_) % pre;             // ppre p
   def_pe(((p1 | p2) & φn(wppost_)) % post << φo(φl(";")));
 
   // s ::= (satom | spre s) spost*

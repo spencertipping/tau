@@ -12,7 +12,7 @@ namespace τ
 {
 
 
-static π1 np(V<π1> &&ps)
+π1 πφnp(V<π1> &&ps)
 {
   A(!ps.empty(), "np is not well-defined for empty lists");
 
@@ -40,13 +40,6 @@ static π1 np(V<π1> &&ps)
         });
       i.push(r);
     }};
-}
-
-
-φ<π1> πφnp(φ<π1> p)
-{
-  slet r = φn(φ1("p','?", p, φo(φco_())), 1) * np;
-  return r;
 }
 
 
