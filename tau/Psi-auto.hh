@@ -13,11 +13,11 @@ namespace τ
 
 // A bit of auto-magic for Ψ definitions, which involve inner lambdas.
 // We can combine these into a single lambda by detecting arg types.
-Tt         struct is_ψarg_       : std::false_type {};
-template<> struct is_ψarg_<ψ>    : std::true_type {};
-template<> struct is_ψarg_<ξi>   : std::true_type {};
-template<> struct is_ψarg_<ξo>   : std::true_type {};
-template<> struct is_ψarg_<Ψaux> : std::true_type {};
+Tt struct is_ψarg_       : std::false_type {};
+Tn struct is_ψarg_<ψ>    : std::true_type {};
+Tn struct is_ψarg_<ξi>   : std::true_type {};
+Tn struct is_ψarg_<ξo>   : std::true_type {};
+Tn struct is_ψarg_<Ψaux> : std::true_type {};
 
 Tt concept is_ψarg = is_ψarg_<T>::value;
 
@@ -37,10 +37,9 @@ struct Ψauto__<C, T<Is...>, T<Os...>>
 
 // Detect already-auto-transformed functions so we can return them directly.
 // In this case, "done" means there are no ψ-specific args.
-template<class... Xs>          struct Ψauto_is_done_;
-template<>                     struct Ψauto_is_done_<> { sletc v = true; };
-template<class X, class... Xs> struct Ψauto_is_done_<X, Xs...>
-{ sletc v = !is_ψarg<X> && Ψauto_is_done_<Xs...>::v; };
+Txs  struct Ψauto_is_done_;
+Tn   struct Ψauto_is_done_<>         { sletc v = true; };
+Txxs struct Ψauto_is_done_<X, Xs...> { sletc v = !is_ψarg<X> && Ψauto_is_done_<Xs...>::v; };
 
 
 // Curry a function of the form (parse_args..., psi_args...), returning

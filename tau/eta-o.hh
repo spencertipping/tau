@@ -16,7 +16,7 @@ namespace τ
 // NOTE: there may be more of these than are defined here
 Tt struct ηoc;
 
-template<> struct ηoc<ξ> final
+Tn struct ηoc<ξ> final
 {
   void   commit(uN n) { wpg(o)->commit(n); }
   void   abort()      { wpg(o)->abort(); }
@@ -26,7 +26,7 @@ template<> struct ηoc<ξ> final
   Wp<ξ> o;
 };
 
-template<> struct ηoc<B&> final
+Tn struct ηoc<B&> final
 {
   ηoc(B& b) : b(b), s(0) {}
 
@@ -86,12 +86,10 @@ Tt struct ηo final
   // Direct append: hopefully the content is valid η data
   ηo &operator<<(Sn<u8c> const &xs);
 
-  template<class U>
-  ηo &v(U &&x) { return *this << std::forward<U>(x); }
+  Tx ηo &v(X &&x) { return *this << std::forward<X>(x); }
 
 
-  template<class... Xs>
-  ηo &operator<<(std::tuple<Xs...> const &xs)
+  Txs ηo &operator<<(std::tuple<Xs...> const &xs)
     { std::apply([this](auto &&... xs) { (*this << ... << xs); }, xs);
       return *this; }
 

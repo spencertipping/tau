@@ -145,8 +145,7 @@ Tt struct φ final
 
   St name() const noexcept { return (Ss{} << id << ":" << p->name()).str(); }
 
-  template<class X>
-  X &as() const noexcept { return *dynamic_cast<X*>(p.get()); }
+  Tx X &as() const noexcept { return *dynamic_cast<X*>(p.get()); }
 
   φ_<T> &operator*() const noexcept { return *p; }
 

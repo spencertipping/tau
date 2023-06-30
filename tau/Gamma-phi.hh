@@ -33,17 +33,17 @@ struct Γφ_
   πφ const &pi()   const { return pf_; }
 
 
-  Tt Γφ &def_g (Stc &n, T const &f) { return def_(g_,  n, Γauto(f)); }
+  Txs Γφ &def_g (Stc &n, Xs const&... xs) { return def_(g_,  n, Γauto(xs)...); }
 
-  Tt Γφ &def_p0(Stc &n, T const &f) { return def_(p0_, n, Ψauto<false>(f)); }
-  Tt Γφ &def_p1(Stc &n, T const &f) { return def_(p1_, n, Ψauto<false>(f)); }
-  Tt Γφ &def_p2(Stc &n, T const &f) { return def_(p2_, n, Ψauto<false>(f)); }
-  Tt Γφ &def_p4(Stc &n, T const &f) { return def_(p4_, n, Ψauto<false>(f)); }
+  Txs Γφ &def_p0(Stc &n, Xs const&... xs) { return def_(p0_, n, Ψauto<false>(xs)...); }
+  Txs Γφ &def_p1(Stc &n, Xs const&... xs) { return def_(p1_, n, Ψauto<false>(xs)...); }
+  Txs Γφ &def_p2(Stc &n, Xs const&... xs) { return def_(p2_, n, Ψauto<false>(xs)...); }
+  Txs Γφ &def_p4(Stc &n, Xs const&... xs) { return def_(p4_, n, Ψauto<false>(xs)...); }
 
-  Tt Γφ &def_c0(Stc &n, T const &f) { return def_(p0_, n, Ψauto<true>(f)); }
-  Tt Γφ &def_c1(Stc &n, T const &f) { return def_(p1_, n, Ψauto<true>(f)); }
-  Tt Γφ &def_c2(Stc &n, T const &f) { return def_(p2_, n, Ψauto<true>(f)); }
-  Tt Γφ &def_c4(Stc &n, T const &f) { return def_(p4_, n, Ψauto<true>(f)); }
+  Txs Γφ &def_c0(Stc &n, Xs const&... xs) { return def_(p0_, n, Ψauto<true>(xs)...); }
+  Txs Γφ &def_c1(Stc &n, Xs const&... xs) { return def_(p1_, n, Ψauto<true>(xs)...); }
+  Txs Γφ &def_c2(Stc &n, Xs const&... xs) { return def_(p2_, n, Ψauto<true>(xs)...); }
+  Txs Γφ &def_c4(Stc &n, Xs const&... xs) { return def_(p4_, n, Ψauto<true>(xs)...); }
 
 
   φ<Γ> ta() const { return wa_; }
@@ -77,9 +77,14 @@ struct Γφ_
 
 
 protected:
-  template<class T, class F> Γφ &def_(φ<T> &d, Stc &n, F &&f)
-    { d.template as<φd_<T>>().def(n, φauto(self(), std::function(std::forward<F>(f))));
-      return self(); }
+  Tt Γφ &def_(φ<T>&, Stc&) { return self(); }
+
+  template<class T, class X, class... Xs>
+  Γφ &def_(φ<T> &d, Stc &n, X const &f, Xs&&... xs)
+    { auto &d_ = d.template as<φd_<T>>();
+      if (!d_.has(n)) d_.def(n, φa0<T>(d_.name() + n));
+      d_.at(n).template as<φa_<T>>() << φauto(self(), std::function(f));
+      return def_(d, n, xs...); }
 
   πφ    pf_;  // provider for π expressions
 

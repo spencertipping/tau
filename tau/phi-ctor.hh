@@ -12,7 +12,7 @@ namespace τ
 {
 
 
-template<class T, class... Xs> φ<T> φd(St n, Xs const&... xs) { return {new φd_<T>(n, xs...)}; }
+Txxs φ<X> φd(St n, Xs const&... xs) { return {new φd_<X>(n, xs...)}; }
 
 Tt     φ<T>  φl(St s, T v)   { return {new φl_<T>(s, v)}; }
 inline φ<St> φl(St s)        { return φl(s, s); }
@@ -31,9 +31,9 @@ Tt φ<V<T>>  φn(φ<T> p, uN l = 0, uN u = -1) { return {new φn_<T>(p, l, u)}; 
 Tt φ<Op<T>> φo(φ<T> p)                      { return {new φo_<T>(p)}; }
 Tt φ<T>     φO(φ<T> p, T d)                 { return {new φO_<T>(p, d)}; }
 
-template<class... Xs>          φ<T<Xs...>> φs(St n, φ<Xs>... xs)        { return {new φs_(n, xs...)}; }
-template<class T, class... Xs> φ<V<T>>     φS(St n, Xs const&... p)     { return (new φS_<T>(n, p...)); }
-template<class... Xs>          φ<St>       φq(St n, φ<Xs>... xs)        { return {new φq_(φs(n, xs...))}; }
+Txs  φ<T<Xs...>> φs(St n, φ<Xs>... xs)        { return {new φs_(n, xs...)}; }
+Txxs φ<V<X>>     φS(St n, Xs const&... p)     { return (new φS_<X>(n, p...)); }
+Txs  φ<St>       φq(St n, φ<Xs>... xs)        { return {new φq_(φs(n, xs...))}; }
 
 template<class... Xs, class R = De<decltype(std::get<0>(std::declval<T<Xs...>>()))>>
 φ<R> φa(St n, φ<Xs> const&... xs) { return {new φa_<R>(n, xs...)}; }
@@ -50,13 +50,13 @@ template<class T, class F> auto φM(φ<T> p, F f)
 { return {new φM_<T, F>{p, f}}; }
 
 
-template<class... Xs> auto φ1(St n, φ<Xs>... xs)
+Txs auto φ1(St n, φ<Xs>... xs)
 { return φm(φs(n, xs...), [](auto &&x) { return std::get<0>(x); }); }
 
-template<class... Xs> auto φ2(St n, φ<Xs>... xs)
+Txs auto φ2(St n, φ<Xs>... xs)
 { return φm(φs(n, xs...), [](auto &&x) { return std::get<1>(x); }); }
 
-template<class... Xs> auto φ3(St n, φ<Xs>... xs)
+Txs auto φ3(St n, φ<Xs>... xs)
 { return φm(φs(n, xs...), [](auto &&x) { return std::get<2>(x); }); }
 
 

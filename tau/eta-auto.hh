@@ -31,7 +31,7 @@ Tt struct ηY { T x; };
 
 
 #define deft(ct, s, yt, ve)                                             \
-  template<> struct ηauto_<ct>                                          \
+  Tn struct ηauto_<ct>                                                  \
   { sletc ops = ηauto_op_decode | ηauto_op_encode | ηauto_op_type;      \
     sletc t = ηtype::yt;                                                \
     sletc n = s;                                                        \
@@ -72,7 +72,7 @@ Tt struct ηauto_<ηY<T>>
 
 // Inline value, which can be encoded and decoded but does not have
 // a type.
-template<> struct ηauto_<Sn<u8c>>
+Tn struct ηauto_<Sn<u8c>>
 {
   sletc ops = ηauto_op_decode | ηauto_op_encode;
   sletc n   = 64;
@@ -83,7 +83,7 @@ template<> struct ηauto_<Sn<u8c>>
 // NOTE: these values require explicit delete[], which is error-prone;
 // instead of introducing those problems, we just don't support decoding
 // for these.
-template<> struct ηauto_<chc*>
+Tn struct ηauto_<chc*>
 {
   sletc ops = ηauto_op_encode | ηauto_op_type;
   sletc t = ηtype::string;
@@ -99,8 +99,7 @@ struct ηauto_<char[N]>
 };
 
 
-template<class X>
-struct ηauto_<T<X>>
+Tx struct ηauto_<T<X>>
 {
   sletc ops = ηauto_op_decode | ηauto_op_encode | ηauto_op_type;
   sletc t = ηtype::η;
@@ -119,8 +118,7 @@ struct ηauto_<T<X, Y, Xs...>>
                             ηauto_<T<Y, Xs...>>::v(i.next())); }
 };
 
-template<>
-struct ηauto_<V<ηi>>
+Tn struct ηauto_<V<ηi>>
 {
   sletc ops = ηauto_op_encode;
 

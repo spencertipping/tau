@@ -19,7 +19,11 @@
 #undef Rc
 #undef Cc
 
+#undef Tn
 #undef Tt
+#undef Tx
+#undef Txs
+#undef Txxs
 
 
 #undef τbegin_h

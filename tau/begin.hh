@@ -53,4 +53,8 @@
 #define Rc reinterpret_cast
 #define Cc const_cast
 
-#define Tt template<class T>
+#define Tn   template<>
+#define Tt   template<class T>
+#define Tx   template<class X>
+#define Txs  template<class... Xs>
+#define Txxs template<class X, class... Xs>

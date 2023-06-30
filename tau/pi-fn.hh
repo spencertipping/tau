@@ -49,6 +49,13 @@ inline π_1 πf_pop() { return {"_", [](πi &i) { i.pop(); }}; }
 inline π0  πf_η()   { return {"η", [](πi &i) { i.push(i.ypop()); }}; }
 
 
+// Shorthand to push a constant
+Tt π1 πk(T const &x)
+{
+  return {(Ss{} << x).str(), [x](πi &i) { i.push(i << x); }};
+}
+
+
 template<iN N>
 O &operator<<(O &s, πf<N> const &f)
 {

@@ -58,7 +58,7 @@ template<class A> struct φauto_str
     { return φm(φcs(St{S...}.data(), N, L, U),
                 [](auto &&x) { return φaCs<N, L, U, S...>{mo(x)}; }); }
 
-  template<class... Xs> auto p(φaA<Xs...>*) const
+  Txs auto p(φaA<Xs...>*) const
     { return φm(φa("φaA<...>", p(null<Xs>())...),
                 [](auto &&x) { return φaA<Xs...>{mo(x)}; }); }
 };

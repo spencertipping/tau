@@ -50,10 +50,10 @@ template<class πφ> struct πφ_
   Tt πφ &def_se(T const &f) { se_.as<φa_<π1>>() << φauto(self(), f); return self(); }
   Tt πφ &def_pe(T const &f) { pe_.as<φa_<π1>>() << φauto(self(), f); return self(); }
 
-  template<class... Xs> πφ &def_ppre (Stc &n, Xs&&... xs) { return def_(ppre_,  n, std::forward<Xs>(xs)...); }
-  template<class... Xs> πφ &def_ppost(Stc &n, Xs&&... xs) { return def_(ppost_, n, std::forward<Xs>(xs)...); }
-  template<class... Xs> πφ &def_spre (Stc &n, Xs&&... xs) { return def_(spre_,  n, std::forward<Xs>(xs)...); }
-  template<class... Xs> πφ &def_spost(Stc &n, Xs&&... xs) { return def_(spost_, n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_ppre (Stc &n, Xs&&... xs) { return def_(ppre_,  n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_ppost(Stc &n, Xs&&... xs) { return def_(ppost_, n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_spre (Stc &n, Xs&&... xs) { return def_(spre_,  n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_spost(Stc &n, Xs&&... xs) { return def_(spost_, n, std::forward<Xs>(xs)...); }
 
 
   // NOTE: returning the wrong type is intentional. Every πsa<T> should
@@ -68,8 +68,7 @@ template<class πφ> struct πφ_
 protected:
   πφ &def_(φ<π0>&, Stc&) { return self(); }
 
-  template<class X, class... Xs>
-  πφ &def_(φ<π0> &d, Stc &n, X const &f, Xs&&... xs)
+  Txxs πφ &def_(φ<π0> &d, Stc &n, X const &f, Xs&&... xs)
     { auto &d_ = d.as<φd_<π0>>();
       if (!d_.has(n)) d_.def(n, φa0<π0>(d.name() + n));
       d_.at(n).as<φa_<π0>>() << πauto(self(), n, std::function(f));

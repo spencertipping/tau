@@ -49,8 +49,7 @@ Tt struct φF_ : public virtual φ_<T>
 // Preferential alternative
 Tt struct φa_ : public virtual φ_<T>
 {
-  template<class... Xs>
-  φa_(St name, Xs const&... xs) : φ_<T>(name) { push(xs...); }
+  Txs φa_(St name, Xs const&... xs) : φ_<T>(name) { push(xs...); }
 
   φr_<T> operator()(φc_ const &x) const noexcept
     { φr_<T> r;
@@ -64,7 +63,7 @@ Tt struct φa_ : public virtual φ_<T>
   φa_<T> &operator<<(φ<T> p) { ps.push_back(p);  return *this; }
   φa_<T> &operator>>(φ<T> p) { ps.push_front(p); return *this; }
 
-  template<class... Xs>
+  Txs
   φa_<T> &push(φ<T> p, Xs const&... xs) { *this << p; return push(xs...); }
   φa_<T> &push()                        {             return *this; }
 
@@ -110,8 +109,7 @@ Tt struct φn_ : public virtual φ_<V<T>>
 // Sequence of same-typed thing
 Tt struct φS_ : public virtual φ_<V<T>>
 {
-  template<class... Xs>
-  φS_(St name, Xs const&... ps_) : φ_<V<T>>(name), ps({ps_...}) {}
+  Txs φS_(St name, Xs const&... ps_) : φ_<V<T>>(name), ps({ps_...}) {}
 
   φr_<V<T>> operator()(φc_ const &x) const noexcept
     { V<T> r;
@@ -158,7 +156,7 @@ Tt struct φO_ : public virtual φ_<T>
 
 
 // Sequential parsing
-template<class... Xs>
+Txs
 struct φs_ : public virtual φ_<T<Xs...>>
 {
   φs_(St name, φ<Xs>... p_) : φ_<T<Xs...>>(name), p(p_...) {}

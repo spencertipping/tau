@@ -11,8 +11,8 @@ namespace τ
 {
 
 
-Tt         struct is_Γarg_    : std::false_type {};
-template<> struct is_Γarg_<Ξ> : std::true_type {};
+Tt struct is_Γarg_    : std::false_type {};
+Tn struct is_Γarg_<Ξ> : std::true_type {};
 
 Tt concept is_Γarg = is_Γarg_<De<T>>::value;
 
@@ -28,10 +28,9 @@ struct Γauto__<T<Is...>, T<Os...>>
 };
 
 
-template<class... Xs>          struct Γauto_is_done_;
-template<>                     struct Γauto_is_done_<> { sletc v = true; };
-template<class X, class... Xs> struct Γauto_is_done_<X, Xs...>
-{ sletc v = !is_Γarg<X> && Γauto_is_done_<Xs...>::v; };
+Txs  struct Γauto_is_done_;
+Tn   struct Γauto_is_done_<>         { sletc v = true; };
+Txxs struct Γauto_is_done_<X, Xs...> { sletc v = !is_Γarg<X> && Γauto_is_done_<Xs...>::v; };
 
 
 template<uS I, class... Xs>
@@ -52,8 +51,7 @@ auto Γauto1_(F<R(Xs...)> &&f)
 }
 
 
-template<class T>
-auto Γauto(T &&f)
+Tt auto Γauto(T &&f)
 {
   return Γauto1_(std::function(std::forward<T>(f)));
 }

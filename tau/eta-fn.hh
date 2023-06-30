@@ -11,7 +11,7 @@ namespace τ
 {
 
 
-template<class... Xs> struct ηfn_ts
+Txs struct ηfn_ts
 {
   sletc ts = ηtl{ηauto_<Xs>::t...};
 };

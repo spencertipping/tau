@@ -52,8 +52,8 @@ template<ηauto_decode T> struct πautoclass_<T>   { sletc c = πautoclass::stac
 
 // Split all function args into separate lists, each of which occurs in the same
 // order as the original
-template<class... Xs> struct πautoclassify_;
-template<> struct πautoclassify_<>
+Txs struct πautoclassify_;
+Tn struct πautoclassify_<>
 {
   using M = T<>;
   using C = T<>;
@@ -116,8 +116,8 @@ template<πautostack X, class... Xs> struct πautoclassify_<X, Xs...>
 // to match all types that will classify as such.
 Tt struct πauto1_;
 
-template<>     struct πauto1_<πi>      { static πi  &f(πi &i) { return i; } };
-template<>     struct πauto1_<πhr>     { static auto f(πi &i) { return i.pop(); } };
+Tn             struct πauto1_<πi>      { static πi  &f(πi &i) { return i; } };
+Tn             struct πauto1_<πhr>     { static auto f(πi &i) { return i.pop(); } };
 template<uN N> struct πauto1_<πhr_<N>> { static auto f(πi &i) { return πhr_<N>{}; } };
 
 template<ηauto_decode T> struct πauto1_<T> { static auto f(πi &i) { return ηauto_<T>::v(i.ypop()); } };
@@ -188,12 +188,12 @@ Tt struct πvrauto_
       else                      i.push(i << x); }
 };
 
-template<> struct πvrauto_<void>
+Tn struct πvrauto_<void>
 {
   sletc n = 0;
 };
 
-template<class... Xs> struct πvrauto_<T<Xs...>>
+Txs struct πvrauto_<T<Xs...>>
 {
   sletc n = sizeof...(Xs);
   static void push(πi &i, T<Xs...> const &x)
@@ -223,8 +223,7 @@ auto πauto_(Stc &n, F<R(Xs...)> const &f, T<Cs...> &&t)
 // inlining each.
 inline π0 πauto_ipush_(T<> const&) { return π0{}; }
 
-template<class X, class... Xs>
-auto πauto_ipush_(T<X, Xs...> const &t)
+Txxs auto πauto_ipush_(T<X, Xs...> const &t)
 {
   // NOTE: here, t contains M<π1>, where M is πsa, πse, or πpe
   static_assert(is_πv_<X>::value);
@@ -241,8 +240,7 @@ auto πauto_parser_(A const &a, Stc &n, T<Xs...>*)
 
 // Generate a function name from the base and a tuple of all constants that were
 // captured at parse-time. Constants must be writable to std::ostream.
-template<class... Xs>
-St πauto_name_(Stc &n, T<Xs...> const &cs)
+Txs St πauto_name_(Stc &n, T<Xs...> const &cs)
 {
   if (!std::tuple_size_v<T<Xs...>>) return n;
   Ss r;
@@ -269,13 +267,6 @@ auto πauto(A const &a, Stc &n, F<R(Xs...)> const &f)
             [n, f](auto &&t)
               { auto [c, i] = πauto_ci_split_(null<P>(), t);
                 return πauto_ipush_(i) | πauto_(πauto_name_(n, c), f, mo(c)); });
-}
-
-
-// Shorthand to push a constant
-Tt π1 πk(T const &x)
-{
-  return πauto((Ss{} << x).str(), [x](πi &i) { return x; });
 }
 
 

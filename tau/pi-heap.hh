@@ -44,7 +44,7 @@ B &πh_b(πh &h);  // NOTE: required to break circular dependency
 
 // Writer for π heap value: informs the heap when a value is committed,
 // and calls gc() for oversized values.
-template<> struct ηoc<πh&> final
+Tn struct ηoc<πh&> final
 {
   ηoc(πh &h_) : h(h_), b(πh_b(h_)), s(0) {}
 

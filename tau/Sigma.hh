@@ -55,8 +55,7 @@ typedef Σι_<> Σι;
 
 struct Σ0
 {
-  template<class X>
-  Σ0 &operator<<(X)             { return *this; }
+  Tx Σ0 &operator<<(X)          { return *this; }
 
   uN  icdf      (double)  const { return 0; }
   u64 total     (uN = 64) const { return 0; }

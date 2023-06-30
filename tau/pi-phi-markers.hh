@@ -37,6 +37,8 @@ Tt struct πP
   T x;
 };
 
+Tt πP(T) -> πP<T>;
+
 Tt struct is_πP_        : std::false_type {};
 Tt struct is_πP_<πP<T>> : std::true_type {};
 

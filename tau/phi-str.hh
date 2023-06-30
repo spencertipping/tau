@@ -20,29 +20,25 @@ namespace τ
 // Longest-prefix dispatch
 Tt struct φd_ : public virtual φ_<T>
 {
-  template<class... Xs>
-  φd_(St name, Xs const&... xs) : φ_<T>(name) { def(xs...); }
+  Txs φd_(St name, Xs const&... xs) : φ_<T>(name) { def(xs...); }
 
 
   bool has(Stc &k) const { return ps.contains(k); }
   φ<T> at (Stc &k) const { return ps.at(k); }
 
 
-  template<class... Xs>
-  φd_ &def(Stc &k, φ<T> p, Xs const&... xs)
+  Txs φd_ &def(Stc &k, φ<T> p, Xs const&... xs)
     { A(!ps.contains(k), *this << ": redefining " << k);
       ps[k] = p;
       return def(xs...); }
 
-  template<class... Xs>
-  φd_ &def(Stc &k, T x, Xs const&... xs)
+  Txs φd_ &def(Stc &k, T x, Xs const&... xs)
     { return def(k, φ<T>{new φR_<T>(x)}, xs...); }
 
   φd_ &def() { return *this; }
 
 
-  template<class... Xs>
-  φd_ &undef(Stc &k, Xs const&... xs)
+  Txs φd_ &undef(Stc &k, Xs const&... xs)
     { A(ps.contains(k), *this << ": undefining nonexistent " << k);
       ps.erase(k);
       return undef(xs...); }
