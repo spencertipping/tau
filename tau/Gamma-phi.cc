@@ -1,5 +1,4 @@
-#include "Gamma-phi.hh"
-#include "pi-phi.hh"
+#include "../tau.hh"
 #include "begin.hh"
 
 namespace τ

@@ -1,11 +1,4 @@
-#include <numeric>
-
-#include "types.hh"
-#include "pi-phi.hh"
-#include "phi-ctor.hh"
-#include "phi-fn.hh"
-#include "phi-str.hh"
-
+#include "../tau.hh"
 #include "begin.hh"
 
 namespace τ

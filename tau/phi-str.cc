@@ -1,4 +1,4 @@
-#include "phi-str.hh"
+#include "../tau.hh"
 #include "begin.hh"
 
 namespace τ
