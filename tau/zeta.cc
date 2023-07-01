@@ -1,6 +1,7 @@
 #include <cstring>
 
-#include "../tau.hh"
+
+#include "zeta.hh"
 #include "begin.hh"
 
 namespace τ

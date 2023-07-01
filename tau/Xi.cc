@@ -1,4 +1,7 @@
-#include "../tau.hh"
+#include "Xi.hh"
+#include "Gamma.hh"
+#include "psi.hh"
+
 #include "begin.hh"
 
 namespace τ

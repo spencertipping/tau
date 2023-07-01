@@ -1,4 +1,4 @@
-#include "../tau.hh"
+#include "lambda-types.hh"
 #include "begin.hh"
 
 namespace τ

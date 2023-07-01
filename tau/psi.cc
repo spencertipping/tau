@@ -1,4 +1,5 @@
-#include "../tau.hh"
+#include "debug.hh"
+#include "psi.hh"
 #include "begin.hh"
 
 namespace τ
