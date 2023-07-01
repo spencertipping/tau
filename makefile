@@ -12,15 +12,15 @@ ar_wdebug = dev/emsdk emar
 
 cflags = $(shell cat compile_flags.txt)
 
-cflags_linux = $(cflags) -O3
-cflags_clang = $(cflags) -O0 -gdwarf-4 -DDEBUG
-cflags_debug = $(cflags) -O0 -g -DDEBUG
-cflags_wasm  = $(cflags) -O3 -flto -fexceptions \
-               -Wno-mathematical-notation-identifier-extension
+cflags_linux  = $(cflags) -O3 -flto
+cflags_clang  = $(cflags) -O0 -gdwarf-4 -DDEBUG
+cflags_debug  = $(cflags) -O0 -g -DDEBUG
+cflags_wasm   = $(cflags) -O3 -flto -fexceptions \
+                -Wno-mathematical-notation-identifier-extension
 cflags_wdebug = $(cflags) -O1 -g -fexceptions \
-               -Wno-mathematical-notation-identifier-extension
+                -Wno-mathematical-notation-identifier-extension
 
-ldflags_linux  =
+ldflags_linux  = -flto
 ldflags_clang  =
 ldflags_debug  =
 ldflags_wasm   = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -sASYNCIFY_STACK_SIZE=1048576
@@ -28,21 +28,17 @@ ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -s
 
 # NOTE: stack size args seem to have no effect for wasm
 
-libs_linux = -lsqlite3 -lboost_context -lzstd
-libs_clang = -lsqlite3 -lboost_context -lzstd
-libs_debug = -lsqlite3 -lboost_context -lzstd
-  #-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
-  #-lharfbuzz -lcairo
-  #-lxcb -lX11 -lGL -lX11-xcb
+
+# Dropped ilbs (for now):
+#-lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0
+#-lharfbuzz -lcairo
+#-lxcb -lX11 -lGL -lX11-xcb
+native_libs = -lsqlite3 -lboost_context -lzstd
+libs_linux  = $(native_libs)
+libs_clang  = $(native_libs)
+libs_debug  = $(native_libs)
 libs_wasm   =
 libs_wdebug =
-
-
-pch_linux  = bin/tau.pch
-pch_clang  =
-pch_debug  =
-pch_wasm   =
-pch_wdebug =
 
 
 # Define the source and object files
@@ -82,27 +78,30 @@ bin/tau-$1.a: $$(tau_os_$1)
 bin/sigma-$1.a: $$(sigma_os_$1)
 	$(ar_$1) rcs $$@ $$^
 
-bin/$1/tau-%.o: tau/%.cc bin/$1/tau-%.d $(pch_$1) | bin
-	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
-bin/$1/taup-%.o: tau/$1/%.cc bin/$1/taup-%.d $(pch_$1) | bin
-	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
+bin/$1/tau-%.o: tau/%.cc bin/$1/tau-%.d | bin
+	$(cc_$1) $(cflags_$1) -c -o $$@ $$<
+bin/$1/taup-%.o: tau/$1/%.cc bin/$1/taup-%.d | bin
+	$(cc_$1) $(cflags_$1) -c -o $$@ $$<
 
-bin/$1/sigma-%.o: sigma/%.cc bin/$1/sigma-%.d $(pch_$1) | bin
-	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
-bin/$1/sigmap-%.o: sigma/$1/%.cc bin/$1/sigmap-%.d $(pch_$1) | bin
-	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
+bin/$1/sigma-%.o: sigma/%.cc bin/$1/sigma-%.d | bin
+	$(cc_$1) $(cflags_$1) -c -o $$@ $$<
+bin/$1/sigmap-%.o: sigma/$1/%.cc bin/$1/sigmap-%.d | bin
+	$(cc_$1) $(cflags_$1) -c -o $$@ $$<
 
-bin/$1-bin/%.o: try/%.cc bin/$1-bin/%.d $(pch_$1) | bin
-	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
-bin/$1-bin/%.o: try/$1/%.cc bin/$1-bin/%.d $(pch_$1) | bin
-	$(cc_$1) $(cflags_$1) -Ibin -c -o $$@ $$<
+bin/$1-bin/%.o: try/%.cc bin/$1-bin/%.d | bin
+	$(cc_$1) $(cflags_$1) -c -o $$@ $$<
+bin/$1-bin/%.o: try/$1/%.cc bin/$1-bin/%.d | bin
+	$(cc_$1) $(cflags_$1) -c -o $$@ $$<
 endef
 
 
 $(foreach x, linux clang debug wasm wdebug, $(eval $(call target,$(x))))
 
 
-all: linux wasm
+top: linux wasm
+	./test
+
+all: linux wasm debug clang wdebug
 	./test
 
 
@@ -124,10 +123,6 @@ bin/%.html: $(tau_os_wasm) $(sigma_os_wasm) bin/wasm-bin/%.o
 	$(cc_wasm) $(ldflags_wasm) -o $@ $^ $(libs_wasm)
 bin/%-debug.js: $(tau_os_wdebug) $(sigma_os_wdebug) bin/wdebug-bin/%.o
 	$(cc_wdebug) $(ldflags_wdebug) -o $@ $^ $(libs_wdebug)
-
-
-bin/%.pch: %.hh | bin
-	$(cc_linux) $(cflags_linux) -c -x c++-header -o $@ $<
 
 
 bin:
