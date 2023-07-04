@@ -97,7 +97,7 @@ void try_iota()
 void try_iota_rev()
 {
   τe t;
-  grammar()("push \\print \\last \\sum \\take1000 \\iota")(Ξ{t});
+  grammar()("push \\[print last sum take1000 iota]")(Ξ{t});
   t.go();
   A(!ξn(), "ξs outlived try_iota_rev: " << ξn());
   A(!ψn(), "ψs outlived try_iota_rev: " << ψn());
