@@ -63,18 +63,18 @@ PO ηi::operator<=>(ηic &x) const
 }
 
 
-Sn<u8c> ηi::at(uN i) const
+ηi ηi::operator[](uN i) const
 {
   ηi r = *this;
   while (i && has_next()) r = r.next(), --i;
   return {r.a_, i ? 0 : r.l_};
 }
 
-Sn<u8c> ηi::at(ηname const &n) const
+ηi ηi::operator[](ηname const &n) const
 {
   ηi r = *this;
   for (; r.has_next(); r = r.next())
-    if (r.is_n(n.x)) return r.after();
+    if (r.is_n(n.x)) return r.next();
   return {r.a_, 0};
 }
 

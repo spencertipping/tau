@@ -51,13 +51,14 @@ T<ηicb_r, uN, u8> ηicb(u8c*, uN);
 struct ηi final
 {
   ηi(ηic&) = default;
+  ηi()                   : a_(nullptr),  l_(0)              { decode_cb(); }
   ηi(u8c *a, uN l)       : a_(a),        l_(l)              { decode_cb(); }
   explicit ηi(Sn<u8c> s) : a_(s.data()), l_(s.size_bytes()) { decode_cb(); }
 
   ηi &operator=(ηi const&) = default;
   ηi &operator=(Sn<u8c> const &s) { a_ = s.data(); l_ = s.size_bytes(); decode_cb(); return *this; }
 
-  ηtype       t()    const { return Sc<ηtype>(*a_ >> 4); }
+  ηtype       t()    const { A(!empty(), "t() on η empty"); return Sc<ηtype>(*a_ >> 4); }
   u8c     *data()    const { return a_ + c_; }
   u8c    *odata()    const { return a_; }
   u8c    *adata()    const { return a_ + s_ + c_; }
@@ -75,8 +76,11 @@ struct ηi final
 
   ηi      one()      const { return {a_, osize()}; }
 
-  ηi &operator++()    { *this = next(); return *this; }
+  ηi &operator++()    { A(has_next(), "++η without next"); *this = next(); return *this; }
   ηi  operator++(int) { let r = *this; ++*this; return r; }
+
+  bool empty()             const { return l_ == 0; }
+  explicit operator bool() const { return !empty(); }
 
   // Type of each element within this η record, up to the first 15 (used for
   // fast dispatch)
@@ -108,14 +112,8 @@ struct ηi final
   PO operator<=>(ηi const &x) const;
 
 
-  Sn<u8c> at(uN)           const;
-  Sn<u8c> at(ηname const&) const;
-
-
-  // NOTE: these will fail loudly if you request items that
-  // don't exist (to verify, use .at() and check for .empty())
-  ηi operator[](uN i)           const { return ηi{at(i)}; }
-  ηi operator[](ηname const &n) const { return ηi{at(n)}; }
+  ηi operator[](uN)           const;
+  ηi operator[](ηname const&) const;
 
 
   bool is_sig()  const { return t() == ηtype::sig; }
@@ -272,8 +270,11 @@ private:
   void decode_cb()
     { let [r, s, c] = ηicb(a_, l_);
       let r0 = r;  // NOTE: this fixes a reference capture in the A() lambda
-      A(r == ηicb_r::ok,
+      A(r == ηicb_r::ok || r == ηicb_r::no_ctrl,
         "ηi bounds error: " << r0 << " at " << (void*)a_ << "+" << l_);
+
+      // Segfault if we try to access data in an empty η
+      if (r == ηicb_r::no_ctrl) a_ = nullptr;
       s_ = s;
       c_ = c; }
 };

@@ -92,7 +92,7 @@ $ diff <(bin/sigma ':foo [n10p[x+1]] :bar [n20] $foo M?F') <(seq 10)
 | `n`    | N      | length of string/vector/tuple |
 | `o`    | N      | ascending sort                |
 | `O`    | N      | descending sort               |
-| `J^`   | N      | JSON decode                   |
+| `^J`   | N      | JSON decode                   |
 | `J`    | N      | JSON encode                   |
 | `!`    | I      | logical negate                |
 | `~`    | I      | bitwise negate                |

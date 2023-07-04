@@ -7,3 +7,4 @@
 -Idep/boost-type-traits/include
 -Idep/boost-static-assert/include
 -Idep/boost-core/include
+-Idep/rapidjson/include

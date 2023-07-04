@@ -100,8 +100,8 @@ void πshared(πφ &p)
     .def_spost("!=", [](πse<ηi> const &y, ηic &x) { return (x <=> y.x) != PO::equivalent; })
 
     .def_spost(":", [](πi &i, πP<ηname> const &n, πhr const &x)
-      { let r = i[x].at(n.x);
-        return r.empty() ? i << ηsig::ω : i.i(x, ηi{r}.one()); })
+      { let r = i[x][n.x];
+        return r.empty() ? i << ηsig::ω : i.i(x, r.one()); })
 
     .def_spost("?", [](πi &i, πpe<π1> const &y, φaL<':'>, πpe<π1> const &z, bool c)
       { return (c ? y.x(i) : z.x(i)).pop(); })

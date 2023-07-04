@@ -10,7 +10,7 @@ namespace σ
 using namespace τ;
 
 
-let ΓrF = Ψauto([](fd_t fd, ψ q, ξo o)
+let ΓrF_ = Ψauto([](fd_t fd, ψ q, ξo o)
   {
     St d; d.reserve(65536);
     τe &t = q.t();
@@ -22,7 +22,7 @@ let ΓrF = Ψauto([](fd_t fd, ψ q, ξo o)
   });
 
 
-let ΓwF = Ψauto([](fd_t fd, ψ q, ξi i)
+let ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
   {
     τe &t = q.t();
     q.pin();
@@ -46,33 +46,41 @@ let ΓwF = Ψauto([](fd_t fd, ψ q, ξi i)
   });
 
 
+let ΓT_ = Ψauto([](i64 addr, φaL<':'>, i64 port, φig, Γa<Γ> g, ψ q, ξo o)
+  {
+    τe &t = q.t();
+    fd_t fd = socket(AF_INET, SOCK_STREAM, 0);
+    t.reg(fd, true, false);
+    q.fx([&, fd](ψ_&) { t.close(fd); });
+
+    sockaddr_in a;
+    a.sin_family = AF_INET;
+    a.sin_port = htons(port);
+    a.sin_addr.s_addr = htonl(addr);
+    A(!bind(fd, (sockaddr*)&a, sizeof(a)),
+      "bind to port " << port << ", addr " << addr << " failed");
+    listen(fd, 5);
+
+    for (;;)
+    {
+      let c = t.accept(fd, nullptr, nullptr);
+      o.r() << c;
+      (ΓrF(c) | ΓwF(c, Ψd::b) | g.x)(Ξ{t}.push());
+    }
+  });
+
+
+Γ ΓrF(fd_t fd, Ψd d) { return ΓΨ(ΓrF_(fd), d); }
+Γ ΓwF(fd_t fd, Ψd d) { return ΓΨ(ΓwF_(fd), d); }
+
+Γ ΓT(i64 a, i64 p, Γ g, Ψd d) { return ΓΨ(ΓT_(a, {}, p, {}, {g}), d); }
+
+
 void Γio(Γφ &g)
 {
-  g.def_p0(">F", ΓwF);
-  g.def_p1("<F", ΓrF);
-
-  g.def_p1("T", [](i64 addr, φaL<':'>, i64 port, φig, Γa<Γ> g, ψ q, ξo o)
-    {
-      τe &t = q.t();
-      fd_t fd = socket(AF_INET, SOCK_STREAM, 0);
-      t.reg(fd, true, false);
-      q.fx([&, fd](ψ_&) { t.close(fd); });
-
-      sockaddr_in a;
-      a.sin_family = AF_INET;
-      a.sin_port = htons(port);
-      a.sin_addr.s_addr = htonl(addr);
-      A(!bind(fd, (sockaddr*)&a, sizeof(a)),
-        "bind to port " << port << ", addr " << addr << " failed");
-      listen(fd, 5);
-
-      for (;;)
-      {
-        let c = t.accept(fd, nullptr, nullptr);
-        o.r() << c;
-        (ΓΨ(ΓrF(c)) | ΓΨ(ΓwF(c), Ψd::b) | g.x)(Ξ{t}.push());
-      }
-    });
+  g.def_p0(">F", ΓwF_);
+  g.def_p1("<F", ΓrF_);
+  g.def_p1("T",  ΓT_);
 }
 
 
