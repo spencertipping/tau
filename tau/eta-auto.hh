@@ -2,6 +2,7 @@
 #define τηauto_h
 
 #include "eta-i.hh"
+#include "eta-m.hh"
 #include "begin.hh"
 
 namespace τ
@@ -38,6 +39,7 @@ Tt struct ηY { T x; };
     static ct v(ηic &i) { return ve; } };
 
 deft(ηi, 64, η, i)  // ηis are passed through
+deft(ηm, 64, η, i)  // ηms are passed through
 
 deft(i8,  2, n_int,   i.ci())
 deft(i16, 3, n_int,   i.ci())

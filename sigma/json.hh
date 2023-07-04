@@ -1,3 +1,6 @@
+#ifndef σjson_h
+#define σjson_h
+
 #include "../sigma.hh"
 #include "begin.hh"
 
@@ -16,3 +19,5 @@ void πjson(πφ&);
 }
 
 #include "end.hh"
+
+#endif

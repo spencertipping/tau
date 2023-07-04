@@ -1,3 +1,6 @@
+#ifndef σlinux_http_h
+#define σlinux_http_h
+
 #include "../../sigma.hh"
 #include "../begin.hh"
 
@@ -17,3 +20,5 @@ void Γhttp(Γφ&);
 }
 
 #include "../end.hh"
+
+#endif

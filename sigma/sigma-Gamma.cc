@@ -1,4 +1,5 @@
 #include "platform.hh"
+#include "json.hh"
 #include "begin.hh"
 
 namespace σ
@@ -15,6 +16,7 @@ using namespace τ;
   Γnative(r);
   πshared(r.pi());
   πnative(r.pi());
+  πjson(r.pi());
   return r;
 }
 

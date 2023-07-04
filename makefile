@@ -1,10 +1,12 @@
 cc_linux  = g++
+cc_fast   = g++
 cc_clang  = clang++
 cc_debug  = g++
 cc_wasm   = dev/emsdk em++
 cc_wdebug = dev/emsdk em++
 
 ar_linux  = ar
+ar_fast   = ar
 ar_clang  = ar
 ar_debug  = ar
 ar_wasm   = dev/emsdk emar
@@ -13,6 +15,7 @@ ar_wdebug = dev/emsdk emar
 cflags = $(shell cat compile_flags.txt)
 
 cflags_linux  = $(cflags) -O3 -flto
+cflags_fast   = $(cflags) -O1
 cflags_clang  = $(cflags) -O0 -gdwarf-4 -DDEBUG
 cflags_debug  = $(cflags) -O0 -g -DDEBUG
 cflags_wasm   = $(cflags) -O3 -flto -fexceptions \
@@ -21,6 +24,7 @@ cflags_wdebug = $(cflags) -O1 -g -fexceptions \
                 -Wno-mathematical-notation-identifier-extension
 
 ldflags_linux  = -flto
+ldflags_fast   =
 ldflags_clang  =
 ldflags_debug  =
 ldflags_wasm   = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -sASYNCIFY_STACK_SIZE=1048576
@@ -35,6 +39,7 @@ ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -s
 #-lxcb -lX11 -lGL -lX11-xcb
 native_libs = -lsqlite3 -lboost_context -lzstd
 libs_linux  = $(native_libs)
+libs_fast   = $(native_libs)
 libs_clang  = $(native_libs)
 libs_debug  = $(native_libs)
 libs_wasm   =
@@ -49,6 +54,8 @@ try_cs   = $(wildcard try/*.cc)
 
 try_bins_linux  = $(patsubst try/%.cc,        bin/%, $(try_cs)) \
 	          $(patsubst try/linux/%.cc,  bin/%, $(try_cs_linux))
+try_bins_fast   = $(patsubst try/%.cc,        bin/%-fast, $(try_cs)) \
+	          $(patsubst try/fast/%.cc,   bin/%-fast, $(try_cs_fast))
 try_bins_clang  = $(patsubst try/%.cc,        bin/%-clang, $(try_cs)) \
 	          $(patsubst try/clang/%.cc,  bin/%-clang, $(try_cs_clang))
 try_bins_debug  = $(patsubst try/%.cc,        bin/%-debug, $(try_cs)) \
@@ -95,13 +102,13 @@ bin/$1-bin/%.o: try/$1/%.cc bin/$1-bin/%.d | bin
 endef
 
 
-$(foreach x, linux clang debug wasm wdebug, $(eval $(call target,$(x))))
+$(foreach x, linux fast clang debug wasm wdebug, $(eval $(call target,$(x))))
 
 
 top: linux wasm
 	./test
 
-all: linux wasm debug clang wdebug
+all: linux fast wasm debug clang wdebug
 	./test
 
 
@@ -115,6 +122,8 @@ wasm-size: bin/sigma.js
 
 bin/%: $(tau_os_linux) $(sigma_os_linux) bin/linux-bin/%.o
 	$(cc_linux) $(ldflags_linux) -o $@ $^ $(libs_linux)
+bin/%-fast: $(tau_os_fast) $(sigma_os_fast) bin/fast-bin/%.o
+	$(cc_fast) $(ldflags_fast) -o $@ $^ $(libs_fast)
 bin/%-clang: $(tau_os_clang) $(sigma_os_clang) bin/clang-bin/%.o
 	$(cc_clang) $(ldflags_clang) -o $@ $^ $(libs_clang)
 bin/%-debug: $(tau_os_debug) $(sigma_os_debug) bin/debug-bin/%.o
@@ -127,18 +136,22 @@ bin/%-debug.js: $(tau_os_wdebug) $(sigma_os_wdebug) bin/wdebug-bin/%.o
 
 bin:
 	mkdir -p bin/linux  bin/linux-bin \
+	         bin/fast   bin/fast-bin \
 	         bin/clang  bin/clang-bin \
 	         bin/debug  bin/debug-bin \
 	         bin/wasm   bin/wasm-bin \
 	         bin/wdebug bin/wdebug-bin
 
 
-.PHONY: clean linux-clean clang-clean debug-clean wasm-clean wdebug-clean
+.PHONY: clean linux-clean fast-clean clang-clean debug-clean wasm-clean wdebug-clean
 clean:
 	rm -rf bin
 
 linux-clean:
 	rm -f bin/linux*/*
+
+fast-clean:
+	rm -f bin/fast*/*
 
 clang-clean:
 	rm -f bin/clang*/*
@@ -154,7 +167,8 @@ wdebug-clean:
 
 
 # Header file tracing
-header-deps: linux-header-deps clang-header-deps debug-header-deps \
+header-deps: linux-header-deps fast-header-deps clang-header-deps \
+             debug-header-deps \
 	     wasm-header-deps wdebug-header-deps
 
 
@@ -181,4 +195,4 @@ bin/$1-bin/%.d: try/$1/%.cc | bin
 endef
 
 
-$(foreach x, linux clang debug wasm wdebug, $(eval $(call hdeps,$(x))))
+$(foreach x, linux fast clang debug wasm wdebug, $(eval $(call hdeps,$(x))))

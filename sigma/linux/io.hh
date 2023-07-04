@@ -1,3 +1,6 @@
+#ifndef σlinux_io_h
+#define σlinux_io_h
+
 #include "../../sigma.hh"
 #include "../begin.hh"
 
@@ -17,3 +20,5 @@ void Γio(Γφ&);
 }
 
 #include "../end.hh"
+
+#endif
