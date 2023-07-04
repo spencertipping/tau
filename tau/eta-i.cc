@@ -156,6 +156,7 @@ static O &yone(O &s, ηic &i)
 
 O &operator<<(O &s, ηi i)
 {
+  if (!i) return s;
   yone(s, i);
   while (i.has_next()) yone(s << " ", i = i.next());
   return s;

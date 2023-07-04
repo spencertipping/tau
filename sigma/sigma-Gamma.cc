@@ -1,5 +1,6 @@
 #include "platform.hh"
 #include "json.hh"
+#include "string.hh"
 #include "begin.hh"
 
 namespace σ
@@ -16,7 +17,6 @@ using namespace τ;
   Γnative(r);
   πshared(r.pi());
   πnative(r.pi());
-  πjson(r.pi());
   return r;
 }
 
@@ -52,13 +52,17 @@ void Γshared(Γφ &g)
 
 void πshared(πφ &p)
 {
+  πjson(p);
+  πstring(p);
+
   p .def_sa([](f64 x)         { return πk(x); })
     .def_sa([](i64 x)         { return πk(x); })
     .def_sa([](St  x)         { return πk(x); })
     .def_sa([](ηname n)       { return πk(n); })
     .def_sa([](φaL<'t', '.'>) { return πk(6.28318530717959); })
-    .def_sa([](φaL<'x'>)      { return π1{"x", [](πi &i) { i.push(i.x()); }}; })
-    .def_sa([](φaL<'y'>)      { return π1{"y", [](πi &i) { i.push(i.y()); }}; })
+    .def_sa([](φaL<'x'>)      { return π1{"x",  [](πi &i) { i.push(i.x()); }}; })
+    .def_sa([](φaL<'y'>)      { return π1{"y",  [](πi &i) { i.push(i.y()); }}; })
+    .def_sa([](φaL<'(', ')'>) { return π1{"()", [](πi &i) { i.push(ηi());  }}; })
 
     .def_sa([](φaL<'$'>, φident n)
       { return π1{"$" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
@@ -111,7 +115,7 @@ void πshared(πφ &p)
     .def_ppost("`", [](πi &i, πpe<π1> const &y, πhr const&)
       { return y.x(i).pop(); })
 
-    .def_spost(">s", [](ηic &x) { return (Ss{} << x << "\n").str(); })
+    .def_spre(">s", [](ηic &x) { return (Ss{} << x << "\n").str(); })
     ;
 }
 
