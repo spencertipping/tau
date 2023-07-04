@@ -52,6 +52,7 @@ void πshared(πφ &p)
 {
   p .def_sa([](f64 x)         { return πk(x); })
     .def_sa([](i64 x)         { return πk(x); })
+    .def_sa([](St  x)         { return πk(x); })
     .def_sa([](ηname n)       { return πk(n); })
     .def_sa([](φaL<'t', '.'>) { return πk(6.28318530717959); })
     .def_sa([](φaL<'x'>)      { return π1{"x", [](πi &i) { i.push(i.x()); }}; })
