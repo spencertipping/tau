@@ -69,8 +69,8 @@ void try_gc1()
   // weaken_eager() should immediately free iota()
   grammar()("push iota weager sum last print")(Ξ{t});
   t.go();
-  A(!ξn(), "ξs outlived try_gc: " << ξn());
-  A(!ψn(), "ψs outlived try_gc: " << ψn());
+  A(!ξn(), "ξs outlived try_gc1: " << ξn());
+  A(!ψn(), "ψs outlived try_gc1: " << ψn());
 }
 
 void try_gc2()
@@ -79,8 +79,8 @@ void try_gc2()
   // weaken() should immediately free iota()
   grammar()("push iota weaken sum last print")(Ξ{t});
   t.go();
-  A(!ξn(), "ξs outlived try_gc: " << ξn());
-  A(!ψn(), "ψs outlived try_gc: " << ψn());
+  A(!ξn(), "ξs outlived try_gc2: " << ξn());
+  A(!ψn(), "ψs outlived try_gc2: " << ψn());
 }
 
 

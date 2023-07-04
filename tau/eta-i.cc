@@ -79,40 +79,56 @@ Sn<u8c> ηi::at(ηname const &n) const
 }
 
 
-void ηi::decode_cb()
+T<ηicb_r, uN, u8> ηicb(u8c *a, uN l)
 {
-  A(l_ > 0, "η control byte OOB: l = 0");
-  let sn = *a_ & 0x0f;
+  if (!l) return {ηicb_r::no_ctrl, 0, 0};
+  let sn = *a & 0x0f;
+  uN  s;  // decoded size
+  u8  c;  // number of control+size bytes
 
-  if      (sn <= 0x0c) c_ = 1, s_ = sn;
+  if      (sn <= 0x0c) c = 1, s = sn;
   else if (sn == 0x0d)
   {
-    A(l_ >= 3, "η control size OOB: l = " << l_ << ", which is < 3");
-    c_ = 2, s_ = 13 + a_[1];
+    if (l < 2) return {ηicb_r::short_len1, 0, 0};
+    c = 2, s = 13 + a[1];
   }
   else if (sn == 0x0e)
   {
-    A(l_ >= 3, "η control size OOB: l = " << l_ << ", which is < 3");
-    c_ = 3, s_ = 269 + (Sc<u16>(a_[1]) << 8 | a_[2]);
+    if (l < 3) return {ηicb_r::short_len2, 0, 0};
+    c = 3, s = 269 + (u16(a[1]) << 8 | a[2]);
   }
   else
   {
-    A(l_ >= 5, "η control size OOB: l = " << l_ << ", which is < 5");
-    c_ = 5;
-    s_ = 65805 + (  Sc<u32>(a_[1]) << 24
-                  | Sc<u32>(a_[2]) << 16
-                  | Sc<u32>(a_[3]) << 8
-                  | a_[4]);
+    if (l < 5) return {ηicb_r::short_len4, 0, 0};
+    c = 5;
+    s = 65805 + (  u32(a[1]) << 24
+                 | u32(a[2]) << 16
+                 | u32(a[3]) << 8
+                 |     a[4]);
   }
 
   // NOTE: this looks weird, but we're making sure that we aren't
-  // overflowing unsigned int math so the l_ check is valid.
-  A(s_ + c_ > s_, "η size overflow");
-  A(s_ + c_ <= l_,
-    "η size overflows container: s_ = " << s_ <<
-    ", c_ = " << Sc<int>(c_) <<
-    ", l_ = " << l_ <<
-    ", cb = " << Sc<int>(*a_));
+  // overflowing unsigned int math so the l check is valid.
+  if (s + c <= s) return {ηicb_r::int_overflow, 0, 0};
+  if (s + c > l)  return {ηicb_r::size_overflow, 0, 0};
+  return {ηicb_r::ok, s, c};
+}
+
+
+O &operator<<(O &s, ηicb_r x)
+{
+  switch (x)
+  {
+  case ηicb_r::ok:            return s << "ok";
+  case ηicb_r::no_ctrl:       return s << "no_ctrl";
+  case ηicb_r::short_len1:    return s << "short_len1";
+  case ηicb_r::short_len2:    return s << "short_len2";
+  case ηicb_r::short_len4:    return s << "short_len4";
+  case ηicb_r::int_overflow:  return s << "int_overflow";
+  case ηicb_r::size_overflow: return s << "size_overflow";
+  default:
+    return s << "ηicb_r(" << Sc<int>(x) << ")";
+  }
 }
 
 

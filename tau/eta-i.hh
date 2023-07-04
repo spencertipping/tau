@@ -27,6 +27,26 @@ O &operator<<(O&, ηi);
 PO ηscmp(ηi, ηi);
 
 
+enum class ηicb_r : u8
+{
+  ok,            // ηi can be decoded
+  no_ctrl,       // too short for control byte
+  short_len1,    // too short for 1-byte length
+  short_len2,    // too short for 2-byte length
+  short_len4,    // too short for 4-byte length
+  int_overflow,  // size + clen overflows int
+  size_overflow  // declared size overflows container length
+};
+
+O &operator<<(O&, ηicb_r);
+
+
+// Check to see whether we can decode an ηi from the given location.
+// This function is always safe, as long as the input points to valid
+// memory.
+T<ηicb_r, uN, u8> ηicb(u8c*, uN);
+
+
 // η input: read from fixed location in memory
 struct ηi final
 {
@@ -249,7 +269,13 @@ private:
   uN   s_;  // immediate size
   u8   c_;  // control length (byte + size); a_ + c_ == data
 
-  void decode_cb();
+  void decode_cb()
+    { let [r, s, c] = ηicb(a_, l_);
+      let r0 = r;  // NOTE: this fixes a reference capture in the A() lambda
+      A(r == ηicb_r::ok,
+        "ηi bounds error: " << r0 << " at " << (void*)a_ << "+" << l_);
+      s_ = s;
+      c_ = c; }
 };
 
 
