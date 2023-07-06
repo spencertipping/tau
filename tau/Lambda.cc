@@ -5,6 +5,24 @@ namespace τ
 {
 
 
+void Λ::clear()
+{
+  if (fin) return;
+  A(!i(), "Λ::clear from non-main thread");
+  uN tries = 0;
+  while (!ls.empty())
+  {
+    for (auto &[k, v] : ls) x(k);
+    step();  // give all λs a chance to clear themselves
+    A(++tries < 100,
+      "Λ::clear: " << ls.size() << " λ(s) still exist");
+    if (tries > 2)
+      std::cerr << (Ss{} << getpid() << " warning: Λ::clear: "
+                    << ls.size() << " λ(s) still exist after " << tries << " iterations\n").str();
+  }
+}
+
+
 λi Λ::c(λf &&f)
 {
   if (fin) return 0;
@@ -13,7 +31,7 @@ namespace τ
     { try           { f(); }
       catch (Λx_)   {}
       catch (Stc e)
-      { std::cerr << "Λ uncaught: " << e << std::endl;
+      { std::cerr << (Ss{} << getpid() << " Λ uncaught: " << e << "; UNIX PROCESS IS EXITING\n").str();
         std::exit(1); } }));
   r(i, λs::R);
   return i;

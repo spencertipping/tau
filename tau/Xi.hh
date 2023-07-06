@@ -76,6 +76,20 @@ struct Ξ final
   τe &t() const { return e_; }
 
 
+  // Drop dependencies on all τ-runtime values, while keeping Γ mappings.
+  // This is not generally useful, but sometimes we need to early-destruct
+  // to free ψ pointers.
+  void clear_unconst_() const
+    { *Cc<Sp<Ξs>*> (&t_) = nullptr;
+      *Cc<Sp<Ξkd>*>(&m_) = nullptr;
+      *Cc<Sp<Ξkd>*>(&v_) = nullptr; }
+
+
+  // Returns a cleared copy of this Ξ; all that remains is its set of Γ
+  // mappings.
+  Ξ clear(τe &e) const { return {e, nullptr, nullptr, nullptr, g_, s_}; }
+
+
   Ξ t(Sp<Ξs>  t) const { return {e_, t, m_, v_, g_, s_}; }
   Ξ m(Sp<Ξkd> m) const { return {e_, t_, m, v_, g_, s_}; }
   Ξ v(Sp<Ξkd> v) const { return {e_, t_, m_, v, g_, s_}; }

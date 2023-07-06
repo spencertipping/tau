@@ -57,6 +57,8 @@ struct Λ final
   λi   i()     const { return ri; }
   u64  cs()    const { return cs_; }
 
+  void clear();
+
   λi  c(λf &&);
   Λ  &x(λi);
   Λ  &y(λs);               // yield currently-running λ with specified yield state

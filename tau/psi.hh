@@ -33,8 +33,9 @@ struct ψ_ final
   St               n_;   // name for debugging purposes
   M<St, F<Ξ(Ξc&)>> cs_;  // connection functions
 
-  ψ_(τe &t) : t_(t) {            ψc_(this); }
-  ~ψ_()             { destroy(); ψx_(this); }
+  ψ_(τe &t)       : t_(t)        { ψc_(this); }
+  ψ_(τe &t, St n) : t_(t), n_(n) { ψc_(this); }
+  ~ψ_()               { destroy(); ψx_(this); }
 
   τe &t() const { return t_; }
 
@@ -52,11 +53,11 @@ struct ψ_ final
 // Public interface to ψ_
 struct ψ final
 {
-  ψ(τe    &t) : t_(t), q_(new ψ_(t)) {}
+  ψ(τe &t)       : t_(t), q_(new ψ_(t)) {}
+  ψ(τe &t, St n) : t_(t), q_(new ψ_(t, n)) {}
   ψ(Sp<ψ_> q) : t_(q->t_), q_(q) {}
   ψ(Wp<ψ_> w) : t_(wpg(w)->t_), w_(w) {}
 
-  ψ(τe &t, St n) : ψ(t) { name(n); }
 
   ψ &operator=(ψ const &x) { q_ = x.q_; w_ = x.w_; return *this; }
   explicit operator bool() const { return q_ || !w_.expired(); }

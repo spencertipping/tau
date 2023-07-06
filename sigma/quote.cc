@@ -32,8 +32,7 @@ slet unquote_ = Ψauto([](ξi i, ξo o)
     {
       if (x.is_sig())
       {
-        if (x.is_τ())
-          A(b.empty(), "unquote() received τ sync with non-empty buffer: " << b);
+        // NOTE: no signals have any defined values yet
       }
       else if (x.is_s())
       {
@@ -57,8 +56,8 @@ slet unquote_ = Ψauto([](ξi i, ξo o)
   });
 
 
-Γ quote  (Ψd d) { return ΓΨ(quote_(),   d); }
-Γ unquote(Ψd d) { return ΓΨ(unquote_(), d); }
+Γ quote  (Ψd d) { return ΓΨ(quote_(),   d, ">q"); }
+Γ unquote(Ψd d) { return ΓΨ(unquote_(), d, "<q"); }
 
 
 void Γquote(Γφ &g)

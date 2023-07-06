@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "tau-epoll.hh"
+#include "../psi.hh"
 #include "../begin.hh"
 
 namespace τ
@@ -64,6 +65,8 @@ void τe::detach()
 
 bool τe::reg(fd_t fd, bool r, bool w)
 {
+  A(efd != -1, "τe::reg(" << fd << ") on detached");
+
   if (gs.contains(fd))
   {
     epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
@@ -93,7 +96,7 @@ int τe::close(fd_t fd)
 
   // Explicitly deregister FD from epoll; see
   // https://idea.popcount.org/2017-03-20-epoll-is-fundamentally-broken-22/
-  epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
+  if (efd != -1) epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
 
   return ::close(fd);
 }
@@ -118,6 +121,8 @@ void τe::term()
 
 τe &τe::operator()(bool nonblock)
 {
+  A(efd != -1, "τe() on detached");
+
   // Important: if there's work to be done, then don't schedule any
   // blocking wait here; our goal is to check for realtime updates
   // and activate blocked λs, but pausing is a bad idea since we could
@@ -175,7 +180,9 @@ void τe::term()
 
 τe &τe::clear()
 {
+  b_.clear();
   qs_.clear();
+  l_.clear();
   V<fd_t> fds;
   for (let &[fd, g] : gs) fds.push_back(fd);
   for (let x : fds) close(x);

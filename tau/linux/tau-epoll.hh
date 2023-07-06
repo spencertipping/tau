@@ -93,6 +93,8 @@ struct τe : public τb
   // pending operations should not move forwards.
   int close(fd_t);
 
+  bool detached() const { return efd == -1; }
+
 
   // Fork and track child PID, return result
   int  fork();

@@ -12,7 +12,6 @@ P<fd_t, fd_t> pipe_()
 {
   int fds[2];
   A(!pipe(fds), "pipe() failed: " << strerror(errno));
-  std::cerr << "pipe_ : <" << fds[0] << " >" << fds[1] << std::endl;
   return mp(fds[0], fds[1]);
 }
 
@@ -54,19 +53,26 @@ static Γ wqf(fd_t f, Ψd d = Ψd::f)
 
   if (!child)
   {
-    // Child process reads from fi, writes to fo,
-    // reads from bi, and writes to bo.
     x.t().detach();
-    close(fiW); close(foR);
-    τe t1;
-    (rqf(fiR) | g.x | wqf(foW))(Ξ{t1}.push());
-    t1.go();
+    x.t().clear();
+    x.clear_unconst_();  // Forcibly remove references to parent's ψs
+
+    Ss ps;
+    for (let x : ψs()) ps << x->n_ << " ";
+    A(!ψn(), "P2 fork(" << g.x << ") failed to clear ψs from parent: "
+      << ψn() << " left: " << ps.str());
+
+    // Everything below happens with a new τe
+    τe t;
+    close(fiW);      close(foR);
+     (rqf(fiR) | g.x | wqf(foW))(x.clear(t).push());
+    t.go();
     exit(0);
   }
   else
   {
-    close(fiR); close(foW);
-    return (wqf(fiW) | rqf(foR))(x);
+          close(fiR); close(foW);
+    return (wqf(fiW) |  rqf(foR))(x);
   }
 }
 
@@ -89,20 +95,28 @@ static Γ wqf(fd_t f, Ψd d = Ψd::f)
     // Child process reads from fi, writes to fo,
     // reads from bi, and writes to bo.
     x.t().detach();
+    x.t().clear();
+    x.clear_unconst_();  // Forcibly remove references to parent's ψs
+
+    Ss ps;
+    for (let x : ψs()) ps << x->n_ << " ";
+    A(!ψn(), "P4 fork(" << g.x << ") failed to clear ψs from parent: "
+      << ψn() << " left: " << ps.str());
+
     close(fiW); close(foR);
     close(biW); close(boR);
-    let l = rqf(fiR) | wqf(boR, Ψd::b);
+    let l = rqf(fiR) | wqf(boW, Ψd::b);
     let r = wqf(foW) | rqf(biR, Ψd::b);
-    τe t1;
-    (l | g.x | r)(Ξ{t1}.push());
-    t1.go();
+    τe t;
+    (l | g.x | r)(x.clear(t).push());
+    t.go();
     exit(0);
   }
   else
   {
     close(fiR); close(foW);
     close(biR); close(boW);
-    let l = wqf(fiW) | rqf(boW, Ψd::b);
+    let l = wqf(fiW) | rqf(boR, Ψd::b);
     let r = rqf(foR) | wqf(biW, Ψd::b);
     return (l | r)(x);
   }

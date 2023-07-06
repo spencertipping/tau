@@ -2,9 +2,9 @@
 -Wall
 -Wno-parentheses
 -Wno-misleading-indentation
--Idep/boost-endian/include
 -Idep/boost-config/include
--Idep/boost-type-traits/include
--Idep/boost-static-assert/include
 -Idep/boost-core/include
+-Idep/boost-endian/include
+-Idep/boost-static-assert/include
+-Idep/boost-type-traits/include
 -Idep/rapidjson/include

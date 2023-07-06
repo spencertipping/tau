@@ -47,7 +47,7 @@ install_deps()
   sudo apt update
   sudo apt install -y \
        docker.io build-essential \
-       libboost-context-dev libzstd-dev libsqlite3-dev
+       libboost-context-dev libboost-stacktrace-dev libzstd-dev libsqlite3-dev
 }
 
 

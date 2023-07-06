@@ -14,31 +14,14 @@ let ΓrF_ = Ψauto([](fd_t fd, ψ q, ξo o)
   {
     St d; d.reserve(65536);
     τe &t = q.t();
-    t.reg(fd, true, false);
     q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_RD); t.close(fd); });
 
-    iS r;
-    while (1)
-    {
-      std::cerr << getpid() << " <fd " << fd << " about to read" << std::endl;
-      r = t.read(fd, Rc<u8*>(d.data()), d.capacity());
-      if (r <= 0)
-      {
-        std::cerr << getpid() << " <fd " << fd << " read failed: " << r << std::endl;
-        break;
-      }
-      else
-        std::cerr << getpid() << " <fd " << fd << " read " << r << std::endl;
+    if (t.detached()) return;
+    A(t.reg(fd, true, false), "τ::reg(<" << fd << ") failed");
 
-      o.r(r + 8) << Stv{d.data(), uS(r)};
-      std::cerr << getpid() << " <fd " << fd << " wrote the value" << std::endl;
-    }
-
-    /*for (iS r;
+    for (iS r;
          (r = t.read(fd, Rc<u8*>(d.data()), d.capacity())) > 0;)
-         o.r(r + 8) << Stv{d.data(), uS(r)};*/
-    std::cerr << getpid() << " <fd " << fd << " closing with ω" << std::endl;
-    o.r(2) << ηsig::ω;
+      o.r(r + 8) << Stv{d.data(), uS(r)};
   });
 
 
@@ -46,8 +29,9 @@ let ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
   {
     τe &t = q.t();
     q.pin();
-    t.reg(fd, false, true);
     q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_WR); t.close(fd); });
+    if (t.detached()) goto done;
+    A(t.reg(fd, false, true), "τ::reg(>" << fd << ") failed");
     for (let x : i)
       if (x.is_ω()) goto done;
       else if (x.is_s())
@@ -61,7 +45,6 @@ let ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
         }
       }
   done:
-    std::cerr << getpid() << " >fd " << fd << " closing" << std::endl;
     i.close();
     q.unpin();
   });
@@ -71,8 +54,9 @@ let ΓT_ = Ψauto([](i64 addr, φaL<':'>, i64 port, φig, Γa<Γ> g, ψ q, ξo o
   {
     τe &t = q.t();
     fd_t fd = socket(AF_INET, SOCK_STREAM, 0);
-    t.reg(fd, true, false);
     q.fx([&, fd](ψ_&) { t.close(fd); });
+    if (t.detached()) return;
+    A(t.reg(fd, true, false), "τ::reg(<" << fd << ") failed");
 
     sockaddr_in a;
     a.sin_family = AF_INET;
@@ -91,10 +75,14 @@ let ΓT_ = Ψauto([](i64 addr, φaL<':'>, i64 port, φig, Γa<Γ> g, ψ q, ξo o
   });
 
 
-Γ ΓrF(fd_t fd, Ψd d) { return ΓΨ(ΓrF_(fd), d); }
-Γ ΓwF(fd_t fd, Ψd d) { return ΓΨ(ΓwF_(fd), d); }
+Γ ΓrF(fd_t fd, Ψd d) { return ΓΨ(ΓrF_(fd), d, (Ss{} << "<F" << fd).str()); }
+Γ ΓwF(fd_t fd, Ψd d) { return ΓΨ(ΓwF_(fd), d, (Ss{} << ">F" << fd).str()); }
 
-Γ ΓT(i64 a, i64 p, Γ g, Ψd d) { return ΓΨ(ΓT_(a, {}, p, {}, {g}), d); }
+Γ ΓT(i64 a, i64 p, Γ g, Ψd d)
+{
+  return ΓΨ(ΓT_(a, {}, p, {}, {g}), d,
+            (Ss{} << "T" << a << ":" << p << " " << g).str());
+}
 
 
 void Γio(Γφ &g)

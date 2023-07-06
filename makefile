@@ -14,19 +14,19 @@ ar_wdebug = dev/emsdk emar
 
 cflags = $(shell cat compile_flags.txt)
 
-cflags_linux  = $(cflags) -O3 -flto
-cflags_fast   = $(cflags) -O1
-cflags_clang  = $(cflags) -O0 -gdwarf-4 -DDEBUG
-cflags_debug  = $(cflags) -O0 -g -DDEBUG
-cflags_wasm   = $(cflags) -O3 -flto -fexceptions \
+cflags_linux  = $(cflags) -O3 -flto -DBOOST_STACKTRACE_USE_NOOP
+cflags_fast   = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP
+cflags_clang  = $(cflags) -O0 -DBOOST_STACKTRACE_DYN_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -gdwarf-4 -DDEBUG
+cflags_debug  = $(cflags) -O0 -DBOOST_STACKTRACE_DYN_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG
+cflags_wasm   = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -flto -fexceptions \
                 -Wno-mathematical-notation-identifier-extension
-cflags_wdebug = $(cflags) -O1 -g -fexceptions \
+cflags_wdebug = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -g -fexceptions \
                 -Wno-mathematical-notation-identifier-extension
 
 ldflags_linux  = -flto
 ldflags_fast   =
-ldflags_clang  =
-ldflags_debug  =
+ldflags_clang  = -lboost_stacktrace_backtrace -ldl -lbacktrace
+ldflags_debug  = -lboost_stacktrace_backtrace -ldl -lbacktrace
 ldflags_wasm   = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -sASYNCIFY_STACK_SIZE=1048576
 ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -sASYNCIFY_STACK_SIZE=1048576
 
@@ -121,17 +121,17 @@ wasm-size: bin/sigma.js
 
 
 bin/%: $(tau_os_linux) $(sigma_os_linux) bin/linux-bin/%.o
-	$(cc_linux) $(ldflags_linux) -o $@ $^ $(libs_linux)
+	$(cc_linux) -o $@ $^ $(libs_linux) $(ldflags_linux)
 bin/%-fast: $(tau_os_fast) $(sigma_os_fast) bin/fast-bin/%.o
-	$(cc_fast) $(ldflags_fast) -o $@ $^ $(libs_fast)
+	$(cc_fast) -o $@ $^ $(libs_fast) $(ldflags_fast)
 bin/%-clang: $(tau_os_clang) $(sigma_os_clang) bin/clang-bin/%.o
-	$(cc_clang) $(ldflags_clang) -o $@ $^ $(libs_clang)
+	$(cc_clang) -o $@ $^ $(libs_clang) $(ldflags_clang)
 bin/%-debug: $(tau_os_debug) $(sigma_os_debug) bin/debug-bin/%.o
-	$(cc_debug) $(ldflags_debug) -o $@ $^ $(libs_debug)
+	$(cc_debug) -o $@ $^ $(libs_debug) $(ldflags_debug)
 bin/%.html: $(tau_os_wasm) $(sigma_os_wasm) bin/wasm-bin/%.o
-	$(cc_wasm) $(ldflags_wasm) -o $@ $^ $(libs_wasm)
+	$(cc_wasm) -o $@ $^ $(libs_wasm) $(ldflags_wasm)
 bin/%-debug.js: $(tau_os_wdebug) $(sigma_os_wdebug) bin/wdebug-bin/%.o
-	$(cc_wdebug) $(ldflags_wdebug) -o $@ $^ $(libs_wdebug)
+	$(cc_wdebug) -o $@ $^ $(libs_wdebug) $(ldflags_wdebug)
 
 
 bin:
