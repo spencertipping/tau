@@ -130,7 +130,7 @@ inline uN ηcb(Sn<u8> b, ηtype t, uN s)
   let sb = ηsb(s);
   let cb = Sc<u8>(t) << 4 | (!sb ? s : sb == 1 ? 0x0d : sb == 2 ? 0x0e : 0x0f);
   A(b.size_bytes() >= sb + 1, "ηcb overflow; |b| = " << b.size_bytes() << ", needed " << sb + 1);
-  A(s < 65805 + Nl<u32>::max(), "ηcb size too large: " << s);
+  A(u64(s) < u64(65805) + u64(Nl<u32>::max()), "ηcb size too large: " << s);
 
   b[0] = cb;
 

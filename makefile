@@ -16,8 +16,8 @@ cflags = $(shell cat compile_flags.txt)
 
 cflags_linux  = $(cflags) -O3 -flto -DBOOST_STACKTRACE_USE_NOOP
 cflags_fast   = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP
-cflags_clang  = $(cflags) -O0 -DBOOST_STACKTRACE_DYN_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -gdwarf-4 -DDEBUG
-cflags_debug  = $(cflags) -O0 -DBOOST_STACKTRACE_DYN_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG
+cflags_clang  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -gdwarf-4 -DDEBUG
+cflags_debug  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG
 cflags_wasm   = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -flto -fexceptions \
                 -Wno-mathematical-notation-identifier-extension
 cflags_wdebug = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -g -fexceptions \
@@ -25,8 +25,8 @@ cflags_wdebug = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -g -fexceptions \
 
 ldflags_linux  = -flto
 ldflags_fast   =
-ldflags_clang  = -lboost_stacktrace_backtrace -ldl -lbacktrace
-ldflags_debug  = -lboost_stacktrace_backtrace -ldl -lbacktrace
+ldflags_clang  = -lboost_stacktrace_backtrace -lbacktrace
+ldflags_debug  = -lboost_stacktrace_backtrace -lbacktrace
 ldflags_wasm   = -flto -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -sASYNCIFY_STACK_SIZE=1048576
 ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -sASYNCIFY_STACK_SIZE=1048576
 

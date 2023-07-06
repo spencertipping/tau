@@ -17,7 +17,7 @@ let ΓrF_ = Ψauto([](fd_t fd, ψ q, ξo o)
     q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_RD); t.close(fd); });
 
     if (t.detached()) return;
-    A(t.reg(fd, true, false), "τ::reg(<" << fd << ") failed");
+    t.reg(fd, true, false);
 
     for (iS r;
          (r = t.read(fd, Rc<u8*>(d.data()), d.capacity())) > 0;)
@@ -31,7 +31,7 @@ let ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
     q.pin();
     q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_WR); t.close(fd); });
     if (t.detached()) goto done;
-    A(t.reg(fd, false, true), "τ::reg(>" << fd << ") failed");
+    t.reg(fd, false, true);
     for (let x : i)
       if (x.is_ω()) goto done;
       else if (x.is_s())

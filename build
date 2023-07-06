@@ -53,8 +53,8 @@ install_deps()
 
 todos()
 {
-  ag TODO doc tau sigma
-  echo -e "\033[1;32m$(ag TODO doc tau sigma | wc -l) TODO(s) total\033[0;0m"
+  ag '^[^#\n].*TODO' doc tau sigma
+  echo -e "\033[1;32m$(ag '^[^#\n].*TODO' doc tau sigma | wc -l) TODO(s) total\033[0;0m"
 }
 
 
