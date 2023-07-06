@@ -7,9 +7,16 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 
 ## TODOs
-1. Describe [π vertical/horizontal semantics](doc/pi.md)
-2. Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
-3. GC τ source after σ refactor
+1. Port GL to a shared library (native + wasm, with platform-appropriate wrappers)
+2. Add OT Ψs to σ
+3. Add η serialization/streaming
+4. WASM websocket client
+5. HTTP websocket server
+6. Static file server
+7. HTTP authentication
+8. Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
+
+**Q:** do we want to write compute-heavy Ψs in π, or in C++? Probably C++, but π has some side advantages like much lower compile times.
 
 
 ## Scratch tests

@@ -144,7 +144,7 @@ St η_to_json(ηic &x)
 }
 
 
-ηm json_to_η(St const &s)
+ηm json_to_η(Stc &s)
 {
   Document d;
   d.Parse(s.c_str());
