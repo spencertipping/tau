@@ -69,7 +69,9 @@ Tt struct shared_ptr final
       c = new ptr_ctrl<T>{1, 0, p, std::default_delete<T>()}; }
 
 
-  operator bool() const noexcept { return p; }
+  explicit operator bool() const noexcept { return p; }
+
+  bool operator==(shared_ptr<T> const &x) const noexcept { return p == x.p; }
 
   T &operator* () const noexcept { A(p, "dereference empty shared_ptr"); return *p; }
   T *operator->() const noexcept { A(p, "dereference empty shared ptr"); return  p; }
@@ -108,7 +110,7 @@ Tt struct weak_ptr final
       c = nullptr; }
 
 
-  operator bool() const noexcept { return !expired(); }
+  explicit operator bool() const noexcept { return !expired(); }
 
   bool expired()  const noexcept { return !c || !c->p; }
   T   *get()      const noexcept { return p; }

@@ -1,5 +1,6 @@
 #include "platform.hh"
 #include "json.hh"
+#include "quote.hh"
 #include "string.hh"
 #include "begin.hh"
 
@@ -23,6 +24,8 @@ using namespace τ;
 
 void Γshared(Γφ &g)
 {
+  Γquote(g);
+
   g .def_g("=",  [](Ξc &x) { return x.push(); })
     .def_g("_",  [](Ξc &x) { return x.drop(); })
     .def_g(":",  [](φident n, Γ g, Ξc &x) { return x.gs(n.x, g); })
@@ -38,6 +41,7 @@ void Γshared(Γφ &g)
     .def_p1("I", [](ηm  x,      ξo o) { while (o) o.r(x.lsize()) << x.all(); })
     .def_p1("n", [](i64 x,      ξo o) { for (i64 i = 0; i < x; ++i) o.r() << i; })
 
+    .def_p2(",",   [](          ξi i, ξo o) {})
     .def_p2("-",   [](          ξi i, ξo o) { for (let x : i) o << x; })
     .def_p2("k",   [](          ξi i, ξo o) { for (let x : i) o << x, o.r(2) << ηsig::τ; })
     .def_p2("K",   [](          ξi i, ξo o) { for (let x : i) if (!x.is_sig()) o << x; })

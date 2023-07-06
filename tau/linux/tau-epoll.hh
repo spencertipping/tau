@@ -105,7 +105,7 @@ struct τe : public τb
   τe &operator()(bool nonblock = false);
 
 
-  operator bool() const
+  explicit operator bool() const
     { return !gs.empty() || l_() || hn() != forever(); }
 
   τe &go(bool                nonblock = false,

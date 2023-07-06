@@ -50,7 +50,7 @@ struct τe : public τb
   ~τe() { τset(nullptr); }
 
 
-  operator bool() const;
+  explicit operator bool() const;
 
   τe &wake();
   τe &schedule();

@@ -10,13 +10,14 @@ namespace σ
 St hex_encode(Stc &x) {
   Ss r;
   r << std::hex << std::setfill('0');
-  for (char c : x) r << std::setw(2) << int(u8(c));
+  for (ch c : x) r << std::setw(2) << int(u8(c));
   return r.str();
 }
 
 St hex_decode(Stc &x) {
   St r;
-  for (uN i = 0; i < x.length(); i += 2) r += char(std::stoi(x.substr(i, 2), nullptr, 16));
+  for (uN i = 0; i < x.length(); i += 2)
+    r += ch(std::stoi(x.substr(i, 2), nullptr, 16));
   return r;
 }
 

@@ -28,7 +28,7 @@ struct λb final
         try         { f(); }
         catch (Λx_) { t(); } }
 
-  operator bool() const { return t_; }
+  explicit operator bool() const { return t_; }
 
   λb  &t()       { t_ = true; return *this; }
   void r() const { if (*this) throw λx_; }

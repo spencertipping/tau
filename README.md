@@ -1,4 +1,4 @@
-# τ: programming in 𝓛 space
+# τ: programming in the s-domain
 τ is a runtime system built around decaying steady states. If a bash command like `cat ... | grep ... | gzip > ...` defines a pipeline in a time-invariant way, then τ extends this by adding the ability to modify and extend the pipeline at runtime; that is, each part of the program is time-invariant but there are step changes. ([`ni`](https://github.com/spencertipping/ni) captures some of this, but ultimately falls short.)
 
 Another way to think of it is that τ is to `ni` what the Laplace transform is to the Fourier transform: we can now describe systems that are locally time-invariant but which nonetheless change over time.
@@ -7,16 +7,19 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 
 ## TODOs
-1. Port GL to a shared library (native + wasm, with platform-appropriate wrappers)
-2. Add OT Ψs to σ
-3. Add η serialization/streaming
-4. WASM websocket client
-5. HTTP websocket server
-6. Static file server
-7. HTTP authentication
-8. Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
++ Shell-out Ψ2
++ Port GL to a shared library (native + wasm, with platform-appropriate wrappers)
++ Add OT Ψs to σ
++ WASM websocket client
++ HTTP websocket server
++ Static file server
++ HTTP authentication
++ SQLite interop Ψ
++ Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
 
 **Q:** do we want to write compute-heavy Ψs in π, or in C++? Probably C++, but π has some side advantages like much lower compile times.
+
+**Q:** what should OTs be able to synchronize? All η values? That would be pretty killer.
 
 
 ## Scratch tests

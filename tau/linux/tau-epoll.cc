@@ -42,7 +42,8 @@ void τe::detach()
   if (efd != -1) ::close(efd);
   efd = -1;
 
-  // Close FDs without removing from epoll
+  // Close FDs without removing from epoll; the goal is to leave any existing
+  // τ objects intact. This is used when we fork() to create a child process.
   for (let &[fd, g] : gs)
   {
     ::close(fd);

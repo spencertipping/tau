@@ -18,9 +18,9 @@ struct ξi final
 
   ξi &operator=(ξi const &c) { x = c.x; return *this; }
 
-  operator bool() const { return Sc<bool>(x); }
-  Sp<ξ> inner_ξ() const { return x; }
+  explicit operator bool() const { return Sc<bool>(x); }
 
+  Sp<ξ>  inner_ξ() const { return x; }
   void     close()       { x.reset(); }
   ηi  operator *() const { A(x,  "*ξi on closed");            return ηi{**x}; }
   ξi &operator++()       { A(x, "++ξi on closed"); x->next(); return *this; }
@@ -75,11 +75,12 @@ struct ξo final
 
   ξo &operator=(ξo const &c) { x = c.x; oc = c.oc; return *this; }
 
-  operator  bool   ()            const { return !x.expired(); }
+  explicit operator bool() const { return !x.expired(); }
+
   ξo const &ensure (uN c)        const { if (let y = x.lock()) y->ensure(c); return *this; }
   void      close  ()            const { if (let y = x.lock()) y->close(); }
   Sp<ξ>     inner_ξ()            const { return x.lock(); }
-  ηo<ξ>     r      (uN s0 = 256) const { return ηo<ξ>(ηoc<ξ>{x}, s0); }
+  ηo<ξ>     r      (uN s0 = 256) const { return ηo<ξ>(ηoc<ξ>{x}, std::max(uN(1), s0)); }
 
   ξo const &operator<<(ηi const &y) const { r(y.lsize()) << y.all(); return *this; }
 
