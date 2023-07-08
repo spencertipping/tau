@@ -5,6 +5,10 @@
 #include "arch.hh"
 
 
+#include <iostream>
+#include <sstream>
+
+
 #if !defined(τdebug)
 # define τdebug 1
 #endif
@@ -50,8 +54,6 @@
 
 #if τhas_fast_exceptions
 # include <errno.h>
-# include <iostream>
-# include <sstream>
 
 # define τassert_begin try {
 # define τassert_end   } catch (std::string const e)          \

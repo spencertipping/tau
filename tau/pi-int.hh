@@ -22,6 +22,13 @@ struct πir final : public virtual πhv
 };
 
 
+// π external (C++) values
+struct πev
+{
+  virtual ~πev() = default;
+};
+
+
 // π program interpreter
 struct πi final
 {
@@ -97,6 +104,11 @@ struct πi final
   πi &clear_y()  { r_.y.clear(); return *this; }
   πi &clear_xy() { clear_x(); return clear_y(); }
 
+  Tt πi   &def_ev(Stc &n, Sp<T> v) { e_[n] = v.template as<πev>(); return *this; }
+  Tt Sp<T> ev    (Stc &n)    const { return e_.at(n).template as<T>(); }
+  Tt bool  evi   (Stc &n)    const { return e_.contains(n); }
+  Tt πi   &evx   (Stc &n)          { e_.erase(n); return *this; }
+
 
 protected:
   πh   h_;
@@ -104,10 +116,12 @@ protected:
   πhmv m_{h_};  // named bindings
   πir  r_{h_};
 
-  ξi   fi_;
-  ξo   fo_;
-  ξo   bo_;
-  ξi   bi_;
+  M<St, Sp<πev>> e_;  // external values
+
+  ξi fi_;
+  ξo fo_;
+  ξo bo_;
+  ξi bi_;
 
   friend O &operator<<(O&, πi const&);
 };
