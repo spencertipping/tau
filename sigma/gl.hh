@@ -13,12 +13,33 @@ namespace σ
 using namespace τ;
 
 
-void gl_line(vec3c &a, vec3c &b, f64 w, colorc &c);
-void gl_rect(vec3c &a, vec3c &b, colorc &c);
-void gl_rect(vec3c &a, vec3c &b, GLuint tid);
+struct gl_window_base
+{
+  Stc addr;  // X11 display or canvas ID
 
-GLuint gl_fbo_texture(GLuint tid,           F<void()> const &f);
-GLuint gl_fbo_texture(GLsizei w, GLsizei h, F<void()> const &f);
+  virtual ~gl_window_base() {}
+
+  virtual void use()  = 0;
+  virtual void swap() = 0;
+};
+
+
+struct gl_fbo_texture final
+{
+  GLuint tid = 0;
+  vec2   dims;
+
+  gl_fbo_texture()                      = default;
+  gl_fbo_texture(gl_fbo_texture const&) = default;
+  gl_fbo_texture(gl_fbo_texture &&t_) : tid(t_.tid), dims(t_.dims)
+    { t_.tid = 0; }
+
+  gl_fbo_texture(vec2c &dims, F<void()> const &render);
+
+  ~gl_fbo_texture() { if (tid) glDeleteTextures(1, &tid); }
+
+  void use() const { glBindTexture(GL_TEXTURE_2D, tid); }
+};
 
 
 struct gl_text final

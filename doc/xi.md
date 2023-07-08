@@ -8,7 +8,7 @@ Each ξ, unless it is weakened, holds a reference to the [ψ](psi.md) that write
 There are some basic tests for ξ in [try/xi.cc](../try/xi.cc):
 
 ```bash
-$ bin/xi
+$ bin/xi-fast
 spans are ok
 ξ single got total: 49995000
 ξ multi got total: 161700

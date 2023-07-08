@@ -104,7 +104,7 @@ endef
 $(foreach x, linux fast clang debug wasm wdebug, $(eval $(call target,$(x))))
 
 
-top: linux wasm
+top: fast wasm
 	./test
 
 all: linux fast wasm debug clang wdebug

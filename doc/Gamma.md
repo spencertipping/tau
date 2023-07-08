@@ -4,15 +4,15 @@
 Some Γs manipulate Ξ state, while others transform [ξ](xi.md) duplexes by creating [ψ](psi.md) processor elements. Common ψ topologies are factored into the [Ψ](Psi.md) library of Γs.
 
 ```bash
-$ bin/gamma
+$ bin/gamma-fast
 0
 0
 55
 500500
 50005000
 110
-$ diff <(bin/sigma 'n4 P2px+1 M?F') <(seq 1 4)
-$ diff <(bin/sigma 'n4 P2px+1 P2px+1 M?F') <(seq 2 5)
-$ diff <(bin/sigma 'n4 P4px+1 P4px+1 P2px+1 M?F') <(seq 3 6)
-$ diff <(bin/sigma 'n4000 P4px+1 P4px+1 P2px+1 M?F') <(seq 3 4002)
+$ diff <(bin/sigma-fast 'n4 P2px+1 M?F') <(seq 1 4)
+$ diff <(bin/sigma-fast 'n4 P2px+1 P2px+1 M?F') <(seq 2 5)
+$ diff <(bin/sigma-fast 'n4 P4px+1 P4px+1 P2px+1 M?F') <(seq 3 6)
+$ diff <(bin/sigma-fast 'n4000 P4px+1 P4px+1 P2px+1 M?F') <(seq 3 4002)
 ```

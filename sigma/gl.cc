@@ -69,6 +69,31 @@ static M<St, gl_uniform> gl_uniforms(GLuint program)
 }
 
 
+gl_fbo_texture::gl_fbo_texture(vec2c &dims, F<void()> const &render)
+  : dims(dims)
+{
+  GLuint fbo;
+  glGenFramebuffers(1, &fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+  glGenTextures(1, &tid);
+  glBindTexture(GL_TEXTURE_2D, tid);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+               dims.x, dims.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                         GL_TEXTURE_2D, tid, 0);
+
+  glViewport(0, 0, dims.x, dims.y);
+  glClearColor(0, 0, 0, 0);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  render();
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDeleteFramebuffers(1, &fbo);
+}
+
+
 gl_program::gl_program(Stc &vertex, Stc &frag)
   : vertex(vertex), frag(frag)
 {

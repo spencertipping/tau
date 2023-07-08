@@ -9,7 +9,7 @@
 + [σ/π stdlib](sigma-pi-stdlib.md)
 
 ```bash
-$ bin/sigma 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M? F'
+$ bin/sigma-fast 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M? F'
 0 false (0 false) (0 2 0 1) 1
 1 false (1 false) (1 3 1 2) 2
 2 true (2 false) (2 4 2 3) 3
@@ -20,38 +20,38 @@ $ bin/sigma 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M? F'
 7 true (7 true) (7 9 7 8) 8
 8 true (8 true) (8 10 8 9) 9
 9 true (9 true) (9 11 9 10) 10
-$ bin/sigma 'n3 p[[x]+1] M? F'
+$ bin/sigma-fast 'n3 p[[x]+1] M? F'
 1
 2
 3
-$ bin/sigma 'n3 px [x]+1; M? F'
+$ bin/sigma-fast 'n3 px [x]+1; M? F'
 0 1
 1 2
 2 3
-$ bin/sigma 'n3 px`x+1`x+2 x; M?F'
+$ bin/sigma-fast 'n3 px`x+1`x+2 x; M?F'
 2 0
 3 1
 4 2
-$ bin/sigma 'n3 pfoo=x+1;$foo+1; M?F'
+$ bin/sigma-fast 'n3 pfoo=x+1;$foo+1; M?F'
 2
 3
 4
-$ bin/sigma 'n3px;;M?F' 2>/dev/null || echo parse failed
+$ bin/sigma-fast 'n3px;;M?F' 2>/dev/null || echo parse failed
 parse failed
 ```
 
 A few more tests:
 
 ```bash
-$ bin/sigma 'n3 pfoo=x+1 x+2 x<1;$foo $foo; M?F'
+$ bin/sigma-fast 'n3 pfoo=x+1 x+2 x<1;$foo $foo; M?F'
 1 2 true 1 2 true
 2 3 false 2 3 false
 3 4 false 3 4 false
-$ bin/sigma 'n1p[1 @(2 3)] M?F'
+$ bin/sigma-fast 'n1p[1 @(2 3)] M?F'
 1 2 3
-$ bin/sigma 'n1p1@(2 3);M?F'
+$ bin/sigma-fast 'n1p1@(2 3);M?F'
 1 2 3
-$ bin/sigma "n3p['a x+1'b5]:'a;M?F"
+$ bin/sigma-fast "n3p['a x+1'b5]:'a;M?F"
 1
 2
 3

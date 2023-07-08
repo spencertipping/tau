@@ -24,7 +24,7 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 ## Scratch tests
 ```bash
-$ bin/scratch
+$ bin/scratch-fast
 3, 4, hi there, 八次不
 abc不西
 ```

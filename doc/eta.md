@@ -7,7 +7,7 @@
 + [η/C++ destructuring](eta-cpp.md)
 
 ```bash
-$ bin/eta
+$ bin/eta-fast
 fa(i) = 4
 fa(i[2]) = 8
 ga(i) = 2 "afoo"
