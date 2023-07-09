@@ -48,6 +48,10 @@ struct gl_text final
 
   ~gl_text() { clear(); }
 
+  // NOTE: rendering internals are platform-specific
+  GLuint texture();
+  vec2   measure();
+
   gl_text_key key() const
     { return {XXH64(f.data(), f.size(), 0), XXH64(t.data(), t.size(), 0)}; }
 
@@ -57,13 +61,10 @@ struct gl_text final
       dims = {0, 0}; }
 
   uN tsize() const { return tid ? dims.x * dims.y * 4 : 0; }
-
-  // NOTE: rendering internals are platform-specific
-  GLuint texture();
-  vec2   measure();
 };
 
 
+// TODO: improve this caching model
 struct gl_texts final
 {
   M<gl_text_key, gl_text> ts;

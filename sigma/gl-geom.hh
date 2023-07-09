@@ -57,6 +57,13 @@ struct color
            | u32(b * 255) << 8
            | u32(a * 255);
     }
+
+  St hex() const
+    {
+      return (Ss{} << "rgba(" << int(r * 255) << ","
+                              << int(g * 255) << ","
+                              << int(b * 255) << "," << a << ")").str();
+    }
 };
 
 

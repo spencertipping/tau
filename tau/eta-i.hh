@@ -6,7 +6,6 @@
 #include "eta-types.hh"
 
 #include "begin.hh"
-#include <string>
 
 namespace τ
 {
@@ -81,6 +80,12 @@ struct ηi final
 
   bool empty()             const { return l_ == 0; }
   explicit operator bool() const { return !empty(); }
+
+  uN len() const
+    { ηi i = *this;
+      uN r = 0;
+      while (i) ++r, ++i;
+      return r; }
 
   // Type of each element within this η record, up to the first 15 (used for
   // fast dispatch)

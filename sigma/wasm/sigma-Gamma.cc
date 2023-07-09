@@ -1,4 +1,5 @@
 #include "../../sigma.hh"
+#include "gl.hh"
 #include "../begin.hh"
 
 namespace σ
