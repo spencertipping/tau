@@ -76,7 +76,7 @@ template<class A> struct φlit
   auto p(φword*)  const { return φword_(); }
 
   auto p(V<St>*) const
-    { let each = φm(φword_(), [](auto &&x) { return x.x; }) | φstr_();
+    { let each = φm(φident_(), [](auto &&x) { return x.x; }) | φstr_();
       return φ2("[s*]", φlb_(), φn(φwrap(each)), φrb_()); }
 
   auto p(φig*) const { return φm(φig_(), [](auto&&) { return φig{}; }); }

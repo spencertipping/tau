@@ -36,8 +36,6 @@ $ bin/sigma-fast 'n3 pfoo=x+1;$foo+1; M?F'
 2
 3
 4
-$ bin/sigma-fast 'n3px;;M?F' 2>/dev/null || echo parse failed
-parse failed
 ```
 
 A few more tests:

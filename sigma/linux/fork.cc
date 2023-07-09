@@ -40,16 +40,12 @@ static Γ wqf(fd_t f, Ψd d = Ψd::f)
 }
 
 
-// TODO: port τfork2 and τfork4 to Ψs, not Γ; that way we can
-// specify their orientation
-
-// TODO: add fork/exec for shell commands
-
-// NOTE: τfork as a Ψ will need to be .def_c2() in order to fork()
-// from the parent λ.
+// TODO: at some point, convert τfork to Ψ so we can modify direction
+// this is nontrivial because it's difficult to force a τe to clear
+// references to memory without having access to Ξ, which Ψs can't see
 
 
-// Half-duplex fork: connect as a Ψ2
+// Half-duplex fork
 Ξ τfork2(Γa<Γ> g, Ξc &x)
 {
   // NOTE: these variables are from the child's perspective;
@@ -86,7 +82,7 @@ static Γ wqf(fd_t f, Ψd d = Ψd::f)
 }
 
 
-// Full-duplex fork: connect as a Ψ4
+// Full-duplex fork
 Ξ τfork4(Γa<Γ> g, Ξc &x)
 {
   // NOTE: these variables are from the child's perspective;

@@ -9,6 +9,7 @@
 -Idep/boost-static-assert/include
 -Idep/boost-type-traits/include
 -Idep/rapidjson/include
+-Idep
 
 -I/usr/include/blkid
 -I/usr/include/cairo

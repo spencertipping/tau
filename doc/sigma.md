@@ -27,7 +27,7 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 Γ/Ψ     ΓΓ0 00   22 Γ2200002444S      22022  0 2 22222222
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-Γ/Ψ   4SΓ22Γ ΓΓ2ΓΓ2ΓΓΓΓΓΓ 222  Γ  4 4
+Γ/Ψ   4SΓ22Γ ΓΓ2ΓΓ2ΓΓΓΓΓΓ 222  Γ2 4 4
 Γ/Ψ                        10
 ```
 
@@ -111,6 +111,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `%`     | Γ     | Γ union (eager interleave)               |
 | `-`     |       | identity passthrough                     |
 | `,`     |       | cut stream                               |
+| `;`     | Γ     | splice Ψ4 to Ψ2                          |
 
 
 ### Ψ₄ full-duplex table

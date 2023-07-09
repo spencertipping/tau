@@ -68,6 +68,8 @@ struct vec2 final
   vec2(f64 x, f64 y) : x(x), y(y) {}
   vec2(f64 x) : x(x), y(x) {}
 
+  explicit operator bool() const { return x != 0 || y != 0; }
+
   vec2 operator+(vec2 const &o) const { return {x + o.x, y + o.y}; }
   vec2 operator-(vec2 const &o) const { return {x - o.x, y - o.y}; }
   vec2 operator*(vec2 const &o) const { return {x * o.x, y * o.y}; }
@@ -101,6 +103,8 @@ struct vec3 final
   vec3() = default;
   vec3(f64 x, f64 y, f64 z) : x(x), y(y), z(z) {}
   vec3(f64 x) : x(x), y(x), z(x) {}
+
+  explicit operator bool() const { return x != 0 || y != 0 || z != 0; }
 
   vec3 operator+(vec3 const &o) const { return {x + o.x, y + o.y, z + o.z}; }
   vec3 operator-(vec3 const &o) const { return {x - o.x, y - o.y, z - o.z}; }
@@ -143,6 +147,8 @@ struct vec4 final
   vec4(f64 x, f64 y, f64 z, f64 w) : x(x), y(y), z(z), w(w) {}
   vec4(f64 x) : x(x), y(x), z(x), w(x) {}
   vec4(vec3 const &v, f64 w) : x(v.x), y(v.y), z(v.z), w(w) {}
+
+  explicit operator bool() const { return x != 0 || y != 0 || z != 0 || w != 0; }
 
   vec4 operator+(vec4 const &o) const { return {x + o.x, y + o.y, z + o.z, w + o.w}; }
   vec4 operator-(vec4 const &o) const { return {x - o.x, y - o.y, z - o.z, w - o.w}; }

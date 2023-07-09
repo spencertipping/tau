@@ -2,6 +2,7 @@
 #define σgl_h
 
 #include <GLES2/gl2.h>
+#include <xxhash.h>
 
 #include "../sigma.hh"
 #include "gl-geom.hh"
@@ -17,10 +18,13 @@ struct gl_window_base
 {
   Stc addr;  // X11 display or canvas ID
 
+  gl_window_base(Stc &addr_) : addr(addr_) {}
+
   virtual ~gl_window_base() {}
 
   virtual void use()  = 0;
   virtual void swap() = 0;
+  virtual vec2 dims() = 0;
 };
 
 
@@ -39,31 +43,6 @@ struct gl_fbo_texture final
   ~gl_fbo_texture() { if (tid) glDeleteTextures(1, &tid); }
 
   void use() const { glBindTexture(GL_TEXTURE_2D, tid); }
-};
-
-
-struct gl_text final
-{
-  St     f;  // font
-  St     t;  // text
-  color  bg  = {0,0,0,0};
-  color  fg  = {1,1,1,1};
-  GLuint tid = 0;
-  vec2   dims;
-
-  gl_text()               = default;
-  gl_text(gl_text const&) = default;
-  gl_text(gl_text &&t_) : f(t_.f), t(t_.t), bg(t_.bg), fg(t_.fg), tid(t_.tid), dims(t_.dims)
-    { t_.tid = 0; }
-
-  gl_text(Stc &f, Stc &t, colorc &bg, colorc &fg)
-    : f(f), t(t), bg(bg), fg(fg), tid(0), dims(0, 0) {}
-
-  ~gl_text() { if (tid) glDeleteTextures(1, &tid); }
-
-  // NOTE: rendering internals are platform-specific
-  GLuint texture();
-  vec2   measure();
 };
 
 
@@ -137,7 +116,6 @@ struct gl_vbo final
 
   void draw(GLenum mode = GL_TRIANGLES) const;
 };
-
 
 }
 
