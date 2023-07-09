@@ -18,8 +18,6 @@ GLuint gl_text::texture()
   let d = measure();
   let w = int(d.x);
   let h = int(d.y);
-  let b = new u8[w * h * 4];
-
   EM_ASM(
   {
     let c   = document.getElementById(UTF8ToString($0));
@@ -33,23 +31,21 @@ GLuint gl_text::texture()
     ctx.fillStyle = UTF8ToString($5);
     ctx.fillText(UTF8ToString($4), 0, c.height);
 
-    let id = ctx.getImageData(0, 0, c.width, c.height);
-    let d  = id.data;
-    for (let i = 0; i < d.length; i++) HEAPU8[$7 + i] = d[i];
+    let glc = Module['canvas'];
+    let gl  = glc.getContext('webgl');
+    let tid = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tid);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    HEAP32[$7 >> 2] = tid;
   },
   scratch_canvas, w, h,  // $0 .. $2
   f.c_str(), t.c_str(),  // $3, $4
   fg.hex().c_str(),      // $5
   bg.hex().c_str(),      // $6
-  b);
+  &tid);                 // $7
 
-  glGenTextures(1, &tid);
-  glBindTexture(GL_TEXTURE_2D, tid);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, b);
-
-  delete[] b;
   return tid;
 }
 
