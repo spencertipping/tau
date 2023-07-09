@@ -40,6 +40,15 @@ static Γ wqf(fd_t f, Ψd d = Ψd::f)
 }
 
 
+// TODO: port τfork2 and τfork4 to Ψs, not Γ; that way we can
+// specify their orientation
+
+// TODO: add fork/exec for shell commands
+
+// NOTE: τfork as a Ψ will need to be .def_c2() in order to fork()
+// from the parent λ.
+
+
 // Half-duplex fork: connect as a Ψ2
 Ξ τfork2(Γa<Γ> g, Ξc &x)
 {

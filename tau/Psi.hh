@@ -85,7 +85,10 @@ struct ΓΨd_ : public virtual Γ_
 
   ΓΨd_(Ψd d_, St n_) : d(d_), n(n_) {}
 
-  St name() const { return (Ss{} << "[" << n << ":" << d << "]").str(); }
+  St name() const
+    { return d == Ψd::f ?        n
+           : d == Ψd::b ? "\\" + n
+           :              "|"  + n; }
 
   Ξ operator()(Ξc &x) const
     { ψ q(x.t(), name());
