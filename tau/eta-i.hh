@@ -75,7 +75,7 @@ struct ηi final
 
   ηi      one()      const { return {a_, osize()}; }
 
-  ηi &operator++()    { A(has_next(), "++η without next"); *this = next(); return *this; }
+  ηi &operator++()    { *this = next(); return *this; }
   ηi  operator++(int) { let r = *this; ++*this; return r; }
 
   bool empty()             const { return l_ == 0; }

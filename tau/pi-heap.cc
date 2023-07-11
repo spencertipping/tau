@@ -16,7 +16,18 @@ namespace τ
 B &πh_b(πh &h) { return h.h(); }
 
 
-void ηoc<πh&>::abort() { b.resize(s); s = 0; }
+void ηoc<πh&>::abort()
+{
+  b.resize(s);
+  s = 0;
+}
+
+void ηoc<πh&>::abandon()
+{
+  abort();
+  h.ref({});  // important: leave a null ref on the heap
+}
+
 void ηoc<πh&>::commit(uN n)
 {
   if (n)
@@ -51,12 +62,14 @@ void πh::gc(uN l)
   B hn;
   hn_ = &hn;
   s_  = 0;
+  if (ri_) mark(r_);
   for (let v : vs_) v->mark();  // calculate live-set size
   let hns = std::min(std::max(s_ * 4, s_ + l + hr_), uN(Nl<πhrn>::max()));
   A(hns >= s_ + l + hr_,
     "πh overflow: need " << s_ + l + hr_ << " bytes, max is " << Nl<πhrn>::max());
   hn_->reserve(hns);
   h_.swap(hn);
+  if (ri_) r_ = move(r_);
   for (let v : vs_) v->move();  // move objects to new heap
   hn_ = nullptr;
   ++gs_;

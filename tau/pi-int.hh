@@ -62,6 +62,7 @@ struct πi final
       std::swap(s_.xs.back(), s_.xs[s_.xs.size() - 2]); return *this; }
 
   uN               size()     const { return s_.xs.size(); }
+  bool            empty()     const { return s_.xs.empty(); }
   πhr const &operator[](uN i) const { return s_.xs[size() - i - 1]; }
   πhr       &operator[](uN i)       { return s_.xs[size() - i - 1]; }
 

@@ -20,6 +20,7 @@ Tn struct ηoc<ξ> final
 {
   void   commit(uN n) { wpg(o)->commit(n); }
   void   abort()      { wpg(o)->abort(); }
+  void   abandon()    { abort(); }
   bool   expired()    { return o.expired(); }
   Sn<u8> iptr(uN n)   { return wpg(o)->iptr(n); }
 
@@ -32,6 +33,7 @@ Tn struct ηoc<B&> final
 
   void   commit(uN n) { if (n) b.resize(s + n); s = 0; }
   void   abort()      {        b.resize(s);     s = 0; }
+  void   abandon()    { abort(); }
   bool   expired()    { return false; }
   Sn<u8> iptr(uN n)
     { A(!s, "ηoc<B&>::iptr(" << n << ") called with uncommitted data");
@@ -80,7 +82,7 @@ Tt struct ηo final
   ~ηo()
     { if (!o_.expired())
         if (s_) o_.commit(s_), ηo_track_commit();
-        else    o_.abort(); }
+        else    o_.abandon(); }
 
 
   // Direct append: hopefully the content is valid η data

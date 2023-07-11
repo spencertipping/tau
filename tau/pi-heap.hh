@@ -48,8 +48,9 @@ Tn struct ηoc<πh&> final
 {
   ηoc(πh &h_) : h(h_), b(πh_b(h_)), s(0) {}
 
-  bool   expired() { return false; }
+  bool   expired() const { return false; }
   void   abort  ();
+  void   abandon();
   void   commit (uN n);
   Sn<u8> iptr   (uN n);
 
@@ -76,7 +77,7 @@ protected:
 // parent data is not referred to.
 struct πh final
 {
-  πh(uN hr = 1048576) : r_{0, 0, 0, 0}, s_(0), gs_(0), hr_(hr),
+  πh(uN hr = 1048576) : r_{0, 0, 0, 0}, ri_(false), s_(0), gs_(0), hr_(hr),
                         hn_(nullptr), ls_(0)
     { h_.reserve(hr); }
 
@@ -109,9 +110,10 @@ struct πh final
   // Called during operator<< to set the πhr of the value being written.
   // We don't always know this up front because GC can happen during a write,
   // which will rearrange the heap and change the result.
-  void ref(πhr const &r) { A(r, "πh::ref(null)"); r_ = r; }
+  void ref(πhr const &r) { A(!ri_, "πh::ref collision"); r_ = r; ri_ = true; }
   πhr  ref()
-    { A(r_, "πh::ref() with null stored value");
+    { A(ri_, "πh::ref() with no stored value");
+      ri_ = false;
       let r = r_;
       r_.clear();
       return r; }
@@ -136,6 +138,7 @@ struct πh final
 protected:
   B       h_;   // current heap
   πhr     r_;   // last reference committed to heap
+  bool    ri_;  // do we have a ref
   uN      s_;   // live-set size
   uN      gs_;  // number of GCs
   uNc     hr_;  // headroom for new heap sizes
