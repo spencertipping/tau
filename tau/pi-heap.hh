@@ -84,8 +84,7 @@ struct πh final
   // Read a value from the heap. Note that the result is not auto-updated
   // during GC, so you'll need to re-create the ηi if a GC may have happened.
   ηi operator[](πhr const &r) const
-    { A(r, "πh[null]");
-      return ηi{h_.data() + r.o + r.i, r.il}; }
+    { return !r ? ηi{} : ηi{h_.data() + r.o + r.i, r.il}; }
 
   // Refer to a ηi already on the heap and contained within a heap ref; that is,
   // create an inner reference.
