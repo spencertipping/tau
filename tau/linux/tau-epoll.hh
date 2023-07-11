@@ -66,7 +66,7 @@ struct τe : public τb
   // Set nonblocking status for a FD, returning the FD. This is done
   // automatically when a FD is added to the epoll_wait set.
   static fd_t nb(fd_t fd)
-    { fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
+    { fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK | O_CLOEXEC);
       return fd; }
 
 

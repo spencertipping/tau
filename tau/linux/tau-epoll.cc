@@ -152,7 +152,7 @@ void τe::term()
         let e = evs[i].events;
 
         // ERR overrides OUT -- don't write if sigpipe
-        // IN overrides HUP -- HUP doens't preclude data being available
+        // IN overrides HUP -- HUP doesn't preclude data being available
         if (e & (EPOLLIN  | EPOLLHUP)) g->r.w(  e & EPOLLIN);
         if (e & (EPOLLERR | EPOLLOUT)) g->w.w(!(e & EPOLLERR));
         if (e & EPOLLERR)              g->e.w(true);

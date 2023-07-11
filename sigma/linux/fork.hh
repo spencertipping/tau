@@ -13,6 +13,7 @@ using namespace τ;
 
 Ξ τfork2(Γa<Γ>, Ξc&);
 Ξ τfork4(Γa<Γ>, Ξc&);
+Ξ fork_exec(Vc<St>&, Ξc&);
 
 void Γfork(Γφ&);
 

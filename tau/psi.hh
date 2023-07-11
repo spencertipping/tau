@@ -33,9 +33,11 @@ struct ψ_ final
   St               n_;   // name for debugging purposes
   M<St, F<Ξ(Ξc&)>> cs_;  // connection functions
 
+  // FIXME: ψs should register against τ so τ can destroy them
+
   ψ_(τe &t)       : t_(t)        { ψc_(this); }
   ψ_(τe &t, St n) : t_(t), n_(n) { ψc_(this); }
-  ~ψ_()               { destroy(); ψx_(this); }
+  ~ψ_()          { soft_destroy(); ψx_(this); }
 
   τe &t() const { return t_; }
 
@@ -44,9 +46,13 @@ struct ψ_ final
 
   Ξ connect(Stc &port, Ξc &x)
     { A(cs_.contains(port), n_ << " does not bind " << port);
-      return cs_[port](x); }
+      return cs_.at(port)(x); }
 
-  void destroy();
+  // Destroy and run fx callbacks: this is like SIGTERM
+  void soft_destroy();
+
+  // Destroy with no callbacks: like SIGKILL
+  void hard_destroy();
 };
 
 

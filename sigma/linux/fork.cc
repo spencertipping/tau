@@ -19,7 +19,8 @@ P<fd_t, fd_t> pipe_()
 void Γfork(Γφ &g)
 {
   g .def_g("P2", τfork2)
-    .def_g("P4", τfork4);
+    .def_g("P4", τfork4)
+    .def_g("x",  fork_exec);
 }
 
 
@@ -124,6 +125,41 @@ static Γ wqf(fd_t f, Ψd d = Ψd::f)
     let l = wqf(fiW) | rqf(boR, Ψd::b);
     let r = rqf(foR) | wqf(biW, Ψd::b);
     return (l | r)(x);
+  }
+}
+
+
+// Fork to external process
+Ξ fork_exec(Vc<St> &argv, Ξc &x)
+{
+  // NOTE: these variables are from the child's perspective;
+  // that is, fo means "child's forward out"
+  let [fiR, fiW] = pipe_();
+  let [foR, foW] = pipe_();
+
+  let child = x.t().fork();
+  A(child != -1, "fork_exec(" << argv.front() << ") failed: " << strerror(errno));
+
+  if (!child)
+  {
+    // Important: epoll() does weird things if we dup2() even from a child process.
+    // We must detach all epoll FDs here to avoid interfering with the parent.
+    x.t().detach();
+    x.t().clear();
+    close(fiW); close(foR);
+    if (fiR != 0) close(0), A(dup2(fiR, 0) != -1, "dup2(fiR, 0) failed"), close(fiR);
+    if (foW != 1) close(1), A(dup2(foW, 1) != -1, "dup2(foW, 1) failed"), close(foW);
+    ch **argv_;
+    argv_ = new ch*[argv.size() + 1];
+    for (let i : ι(argv.size())) argv_[i] = Cc<ch*>(argv[i].c_str());
+    argv_[argv.size()] = nullptr;
+    execvp(argv.front().c_str(), argv_);
+    exit(1);
+  }
+  else
+  {
+          close(fiR); close(foW);
+    return (ΓwF(fiW) |  ΓrF(foR))(x);
   }
 }
 

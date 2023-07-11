@@ -26,11 +26,10 @@ template<bool C, class I, class O> struct Ψauto__;
 template<bool C, class... Is, class... Os>
 struct Ψauto__<C, T<Is...>, T<Os...>>
 {
-  // NOTE: ψ args are all passed by-value, so we don't need to forward anything here
   Tt static auto f(T &&f)
     {
-      if constexpr (C) return [f=mo(f)](Os... os) { return Ψc([=, &f](Is... is) { f(os..., is...); }); };
-      else             return [f=mo(f)](Os... os) { return Ψ ([=, &f](Is... is) { f(os..., is...); }); };
+      if constexpr (C) return [f=mo(f)](Os... os) { return Ψc([=, &f](Is&&... is) { f(os..., std::forward<Is>(is)...); }); };
+      else             return [f=mo(f)](Os... os) { return Ψ ([=, &f](Is&&... is) { f(os..., std::forward<Is>(is)...); }); };
     }
 };
 

@@ -22,12 +22,26 @@ namespace τ
 #endif
 
 
-void ψ_::destroy()
+void ψ_::soft_destroy()
 {
+  for (let &f : df_) f(*this);
+  hard_destroy();
+}
+
+
+void ψ_::hard_destroy()
+{
+  // NOTE: two destinations for this λ depending on where it came from.
+  // If we created it, then it should return once it's done with whatever
+  // destruction it's doing here. We should let it live because it may be
+  // chain-destructing other ψs.
+  //
+  // If someone else created it, then we should let it live because it's
+  // deallocating ψs referenced by another ψ.
+
   Λ &l = t_.l();
   for (let  x      : ls_) if (l.e(x) && x != l.i()) l.x(x);
   for (let &[p, _] : cs_)                           t_.unbind(p);
-  for (let &f      : df_)                           f(*this);
   ls_.clear();
   cs_.clear();
   df_.clear();

@@ -11,8 +11,20 @@ $ bin/gamma-fast
 500500
 50005000
 110
+```
+
+Some fork tests:
+
+```bash
 $ diff <(bin/sigma-fast 'n4 P2px+1 M?F') <(seq 1 4)
 $ diff <(bin/sigma-fast 'n4 P2px+1 P2px+1 M?F') <(seq 2 5)
 $ diff <(bin/sigma-fast 'n4 P4px+1 P4px+1 P2px+1 M?F') <(seq 3 6)
 $ diff <(bin/sigma-fast 'n4000 P4px+1 P4px+1 P2px+1 M?F') <(seq 3 4002)
+```
+
+And some fork/exec tests:
+
+```bash
+$ diff <(bin/sigma-fast 'n0x["/bin/seq" "100"] x["/bin/cat"] >F1') <(seq 100)
+$ diff <(bin/sigma-fast 'n0x["/bin/seq" "100"] x["/bin/cat"] x["/bin/cat"] >F1') <(seq 100)
 ```

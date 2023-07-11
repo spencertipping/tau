@@ -44,8 +44,8 @@ void λm(λbc::continuation &&cc)
 
 void λ::fin()
 {
-  assert(!done());
-  assert(!λmi);
+  A(!done(), "fin() called on done λ");
+  A(!λmi,    "fin() called on main λ");
   is_done = true;
   if (k) { delete k; k = nullptr; }
 }
@@ -53,8 +53,8 @@ void λ::fin()
 
 λ &λ::operator()()
 {
-  assert(!done());
-  assert(λmi);
+  A(!done(), "λ called after fin()");
+  A(λmi,     "λ called not from main");
 
   λmi = false;
   if (!k)
@@ -85,8 +85,8 @@ void λ::fin()
 
 void λy()
 {
-  assert(!λmi);
-  assert(*λmk());
+  A(!λmi,   "λy() from main");
+  A(*λmk(), "λy() with no main continuation");
   **λmk() = (*λmk())->resume();
 }
 
