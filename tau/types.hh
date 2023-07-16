@@ -26,6 +26,12 @@ using namespace std::literals;
 using namespace std::placeholders;
 
 
+typedef Ar<u8, 28> h224;
+typedef Ar<u8, 32> h256;
+typedef Ar<u8, 48> h384;
+typedef Ar<u8, 64> h512;
+
+
 #if !τuse_nonvolatile_sharedptr
   template<class... T> using Sp = std::shared_ptr<T...>;
   template<class... T> using Wp = std::weak_ptr<T...>;
