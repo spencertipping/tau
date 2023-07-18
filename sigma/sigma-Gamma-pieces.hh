@@ -14,6 +14,7 @@ void πshared_η(πφ&);
 void πshared_cmp(πφ&);
 void πshared_list(πφ&);
 void πshared_map(πφ&);
+void πshared_string(πφ&);
 
 
 }

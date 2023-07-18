@@ -31,3 +31,6 @@
 [submodule "dep/boost-core"]
 	path = dep/boost-core
 	url = https://github.com/boostorg/core
+[submodule "dep/cppcodec"]
+	path = dep/cppcodec
+	url = https://github.com/tplgy/cppcodec
