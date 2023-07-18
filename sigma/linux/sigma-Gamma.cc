@@ -1,3 +1,4 @@
+#include <fstream>
 #include <unistd.h>
 
 #include "../../sigma.hh"
@@ -19,6 +20,15 @@ void Γnative(Γφ &g)
   Γfork(g);
   Γio(g);
   Γhttp(g);
+
+  // Compile-time file IO
+  g.def_g("$<", [&](Stc &f, Ξc &x)
+    { std::ifstream f_(f);
+      A(f_, "could not open file " << f);
+      let s = St{std::istreambuf_iterator<char>(f_), std::istreambuf_iterator<char>()};
+      let r = g.parse(s);
+      A(r.is_a(), "could not parse file " << f << ": error at position " << r.j << ", here: -->|" << s.substr(r.j) << "|<--");
+      return r.r()(x); });
 }
 
 
