@@ -74,6 +74,17 @@ $ bin/sigma-fast 'n1p||- 1 2 3;M?F'
 τ
 ```
 
+Testing a failure case:
+
+```bash
+$ bin/sigma-fast 'n1px##TEST "a" "b"; M?F'
+TEST: 0 a b
+0
+$ bin/sigma-fast 'n1px##iTEST 56 "78"; M?F'
+iTEST: 0 56 78
+0
+```
+
 
 ## Proximal and distal values
 `x` and `y` are variables meaning "this" and "that", respectively. Unary contexts use `x` alone, whereas binary contexts (like sort comparators or key/value loops) use both.

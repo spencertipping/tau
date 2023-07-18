@@ -9,6 +9,7 @@
 #include "pi-phi-markers.hh"
 #include "begin.hh"
 
+
 namespace τ
 {
 
@@ -137,7 +138,7 @@ Tn             struct πauto1_<πhr>     { static auto f(πi &i) { return i.pop(
 template<uN N> struct πauto1_<πhr_<N>> { static auto f(πi &i) { return πhr_<N>{}; } };
 
 template<ηauto_decode T> struct πauto1_<T> { static auto f(πi &i) { return ηauto_<T>::v(i.ypop()); } };
-template<is_πv        T> struct πauto1_<T> { static auto f(πi &i) { return T{πauto1_<De<typename T::t>>::f(i)}; } };
+template<is_πv        T> struct πauto1_<T> { static auto f(πi &i) { return De<T>{πauto1_<De<typename De<T>::t>>::f(i)}; } };
 
 
 // Fills arguments for an FFI function, drawing values from the parsed-constant
@@ -243,7 +244,7 @@ Txxs auto πauto_ipush_(T<X, Xs...> const &t)
 {
   // NOTE: here, t contains M<π1>, where M is πsa, πse, or πpe
   static_assert(is_πv_<X>::value);
-  return std::get<sizeof...(Xs)>(t).x | πauto_ipush_(tdrop(t));
+  return πauto_ipush_(tdrop(t)) | std::get<0>(t).x;
 }
 
 

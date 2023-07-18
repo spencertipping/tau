@@ -179,10 +179,12 @@ protected:
 
   template<uS i>
   φr_<Tdrop<i, T<Xs...>>> res(T<φr_<Xs>...> const &xs) const noexcept
-    { let x = std::get<i>(xs); if (x.is_f()) return x.template cast<Tdrop<i, T<Xs...>>>();
+    { let x = std::get<i>(xs);
+      if (x.is_f())                         return x.template cast<Tdrop<i, T<Xs...>>>();
       if constexpr (i + 1 >= sizeof...(Xs)) return x.cast(std::make_tuple(x.r()));
       else
-      { let y = res<i + 1>(xs); if (y.is_f()) return y.template cast<Tdrop<i, T<Xs...>>>();
+      { let y = res<i + 1>(xs);
+        if (y.is_f()) return y.template cast<Tdrop<i, T<Xs...>>>();
         return y.cast(tcons(x.r(), y.r())); } }
 };
 
