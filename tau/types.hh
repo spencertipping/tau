@@ -31,6 +31,26 @@ typedef Ar<u8, 32> h256;
 typedef Ar<u8, 48> h384;
 typedef Ar<u8, 64> h512;
 
+St h_hex(h224 const&);
+St h_hex(h256 const&);
+St h_hex(h384 const&);
+St h_hex(h512 const&);
+
+St h_b64(h224 const&);
+St h_b64(h256 const&);
+St h_b64(h384 const&);
+St h_b64(h512 const&);
+
+h224 hex_h224(Stc&);
+h256 hex_h256(Stc&);
+h384 hex_h384(Stc&);
+h512 hex_h512(Stc&);
+
+h224 b64_h224(Stc&);
+h256 b64_h256(Stc&);
+h384 b64_h384(Stc&);
+h512 b64_h512(Stc&);
+
 
 #if !τuse_nonvolatile_sharedptr
   template<class... T> using Sp = std::shared_ptr<T...>;

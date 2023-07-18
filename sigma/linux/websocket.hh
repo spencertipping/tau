@@ -2,7 +2,7 @@
 #define σlinux_websocket_h
 
 #include "../../sigma.hh"
-#include "../string.hh"
+#include "../sigma-pi-string.hh"
 #include "../begin.hh"
 
 namespace σ

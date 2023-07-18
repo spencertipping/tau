@@ -1,7 +1,5 @@
 #include "platform.hh"
-#include "json.hh"
 #include "quote.hh"
-#include "string.hh"
 #include "sigma-Gamma-pieces.hh"
 #include "begin.hh"
 
@@ -41,9 +39,6 @@ void Γshared(Γφ &g)
 
 void πshared(πφ &p)
 {
-  πjson(p);
-  πstring(p);
-
   πshared_atom(p);
   πshared_int(p);
   πshared_float(p);
