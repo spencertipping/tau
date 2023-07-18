@@ -28,6 +28,7 @@ Tt concept πautometa  = πautoclass_<De<T>>::c == πautoclass::meta;
 Tt concept πautoconst = πautoclass_<De<T>>::c == πautoclass::constant;
 Tt concept πautoimmed = πautoclass_<De<T>>::c == πautoclass::immediate;
 Tt concept πautostack = πautoclass_<De<T>>::c == πautoclass::stack;
+Tt concept πautounknown = !πautometa<T> && !πautoconst<T> && !πautoimmed<T> && !πautostack<T>;
 
 template<>     struct πautoclass_<πi>      { sletc c = πautoclass::meta; };
 template<uN N> struct πautoclass_<πhr_<N>> { sletc c = πautoclass::meta; };
@@ -109,6 +110,21 @@ template<πautostack X, class... Xs> struct πautoclassify_<X, Xs...>
   static_assert(std::tuple_size_v<C> == 0, "const arg after stack");
   static_assert(std::tuple_size_v<I> == 0, "immed arg after stack");
 };
+
+
+// Unknowns will be treated as constants
+template<πautounknown X, class... Xs> struct πautoclassify_<X, Xs...>
+{
+  using M = typename πautoclassify_<Xs...>::M;
+  using C = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::C>::t;
+  using I = typename πautoclassify_<Xs...>::I;
+  using S = typename πautoclassify_<Xs...>::S;
+  using P = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::P>::t;
+
+  // No meta args may come after const
+  static_assert(std::tuple_size_v<M> == 0, "meta arg after const [inferred from unknown]");
+};
+
 
 
 // Fill a single native function argument -- it will be a meta, immediate,
