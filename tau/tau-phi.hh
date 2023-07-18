@@ -22,6 +22,15 @@ Tt struct φrbrace { T x; };  // a thing terminated by a right-brace
 struct φig {};  // ignored thing, e.g. whitespace/comments
 
 
+O &operator<<(O&, φig);
+O &operator<<(O&, φident const&);
+O &operator<<(O&, φword  const&);
+
+Tt O &operator<<(O &s, φrbrack<T> const& x) { return s << "φrbrack" << x.x; }
+Tt O &operator<<(O &s, φrparen<T> const& x) { return s << "φrparen" << x.x; }
+Tt O &operator<<(O &s, φrbrace<T> const& x) { return s << "φrbrace" << x.x; }
+
+
 // Built-in language elements
 φ<St> φws_();  // whitespace
 φ<St> φlc_();  // line comment

@@ -5,6 +5,11 @@ namespace τ
 {
 
 
+O &operator<<(O &s, φig)             { return s << "φig"; }
+O &operator<<(O &s, φident const &x) { return s << x.x; }
+O &operator<<(O &s, φword  const &x) { return s << x.x; }
+
+
 φ<St> φws_() { slet r = φcs(" \t\n\r", false, 1);                      return r; }
 φ<St> φlc_() { slet r = φq("lc", φl("# ", ""), φcs("\n", true));       return r; }
 φ<St> φig_() { slet r = φq("ign", φn(φa<St>("ign0", φws_(), φlc_()))); return r; }
