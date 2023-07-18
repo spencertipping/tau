@@ -53,12 +53,21 @@ $ bin/sigma-fast "n3p['a x+1'b5]:'a;M?F"
 1
 2
 3
-$ bin/sigma-fast 'n1p"a" "b"@<< 1 2 3;M?F'
+$ bin/sigma-fast 'n1p"a" "b" |- 1 2 3;M?F'
 "a" "b" 1
 "a" "b" 2
 "a" "b" 3
 τ
-$ bin/sigma-fast 'n1p@_@<< 1 2 3;M?F'
+$ bin/sigma-fast 'n1p"a" "b"-|1 2 3;M?F'
+"a" 1 2 3
+"b" 1 2 3
+τ
+$ bin/sigma-fast 'n1p@_|- 1 2 3;M?F'
+1
+2
+3
+τ
+$ bin/sigma-fast 'n1p||- 1 2 3;M?F'
 1
 2
 3
