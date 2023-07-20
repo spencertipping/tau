@@ -169,6 +169,13 @@ auto ηvauto(F const &f)
 }
 
 
+// Extract a ηi into a structured tuple
+Txs T<Xs...> ηT(ηic &i)
+{
+  return ηauto_<T<Xs...>>::v(i);
+}
+
+
 }
 
 #include "end.hh"

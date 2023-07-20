@@ -9,7 +9,7 @@
 + [σ/π stdlib](sigma-pi-stdlib.md)
 
 ```bash
-$ bin/sigma-fast 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M? F'
+$ bin/sigma-fast 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M?>_'
 0 false (0 false) (0 2 0 1) 1
 1 false (1 false) (1 3 1 2) 2
 2 true (2 false) (2 4 2 3) 3
@@ -20,19 +20,19 @@ $ bin/sigma-fast 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M? F'
 7 true (7 true) (7 9 7 8) 8
 8 true (8 true) (8 10 8 9) 9
 9 true (9 true) (9 11 9 10) 10
-$ bin/sigma-fast 'n3 p[[x]+1] M? F'
+$ bin/sigma-fast 'n3 p[[x]+1] M?>_'
 1
 2
 3
-$ bin/sigma-fast 'n3 px [x]+1; M? F'
+$ bin/sigma-fast 'n3 px [x]+1; M?>_'
 0 1
 1 2
 2 3
-$ bin/sigma-fast 'n3 px`x+1`x+2 x; M?F'
+$ bin/sigma-fast 'n3 px`x+1`x+2 x; M?>_'
 2 0
 3 1
 4 2
-$ bin/sigma-fast 'n3 pfoo=x+1;$foo+1; M?F'
+$ bin/sigma-fast 'n3 pfoo=x+1;$foo+1; M?>_'
 2
 3
 4
@@ -41,33 +41,33 @@ $ bin/sigma-fast 'n3 pfoo=x+1;$foo+1; M?F'
 A few more tests:
 
 ```bash
-$ bin/sigma-fast 'n3 pfoo=x+1 x+2 x<1;$foo $foo; M?F'
+$ bin/sigma-fast 'n3 pfoo=x+1 x+2 x<1;$foo $foo; M?>_'
 1 2 true 1 2 true
 2 3 false 2 3 false
 3 4 false 3 4 false
-$ bin/sigma-fast 'n1p[1 @(2 3)] M?F'
+$ bin/sigma-fast 'n1p[1 @(2 3)] M?>_'
 1 2 3
-$ bin/sigma-fast 'n1p1@(2 3);M?F'
+$ bin/sigma-fast 'n1p1@(2 3);M?>_'
 1 2 3
-$ bin/sigma-fast "n3p['a x+1'b5]:'a;M?F"
+$ bin/sigma-fast "n3p['a x+1'b5]:'a;M?>_"
 1
 2
 3
-$ bin/sigma-fast 'n1p"a" "b" |- 1 2 3;M?F'
+$ bin/sigma-fast 'n1p"a" "b" |- 1 2 3;M?>_'
 "a" "b" 1
 "a" "b" 2
 "a" "b" 3
 τ
-$ bin/sigma-fast 'n1p"a" "b"-|1 2 3;M?F'
+$ bin/sigma-fast 'n1p"a" "b"-|1 2 3;M?>_'
 "a" 1 2 3
 "b" 1 2 3
 τ
-$ bin/sigma-fast 'n1p@_|- 1 2 3;M?F'
+$ bin/sigma-fast 'n1p@_|- 1 2 3;M?>_'
 1
 2
 3
 τ
-$ bin/sigma-fast 'n1p||- 1 2 3;M?F'
+$ bin/sigma-fast 'n1p||- 1 2 3;M?>_'
 1
 2
 3
@@ -77,10 +77,10 @@ $ bin/sigma-fast 'n1p||- 1 2 3;M?F'
 Testing a failure case:
 
 ```bash
-$ bin/sigma-fast 'n1px##TEST "a" "b"; M?F'
+$ bin/sigma-fast 'n1px##TEST "a" "b"; M?>_'
 TEST: 0 a b
 0
-$ bin/sigma-fast 'n1px##iTEST 56 "78"; M?F'
+$ bin/sigma-fast 'n1px##iTEST 56 "78"; M?>_'
 iTEST: 0 56 78
 0
 ```

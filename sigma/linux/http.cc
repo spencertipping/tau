@@ -63,7 +63,8 @@ void http_res_loop(ξi i, ξo o)
   for (auto x : i)
     if (x.is_i() && x.has_next())  // structured reply
     {
-      Ss r; r << "HTTP/1.1 " << x.i() << " " << x.next().s() << "\r\n";
+      let [code, msg] = ηT<i64, St>(x);
+      Ss r; r << "HTTP/1.1 " << code << " " << msg << "\r\n";
       ηi h = x.next().next();
       while (h.has_next())
       {

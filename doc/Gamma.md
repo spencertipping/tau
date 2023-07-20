@@ -16,10 +16,10 @@ $ bin/gamma-fast
 Some fork tests:
 
 ```bash
-$ diff <(bin/sigma-fast 'n4 P2px+1 M?F') <(seq 1 4)
-$ diff <(bin/sigma-fast 'n4 P2px+1 P2px+1 M?F') <(seq 2 5)
-$ diff <(bin/sigma-fast 'n4 P4px+1 P4px+1 P2px+1 M?F') <(seq 3 6)
-$ diff <(bin/sigma-fast 'n4000 P4px+1 P4px+1 P2px+1 M?F') <(seq 3 4002)
+$ diff <(bin/sigma-fast 'n4 P2px+1 M?>_') <(seq 1 4)
+$ diff <(bin/sigma-fast 'n4 P2px+1 P2px+1 M?>_') <(seq 2 5)
+$ diff <(bin/sigma-fast 'n4 P4px+1 P4px+1 P2px+1 M?>_') <(seq 3 6)
+$ diff <(bin/sigma-fast 'n4000 P4px+1 P4px+1 P2px+1 M?>_') <(seq 3 4002)
 ```
 
 And some fork/exec tests:

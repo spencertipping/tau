@@ -11,6 +11,8 @@ Aux connections include:
 + `monitor`: an output ξ used for debug/monitor info (like UNIX `stderr`)
 + `control`: an input ξ used for async control commands (like UNIX signals)
 
+Either of these aux connections may be disconnected, so Ψ components must function whether or not they are present.
+
 Dynamic topologies like multiplexers don't involve Ψs; they're handled directly by Γ.
 
 

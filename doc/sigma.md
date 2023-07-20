@@ -24,11 +24,10 @@ First an overall map of which characters are mapped to which tables. Numbers rep
 
 ```
 sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
-Γ/Ψ     ΓΓ0 00   22 Γ2200002444S      22022  0 2 22222222
+Γ/Ψ     ΓΓ  00   22 Γ2211112444S      22022  0 2 22222222
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-Γ/Ψ   4SΓ22Γ ΓΓ2ΓΓ2ΓΓΓΓΓΓ 222  Γ2 4 4
-Γ/Ψ                        10
+Γ/Ψ   4SΓ22Γ ΓΓ2ΓΓ2ΓΓΓΓΓΓ 2**2 Γ2 424
 ```
 
 
@@ -59,14 +58,14 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | Symbol | Syntax | Description          |
 |--------|--------|----------------------|
 | `>F`   | fd     | write to FD          |
-| `F`    |        | consume data forever |
+| `>_`   |        | consume data forever |
 
 
 ### Ψ₁ table
 | Symbol | Notes | Description                    |
 |--------|-------|--------------------------------|
 | `<F`   | fd    | read from FD                   |
-| `f`    |       | wait forever, write nothing    |
+| `<_`   |       | wait forever, write nothing    |
 | `i`    | π     | η identity out                 |
 | `I`    | π     | η repeated out                 |
 | `n`    |       | ι                              |
@@ -110,8 +109,9 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `^`     | Γ     | τ-group prepend                          |
 | `%`     | Γ     | Γ union (eager interleave)               |
 | `-`     |       | identity passthrough                     |
-| `,`     |       | cut stream                               |
+| `,`     |       | break stream                             |
 | `;`     | Γ     | splice Ψ4 to Ψ2                          |
+| `?`     | P     | incremental search prefix                |
 
 
 ### Ψ₄ full-duplex table

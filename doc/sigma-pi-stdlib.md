@@ -35,14 +35,14 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 
 ## Examples
 ```bash
-$ diff <(bin/sigma-fast 'n10M?F') <(seq 0 9)
+$ diff <(bin/sigma-fast 'n10M?>_') <(seq 0 9)
 ```
 
 These cases fail while I'm reworking the pi grammar:
 
 ```bash
-$ diff <(bin/sigma-fast 'n10p[x+1]M?F') <(seq 10)
-$ diff <(bin/sigma-fast ':foo [n10p[x+1]] :bar [n20] $foo M?F') <(seq 10)
+$ diff <(bin/sigma-fast 'n10p[x+1]M?>_') <(seq 10)
+$ diff <(bin/sigma-fast ':foo [n10p[x+1]] :bar [n20] $foo M?>_') <(seq 10)
 ```
 
 

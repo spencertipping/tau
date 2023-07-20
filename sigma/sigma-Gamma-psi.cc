@@ -10,12 +10,12 @@ using namespace τ;
 
 void Γshared_ψ(Γφ &g)
 {
-  g .def_p0("F", [](            ξi i) { for (let x : i) (void) x; })
+  g .def_p0(">_", [](            ξi i) { for (let x : i) (void) x; })
 
-    .def_p1("f", [](       ψ q, ξo o) { τe &t = q.t(); while (1) t.dt(now() + 1s); })
-    .def_p1("i", [](ηm  x,      ξo o) { o.r(x.lsize()) << x.all(); })
-    .def_p1("I", [](ηm  x,      ξo o) { while (o) o.r(x.lsize()) << x.all(); })
-    .def_p1("n", [](i64 x,      ξo o) { for (i64 i = 0; i < x; ++i) o.r() << i; })
+    .def_p1("<_", [](       ψ q, ξo o) { τe &t = q.t(); while (1) t.dt(now() + 1s); })
+    .def_p1("i",  [](ηm  x,      ξo o) { o.r(x.lsize()) << x.all(); })
+    .def_p1("I",  [](ηm  x,      ξo o) { while (o) o.r(x.lsize()) << x.all(); })
+    .def_p1("n",  [](i64 x,      ξo o) { for (i64 i = 0; i < x; ++i) o.r(12) << i; })
 
     .def_p2(",",   [](          ξi i, ξo o) {})
     .def_p2("-",   [](          ξi i, ξo o) { for (let x : i) o << x; })

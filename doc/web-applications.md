@@ -43,9 +43,5 @@ HTTP ↔ demux ↔ OT[canonical state] ↔ DB
 Each inbound request will be annotated by the HTTP server component with its path and headers. The auth Γ will additionally tag it with user and session information. So we'll end up with an η that looks something like this:
 
 ```
-path:"/api/foo"
-method:"GET"
-user:"foo"
-session:"aGjDuqz4w+SIJzejTNXAS7wyKrC0OJ+q/AjybiYJfn0="
-headers:(...)
+"GET" "/api/foo" u:"foo" s:"aGjDuqz..." h:(...)
 ```
