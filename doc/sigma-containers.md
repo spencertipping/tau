@@ -25,29 +25,32 @@ Q>S"foo.db:pq"  # sqlite-backed max-priority queue
 Maps store key/value associations, sets remember whether an element has been inserted or not. Sets have the following API:
 
 ```
-α x → s   ⇒ x|s     # insert into set
-ω x → x|s ⇒ s       # delete from set (not always supported)
-ι x → s   ⇒ s → e?  # check for element existence
-τ   → s   ⇒ () → τ  # clear set
+α x   → s   ⇒ x|s           # insert into set
+ω x   → x|s ⇒ s             # delete from set (not always supported)
+ι x   → s   ⇒ s → e?        # check for element existence
+ρ x y → s   ⇒ s → τ[x...y]  # range query (not always supported)
+τ     → s   ⇒ () → τ        # clear set
 ```
 
 Maps are similar:
 
 ```
-α k v → m       ⇒ {k:v,m}
-ω k   → {k:v,m} ⇒ m
-ι k   → {k:v,m} ⇒ m → v
-τ     → m       ⇒ () → τ
+α k v   → m       ⇒ {k:v,m}
+ω k     → {k:v,m} ⇒ m
+ι k     → {k:v,m} ⇒ m → v
+ρ k₁ k₂ → m       ⇒ m → τ[k₁ ... k₂]  # range query (not always supported)
+τ       → m       ⇒ () → τ
 ```
 
 Finally we have multimaps:
 
 ```
-α k v → m                    ⇒ {k:v,m}
-ω k v → {k:v,m}              ⇒ m
-ω k   → {k:v₁, k:v₂, ..., m} ⇒ m
-ι k   → {k:v₁, k:v₂, ..., m} ⇒ m → τ[v₁, v₂, ...]
-τ     → m                    ⇒ () → τ
+α k v   → m                    ⇒ {k:v,m}
+ω k v   → {k:v,m}              ⇒ m
+ω k     → {k:v₁, k:v₂, ..., m} ⇒ m
+ι k     → {k:v₁, k:v₂, ..., m} ⇒ m → τ[v₁, v₂, ...]
+ρ k₁ k₂ → m                    ⇒ m → τ[k₁ ... k₂]  # range (not always supported)
+τ       → m                    ⇒ () → τ
 ```
 
 Like queues, maps and sets are specified using two suffixes:
