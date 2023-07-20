@@ -54,6 +54,15 @@ Search components are stateless and work as described above:
 2. Define `?` as a Ψ₄, with right-loop gating (basically, _T_ as right loop)
 3. Use input _ι_ signaling to prompt for results
 
+**NOTE:** we'll usually want one of these:
+
+1. The first result
+2. The first _k_ results
+3. Results until _p(n, r)_ is true
+4. All results
+
+We don't need to manage multiple unrelated searches with tight latency bounds, so it should be fine to default to one of these behaviors.
+
 
 ### `?` shorthands
 Not every search requires all components. Depth-first is considerably simpler, omitting `Q`, `A`, and `P`:
