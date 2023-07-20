@@ -5,6 +5,8 @@
 ## Sub-topics
 + [Multiplexers and duplex connections](sigma-multiplex.md)
 + [π standard library](sigma-pi-stdlib.md)
++ [σ search](sigma-search.md)
++ [σ containers](sigma-containers.md)
 
 
 ## Toplevel entities
@@ -27,7 +29,7 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 Γ/Ψ     ΓΓ  00   22 Γ2211112444S      22022  0 2 22222222
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-Γ/Ψ   4SΓ22Γ ΓΓ2ΓΓ2ΓΓΓΓΓΓ 2**2 Γ2 424
+Γ/Ψ   2SΓ22Γ ΓΓ2ΓΓ2ΓΓΓΓΓΓ 2**2 Γ2 424
 ```
 
 
@@ -102,6 +104,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `N`     |       | numeric ϊ                                |
 | `P`     | P     | prefix for parallelism                   |
 | `Q`     |       | prefix for queues/buffers                |
+| `@`     | P     | prefix for maps and sets                 |
 | `<`     | P     | prefix for unboxing                      |
 | `>`     | P     | prefix for boxing                        |
 | `~`     | P     | prefix for delay and rate-limit          |
@@ -118,7 +121,6 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | Symbol | Notes | Description                        |
 |--------|-------|------------------------------------|
 | `'`    |       | dynamic transpose (cross-mix)      |
-| `@`    | P     | prefix for DBs                     |
 | `/`    | P     | platform-specific namespace        |
 | `//`   | P     | synthetic namespace                |
 | `H`    | Γ     | [HTTP+WS server](sigma-http-ws.md) |
