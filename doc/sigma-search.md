@@ -46,8 +46,8 @@ Search components are stateless -- i.e. they don't interact with input _τ_ -- a
 _C₁_, _C₂_, and _Q_ all use standard protocols that are supported by `@` and `Q`. For example, to use SQLite as the node cache and a C++ in-memory priority queue for _Q_:
 
 ```
-?[@Su"cache.db:c1"]  # @Su = sqlite as uniq
- [@S "cache.db:c2"]  # @S  = sqlite as k/v
+?[@?S"cache.db:c1"]  # @Su = sqlite as set
+ [@:S"cache.db:c2"]  # @S  = sqlite as map
  [Q>]                # Q>  = max-priority queue
  ...
 ```

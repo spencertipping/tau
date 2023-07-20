@@ -15,8 +15,9 @@ Queues are constructed using two suffixes: the first specifies the behavior and 
 
 ```
 Q=d1G           # passthrough disk queue sized at 1GiB
-QP              # memory-backed priority queue
-QPS"foo.db:pq"  # sqlite-backed priority queue
+Q>              # memory-backed max-priority queue
+Q<              # memory-backed min-priority queue
+Q>S"foo.db:pq"  # sqlite-backed max-priority queue
 ```
 
 
@@ -30,4 +31,33 @@ Maps store key/value associations, sets remember whether an element has been ins
 τ   → s   ⇒ () → τ  # clear set
 ```
 
-**TODO:** sets and perhaps queues may need to deal with the multiple-user problem, which means we'll want socket connections for them.
+Maps are similar:
+
+```
+α k v → m       ⇒ {k:v,m}
+ω k   → {k:v,m} ⇒ m
+ι k   → {k:v,m} ⇒ m → v
+τ     → m       ⇒ () → τ
+```
+
+Finally we have multimaps:
+
+```
+α k v → m                    ⇒ {k:v,m}
+ω k v → {k:v,m}              ⇒ m
+ω k   → {k:v₁, k:v₂, ..., m} ⇒ m
+ι k   → {k:v₁, k:v₂, ..., m} ⇒ m → τ[v₁, v₂, ...]
+τ     → m                    ⇒ () → τ
+```
+
+Like queues, maps and sets are specified using two suffixes:
+
+```
+@?             # C++ native set
+@:             # C++ native map
+@;             # C++ native multimap
+@B318          # C++ native bloom filter with k=3, #bits=10^18
+@?S"foo.db:t"  # sqlite set
+@:S"foo.db:t"  # sqlite table as map
+@;S"foo.db:t"  # sqlite table as multimap
+```

@@ -48,6 +48,10 @@ auto φauto(A const &a, F const &f)
 // or Gamma-phi.hh for examples.
 template<class A> struct φauto_str
 {
+  template<u64 C> auto p(φaU<C>*) const
+    { return φm(φucs([](u64 x) { return x == C; }, 1, 1),
+                [](auto &&x) { return φaU<C>{C}; }); }
+
   template<char... S> auto p(φaL<S...>*) const
     { return φm(φl(St{S...}), [](auto &&x) { return φaL<S...>{mo(x)}; }); }
 
