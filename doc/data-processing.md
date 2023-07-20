@@ -29,44 +29,22 @@ _C₁_ is necessary because we may visit a node multiple times before any of its
 
 
 ### τ/Γ topology
-In the most general case, `?G[C₁][C₂][Q][D][A][P][R]` is a Ψ₂ that consumes τ-delimited nodes to explore and emits co-τ-delimited _(n', r)_ pairs of results as they are computed. Note that _n ⊆ n'_ here, since _D_ and _A_ will probably expand the set.
+In the most general case, `?C₁C₂QDAPRT` is a Ψ₂ that consumes τ-delimited nodes to explore and emits co-τ-delimited _(n', r)_ pairs of results as they are computed. Note that _n ⊆ n'_ here, since _D_ and _A_ will probably expand the set.
 
 First the data-management components:
 
-+ _C₁_ is a filter: it accepts every _n_ being visited, but emits only _n_ that have not been seen before. _τ_ is forwarded from `?G` input and should reset the cache.
-+ _C₂_ is a filter that takes _n_ and emits _(n, r)_ or _(n, ω)_. _τ_ resets it.
-+ _Q_ is the queue: it should take _(p, n)_ and emit one _(p, n)_ in _p_-descending order per _ι_ signal. _τ_ clears it.
++ _C₁ : Ψ₂_ is a filter: it accepts every _n_ being visited, but emits only _n_ that have not been seen before. _τ_ is forwarded from `?` input and should reset the cache.
++ _C₂ : Ψ₂_ is a filter that takes _n_ and emits _(n, r)_ or _(n, ω)_. _τ_ resets it.
++ _Q : Ψ₂_ is the queue: it should take _(p, n)_ and emit one _(p, n)_ in _p_-descending order per _ι_ signal. _τ_ clears it.
++ _T : Ψ₂_ is the terminal output filter: it takes _(n, r)_ and returns true or false to indicate whether more results should be generated. _τ_ resets it.
 
-Search components are stateless and work as described above:
+Search components are stateless -- i.e. they don't interact with input _τ_ -- and work as described above:
 
-+ _D : n → τ[n']_
-+ _A : n → τ[n']_
-+ _P : n → p_ (this is a π function, not a Γ)
-+ _R : τ[n, (n₁, r₁), ...] → r_
-
-
-### `?` IO
-`?` has a simple interface: initial nodes _n_ go in, _(n', r)_ come out, and _τ_ signals are propagated. However, some use cases are too complex for Ψ₂; for example, suppose we want the first _k_ results from a given search, or we want to produce results until one satisfies a predicate.
-
-**FIXME:** Ψ₂ is insufficient for the above case; we can:
-
-1. Introduce a _T_ terminator Γ
-2. Define `?` as a Ψ₄, with right-loop gating (basically, _T_ as right loop)
-3. Use input _ι_ signaling to prompt for results
-
-**NOTE:** we'll usually want one of these:
-
-1. The first result
-2. The first _k_ results
-3. Results until _p(n, r)_ is true
-4. All results
-
-We don't need to manage multiple unrelated searches with tight latency bounds, so it should be fine to default to one of these behaviors.
++ _D : Ψ₂ :: n → τ[n']_
++ _A : Ψ₂ :: n → τ[n']_
++ _P : Ψ₂ :: n → p_
++ _R : Ψ₂ :: τ[n, (n₁, r₁), ...] → r_
 
 
-### `?` shorthands
-Not every search requires all components. Depth-first is considerably simpler, omitting `Q`, `A`, and `P`:
-
-```
-?D[C₁][C₂][D][R]
-```
+### Shorthands
+**TODO:** start with empirical strategies here
