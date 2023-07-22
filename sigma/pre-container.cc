@@ -48,6 +48,14 @@ struct nsat_ : public virtual at_
   S<ηm> xs;
 };
 
+struct nuat_ : public virtual at_
+{
+  nuat_() : at_(ct_uniq{}, cb_native{}) {}
+  void α(ηic &x, ξo o) override { if (xs.insert(x.one()).second) o << x.one(); }
+  void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
+  S<ηm> xs;
+};
+
 
 struct nmat_ : public virtual at_
 {
@@ -68,6 +76,7 @@ Sp<at_> at(ctype t, cback b)
       [&](ct_prio_min, cb_native) { return Sp<at_>(new nnat_()); },
       [&](ct_prio_max, cb_native) { return Sp<at_>(new nxat_()); },
       [&](ct_set,      cb_native) { return Sp<at_>(new nsat_()); },
+      [&](ct_uniq,     cb_native) { return Sp<at_>(new nuat_()); },
       [&](ct_map,      cb_native) { return Sp<at_>(new nmat_()); }}, t, b);
 }
 

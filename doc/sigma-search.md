@@ -54,8 +54,6 @@ _C₁_, _C₂_, and _Q_ all use standard protocols that are supported by `@` and
 
 Note that it isn't a problem to refer to `cache.db` multiple times; this is managed at the [τ](tau.md) level and will reuse the same connection.
 
-**TODO:** verify that the above _C₂_ and _Q_ protocols make sense; we may want to modify them for more generality along the `@` and `Q` ends
-
 
 ## Shorthands
 **TODO:** start with examples and generalize from there

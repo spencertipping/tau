@@ -17,6 +17,11 @@ $ bin/sigma-fast 'n1p@-(α "a" 11 12)(α 2 3)(ι "a")(ι 2)(ι 5)
 τ
 τ
 τ
+$ bin/sigma-fast 'n1p@- (α 1)(α 2)(α 1)(α 3); @u M?>_'
+1
+2
+3
+τ
 ```
 
 
@@ -55,7 +60,15 @@ Sets remember whether an element has been inserted or not. Sets have the followi
 Sets have some special cases:
 
 + `@B` to create a Bloom filter (see below)
-+ `@u` to create a passthrough filter that emits only unique elements (resets on _τ_)
++ `@u` to create a filter that emits only unique elements (resets on _τ_)
+
+`@u` is a simplified set that works like this:
+
+```
+α x →   s ⇒ x|s → x
+α x → x|s ⇒ x|s
+τ   →   s ⇒ () → τ
+```
 
 
 ## Maps (`@:`)
