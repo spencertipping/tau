@@ -33,7 +33,7 @@ void πshared_atom(πφ &p)
     .def_sa([](φaL<'$'>, φident n)
       { return π1{"$" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
 
-    .def_pe([](φident n, φaL<'='>, πpe<π1> y, πpe<π1> z)
+    .def_pe([](φaL<':'>, φident n, πpe<π1> y, πpe<π1> z)
       { return π1{n.x + "=", [=](πi &i) { y.x(i); i.ms(n.x, i.pop()); z.x(i); }}; })
     ;
 }

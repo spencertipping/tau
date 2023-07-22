@@ -109,6 +109,7 @@ struct ηi final
   bool operator==(Stvc &s_) const { return is_s() && s() == s_; }
   bool operator==(bool  b_) const { return is_b() && b() == b_; }
   bool operator==(i64   i_) const { return is_i() && i() == i_; }
+  bool operator==(ηic  &b_) const { return *this <=> b_ == PO::equivalent; }
 
   bool is_n(Stc  &n_) const { return is_n() && n() == n_; }
   bool is_n(Stvc &n_) const { return is_n() && n() == n_; }

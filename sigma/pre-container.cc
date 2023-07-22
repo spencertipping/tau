@@ -62,7 +62,7 @@ struct nmat_ : public virtual at_
   nmat_() : at_(ct_map{}, cb_native{}) {}
   void α(ηic &x, ξo)   override { xs[x.one()] = x.next(); }
   void ω(ηic &x, ξo)   override { xs.erase(x.one()); }
-  void ι(ηic &x, ξo o) override { if (xs.contains(x.one())) o << xs[x.one()]; else o.r() << ηsig::τ; }
+  void ι(ηic &x, ξo o) override { if (xs.contains(x.one())) o << xs[x.one()]; else o.r() << ηsig::ω; }
   void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   M<ηm, ηm> xs;
 };

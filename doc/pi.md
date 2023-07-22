@@ -32,7 +32,7 @@ $ bin/sigma-fast 'n3 px`x+1`x+2 x; M?>_'
 2 0
 3 1
 4 2
-$ bin/sigma-fast 'n3 pfoo=x+1;$foo+1; M?>_'
+$ bin/sigma-fast 'n3 p:foo x+1;$foo+1; M?>_'
 2
 3
 4
@@ -41,7 +41,7 @@ $ bin/sigma-fast 'n3 pfoo=x+1;$foo+1; M?>_'
 A few more tests:
 
 ```bash
-$ bin/sigma-fast 'n3 pfoo=x+1 x+2 x<1;$foo $foo; M?>_'
+$ bin/sigma-fast 'n3 p:foo x+1 x+2 x<1;$foo $foo; M?>_'
 1 2 true 1 2 true
 2 3 false 2 3 false
 3 4 false 3 4 false
@@ -79,6 +79,10 @@ $ bin/sigma-fast 'n1p@- (1 2) (3) (4 5 6);M?>_'
 τ
 $ bin/sigma-fast 'n1p@-(1 2)(3)(4 5 6); p>@; M?>_'
 ((1 2) (3) (4 5 6))
+$ bin/sigma-fast 'n1p#=3 1 2 3 4 5 4 3 2 1; M?>_'
+2
+$ bin/sigma-fast 'n1p#=(3) (1 2) (3) (4 5) 4 (3 2) 1; M?>_'
+1
 ```
 
 Testing a failure case:

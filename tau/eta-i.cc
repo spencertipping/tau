@@ -7,14 +7,14 @@ namespace τ
 
 PO ηscmp(ηi a, ηi b)
 {
-  for (;; ++a, ++b)
+  for (; a && b; ++a, ++b)
   {
     let c = a <=> b;
-    if (c != PO::equivalent)            return c;
-    if (!a.has_next() && !b.has_next()) return PO::equivalent;
-    if (!a.has_next())                  return PO::less;
-    if (!b.has_next())                  return PO::greater;
+    if (c != PO::equivalent) return c;
   }
+  if (!a && !b) return PO::equivalent;
+  if (!a)       return PO::less;
+  else          return PO::greater;
 }
 
 
@@ -38,6 +38,10 @@ PO ηscmp(ηi a, ηi b)
 
 PO ηi::operator<=>(ηic &x) const
 {
+  if (!*this && !x) return PO::equivalent;
+  if (!*this)       return PO::less;
+  if (!x)           return PO::greater;
+
   let tc = t() <=> x.t();
   if (tc != SO::equal) return tc;
   switch (t())

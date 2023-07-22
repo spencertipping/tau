@@ -43,16 +43,17 @@ Search components are stateless -- i.e. they don't interact with input _τ_ -- a
 
 Here's the overall Γ topology created by `?`:
 
-**TODO**
+**TODO:** there are major problems with this strategy; even if we union _ι_ markers into _Q_, we still have a lot of awkwardness around _C₂_ and deciding whether the _D_ group is fully evaluated. Further, how do we associate _n_ in these cases? It may not be possible to define a streaming search algorithm like this.
 
 ```
-i A K α. C₁ pP q
-
+let qi = A K α.C₁ p|P  # data input to queue
+let qo = ...           # dequeued outputs
+let c  = qo D ι.C₂ p:a>@x;[#=τ$a]?α$a:...
 ```
 
 
 ## Caching and databases
-_C₁_, _C₂_, and _Q_ all use standard protocols that are supported by `@` and `Q`. For example, to use SQLite as the node cache and a C++ in-memory priority queue for _Q_:
+_C₁_, _C₂_, and _Q_ all use standard protocols that are supported by `@`. For example, to use SQLite as the node cache and a C++ in-memory priority queue for _Q_:
 
 ```
 ?[@uS"cache.db:c1"]  # @uS = sqlite as uniq-set
