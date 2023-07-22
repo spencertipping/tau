@@ -7,6 +7,7 @@ The goal is to generalize breadth-first, depth-first, and prioritized searches i
 2. It has one-to-many outputs
 3. It may be stateful/convergent if we cache intermediates
 4. We can break it into pieces, and we almost certainly should (!)
+5. Search and traversal do not mix; i.e. they are not the same process (!)
 
 
 ## Core compute logic
