@@ -2,6 +2,9 @@
 As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures -- follow some conventions to simplify interfacing with other components. The set of operators depends on the structure.
 
 
+**TODO:** place keys ahead of signals, so signals are not interpreted literally; otherwise they will conflict with signals-as-flow-control
+
+
 ## Queues (`Q`)
 FIFO queues are either passthrough or gated. Passthrough queues don't have a visible interface; they're just 1:1 against their inputs. Gated queues can be cleared and await advancement signals to emit elements. They often reorder their elements, e.g. by priority. The API works like this:
 
