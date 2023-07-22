@@ -60,7 +60,7 @@ PO ηi::operator<=>(ηic &x) const
   case ηtype::float32s: return f32s() <=> x.f32s();
   case ηtype::float64s: return f64s() <=> x.f64s();
 
-  case ηtype::η: return ηscmp(*this, x);
+  case ηtype::η: return ηscmp(η(), x.η());
 
   default: return PO::unordered;
   }
