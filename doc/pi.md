@@ -72,6 +72,11 @@ $ bin/sigma-fast 'n1p||- 1 2 3;M?>_'
 2
 3
 τ
+$ bin/sigma-fast 'n1p@- (1 2) (3) (4 5 6);M?>_'
+1 2
+3
+4 5 6
+τ
 ```
 
 Testing a failure case:

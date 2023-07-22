@@ -64,13 +64,14 @@ template<class A> struct φauto_str
 
   // Homogeneous alternation
   Txs auto p(φaA<Xs...>*) const
-    { return φm(φa("φaA<...>", Rc<A*>(this)->p(null<Xs>())...),
+    { return φm(φa("φaA<...>", Rc<A const*>(this)->p(null<Xs>())...),
                 [](auto &&x) { return φaA<Xs...>{mo(x)}; }); }
 
   // Heterogeneous alternation
   Txs auto p(Va<Xs...>*) const
-    { return φm(φa("Va<...>", Rc<A*>(this)->p(null<Xs>())...),
-                [](auto &&x) { return Va<Xs...>{mo(x)}; }); }
+    { using T = Va<Xs...>;
+      return φa("Va<...>", φm(Rc<A const*>(this)->p(null<Xs>()),
+                              [](auto &&x) { return T{mo(x)}; })...); }
 };
 
 

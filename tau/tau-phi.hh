@@ -73,6 +73,7 @@ Tt φ<T> φbrace(φ<T> p) { return φ2("{}", φlB_(), φwrap(p), φrB_()); }
 
 template<class A> struct φlit
 {
+  auto p(u64*) const { return φint_() * [](i64 x) { return u64(x); }; }
   auto p(i64*) const { return φint_(); }
   auto p(i32*) const { return φm(Sc<A const*>(this)->p(null<i64>()), [](i64 x) { return i32(x); }); }
   auto p(i16*) const { return φm(Sc<A const*>(this)->p(null<i64>()), [](i64 x) { return i16(x); }); }
@@ -91,7 +92,7 @@ template<class A> struct φlit
   auto p(φig*) const { return φm(φig_(), [](auto&&) { return φig{}; }); }
 
   auto p(bytes*) const
-    { return φauto(*Rc<A*>(this), [](f64 x, byte_suffix y) { return bytes{u64(x * u64(y))}; }); }
+    { return φauto(*Rc<A const*>(this), [](f64 x, byte_suffix y) { return bytes{u64(x * u64(y))}; }); }
 
   auto p(byte_suffix*) const
     { return φd<byte_suffix>("byte_suffix",

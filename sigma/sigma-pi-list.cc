@@ -20,6 +20,8 @@ void πshared_list(πφ &p)
 
     .def_ppre("||-", [](πi &i, πhr x)
       { for (let y : i[x]) i.fo().r() << y.one().all(); return ηsig::τ; })
+    .def_ppre("@-",  [](πi &i, πhr x)
+      { for (let y : i[x]) i.fo().r() << y.η().all(); return ηsig::τ; })
     ;
 }
 

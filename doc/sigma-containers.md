@@ -2,15 +2,33 @@
 As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures -- follow some conventions to simplify interfacing with other components. The set of operators depends on the structure.
 
 
+```bash
+$ bin/sigma-fast 'n1p@-(α 5)(ι 5)(ι 6)(τ)(ι 5); @? M?>_'
+true
+false
+τ
+false
+τ
+$ bin/sigma-fast 'n1p@-(α "a" 11 12)(α 2 3)(ι "a")(ι 2)(ι 5)
+                       (τ)(ι 2); @: M?>_'
+11 12
+3
+τ
+τ
+τ
+τ
+```
+
+
 ## Queues (`@<`, `@>`, and `@=`)
 **NOTE:** for transparent FIFO queues, use the `Q` prefix. `@` means there is a visible interface that allows you to schedule and clear elements.
 
 Queues can be cleared and await advancement signals to emit elements. They often reorder their elements, e.g. by priority. The API works like this:
 
 ```
-x → q     ⇒ x|q     # enqueue element
-ι → (q|x) ⇒ q  → x  # dequeue element if one exists
-τ → q     ⇒ () → τ  # clear queue
+α x → q     ⇒ x|q     # enqueue element
+ι   → (q|x) ⇒ q  → x  # dequeue element if one exists
+τ   → q     ⇒ () → τ  # clear queue
 ```
 
 Queues are constructed using two suffixes: the first specifies the behavior and the second, when applicable, specifies the backend. For example:
@@ -46,7 +64,7 @@ Maps are similar:
 ```
 α k v   → m       ⇒ {k:v,m}
 ω k     → {k:v,m} ⇒ m
-ι k     → {k:v,m} ⇒ m → v             # v = τ if element does not exist
+ι k     → {k:v,m} ⇒ {k:v,m} → v       # v = τ if element does not exist
 ρ k₁ k₂ → m       ⇒ m → τ[k₁ ... k₂]  # range query (not always supported)
 τ       → m       ⇒ () → τ
 ```

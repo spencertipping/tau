@@ -1,4 +1,5 @@
 #include "platform.hh"
+#include "container.hh"
 #include "quote.hh"
 #include "sigma-Gamma-pieces.hh"
 #include "begin.hh"
@@ -24,6 +25,7 @@ using namespace τ;
 void Γshared(Γφ &g)
 {
   Γshared_ψ(g);
+  Γcontainer(g);
   Γquote(g);
 
   g .def_g("=",  [](Ξc &x) { return x.push(); })
