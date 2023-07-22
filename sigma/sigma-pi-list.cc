@@ -12,6 +12,12 @@ void πshared_list(πφ &p)
 {
   p .def_spre("@", [](ηic &x) { return x.η().all(); })
     .def_spre("#", [](ηic &x) { return i64(x.η().len()); })
+    .def_sa([](φaL<'>', '@'>) { return π1{">@", [](πi &i)
+      { ηm m;
+        for (let x : i.fi())
+          if (x.is_τ()) break;
+          else          m << x;
+        i.push(i << m); }}; })
 
     .def_ppost("|-", [](πi &i, πpe<πhr> y, ηic &x)
       { for (let z : i[y.x]) i.fo().r() << x.all() << z.one().all(); return ηsig::τ; })

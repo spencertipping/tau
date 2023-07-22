@@ -77,6 +77,8 @@ $ bin/sigma-fast 'n1p@- (1 2) (3) (4 5 6);M?>_'
 3
 4 5 6
 τ
+$ bin/sigma-fast 'n1p@-(1 2)(3)(4 5 6); p>@; M?>_'
+((1 2) (3) (4 5 6))
 ```
 
 Testing a failure case:
