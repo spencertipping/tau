@@ -2,6 +2,13 @@
 The goal is to generalize breadth-first, depth-first, and prioritized searches in such a way that we can operate incrementally. The structure of the search is determined by the dependencies between nodes; for example, `du` favors depth-first because subdirectories contribute to their parent. So we're automating both _traversal_ (dependency-directed) and _search_ (possibility-directed, sometimes with optimality weights). In each case we can store the results in a cache to make the process fully resumable.
 
 
+## What we know about search
+1. It's async, so it must be a Ψ, probably Ψ₂
+2. It has one-to-many outputs
+3. It may be stateful/convergent if we cache intermediates
+4. We can break it into pieces, and we almost certainly should (!)
+
+
 ## Core compute logic
 At its core, search involves visiting nodes and inspecting their dependencies and neighbors. So we have these functions:
 
