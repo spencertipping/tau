@@ -14,7 +14,7 @@ template<char... S> struct φaO { using t = Op<St>; t x; };  // auto optional
 template<bool N = false, u32 L = 0, u32 U = Nl<u32>::max(), char... S>
 struct φaCs { using t = St; t x; };  // auto charset
 
-Txs  struct φaA;    // auto alternation
+Txs  struct φaA;    // auto alternation (all of same type)
 Txxs struct φaA<X, Xs...>
 { using t = typename X::t; t x; };
 

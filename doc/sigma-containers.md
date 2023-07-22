@@ -2,11 +2,10 @@
 As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures -- follow some conventions to simplify interfacing with other components. The set of operators depends on the structure.
 
 
-**TODO:** place keys ahead of signals, so signals are not interpreted literally; otherwise they will conflict with signals-as-flow-control
-
-
 ## Queues (`@<`, `@>`, and `@=`)
-FIFO queues are either passthrough or gated. Passthrough queues don't have a visible interface; they're just 1:1 against their inputs. Gated queues can be cleared and await advancement signals to emit elements. They often reorder their elements, e.g. by priority. The API works like this:
+**NOTE:** for transparent FIFO queues, use the `Q` prefix. `@` means there is a visible interface that allows you to schedule and clear elements.
+
+Queues can be cleared and await advancement signals to emit elements. They often reorder their elements, e.g. by priority. The API works like this:
 
 ```
 x → q     ⇒ x|q     # enqueue element
@@ -17,7 +16,7 @@ x → q     ⇒ x|q     # enqueue element
 Queues are constructed using two suffixes: the first specifies the behavior and the second, when applicable, specifies the backend. For example:
 
 ```
-@=d1G           # passthrough disk queue sized at 1GiB
+@=d1G           # FIFO disk queue sized at 1GiB
 @>              # memory-backed max-priority queue
 @<              # memory-backed min-priority queue
 @>S"foo.db:pq"  # sqlite-backed max-priority queue
@@ -35,7 +34,10 @@ Sets remember whether an element has been inserted or not. Sets have the followi
 τ     → s   ⇒ () → τ        # clear set
 ```
 
-As a special case, you can write `@B` to construct a Bloom filter; see below for details.
+Sets have some special cases:
+
++ `@B` to create a Bloom filter (see below)
++ `@u` to create a passthrough filter that emits only unique elements (resets on _τ_)
 
 
 ## Maps (`@:`)
@@ -44,7 +46,7 @@ Maps are similar:
 ```
 α k v   → m       ⇒ {k:v,m}
 ω k     → {k:v,m} ⇒ m
-ι k     → {k:v,m} ⇒ m → v
+ι k     → {k:v,m} ⇒ m → v             # v = τ if element does not exist
 ρ k₁ k₂ → m       ⇒ m → τ[k₁ ... k₂]  # range query (not always supported)
 τ       → m       ⇒ () → τ
 ```

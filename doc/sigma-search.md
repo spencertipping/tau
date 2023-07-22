@@ -30,7 +30,7 @@ In the most general case, `?C₁C₂QDAPRT` is a Ψ₂ that consumes τ-delimite
 First the data-management components:
 
 + _C₁ : Ψ₂_ is a filter: it accepts every _n_ being visited, but emits only _n_ that have not been seen before. _τ_ is forwarded from `?` input and should reset the cache.
-+ _C₂ : Ψ₂_ is a filter that takes _(n, r) → ι_ or _n → r | τ_ . Inbound _τ_ resets it.
++ _C₂ : Ψ₂_ is a filter that takes _α n r_ to insert and _ι n → r | τ_ . Inbound _τ_ resets it.
 + _Q : Ψ₂_ is the queue: it should take _(p, n)_ and emit one _(p, n)_ in _p_-descending order per _ι_ signal. _τ_ clears it.
 + _T : Ψ₂_ is the terminal output filter: it takes _(n, r)_ and returns true or false to indicate whether more results should be generated. _τ_ resets it.
 
@@ -48,7 +48,7 @@ _C₁_, _C₂_, and _Q_ all use standard protocols that are supported by `@` and
 ```
 ?[@?S"cache.db:c1"]  # @Su = sqlite as set
  [@:S"cache.db:c2"]  # @S  = sqlite as map
- [Q>]                # Q>  = max-priority queue
+ [@>]                # @>  = max-priority queue
  ...
 ```
 

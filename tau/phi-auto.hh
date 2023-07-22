@@ -62,9 +62,15 @@ template<class A> struct φauto_str
     { return φm(φcs(St{S...}.data(), N, L, U),
                 [](auto &&x) { return φaCs<N, L, U, S...>{mo(x)}; }); }
 
+  // Homogeneous alternation
   Txs auto p(φaA<Xs...>*) const
-    { return φm(φa("φaA<...>", p(null<Xs>())...),
+    { return φm(φa("φaA<...>", Rc<A*>(this)->p(null<Xs>())...),
                 [](auto &&x) { return φaA<Xs...>{mo(x)}; }); }
+
+  // Heterogeneous alternation
+  Txs auto p(Va<Xs...>*) const
+    { return φm(φa("Va<...>", Rc<A*>(this)->p(null<Xs>())...),
+                [](auto &&x) { return Va<Xs...>{mo(x)}; }); }
 };
 
 

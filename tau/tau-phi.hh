@@ -89,7 +89,28 @@ template<class A> struct φlit
       return φ2("[s*]", φlb_(), φn(φwrap(each)), φrb_()); }
 
   auto p(φig*) const { return φm(φig_(), [](auto&&) { return φig{}; }); }
+
+  auto p(bytes*) const
+    { return φauto(*Rc<A*>(this), [](f64 x, byte_suffix y) { return bytes{u64(x * u64(y))}; }); }
+
+  auto p(byte_suffix*) const
+    { return φd<byte_suffix>("byte_suffix",
+                             "",   φR(byte_suffix::one),
+                             "B",  φR(byte_suffix::one),
+                             "K",  φR(byte_suffix::kilo),
+                             "Ki", φR(byte_suffix::kibi),
+                             "M",  φR(byte_suffix::mega),
+                             "Mi", φR(byte_suffix::mebi),
+                             "G",  φR(byte_suffix::giga),
+                             "Gi", φR(byte_suffix::gibi),
+                             "T",  φR(byte_suffix::tera),
+                             "Ti", φR(byte_suffix::tebi),
+                             "P",  φR(byte_suffix::peta),
+                             "Pi", φR(byte_suffix::pebi),
+                             "E",  φR(byte_suffix::exa),
+                             "Ei", φR(byte_suffix::exbi)); }
 };
+
 
 template<class A> struct φbrack
 {

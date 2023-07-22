@@ -2,6 +2,8 @@
 #define σ_h
 
 #include "tau.hh"
+#include "sigma/pre/container.hh"
+
 #include "tau/begin.hh"
 
 namespace σ

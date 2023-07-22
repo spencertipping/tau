@@ -52,6 +52,30 @@ h384 b64_h384(Stc&);
 h512 b64_h512(Stc&);
 
 
+struct bytes { u64 n; };
+
+enum class byte_suffix : u64
+{
+  one  = 1ull,
+  kilo = 1000ull,
+  kibi = 1024ull,
+  mega = 1000ull * 1000,
+  mebi = 1024ull * 1024,
+  giga = 1000ull * 1000 * 1000,
+  gibi = 1024ull * 1024 * 1024,
+  tera = 1000ull * 1000 * 1000 * 1000,
+  tebi = 1024ull * 1024 * 1024 * 1024,
+  peta = 1000ull * 1000 * 1000 * 1000 * 1000,
+  pebi = 1024ull * 1024 * 1024 * 1024 * 1024,
+  exa  = 1000ull * 1000 * 1000 * 1000 * 1000 * 1000,
+  exbi = 1024ull * 1024 * 1024 * 1024 * 1024 * 1024,
+};
+
+
+O &operator<<(O&, byte_suffix);
+O &operator<<(O&, bytes);
+
+
 #if !τuse_nonvolatile_sharedptr
   template<class... T> using Sp = std::shared_ptr<T...>;
   template<class... T> using Wp = std::weak_ptr<T...>;
