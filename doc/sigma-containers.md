@@ -5,27 +5,27 @@ As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures
 **TODO:** place keys ahead of signals, so signals are not interpreted literally; otherwise they will conflict with signals-as-flow-control
 
 
-## Queues (`Q`)
+## Queues (`@<`, `@>`, and `@=`)
 FIFO queues are either passthrough or gated. Passthrough queues don't have a visible interface; they're just 1:1 against their inputs. Gated queues can be cleared and await advancement signals to emit elements. They often reorder their elements, e.g. by priority. The API works like this:
 
 ```
 x → q     ⇒ x|q     # enqueue element
-ι → (q|x) ⇒ q  → x  # dequeue element
+ι → (q|x) ⇒ q  → x  # dequeue element if one exists
 τ → q     ⇒ () → τ  # clear queue
 ```
 
 Queues are constructed using two suffixes: the first specifies the behavior and the second, when applicable, specifies the backend. For example:
 
 ```
-Q=d1G           # passthrough disk queue sized at 1GiB
-Q>              # memory-backed max-priority queue
-Q<              # memory-backed min-priority queue
-Q>S"foo.db:pq"  # sqlite-backed max-priority queue
+@=d1G           # passthrough disk queue sized at 1GiB
+@>              # memory-backed max-priority queue
+@<              # memory-backed min-priority queue
+@>S"foo.db:pq"  # sqlite-backed max-priority queue
 ```
 
 
-## Maps and sets (`@`)
-Maps store key/value associations, sets remember whether an element has been inserted or not. Sets have the following API:
+## Sets (`@?`)
+Sets remember whether an element has been inserted or not. Sets have the following API:
 
 ```
 α x   → s   ⇒ x|s           # insert into set
@@ -35,6 +35,10 @@ Maps store key/value associations, sets remember whether an element has been ins
 τ     → s   ⇒ () → τ        # clear set
 ```
 
+As a special case, you can write `@B` to construct a Bloom filter; see below for details.
+
+
+## Maps (`@:`)
 Maps are similar:
 
 ```
@@ -45,6 +49,8 @@ Maps are similar:
 τ       → m       ⇒ () → τ
 ```
 
+
+## Multimaps (`@;`)
 Finally we have multimaps:
 
 ```
@@ -56,13 +62,19 @@ Finally we have multimaps:
 τ       → m                    ⇒ () → τ
 ```
 
+
+## Map/set suffixes
 Like queues, maps and sets are specified using two suffixes:
 
 ```
+@=             # C++ native unbounded passthrough queue (not much point to this)
+@<             # C++ native min-queue
 @?             # C++ native set
 @:             # C++ native map
 @;             # C++ native multimap
 @B318          # C++ native bloom filter with k=3, #bits=10^18
+@=S"foo.db:t"  # sqlite passthrough queue
+@<S"foo.db:t"  # sqlite min-queue
 @?S"foo.db:t"  # sqlite set
 @:S"foo.db:t"  # sqlite table as map
 @;S"foo.db:t"  # sqlite table as multimap
