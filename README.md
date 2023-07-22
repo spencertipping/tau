@@ -27,6 +27,10 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 $ bin/scratch-fast
 3, 4, hi there, 八次不
 abc不西
+$ bin/sigma-fast 'n3α.M?>_'
+α 0
+α 1
+α 2
 ```
 
 

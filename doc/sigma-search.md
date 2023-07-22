@@ -7,7 +7,7 @@ At its core, search involves visiting nodes and inspecting their dependencies an
 
 + _D(n) → τ[n₁, n₂, ...]_: the τ-delimited list of nodes _n_ depends on
 + _A(n) → τ[n₁, n₂, ...]_: the τ-delimited list of nodes adjacent to _n_
-+ _P(n)_: the priority of a node
++ _P(n) → p_: the priority of a node (a π function)
 + _R : τ[n, (n₁, r₁), (n₂, r₂), ...] → r_: the result value for a node and its dependencies
 
 If we're searching, then we have _P(n)_ to determine the priority of a node. The guarantee is that results from _A_ will always be explored in _P_-descending order. This can serve as a type of pruning, especially if we use a bounded priority queue.
@@ -38,15 +38,24 @@ Search components are stateless -- i.e. they don't interact with input _τ_ -- a
 
 + _D : Ψ₂ :: n → τ[n']_
 + _A : Ψ₂ :: n → τ[n']_
-+ _P : Ψ₂ :: n → p_
++ _P : π₀ :: n → p_
 + _R : Ψ₂ :: τ[n, (n₁, r₁), ...] → r_
+
+Here's the overall Γ topology created by `?`:
+
+**TODO**
+
+```
+i A K α. C₁ pP q
+
+```
 
 
 ## Caching and databases
 _C₁_, _C₂_, and _Q_ all use standard protocols that are supported by `@` and `Q`. For example, to use SQLite as the node cache and a C++ in-memory priority queue for _Q_:
 
 ```
-?[@?S"cache.db:c1"]  # @Su = sqlite as set
+?[@uS"cache.db:c1"]  # @uS = sqlite as uniq-set
  [@:S"cache.db:c2"]  # @S  = sqlite as map
  [@>]                # @>  = max-priority queue
  ...
