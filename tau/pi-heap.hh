@@ -77,8 +77,8 @@ protected:
 // parent data is not referred to.
 struct πh final
 {
-  πh(uN hr = 1048576) : r_{0, 0, 0, 0}, ri_(false), s_(0), gs_(0), hr_(hr),
-                        hn_(nullptr), ls_(0)
+  πh(uN hr = 8192) : r_{0, 0, 0, 0}, ri_(false), s_(0), gs_(0), hr_(hr),
+                     hn_(nullptr), ls_(0)
     { h_.reserve(hr); }
 
   // Read a value from the heap. Note that the result is not auto-updated

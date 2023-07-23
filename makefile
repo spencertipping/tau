@@ -110,13 +110,23 @@ top: fast wasm
 all: linux fast wasm debug clang wdebug
 	./test
 
+bench: linux-bench wasm-bench
 
+
+.PHONY: linux-size wasm-size
 linux-size: bin/sigma
 	@echo -n "wc -c bin/sigma = "; wc -c bin/sigma
 
 wasm-size: bin/sigma.js
 	@echo -n "gzip -9 bin/sigma.js   = "; cat bin/sigma.js   | gzip -9 | wc -c
 	@echo -n "gzip -9 bin/sigma.wasm = "; cat bin/sigma.wasm | gzip -9 | wc -c
+
+
+linux-bench: linux
+	bin/xi-bench
+
+wasm-bench: wasm
+	node bin/xi-bench.js
 
 
 bin/%: $(tau_os_linux) $(sigma_os_linux) bin/linux-bin/%.o
