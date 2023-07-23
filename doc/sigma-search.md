@@ -88,7 +88,7 @@ If we ran `du` on a filesystem with directory hardlinking (so a directory can ha
 Further, for problems that aren't `du` we might want to distribute the work in some way. So we want to reduce each worker to something that can negotiate futures with a simple ξ IO boundary. Here's the basic idea:
 
 1. `future<>` is replaced by a set of mutually recursive π functions, in this example `#f`, `#g`, etc
-2. `#f` generates a "future" (really just a key) and returns it; it emits its arguments as a future-execution request, which will be forwarded to the future controller
+2. `#f` generates a "future" (really just a hash of its args) and returns it; it emits its arguments as a future-execution request, which will be forwarded to the future controller
 3. The future controller checks caches and, if appropriate, adds the request to the main priority queue
 4. When the worker calls `!` to retrieve one or more futures' value, it emits a future-result request to the future controller (to inform it about how to close out threads)
 5. When a thread returns, the return value is emitted with its future key to the future controller, which can then alert whichever worker (if any) was depending on it
