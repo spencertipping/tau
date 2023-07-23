@@ -28,6 +28,7 @@ void Γshared_ψ(Γφ &g)
     .def_p2("|p",  [](πt<π1> f, ξi i, ξo o) { πi p(i, o); for (let x : i) { p.push(p << x.all()); p.def_x(); f.x(p); if (let r = p.pop()) o.r() << x.all() << p[r].all(); p.clear_xy(); } })
     .def_p2("p|",  [](πt<π1> f, ξi i, ξo o) { πi p(i, o); for (let x : i) { p.push(p << x.all()); p.def_x(); f.x(p); if (let r = p.pop()) o.r() << p[r].all() << x.all(); p.clear_xy(); } })
     .def_p2("r",   [](πt<π1> f, ξi i, ξo o) { πi p(i, o); for (let x : i) { p.push(p << x.all()); p.def_x(); f.x(p); if (p.ypop().cb()) o << x; p.clear_xy(); } })
+
     .def_p2("α.",  [](          ξi i, ξo o) { for (let x : i) o.r(x.lsize() + 2) << ηsig::α << x.all(); })
     .def_p2("κ.",  [](          ξi i, ξo o) { for (let x : i) o.r(x.lsize() + 2) << ηsig::κ << x.all(); })
     .def_p2("ι.",  [](          ξi i, ξo o) { for (let x : i) o.r(x.lsize() + 2) << ηsig::ι << x.all(); })

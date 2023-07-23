@@ -1,6 +1,7 @@
 #include "platform.hh"
 #include "container.hh"
 #include "quote.hh"
+#include "search.hh"
 #include "sigma-Gamma-pieces.hh"
 #include "begin.hh"
 
@@ -27,6 +28,7 @@ void Γshared(Γφ &g)
   Γshared_ψ(g);
   Γcontainer(g);
   Γquote(g);
+  Γsearch(g);
 
   g .def_g("=",  [](Ξc &x) { return x.push(); })
     .def_g("_",  [](Ξc &x) { return x.drop(); })

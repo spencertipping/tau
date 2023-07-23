@@ -9,6 +9,9 @@ namespace σ
 using namespace τ;
 
 
+// TODO: search pieces
+
+
 void Γsearch(Γφ&);
 
 
