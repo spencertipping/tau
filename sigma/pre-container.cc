@@ -43,7 +43,7 @@ struct nsat_ : public virtual at_
   nsat_() : at_(ct_set{}, cb_native{}) {}
   void α(ηic &x, ξo)   override { xs.insert(x.one()); }
   void ω(ηic &x, ξo)   override { xs.erase(x.one()); }
-  void ι(ηic &x, ξo o) override { o.r() << xs.contains(x.one()); }
+  void ι(ηic &x, ξo o) override { o.r(x.lsize() + 2) << x.all() << xs.contains(x.one()); }
   void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   S<ηm> xs;
 };
@@ -62,7 +62,9 @@ struct nmat_ : public virtual at_
   nmat_() : at_(ct_map{}, cb_native{}) {}
   void α(ηic &x, ξo)   override { xs[x.one()] = x.next(); }
   void ω(ηic &x, ξo)   override { xs.erase(x.one()); }
-  void ι(ηic &x, ξo o) override { if (xs.contains(x.one())) o << xs[x.one()]; else o.r() << ηsig::ω; }
+  void ι(ηic &x, ξo o) override
+    { if (xs.contains(x.one())) o.r(x.lsize() + 64) << x.all() << xs[x.one()].all();
+      else                      o.r(x.lsize() + 2)  << x.all() << ηsig::ω; }
   void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   M<ηm, ηm> xs;
 };

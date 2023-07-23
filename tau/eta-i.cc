@@ -5,19 +5,6 @@ namespace τ
 {
 
 
-PO ηscmp(ηi a, ηi b)
-{
-  for (; a && b; ++a, ++b)
-  {
-    let c = a <=> b;
-    if (c != PO::equivalent) return c;
-  }
-  if (!a && !b) return PO::equivalent;
-  if (!a)       return PO::less;
-  else          return PO::greater;
-}
-
-
 // Result bit ordering: 0xnedcba9876543210 -- where 0 is the first type, etc.
 // Unspecified types are 0xf. The most-significant four bits encode the number
 // of values in the set.
@@ -44,26 +31,27 @@ PO ηi::operator<=>(ηic &x) const
 
   let tc = t() <=> x.t();
   if (tc != SO::equal) return tc;
+
+  PO r = PO::equivalent;
   switch (t())
   {
-  case ηtype::sig:      return sig() <=> x.sig();
-  case ηtype::n_int:    return i()   <=> x.i();
-  case ηtype::n_float:  return f()   <=> x.f();
-  case ηtype::string:   return s()   <=> x.s();
-  case ηtype::atom:     return a()   <=> x.a();
-  case ηtype::name:     return n()   <=> x.n();
-
-  case ηtype::int8s:    return i8s()  <=> x.i8s();
-  case ηtype::int16s:   return i16s() <=> x.i16s();
-  case ηtype::int32s:   return i32s() <=> x.i32s();
-  case ηtype::int64s:   return i64s() <=> x.i64s();
-  case ηtype::float32s: return f32s() <=> x.f32s();
-  case ηtype::float64s: return f64s() <=> x.f64s();
-
-  case ηtype::η: return ηscmp(η(), x.η());
-
-  default: return PO::unordered;
+  case ηtype::sig:      r = sig()  <=> x.sig();  break;
+  case ηtype::n_int:    r = i()    <=> x.i();    break;
+  case ηtype::n_float:  r = f()    <=> x.f();    break;
+  case ηtype::string:   r = s()    <=> x.s();    break;
+  case ηtype::atom:     r = a()    <=> x.a();    break;
+  case ηtype::name:     r = n()    <=> x.n();    break;
+  case ηtype::int8s:    r = i8s()  <=> x.i8s();  break;
+  case ηtype::int16s:   r = i16s() <=> x.i16s(); break;
+  case ηtype::int32s:   r = i32s() <=> x.i32s(); break;
+  case ηtype::int64s:   r = i64s() <=> x.i64s(); break;
+  case ηtype::float32s: r = f32s() <=> x.f32s(); break;
+  case ηtype::float64s: r = f64s() <=> x.f64s(); break;
+  case ηtype::η:        r = η()    <=> x.η();    break;
+  default:              r = PO::unordered;       break;
   }
+
+  return r == PO::equivalent ? next() <=> x.next() : r;
 }
 
 

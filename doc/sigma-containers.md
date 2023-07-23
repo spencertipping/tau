@@ -4,18 +4,18 @@ As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures
 
 ```bash
 $ bin/sigma-fast 'n1p@-(α 5)(ι 5)(ι 6)(τ)(ι 5); @? M?>_'
-true
-false
+5 true
+6 false
 τ
-false
+5 false
 τ
 $ bin/sigma-fast 'n1p@-(α "a" 11 12)(α 2 3)(ι "a")(ι 2)(ι 5)
                        (τ)(ι 2); @: M?>_'
-11 12
-3
-ω
+"a" 11 12
+2 3
+5 ω
 τ
-ω
+2 ω
 τ
 $ bin/sigma-fast 'n1p@- (α 1)(α 2)(α 1)(α 3); @u M?>_'
 1

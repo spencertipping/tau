@@ -1,4 +1,7 @@
 # Incremental search/traversal
+**TODO:** define the result of a search/traversal
+
+
 The goal is to generalize breadth-first, depth-first, and prioritized searches in such a way that we can operate incrementally. The structure of the search is determined by the dependencies between nodes. For example, `du` is a depth-first search because parent directory results depend on their children. `find` could go either way, but is often depth-first for efficiency.
 
 τ complicates the picture for search because it breaks ordering guarantees that are present in time-domain languages. We must address the data logically and accept out-of-order results. In the `du` case, for example, our directory-traversal function might be parallelized and explore multiple toplevel directories at once (suppose this makes sense from a performance perspective). Then requests and results for descendants would arrive jumbled, leaving the search operator to associate them back to their parents.
@@ -21,20 +24,4 @@ Search state -- and by this I specifically mean results -- can be cached to disk
 Internally, searching involves keeping track of nodes that have been sent to the expander so we don't expand the same node more than once, e.g. if a node is a dependency of multiple others. This is reset each time the search begins, since it reflects the state of active work, which is more volatile than the result container.
 
 
-## Topology
-**TODO:** this is unexpectedly challenging to define; what is wrong here?
-
-First let's define some terms:
-
-+ _I :: τ[n]_ = the root set
-+ _E :: n → τ[(n' n p | n' ω p)]_ = the expanding Ψ₂
-+ _C :: n d₁ r₁ d₂ r₂ ... → n r_ = the collapsing Ψ₂
-+ _D :: @:_ = the map of dependencies
-+ _R :: @:_ = the map of calculated results
-+ _V :: @u_ = the set of things that have been visited
-+ _Q :: @>_ = the max-queue of things to do next
-
-Now let's describe what we know:
-
-1. Nodes in _V_ or _R_ should not be expanded
-2. Nodes in _R_ should not be collapsed
+**Q:** should we require that neighbors and dependencies be terminated by _τ_? If we don't, then we have a continuous search.

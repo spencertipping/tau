@@ -19,13 +19,6 @@ typedef ηi const ηic;
 O &operator<<(O&, ηi);
 
 
-// Compare ηis and all following elements -- i.e. consider each to be
-// the beginning of a series, not in isolation.
-//
-// NOTE: it's correct to copy arguments here; see ηscmp implementation
-PO ηscmp(ηi, ηi);
-
-
 enum class ηicb_r : u8
 {
   ok,            // ηi can be decoded
