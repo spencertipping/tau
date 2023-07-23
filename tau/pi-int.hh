@@ -105,6 +105,7 @@ struct πi final
   πi &clear_y()  { r_.y.clear(); return *this; }
   πi &clear_xy() { clear_x(); return clear_y(); }
 
+  Tt πi   &def_ev(Stc &n, T    *v) { e_[n] = Sp<πev>(v);           return *this; }
   Tt πi   &def_ev(Stc &n, Sp<T> v) { e_[n] = v.template as<πev>(); return *this; }
   Tt Sp<T> ev    (Stc &n)    const { return e_.at(n).template as<T>(); }
   Tt bool  evi   (Stc &n)    const { return e_.contains(n); }

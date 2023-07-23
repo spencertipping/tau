@@ -1,27 +1,82 @@
-# Incremental search/traversal
-**TODO:** define the result of a search/traversal
+# Search and traversal
+Let's talk about `du`. The simplest way to implement it is recursively:
 
+```cpp
+size_t du(std::string path)
+{
+  size_t r = 0;
+  for (auto x : ls(path))
+    if (is_file(x)) r += file_size(x);
+    else            r += du(path + "/" + x);
+  return r;
+}
+```
 
-The goal is to generalize breadth-first, depth-first, and prioritized searches in such a way that we can operate incrementally. The structure of the search is determined by the dependencies between nodes. For example, `du` is a depth-first search because parent directory results depend on their children. `find` could go either way, but is often depth-first for efficiency.
+Depth-first, _O(d)_ space, and _O(n)_ time. In many cases this is the most efficient strategy, but let's suppose we have a very high-latency hard drive that benefits from deep IO queues. Then we'd want a more breadth-first approach. This would ordinarily require that we completely reorganize the above code, but let's use `future<T>` to avoid having to do that:
 
-τ complicates the picture for search because it breaks ordering guarantees that are present in time-domain languages. We must address the data logically and accept out-of-order results. In the `du` case, for example, our directory-traversal function might be parallelized and explore multiple toplevel directories at once (suppose this makes sense from a performance perspective). Then requests and results for descendants would arrive jumbled, leaving the search operator to associate them back to their parents.
+```cpp
+future<size_t> du(std::string path)
+{
+  return future([=]()
+    {
+      size_t r = 0;
+      std::vector<future<size_t>> dirs;
+      for (auto x : ls(path))
+        if (is_file(x)) r += file_size(x);
+        else            dirs.push_back(du(path + "/" + x));
+      for (auto &x : dirs) r += x.get();
+      return r;
+    });
+}
+```
 
-We can generalize all of this by breaking searches into two pieces:
+Of course, this is no longer _O(d)_ space; it is much closer to _O(n)_. If we want to control the space complexity, we need to not only limit the number of futures running at any given moment, but we also need to make sure they run in a depth-first order. We could do this by assigning each future a priority corresponding to its degree of nesting, then executing highest-priority futures first. So if `future<>` didn't manage this for us, we'd have:
 
-1. The expander, which visits a node and describes its prioritized neighbors and dependencies
-2. The collapser, which collects dependency results and produces the result for the node
+```cpp
+future<size_t> du(int depth, std::string path)
+{
+  return future(depth, [=]()
+    {
+      ...
+      dirs.push_back(du(depth + 1, ...));
+      ...
+    });
+}
+```
 
-For example, `du` would expand by listing directory entries and would collapse by returning the size for files and the summed child size for directories. `du` is entirely depth-first, so there is no relative priority between child entries.
+`.get()` should begin executing futures with as many threads as we've assigned to future execution. The single-threaded version would look like this:
 
+```cpp
+template<class T>
+struct future
+{
+  future(std::function<T()> f)
+    : has_result(false)
+    { pending.push([this]() { set(f()); }); }
 
-## Dependencies and priority
-If _A_ depends on _B_, then _B_'s real priority will be at least as large as _A_'s. We do this by adding _A_'s priority to _B_. This isn't a perfect system, but it covers most of the cascading we need. In particular, it's likely to balance parallelism with dependency resolution.
+  void set(T r)
+  {
+    result     = r;
+    has_result = true;
+  }
 
+  T get()
+  {
+    while (!pending.empty())
+    {
+      // Pretend this is thread-safe
+      auto top = pending.top();
+      pending.pop();
+      top();
+      if (has_result) return result;
+    }
+    // Should never get here
+  }
 
-## Caching and restarting
-Search state -- and by this I specifically mean results -- can be cached to disk using SQLite or another persistent [container](sigma-containers.md). If a search begins when the cache is prepopulated, then it will proceed normally and discover results that already exist, avoiding work.
+  static std::priority_queue<std::function<void()>, ...> pending;
 
-Internally, searching involves keeping track of nodes that have been sent to the expander so we don't expand the same node more than once, e.g. if a node is a dependency of multiple others. This is reset each time the search begins, since it reflects the state of active work, which is more volatile than the result container.
-
-
-**Q:** should we require that neighbors and dependencies be terminated by _τ_? If we don't, then we have a continuous search.
+protected:
+  T    result;
+  bool has_result;
+};
+```
