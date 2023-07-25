@@ -30,7 +30,7 @@ future<size_t> du(std::string path)
 }
 ```
 
-Of course, this is no longer _O(d)_ space; it is much closer to _O(n)_. If we want to control the space complexity, we need to not only limit the number of futures running at any given moment, but we also need to make sure they run in a depth-first order. We could do this by assigning each future a priority corresponding to its degree of nesting, then executing highest-priority futures first. So if `future<>` didn't manage this for us, we'd have:
+Of course, this is no longer _O(d)_ space; it is much closer to _O(n)_. If we want to control the space complexity, we need to not only limit the number of futures running at any given moment, but we also need to make sure they run in a mostly depth-first order. We could do this by assigning each future a priority corresponding to its degree of nesting, then executing highest-priority futures first. So if `future<>` didn't manage this for us, we'd have:
 
 ```cpp
 future<size_t> du(int depth, std::string path)
@@ -44,7 +44,7 @@ future<size_t> du(int depth, std::string path)
 }
 ```
 
-`.get()` should begin executing futures with as many threads as we've assigned to future execution. The single-threaded version would look like this:
+`.get()` should begin executing futures with as many threads as we've assigned to future execution. Here's the basic idea:
 
 ```cpp
 template<class T>
@@ -62,9 +62,9 @@ struct future
 
   T get()
   {
+    // Pretend this uses a thread pool and locking, etc
     while (!pending.empty())
     {
-      // Pretend this is multi-threaded
       auto top = pending.top();
       pending.pop();
       top();
@@ -83,15 +83,17 @@ protected:
 
 
 ## Futures in τ
-If we ran `du` on a filesystem with directory hardlinking (so a directory can have multiple parents), then we'd want to deduplicate futures by inode. Since that creates _O(n)_ space usage, we might also want to offload the future results into a database.
+If we ran `du` on a filesystem with directory hardlinking (so a directory can have multiple parents), then we'd want to deduplicate futures by inode. Since that creates _O(n)_ space usage, we might also want to offload the `future<>` results into a database.
 
 Further, for problems that aren't `du` we might want to distribute the work in some way. So we want to reduce each worker to something that can negotiate futures with a simple ξ IO boundary. Here's the basic idea:
 
-1. `future<>` is replaced by a set of mutually recursive π functions, in this example `#f`, `#g`, etc
+1. `future<>` is replaced by an async-recursive-invocation operator, in this case `#f`
 2. `#f` generates a "future" (really just a hash of its args) and returns it; it emits its arguments as a future-execution request, which will be forwarded to the future controller
 3. The future controller checks caches and, if appropriate, adds the request to the main priority queue
-4. When the worker calls `!` to retrieve one or more futures' value, it emits a future-result request to the future controller (to inform it about how to close out threads)
+4. When the worker calls `!` to retrieve one or more futures' values, it emits a future-result request to the future controller (to inform it about how to close out threads)
 5. When a thread returns, the return value is emitted with its future key to the future controller, which can then alert whichever worker (if any) was depending on it
+
+**TODO:** diagram all of the IO
 
 **TODO:** verify this plan, make sure we have a way to control space complexity -- I guess worst-case we can kill a thread and restart it later
 
