@@ -18,9 +18,9 @@ Sp<lmdb_db> lmdb_open(Stc &f)
   let r = Sp<lmdb_db>(new lmdb_db);
   int rc;
   A((rc = mdb_env_create(&r->e))                 == MDB_SUCCESS, "mdb_env_create() failed: " << mdb_strerror(rc));
-  A((rc = mdb_env_set_mapsize(r->e, 1ull << 40)) == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
-  A((rc = mdb_env_set_maxdbs(r->e, 1024))        == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: " << mdb_strerror(rc));
-  A((rc = mdb_env_open(r->e, f.c_str(), MDB_WRITEMAP | MDB_CREATE | MDB_NOSUBDIR, 0664)) == MDB_SUCCESS,
+  A((rc = mdb_env_set_mapsize(r->e, 1ull << 30)) == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
+  A((rc = mdb_env_set_maxdbs(r->e, 64))          == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: " << mdb_strerror(rc));
+  A((rc = mdb_env_open(r->e, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC, 0664)) == MDB_SUCCESS,
     "mdb_env_open(" << f << ") failed: " << mdb_strerror(rc));
   lmdbs[f] = r;
   return r;
