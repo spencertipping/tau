@@ -9,17 +9,18 @@ slet container_ = Ψauto([](pre::ctype t, pre::cback b, ξi i, ξo o)
   {
     let c = pre::at(t, b);
     for (let x : i)
-      switch (x.sig())
-      {
-      case ηsig::α: c->α(x.next(), o); break;
-      case ηsig::ω: c->ω(x.next(), o); break;
-      case ηsig::κ: c->κ(x.next(), o); break;
-      case ηsig::ι: c->ι(x.next(), o); break;
-      case ηsig::ρ: c->ρ(x.next(), o); break;
-      case ηsig::τ: c->τ(x.next(), o); break;
-      default:
-        A(0, "@ " << x << ": invalid");
-      }
+      if (x.is_τ()) c->τ(x.next(), o);
+      else
+        switch (x.next().sig())
+        {
+        case ηsig::α: c->α(x.one(), x.next().next(), o); break;
+        case ηsig::ω: c->ω(x.one(), x.next().next(), o); break;
+        case ηsig::κ: c->κ(x.one(), x.next().next(), o); break;
+        case ηsig::ι: c->ι(x.one(), x.next().next(), o); break;
+        case ηsig::ρ: c->ρ(x.one(), x.next().next(), o); break;
+        default:
+          A(0, "@ " << x << ": invalid");
+        }
   });
 
 

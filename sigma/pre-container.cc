@@ -8,8 +8,8 @@ namespace σ::pre
 struct nfat_ : public virtual at_
 {
   nfat_() : at_(ct_fifo{}, cb_native{}) {}
-  void α(ηic &x, ξo)   override { xs.push_back(x.one()); }
-  void ι(ηic &x, ξo o) override { o << xs.front(); xs.pop_front(); }
+  void α(ηic &x, ηic&, ξo)   override { xs.push_back(x.one()); }
+  void ι(ηic &x, ηic&, ξo o) override { o << xs.front(); xs.pop_front(); }
   void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   D<ηm> xs;
 };
@@ -18,8 +18,8 @@ struct nfat_ : public virtual at_
 struct nnat_ : public virtual at_
 {
   nnat_() : at_(ct_prio_min{}, cb_native{}) {}
-  void α(ηic &x, ξo)   override { xs.push(x.one()); }
-  void ι(ηic &x, ξo o) override { o << xs.top(); xs.pop(); }
+  void α(ηic &x, ηic&, ξo)   override { xs.push(x.one()); }
+  void ι(ηic &x, ηic&, ξo o) override { o << xs.top(); xs.pop(); }
   void τ(ηic &x, ξo o) override
     { while (!xs.empty()) xs.pop();
       o.r() << ηsig::τ; }
@@ -29,8 +29,8 @@ struct nnat_ : public virtual at_
 struct nxat_ : public virtual at_
 {
   nxat_() : at_(ct_prio_max{}, cb_native{}) {}
-  void α(ηic &x, ξo)   override { xs.push(x.one()); }
-  void ι(ηic &x, ξo o) override { o << xs.top(); xs.pop(); }
+  void α(ηic &x, ηic&, ξo)   override { xs.push(x.one()); }
+  void ι(ηic &x, ηic&, ξo o) override { o << xs.top(); xs.pop(); }
   void τ(ηic &x, ξo o) override
     { while (!xs.empty()) xs.pop();
       o.r() << ηsig::τ; }
@@ -41,9 +41,9 @@ struct nxat_ : public virtual at_
 struct nsat_ : public virtual at_
 {
   nsat_() : at_(ct_set{}, cb_native{}) {}
-  void α(ηic &x, ξo)   override { xs.insert(x.one()); }
-  void ω(ηic &x, ξo)   override { xs.erase(x.one()); }
-  void ι(ηic &x, ξo o) override { o.r(x.lsize() + 2) << x.all() << xs.contains(x.one()); }
+  void α(ηic &x, ηic&, ξo)   override { xs.insert(x.one()); }
+  void ω(ηic &x, ηic&, ξo)   override { xs.erase(x.one()); }
+  void ι(ηic &x, ηic&, ξo o) override { o.r(x.lsize() + 2) << x.all() << xs.contains(x.one()); }
   void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   S<ηm> xs;
 };
@@ -51,7 +51,7 @@ struct nsat_ : public virtual at_
 struct nuat_ : public virtual at_
 {
   nuat_() : at_(ct_uniq{}, cb_native{}) {}
-  void α(ηic &x, ξo o) override { if (xs.insert(x.one()).second) o << x.one(); }
+  void α(ηic &x, ηic&, ξo o) override { if (xs.insert(x.one()).second) o << x.one(); }
   void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   S<ηm> xs;
 };
@@ -60,11 +60,11 @@ struct nuat_ : public virtual at_
 struct nmat_ : public virtual at_
 {
   nmat_() : at_(ct_map{}, cb_native{}) {}
-  void α(ηic &x, ξo)   override { xs[x.one()] = x.next(); }
-  void ω(ηic &x, ξo)   override { xs.erase(x.one()); }
-  void ι(ηic &x, ξo o) override
-    { if (xs.contains(x.one())) o.r(x.lsize() + 64) << x.all() << xs[x.one()].all();
-      else                      o.r(x.lsize() + 2)  << x.all() << ηsig::ω; }
+  void α(ηic &k, ηic &v, ξo) override { xs[k] = v; }
+  void ω(ηic &k, ηic&, ξo)   override { xs.erase(k); }
+  void ι(ηic &k, ηic&, ξo o) override
+    { if (xs.contains(k.one())) o.r(k.lsize() + 64) << k.all() << xs[k].all();
+      else                      o.r(k.lsize() + 2)  << k.all() << ηsig::ω; }
   void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   M<ηm, ηm> xs;
 };

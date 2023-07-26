@@ -11,7 +11,7 @@ slet replicated_multiplex2_ = Ψauto([](Γ g, ψ q, ξi i, ξo o)
 
     for (let x : i)
     {
-      let k = St{x.one().s()};
+      let k = St{x.s()};
       if (!ls.contains(k))
       {
         let [lo, li] = q.t().pipe();  // left side: we write into lo
@@ -23,8 +23,8 @@ slet replicated_multiplex2_ = Ψauto([](Γ g, ψ q, ξi i, ξo o)
           { for (let x : ri) o.r(x.lsize() + 2 + k.size()) << k << x.all(); });
       }
 
-      if (rs[k]) rs[k] << x;
-      else       rs.erase(k), ls.erase(k);
+      if (rs[k] && !x.next().is_ω()) rs[k] << x.next();
+      else                           rs.erase(k), ls.erase(k);
     }
   });
 
@@ -41,15 +41,15 @@ slet static_multiplex2_ = Ψauto([](φrbrace<M<St, Γ>> gs, ψ q, ξi i, ξo o)
       let g0 = g;
       A(ro.inner_ξ()->iq(), "{} Γ" << g0 << " failed to connect output (missing |?)");
       q.f([=, ri=ri, k=k]()
-        { for (let x : ri) o.r(x.lsize() + 2 + k.size()) << k << x.all(); });
+        { for (let x : ri) o.r(x.lsize() + 2 + k.size()) << k << x.all();
+          o.r() << k << ηsig::ω; });
     }
 
     q.weaken(false);
     for (let x : i)
-    {
-      let k = St{x.one().s()};
-      if (rs[k]) rs[k] << x.next();
-    }
+    { let k = St{x.s()};
+      if (rs[k] && !x.next().is_ω()) rs[k] << x.next();
+      else                           rs.erase(k); }
   });
 
 
@@ -68,20 +68,24 @@ slet static_multiplex4_ = Ψauto<true>(
       let fri = x.f();
       let bri = x.b();
       q.f([=, fri=fri, k=k]()
-        { for (let x : fri) fo.r(x.lsize() + 2 + k.size()) << k << x.all(); });
+        { for (let x : fri) fo.r(x.lsize() + 2 + k.size()) << k << x.all();
+          fo.r() << k << ηsig::ω; });
       q.f([=, bli=bli, k=k]()
-        { for (let x : bli) bo.r(x.lsize() + 2 + k.size()) << k << x.all(); });
+        { for (let x : bli) bo.r(x.lsize() + 2 + k.size()) << k << x.all();
+          bo.r() << k << ηsig::ω; });
     }
 
     q.f([=]()
       { for (let x : fi)
-        { let k = St{x.one().s()};
-          if ((*frs)[k]) (*frs)[k] << x.next(); }});
+        { let k = St{x.s()};
+          if ((*frs)[k] && !x.next().is_ω()) (*frs)[k] << x.next();
+          else                               frs->erase(k); }});
 
     q.f([=]()
       { for (let x : bi)
-        { let k = St{x.one().s()};
-          if ((*brs)[k]) (*brs)[k] << x.next(); }});
+        { let k = St{x.s()};
+          if ((*brs)[k] && !x.next().is_ω()) (*brs)[k] << x.next();
+          else                               brs->erase(k); }});
   });
 
 

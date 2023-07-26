@@ -22,18 +22,14 @@ Although you could in principle have an unterminated `{`, it isn't common in pra
 
 Multiplexed ξ alternatives may terminate independently; by default, `{}` will send `k ω` for any `k` that does so. `{}` will fail if you write to an expired alternative.
 
-
-## Dynamic multiplexers
-**TODO:** can this be merged with replicated multiplexing? They feel like the same problem, except that replicated multiplexers propagate channel state between `(` and `)` (which we probably want).
-
-`(` and `)` are also mirrors; unlike `{}`, however, `(` must be terminated by a `)` with two exceptions:
-
-1. `( ... &s`: each Γ connects to a server
-2. `( ... |x`: the final Γ operator right-caps the ξ
-
-`)` by itself creates a τ server; each inbound connection is mixed into the right-hand side, which receives all clients in a tagged union. (Inbound connections can send a single `k α` pair to define their tag; this will forward _α_ to the output channel, which typically has no effect.)
-
-Because `)` is a server and servers return client-connectors, `(...)` is equivalent to `:)foo ...` followed by `(... &foo` (except that `foo` will be visible in one case but not the other).
+```bash
+$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3); K {a|p"foo"x+1; b|p"bar"x-1} M?>_' | sort
+"a" "foo" 2
+"a" "foo" 4
+"a" ω
+"b" "bar" 1
+"b" ω
+```
 
 
 ## Replicated multiplexers
@@ -45,10 +41,14 @@ Aside from dropping its input (i.e. exiting), the worker can indicate finality i
 2. _(τ, ...)_: send a final message `...` and indicate that the worker can be reinitialized with _(α, ...)_ -- this is a keepalive
 
 ```bash
-$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3); K {a|p"foo"x+1; b|p"bar"x-1} M?>_' | sort
-"a" "foo" 2
-"a" "foo" 4
-"b" "bar" 1
+$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3)("a" τ)("b" τ);
+                    K *|p@>@; M?>_' | sort
+"a" (1) (3)
+"b" (2)
+$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" ω)("a" 3)("b" 4);
+                    K *|p@>@; M?>_' | sort
+"a" (1)
+"b" (2)
 ```
 
 

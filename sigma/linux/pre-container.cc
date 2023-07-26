@@ -106,10 +106,10 @@ struct lsat_ : public virtual at_, public virtual lmdb_at_
 {
   lsat_(cb_lmdb const &l) : at_(ct_set{}, l), lmdb_at_(l), db(l.db) {}
 
-  void α(ηic &x, ξo)   override { set(db, x.one().all(), {&m, 1}); }
-  void ω(ηic &x, ξo)   override { del(db, x.one().all()); }
-  void ι(ηic &x, ξo o) override { o.r(x.lsize() + 2) << x.all() << !get(db, x.one().all()).empty(); }
-  void τ(ηic &x, ξo o) override { sync(); o.r() << ηsig::τ; }
+  void α(ηic &x, ηic&, ξo)   override { set(db, x.one().all(), {&m, 1}); }
+  void ω(ηic &x, ηic&, ξo)   override { del(db, x.one().all()); }
+  void ι(ηic &x, ηic&, ξo o) override { o.r(x.lsize() + 2) << x.all() << !get(db, x.one().all()).empty(); }
+  void τ(ηic &x, ξo o)       override { sync(); o.r() << ηsig::τ; }
 
   St db;
 
@@ -120,12 +120,12 @@ struct lsat_ : public virtual at_, public virtual lmdb_at_
 struct lmat_ : public virtual at_, public virtual lmdb_at_
 {
   lmat_(cb_lmdb const &l) : at_(ct_map{}, l), lmdb_at_(l), db(l.db) {}
-  void α(ηic &x, ξo)   override { set(db, x.one().all(), x.next().all()); }
-  void ω(ηic &x, ξo)   override { del(db, x.one().all()); }
-  void ι(ηic &x, ξo o) override
-    { let r = get(db, x.one().all());
-      if (!r.empty()) o.r(x.lsize() + r.size() + 8) << x.one().all() << r;
-      else            o.r(x.lsize() + 2)            << x.one().all() << ηsig::ω; }
+  void α(ηic &k, ηic &v, ξo) override { set(db, k.all(), v.all()); }
+  void ω(ηic &k, ηic&, ξo)   override { del(db, k.all()); }
+  void ι(ηic &k, ηic&, ξo o) override
+    { let r = get(db, k.all());
+      if (!r.empty()) o.r(k.lsize() + r.size() + 8) << k.all() << r;
+      else            o.r(k.lsize() + 2)            << k.all() << ηsig::ω; }
   void τ(ηic &x, ξo o) override { sync(); o.r() << ηsig::τ; }
 
   St db;
