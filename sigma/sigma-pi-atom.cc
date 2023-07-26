@@ -30,6 +30,15 @@ void πshared_atom(πφ &p)
     .def_sa([](φaU<0x3c1>) { return πk(ηsig::ρ); })
     .def_sa([](φaU<0x3b8>) { return πk(ηsig::θ); })
 
+    .def_sa([](φaL<'S', 'a'>) { return πk(ηsig::α); })  // ASCII equivalents
+    .def_sa([](φaL<'S', 'k'>) { return πk(ηsig::κ); })
+    .def_sa([](φaL<'S', 'i'>) { return πk(ηsig::ι); })
+    .def_sa([](φaL<'S', 't'>) { return πk(ηsig::τ); })
+    .def_sa([](φaL<'S', 'w'>) { return πk(ηsig::ω); })
+    .def_sa([](φaL<'S', 'W'>) { return πk(ηsig::Ω); })
+    .def_sa([](φaL<'S', 'r'>) { return πk(ηsig::ρ); })
+    .def_sa([](φaL<'S', 'h'>) { return πk(ηsig::θ); })
+
     .def_sa([](φaL<'$'>, φident n)
       { return π1{"$" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
 
