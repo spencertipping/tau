@@ -39,10 +39,17 @@ Because `)` is a server and servers return client-connectors, `(...)` is equival
 ## Replicated multiplexers
 `*[]` creates a multiplexed group that creates copies of a process. Workers have names and are created using _(w, α, ...)_. Here, _w_ is the worker ID and _..._ is the initial argument forwarded to the worker. `*[]` peels a reference by one layer, so the inner process sees _(α, ...)_; anything the worker sends will have _w_ prepended.
 
-The worker can indicate finality in one of two ways:
+Aside from dropping its input (i.e. exiting), the worker can indicate finality in one of two ways:
 
 1. _(ω, ...)_: send a final message `...` and exit
 2. _(τ, ...)_: send a final message `...` and indicate that the worker can be reinitialized with _(α, ...)_ -- this is a keepalive
+
+```bash
+$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3); K {a|p"foo"x+1; b|p"bar"x-1} M?>_' | sort
+"a" "foo" 2
+"a" "foo" 4
+"b" "bar" 1
+```
 
 
 ## Asymmetric cross-multiplexing

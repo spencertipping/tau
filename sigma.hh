@@ -3,6 +3,7 @@
 
 #include "tau.hh"
 #include "sigma/pre-container.hh"
+#include "sigma/pre-multiplex.hh"
 
 #include "tau/begin.hh"
 
@@ -15,7 +16,8 @@ struct πφ : public τ::πφ_<πφ>,
             τ::πφP<πφ>,
             τ::φlit<πφ>,
             τ::φbrack<πφ>,
-            σ::pre::at_parsers<πφ>
+            σ::pre::at_parsers<πφ>,
+            σ::pre::mux_parsers<πφ>
 {
   using τ::πφ_<πφ>::p;
   using τ::πφP<πφ>::p;
@@ -23,6 +25,7 @@ struct πφ : public τ::πφ_<πφ>,
   using τ::φauto_str<πφ>::p;
   using τ::φlit<πφ>::p;
   using σ::pre::at_parsers<πφ>::p;
+  using σ::pre::mux_parsers<πφ>::p;
 };
 
 
@@ -30,13 +33,15 @@ struct Γφ : public τ::Γφ_<Γφ, πφ>,
             τ::φauto_str<Γφ>,
             τ::φlit<Γφ>,
             τ::φbrack<Γφ>,
-            σ::pre::at_parsers<Γφ>
+            σ::pre::at_parsers<Γφ>,
+            σ::pre::mux_parsers<Γφ>
 {
   using τ::Γφ_<Γφ, πφ>::p;
   using τ::φauto_str<Γφ>::p;
   using τ::φlit<Γφ>::p;
   using τ::φbrack<Γφ>::p;
   using σ::pre::at_parsers<Γφ>::p;
+  using σ::pre::mux_parsers<Γφ>::p;
 };
 
 

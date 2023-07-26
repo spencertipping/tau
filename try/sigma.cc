@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     if (r.is_f())
     {
       cerr << "parse error at " << r.j << ": " << r.p().name() << endl;
+      cerr << "here -> " << τ::St{argv[1]}.substr(r.j) << endl;
       return 1;
     }
 
