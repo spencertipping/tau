@@ -93,8 +93,18 @@ Further, for problems that aren't `du` we might want to distribute the work in s
 4. When the worker calls `!` to retrieve one or more futures' values, it emits a future-result request to the future controller (to inform it about how to close out threads)
 5. When a thread returns, the return value is emitted with its future key to the future controller, which can then alert whichever worker (if any) was depending on it
 
-**TODO:** diagram all of the IO
 
-**TODO:** verify this plan, make sure we have a way to control space complexity -- I guess worst-case we can kill a thread and restart it later
+## IO
+The future controller simply moves values to the correct workers; that's it. So it supports a two-layer key that includes the worker ID and the future ID. Its IO looks like this:
 
-**TODO:** sketch out the logic for the future controller
++ _(wid=fid, α, ...) → w_: initialize a worker
++ _w → (wid, fid, α, ...)_: request a recursive future
++ _(wid, fid, ω, v) → w_: indicate that a future has been resolved
++ _w → (wid=fid, ω, v)_: return a value for a future (from a child)
+
+**NOTE:** _fid_ is a hash of the future's calling arguments. This guarantees ID stability and makes it possible to cache future results for large computations.
+
+**NOTE:** _wid = fid_ for child workers.
+
+
+## Example

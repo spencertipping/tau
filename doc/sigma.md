@@ -29,7 +29,7 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 Γ/Ψ     ΓΓ  00   22 Γ2211112444S      22022  0 2 22222222
 
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
-Γ/Ψ   2SΓ22Γ ΓΓ2ΓΓ2ΓΓΓΓΓΓ 2**2 Γ2 424
+Γ/Ψ   2SΓ22Γ2ΓΓ2ΓΓ2ΓΓΓΓΓΓ 2**2 Γ2 424
 ```
 
 
@@ -80,41 +80,42 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 ### Ψ₂ half-duplex table
 **TODO:** design sort/join operators that work together to produce streaming τ-cyclic parallel sort
 
-| Symbol  | Notes | Description                              |
-|---------|-------|------------------------------------------|
-| `g`     | π     | τ-grouped sort by π expression           |
-| `h`     |       | HTTP/S+WS client                         |
-| `j`     | Γ     | τ-grouped sorted join                    |
-| `k`     |       | τ after each item                        |
-| `K`     |       | remove signals                           |
-| `p`     | π     | π program                                |
-| `r`/`R` | π     | π row selector                           |
-| `r^`    | int   | take/drop first N rows (per τ)           |
-| `r$`    | int   | take/drop last N rows (per τ)            |
-| `s`     | P     | SSH client                               |
-| `t`     |       | TCP client                               |
-| `u`     |       | UDP client                               |
-| `v`     |       | UNIX domain socket client                |
-| `w`/`W` | Γ     | tuple/map horizontal join                |
-| `x`     |       | prefix for shell execution               |
-| `y`     | P     | prefix for Python interop                |
-| `J`     | L? Γ  | τ-grouped unordered join                 |
-| `M?`    |       | monitor, debug-print each value          |
-| `M??`   | tag   | monitor, debug-print each value with tag |
-| `N`     |       | numeric ϊ                                |
-| `P`     | P     | prefix for parallelism                   |
-| `Q`     |       | prefix for queues/buffers                |
-| `@`     | P     | prefix for maps and sets                 |
-| `<`     | P     | prefix for unboxing                      |
-| `>`     | P     | prefix for boxing                        |
-| `~`     | P     | prefix for delay and rate-limit          |
-| `+`     | Γ     | τ-group append                           |
-| `^`     | Γ     | τ-group prepend                          |
-| `%`     | Γ     | Γ union (eager interleave)               |
-| `-`     |       | identity passthrough                     |
-| `,`     |       | break stream                             |
-| `;`     | Γ     | splice Ψ4 to Ψ2                          |
-| `?`     | P     | incremental search prefix                |
+| Symbol  | Notes | Description                                       |
+|---------|-------|---------------------------------------------------|
+| `g`     | π     | τ-grouped sort by π expression                    |
+| `h`     |       | HTTP/S+WS client                                  |
+| `j`     | Γ     | τ-grouped sorted join                             |
+| `k`     |       | τ after each item                                 |
+| `K`     |       | remove signals                                    |
+| `p`     | π     | π program                                         |
+| `r`/`R` | π     | π row selector                                    |
+| `r^`    | int   | take/drop first N rows (per τ)                    |
+| `r$`    | int   | take/drop last N rows (per τ)                     |
+| `s`     | P     | SSH client                                        |
+| `t`     |       | TCP client                                        |
+| `u`     |       | UDP client                                        |
+| `v`     |       | UNIX domain socket client                         |
+| `w`/`W` | Γ     | tuple/map horizontal join                         |
+| `x`     |       | prefix for shell execution                        |
+| `y`     | P     | prefix for Python interop                         |
+| `J`     | L? Γ  | τ-grouped unordered join                          |
+| `M?`    |       | monitor, debug-print each value                   |
+| `M??`   | tag   | monitor, debug-print each value with tag          |
+| `N`     |       | numeric ϊ                                         |
+| `P`     | P     | prefix for parallelism                            |
+| `Q`     |       | prefix for queues/buffers                         |
+| `@`     | P     | prefix for maps and sets                          |
+| `<`     | P     | prefix for unboxing                               |
+| `>`     | P     | prefix for boxing                                 |
+| `~`     | P     | prefix for delay and rate-limit                   |
+| `+`     | Γ     | τ-group append                                    |
+| `^`     | Γ     | τ-group prepend                                   |
+| `%`     | Γ     | Γ union (eager interleave)                        |
+| `-`     |       | identity passthrough                              |
+| `,`     |       | break stream                                      |
+| `;`     | Γ     | splice Ψ4 to Ψ2                                   |
+| `?`     | P     | [incremental search prefix](sigma-search.md)      |
+| `*`     | P     | [replicated multiplex prefix](sigma-multiplex.md) |
 
 
 ### Ψ₄ full-duplex table

@@ -34,6 +34,15 @@ Multiplexed ξ alternatives may terminate independently; by default, `{}` will s
 Because `)` is a server and servers return client-connectors, `(...)` is equivalent to `:)foo ...` followed by `(... &foo` (except that `foo` will be visible in one case but not the other).
 
 
+## Replicated multiplexers
+`*[]` creates a multiplexed group that creates copies of a process. Workers have names and are created using _(w, α, ...)_. Here, _w_ is the worker ID and _..._ is the initial argument forwarded to the worker. `*[]` peels a reference by one layer, so the inner process sees _(α, ...)_; anything the worker sends will have _w_ prepended.
+
+The worker can indicate finality in one of two ways:
+
+1. _(ω, ...)_: send a final message `...` and exit
+2. _(τ, ...)_: send a final message `...` and indicate that the worker can be reinitialized with _(α, ...)_ -- this is a keepalive
+
+
 ## Asymmetric cross-multiplexing
 The use case here is _mixing:_ for example, we have inputs of the form `user document edit` and we want to multiplex on documents and publish updates to users. Let's define a complete system around this problem.
 
