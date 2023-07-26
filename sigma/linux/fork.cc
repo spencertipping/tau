@@ -63,10 +63,12 @@ static Γ wqf(fd_t f, Ψd d = Ψd::f)
     x.t().clear();
     x.clear_unconst_();  // Forcibly remove references to parent's ψs
 
+#if τtrack_ψ
     Ss ps;
     for (let x : ψs()) ps << x->n_ << " ";
     A(!ψn(), "P2 fork(" << g.x << ") failed to clear ψs from parent: "
       << ψn() << " left: " << ps.str());
+#endif
 
     // Everything below happens with a new τe
     τe t;
@@ -104,10 +106,12 @@ static Γ wqf(fd_t f, Ψd d = Ψd::f)
     x.t().clear();
     x.clear_unconst_();  // Forcibly remove references to parent's ψs
 
+#if τtrack_ψ
     Ss ps;
     for (let x : ψs()) ps << x->n_ << " ";
     A(!ψn(), "P4 fork(" << g.x << ") failed to clear ψs from parent: "
       << ψn() << " left: " << ps.str());
+#endif
 
     close(fiW); close(foR);
     close(biW); close(boR);

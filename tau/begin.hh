@@ -13,11 +13,7 @@
 // even if not debugging
 # define assert(x) void(static_cast<bool>(x))
 # define A(x, m)   assert(x)
-# if τdebug_catchall
-#   define TA(x, m)  default: return x;
-# else
-#   define TA(x, m)
-# endif
+# define TA(x, m)  default: return x;
 
 #else
 # include <cassert>
@@ -26,11 +22,7 @@
      ? void(0)                                            \
      : τassert_fail(#x, __FILE__, __LINE__, m))
 
-# if τdebug_catchall
-#   define TA(r, m) default: A(0, m); return r;
-# else
-#   define TA(r, m)
-# endif
+# define TA(r, m) default: A(0, m); return r;
 #endif
 
 
