@@ -6,14 +6,6 @@
 + [η signal conventions](eta-signals.md)
 + [η/C++ destructuring](eta-cpp.md)
 
-```bash
-$ bin/eta-fast
-fa(i) = 4
-fa(i[2]) = 8
-ga(i) = 2 "afoo"
-ga(i[2]) = 3 "abarbif"
-```
-
 
 ## Format
 Each η value's size can be calculated in constant time, with the exception of the toplevel value which is a stream of values. Each value begins with a control byte, which describes the type and size-encoding of the thing that comes after it. There are 16 types and 16 size encodings:
