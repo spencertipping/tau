@@ -16,10 +16,12 @@ Sp<lmdb_db> lmdb_open(Stc &f)
   if (i != lmdbs.end() && !i->second.expired()) return i->second.lock();
 
   let r = Sp<lmdb_db>(new lmdb_db);
-  A(mdb_env_create(&r->e)                 == MDB_SUCCESS, "mdb_env_create() failed");
-  A(mdb_env_set_mapsize(r->e, 1ull << 40) == MDB_SUCCESS, "mdb_env_set_mapsize() failed");
-  A(mdb_env_open(r->e, f.c_str(), MDB_WRITEMAP | MDB_CREATE | MDB_NOSUBDIR, 0664) == MDB_SUCCESS,
-    "mdb_env_open(" << f << ") failed");
+  int rc;
+  A((rc = mdb_env_create(&r->e))                 == MDB_SUCCESS, "mdb_env_create() failed: " << mdb_strerror(rc));
+  A((rc = mdb_env_set_mapsize(r->e, 1ull << 40)) == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
+  A((rc = mdb_env_set_maxdbs(r->e, 1024))        == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: " << mdb_strerror(rc));
+  A((rc = mdb_env_open(r->e, f.c_str(), MDB_WRITEMAP | MDB_CREATE | MDB_NOSUBDIR, 0664)) == MDB_SUCCESS,
+    "mdb_env_open(" << f << ") failed: " << mdb_strerror(rc));
   lmdbs[f] = r;
   return r;
 }
@@ -50,7 +52,9 @@ struct lmdb_at_
   virtual ~lmdb_at_() { commit(); }
 
   MDB_txn *txn()
-    { if (!w_) mdb_txn_begin(l_->e, nullptr, 0, &w_);
+    { if (!w_)
+      { let rc = mdb_txn_begin(l_->e, nullptr, 0, &w_);
+        A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc)); }
       return w_; }
 
   void commit()
@@ -58,11 +62,13 @@ struct lmdb_at_
       w_ = nullptr; }
 
   MDB_dbi dbi(Stc &db)
-    { MDB_dbi r; mdb_dbi_open(txn(), db.c_str(), MDB_CREATE, &r); return r; }
+    { MDB_dbi r;
+      let rc = mdb_dbi_open(txn(), db.c_str(), MDB_CREATE, &r);
+      A(rc == MDB_SUCCESS, "mdb_dbi_open() failed: " << mdb_strerror(rc));
+      return r; }
 
   Sn<u8c> get(Stc &db, Sn<u8c> const &k)
-    { std::cerr << "get(" << db << ")" << std::endl;
-      let d = dbi(db);
+    { let d = dbi(db);
       MDB_val key = {k.size(), (void*)k.data()};
       MDB_val val;
       let r = mdb_get(txn(), d, &key, &val);
@@ -81,6 +87,10 @@ struct lmdb_at_
       MDB_val key = {k.size(), (void*)k.data()};
       let rc = mdb_del(txn(), d, &key, nullptr);
       A(rc == MDB_SUCCESS, "mdb_del() failed: " << mdb_strerror(rc)); }
+
+  void sync()
+    { commit();
+      mdb_env_sync(l_->e, 1); }
 };
 
 
@@ -91,6 +101,7 @@ struct lsat_ : public virtual at_, public virtual lmdb_at_
   void α(ηic &x, ξo)   override { set(db, x.one().all(), {&m, 1}); }
   void ω(ηic &x, ξo)   override { del(db, x.one().all()); }
   void ι(ηic &x, ξo o) override { o.r(x.lsize() + 2) << x.all() << !get(db, x.one().all()).empty(); }
+  void τ(ηic &x, ξo o) override { sync(); o.r() << ηsig::τ; }
 
   St db;
 
@@ -105,8 +116,9 @@ struct lmat_ : public virtual at_, public virtual lmdb_at_
   void ω(ηic &x, ξo)   override { del(db, x.one().all()); }
   void ι(ηic &x, ξo o) override
     { let r = get(db, x.one().all());
-      if (!r.empty()) o.r(x.lsize() + r.size() + 8) << x.all() << r;
-      else            o.r(x.lsize() + 2)            << x.all() << r; }
+      if (!r.empty()) o.r(x.lsize() + r.size() + 8) << x.one().all() << r;
+      else            o.r(x.lsize() + 2)            << x.one().all() << ηsig::ω; }
+  void τ(ηic &x, ξo o) override { sync(); o.r() << ηsig::τ; }
 
   St db;
 };
