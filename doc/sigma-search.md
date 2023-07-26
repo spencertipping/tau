@@ -107,4 +107,5 @@ The future controller simply moves values to the correct workers; that's it. So 
 **NOTE:** _wid = fid_ for child workers.
 
 
-## Example
+## Search context
+`?[...]` is usually combined with `*[]` ([replicated multiplexing](sigma-multiplex.md)) to create a recursive future-evaluation context.

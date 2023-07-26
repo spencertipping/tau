@@ -20,10 +20,12 @@ Internally, we do this with scope indexes: `{` increments the scope index and `}
 
 Although you could in principle have an unterminated `{`, it isn't common in practice.
 
-Multiplexed ξ alternatives may terminate independently; by default, `{}` will send `k ω` for any `k` that does so.
+Multiplexed ξ alternatives may terminate independently; by default, `{}` will send `k ω` for any `k` that does so. `{}` will fail if you write to an expired alternative.
 
 
 ## Dynamic multiplexers
+**TODO:** can this be merged with replicated multiplexing? They feel like the same problem, except that replicated multiplexers propagate channel state between `(` and `)` (which we probably want).
+
 `(` and `)` are also mirrors; unlike `{}`, however, `(` must be terminated by a `)` with two exceptions:
 
 1. `( ... &s`: each Γ connects to a server

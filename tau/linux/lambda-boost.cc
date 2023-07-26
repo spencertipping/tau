@@ -28,6 +28,7 @@ void λm(λbc::continuation &&cc)
   λinit();
   if (λmi)
     k = new λbc::continuation(λbc::callcc(
+      std::allocator_arg, λbc::fixedsize_stack(λss),
       [&](λbc::continuation &&cc)
         { λm(cc.resume());
           f();
@@ -64,6 +65,7 @@ void λ::fin()
     // this out yet, but cc.resume() at the beginning makes it work reliably.
     k = new λbc::continuation;
     auto cc = λbc::callcc(
+      std::allocator_arg, λbc::fixedsize_stack(λss),
       [&](λbc::continuation &&cc)
         { λm(cc.resume());
           f();
