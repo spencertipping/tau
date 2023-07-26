@@ -12,13 +12,23 @@ namespace τ
 // π interpreter registers
 struct πir final : public virtual πhv
 {
-  πir(πh &h) : πhv(h) {}
+  πir(πh &h) : πhv(h)
+    { x_.reserve(8); y_.reserve(8); push_x({}); push_y({}); }
 
-  πhr x;
-  πhr y;
+  πhr &x() { return x_.back(); }
+  πhr &y() { return y_.back(); }
 
-  void mark() {     h.mark(x);     h.mark(y); }
-  void move() { x = h.move(x); y = h.move(y); }
+  πir &push_x(πhr const &x) { x_.push_back(x); return *this; }
+  πir &push_y(πhr const &y) { y_.push_back(y); return *this; }
+  πhr  pop_x()              { let r = x_.back(); x_.pop_back(); return r; }
+  πhr  pop_y()              { let r = y_.back(); y_.pop_back(); return r; }
+
+  void mark() { for (let  &v : x_)     h.mark(v); for (let  &v : y_)     h.mark(v); }
+  void move() { for (auto &v : x_) v = h.move(v); for (auto &v : y_) v = h.move(v); }
+
+protected:
+  V<πhr> x_;
+  V<πhr> y_;
 };
 
 
@@ -95,14 +105,21 @@ struct πi final
   ξo &bo() { return bo_; }
   ξi &bi() { return bi_; }
 
-  πhr &x() { return r_.x; }
-  πhr &y() { return r_.y; }
+  πhr &x() { return r_.x(); }
+  πhr &y() { return r_.y(); }
 
-  πi &def_x() { r_.x = pop(); return *this; }
-  πi &def_y() { r_.y = pop(); return *this; }
+  πi &def_x()             { r_.x() = pop(); return *this; }
+  πi &def_y()             { r_.y() = pop(); return *this; }
+  πi &def_x(πhr const &r) { r_.x() = r;     return *this; }
+  πi &def_y(πhr const &r) { r_.y() = r;     return *this; }
 
-  πi &clear_x()  { r_.x.clear(); return *this; }
-  πi &clear_y()  { r_.y.clear(); return *this; }
+  πi &save_x()    { r_.push_x(r_.x()); return *this; }
+  πi &save_y()    { r_.push_y(r_.y()); return *this; }
+  πi &restore_x() { return push(r_.pop_x()); }
+  πi &restore_y() { return push(r_.pop_y()); }
+
+  πi &clear_x()  { r_.x().clear(); return *this; }
+  πi &clear_y()  { r_.y().clear(); return *this; }
   πi &clear_xy() { clear_x(); return clear_y(); }
 
   Tt πi   &def_ev(Stc &n, T    *v) { e_[n] = Sp<πev>(v);           return *this; }

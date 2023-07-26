@@ -73,13 +73,17 @@ struct nmat_ : public virtual at_
 Sp<at_> at(ctype t, cback b)
 {
   return std::visit(fn {
-      [&](auto,        auto)      { A(0, "@TB unsupported: " << t << ", " << b); return Sp<at_>(nullptr); },
+      [&](let&, let&) { A(0, "@TB unsupported: " << t << ", " << b); return Sp<at_>(nullptr); },
+
       [&](ct_fifo,     cb_native) { return Sp<at_>(new nfat_()); },
       [&](ct_prio_min, cb_native) { return Sp<at_>(new nnat_()); },
       [&](ct_prio_max, cb_native) { return Sp<at_>(new nxat_()); },
       [&](ct_set,      cb_native) { return Sp<at_>(new nsat_()); },
       [&](ct_uniq,     cb_native) { return Sp<at_>(new nuat_()); },
-      [&](ct_map,      cb_native) { return Sp<at_>(new nmat_()); }}, t, b);
+      [&](ct_map,      cb_native) { return Sp<at_>(new nmat_()); },
+
+      [&](ct_set, cb_lmdb const &l) { return lmdb_set(l); },
+      [&](ct_map, cb_lmdb const &l) { return lmdb_map(l); }}, t, b);
 }
 
 
@@ -106,7 +110,8 @@ O &operator<<(O &s, cback const &b)
   {
   case 0: return s << "native";
   case 1: return s << "d" << std::get<1>(b).n;
-  case 2: return s << "S\"" << std::get<2>(b).db << ":" << std::get<2>(b).t << "\"";
+  case 2: return s << "S\"" << std::get<2>(b).db << ":" << std::get<2>(b).t  << "\"";
+  case 3: return s << "L\"" << std::get<3>(b).f  << ":" << std::get<3>(b).db << "\"";
     TA(s, "cback Va<> OOB (internal error)");
   }
 }

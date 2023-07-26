@@ -27,8 +27,9 @@ typedef Va<ct_fifo, ct_prio_min, ct_prio_max,  // 0..2
 struct cb_native   {};
 struct cb_disk_tmp { bytes n; };
 struct cb_sqlite   { St db; St t; };
+struct cb_lmdb     { St f;  St db; };
 
-typedef Va<cb_native, cb_disk_tmp, cb_sqlite> cback;
+typedef Va<cb_native, cb_disk_tmp, cb_sqlite, cb_lmdb> cback;
 
 
 template<class A> struct at_parsers
@@ -44,12 +45,17 @@ template<class A> struct at_parsers
   auto p(ct_bloom*) const
     { return φauto(*Rc<A const*>(this), [](φaL<'B'>, u64 n, f64 fp) { return ct_bloom{n, fp}; }); }
 
-  auto p(cb_native*)   const { return φR(cb_native{}); }
-  auto p(cb_disk_tmp*) const { return φauto(*Rc<A const*>(this), [](bytes b) { return cb_disk_tmp{b}; }); }
-  auto p(cb_sqlite*)   const { return φauto(*Rc<A const*>(this), [](St s)
+  auto p(cb_native*)   const { return φauto(*Rc<A const*>(this), [](φaL<'N'>) { return cb_native{}; }); }
+  auto p(cb_disk_tmp*) const { return φauto(*Rc<A const*>(this), [](φaL<'D'>, bytes b) { return cb_disk_tmp{b}; }); }
+  auto p(cb_sqlite*)   const { return φauto(*Rc<A const*>(this), [](φaL<'S'>, St s)
     { let i = s.find(':');
       A(i != s.npos, "cb_sqlite → " << s << " unsupported");
       return cb_sqlite{s.substr(0, i), s.substr(i + 1)}; }); }
+
+  auto p(cb_lmdb*)     const { return φauto(*Rc<A const*>(this), [](φaL<'L'>, St s)
+    { let i = s.find(':');
+      A(i != s.npos, "cb_lmdb → " << s << " unsupported");
+      return cb_lmdb{s.substr(0, i), s.substr(i + 1)}; }); }
 };
 
 
@@ -75,6 +81,11 @@ struct at_
   ctype t_;
   cback b_;
 };
+
+
+// NOTE: provided by platform-specific backends
+Sp<at_> lmdb_set(cb_lmdb const&);
+Sp<at_> lmdb_map(cb_lmdb const&);
 
 
 Sp<at_> at(ctype, cback);

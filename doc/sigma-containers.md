@@ -3,24 +3,36 @@ As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures
 
 
 ```bash
-$ bin/sigma-fast 'n1p@-(α 5)(ι 5)(ι 6)(τ)(ι 5); @? M?>_'
+$ bin/sigma-fast 'n1p@-(α 5)(ι 5)(ι 6)(τ)(ι 5); @?N M?>_'
 5 true
 6 false
 τ
 5 false
 τ
 $ bin/sigma-fast 'n1p@-(α "a" 11 12)(α 2 3)(ι "a")(ι 2)(ι 5)
-                       (τ)(ι 2); @: M?>_'
+                       (τ)(ι 2); @:N M?>_'
 "a" 11 12
 2 3
 5 ω
 τ
 2 ω
 τ
-$ bin/sigma-fast 'n1p@- (α 1)(α 2)(α 1)(α 3); @u M?>_'
+$ bin/sigma-fast 'n1p@- (α 1)(α 2)(α 1)(α 3); @uN M?>_'
 1
 2
 3
+τ
+```
+
+Same is true for LMDB:
+
+```bash
+$ rm -f /tmp/test.db
+$ bin/sigma-fast 'n1p@-(α "a" 11 12)(α 2 3)(ι "a")(ι 2)(ι 5);
+                     @:L"/tmp/test.db:foo" M?>_'
+"a" 11 12
+2 3
+5 ω
 τ
 ```
 
@@ -39,7 +51,7 @@ Queues can be cleared and await advancement signals to emit elements. They often
 Queues are constructed using two suffixes: the first specifies the behavior and the second, when applicable, specifies the backend. For example:
 
 ```
-@=d1G           # FIFO disk queue sized at 1GiB
+@=D1G           # FIFO disk queue sized at 1GiB
 @>              # memory-backed max-priority queue
 @<              # memory-backed min-priority queue
 @>S"foo.db:pq"  # sqlite-backed max-priority queue
@@ -59,7 +71,7 @@ Sets remember whether an element has been inserted or not. Sets have the followi
 
 Sets have some special cases:
 
-+ `@B` to create a Bloom filter (see below)
++ `@b` to create a Bloom filter (see below)
 + `@u` to create a filter that emits only unique elements (resets on _τ_)
 
 `@u` is a simplified set that works like this:
@@ -105,7 +117,7 @@ Like queues, maps and sets are specified using two suffixes:
 @?             # C++ native set
 @:             # C++ native map
 @;             # C++ native multimap
-@B318          # C++ native bloom filter with k=3, #bits=10^18
+@b318          # C++ native bloom filter with k=3, #bits=10^18 (TODO)
 @=S"foo.db:t"  # sqlite passthrough queue
 @<S"foo.db:t"  # sqlite min-queue
 @?S"foo.db:t"  # sqlite set

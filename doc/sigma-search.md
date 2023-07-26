@@ -98,9 +98,11 @@ Further, for problems that aren't `du` we might want to distribute the work in s
 The future controller simply moves values to the correct workers; that's it. So it supports a two-layer key that includes the worker ID and the future ID. Its IO looks like this:
 
 + _(wid=fid, α, ...) → w_: initialize a worker
++ _(wid, fid, ω, ...) → w_: provide a future's value to a worker
 + _w → (wid, fid, α, ...)_: request a recursive future
-+ _(wid, fid, ω, v) → w_: indicate that a future has been resolved
-+ _w → (wid=fid, ω, v)_: return a value for a future (from a child)
++ _w → (wid=fid, ω, ...)_: return a value for a future (from a child)
+
+**NOTE:** futures hold horizontal values; we don't support vertical streams.
 
 **NOTE:** _fid_ is a hash of the future's calling arguments. This guarantees ID stability and makes it possible to cache future results for large computations.
 
@@ -108,4 +110,8 @@ The future controller simply moves values to the correct workers; that's it. So 
 
 
 ## Search context
-`?[...]` is usually combined with `*[]` ([replicated multiplexing](sigma-multiplex.md)) to create a recursive future-evaluation context.
+`?[...]` is usually combined with `*[]` ([replicated multiplexing](sigma-multiplex.md)) to create a recursive future-evaluation context that splays recursive calls across different worker threads. For example:
+
+```
+?*pf
+```

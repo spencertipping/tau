@@ -88,6 +88,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `k`     |       | τ after each item                                 |
 | `K`     |       | remove signals                                    |
 | `p`     | π     | π program                                         |
+| `pf`    | π     | π program with recursive futures                  |
 | `r`/`R` | π     | π row selector                                    |
 | `r^`    | int   | take/drop first N rows (per τ)                    |
 | `r$`    | int   | take/drop last N rows (per τ)                     |

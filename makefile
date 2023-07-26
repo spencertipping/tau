@@ -33,7 +33,7 @@ ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -s
 # NOTE: stack size args seem to have no effect for wasm
 
 
-native_libs = -lsqlite3 -lboost_context -lzstd \
+native_libs = -lsqlite3 -lboost_context -lzstd -llmdb \
 	      -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 \
 	      -lharfbuzz -lcairo \
 	      -lxcb -lX11 -lGL -lX11-xcb

@@ -1,5 +1,5 @@
-#ifndef σsearch_h
-#define σsearch_h
+#ifndef σmultiplex_h
+#define σmultiplex_h
 
 #include "begin.hh"
 
@@ -9,10 +9,7 @@ namespace σ
 using namespace τ;
 
 
-// TODO: search pieces
-
-
-void Γsearch(Γφ&);
+void Γmultiplex(Γφ&);
 
 
 }

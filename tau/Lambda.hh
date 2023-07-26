@@ -38,12 +38,18 @@ struct Λt final
 };
 
 
+struct Λ;
+
+Λ   &Λ_();    // current Λ (the one running the current thread)
+void Λ_(Λ*);  // set current Λ
+
+
 // NOTE: managed λs should yield out with Λ.y, not λy() defined by lambda.hh
 struct Λ final
 {
   Λ(Λ&)  = delete;
   Λ(Λ&&) = delete;
-  Λ() {}
+  Λ() { csws.reserve(8); }
 
   // This deserves some explanation. ~Λ causes ~λ, which causes ~λf, which
   // causes ~ξ, which causes λg::w(), which attempts to wake more λs.
@@ -51,7 +57,7 @@ struct Λ final
   // Well, by that point our data structures are in some undefined state
   // of deallocation; it's bad. So we set fin here to indicate that the
   // world is ending, nothing matters from here.
-  ~Λ() { fin = true; }
+  ~Λ() { fin = true; Λ_(nullptr); }
 
   bool e(λi i) const { return fin ? false : ls.contains(i); }
   λi   i()     const { return ri; }
@@ -70,10 +76,13 @@ struct Λ final
 
   uN n() const { return ls.size(); }
 
+  Λ &csw(F<void()> &&f) { csws.push_back(mo(f)); return *this; }
+
 
 protected:
   M<λi, Sp<Λt>> ls;           // all λs
   S<λi>         rs;           // run set
+  V<F<void()>>  csws;         // context switch callbacks
   ΣΘΔ           qΘ;           // quantum time measurement
   λi            ni  = 0;      // next λi (always nonzero for managed λ)
   λi            ri  = 0;      // currently running λi (0 = main thread)

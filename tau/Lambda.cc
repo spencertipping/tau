@@ -5,6 +5,12 @@ namespace τ
 {
 
 
+static Λ *L = nullptr;
+
+Λ   &Λ_()     { A(L, "Λ_ with no active Λ"); return *L; }
+void Λ_(Λ *l) { L = l; }
+
+
 void Λ::clear()
 {
   if (fin) return;
@@ -78,7 +84,10 @@ void Λ::clear()
   auto &l = *ls.at(ri = i);
   qΘ.start();
   ++cs_;
+  Λ_(this);
   l.run();
+  for (let &f : csws) f();
+  csws.clear();
   ri = 0;
   if (l.done()) ls.erase(i);
   qΘ.stop();
