@@ -23,8 +23,8 @@ slet replicated_multiplex2_ = Ψauto([](Γ g, ψ q, ξi i, ξo o)
           { for (let x : ri) o.r(x.lsize() + 2 + k.size()) << k << x.all(); });
       }
 
-      if (rs[k] && !x.next().is_ω()) rs[k] << x.next();
-      else                           rs.erase(k), ls.erase(k);
+      if (rs.contains(k) && rs.at(k) && !x.next().is_ω()) rs[k] << x.next();
+      else                                                rs.erase(k), ls.erase(k);
     }
   });
 
@@ -48,8 +48,8 @@ slet static_multiplex2_ = Ψauto([](φrbrace<M<St, Γ>> gs, ψ q, ξi i, ξo o)
     q.weaken(false);
     for (let x : i)
     { let k = St{x.s()};
-      if (rs[k] && !x.next().is_ω()) rs[k] << x.next();
-      else                           rs.erase(k); }
+      if (rs.contains(k) && rs.at(k) && !x.next().is_ω()) rs[k] << x.next();
+      else                                                rs.erase(k); }
   });
 
 
@@ -76,16 +76,18 @@ slet static_multiplex4_ = Ψauto<true>(
     }
 
     q.f([=]()
-      { for (let x : fi)
+      { auto &m = *frs;
+        for (let x : fi)
         { let k = St{x.s()};
-          if ((*frs)[k] && !x.next().is_ω()) (*frs)[k] << x.next();
-          else                               frs->erase(k); }});
+          if (m.contains(k) && m.at(k) && !x.next().is_ω()) m[k] << x.next();
+          else                                              m.erase(k); }});
 
     q.f([=]()
-      { for (let x : bi)
+      { auto &m = *brs;
+        for (let x : bi)
         { let k = St{x.s()};
-          if ((*brs)[k] && !x.next().is_ω()) (*brs)[k] << x.next();
-          else                               brs->erase(k); }});
+          if (m.contains(k) && m.at(k) && !x.next().is_ω()) m[k] << x.next();
+          else                                              m.erase(k); }});
   });
 
 

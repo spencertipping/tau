@@ -85,12 +85,15 @@ struct ξ final
 
   struct it
   {
-    ξ *const y;  // null == EOF
+    ξ *y;  // null == EOF
 
     bool          eof()            const { return !y || y->eof(); }
     bool   operator==(it const &x) const { return eof() == x.eof(); }
-    it    &operator++()       { A(y, "++ξ::end"); y->next(); return *this; }
-    Sn<u8> operator* () const { A(y,  "*ξ::end");            return **y; }
+    Sn<u8> operator* () const { A(y, "*ξ::end"); return **y; }
+    it    &operator++()
+      { A(y, "++ξ::end");
+        if (y->ra()) y->next(); else y = nullptr;
+        return *this; }
   };
 
   it begin() { return {this}; }

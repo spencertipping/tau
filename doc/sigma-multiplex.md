@@ -29,6 +29,13 @@ $ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3); K {a|p"foo"x+1; b|p"bar"x-1} M?>_'
 "a" ω
 "b" "bar" 1
 "b" ω
+$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3)("a" ω)("a" 4);
+                    K {a|p"foo"x+1; b|p"bar"x-1} M?>_' | sort
+"a" "foo" 2
+"a" "foo" 4
+"a" ω
+"b" "bar" 1
+"b" ω
 ```
 
 
@@ -48,7 +55,8 @@ $ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3)("a" τ)("b" τ);
 $ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" ω)("a" 3)("b" 4);
                     K *|p@>@; M?>_' | sort
 "a" (1)
-"b" (2)
+"a" (3)
+"b" (2) (4)
 ```
 
 
