@@ -1,5 +1,6 @@
 #include "pre-container.hh"
 #include "../begin.hh"
+#include <lmdb.h>
 
 namespace σ::pre
 {
@@ -39,21 +40,29 @@ struct lmdb_at_
 {
   Sp<lmdb_db> l_;
   MDB_txn    *w_;
+  Λcsw        c_;
 
-  lmdb_at_(cb_lmdb const &l) : l_(lmdb_open(l.f)), w_(nullptr) {}
-  virtual ~lmdb_at_() { if (w_) mdb_txn_commit(w_); w_ = nullptr; }
+  lmdb_at_(cb_lmdb const &l)
+    : l_(lmdb_open(l.f)),
+      w_(nullptr),
+      c_([this]() { commit(); }) {}
+
+  virtual ~lmdb_at_() { commit(); }
 
   MDB_txn *txn()
-    { let cs = !w_;
-      mdb_txn_begin(l_->e, nullptr, 0, &w_);
-      if (cs) Λ_().csw([&]() { mdb_txn_commit(w_); w_ = nullptr; }); // TODO: error handling
+    { if (!w_) mdb_txn_begin(l_->e, nullptr, 0, &w_);
       return w_; }
+
+  void commit()
+    { if (w_) mdb_txn_commit(w_);
+      w_ = nullptr; }
 
   MDB_dbi dbi(Stc &db)
     { MDB_dbi r; mdb_dbi_open(txn(), db.c_str(), MDB_CREATE, &r); return r; }
 
   Sn<u8c> get(Stc &db, Sn<u8c> const &k)
-    { let d = dbi(db);
+    { std::cerr << "get(" << db << ")" << std::endl;
+      let d = dbi(db);
       MDB_val key = {k.size(), (void*)k.data()};
       MDB_val val;
       let r = mdb_get(txn(), d, &key, &val);
@@ -64,14 +73,14 @@ struct lmdb_at_
     { let d = dbi(db);
       MDB_val key = {k.size(), (void*)k.data()};
       MDB_val val = {v.size(), (void*)v.data()};
-      A(mdb_put(txn(), d, &key, &val, 0) == MDB_SUCCESS,
-        "mdb_put() failed"); }
+      let rc = mdb_put(txn(), d, &key, &val, 0);
+      A(rc == MDB_SUCCESS, "mdb_put() failed: " << mdb_strerror(rc)); }
 
   void del(Stc &db, Sn<u8c> const &k)
     { let d = dbi(db);
       MDB_val key = {k.size(), (void*)k.data()};
-      A(mdb_del(txn(), d, &key, nullptr) == MDB_SUCCESS,
-        "mdb_del() failed"); }
+      let rc = mdb_del(txn(), d, &key, nullptr);
+      A(rc == MDB_SUCCESS, "mdb_del() failed: " << mdb_strerror(rc)); }
 };
 
 

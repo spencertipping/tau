@@ -86,7 +86,7 @@ void Λ::clear()
   ++cs_;
   Λ_(this);
   l.run();
-  for (let &f : csws) f();
+  for (let &c : csws) c->f();
   csws.clear();
   ri = 0;
   if (l.done()) ls.erase(i);

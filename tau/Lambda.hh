@@ -39,6 +39,7 @@ struct Λt final
 
 
 struct Λ;
+struct Λcsw;
 
 Λ   &Λ_();    // current Λ (the one running the current thread)
 void Λ_(Λ*);  // set current Λ
@@ -49,7 +50,7 @@ struct Λ final
 {
   Λ(Λ&)  = delete;
   Λ(Λ&&) = delete;
-  Λ() { csws.reserve(8); }
+  Λ() { csws.reserve(16); }
 
   // This deserves some explanation. ~Λ causes ~λ, which causes ~λf, which
   // causes ~ξ, which causes λg::w(), which attempts to wake more λs.
@@ -76,20 +77,31 @@ struct Λ final
 
   uN n() const { return ls.size(); }
 
-  Λ &csw(F<void()> &&f) { csws.push_back(mo(f)); return *this; }
+  void ccsw(Λcsw const *x) { csws.insert(x); }
+  void xcsw(Λcsw const *x) { csws.erase(x); }
 
 
 protected:
-  M<λi, Sp<Λt>> ls;           // all λs
-  S<λi>         rs;           // run set
-  V<F<void()>>  csws;         // context switch callbacks
-  ΣΘΔ           qΘ;           // quantum time measurement
-  λi            ni  = 0;      // next λi (always nonzero for managed λ)
-  λi            ri  = 0;      // currently running λi (0 = main thread)
-  bool          fin = false;  // we're done; ignore all requests
-  u64           cs_ = 0;      // total context switches
+  M<λi, Sp<Λt>>  ls;           // all λs
+  S<λi>          rs;           // run set
+  S<Λcsw const*> csws;         // context switch callbacks
+  ΣΘΔ            qΘ;           // quantum time measurement
+  λi             ni  = 0;      // next λi (always nonzero for managed λ)
+  λi             ri  = 0;      // currently running λi (0 = main thread)
+  bool           fin = false;  // we're done; ignore all requests
+  u64            cs_ = 0;      // total context switches
 
   friend O &operator<<(O&, Λ&);
+};
+
+
+struct Λcsw final
+{
+  F<void()> f;
+  Λ        &l;
+
+  Λcsw(F<void()> &&f_) : f(mo(f_)), l(Λ_()) { l.ccsw(this); }
+  ~Λcsw()                                   { l.xcsw(this); }
 };
 
 
