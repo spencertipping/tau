@@ -21,6 +21,22 @@ You can think about it like this: Γ transforms Ξ _cables_ (many streams), Ψ t
 π is somewhat involved and its standard library is documented [separately](sigma-pi-stdlib.md).
 
 
+```bash
+$ bin/sigma-fast 'n1p[@-("a" 1)("b" 2 3)("a" 0)("b" 1)(τ);`
+                      @-("a" 1)("Z" 1)("0" 0)]
+                    g M?>_'
+"a" 0
+"a" 1
+"b" 1
+"b" 2 3
+τ
+"0" 0
+"Z" 1
+"a" 1
+τ
+```
+
+
 ## Parse tables
 First an overall map of which characters are mapped to which tables. Numbers represent Ψ levels, `S` represents syntax (comments/whitespace).
 
@@ -31,6 +47,9 @@ sym  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 Γ/Ψ   2SΓ22Γ2ΓΓ2ΓΓ2ΓΓΓΓΓΓ 2**2 Γ2 424
 ```
+
+
+## TODO: GC everything below
 
 
 ### Γ table
