@@ -57,6 +57,7 @@ struct lmdb_at_
   // until you call ro_done()
   lmdb_at_(cb_lmdb const &l)
     : l_(lmdb_open(l.f)),
+      r_(nullptr),
       w_(nullptr),
       c_([this]() { commit(); }) {}
 
