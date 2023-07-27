@@ -109,6 +109,27 @@ The future controller simply moves values to the correct workers; that's it. So 
 **NOTE:** _w = f_ for child workers.
 
 
+## Fanout control
+This isn't obvious to me right now, so let's figure it out.
+
+If we approach a problem depth-first, we'll end up using _O(d)_ stack frames at a minimum -- and if each is encoded as a future, then we'll have _O(d)_ futures. Since _d_ isn't usually bounded by any specific number, this means we can't impose a limit on the number of parallel evaluations going on.
+
+The problem seems to be that we have `!f` and `#f` happening in the same π process, so we have to keep the interpreter in memory. Can't do futures without continuations, can't do disk-persistent continuations without serializable heap+source+call points. We're actually pretty close there, so maybe it would work?
+
+**Option 1:** add disk-persistent continuations to π
+
+**Option 2:** use separate π processes for `#f` and `!f`: scatter/gather
+
+Of these two options, (2) is a lot simpler. How would `du` work?
+
+```
+:du ? @:N p -dx ? *#f ls x : -s x;
+          p x<| +/ x|>
+```
+
+`*#f` fans out, `-s` computes inline size, `x<| +/ x|>` emits `path size` pairs from `path size...` aggregates.
+
+
 ## Search context
 **FIXME:** how do we manage flow control? This is a big question.
 
