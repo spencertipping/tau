@@ -47,6 +47,7 @@ Queues can be cleared and await advancement signals to emit elements. They often
 ```
 x α → q     ⇒ x|q     # enqueue element
 ι   → (q|x) ⇒ q  → x  # dequeue element if one exists
+ι   → ()    ⇒ () → ω
 τ   → q     ⇒ () → τ  # clear queue (sync for disk queues)
 ```
 
@@ -54,8 +55,8 @@ Queues are constructed using two suffixes: the first specifies the behavior and 
 
 ```
 @=D1G           # FIFO disk queue sized at 1GiB
-@>              # memory-backed max-priority queue
-@<              # memory-backed min-priority queue
+@>N             # memory-backed max-priority queue
+@<N             # memory-backed min-priority queue
 @>S"foo.db:pq"  # sqlite-backed max-priority queue
 ```
 

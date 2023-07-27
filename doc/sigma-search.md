@@ -110,18 +110,21 @@ The future controller simply moves values to the correct workers; that's it. So 
 
 
 ## Search context
+**FIXME:** how do we manage flow control? This is a big question.
+
 `?` is usually combined with `*[]` ([replicated multiplexing](sigma-multiplex.md)) to create a recursive future-evaluation context that splays recursive calls across different worker threads. For example:
 
 ```
-:du ? @:N *p -dx ? +/ *!f *#f ls x
-                 : -s x
+:du ? @=N @:N *p -dx ? +/ *!f *#f ls x
+                     : -s x
 ```
 
-Equivalently: `:du?@:N*p-dx?+/*!f*#flsx:-sx`.
+Equivalently: `:du?-@:N*p-dx?+/*!f*#flsx:-sx`.
 
 Let's break this down:
 
-+ `? c f` is a future controller with cache `c` and function `f`
++ `? q c f` is a future controller with queue `q`, cache `c`, and function `f`
++ `@=N` is a FIFO queue, which results in depth-first evaluation
 + `@:N` is a native C++ map
 + `*[]` is a replicated multiplex
 + `p...` is π
@@ -155,10 +158,12 @@ H[x] → ω       # if we've never seen x before
 
 Note that the cache doesn't have a "running" state; if we did, it would be possible for the cache to desynchronize from reality, e.g. if the program is interrupted and the cache is disk-based. As it is, the worst case is that we have extra queued records that correspond to futures whose values will never be requested.
 
-Anyway, `? → c` is the following: `(H["/bin"] ι) (H["/etc"] ι) ...`; we then observe `(H["/bin"] ω) (H["/etc"] ω) ...`, so we store `α` records:
+Anyway, `? → c` is the following: `(H["/bin"] ι) (H["/etc"] ι) ...`; we then observe `(H["/bin"] ω) (H["/etc"] ω) ...`, so we store `α` records; `? → c` is:
 
 ```
 H["/bin"] α α H["/"] "/bin"
 H["/etc"] α α H["/"] "/etc"
 ...
 ```
+
+Each of these is also enqueued: `? → q` is `(H["/bin"] α) (H["/etc"] α)`.
