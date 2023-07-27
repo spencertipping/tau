@@ -5,6 +5,11 @@
 #include "tau/arch.hh"
 #include "tau/debug.hh"
 
+#include "tau/cptr.hh"
+#include "tau/mptr.hh"
+#include "tau/ctypes.hh"
+#include "tau/types.hh"
+
 #include "tau/numerics.hh"
 #include "tau/strings.hh"
 #include "tau/shd.hh"

@@ -154,3 +154,11 @@ H[x] → ω       # if we've never seen x before
 ```
 
 Note that the cache doesn't have a "running" state; if we did, it would be possible for the cache to desynchronize from reality, e.g. if the program is interrupted and the cache is disk-based. As it is, the worst case is that we have extra queued records that correspond to futures whose values will never be requested.
+
+Anyway, `? → c` is the following: `(H["/bin"] ι) (H["/etc"] ι) ...`; we then observe `(H["/bin"] ω) (H["/etc"] ω) ...`, so we store `α` records:
+
+```
+H["/bin"] α α H["/"] "/bin"
+H["/etc"] α α H["/"] "/etc"
+...
+```

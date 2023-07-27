@@ -153,16 +153,15 @@ struct lmdb_ls_ : public virtual at_ls_, public virtual lmdb_at_
 
   void ls(ξo o)
     { let d = ro_dbi(db);
-      MDB_cursor *c;
+      Mp<MDB_cursor> c(mdb_cursor_close);
       int rc = mdb_cursor_open(ro_txn(), d, &c);
       A(rc == MDB_SUCCESS, "mdb_cursor_open() failed: " << mdb_strerror(rc));
       MDB_val k, v;
-      while ((rc = mdb_cursor_get(c, &k, &v, MDB_NEXT)) == MDB_SUCCESS)
+      while ((rc = mdb_cursor_get(c.get(), &k, &v, MDB_NEXT)) == MDB_SUCCESS)
         o.r(k.mv_size + v.mv_size + 8)
           << Sn<u8c>{Rc<u8c*>(k.mv_data), k.mv_size}
           << Sn<u8c>{Rc<u8c*>(v.mv_data), v.mv_size};
       A(rc == MDB_NOTFOUND, "mdb_cursor_get() failed: " << mdb_strerror(rc));
-      mdb_cursor_close(c);
       ro_done(); }
 
   St db;

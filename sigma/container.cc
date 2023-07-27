@@ -26,7 +26,7 @@ slet container_ = Ψauto([](pre::ctype t, pre::cback b, ξi i, ξo o)
 
 slet container_ls_ = Ψauto([](pre::cback b, ξo o)
   {
-
+    pre::at_ls(b)->ls(o);
   });
 
 
