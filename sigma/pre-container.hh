@@ -83,12 +83,24 @@ struct at_
 };
 
 
+struct at_ls_
+{
+  at_ls_(cback const &b) : b_(b) {}
+  virtual ~at_ls_() {}
+  virtual void ls(ξo) = 0;
+  cback b_;
+};
+
+
 // NOTE: provided by platform-specific backends
 Sp<at_> lmdb_set(cb_lmdb const&);
 Sp<at_> lmdb_map(cb_lmdb const&);
 
+Sp<at_ls_> lmdb_ls(cb_lmdb const&);
 
-Sp<at_> at(ctype, cback);
+
+Sp<at_>    at   (ctype, cback);
+Sp<at_ls_> at_ls(cback);
 
 
 }

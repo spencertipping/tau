@@ -24,6 +24,18 @@ slet container_ = Ψauto([](pre::ctype t, pre::cback b, ξi i, ξo o)
   });
 
 
+slet container_ls_ = Ψauto([](pre::cback b, ξo o)
+  {
+
+  });
+
+
+Γ container_ls(pre::cback b, Ψd d)
+{
+  return ΓΨ(container_ls_(b), d, "@|");
+}
+
+
 Γ container(pre::ctype t, pre::cback b, Ψd d)
 {
   return ΓΨ(container_(t, b), d, "@");
@@ -32,7 +44,9 @@ slet container_ = Ψauto([](pre::ctype t, pre::cback b, ξi i, ξo o)
 
 void Γcontainer(Γφ &g)
 {
-  g .def_p2("@", Ψauto(container_));
+  g .def_p1("@|", Ψauto(container_ls_))
+    .def_p2("@",  Ψauto(container_))
+    ;
 }
 
 

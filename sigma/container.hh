@@ -10,6 +10,7 @@ namespace σ
 using namespace τ;
 
 Γ container(pre::ctype, pre::cback, Ψd = Ψd::f);
+Γ container_ls(pre::cback, Ψd = Ψd::f);
 
 void Γcontainer(Γφ&);
 

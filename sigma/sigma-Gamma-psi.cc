@@ -25,6 +25,7 @@ void Γshared_ψ(Γφ &g)
     .def_p2("M??", [](St n,     ξi i, ξo o) { for (let x : i) std::cout << n << ": " << x << std::endl, o << x; })
     .def_p2("p",   [](πt<π1> f, ξi i, ξo o) { πi p(i, o); for (let x : i) { p.push(p << x.all()); p.def_x(); f.x(p); if (let r = p.pop()) o << p[r]; p.clear_xy(); } })
     .def_p2("r",   [](πt<π1> f, ξi i, ξo o) { πi p(i, o); for (let x : i) { p.push(p << x.all()); p.def_x(); f.x(p); if (p.ypop().cb()) o << x; p.clear_xy(); } })
+
     .def_p2("g",   [](          ξi i, ξo o)
       { V<ηm> xs;
         let g = [&]()

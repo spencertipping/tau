@@ -95,23 +95,62 @@ Further, for problems that aren't `du` we might want to distribute the work in s
 
 
 ## IO
-The future controller simply moves values to the correct workers; that's it. So it supports a two-layer key that includes the worker ID and the future ID. Its IO looks like this:
+The future controller simply moves values to the correct workers; that's it. So it supports a two-layer key that includes the worker ID _w_ and the future ID _f_. Its IO looks like this:
 
-+ _(wid=fid, α, ...) → w_: initialize a worker
-+ _(wid, fid, ω, ...) → w_: provide a future's value to a worker
-+ _w → (wid, fid, α, ...)_: request a recursive future
-+ _w → (wid=fid, ω, ...)_: return a value for a future (from a child)
++ _w ... →_: create a worker
++ _w ω f ... →_: inform a worker about a future's value
++ _→ w α f ..._: worker creates a future
++ _→ w ..._: worker returns a value for a future
 
 **NOTE:** futures hold horizontal values; we don't support vertical streams.
 
-**NOTE:** _fid_ is a hash of the future's calling arguments. This guarantees ID stability and makes it possible to cache future results for large computations.
+**NOTE:** _f_ is a hash of the future's calling arguments. This guarantees ID stability and makes it possible to cache future results for large computations.
 
-**NOTE:** _wid = fid_ for child workers.
+**NOTE:** _w = f_ for child workers.
 
 
 ## Search context
-`?[...]` is usually combined with `*[]` ([replicated multiplexing](sigma-multiplex.md)) to create a recursive future-evaluation context that splays recursive calls across different worker threads. For example:
+`?` is usually combined with `*[]` ([replicated multiplexing](sigma-multiplex.md)) to create a recursive future-evaluation context that splays recursive calls across different worker threads. For example:
 
 ```
-?*pf
+:du ? @:N *p -dx ? +/ *!f *#f ls x
+                 : -s x
 ```
+
+Equivalently: `:du?@:N*p-dx?+/*!f*#flsx:-sx`.
+
+Let's break this down:
+
++ `? c f` is a future controller with cache `c` and function `f`
++ `@:N` is a native C++ map
++ `*[]` is a replicated multiplex
++ `p...` is π
++ `-d` is Perl's `-d`, `-dx` means "is it a dir"
++ `?:` is ternary conditional
++ `+/` sums a list
++ `*!f ∷ [F<T>] → [T]`
++ `*#f ∷ [T] → [F<f(T)>]`
++ `ls x` = directory entries
++ `-s x` = file size (same as Perl)
+
+Here's the IO, e.g. for `i"/" $du`, where `H[]` is the arg-hashing function (SHA of η). `→` is a horizontal record, `⇒` is a vertical stream (so `(1 2 3) ⇒` is equivalent to `1 2 3 →`):
+
++ `"/" → ? c f`
+  + `H["/"] ι → c`
+  + `c → H["/"] ω`: a cache miss
++ `H["/"] "/" → f`: create a new π
+  + `"/" → p...`: initialize the π; `x = "/"`
+  + `-d "/" = true`
+    + `ls x = "/bin" "/etc" ...`
+    + `*#f "/bin" "/etc" ... = H["/bin"] H["/etc"] ... ⇒ (α H["/bin"] "/bin") (α H["/etc"] "/etc") ...`
+    + `⇒ (H["/"] α H["/bin"] "/bin") (H["/"] α H["/etc"] "/etc") ...` due to `*`
+
+At this point `?` is back in play: it sees this stream of requests and stores them into the pending-future cache, which is keyed on `H[x]` and stores one of these mappings:
+
+```
+H[x] → ι f(x)  # if f(x) is known
+H[x] → α w x   # if it's queued but not yet known
+H[x] → ω       # if we've never seen x before
+```
+
+Note that the cache doesn't have a "running" state; if we did, it would be possible for the cache to desynchronize from reality, e.g. if the program is interrupted and the cache is disk-based. As it is, the worst case is that we have extra queued records that correspond to futures whose values will never be requested.

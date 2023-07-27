@@ -1,6 +1,8 @@
 # σ containers
 As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures -- follow some conventions to simplify interfacing with other components. The set of operators depends on the structure.
 
+**TODO:** rewrite this page because it's confusing
+
 
 ```bash
 $ bin/sigma-fast 'n1p@-(5 α)(5 ι)(6 ι)(τ)(5 ι); @?N M?>_'
@@ -43,9 +45,9 @@ $ bin/sigma-fast 'n1p@-("a" α 11 12)(2 α 3)("a" ι)(2 ι)(5 ι);
 Queues can be cleared and await advancement signals to emit elements. They often reorder their elements, e.g. by priority. The API works like this:
 
 ```
-α x → q     ⇒ x|q     # enqueue element
+x α → q     ⇒ x|q     # enqueue element
 ι   → (q|x) ⇒ q  → x  # dequeue element if one exists
-τ   → q     ⇒ () → τ  # clear queue
+τ   → q     ⇒ () → τ  # clear queue (sync for disk queues)
 ```
 
 Queues are constructed using two suffixes: the first specifies the behavior and the second, when applicable, specifies the backend. For example:
@@ -62,11 +64,11 @@ Queues are constructed using two suffixes: the first specifies the behavior and 
 Sets remember whether an element has been inserted or not. Sets have the following API:
 
 ```
-α x   → s   ⇒ x|s           # insert into set
-ω x   → x|s ⇒ s             # delete from set (not always supported)
-ι x   → s   ⇒ s → e?        # check for element existence
-ρ x y → s   ⇒ s → τ[x...y]  # range query (not always supported)
-τ     → s   ⇒ () → τ        # clear set
+x α   → s   ⇒ x|s           # insert into set
+x ω   → x|s ⇒ s             # delete from set (not always supported)
+x ι   → s   ⇒ s → e?        # check for element existence
+x ρ y → s   ⇒ s → τ[x...y]  # range query (not always supported)
+τ     → s   ⇒ () → τ        # clear set (sync for disk sets)
 ```
 
 Sets have some special cases:
@@ -77,8 +79,8 @@ Sets have some special cases:
 `@u` is a simplified set that works like this:
 
 ```
-α x →   s ⇒ x|s → x
-α x → x|s ⇒ x|s
+x α →   s ⇒ x|s → x
+x α → x|s ⇒ x|s
 τ   →   s ⇒ () → τ
 ```
 
@@ -87,10 +89,10 @@ Sets have some special cases:
 Maps are similar:
 
 ```
-α k v   → m       ⇒ {k:v,m}
-ω k     → {k:v,m} ⇒ m
-ι k     → {k:v,m} ⇒ {k:v,m} → v       # v = τ if element does not exist
-ρ k₁ k₂ → m       ⇒ m → τ[k₁ ... k₂]  # range query (not always supported)
+k  α v  → m       ⇒ {k:v,m}
+k  ω    → {k:v,m} ⇒ m
+k  ι    → {k:v,m} ⇒ {k:v,m} → v       # v = τ if element does not exist
+k₁ ρ k₂ → m       ⇒ m → τ[k₁ ... k₂]  # range query (not always supported)
 τ       → m       ⇒ () → τ
 ```
 
@@ -99,12 +101,20 @@ Maps are similar:
 Finally we have multimaps:
 
 ```
-α k v   → m                    ⇒ {k:v,m}
-ω k v   → {k:v,m}              ⇒ m
-ω k     → {k:v₁, k:v₂, ..., m} ⇒ m
-ι k     → {k:v₁, k:v₂, ..., m} ⇒ m → τ[v₁, v₂, ...]
-ρ k₁ k₂ → m                    ⇒ m → τ[k₁ ... k₂]  # range (not always supported)
+k  α v  → m                    ⇒ {k:v,m}
+k  ω v  → {k:v,m}              ⇒ m
+k  ω    → {k:v₁, k:v₂, ..., m} ⇒ m
+k  ι    → {k:v₁, k:v₂, ..., m} ⇒ m → τ[v₁, v₂, ...]
+k₁ ρ k₂ → m                    ⇒ m → τ[k₁ ... k₂]  # range (not always supported)
 τ       → m                    ⇒ () → τ
+```
+
+
+## Persistent collection listing (`@|`)
+You can list everything in a disk-backed collection using `@|`:
+
+```
+@|L"/tmp/foo.db:t"  # list all table entries in LMDB
 ```
 
 
@@ -112,12 +122,12 @@ Finally we have multimaps:
 Like queues, maps and sets are specified using two suffixes:
 
 ```
-@=             # C++ native unbounded passthrough queue (not much point to this)
-@<             # C++ native min-queue
-@?             # C++ native set
-@:             # C++ native map
-@;             # C++ native multimap
-@b318          # C++ native bloom filter with k=3, #bits=10^18 (TODO)
+@=N            # C++ native unbounded passthrough queue (not much point to this)
+@<N            # C++ native min-queue
+@?N            # C++ native set
+@:N            # C++ native map
+@;N            # C++ native multimap
+@b318N         # C++ native bloom filter with k=3, #bits=10^18 (TODO)
 @=S"foo.db:t"  # sqlite passthrough queue
 @<S"foo.db:t"  # sqlite min-queue
 @?S"foo.db:t"  # sqlite set

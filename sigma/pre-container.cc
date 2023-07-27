@@ -87,6 +87,14 @@ Sp<at_> at(ctype t, cback b)
 }
 
 
+Sp<at_ls_> at(cback b)
+{
+  return std::visit(fn {
+      [&](let&) { A(0, "@|B unsupported: " << b); return Sp<at_ls_>(nullptr); },
+      [&](cb_lmdb const &l) { return lmdb_ls(l); }}, b);
+}
+
+
 O &operator<<(O &s, ctype const &t)
 {
   switch (t.index())
