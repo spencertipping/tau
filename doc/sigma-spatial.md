@@ -41,3 +41,15 @@ _n_ will be retired as soon as _f → n = v_; at that point `?` caches _n = v_.
 
 ## Parallelism
 _f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s outputs for those inputs may be emitted out of order. That is, you can wrap any _f_ in `PS[]` and everything will still work normally, up to calculation ordering.
+
+
+## `?` dataflow
++ _n → ?[n ι → c] → q_: enqueue frontier
++ _f → n=v ⇒ n α v → c; cf(n)_: store result, check for finalized dependents on _n_
++ _f → (n ← a) (n ← b) ⇒ [a ι → c] a α → q, [b ι → c] b α → q_: enqueue uncalculated results and reuse calculated ones
++ _f → (n ← a t v₁) (n ← b t v₂) ⇒ ..._: same, but enqueue with _t_ as priority
++ _q [t < θ] → f_: _f_ gets work from the queue if it hasn't expired
+
+**NOTE:** there is no need to prune intermediate results; _f_ is invoked only when all of its dependents have values, whether calculated or failover. If _n' t ← n''_, then we automatically assign _t_ to _n''_ so it is terminated at the same time. (**NOTE:** this means _f_ must receive _n t_, not just _n_.)
+
+**NOTE:** `?` can negotiate one-at-a-time IO by explicitly `λy` after each entry, then awaiting `ra() == 0` on the outbound ξ. This guarantees that we don't buffer incorrectly-prioritized work.
