@@ -67,7 +67,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `A`     |         | [authentication prefix](sigma-http-ws.md) |
 | `D`     |         | decryption prefix                         |
 | `E`     |         | encryption prefix                         |
-| `P`     | Γ       | fork to local process                     |
+| `P`     |         | prefix for parallelism                    |
 | `\|`    | Ψ[012]  | modify processor to right-cap             |
 | `\\`    | Ψ[012]  | modify processor to backward              |
 | `:)`    | n Γ     | define tagged-union server                |
@@ -122,7 +122,8 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `M?`    |       | monitor, debug-print each value                   |
 | `M??`   | tag   | monitor, debug-print each value with tag          |
 | `N`     |       | numeric ϊ                                         |
-| `P`     | P     | prefix for parallelism                            |
+| `P2`    | Γ     | fork to a Γ that connects as Ψ₂                   |
+| `PS`    | n Γ   | transparently parallelize to `n` copies of a Ψ₂   |
 | `Q`     |       | prefix for queues/buffers                         |
 | `@`     | P     | prefix for maps and sets                          |
 | `<`     | P     | prefix for unboxing                               |
@@ -145,6 +146,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `/`    | P     | platform-specific namespace        |
 | `//`   | P     | synthetic namespace                |
 | `H`    | Γ     | [HTTP+WS server](sigma-http-ws.md) |
+| `P4`   | Γ     | fork to a Γ that connects as Ψ₄    |
 | `X`    |       | OT integral prefix                 |
 | `Y`    |       | OT derivative prefix               |
 | `Z`    |       | OT structure prefix                |

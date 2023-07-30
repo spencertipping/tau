@@ -10,34 +10,34 @@ Suppose _n_ is a node in space. A function _f(n)_ runs over a timeline _t(n) = t
 
 Deadlines are prioritized in a queue per worker.
 
-
-## Original thoughts
-The goal of any `?` operator is to handle topology and eliminate loops. So we should be able to define functionality in a "stream of node visits → stream of next steps" kind of way. Some next steps for a node _n_:
-
-+ Emit _n_ with score _s_
-+ Terminate at _n_
-+ Enqueue _n'_ on frontier with priority _p_
-+ Define dependency _n → n'_
-+ Define result/attribute for _n_ (we need this to define dependencies)
-+ Cache return value for _n_ (or maybe request caching for _n'_)
-
-**Q:** how do we specify what to do with dependency data? For example, `du` involves summing the child sizes; so we might stream out _n → n'_ for each child, then _v ← +/x_ or something.
-
-**NOTE:** node attributes need not exist; we can use node values and multiplex on the nodes themselves (since nodes can be η).
-
-**NOTE:** dependencies must be emitted in a complete list; that way we'll know when we have all _n' → n_ and can generate _n_'s value
-
-It is very appropriate to use π to calculate a search derivative, then have `?` integrate it. Derivatives are time-invariant in a way that integrals are not.
-
-**NOTE:** `? cback` is slightly wrong because we'll have a k/v cache and a queue -- `cback` doesn't give us space for both (unless we use `N`, which is implicitly unshared). We can fix this by defining a sub-namespacing function for `cback` that allows us to append something to the table/DB name.
-
-**Q:** are there situations where we need asynchronous neighbor generation? If so, we really have _n → τ[Δ]_ where _Δ_ is the search-instruction stuff.
+Ok, suppose we have multiple timeline points for a given node -- so _(n', v)_ comes back and we submit more _n''_ for evaluation, potentially with a new deadline.
 
 
-## Linearizing spatial domains
-First, we don't technically linearize the domain if parallelism is involved. Our events are partially ordered with nondeterminism if multiple branches choose to terminate at once. So **termination is a per-branch criterion.**
+## `?` core
+If we have a process _n → f → I*_, where _I_ is an instruction, then `?f` should execute the program specified by _f_. That program may include:
 
-With that in mind, a domain is linearized by constructing a spatial path and tying it to a timeline. This means we have two options:
++ _n ← n'_: unbounded dependency on _f(n')_
++ _n ← n' t v_: time-bounded dependency on _f(n')_, defaulting to _v_
++ _n = v_: return value _v_ for node _n_
 
-1. Emit fully-ordered events
-2. Branch into multiple parallel timelines
+**NOTE:** _I*_ is a horizonal η vector; that is, we emit _(n ← a) (n ← b)_ instead of _τ[n ← a, n ← b]_. We do this because _f_ may be internally parallel, e.g. with `PSN[...]`.
+
+**NOTE:** _f_ must be stateless.
+
+`?` manages several things:
+
+1. Deduplicating _f(n')_ computations
+2. Scheduling _f(n')_ calls, typically by nearest-deadline-first (using `@<`)
+3. Caching _v ← f(n')_ results
+4. Storing all result data in a `@:` container
+
+_f_ is invoked in one of the following ways:
+
++ _n → f_ (initial state)
++ _n n₁ v₁ n₂ v₂ ... → f_ (dependency results are available)
+
+_n_ will be retired as soon as _f → n = v_; at that point `?` caches _n = v_.
+
+
+## Parallelism
+_f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s outputs for those inputs may be emitted out of order. That is, you can wrap any _f_ in `PS[]` and everything will still work normally, up to calculation ordering.
