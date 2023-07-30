@@ -1,14 +1,17 @@
 # Spatial computation
-**Q:** what is the total effect space? e.g for τ in general it's very bounded: ψ can only emit on ξ. We need to define something similar here.
+Suppose _n_ is a node in space. A function _f(n)_ runs over a timeline _t(n) = t₀(n) → t₁(n)_ with node dependencies _n' ∈ N_. Here's what we know:
 
-**Q:** how do we accommodate "populate a database" as an intended effect?
+1. If _n' → n_, then _t₁(n) > t₁(n')_ (dependencies are used to compute result)
+2. If _N ← n_ is the full set of nodes that depend on _n_, then _t₀(n) > t₀(n') ∀ n' ∈ N_ (nodes are not visited until something depends on them)
+3. _f(n)_ is computed at most once for a given _n_ unless we're deliberately forgetful, so _t₀(n)_ and _t₁(n)_ are both well-defined
+4. (1) implies that the order in which dependencies are evaluated does not matter
 
-**Idea:** _G → k τ[...]_: keyed _τ_ groups to explore, then _k ... → A → v_ to calculate final values
+**Deadline search:** _n ← (n', t, v)_ evaluate _n'_ for _n_ before time _t_; if no result is found, return _v_
 
-**TODO:** what does it mean to linearize a spatial domain, especially given that we apparently also want to deduplicate it on the exploration side?
+Deadlines are prioritized in a queue per worker.
 
 
-## How about this
+## Original thoughts
 The goal of any `?` operator is to handle topology and eliminate loops. So we should be able to define functionality in a "stream of node visits → stream of next steps" kind of way. Some next steps for a node _n_:
 
 + Emit _n_ with score _s_
@@ -28,4 +31,13 @@ It is very appropriate to use π to calculate a search derivative, then have `?`
 
 **NOTE:** `? cback` is slightly wrong because we'll have a k/v cache and a queue -- `cback` doesn't give us space for both (unless we use `N`, which is implicitly unshared). We can fix this by defining a sub-namespacing function for `cback` that allows us to append something to the table/DB name.
 
-**Q:** are there situations where we need asynchronous neighbor generation? If so, we really have _n → τ[Δ]_, where _Δ_ is the search-instruction stuff.
+**Q:** are there situations where we need asynchronous neighbor generation? If so, we really have _n → τ[Δ]_ where _Δ_ is the search-instruction stuff.
+
+
+## Linearizing spatial domains
+First, we don't technically linearize the domain if parallelism is involved. Our events are partially ordered with nondeterminism if multiple branches choose to terminate at once. So **termination is a per-branch criterion.**
+
+With that in mind, a domain is linearized by constructing a spatial path and tying it to a timeline. This means we have two options:
+
+1. Emit fully-ordered events
+2. Branch into multiple parallel timelines
