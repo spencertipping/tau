@@ -63,6 +63,7 @@ _f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s out
 ```cpp
 struct val
 {
+  // FIXME: r should be a tri-state: scheduled/deps/resolved
   bool r;      // true if resolved
   S<node> ps;  // nodes that depend on this one
   union { ηm v; V<node> ds; };
@@ -81,7 +82,11 @@ bool expired(node n)
 
 for (let x : q)
   // Send all non-expired nodes to f
-  if (!expired(x)) fo.r() << x;
+  if (!expired(x) && !s.contains(x))
+  {
+    s.insert(x);  // mark x as scheduled
+    fo.r() << x;
+  }
 ```
 
 Then we have _f_'s output:
