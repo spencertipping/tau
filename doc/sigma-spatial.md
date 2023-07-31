@@ -1,24 +1,9 @@
 # Spatial computation
-Suppose _n_ is a node in space. A function _f(n)_ runs over a timeline _t(n) = t₀(n) → t₁(n)_ with node dependencies _n' ∈ N_. Here's what we know:
-
-1. If _n' → n_, then _t₁(n) > t₁(n')_ (dependencies are used to compute result)
-2. If _N ← n_ is the full set of nodes that depend on _n_, then _t₀(n) > t₀(n') ∀ n' ∈ N_ (nodes are not visited until something depends on them)
-3. _f(n)_ is computed at most once for a given _n_ unless we're deliberately forgetful, so _t₀(n)_ and _t₁(n)_ are both well-defined
-4. (1) implies that the order in which dependencies are evaluated does not matter
-
-**Deadline search:** _n ← (n', t, v)_ evaluate _n'_ for _n_ before time _t_; if no result is found, return _v_
-
-Deadlines are prioritized in a queue per worker.
-
-Ok, suppose we have multiple timeline points for a given node -- so _(n', v)_ comes back and we submit more _n''_ for evaluation, potentially with a new deadline.
-
-
-## `?` core
 If we have a process _n → f → I*_, where _I_ is an instruction, then `?f` should execute the program specified by _f_. That program may include:
 
 + _n ← n'_: unbounded dependency on _f(n')_
-+ _n ← n' t v_: time-bounded dependency on _f(n')_, defaulting to _v_
 + _n = v_: return value _v_ for node _n_
++ _t_: wake up at time _t_, even if not all deps are ready
 
 **NOTE:** _I*_ is a horizonal η vector; that is, we emit _(n ← a) (n ← b)_ instead of _τ[n ← a, n ← b]_. We do this because _f_ may be internally parallel, e.g. with `PSN[...]`.
 
@@ -44,7 +29,7 @@ _f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s out
 
 
 ## `?` dataflow
-**TODO:** remove time-deadlines; we should instead have wakeup requests
+**NOTE:** remove time-deadlines; we should instead have wakeup requests
 
 + _n → ?[n ι → c] → q_: enqueue frontier
 + _f → n=v ⇒ n α v → c; cf(n)_: store result, check for finalized dependents on _n_
@@ -53,8 +38,6 @@ _f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s out
 + _q [t < θ] → f_: _f_ gets work from the queue if it hasn't expired
 
 **NOTE:** there is no need to prune intermediate results; _f_ is invoked only when all of its dependents have values, whether calculated or failover. If _n' t ← n''_, then we automatically assign _t_ to _n''_ so it is terminated at the same time. (**NOTE:** this means _f_ must receive _n t_, not just _n_.)
-
-**Q:** do we want deadlines as such, or do we want dependency-graph GC? Probably the latter. Deadlines should be _f_ wakeups.
 
 **NOTE:** `?` can negotiate one-at-a-time IO by explicitly `λy` after each entry, then awaiting `ra() == 0` on the outbound ξ. This guarantees that we don't buffer incorrectly-prioritized work.
 
