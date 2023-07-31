@@ -99,9 +99,12 @@ for (let x : fi)
   if (x.is_deps())              // f → (n ← a) (n ← b) ...
     for (let y : x.ds)
     {
-      c[y.n].ps.insert(x.n);
       c[x.n].ds.push_back(y.n);
-      q.push(y.n);
+      if (c[y.n].r != 2)
+      {
+        c[y.n].ps.insert(x.n);
+        q.push(y.n);
+      }
     }
   else if (x.is_neqv())         // f → n=v
     resolve(x.n, x.v);
