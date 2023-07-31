@@ -91,12 +91,8 @@ void resolve(node n, ηm v)
   V<node> rs;  // to remove
   for (let p : c[n].ps)
     if (ready(p))
-    {
-      rs.push_back(p);
       rq.push(p);  // add p to the ready-queue
-    }
-  for (let r : rs)
-    c[n].ps.erase(r);
+  c[n].ps.clear();
 }
 
 for (let x : fi)
