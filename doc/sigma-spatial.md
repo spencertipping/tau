@@ -44,6 +44,8 @@ _f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s out
 
 
 ## `?` dataflow
+**TODO:** remove time-deadlines; we should instead have wakeup requests
+
 + _n → ?[n ι → c] → q_: enqueue frontier
 + _f → n=v ⇒ n α v → c; cf(n)_: store result, check for finalized dependents on _n_
 + _f → (n ← a) (n ← b) ⇒ [a ι → c] a α → q, [b ι → c] b α → q_: enqueue uncalculated results and reuse calculated ones
@@ -52,4 +54,89 @@ _f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s out
 
 **NOTE:** there is no need to prune intermediate results; _f_ is invoked only when all of its dependents have values, whether calculated or failover. If _n' t ← n''_, then we automatically assign _t_ to _n''_ so it is terminated at the same time. (**NOTE:** this means _f_ must receive _n t_, not just _n_.)
 
+**Q:** do we want deadlines as such, or do we want dependency-graph GC? Probably the latter. Deadlines should be _f_ wakeups.
+
 **NOTE:** `?` can negotiate one-at-a-time IO by explicitly `λy` after each entry, then awaiting `ra() == 0` on the outbound ξ. This guarantees that we don't buffer incorrectly-prioritized work.
+
+
+## Cache update algorithm
+```cpp
+struct val
+{
+  bool r;      // true if resolved
+  S<node> ps;  // nodes that depend on this one
+  union { ηm v; V<node> ds; };
+};
+
+bool expired(node n)
+{
+  // We're expired if all parents are expired, or if this
+  // node already has a value
+  if (c[n].r) return true;
+  for (let p : n.ps)
+    if (!expired(n.p))
+      return false;
+  return true;
+}
+
+for (let x : q)
+  // Send all non-expired nodes to f
+  if (!expired(x)) fo.r() << x;
+```
+
+Then we have _f_'s output:
+
+```cpp
+bool ready(node n)
+{
+  if (c[n].r) return false;  // done, not ready
+  for (let d : c[n].ds)
+    if (!c.contains(d)) return false;
+  return true;
+}
+
+void resolve(node n, ηm v)
+{
+  if (c[n].r) return;
+  c[n].r = true;
+  c[n].v = v;
+  V<node> rs;  // to remove
+  for (let p : c[n].ps)
+    if (ready(p))
+    {
+      rs.push_back(p);
+      rq.push(p);  // add p to the ready-queue
+    }
+  for (let r : rs)
+    c[n].ps.erase(r);
+}
+
+for (let x : fi)
+{
+  if (c[x.n].r) continue;  // node is finalized
+  if (x.is_deps())         // f → (n ← a) (n ← b) ...
+    for (let y : x.ds)
+    {
+      c[y.n].ps.insert(x.n);
+      c[x.n].ds.push_back(y.n);
+      q.push(y.n);
+    }
+  else if (x.is_neqv())    // f → n=v
+  {
+    resolve(x.n, x.v);
+  }
+}
+```
+
+The final piece activates _f_ from the ready queue:
+
+```cpp
+for (let x : rq)
+  if (!expired(x))
+    fo.r([&](auto &&r)
+      {
+        r << x;
+        for (let y : c[x].ds)
+          r << y << (c[y].r ? c[y].v : ω);
+      });
+```
