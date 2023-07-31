@@ -46,8 +46,7 @@ _f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s out
 ```cpp
 struct val
 {
-  // FIXME: r should be a tri-state: scheduled/deps/resolved
-  bool r;      // true if resolved
+  int r;       // 0 = scheduled, 1 = waiting, 2 = resolved
   S<node> ps;  // nodes that depend on this one
   union { ηm v; V<node> ds; };
 };
@@ -56,7 +55,7 @@ bool expired(node n)
 {
   // We're expired if all parents are expired, or if this
   // node already has a value
-  if (c[n].r) return true;
+  if (c[n].r == 2) return true;
   for (let p : n.ps)
     if (!expired(n.p))
       return false;
@@ -77,7 +76,7 @@ Then we have _f_'s output:
 ```cpp
 bool ready(node n)
 {
-  if (c[n].r) return false;  // done, not ready
+  if (c[n].r != 1) return false;
   for (let d : c[n].ds)
     if (!c.contains(d)) return false;
   return true;
@@ -85,10 +84,9 @@ bool ready(node n)
 
 void resolve(node n, ηm v)
 {
-  if (c[n].r) return;
+  if (c[n].r == 2) return;
   c[n].r = true;
   c[n].v = v;
-  V<node> rs;  // to remove
   for (let p : c[n].ps)
     if (ready(p))
       rq.push(p);  // add p to the ready-queue
@@ -97,18 +95,16 @@ void resolve(node n, ηm v)
 
 for (let x : fi)
 {
-  if (c[x.n].r) continue;  // node is finalized
-  if (x.is_deps())         // f → (n ← a) (n ← b) ...
+  if (c[x.n].r == 2) continue;  // node is finalized
+  if (x.is_deps())              // f → (n ← a) (n ← b) ...
     for (let y : x.ds)
     {
       c[y.n].ps.insert(x.n);
       c[x.n].ds.push_back(y.n);
       q.push(y.n);
     }
-  else if (x.is_neqv())    // f → n=v
-  {
+  else if (x.is_neqv())         // f → n=v
     resolve(x.n, x.v);
-  }
 }
 ```
 
@@ -121,6 +117,6 @@ for (let x : rq)
       {
         r << x;
         for (let y : c[x].ds)
-          r << y << (c[y].r ? c[y].v : ω);
+          r << y << (c[y].r == 2 ? c[y].v : ω);
       });
 ```
