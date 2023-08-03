@@ -43,6 +43,8 @@ _f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s out
 
 
 ## Cache update algorithm
+**TODO:** can we do this entirely with streaming containers?
+
 ```cpp
 struct val
 {
