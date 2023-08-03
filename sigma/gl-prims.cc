@@ -151,7 +151,7 @@ gl_vbo::gl_vbo(ηic &x)
   }
 
   let vs = x.next();
-  let n = vs.η().len();
+  let n  = vs.η().len();
 
   vsize  = vs.len();
   stride = sizeof(GLfloat) * n;

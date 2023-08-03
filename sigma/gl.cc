@@ -68,7 +68,7 @@ gl_text &gl_render_state::text(ηic &x)
 
 gl_vbo &gl_render_state::vbo(ηic &x)
 {
-  // vbo(name (x1 y1 z1) (x2 y2 z2) ...)
+  // vbo(name (a1o a1l a2o a2l ...) (x1 y1 z1 a1 a2 ...) ...)
   let h = x.one().sha256();
   mark_v(h);
   if (!vs.contains(h)) vs[h] = gl_vbo(x.next());
