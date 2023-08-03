@@ -12,11 +12,12 @@ namespace σ
 {
 
 
-struct canvas_gl_window final : public virtual gl_window_base
+struct canvas_gl_window final : public virtual gl_window_base,
+                                public virtual gl_usable
 {
   EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx;
 
-  canvas_gl_window(Stc &id) : gl_window_base(id)
+  canvas_gl_window(Stc &id) : gl_window_base(id), gl_usable()
     { EmscriptenWebGLContextAttributes attrs;
       emscripten_webgl_init_context_attributes(&attrs);
       ctx = emscripten_webgl_create_context(id.c_str(), &attrs); }

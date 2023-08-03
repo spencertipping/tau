@@ -34,6 +34,7 @@ struct color
   color(f64 r, f64 g, f64 b)            : r(r), g(g), b(b), a(1) {}
   color(f64 r)                          : r(r), g(r), b(r), a(1) {}
   color(T<f64, f64, f64, f64> const &t) : r(std::get<0>(t)), g(std::get<1>(t)), b(std::get<2>(t)), a(std::get<3>(t)) {}
+  color(ηic &x)                         : r(x[0].cf()), g(x[1].cf()), b(x[2].cf()), a(x[3].cf()) {}
 
   color blend(color const &o) const
   {
@@ -75,6 +76,7 @@ struct vec2 final
   vec2() = default;
   vec2(f64 x, f64 y) : x(x), y(y) {}
   vec2(f64 x) : x(x), y(x) {}
+  vec2(ηic &i) : x(i[0].cf()), y(i[1].cf()) {}
 
   explicit operator bool() const { return x != 0 || y != 0; }
 
@@ -111,6 +113,7 @@ struct vec3 final
   vec3() = default;
   vec3(f64 x, f64 y, f64 z) : x(x), y(y), z(z) {}
   vec3(f64 x) : x(x), y(x), z(x) {}
+  vec3(ηic &i) : x(i[0].cf()), y(i[1].cf()), z(i[2].cf()) {}
 
   explicit operator bool() const { return x != 0 || y != 0 || z != 0; }
 
@@ -155,6 +158,7 @@ struct vec4 final
   vec4(f64 x, f64 y, f64 z, f64 w) : x(x), y(y), z(z), w(w) {}
   vec4(f64 x) : x(x), y(x), z(x), w(x) {}
   vec4(vec3 const &v, f64 w) : x(v.x), y(v.y), z(v.z), w(w) {}
+  vec4(ηic &i) : x(i[0].cf()), y(i[1].cf()), z(i[2].cf()), w(i[3].cf()) {}
 
   explicit operator bool() const { return x != 0 || y != 0 || z != 0 || w != 0; }
 

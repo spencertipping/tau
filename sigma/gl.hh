@@ -23,10 +23,13 @@ struct gl_window_base
 
   virtual ~gl_window_base() {}
 
-  virtual void use()  = 0;
   virtual void swap() = 0;
   virtual vec2 dims() = 0;
 };
+
+
+// Render ops in (see gl_render_state), events out
+Γ Γgl_window(Stc&, Ψd = Ψd::f);
 
 
 // Each frame is rendered by streaming η render instructions into this struct.
@@ -37,8 +40,8 @@ struct gl_window_base
 // frame-level GC.
 struct gl_render_state final
 {
-  gl_render_state(gl_window_base *w_) : w(w_), f(false) {}
-  ~gl_render_state();
+  gl_render_state(gl_usable *t_) : t(t_), f(false) {}
+  ~gl_render_state() {}
 
   gl_render_state &begin();             // start a frame
   gl_render_state &end();               // end a frame
@@ -46,27 +49,37 @@ struct gl_render_state final
 
   void run();  // render a frame with stored instructions
 
-  gl_text        &text(Stc &f, Stc &t, colorc &bg, colorc &fg);
-  gl_vbo         &vbo (Stc &n, ηic &xs);
-  gl_fbo_texture &fbo (Stc &n, ηic &r);
+  gl_text        &text(ηic&);
+  gl_vbo         &vbo (ηic&);
+  gl_fbo_texture &fbo (ηic&);
+  gl_program     &prog(ηic&);
+  void            uniforms(ηic&);
 
 
 protected:
-  gl_window_base *w;   // target window
-  ηm              rs;  // base render operations
-  bool            f;   // are we inside a frame
+  gl_usable *t;   // render target
+  ηm         rs;  // base render operations
+  bool       f;   // are we inside a frame
 
-  M<gl_text_key, gl_text> ts;
-  M<St, gl_vbo>           vs;
-  M<St, gl_fbo_texture>   fs;
+  M<h256, gl_text>        ts;
+  M<h256, gl_vbo>         vs;
+  M<h256, gl_fbo_texture> fs;
+  M<h256, gl_program>     ps;
 
-  S<gl_text_key>          mts;  // GC-marked texts
-  S<St>                   mvs;
-  S<St>                   mfs;
+  S<h256>                 mts;  // GC-marked objects
+  S<h256>                 mvs;
+  S<h256>                 mfs;
+  S<h256>                 mps;
 
-  void mark_t(gl_text_key const &k) { if (f) mts.insert(k); }
-  void mark_v(Stc &k)               { if (f) mvs.insert(k); }
-  void mark_f(Stc &k)               { if (f) mfs.insert(k); }
+  // NOTE: these mark functions receive just the key, not necessarily the whole
+  // object -- for example, prog() doesn't need to have all shader sources, just
+  // the program name.
+  void mark_t(h256 const &x) { if (f) mts.insert(x); }
+  void mark_v(h256 const &x) { if (f) mvs.insert(x); }
+  void mark_f(h256 const &x) { if (f) mfs.insert(x); }
+  void mark_p(h256 const &x) { if (f) mps.insert(x); }
+
+  void clear_marks();
 
   void gc_begin();     // begin marking new objects
   void gc_end();       // collect all unmarked objects

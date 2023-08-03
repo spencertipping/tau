@@ -10,7 +10,7 @@ namespace σ
 using namespace τ;
 
 
-let ΓrF_ = Ψauto([](fd_t fd, ψ q, ξo o)
+slet ΓrF_ = Ψauto([](fd_t fd, ψ q, ξo o)
   {
     St d; d.reserve(65536);
     τe &t = q.t();
@@ -25,7 +25,7 @@ let ΓrF_ = Ψauto([](fd_t fd, ψ q, ξo o)
   });
 
 
-let ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
+slet ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
   {
     τe &t = q.t();
     q.pin();
@@ -50,7 +50,7 @@ let ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
   });
 
 
-let ΓT_ = Ψauto([](i64 addr, φaL<':'>, i64 port, φig, Γa<Γ> g, ψ q, ξo o)
+slet ΓT_ = Ψauto([](i64 addr, φaL<':'>, i64 port, φig, Γa<Γ> g, ψ q, ξo o)
   {
     τe &t = q.t();
     fd_t fd = socket(AF_INET, SOCK_STREAM, 0);

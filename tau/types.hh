@@ -249,6 +249,45 @@ struct ι  // ranged numeric iteration
 
 }
 
+
+namespace std
+{
+
+Tn struct hash<τ::h224>
+{
+  size_t operator()(τ::h224 const &x) const
+    {
+      return hash<std::string_view>{}({(char const*) x.data(), x.size()});
+    }
+};
+
+Tn struct hash<τ::h256>
+{
+  size_t operator()(τ::h256 const &x) const
+    {
+      return hash<std::string_view>{}({(char const*) x.data(), x.size()});
+    }
+};
+
+Tn struct hash<τ::h384>
+{
+  size_t operator()(τ::h384 const &x) const
+    {
+      return hash<std::string_view>{}({(char const*) x.data(), x.size()});
+    }
+};
+
+Tn struct hash<τ::h512>
+{
+  size_t operator()(τ::h512 const &x) const
+    {
+      return hash<std::string_view>{}({(char const*) x.data(), x.size()});
+    }
+};
+
+}
+
+
 #include "end.hh"
 
 

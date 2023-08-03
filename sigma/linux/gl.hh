@@ -22,7 +22,8 @@ namespace σ
 using namespace τ;
 
 
-struct x11_gl_window final : public virtual gl_window_base
+struct x11_gl_window final : public virtual gl_window_base,
+                             public virtual gl_usable
 {
   sletc evs0 = XCB_EVENT_MASK_EXPOSURE
     | XCB_EVENT_MASK_KEY_PRESS
@@ -81,6 +82,9 @@ struct x11_gl_window final : public virtual gl_window_base
   void swap() override;
   vec2 dims() override { return dims_; }
 };
+
+
+void Γlinux_gl(Γφ&);
 
 
 }

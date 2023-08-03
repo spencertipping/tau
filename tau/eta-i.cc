@@ -1,8 +1,26 @@
+#define XXH_INLINE_ALL
+#include <xxhash.h>
+#include <picosha2.h>
+
 #include "eta-i.hh"
 #include "begin.hh"
 
 namespace τ
 {
+
+
+u64 ηi::hash() const
+{
+  return XXH64(data(), lsize(), 0);
+}
+
+
+h256 ηi::sha256() const
+{
+  h256 r;
+  picosha2::hash256(data(), data() + lsize(), r.begin(), r.end());
+  return r;
+}
 
 
 // Result bit ordering: 0xnedcba9876543210 -- where 0 is the first type, etc.

@@ -12,6 +12,7 @@ namespace τ
 
 
 struct ηi;
+Tt struct ηauto_;
 
 typedef ηi const ηic;
 
@@ -74,6 +75,8 @@ struct ηi final
   bool empty()             const { return l_ == 0; }
   explicit operator bool() const { return !empty(); }
 
+  Txs operator T<Xs...>() const { return ηauto_<T<Xs...>>::v(*this); }
+
   uN len() const
     { ηi i = *this;
       uN r = 0;
@@ -102,7 +105,9 @@ struct ηi final
   bool operator==(Stvc &s_) const { return is_s() && s() == s_; }
   bool operator==(bool  b_) const { return is_b() && b() == b_; }
   bool operator==(i64   i_) const { return is_i() && i() == i_; }
-  bool operator==(ηic  &b_) const { return *this <=> b_ == PO::equivalent; }
+  bool operator==(ηic  &b_) const
+    { return lsize() == b_.lsize()
+          && !memcmp(data(), b_.data(), std::min(lsize(), b_.lsize())); }
 
   bool is_n(Stc  &n_) const { return is_n() && n() == n_; }
   bool is_n(Stvc &n_) const { return is_n() && n() == n_; }
@@ -113,6 +118,10 @@ struct ηi final
 
   ηi operator[](uN)           const;
   ηi operator[](ηname const&) const;
+
+
+  u64  hash()   const;  // hash for data structures
+  h256 sha256() const;  // hash for collision resistance
 
 
   bool is_sig()  const { return t() == ηtype::sig; }
@@ -280,6 +289,18 @@ private:
 
 
 }
+
+
+namespace std
+{
+
+Tn struct hash<τ::ηi>
+{
+  size_t operator()(τ::ηic &x) const { return x.hash(); }
+};
+
+}
+
 
 #include "end.hh"
 

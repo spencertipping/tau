@@ -20,6 +20,7 @@ void Γnative(Γφ &g)
   Γfork(g);
   Γio(g);
   Γhttp(g);
+  Γlinux_gl(g);
 
   // Compile-time file IO
   g.def_g("$<", [&](Stc &f, Ξc &x)

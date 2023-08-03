@@ -2,7 +2,6 @@
 #define σgl_prims_h
 
 #include <GLES2/gl2.h>
-#include <xxhash.h>
 
 #include "gl-geom.hh"
 #include "begin.hh"
@@ -13,7 +12,18 @@ namespace σ
 using namespace τ;
 
 
-struct gl_fbo_texture final
+struct gl_usable
+{
+  virtual void use() = 0;
+};
+
+struct gl_null_usable : public virtual gl_usable
+{
+  void use() override {}
+};
+
+
+struct gl_fbo_texture final : public virtual gl_usable
 {
   GLuint tid = 0;
   vec2   dims;
@@ -24,10 +34,17 @@ struct gl_fbo_texture final
     { t_.tid = 0; }
 
   gl_fbo_texture(vec2c &dims, F<void()> const &render);
+  gl_fbo_texture(ηic &x);
 
   ~gl_fbo_texture() { if (tid) glDeleteTextures(1, &tid); }
 
-  void use() const { glBindTexture(GL_TEXTURE_2D, tid); }
+  gl_fbo_texture &operator=(gl_fbo_texture &&t)
+    { tid  = t.tid;
+      dims = t.dims;
+      t.tid = 0;
+      return *this; }
+
+  void use() override { glBindTexture(GL_TEXTURE_2D, tid); }
 };
 
 
@@ -61,10 +78,23 @@ struct gl_uniform final
       glUniformMatrix4fv(loc, 16, false, f);
       return *this;
     }
+
+  gl_uniform const &operator=(ηic &x) const
+    {
+      switch (type)
+      {
+        case GL_FLOAT:      return *this = x[0].cf();
+        case GL_INT:        return *this = x[0].ci();
+        case GL_FLOAT_VEC2: return *this = x[0].η();
+        case GL_FLOAT_VEC3: return *this = x[0].η();
+        case GL_FLOAT_VEC4: return *this = x[0].η();
+        default: A(0, "uniform=unknown"); return *this;
+      }
+    }
 };
 
 
-struct gl_program final
+struct gl_program final : public virtual gl_usable
 {
   St     vertex;
   St     frag;
@@ -75,15 +105,26 @@ struct gl_program final
 
   gl_program()                  = default;
   gl_program(gl_program const&) = default;
-  gl_program(gl_program &&s_)
-    : vertex(s_.vertex), frag(s_.frag), vid(s_.vid), fid(s_.fid), pid(s_.pid)
-    { s_.vid = 0; s_.fid = 0; s_.pid = 0; }
+  gl_program(gl_program &&p_) { *this = mo(p_); }
 
   gl_program(Stc &vertex, Stc &frag);
+  gl_program(ηic &x) : gl_program(x[0].cs(), x[1].cs()) {}
 
   ~gl_program();
 
-  void use() const { glUseProgram(pid); }
+  gl_program &operator=(gl_program &&p)
+    { vertex = mo(p.vertex);
+      frag   = mo(p.frag);
+      vid    = p.vid;
+      fid    = p.fid;
+      pid    = p.pid;
+      us     = mo(p.us);
+      p.vid  = 0;
+      p.fid  = 0;
+      p.pid  = 0;
+      return *this; }
+
+  void use() override { glUseProgram(pid); }
 
   gl_uniform &operator[](Stc &name) { return us.at(name); }
 };
@@ -91,13 +132,24 @@ struct gl_program final
 
 struct gl_vbo final
 {
-  V<vec3> vs;
+  GLuint  vid    = 0;
+  GLsizei vsize  = 0;
+  GLsizei stride = 0;
+  V<P<uN, uN>> as;
 
-  gl_vbo()              = default;
-  gl_vbo(gl_vbo const&) = default;
-  gl_vbo(gl_vbo &&v_) : vs(std::move(v_.vs)) {}
+  gl_vbo() = default;
+  gl_vbo(gl_vbo &&v_) { *this = mo(v_); }
+  gl_vbo(ηic &x);
 
-  Txs gl_vbo(Xs... xs) : vs({xs...}) {}
+  ~gl_vbo() { if (vid) glDeleteBuffers(1, &vid); }
+
+  gl_vbo &operator=(gl_vbo &&v)
+    { vid    = v.vid;
+      vsize  = v.vsize;
+      stride = v.stride;
+      as     = mo(v.as);
+      v.vid  = 0;
+      return *this; }
 
   void draw(GLenum mode = GL_TRIANGLES) const;
 };

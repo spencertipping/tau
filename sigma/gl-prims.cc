@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include "gl-prims.hh"
+#include "gl.hh"
 #include "begin.hh"
 
 namespace σ
@@ -94,6 +95,19 @@ gl_fbo_texture::gl_fbo_texture(vec2c &dims, F<void()> const &render)
 }
 
 
+gl_fbo_texture::gl_fbo_texture(ηic &x)
+  : gl_fbo_texture({x.cf(), x[1].cf()},
+                   [x = x[2]]()
+                     {
+                       gl_null_usable  u;
+                       gl_render_state rs(&u);
+                       rs.begin();
+                       for (let &y : x) rs << y;
+                       rs.end();
+                     })
+{}
+
+
 gl_program::gl_program(Stc &vertex, Stc &frag)
   : vertex(vertex), frag(frag)
 {
@@ -119,26 +133,53 @@ gl_program::~gl_program()
 }
 
 
-void gl_vbo::draw(GLenum mode) const
+gl_vbo::gl_vbo(ηic &x)
 {
-  GLuint id;
-  glGenBuffers(1, &id);
-  glBindBuffer(GL_ARRAY_BUFFER, id);
+  // x = (((a1o a1l) (a2o a2l) ...)
+  //      (x1 y1 z1 a1 a2 a3 ...)
+  //      ...)
+  // x[0] describes vertex attribute offsets
 
-  f32 data[vs.size() * 3];
-  for (uN i = 0; i < vs.size(); ++i)
+  glGenBuffers(1, &vid);
+  glBindBuffer(GL_ARRAY_BUFFER, vid);
+
+  let os = x[0].η();
+  for (let &o : os)
   {
-    data[i*3+0] = vs[i].x;
-    data[i*3+1] = vs[i].y;
-    data[i*3+2] = vs[i].z;
+    let [a, l] = ηT<i64, i64>(o.η());
+    as.push_back({a, l});
   }
 
-  glBufferData(GL_ARRAY_BUFFER, sizeof(f32) * vs.size() * 3, data, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
-  glEnableVertexAttribArray(0);
-  glDrawArrays(mode, 0, vs.size());
+  let vs = x.next();
+  let n = vs.η().len();
 
-  glDeleteBuffers(1, &id);
+  vsize  = vs.len();
+  stride = sizeof(GLfloat) * n;
+  f32 data[vsize * n];
+  uN i = 0;
+  for (let &v : vs)
+  {
+    let iv = v.η();
+    uN j = 0;
+    for (let &x : iv) data[i*n + j++] = x.cf();
+  }
+
+  glBufferData(GL_ARRAY_BUFFER, sizeof(f32) * vs.size() * n, data, GL_STATIC_DRAW);
+}
+
+
+void gl_vbo::draw(GLenum mode) const
+{
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
+  for (let &[a, l] : as)
+  {
+    glEnableVertexAttribArray(a);
+    glVertexAttribPointer(a, l, GL_FLOAT, GL_FALSE, stride, (void *)(a * sizeof(GLfloat)));
+  }
+
+  glBindBuffer(GL_ARRAY_BUFFER, vid);
+  glDrawArrays(mode, 0, vsize);
 }
 
 
