@@ -1,7 +1,10 @@
-#include "gl.hh"
-#include "../begin.hh"
-#include <GL/glx.h>
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
 #include <X11/Xlib.h>
+
+#include "gl.hh"
+
+#include "../begin.hh"
 
 namespace σ
 {
@@ -24,10 +27,10 @@ slet Γgl_ = Ψauto([](Stc &display, ψ q, ξi i, ξo o)
       if (x.is_s())
         if      (x.cs() == "b") rs.begin();
         else if (x.cs() == "e") rs.end();
-        else if (x.cs() == "r") rs.run();
+        else if (x.cs() == "r") rs.run(), w.swap();
         else                    std::cerr << "unknown wop: " << x << std::endl;
       else
-        rs << x;
+        rs << x.η();
     }
 
     std::cerr << "received render insns" << std::endl;
@@ -38,6 +41,7 @@ slet Γgl_ = Ψauto([](Stc &display, ψ q, ξi i, ξo o)
       q.t().Θ(now() + 500ms);
       o.r() << "rendering";
       rs.run();
+      w.swap();
     }
   });
 

@@ -34,16 +34,18 @@ static void compile(GLuint id, Stc &source)
 static void link(GLuint id)
 {
   GLint r;
+  glLinkProgram(id);
   glGetProgramiv(id, GL_LINK_STATUS, &r);
 
-  if (r != GL_TRUE)
+  if (r == GL_FALSE)
   {
     GLint l;
     Ss    err;
     glGetProgramiv(id, GL_INFO_LOG_LENGTH, &l);
     let log = new GLchar[l];
     glGetProgramInfoLog(id, l, nullptr, log);
-    err << "Failed to link shader program: " << log;
+    if (l) err << "Failed to link shader program: " << log;
+    else   err << "Unknown link error";
     delete[] log;
     throw std::runtime_error(err.str());
   }
@@ -140,6 +142,8 @@ gl_vbo::gl_vbo(ηic &x)
   //      ...)
   // x[0] describes vertex attribute offsets
 
+  std::cerr << "vbo(" << x << ")" << std::endl;
+
   glGenBuffers(1, &vid);
   glBindBuffer(GL_ARRAY_BUFFER, vid);
 
@@ -149,6 +153,8 @@ gl_vbo::gl_vbo(ηic &x)
     let [a, l] = ηT<i64, i64>(o.η());
     as.push_back({a, l});
   }
+
+  std::cerr << "vbo got " << as.size() << " attributes" << std::endl;
 
   let vs = x.next();
   let n  = vs.η().len();
@@ -163,6 +169,8 @@ gl_vbo::gl_vbo(ηic &x)
     uN j = 0;
     for (let &x : iv) data[i*n + j++] = x.cf();
   }
+
+  std::cerr << "vbo got " << vsize << " vertices" << std::endl;
 
   glBufferData(GL_ARRAY_BUFFER, sizeof(f32) * vs.size() * n, data, GL_STATIC_DRAW);
 }

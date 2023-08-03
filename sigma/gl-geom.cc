@@ -5,14 +5,6 @@ namespace σ
 {
 
 
-void mat4::gl_load() const
-{
-  GLfloat f[16];
-  for (int i = 0; i < 16; ++i) f[i] = m[i/4][i%4];
-  glLoadMatrixf(f);
-}
-
-
 mat4 mat4::identity()
 {
   return mat4(1, 0, 0, 0,

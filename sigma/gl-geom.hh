@@ -1,7 +1,7 @@
 #ifndef σgl_geom_h
 #define σgl_geom_h
 
-#include <GLES/gl.h>
+#include <GLES2/gl2.h>
 
 #include "../sigma.hh"
 #include "begin.hh"
@@ -224,8 +224,6 @@ struct mat4 final
   mat4 transpose() const { mat4 r; for_ij r.m[i][j] = m[j][i]; return r; }
   mat4 inv()       const;
   f64  det()       const;
-
-  void gl_load() const;
 
   static mat4 identity();
   static mat4 translate(f64 x, f64 y, f64 z);
