@@ -116,13 +116,13 @@ template<class A> struct φlit
 template<class A> struct φbrack
 {
   Tt auto p(φrbrack<T>*) const
-    { return φm(φ1("φ]", Sc<A const*>(this)->p(null<T>()), φrb_()), [](auto &&x) { return φrbrack{mo(x)}; }); }
+    { return φm(φ1("φ]", Sc<A const*>(this)->p(null<T>()), φrb_()), [](T &&x) { return φrbrack<T>{mo(x)}; }); }
 
   Tt auto p(φrparen<T>*) const
-    { return φm(φ1("φ)", Sc<A const*>(this)->p(null<T>()), φrp_()), [](auto &&x) { return φrparen{mo(x)}; }); }
+    { return φm(φ1("φ)", Sc<A const*>(this)->p(null<T>()), φrp_()), [](T &&x) { return φrparen<T>{mo(x)}; }); }
 
   Tt auto p(φrbrace<T>*) const
-    { return φm(φ1("φ}", Sc<A const*>(this)->p(null<T>()), φrB_()), [](auto &&x) { return φrbrace{mo(x)}; }); }
+    { return φm(φ1("φ}", Sc<A const*>(this)->p(null<T>()), φrB_()), [](T &&x) { return φrbrace<T>{mo(x)}; }); }
 };
 
 

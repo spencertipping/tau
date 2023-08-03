@@ -30,9 +30,10 @@ struct color
   f64 r, g, b, a;
 
   color() = default;
-  color(f64 r, f64 g, f64 b, f64 a) : r(r), g(g), b(b), a(a) {}
-  color(f64 r, f64 g, f64 b)        : r(r), g(g), b(b), a(1) {}
-  color(f64 r)                      : r(r), g(r), b(r), a(1) {}
+  color(f64 r, f64 g, f64 b, f64 a)     : r(r), g(g), b(b), a(a) {}
+  color(f64 r, f64 g, f64 b)            : r(r), g(g), b(b), a(1) {}
+  color(f64 r)                          : r(r), g(r), b(r), a(1) {}
+  color(T<f64, f64, f64, f64> const &t) : r(std::get<0>(t)), g(std::get<1>(t)), b(std::get<2>(t)), a(std::get<3>(t)) {}
 
   color blend(color const &o) const
   {

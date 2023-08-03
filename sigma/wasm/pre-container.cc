@@ -18,7 +18,7 @@ Sp<at_> lmdb_map(cb_lmdb const&)
 }
 
 
-Sp<at_> lmdb_ls(cb_lmdb const&)
+Sp<at_ls_> lmdb_ls(cb_lmdb const&)
 {
   A(0, "lmdb_ls unsupported on wasm");
   return {};

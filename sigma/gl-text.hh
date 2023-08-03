@@ -50,6 +50,9 @@ struct gl_text final
 
   ~gl_text() { clear(); }
 
+  gl_text &operator=(gl_text const&) = default;
+  gl_text &operator=(gl_text&&)      = default;
+
   // NOTE: rendering internals are platform-specific
   GLuint texture();
   vec2   measure();

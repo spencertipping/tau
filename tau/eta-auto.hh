@@ -141,7 +141,7 @@ template<class R, class... Xs>
 auto ηhauto_(F<R(Xs...)> &&f)
 {
   return [f=mo(f)](ηic &i) -> R
-    { return std::apply(f, ηauto_<T<Xs...>>::v(i)); };
+    { return std::apply(f, ηauto_<T<De<Xs>...>>::v(i)); };
 }
 
 // Convert a C++ function to one that accepts a ηi to unpack its arguments.
@@ -157,7 +157,7 @@ auto ηvauto_(F<R(Xs...)> &&f)
 {
   // NOTE: each Ys is a ηic
   return [f=mo(f)](Ys const&... ys) -> R
-    { return f(ηauto_<Xs>::v(ys)...); };
+    { return f(ηauto_<De<Xs>>::v(ys)...); };
 }
 
 // Convert a C++ function to one that accepts a single ηi for each of its

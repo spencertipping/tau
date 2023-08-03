@@ -37,10 +37,6 @@ struct gl_window_base
 // frame-level GC.
 struct gl_render_state final
 {
-  gl_window_base *w;   // target window
-  ηm              rs;  // base render operations
-  bool            f;   // are we inside a frame
-
   gl_render_state(gl_window_base *w_) : w(w_), f(false) {}
   ~gl_render_state();
 
@@ -48,12 +44,18 @@ struct gl_render_state final
   gl_render_state &end();               // end a frame
   gl_render_state &operator<<(ηic &x);  // append to frame, or one-off
 
+  void run();  // render a frame with stored instructions
+
   gl_text        &text(Stc &f, Stc &t, colorc &bg, colorc &fg);
   gl_vbo         &vbo (Stc &n, ηic &xs);
   gl_fbo_texture &fbo (Stc &n, ηic &r);
 
 
 protected:
+  gl_window_base *w;   // target window
+  ηm              rs;  // base render operations
+  bool            f;   // are we inside a frame
+
   M<gl_text_key, gl_text> ts;
   M<St, gl_vbo>           vs;
   M<St, gl_fbo_texture>   fs;
@@ -70,7 +72,6 @@ protected:
   void gc_end();       // collect all unmarked objects
 
   void apply(ηic &x);  // apply a render op to this state
-  void run();          // render a frame into destination window base
 };
 
 
