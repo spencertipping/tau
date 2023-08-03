@@ -96,6 +96,18 @@ void x11_gl_window::clear(colorc &bg)
 }
 
 
+fd_t x11_gl_window::xcb_fd()
+{
+  return xcb_get_file_descriptor(c_);
+}
+
+
+xcb_generic_event_t *x11_gl_window::xcb_poll()
+{
+  return xcb_poll_for_event(c_);
+}
+
+
 void x11_gl_window::use()
 {
   glXMakeContextCurrent(dp_, glw_, glw_, glc_);

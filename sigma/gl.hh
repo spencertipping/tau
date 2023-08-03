@@ -4,8 +4,9 @@
 #include <GLES2/gl2.h>
 #include <xxhash.h>
 
-#include "../sigma.hh"
 #include "gl-geom.hh"
+#include "gl-text.hh"
+#include "gl-prims.hh"
 #include "begin.hh"
 
 namespace σ
@@ -28,94 +29,50 @@ struct gl_window_base
 };
 
 
-struct gl_fbo_texture final
+// Each frame is rendered by streaming η render instructions into this struct.
+// It holds the current render state and allows for FBO allocations.
+//
+// NOTE: this struct outlives a frame. This allows resources to be cached.
+// All GL-allocated resources and textures are managed automatically using
+// frame-level GC.
+struct gl_render_state final
 {
-  GLuint tid = 0;
-  vec2   dims;
+  gl_window_base *w;   // target window
+  ηm              rs;  // base render operations
+  bool            f;   // are we inside a frame
 
-  gl_fbo_texture()                      = default;
-  gl_fbo_texture(gl_fbo_texture const&) = default;
-  gl_fbo_texture(gl_fbo_texture &&t_) : tid(t_.tid), dims(t_.dims)
-    { t_.tid = 0; }
+  gl_render_state(gl_window_base *w_) : w(w_), f(false) {}
+  ~gl_render_state();
 
-  gl_fbo_texture(vec2c &dims, F<void()> const &render);
+  gl_render_state &begin();             // start a frame
+  gl_render_state &end();               // end a frame
+  gl_render_state &operator<<(ηic &x);  // append to frame, or one-off
 
-  ~gl_fbo_texture() { if (tid) glDeleteTextures(1, &tid); }
+  gl_text        &text(Stc &f, Stc &t, colorc &bg, colorc &fg);
+  gl_vbo         &vbo (Stc &n, ηic &xs);
+  gl_fbo_texture &fbo (Stc &n, ηic &r);
 
-  void use() const { glBindTexture(GL_TEXTURE_2D, tid); }
+
+protected:
+  M<gl_text_key, gl_text> ts;
+  M<St, gl_vbo>           vs;
+  M<St, gl_fbo_texture>   fs;
+
+  S<gl_text_key>          mts;  // GC-marked texts
+  S<St>                   mvs;
+  S<St>                   mfs;
+
+  void mark_t(gl_text_key const &k) { if (f) mts.insert(k); }
+  void mark_v(Stc &k)               { if (f) mvs.insert(k); }
+  void mark_f(Stc &k)               { if (f) mfs.insert(k); }
+
+  void gc_begin();     // begin marking new objects
+  void gc_end();       // collect all unmarked objects
+
+  void apply(ηic &x);  // apply a render op to this state
+  void run();          // render a frame into destination window base
 };
 
-
-struct gl_uniform final
-{
-  GLuint loc = -1;
-  GLint  size = 0;
-  GLenum type = 0;
-
-  gl_uniform()                  = default;
-  gl_uniform(gl_uniform const&) = default;
-  gl_uniform(gl_uniform &&u_) : loc(u_.loc), size(u_.size), type(u_.type)
-    { u_.loc = -1; }
-
-  gl_uniform(GLuint loc, GLint size, GLenum type)
-    : loc(loc), size(size), type(type) {}
-
-  gl_uniform &operator=(gl_uniform const&) = default;
-
-  gl_uniform const &operator=(f64 x)     const { A(type == GL_FLOAT,      "uniform=f64");  glUniform1f(loc, x); return *this; }
-  gl_uniform const &operator=(i64 x)     const { A(type == GL_INT,        "uniform=i64");  glUniform1i(loc, x); return *this; }
-  gl_uniform const &operator=(vec2c &v)  const { A(type == GL_FLOAT_VEC2, "uniform=vec2"); glUniform2f(loc, v.x, v.y); return *this; };
-  gl_uniform const &operator=(vec3c &v)  const { A(type == GL_FLOAT_VEC3, "uniform=vec3"); glUniform3f(loc, v.x, v.y, v.z); return *this; };
-  gl_uniform const &operator=(vec4c &v)  const { A(type == GL_FLOAT_VEC4, "uniform=vec4"); glUniform4f(loc, v.x, v.y, v.z, v.w); return *this; }
-  gl_uniform const &operator=(colorc &v) const { A(type == GL_FLOAT_VEC4, "uniform=vec4"); glUniform4f(loc, v.r, v.g, v.b, v.a); return *this; }
-  gl_uniform const &operator=(mat4c &m)  const
-    {
-      A(type == GL_FLOAT_MAT4, "uniform=mat4");
-      GLfloat f[16];
-      for (int i = 0; i < 16; ++i) f[i] = m.m[i/4][i%4];
-      glUniformMatrix4fv(loc, 16, false, f);
-      return *this;
-    }
-};
-
-
-struct gl_program final
-{
-  St     vertex;
-  St     frag;
-  GLuint vid = 0;
-  GLuint fid = 0;
-  GLuint pid = 0;
-  M<St, gl_uniform> us;
-
-  gl_program()                  = default;
-  gl_program(gl_program const&) = default;
-  gl_program(gl_program &&s_)
-    : vertex(s_.vertex), frag(s_.frag), vid(s_.vid), fid(s_.fid), pid(s_.pid)
-    { s_.vid = 0; s_.fid = 0; s_.pid = 0; }
-
-  gl_program(Stc &vertex, Stc &frag);
-
-  ~gl_program();
-
-  void use() const { glUseProgram(pid); }
-
-  gl_uniform &operator[](Stc &name) { return us.at(name); }
-};
-
-
-struct gl_vbo final
-{
-  V<vec3> vs;
-
-  gl_vbo()              = default;
-  gl_vbo(gl_vbo const&) = default;
-  gl_vbo(gl_vbo &&v_) : vs(std::move(v_.vs)) {}
-
-  Txs gl_vbo(Xs... xs) : vs({xs...}) {}
-
-  void draw(GLenum mode = GL_TRIANGLES) const;
-};
 
 }
 

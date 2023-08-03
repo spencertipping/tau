@@ -14,7 +14,6 @@
 #include <cairo/cairo-xlib.h>
 
 #include "../gl.hh"
-#include "../gl-text.hh"
 #include "../begin.hh"
 
 namespace σ
@@ -49,7 +48,7 @@ struct x11_gl_window final : public virtual gl_window_base
     GLX_DOUBLEBUFFER,   True,
     GLX_SAMPLE_BUFFERS, 1,  // for MSAA
     GLX_SAMPLES,        8,  // for MSAA
-    None};
+    None };
 
 
   Display          *dp_;
@@ -60,7 +59,6 @@ struct x11_gl_window final : public virtual gl_window_base
   u32               wid_;
   int               si_;    // screen index
   vec2              dims_;
-  gl_texts          ts_;
   color             bgf_;
   color             bgu_;
 
@@ -75,6 +73,9 @@ struct x11_gl_window final : public virtual gl_window_base
   ~x11_gl_window();
 
   void clear(colorc &bg);
+
+  fd_t                 xcb_fd();
+  xcb_generic_event_t *xcb_poll();
 
   void use()  override;
   void swap() override;

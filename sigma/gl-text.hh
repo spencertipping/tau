@@ -1,7 +1,9 @@
 #ifndef σgl_text_h
 #define σgl_text_h
 
-#include "gl.hh"
+#include <xxhash.h>
+
+#include "gl-geom.hh"
 #include "begin.hh"
 
 namespace σ
@@ -53,6 +55,7 @@ struct gl_text final
   vec2   measure();
 
   gl_text_key key() const
+  // FIXME: must incorporate colors
     { return {XXH64(f.data(), f.size(), 0), XXH64(t.data(), t.size(), 0)}; }
 
   void clear()
@@ -61,14 +64,6 @@ struct gl_text final
       dims = {0, 0}; }
 
   uN tsize() const { return tid ? dims.x * dims.y * 4 : 0; }
-};
-
-
-// TODO: improve this caching model
-struct gl_texts final
-{
-  M<gl_text_key, gl_text> ts;
-
 };
 
 
