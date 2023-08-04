@@ -82,6 +82,10 @@ gl_fbo_texture::gl_fbo_texture(vec2c &dims, F<void()> const &render)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
                dims.x, dims.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
+  // IMPORTANT: nothing renders without these
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
   glGenFramebuffers(1, &fbo);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -91,7 +95,7 @@ gl_fbo_texture::gl_fbo_texture(vec2c &dims, F<void()> const &render)
     "gl_fbo_texture: framebuffer incomplete");
 
   glViewport(0, 0, dims.x, dims.y);
-  glClearColor(0, 1, 0, 1);
+  glClearColor(0, 0, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT);
 
   render();
