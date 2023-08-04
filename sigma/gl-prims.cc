@@ -138,11 +138,10 @@ gl_program::~gl_program()
 gl_vbo::gl_vbo(ηic &x)
 {
   // x = (((a1o a1l) (a2o a2l) ...)
-  //      (x1 y1 z1 a1 a2 a3 ...)
+  //      (a1 a2 a3 ...)
   //      ...)
-  // x[0] describes vertex attribute offsets
-
-  std::cerr << "vbo(" << x << ")" << std::endl;
+  // x[0] describes vertex attribute offsets and lengths, each in terms
+  // of floats (so offset=1 means "one float in", not "one byte in")
 
   glGenBuffers(1, &vid);
   glBindBuffer(GL_ARRAY_BUFFER, vid);
@@ -154,36 +153,33 @@ gl_vbo::gl_vbo(ηic &x)
     as.push_back({a, l});
   }
 
-  std::cerr << "vbo got " << as.size() << " attributes" << std::endl;
-
   let vs = x.next();
   let n  = vs.η().len();
 
   vsize  = vs.len();
   stride = sizeof(GLfloat) * n;
-  f32 data[vsize * n];
+  let data = new GLfloat[vsize * n];
   uN i = 0;
   for (let &v : vs)
   {
     let iv = v.η();
     uN j = 0;
-    for (let &x : iv) data[i*n + j++] = x.cf();
+    for (let &x : iv) data[i*n + j++] = (GLfloat) x.cf();
+    ++i;
   }
 
-  std::cerr << "vbo got " << vsize << " vertices" << std::endl;
-
-  glBufferData(GL_ARRAY_BUFFER, sizeof(f32) * vs.size() * n, data, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vsize * n, data, GL_STATIC_DRAW);
+  delete[] data;
 }
 
 
 void gl_vbo::draw(GLenum mode) const
 {
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
+  GLuint i = 0;
   for (let &[a, l] : as)
   {
-    glEnableVertexAttribArray(a);
-    glVertexAttribPointer(a, l, GL_FLOAT, GL_FALSE, stride, (void *)(a * sizeof(GLfloat)));
+    glEnableVertexAttribArray(i);
+    glVertexAttribPointer(i++, l, GL_FLOAT, GL_FALSE, stride, (void *)(a * sizeof(GLfloat)));
   }
 
   glBindBuffer(GL_ARRAY_BUFFER, vid);

@@ -7,7 +7,6 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 
 ## TODOs
-+ Port GL to a shared library (native + wasm, with platform-appropriate wrappers)
 + Add OT Ψs to σ
 + WASM websocket client
 + HTTP websocket server
@@ -65,6 +64,7 @@ These are compiler objects, meaning that they don't actually contain live resour
 ## Designing τ applications
 + [Data processing](doc/data-processing.md)
 + [Web applications](doc/web-applications.md)
++ [GL](doc/gl.md)
 
 
 ## Linux setup

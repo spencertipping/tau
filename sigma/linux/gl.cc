@@ -15,33 +15,25 @@ slet Γgl_ = Ψauto([](Stc &display, ψ q, ξi i, ξo o)
     x11_gl_window   w(display);
     gl_render_state rs(&w);
 
-    std::cerr << "created the window" << std::endl;
-
     // TODO: add event listening
 
     q.pin();
 
     for (let &x : i)
-    {
-      std::cerr << "received render insn " << x << std::endl;
       if (x.is_s())
         if      (x.cs() == "b") rs.begin();
         else if (x.cs() == "e") rs.end();
         else if (x.cs() == "r") rs.run(), w.swap();
-        else                    std::cerr << "unknown wop: " << x << std::endl;
+        else                    A(0, "unknown rop: " << x);
       else
         rs << x.η();
-    }
-
-    std::cerr << "received render insns" << std::endl;
 
     while (1)
     {
-      std::cerr << "output loop" << std::endl;
-      q.t().Θ(now() + 500ms);
-      o.r() << "rendering";
       rs.run();
       w.swap();
+      o.r() << "rendered a frame";
+      q.t().Θ(now() + 500ms);
     }
   });
 
