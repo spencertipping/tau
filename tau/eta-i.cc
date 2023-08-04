@@ -11,14 +11,14 @@ namespace τ
 
 u64 ηi::hash() const
 {
-  return XXH64(data(), lsize(), 0);
+  return XXH64(ldata(), lsize(), 0);
 }
 
 
 h256 ηi::sha256() const
 {
   h256 r;
-  picosha2::hash256(data(), data() + lsize(), r.begin(), r.end());
+  picosha2::hash256(ldata(), ldata() + lsize(), r.begin(), r.end());
   return r;
 }
 
@@ -76,7 +76,7 @@ PO ηi::operator<=>(ηic &x) const
 ηi ηi::operator[](uN i) const
 {
   ηi r = *this;
-  while (i && has_next()) r = r.next(), --i;
+  while (i && r.has_next()) ++r, --i;
   return {r.a_, i ? 0 : r.l_};
 }
 

@@ -7,7 +7,7 @@ pull()
 {
   local host=${1:-set.128}
   local path=${2:-/nvme/asqi/tau}
-  rsync -azP $host:$path/bin ./
+  rsync -auzP $host:$path/bin ./
 }
 
 

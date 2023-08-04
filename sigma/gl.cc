@@ -91,7 +91,11 @@ gl_program &gl_render_state::prog(ηic &x)
   // prog(name vs fs)
   let h = x.one().sha256();
   mark_p(h);
-  if (!ps.contains(h)) ps[h] = gl_program(x.next());
+  if (!ps.contains(h))
+  {
+    A(x.next(), "prog() requires vertex and fragment shaders");
+    ps[h] = gl_program(x.next());
+  }
   return ps[h];
 }
 

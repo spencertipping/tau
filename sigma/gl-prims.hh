@@ -44,7 +44,9 @@ struct gl_fbo_texture final : public virtual gl_usable
       t.tid = 0;
       return *this; }
 
-  void use() override { glBindTexture(GL_TEXTURE_2D, tid); }
+  void use() override
+    { glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, tid); }
 };
 
 
@@ -65,7 +67,7 @@ struct gl_uniform final
   gl_uniform &operator=(gl_uniform const&) = default;
 
   gl_uniform const &operator=(f64 x)     const { A(type == GL_FLOAT,      "uniform=f64");  glUniform1f(loc, x); return *this; }
-  gl_uniform const &operator=(i64 x)     const { A(type == GL_INT,        "uniform=i64");  glUniform1i(loc, x); return *this; }
+  gl_uniform const &operator=(i64 x)     const {                                           glUniform1i(loc, x); return *this; }
   gl_uniform const &operator=(vec2c &v)  const { A(type == GL_FLOAT_VEC2, "uniform=vec2"); glUniform2f(loc, v.x, v.y); return *this; };
   gl_uniform const &operator=(vec3c &v)  const { A(type == GL_FLOAT_VEC3, "uniform=vec3"); glUniform3f(loc, v.x, v.y, v.z); return *this; };
   gl_uniform const &operator=(vec4c &v)  const { A(type == GL_FLOAT_VEC4, "uniform=vec4"); glUniform4f(loc, v.x, v.y, v.z, v.w); return *this; }
@@ -83,12 +85,11 @@ struct gl_uniform final
     {
       switch (type)
       {
-        case GL_FLOAT:      return *this = x[0].cf();
-        case GL_INT:        return *this = x[0].ci();
-        case GL_FLOAT_VEC2: return *this = x[0].η();
-        case GL_FLOAT_VEC3: return *this = x[0].η();
-        case GL_FLOAT_VEC4: return *this = x[0].η();
-        default: A(0, "uniform=unknown"); return *this;
+      case GL_FLOAT:      return *this = x[0].cf();
+      case GL_FLOAT_VEC2: return *this = x[0].η();
+      case GL_FLOAT_VEC3: return *this = x[0].η();
+      case GL_FLOAT_VEC4: return *this = x[0].η();
+      default:            return *this = x[0].ci();
       }
     }
 };

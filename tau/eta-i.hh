@@ -53,11 +53,12 @@ struct ηi final
 
   ηtype       t()    const { A(!empty(), "t() on η empty"); return Sc<ηtype>(*a_ >> 4); }
   u8c     *data()    const { return a_ + c_; }
-  u8c    *odata()    const { return a_; }
-  u8c    *adata()    const { return a_ + s_ + c_; }
   uN       size()    const { return s_; }
+  u8c    *odata()    const { return a_; }
   uN      osize()    const { return s_ + c_; }
+  u8c    *adata()    const { return a_ + s_ + c_; }
   uN      asize()    const { return l_ - osize(); }  // size after this
+  u8c    *ldata()    const { return odata(); }       // full data
   uN      lsize()    const { return l_; }            // full size
   Sn<u8c> inner()    const { return {data(),  size()}; }
   Sn<u8c> outer()    const { return {a_,      osize()}; }

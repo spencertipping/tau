@@ -26,6 +26,8 @@ GLuint gl_text::texture()
   let b  = calloc(w * h * 4, 1);
   let cr = cairo_create(cs = cairo_image_surface_create_for_data(Rc<uch*>(b), CAIRO_FORMAT_ARGB32, w, h, w * 4));
 
+  cairo_set_source_rgba(cr, bg.r, bg.g, bg.b, bg.a);
+  cairo_paint(cr);
   cairo_set_source_rgba(cr, fg.r, fg.g, fg.b, fg.a);
   pango_cairo_show_layout(cr, pl);
 
@@ -33,7 +35,8 @@ GLuint gl_text::texture()
   glBindTexture(GL_TEXTURE_2D, tid);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, b);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+               GL_BGRA, GL_UNSIGNED_BYTE, b);
 
   free(b);
   g_object_unref(pl);

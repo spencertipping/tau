@@ -45,30 +45,22 @@ int main(int argc, char *argv[])
         return lhs; });
   }
 
-  try
+  τ::St tau = argv[1];
+  if (access(argv[1], F_OK) != -1) tau = read_file(tau);
+
+  auto r = g.parse(tau);
+  if (r.is_f())
   {
-    τ::St tau = argv[1];
-    if (access(argv[1], F_OK) != -1) tau = read_file(tau);
-
-    auto r = g.parse(tau);
-    if (r.is_f())
-    {
-      cerr << "parse error at " << r.j << ": " << r.p().name() << endl;
-      cerr << "here -> " << tau.substr(r.j) << endl;
-      return 1;
-    }
-
-    if (debug) cerr << "Γ = " << r.r() << endl;
-
-    r.r()(Ξ{t}.push());
-    t.go();
-    return 0;
-  }
-  catch (τ::St s)
-  {
-    cerr << "runtime error: " << s << endl;
+    cerr << "parse error at " << r.j << ": " << r.p().name() << endl;
+    cerr << "here -> " << tau.substr(r.j) << endl;
     return 1;
   }
+
+  if (debug) cerr << "Γ = " << r.r() << endl;
+
+  r.r()(Ξ{t}.push());
+  t.go();
+  return 0;
 }
 
 #include "../tau/end.hh"

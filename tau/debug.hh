@@ -69,6 +69,8 @@
       τdebugging = true;                                                \
       τafs << m << ", errno = " << strerror(errno)                      \
            << "\nat " << boost::stacktrace::stacktrace() << "\n";       \
+      std::cerr << m << ", errno = " << strerror(errno)                 \
+           << "\nat " << boost::stacktrace::stacktrace() << "\n";       \
     }                                                                   \
     throw τafs.str();                                                   \
   })()
