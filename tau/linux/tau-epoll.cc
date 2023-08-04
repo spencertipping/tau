@@ -83,13 +83,14 @@ bool τe::reg(fd_t fd, bool r, bool w)
 }
 
 
-int τe::close(fd_t fd)
+void τe::unreg(fd_t fd)
 {
   if (gs.contains(fd))
   {
     let g = gs.at(fd);
     g->r.w(false);
     g->w.w(false);
+    g->e.w(false);
     delete g;
     gs.erase(fd);
   }
@@ -97,7 +98,12 @@ int τe::close(fd_t fd)
   // Explicitly deregister FD from epoll; see
   // https://idea.popcount.org/2017-03-20-epoll-is-fundamentally-broken-22/
   if (efd != -1) epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
+}
 
+
+int τe::close(fd_t fd)
+{
+  unreg(fd);
   return ::close(fd);
 }
 

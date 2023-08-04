@@ -53,7 +53,9 @@ Tt struct λg
   // the shared ptr holds λgc in memory until after the return, guaranteeing
   // that it can safely refer to its message long enough to copy it back to
   // us.
-  T y(λs s) { return c->y(s, c); }
+  T y(λs s)
+    { A(s != λs::R && s != λs::Y, "cannot yield into runnable state");
+      return c->y(s, c); }
 
   // Wake all blocked λs, returning x from their λg::y() calls.
   //

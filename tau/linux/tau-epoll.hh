@@ -74,10 +74,10 @@ struct τe : public τb
   λg<bool> *wg(fd_t fd) { if (let g = at(fd)) return &g->w; else return nullptr; }
   λg<bool> *eg(fd_t fd) { if (let g = at(fd)) return &g->e; else return nullptr; }
 
-  iN read  (fd_t fd, u8  *b, uN l)       { return gated(rg(fd), λs::τR, &::read,   fd, b, l); }
-  iN write (fd_t fd, u8c *b, uN l)       { return gated(wg(fd), λs::τW, &::write,  fd, b, l); }
-  iN pread (fd_t fd, u8  *b, uN l, uN o) { return gated(rg(fd), λs::τR, &::pread,  fd, b, l, o); }
-  iN pwrite(fd_t fd, u8c *b, uN l, uN o) { return gated(wg(fd), λs::τW, &::pwrite, fd, b, l, o); }
+  iN read  (fd_t fd, u8  *b, uN l)       { return gated(rg(fd), λs::τR, ::read,   fd, b, l); }
+  iN write (fd_t fd, u8c *b, uN l)       { return gated(wg(fd), λs::τW, ::write,  fd, b, l); }
+  iN pread (fd_t fd, u8  *b, uN l, uN o) { return gated(rg(fd), λs::τR, ::pread,  fd, b, l, o); }
+  iN pwrite(fd_t fd, u8c *b, uN l, uN o) { return gated(wg(fd), λs::τW, ::pwrite, fd, b, l, o); }
 
   fd_t accept(fd_t fd, struct sockaddr *a, socklen_t *l)
     { return gated(rg(fd), λs::τA, &::accept, fd, a, l); }
@@ -86,6 +86,7 @@ struct τe : public τb
   // Register a file descriptor for IO events; this must be called before
   // using it with any epoll-mediated syscalls.
   bool reg(fd_t fd, bool r = true, bool w = true);
+  void unreg(fd_t fd);
 
 
   // Close an FD and remove it from the epoll watch set. Also delete
@@ -126,9 +127,7 @@ protected:
   bool          fin;   // true if we're terminating
 
 
-  // Attempt to allocate an epolled gate pair for the given FD, which
-  // is set to nonblocking. Return it if successful, return nullptr
-  // if the FD cannot be polled.
+  // Return the gate set for a FD, or nullptr if it's not registered.
   λgs *at(fd_t fd) { return gs.contains(fd) ? gs.at(fd) : nullptr; }
 
 
@@ -138,7 +137,7 @@ protected:
   // errno represents the syscall's error state when this function
   // returns.
   template<class F, class... Xs>
-  iN gated(λg<bool> *g, λs ys, F *f, Xs... xs)
+  iN gated(λg<bool> *g, λs ys, F f, Xs... xs)
     { iN r, e;
       while ((r = f(xs...)) == -1 &&
              ((e = errno) == EAGAIN || e == EINTR))

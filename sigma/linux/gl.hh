@@ -1,7 +1,8 @@
 #ifndef σlinux_gl_h
 #define σlinux_gl_h
 
-#include <GL/gl.h>
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
 #include <GL/glx.h>
 
 #include <X11/Xlib.h>
@@ -48,7 +49,7 @@ struct x11_gl_window final : public virtual gl_window_base,
     GLX_STENCIL_SIZE,   8,
     GLX_DOUBLEBUFFER,   True,
     GLX_SAMPLE_BUFFERS, 1,  // for MSAA
-    GLX_SAMPLES,        8,  // for MSAA
+    GLX_SAMPLES,        4,  // for MSAA
     None };
 
 

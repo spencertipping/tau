@@ -1,53 +1,10 @@
-#include <GLES2/gl2.h>
-#include <EGL/egl.h>
-#include <X11/Xlib.h>
-
 #include "gl.hh"
 
 #include "../begin.hh"
+#include <GL/glx.h>
 
 namespace σ
 {
-
-
-slet Γgl_ = Ψauto([](Stc &display, ψ q, ξi i, ξo o)
-  {
-    x11_gl_window   w(display);
-    gl_render_state rs(&w);
-
-    // TODO: add event listening
-
-    q.pin();
-
-    for (let &x : i)
-      if (x.is_s())
-        if      (x.cs() == "b") rs.begin();
-        else if (x.cs() == "e") rs.end();
-        else if (x.cs() == "r") rs.run(), w.swap();
-        else                    A(0, "unknown rop: " << x);
-      else
-        rs << x.η();
-
-    while (1)
-    {
-      rs.run();
-      w.swap();
-      o.r() << "rendered a frame";
-      q.t().Θ(now() + 500ms);
-    }
-  });
-
-
-Γ Γgl_window(Stc &display, Ψd d)
-{
-  return ΓΨ(Γgl_(display), d);
-}
-
-
-void Γlinux_gl(Γφ &g)
-{
-  g.def_p2("gl", Γgl_);
-}
 
 
 static xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const s,
@@ -63,6 +20,95 @@ static xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const s,
     return j.data->visual_id;
   }
   return 0;
+}
+
+
+static void glxc_summarize(Display *d, GLXFBConfig *c, ξo const &o)
+{
+  static M<St, int> as
+    { {"use_gl", GLX_USE_GL},
+      {"buffer_size", GLX_BUFFER_SIZE},
+      {"glx_level", GLX_LEVEL},
+      {"double_buffer", GLX_DOUBLEBUFFER},
+      {"stereo", GLX_STEREO},
+      {"aux_buffers", GLX_AUX_BUFFERS},
+      {"red_size", GLX_RED_SIZE},
+      {"green_size", GLX_GREEN_SIZE},
+      {"blue_size", GLX_BLUE_SIZE},
+      {"alpha_size", GLX_ALPHA_SIZE},
+      {"depth_size", GLX_DEPTH_SIZE},
+      {"stencil_size", GLX_STENCIL_SIZE},
+      {"accum_red_size", GLX_ACCUM_RED_SIZE},
+      {"accum_green_size", GLX_ACCUM_GREEN_SIZE},
+      {"accum_blue_size", GLX_ACCUM_BLUE_SIZE},
+      {"accum_alpha_size", GLX_ACCUM_ALPHA_SIZE},
+      {"sample_buffers", GLX_SAMPLE_BUFFERS},
+      {"samples", GLX_SAMPLES} };
+
+  auto r = o.r();
+  int v;
+  for (let &[k, a] : as)
+  {
+    glXGetFBConfigAttrib(d, *c, a, &v);
+    r << ηname{k} << v;
+  }
+}
+
+
+slet Γglcs_ = Ψauto([](Stc &display, ξo o)
+  {
+    let dp    = XOpenDisplay(display.c_str());
+    let si    = DefaultScreen(dp);
+    int nfbcs = 0;
+    let fbcs  = glXChooseFBConfig(dp, si, 0, &nfbcs);
+    A(nfbcs > 0, "no FBconfigs found");
+
+    for (int i = 0; i < nfbcs; ++i)
+      glxc_summarize(dp, &fbcs[i], o);
+
+    XCloseDisplay(dp);
+  });
+
+
+slet Γgl_ = Ψauto([](Stc &display, ψ q, ξi i, ξo o)
+  {
+    St              d = display.empty() ? getenv("DISPLAY") : display;
+    x11_gl_window   w(d);
+    gl_render_state rs(&w);
+
+    let xfd = w.xcb_fd();
+    let xc  = w.c_;
+
+    A(q.t().reg(xfd, true, false), "failed to register xcb FD");
+    q.fx([=](ψ_ &q_) { q_.t().unreg(xfd); });
+    q.f([=, &t=q.t()]()
+      { while (t.rg(xfd)->y(λs::τR))
+          for (xcb_generic_event_t *e;
+               e = xcb_poll_for_event(xc);)
+            if (!o) return;
+            else    o.r() << Stv{Rc<chc*>(e), sizeof(*e)}; });
+
+    for (let &x : i)
+      if (x.is_s())
+        if      (x.cs() == "b") rs.begin();
+        else if (x.cs() == "e") rs.end();
+        else if (x.cs() == "r") rs.run(), w.swap();
+        else                    A(0, "unknown rop: " << x);
+      else
+        rs << x.η();
+  });
+
+
+Γ Γgl_window(Stc &display, Ψd d)
+{
+  return ΓΨ(Γgl_(display), d);
+}
+
+
+void Γlinux_gl(Γφ &g)
+{
+  g .def_p1("glcs", Γglcs_)
+    .def_p2("gl",   Γgl_);
 }
 
 
@@ -125,15 +171,7 @@ x11_gl_window::~x11_gl_window()
 
 void x11_gl_window::clear(colorc &bg)
 {
-  let w = dims_.x;
-  let h = dims_.y;
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glFrustum(w * -0.5, w * 0.5, h * 0.5, h * -0.5, 1., 100.);
-  //glFrustum(w * -1., w, h, h * -1., 1., 100.);
-  //glOrtho(0, w, h, 0, 0.0, 100.0);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+  use();
   glClearColor(bg.r, bg.g, bg.b, bg.a);
   glClearDepth(1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
