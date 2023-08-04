@@ -8,6 +8,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xlib-xcb.h>
 #include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
 #include <xcb/xproto.h>
 
 #include <pango/pangocairo.h>
@@ -53,16 +54,18 @@ struct x11_gl_window final : public virtual gl_window_base,
     None };
 
 
-  Display          *dp_;
-  xcb_connection_t *c_;
-  xcb_screen_t     *s_;
-  GLXContext        glc_;
-  GLXWindow         glw_;
-  u32               wid_;
-  int               si_;    // screen index
-  vec2              dims_;
-  color             bgf_;
-  color             bgu_;
+  Display           *dp_;
+  xcb_connection_t  *c_;
+  xcb_screen_t      *s_;
+  xcb_key_symbols_t *ks_;
+  GLXContext         glc_;
+  GLXWindow          glw_;
+  u32                wid_;
+  int                si_;    // screen index
+  vec2               pos_;
+  vec2               dims_;
+  color              bgf_;
+  color              bgu_;
 
   x11_gl_window(Stc       &display,
                 vec2c     &pos  = { 200, 200 },
@@ -78,6 +81,9 @@ struct x11_gl_window final : public virtual gl_window_base,
 
   fd_t                 xcb_fd();
   xcb_generic_event_t *xcb_poll();
+  ch                   xcb_decode_keycode(xcb_keycode_t, bool);
+
+  void notify_resize(vec2c &dims);
 
   void use()  override;
   void swap() override;

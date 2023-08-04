@@ -36,7 +36,7 @@ ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -s
 native_libs = -lsqlite3 -lboost_context -lzstd -llmdb \
 	      -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 \
 	      -lharfbuzz -lcairo \
-	      -lxcb -lX11 -lGL -lX11-xcb
+	      -lxcb -lxcb-keysyms -lX11 -lGL -lX11-xcb
 libs_linux  = $(native_libs)
 libs_fast   = $(native_libs)
 libs_clang  = $(native_libs)

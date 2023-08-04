@@ -1,7 +1,6 @@
 #include "gl.hh"
 
 #include "../begin.hh"
-#include <GL/glx.h>
 
 namespace σ
 {
@@ -20,6 +19,139 @@ static xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const s,
     return j.data->visual_id;
   }
   return 0;
+}
+
+
+static void xcb_decode_event(x11_gl_window       *w,
+                             xcb_generic_event_t *e,
+                             ξo                   o)
+{
+  switch (e->response_type & ~0x80)
+  {
+  case XCB_CONFIGURE_NOTIFY:
+  {
+    let ev = (xcb_configure_notify_event_t *)e;
+    w->pos_.x = ev->x;
+    w->pos_.y = ev->y;
+    w->notify_resize({f64(ev->width), f64(ev->height)});
+    o.r() << ηname{"t"} << "cn"
+          << ηname{"x"} << ev->x
+          << ηname{"y"} << ev->y
+          << ηname{"w"} << ev->width
+          << ηname{"h"} << ev->height;
+    break;
+  }
+
+  case XCB_EXPOSE:
+  {
+    let ev = (xcb_expose_event_t *)e;
+    o.r() << ηname{"t"} << "ex"
+          << ηname{"x"} << ev->x
+          << ηname{"y"} << ev->y
+          << ηname{"w"} << ev->width
+          << ηname{"h"} << ev->height;
+    break;
+  }
+
+  case XCB_KEY_PRESS:
+  {
+    let ev = (xcb_key_press_event_t *)e;
+    o.r() << ηname{"t"} << "kp"
+          << ηname{"c"} << w->xcb_decode_keycode(ev->detail, ev->state & XCB_MOD_MASK_SHIFT)
+          << ηname{"k"} << ev->detail
+          << ηname{"m"} << ev->state
+          << ηname{"S"} << (ev->state & XCB_MOD_MASK_SHIFT)
+          << ηname{"C"} << (ev->state & XCB_MOD_MASK_CONTROL)
+          << ηname{"A"} << (ev->state & XCB_MOD_MASK_1)
+          << ηname{"M"} << (ev->state & XCB_MOD_MASK_4)
+          << ηname{"W"} << (ev->state & XCB_MOD_MASK_5);
+    break;
+  }
+
+  case XCB_KEY_RELEASE:
+  {
+    let ev = (xcb_key_release_event_t *)e;
+    o.r() << ηname{"t"} << "kr"
+          << ηname{"c"} << w->xcb_decode_keycode(ev->detail, ev->state & XCB_MOD_MASK_SHIFT)
+          << ηname{"k"} << ev->detail
+          << ηname{"m"} << ev->state
+          << ηname{"S"} << (ev->state & XCB_MOD_MASK_SHIFT)
+          << ηname{"C"} << (ev->state & XCB_MOD_MASK_CONTROL)
+          << ηname{"A"} << (ev->state & XCB_MOD_MASK_1)
+          << ηname{"M"} << (ev->state & XCB_MOD_MASK_4)
+          << ηname{"W"} << (ev->state & XCB_MOD_MASK_5);
+    break;
+  }
+
+  case XCB_BUTTON_PRESS:
+  {
+    let ev = (xcb_button_press_event_t *)e;
+    o.r() << ηname{"t"} << "bp"
+          << ηname{"x"} << ev->event_x
+          << ηname{"y"} << ev->event_y
+          << ηname{"b"} << ev->detail;
+    break;
+  }
+
+  case XCB_BUTTON_RELEASE:
+  {
+    let ev = (xcb_button_release_event_t *)e;
+    o.r() << ηname{"t"} << "br"
+          << ηname{"x"} << ev->event_x
+          << ηname{"y"} << ev->event_y
+          << ηname{"b"} << ev->detail;
+    break;
+  }
+
+  case XCB_MOTION_NOTIFY:
+  {
+    let ev = (xcb_motion_notify_event_t *)e;
+    o.r() << ηname{"t"} << "mn"
+          << ηname{"x"} << ev->event_x
+          << ηname{"y"} << ev->event_y;
+    break;
+  }
+
+  case XCB_ENTER_NOTIFY:
+  {
+    let ev = (xcb_enter_notify_event_t *)e;
+    o.r() << ηname{"t"} << "en"
+          << ηname{"x"} << ev->event_x
+          << ηname{"y"} << ev->event_y;
+    break;
+  }
+
+  case XCB_LEAVE_NOTIFY:
+  {
+    let ev = (xcb_leave_notify_event_t *)e;
+    o.r() << ηname{"t"} << "ln"
+          << ηname{"x"} << ev->event_x
+          << ηname{"y"} << ev->event_y;
+    break;
+  }
+
+  case XCB_FOCUS_IN:
+  {
+    o.r() << ηname{"t"} << "fi";
+    break;
+  }
+
+  case XCB_FOCUS_OUT:
+  {
+    o.r() << ηname{"t"} << "fo";
+    break;
+  }
+
+  case XCB_KEYMAP_NOTIFY:
+  {
+    let ev = (xcb_keymap_notify_event_t *)e;
+    o.r() << ηname{"t"} << "km"
+          << ηname{"k0"} << ev->keys[0]
+          << ηname{"k1"} << ev->keys[1]
+          << ηname{"k2"} << ev->keys[2];
+    break;
+  }
+  }
 }
 
 
@@ -81,21 +213,29 @@ slet Γgl_ = Ψauto([](Stc &display, ψ q, ξi i, ξo o)
 
     A(q.t().reg(xfd, true, false), "failed to register xcb FD");
     q.fx([=](ψ_ &q_) { q_.t().unreg(xfd); });
-    q.f([=, &t=q.t()]()
+    q.f([=, &t=q.t(), w=&w]()
       { while (t.rg(xfd)->y(λs::τR))
           for (xcb_generic_event_t *e;
                e = xcb_poll_for_event(xc);)
             if (!o) return;
-            else    o.r() << Stv{Rc<chc*>(e), sizeof(*e)}; });
+            else    xcb_decode_event(w, e, o); });
 
     for (let &x : i)
       if (x.is_s())
         if      (x.cs() == "b") rs.begin();
         else if (x.cs() == "e") rs.end();
-        else if (x.cs() == "r") rs.run(), w.swap();
+        else if (x.cs() == "r") w.clear(w.bgf_), rs.run(), w.swap();
         else                    A(0, "unknown rop: " << x);
       else
         rs << x.η();
+
+    while (1)
+    {
+      w.clear(w.bgf_);
+      rs.run();
+      w.swap();
+      q.t().Θ(now() + 500ms);
+    }
   });
 
 
@@ -130,13 +270,15 @@ x11_gl_window::x11_gl_window(Stc       &display,
   c_  = XGetXCBConnection(dp_);
   XSetEventQueueOwner(dp_, XCBOwnsEventQueue);
 
+  ks_ = xcb_key_symbols_alloc(c_);
+
   auto i = xcb_setup_roots_iterator(xcb_get_setup(c_));
   for (int n = si_; i.rem && n > 0; --n, xcb_screen_next(&i));
   s_ = i.data;
 
   int nfbcs = 0;
   let fbcs  = glXChooseFBConfig(dp_, si_, vas, &nfbcs);
-  A(nfbcs > 0, "no matching X11 FBconfigs (i.e. we cannot map a GL window; try changing vas)");
+  A(nfbcs > 0, "no matching X11 FBconfigs");
 
   let fbc   = fbcs[0];
       glc_  = glXCreateNewContext(dp_, fbc, GLX_RGBA_TYPE, 0, True);
@@ -161,6 +303,7 @@ x11_gl_window::x11_gl_window(Stc       &display,
 
 x11_gl_window::~x11_gl_window()
 {
+  xcb_key_symbols_free(ks_);
   glXDestroyWindow(dp_, glw_);
   xcb_destroy_window(c_, wid_);
   glXDestroyContext(dp_, glc_);
@@ -187,6 +330,20 @@ fd_t x11_gl_window::xcb_fd()
 xcb_generic_event_t *x11_gl_window::xcb_poll()
 {
   return xcb_poll_for_event(c_);
+}
+
+
+ch x11_gl_window::xcb_decode_keycode(xcb_keycode_t c, bool shift)
+{
+  return xcb_key_symbols_get_keysym(ks_, c, shift);
+}
+
+
+void x11_gl_window::notify_resize(vec2c &d)
+{
+  dims_ = d;
+  use();
+  glViewport(0, 0, d.x, d.y);
 }
 
 
