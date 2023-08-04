@@ -1,9 +1,22 @@
 # Spatial computation
+τ provides spatial computation to navigate arbitrarily large spaces using a variety of different strategies. The basic constraints are these:
+
+1. Space consists of an indeterminate set of nodes, each of which can be identified by an η value
+2. A streaming function _f_ takes a node as input and returns traversal instructions, described in the next section
+3. _f_ may request that other nodes be evaluated before it evaluates its own node
+4. The set of to-be-evaluated nodes may be arbitrarily large, e.g. it may not fit into memory
+5. _f_ may request that it be informed about progress at some future moment
+6. At convergence, _f_ will assign each visited node a result value; this value is cached so _f_ is called at most once per node
+7. _f_ is stateless and potentially asynchronous
+8. To-be-evaluated nodes are prioritized, and _f_ will explore them in priority order
+
+
+## _f_: the traversal function
 If we have a process _n → f → I*_, where _I_ is an instruction, then `?f` should execute the program specified by _f_. That program may include:
 
-+ _n ← n'_: unbounded dependency on _f(n')_
++ _n ← n' p_: dependency on _f(n')_ with priority _p_
 + _n = v_: return value _v_ for node _n_
-+ _t_: wake up at time _t_, even if not all deps are ready
++ _t_: wake up at time _t_, even if not all deps are ready (_f_ will receive all dependencies with some mapped to _ω_)
 
 **NOTE:** _I*_ is a horizonal η vector; that is, we emit _(n ← a) (n ← b)_ instead of _τ[n ← a, n ← b]_. We do this because _f_ may be internally parallel, e.g. with `PSN[...]`.
 
@@ -12,14 +25,14 @@ If we have a process _n → f → I*_, where _I_ is an instruction, then `?f` sh
 `?` manages several things:
 
 1. Deduplicating _f(n')_ computations
-2. Scheduling _f(n')_ calls, typically by nearest-deadline-first (using `@<`)
+2. Scheduling _f(n')_ calls, typically by priority
 3. Caching _v ← f(n')_ results
-4. Storing all result data in a `@:` container
+4. Storing all result data
 
 _f_ is invoked in one of the following ways:
 
 + _n → f_ (initial state)
-+ _n n₁ v₁ n₂ v₂ ... → f_ (dependency results are available)
++ _n (n₁ v₁) (n₂ v₂) ... → f_ (dependency results are available)
 
 _n_ will be retired as soon as _f → n = v_; at that point `?` caches _n = v_.
 
@@ -27,24 +40,20 @@ _n_ will be retired as soon as _f → n = v_; at that point `?` caches _n = v_.
 ## Parallelism
 _f_ need not be synchronous; `?` may issue multiple inputs at once and _f_'s outputs for those inputs may be emitted out of order. That is, you can wrap any _f_ in `PS[]` and everything will still work normally, up to calculation ordering.
 
+**TODO:** _f_ is idempotent, so `?` should be able to replay inputs if it doesn't get a result for some amount of time -- or if a parallel driver fails in some way
+
 
 ## `?` dataflow
-**NOTE:** remove time-deadlines; we should instead have wakeup requests
+`?` has only _f_ as its IO component; everything else is handled by working directly with the data backend, which is synchronous and not streaming.
 
-+ _n → ?[n ι → c] → q_: enqueue frontier
 + _f → n=v ⇒ n α v → c; cf(n)_: store result, check for finalized dependents on _n_
 + _f → (n ← a) (n ← b) ⇒ [a ι → c] a α → q, [b ι → c] b α → q_: enqueue uncalculated results and reuse calculated ones
-+ _f → (n ← a t v₁) (n ← b t v₂) ⇒ ..._: same, but enqueue with _t_ as priority
-+ _q [t < θ] → f_: _f_ gets work from the queue if it hasn't expired
-
-**NOTE:** there is no need to prune intermediate results; _f_ is invoked only when all of its dependents have values, whether calculated or failover. If _n' t ← n''_, then we automatically assign _t_ to _n''_ so it is terminated at the same time. (**NOTE:** this means _f_ must receive _n t_, not just _n_.)
-
-**NOTE:** `?` can negotiate one-at-a-time IO by explicitly `λy` after each entry, then awaiting `ra() == 0` on the outbound ξ. This guarantees that we don't buffer incorrectly-prioritized work.
++ _f → ι ..._: emit _..._ directly to output stream
++ _f → t_: schedule a wakeup at time _t_, at which point _f_ will receive all currently-calculated results
++ _q → f_: _f_ gets work from the priority queue
 
 
 ## Cache update algorithm
-**TODO:** can we do this entirely with streaming containers?
-
 ```cpp
 struct val
 {
@@ -122,6 +131,6 @@ for (let x : rq)
       {
         r << x;
         for (let y : c[x].ds)
-          r << y << (c[y].r == 2 ? c[y].v : ω);
+          r << std::make_tuple(y, (c[y].r == 2 ? c[y].v : ω));
       });
 ```

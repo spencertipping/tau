@@ -18,7 +18,7 @@ sletc mapsize = τdebug ? 1ull << 33 : 1ull << 40;
 Sp<lmdb_db> lmdb_open(Stc &f)
 {
   if constexpr (τdebug)
-    std::cerr << "lmdb_open(" << f << "): using 8GB instead of 1TB limit" << std::endl;
+    std::cerr << "lmdb_open(" << f << "): using 1GB instead of 1TB limit" << std::endl;
 
   let i = lmdbs.find(f);
   if (i != lmdbs.end() && !i->second.expired()) return i->second.lock();

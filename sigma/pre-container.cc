@@ -1,4 +1,5 @@
 #include "pre-container.hh"
+#include "pre-spatial.hh"
 #include "begin.hh"
 
 namespace σ::pre
@@ -107,6 +108,7 @@ O &operator<<(O &s, ctype const &t)
   case 5: return s << "?";
   case 6: return s << ":";
   case 7: return s << ";";
+  case 8: return s << "?";
     TA(s, "ctype Va<> OOB (internal error)");
   }
 }

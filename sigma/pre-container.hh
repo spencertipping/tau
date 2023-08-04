@@ -18,10 +18,12 @@ struct ct_uniq     {};
 struct ct_set      {};
 struct ct_map      {};
 struct ct_multimap {};
+struct ct_spatial  { Γ g; };
 
 typedef Va<ct_fifo, ct_prio_min, ct_prio_max,  // 0..2
            ct_bloom, ct_uniq,                  // 3..4
-           ct_set, ct_map, ct_multimap> ctype; // 5..7
+           ct_set, ct_map, ct_multimap,        // 5..7
+           ct_spatial> ctype;                  // 8
 
 
 struct cb_native   {};
@@ -42,6 +44,9 @@ template<class A> struct at_parsers
   auto p(ct_map*)      const { return φl(":") * [](auto) { return ct_map{}; }; }
   auto p(ct_multimap*) const { return φl(";") * [](auto) { return ct_multimap{}; }; }
 
+  auto p(ct_spatial*) const
+    { return φauto(*Rc<A const*>(this), [](φaL<'?'>, Γ g) { return ct_spatial{g}; }); }
+
   auto p(ct_bloom*) const
     { return φauto(*Rc<A const*>(this), [](φaL<'B'>, u64 n, f64 fp) { return ct_bloom{n, fp}; }); }
 
@@ -49,12 +54,12 @@ template<class A> struct at_parsers
   auto p(cb_disk_tmp*) const { return φauto(*Rc<A const*>(this), [](φaL<'D'>, bytes b) { return cb_disk_tmp{b}; }); }
   auto p(cb_sqlite*)   const { return φauto(*Rc<A const*>(this), [](φaL<'S'>, St s)
     { let i = s.find(':');
-      A(i != s.npos, "cb_sqlite → " << s << " unsupported");
+      A(i != s.npos, "cb_sqlite " << s << " missing ':'");
       return cb_sqlite{s.substr(0, i), s.substr(i + 1)}; }); }
 
   auto p(cb_lmdb*)     const { return φauto(*Rc<A const*>(this), [](φaL<'L'>, St s)
     { let i = s.find(':');
-      A(i != s.npos, "cb_lmdb → " << s << " unsupported");
+      A(i != s.npos, "cb_lmdb " << s << " missing ':'");
       return cb_lmdb{s.substr(0, i), s.substr(i + 1)}; }); }
 };
 
