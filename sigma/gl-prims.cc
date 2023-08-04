@@ -57,7 +57,7 @@ static M<St, gl_uniform> gl_uniforms(GLuint program)
   M<St, gl_uniform> r;
   GLint n;
   glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &n);
-  for (GLuint i = 0; i < static_cast<GLuint>(n); ++i)
+  for (GLuint i = 0; i < GLuint(n); ++i)
   {
     constexpr GLsizei max_name_length = 256;
     ch      name[max_name_length];
@@ -75,36 +75,39 @@ static M<St, gl_uniform> gl_uniforms(GLuint program)
 gl_fbo_texture::gl_fbo_texture(vec2c &dims, F<void()> const &render)
   : dims(dims)
 {
-  GLuint fbo;
-  glGenFramebuffers(1, &fbo);
-  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
+  GLint pfbo;
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &pfbo);
   glGenTextures(1, &tid);
   glBindTexture(GL_TEXTURE_2D, tid);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
                dims.x, dims.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+  glGenFramebuffers(1, &fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                          GL_TEXTURE_2D, tid, 0);
 
+  A(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,
+    "gl_fbo_texture: framebuffer incomplete");
+
   glViewport(0, 0, dims.x, dims.y);
-  glClearColor(0, 0, 0, 0);
+  glClearColor(0, 1, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT);
 
   render();
 
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glDeleteFramebuffers(1, &fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, pfbo);
 }
 
 
 gl_fbo_texture::gl_fbo_texture(ηic &x)
   : gl_fbo_texture({x.cf(), x[1].cf()},
-                   [x = x[2]]()
+                   [&]()
                      {
                        gl_null_usable  u;
                        gl_render_state rs(&u);
                        rs.begin();
-                       for (let &y : x) rs << y;
+                       for (let &y : x[2]) rs << y.η();
                        rs.end();
                      })
 {}

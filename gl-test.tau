@@ -1,24 +1,35 @@
-n1 p||-
-  "b"
-  ('p "main"
-    "attribute vec2 a_position;
-     varying   vec2 v_tex;
-     void main()
-     {
-       gl_Position = vec4(a_position, 0, 1);
-       v_tex       = a_position;
-     }"
-    "uniform sampler2D tex;
-     varying vec2 v_tex;
-     void main()
-     {
-       gl_FragColor = texture2D(tex, vec2( v_tex.x * 0.5 + 0.5,
-                                          -v_tex.y * 0.5 + 0.5));
-     }")
-  ('t "hi there" "Ubuntu Mono 84" (0.1 0.1 0.1 0.5) (0.8 0.8 0.9 1))
-  ('u "main" 'tex 0)
-  ('v "quad" ((0 2))
-             (1 1) (1,-1) (-1,-1)
-             (1 1) (-1,1) (-1,-1))
-  "e";
+n1
+p :vs "attribute vec2 a_position;
+       varying   vec2 v_tex;
+       void main()
+       {
+         gl_Position = vec4(a_position, 0, 1);
+         v_tex       = a_position;
+       }";
+  :fs "uniform sampler2D tex;
+       varying vec2 v_tex;
+       void main()
+       {
+         gl_FragColor = texture2D(tex, vec2( v_tex.x * 0.5 + 0.5,
+                                            -v_tex.y * 0.5 + 0.5));
+       }";
+  :fs2 "varying vec2 v_tex;
+        void main()
+        {
+          gl_FragColor = vec4(abs(v_tex.x), abs(v_tex.y), 1, 1);
+        }";
+  ||-
+    "b"
+    ('f "fbo" 256 256
+      ('p "p2" $vs $fs2)
+      ('v "small" ((0 2))
+                  (0.9 0.9) (0.9,-0.9) (-0.9,-0.9)
+                  (0.9 0.9) (-0.9,0.9) (-0.9,-0.9)))
+    ('p "main" $vs $fs)
+    ('u "main" 'tex 0)
+    ('v "quad" ((0 2))
+               (0.5 0.5) (1,-1) (-1,-1)
+               (0.5 0.5) (-1,1) (-1,-1))
+    "e"
+  ;
   K gl"" M? >_

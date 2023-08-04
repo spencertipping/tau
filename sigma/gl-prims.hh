@@ -26,26 +26,33 @@ struct gl_null_usable : public virtual gl_usable
 struct gl_fbo_texture final : public virtual gl_usable
 {
   GLuint tid = 0;
+  GLuint fbo = 0;
   vec2   dims;
 
   gl_fbo_texture()                      = default;
   gl_fbo_texture(gl_fbo_texture const&) = default;
-  gl_fbo_texture(gl_fbo_texture &&t_) : tid(t_.tid), dims(t_.dims)
-    { t_.tid = 0; }
+  gl_fbo_texture(gl_fbo_texture &&t_) { *this = mo(t_); }
 
   gl_fbo_texture(vec2c &dims, F<void()> const &render);
   gl_fbo_texture(ηic &x);
 
-  ~gl_fbo_texture() { if (tid) glDeleteTextures(1, &tid); }
+  ~gl_fbo_texture()
+    { if (tid) glDeleteTextures(1, &tid);
+      if (fbo) glDeleteFramebuffers(1, &fbo); }
 
   gl_fbo_texture &operator=(gl_fbo_texture &&t)
-    { tid  = t.tid;
+    { if (tid) glDeleteTextures(1, &tid);
+      if (fbo) glDeleteFramebuffers(1, &fbo);
+      tid  = t.tid;
+      fbo  = t.fbo;
       dims = t.dims;
       t.tid = 0;
+      t.fbo = 0;
       return *this; }
 
   void use() override
-    { glActiveTexture(GL_TEXTURE0);
+    { A(tid, "gl_fbo_texture::use(): tid=0");
+      glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, tid); }
 };
 
@@ -125,7 +132,9 @@ struct gl_program final : public virtual gl_usable
       p.pid  = 0;
       return *this; }
 
-  void use() override { glUseProgram(pid); }
+  void use() override
+    { A(pid, "gl_program::use(): pid=0");
+      glUseProgram(pid); }
 
   gl_uniform &operator[](Stc &name) { return us.at(name); }
 };
