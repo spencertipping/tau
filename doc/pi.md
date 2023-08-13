@@ -148,6 +148,21 @@ i64           f(...);  // write a single value onto the stack (special case)
 ```
 
 
+## Switch/case
+_x {c₁ y₁ c₂ y₂ ... z}_ evaluates the _y_ corresponding to _c = x_. If no _c = x_, then _z_ is returned.
+
+_c_ values are not assumed to be constant; they are evaluated one-by-one, sequentially, until either _x_ is matched or we fall through to _z_.
+
+```bash
+$ bin/sigma-fast 'n5 px{0 "a" 1 "b" 2 x+1 x+2}; M?>_'
+"a"
+"b"
+3
+5
+6
+```
+
+
 ## Heap references, η passthrough, and `πi&`
 All stack values are heap references, and functions may manipulate them directly. This can be useful when returning a reference to an η subvalue, which would involve copying if we used `auto`-conversion as outlined above. For example, here's a zero-copy map key lookup:
 
