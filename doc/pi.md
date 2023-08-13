@@ -22,7 +22,9 @@ Since (1) is easy, let's talk about (2). It's also pretty easy; we just need to 
 π/Γ interop can collect either _all_ ηs from the ξ (vertical), or just the first one (horizontal).
 
 ```bash
-$ bin/sigma-fast 'n1 p1 G.[px x+1 x+2]; M?>_'
+$ bin/sigma-fast 'n1 p1 G>[px x+1 x+2]; M?>_'
+1 2 3
+$ bin/sigma-fast 'n1 p1 G<[|px x+1 x+2]; M?>_'
 1 2 3
 ```
 
