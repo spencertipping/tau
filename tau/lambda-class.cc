@@ -5,7 +5,14 @@ namespace τ
 {
 
 
-λk λmk_;
+static uN λmem_ = 0;
+
+void λtrack_alloc(uN s) { λmem_ += s; }
+void λtrack_free (uN s) { λmem_ -= s; }
+uN   λallocated  ()     { return λmem_; }
+
+
+static λk λmk_;
 λk *λmk() { return &λmk_; }
 
 

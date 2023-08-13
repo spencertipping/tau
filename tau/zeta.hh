@@ -31,10 +31,16 @@ namespace τ
 */
 
 
+// Memory profiling for ζ
+void ζtrack_alloc(uN);
+void ζtrack_free(uN);
+uN   ζallocated();
+
+
 struct ζ
 {
-  ζ(uN c_) : c(c_), xs(new u8[c]), ri(0), wi(0), ci(0) {}
-  ~ζ() { delete[] xs; }
+  ζ(uN c_) : c(c_), xs(new u8[c]), ri(0), wi(0), ci(0) { ζtrack_alloc(c); }
+  ~ζ() { ζtrack_free(c); delete[] xs; }
 
   // Accessors relative to read point
   u8 *operator+ (uN i) const { let u = wrapped() ? ci : wi; A(ri + i <= u, "ζ+ OOB: " << ri << "+" << i << " > " << u); return xs + ri + i; }

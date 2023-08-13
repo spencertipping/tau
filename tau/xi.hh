@@ -21,6 +21,8 @@ void ξc_(ξ*);
 void ξd_(ξ*);
 uN   ξn();
 
+uN   ξallocated();
+
 #if τtrack_ξ
 S<ξ*> &ξs();
 #endif

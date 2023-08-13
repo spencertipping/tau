@@ -36,6 +36,7 @@ void λinvoke(void *λ_)
     is_done(false)
 {
   λinit();
+  λtrack_alloc(λss * 2);
   k.async_stack = ma(λss);
   k.c_stack     = ma(λss);
   emscripten_fiber_init(&k.k, &λinvoke, this,
@@ -46,8 +47,8 @@ void λinvoke(void *λ_)
 
 λ::~λ()
 {
-  if (k.async_stack) fr(k.async_stack);
-  if (k.c_stack)     fr(k.c_stack);
+  if (k.async_stack) fr(k.async_stack), λtrack_free(λss);
+  if (k.c_stack)     fr(k.c_stack),     λtrack_free(λss);
 }
 
 
@@ -84,8 +85,8 @@ void λy()
     // it from λmk() above?
     //let s = λthis;
     let s = t;
-    if (s->async_stack) { fr(s->async_stack); s->async_stack = nullptr; }
-    if (s->c_stack)     { fr(s->c_stack);     s->c_stack     = nullptr; }
+    if (s->async_stack) { λtrack_free(λss); fr(s->async_stack); s->async_stack = nullptr; }
+    if (s->c_stack)     { λtrack_free(λss); fr(s->c_stack);     s->c_stack     = nullptr; }
   }
 }
 
@@ -94,6 +95,7 @@ void λinit_()
 {
   λmk()->async_stack = ma(λss);
   λmk()->c_stack     = nullptr;
+  λtrack_alloc(λss);
   emscripten_fiber_init_from_current_context(&λmk()->k,
                                              λmk()->async_stack,
                                              λss);

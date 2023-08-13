@@ -8,6 +8,21 @@
 + [π function](pi-fn.md)
 + [σ/π stdlib](sigma-pi-stdlib.md)
 
+
+## Blocking calls within π programs
+Not all τ programs are best structured with η/ξ streams. Sometimes it makes more sense to issue direct function calls, blocking the caller and yielding until a value is returned. For example, reading stdout from a one-shot program is a blocking operation that should yield and allow other work to be done. Files are similar but require more subtle handling since Linux doesn't support async file IO with `epoll()`.
+
+There are two ways to implement blocking calls:
+
+1. Have π functions that manually yield and manage scheduling (e.g. `τe::Θ`)
+2. Convert the call into a Γ and read the return value(s) from a ξ
+
+Since (1) is easy, let's talk about (2). It's also pretty easy; we just need to create a ξ that accepts an initial η value (the function arguments) and then read from the resulting ξ, whether that's `fi` on the right or `bi` on the left. The π execution λ will hold a reference to the resulting ξ.
+
+π/Γ interop can collect either _all_ ηs from the ξ (vertical), or just the first one (horizontal).
+
+
+## Examples/tests
 ```bash
 $ bin/sigma-fast 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M?>_'
 0 false (0 false) (0 2 0 1) 1

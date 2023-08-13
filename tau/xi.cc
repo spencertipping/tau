@@ -22,6 +22,12 @@ namespace τ
 #endif
 
 
+uN ξallocated()
+{
+  return ζallocated();
+}
+
+
 bool ξ::eof(bool nonblock)
 {
   while (!ra() && !wc) if (nonblock || !rg.y(λs::ξR)) return true;

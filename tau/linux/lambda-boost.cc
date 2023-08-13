@@ -27,6 +27,8 @@ void λm(λbc::continuation &&cc)
 {
   λinit();
   if (λmi)
+  {
+    λtrack_alloc(λss);
     k = new λbc::continuation(λbc::callcc(
       std::allocator_arg, λbc::fixedsize_stack(λss),
       [&](λbc::continuation &&cc)
@@ -34,12 +36,17 @@ void λm(λbc::continuation &&cc)
           f();
           fin();
           return mo(**λmk()); }));
+  }
 }
 
 
 λ::~λ()
 {
-  if (k) delete k;
+  if (k)
+  {
+    λtrack_free(λss);
+    delete k;
+  }
 }
 
 
@@ -48,7 +55,7 @@ void λ::fin()
   A(!done(), "fin() called on done λ");
   A(!λmi,    "fin() called on main λ");
   is_done = true;
-  if (k) { delete k; k = nullptr; }
+  if (k) { λtrack_free(λss); delete k; k = nullptr; }
 }
 
 
@@ -64,6 +71,7 @@ void λ::fin()
     // frame of reference so it knows where to return. I haven't fully worked
     // this out yet, but cc.resume() at the beginning makes it work reliably.
     k = new λbc::continuation;
+    λtrack_alloc(λss);
     auto cc = λbc::callcc(
       std::allocator_arg, λbc::fixedsize_stack(λss),
       [&](λbc::continuation &&cc)

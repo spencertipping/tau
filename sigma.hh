@@ -11,38 +11,52 @@ namespace σ
 {
 
 
-struct πφ : public τ::πφ_<πφ>,
-            τ::φauto_str<πφ>,
-            τ::πφP<πφ>,
-            τ::φlit<πφ>,
-            τ::φbrack<πφ>,
-            σ::pre::at_parsers<πφ>,
-            σ::pre::mux_parsers<πφ>
+// NOTE: π parsers can inline Γ values, hence recursive templates
+
+template<class Γφ>
+struct πφ__ : public τ::πφ_<πφ__<Γφ>>,
+  τ::φauto_str<πφ__<Γφ>>,
+  τ::πφP<πφ__<Γφ>>,
+  τ::φlit<πφ__<Γφ>>,
+  τ::φbrack<πφ__<Γφ>>,
+  σ::pre::at_parsers<πφ__<Γφ>>,
+  σ::pre::mux_parsers<πφ__<Γφ>>
 {
-  using τ::πφ_<πφ>::p;
-  using τ::πφP<πφ>::p;
-  using τ::φbrack<πφ>::p;
-  using τ::φauto_str<πφ>::p;
-  using τ::φlit<πφ>::p;
-  using σ::pre::at_parsers<πφ>::p;
-  using σ::pre::mux_parsers<πφ>::p;
+  Γφ &g;
+  πφ__(Γφ &g_) : g(g_) {}
+
+  using T = πφ__<Γφ>;
+
+  using τ::πφ_<T>::p;
+  using τ::πφP<T>::p;
+  using τ::φbrack<T>::p;
+  using τ::φauto_str<T>::p;
+  using τ::φlit<T>::p;
+  using σ::pre::at_parsers<T>::p;
+  using σ::pre::mux_parsers<T>::p;
+
+  Tx auto p(τ::Γa<X> *x) const { return g.p(x); }
+  Tx auto p(τ::Γ     *x) const { return g.p(x); }
 };
 
 
-struct Γφ : public τ::Γφ_<Γφ, πφ>,
+struct Γφ : public τ::Γφ_<Γφ, πφ__<Γφ>>,
             τ::φauto_str<Γφ>,
             τ::φlit<Γφ>,
             τ::φbrack<Γφ>,
             σ::pre::at_parsers<Γφ>,
             σ::pre::mux_parsers<Γφ>
 {
-  using τ::Γφ_<Γφ, πφ>::p;
+  using τ::Γφ_<Γφ, πφ__<Γφ>>::p;
   using τ::φauto_str<Γφ>::p;
   using τ::φlit<Γφ>::p;
   using τ::φbrack<Γφ>::p;
   using σ::pre::at_parsers<Γφ>::p;
   using σ::pre::mux_parsers<Γφ>::p;
 };
+
+
+typedef πφ__<Γφ> πφ;
 
 
 typedef τ::τe τe;

@@ -34,7 +34,7 @@ namespace τ
 {
 
 
-#if τplatform == τplatform_wasm || τassume_emscripten
+#if τwasm || τassume_emscripten
   struct λk
   {
     emscripten_fiber_t  k;
@@ -53,6 +53,12 @@ uNc λss = 262144;  // stack size
 λk *λmk();         // return address of main continuation
 
 void λinit();
+
+
+// Memory profiling for λs
+void λtrack_alloc(uN);
+void λtrack_free(uN);
+uN   λallocated();
 
 
 struct λ final

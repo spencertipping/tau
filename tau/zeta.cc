@@ -8,6 +8,13 @@ namespace τ
 {
 
 
+static uN ζmem_ = 0;
+
+void ζtrack_alloc(uN c) { ζmem_ += c; }
+void ζtrack_free (uN c) { ζmem_ -= c; }
+uN   ζallocated  ()     { return ζmem_; }
+
+
 ζ &ζ::resize(uN c_)
 {
   if (c_ == c) return *this;
@@ -15,6 +22,7 @@ namespace τ
     "cannot resize ζ to be smaller than its contents" <<
     "(c = " << c << ", c_ = " << c_ << ", ra = " << ra());
 
+  ζtrack_alloc(c_);
   let ys = new u8[c_];
   if (wrapped())
   {
@@ -31,6 +39,7 @@ namespace τ
   A(ra() == r, "resize() modified ra(): " << r << " → " << ra());
 
   delete[] xs;
+  ζtrack_free(c);
   xs = ys;
   c  = c_;
   return *this;
