@@ -2,6 +2,7 @@
 #define τπint_h
 
 #include "xiio.hh"
+#include "tau.hh"
 #include "pi-heap.hh"
 #include "begin.hh"
 
@@ -42,14 +43,16 @@ struct πev
 // π program interpreter
 struct πi final
 {
-  πi()          = default;
-  πi(πi const&) = default;
-  πi(πi&&)      = default;
+  πi()      : t_(nullptr) {}
+  πi(τe &t) : t_(&t) {}
 
-  πi(ξi fi)                      : fi_(fi) {}
-  πi(ξo fo)                      : fo_(fo) {}
-  πi(ξi fi, ξo fo)               : fi_(fi), fo_(fo) {}
-  πi(ξi fi, ξo fo, ξo bo, ξi bi) : fi_(fi), fo_(fo), bo_(bo), bi_(bi) {}
+  πi(τe &t, ξi fi)                      : t_(&t), fi_(fi) {}
+  πi(τe &t, ξo fo)                      : t_(&t), fo_(fo) {}
+  πi(τe &t, ξi fi, ξo fo)               : t_(&t), fi_(fi), fo_(fo) {}
+  πi(τe &t, ξi fi, ξo fo, ξo bo, ξi bi) : t_(&t), fi_(fi), fo_(fo), bo_(bo), bi_(bi) {}
+
+
+  τe *t() const { return t_; }
 
 
   πi &push(πhr const &r) { s_.xs.push_back(r);       return *this; }
@@ -130,6 +133,7 @@ struct πi final
 
 
 protected:
+  τe  *t_;      // event loop (for sub-Γ evaluation)
   πh   h_;
   πhsv s_{h_};  // data stack
   πhmv m_{h_};  // named bindings

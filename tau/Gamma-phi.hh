@@ -18,6 +18,9 @@ namespace τ
 Tt struct Γa { T x; };
 Tt struct Γe { T x; };
 
+Tt O &operator<<(O &s, Γa<T> const &x) { return s << x.x; }
+Tt O &operator<<(O &s, Γe<T> const &x) { return s << x.x; }
+
 
 // An extensible Γ grammar. See pi-phi.hh for a similar construct for π.
 template<class Γφ, class πφ>
