@@ -154,12 +154,8 @@ _x {c₁ y₁ c₂ y₂ ... z}_ evaluates the _y_ corresponding to _c = x_. If n
 _c_ values are not assumed to be constant; they are evaluated one-by-one, sequentially, until either _x_ is matched or we fall through to _z_.
 
 ```bash
-$ bin/sigma-fast 'n5 px{0 "a" 1 "b" 2 x+1 x+2}; M?>_'
-"a"
-"b"
-3
-5
-6
+$ bin/sigma-fast 'n5 px{0 "a" 1 "b" 2 x+1 x+2}; p>@; M?>_'
+(("a") ("b") (3) (5) (6))
 ```
 
 
