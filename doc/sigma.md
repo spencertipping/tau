@@ -125,7 +125,7 @@ sym  !@#$%^&*()-=_+{}[]\|`~<>,.:;"'?/
 | `P2`    | Γ     | fork to a Γ that connects as Ψ₂                   |
 | `PS`    | n Γ   | transparently parallelize to `n` copies of a Ψ₂   |
 | `Q`     |       | prefix for queues/buffers                         |
-| `@`     | P     | prefix for maps and sets                          |
+| `@`     | P     | prefix for [containers](sigma-containers.md)      |
 | `<`     | P     | prefix for unboxing                               |
 | `>`     | P     | prefix for boxing                                 |
 | `~`     | P     | prefix for delay and rate-limit                   |

@@ -11,7 +11,7 @@ struct nfat_ : public virtual at_
   nfat_() : at_(ct_fifo{}, cb_native{}) {}
   void α(ηic &x, ηic&, ξo)   override { xs.push_back(x.one()); }
   void ι(ηic &x, ηic&, ξo o) override { o << xs.front(); xs.pop_front(); }
-  void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
+  void τ(ηic &x,       ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   D<ηm> xs;
 };
 
@@ -21,7 +21,7 @@ struct nnat_ : public virtual at_
   nnat_() : at_(ct_prio_min{}, cb_native{}) {}
   void α(ηic &x, ηic&, ξo)   override { xs.push(x.one()); }
   void ι(ηic &x, ηic&, ξo o) override { o << xs.top(); xs.pop(); }
-  void τ(ηic &x, ξo o) override
+  void τ(ηic &x,       ξo o) override
     { while (!xs.empty()) xs.pop();
       o.r() << ηsig::τ; }
   PQ<ηm, std::greater<ηm>> xs;  // NOTE: greater == min queue
@@ -32,7 +32,7 @@ struct nxat_ : public virtual at_
   nxat_() : at_(ct_prio_max{}, cb_native{}) {}
   void α(ηic &x, ηic&, ξo)   override { xs.push(x.one()); }
   void ι(ηic &x, ηic&, ξo o) override { o << xs.top(); xs.pop(); }
-  void τ(ηic &x, ξo o) override
+  void τ(ηic &x,       ξo o) override
     { while (!xs.empty()) xs.pop();
       o.r() << ηsig::τ; }
   PQ<ηm, std::less<ηm>> xs;  // NOTE: less = max queue
@@ -45,7 +45,7 @@ struct nsat_ : public virtual at_
   void α(ηic &x, ηic&, ξo)   override { xs.insert(x.one()); }
   void ω(ηic &x, ηic&, ξo)   override { xs.erase(x.one()); }
   void ι(ηic &x, ηic&, ξo o) override { o.r(x.lsize() + 2) << x.all() << xs.contains(x.one()); }
-  void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
+  void τ(ηic &x,       ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   S<ηm> xs;
 };
 
@@ -66,7 +66,7 @@ struct nmat_ : public virtual at_
   void ι(ηic &k, ηic&, ξo o) override
     { if (xs.contains(k.one())) o.r(k.lsize() + 64) << k.all() << xs[k].all();
       else                      o.r(k.lsize() + 2)  << k.all() << ηsig::ω; }
-  void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
+  void τ(ηic &x,       ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   M<ηm, ηm> xs;
 };
 
@@ -108,7 +108,8 @@ O &operator<<(O &s, ctype const &t)
   case 5: return s << "?";
   case 6: return s << ":";
   case 7: return s << ";";
-  case 8: return s << "?";
+  case 8: return s << "S";
+  case 9: return s << "?";
     TA(s, "ctype Va<> OOB (internal error)");
   }
 }

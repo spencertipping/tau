@@ -18,12 +18,13 @@ struct ct_uniq     {};
 struct ct_set      {};
 struct ct_map      {};
 struct ct_multimap {};
+struct ct_index    {};
 struct ct_spatial  { Γ g; };
 
 typedef Va<ct_fifo, ct_prio_min, ct_prio_max,  // 0..2
            ct_bloom, ct_uniq,                  // 3..4
            ct_set, ct_map, ct_multimap,        // 5..7
-           ct_spatial> ctype;                  // 8
+           ct_index, ct_spatial> ctype;        // 8..9
 
 
 struct cb_native   {};
@@ -43,11 +44,12 @@ template<class A> struct at_parsers
   auto p(ct_set*)      const { return φl("?") * [](auto) { return ct_set{}; }; }
   auto p(ct_map*)      const { return φl(":") * [](auto) { return ct_map{}; }; }
   auto p(ct_multimap*) const { return φl(";") * [](auto) { return ct_multimap{}; }; }
+  auto p(ct_index*)    const { return φl("S") * [](auto) { return ct_index{}; }; }
 
-  auto p(ct_spatial*) const
+  auto p(ct_spatial*)  const
     { return φauto(*Rc<A const*>(this), [](φaL<'?'>, Γ g) { return ct_spatial{g}; }); }
 
-  auto p(ct_bloom*) const
+  auto p(ct_bloom*)    const
     { return φauto(*Rc<A const*>(this), [](φaL<'B'>, u64 n, f64 fp) { return ct_bloom{n, fp}; }); }
 
   auto p(cb_native*)   const { return φauto(*Rc<A const*>(this), [](φaL<'N'>) { return cb_native{}; }); }
@@ -81,7 +83,7 @@ struct at_
   virtual void κ(ηic&, ηic&, ξo) { A(0, "κ → " << *this << " unsupported"); }
   virtual void ι(ηic&, ηic&, ξo) { A(0, "ι → " << *this << " unsupported"); }
   virtual void ρ(ηic&, ηic&, ξo) { A(0, "ρ → " << *this << " unsupported"); }
-  virtual void τ(ηic&, ξo) { A(0, "τ → " << *this << " unsupported"); }
+  virtual void τ(ηic&,       ξo) { A(0, "τ → " << *this << " unsupported"); }
 
   ctype t_;
   cback b_;
