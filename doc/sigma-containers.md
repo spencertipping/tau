@@ -3,8 +3,6 @@ As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures
 
 **TODO:** rewrite this page because it's confusing
 
-**TODO:** change these interfaces to time-domain; we can have streaming adapters, but containers aren't naturally frequency-domain constructs
-
 
 ```bash
 $ bin/sigma-fast 'n1p@-(5 α)(5 ι)(6 ι)(τ)(5 ι); @?N M?>_'

@@ -53,7 +53,7 @@ struct nuat_ : public virtual at_
 {
   nuat_() : at_(ct_uniq{}, cb_native{}) {}
   void α(ηic &x, ηic&, ξo o) override { if (xs.insert(x.one()).second) o << x.one(); }
-  void τ(ηic &x, ξo o) override { xs.clear(); o.r() << ηsig::τ; }
+  void τ(ηic &x,       ξo o) override { xs.clear(); o.r() << ηsig::τ; }
   S<ηm> xs;
 };
 

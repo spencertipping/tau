@@ -1,6 +1,7 @@
 #ifndef σpre_container_h
 #define σpre_container_h
 
+#include "pre-kv.hh"
 #include "../tau.hh"
 #include "../tau/begin.hh"
 
@@ -35,7 +36,7 @@ struct cb_lmdb     { St f;  St db; };
 typedef Va<cb_native, cb_disk_tmp, cb_sqlite, cb_lmdb> cback;
 
 
-template<class A> struct at_parsers
+template<class A> struct at_ct_parsers
 {
   auto p(ct_fifo*)     const { return φl("=") * [](auto) { return ct_fifo{}; }; }
   auto p(ct_prio_min*) const { return φl("<") * [](auto) { return ct_prio_min{}; }; }
@@ -51,7 +52,10 @@ template<class A> struct at_parsers
 
   auto p(ct_bloom*)    const
     { return φauto(*Rc<A const*>(this), [](φaL<'B'>, u64 n, f64 fp) { return ct_bloom{n, fp}; }); }
+};
 
+template<class A> struct at_cb_parsers
+{
   auto p(cb_native*)   const { return φauto(*Rc<A const*>(this), [](φaL<'N'>) { return cb_native{}; }); }
   auto p(cb_disk_tmp*) const { return φauto(*Rc<A const*>(this), [](φaL<'D'>, bytes b) { return cb_disk_tmp{b}; }); }
   auto p(cb_sqlite*)   const { return φauto(*Rc<A const*>(this), [](φaL<'S'>, St s)
