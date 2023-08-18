@@ -11,7 +11,8 @@ struct kv_lmdb_ final : public virtual kv_
 {
   kv_lmdb_(Sp<lmdb_db> mdb, Stc &db)
     : mdb_(mdb), db_(db), r_(nullptr), w_(nullptr), dbi_(0),
-      csw_([this]() { commit(); }) {}
+      csw_([this]() { commit(); })
+    {}
 
   ~kv_lmdb_() { commit(); close_reader(); }
 
@@ -23,18 +24,22 @@ struct kv_lmdb_ final : public virtual kv_
 
   MDB_txn *r()
     { if (!r_)
-      { let rc = mdb_txn_begin(mdb_->e, nullptr, MDB_RDONLY, &r_);
+      { again:
+        let rc = mdb_txn_begin(mdb_->e, nullptr, MDB_RDONLY, &r_);
         A(rc == MDB_SUCCESS, "r::mdb_txn_begin() failed: " << mdb_strerror(rc));
-        let rc2 = mdb_dbi_open(r_, db_.c_str(), MDB_CREATE, &dbi_);
-        A(rc2 == MDB_SUCCESS, "r::mdb_dbi_open() failed: " << mdb_strerror(rc2)); }
+        if (mdb_dbi_open(r_, db_.c_str(), MDB_CREATE, &dbi_) != MDB_SUCCESS)
+        { w(); commit();
+          close_reader();
+          goto again; } }
       return r_; }
 
   MDB_txn *w()
     { if (!w_)
-      { let rc = mdb_txn_begin(mdb_->e, nullptr, 0, &w_);
-        A(rc == MDB_SUCCESS, "w::mdb_txn_begin() failed: " << mdb_strerror(rc));
-        let rc2 = mdb_dbi_open(w_, db_.c_str(), MDB_CREATE, &dbi_);
-        A(rc2 == MDB_SUCCESS, "w::mdb_dbi_open() failed: " << mdb_strerror(rc2)); }
+      { int rc;
+        A((rc = mdb_txn_begin(mdb_->e, nullptr, 0, &w_)) == MDB_SUCCESS,
+          "w::mdb_txn_begin() failed: " << mdb_strerror(rc));
+        A((rc = mdb_dbi_open(w_, db_.c_str(), MDB_CREATE, &dbi_)) == MDB_SUCCESS,
+          "w::mdb_dbi_open() failed: " << mdb_strerror(rc)); }
       return w_; }
 
 

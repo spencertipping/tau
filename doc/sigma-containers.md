@@ -117,8 +117,10 @@ Search indexes are like multimaps, but always return results in sorted order. Va
 Search terms can overflow if too many values are mapped to a term, or if the total value size is too large. You can set the limit at creation-time. Overflowed terms can no longer be used.
 
 ```bash
-$ rm -f /tmp/test.db
-$ bin/sigma-fast 'n1p@-("a" α 11)("a" α 12)(2 α 3)
+$ rm -f /tmp/test.db /tmp/test.db-lock
+$ bin/sigma-fast 'n1p@-("a" α 11)
+                       ("a" α 12)
+                       (2 α 3)
                        ("a" ι)
                        ("a" α 4)
                        (2 ι)

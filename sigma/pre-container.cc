@@ -120,13 +120,13 @@ void kviat_::commit()
       let a = (*ai).one();
       let b = (*bi).one();
       let c = a <=> b;
-      if      (c == PO::less)       x << a.one(), ++ai;
-      else if (c == PO::greater)    x << b.one(), ++bi;
-      else if (c == PO::equivalent) x << a.one(), ++ai, ++bi;
+      if      (c == PO::less)       x << a.all(), ++ai;
+      else if (c == PO::greater)    x << b.all(), ++bi;
+      else if (c == PO::equivalent) x << a.all(), ++ai, ++bi;
       else A(0, a << " <=> " << b << " is undefined");
     }
-    while (ai != ae) x << (*ai++).one();
-    while (bi != be) x << (*bi).one(), ++bi;
+    while (ai != ae) x << (*ai++).one().all();
+    while (bi != be) x << (*bi).one().all(), ++bi;
 
     db->set(k, x);
   }
