@@ -116,6 +116,22 @@ Search indexes are like multimaps, but always return results in sorted order. Va
 
 Search terms can overflow if too many values are mapped to a term, or if the total value size is too large. You can set the limit at creation-time. Overflowed terms can no longer be used.
 
+```bash
+$ rm -f /tmp/test.db
+$ bin/sigma-fast 'n1p@-("a" α 11)("a" α 12)(2 α 3)
+                       ("a" ι)
+                       ("a" α 4)
+                       (2 ι)
+                       ("a" ι)
+                       (5 ι);
+                     @SL"/tmp/test.db:foo" M?>_'
+"a" 11 12
+2 3
+"a" 4 11 12
+5 ω
+τ
+```
+
 
 ## Persistent collection listing (`@|`)
 You can list everything in a disk-backed collection using `@|`:

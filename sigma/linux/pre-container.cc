@@ -53,7 +53,7 @@ struct lmdb_ls_ : public virtual at_ls_
       A((rc = mdb_cursor_open(r, dbi, &c)) == MDB_SUCCESS,
         "mdb_cursor_open() failed: " << mdb_strerror(rc));
       MDB_val k, v;
-      while ((rc = mdb_cursor_get(c.get(), &k, &v, MDB_NEXT)) == MDB_SUCCESS)
+      while ((rc = mdb_cursor_get(c, &k, &v, MDB_NEXT)) == MDB_SUCCESS)
         o.r(k.mv_size + v.mv_size + 8)
           << Sn<u8c>{Rc<u8c*>(k.mv_data), k.mv_size}
           << Sn<u8c>{Rc<u8c*>(v.mv_data), v.mv_size};

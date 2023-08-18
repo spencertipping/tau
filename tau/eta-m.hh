@@ -33,8 +33,9 @@ struct ηm final
   Sn<u8c> all() const { return Sn<u8c>{x_.data(), x_.size()}; }
   uN    lsize() const { return x_.size(); }
 
-  ηm  &clear()       { x_.clear(); return *this; }
-  bool empty() const {             return x_.empty(); }
+  ηm  &clear()       { x_.clear();    return *this; }
+  ηm  &reserve(uN s) { x_.reserve(s); return *this; }
+  bool empty() const {                return x_.empty(); }
 
   PO   operator<=>(ηic &x) const { return y() <=> x; }
   PO   operator<=>(ηmc &x) const { return y() <=> x.y(); }
