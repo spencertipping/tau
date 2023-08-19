@@ -36,8 +36,7 @@ struct iiit final : public virtual iit_
 
   operator   bool() override { return *a && *b; }
   ηi   operator* () override { return (**a).one(); }
-  void operator++() override
-    { ++*a; ++*b; sync(); }
+  void operator++() override { ++*a; ++*b; sync(); }
 
   void sync()
     { while (*a && *b)
