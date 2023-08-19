@@ -124,16 +124,39 @@ $ bin/sigma-fast 'n1p@-("a" α 11)
                        ("a" ι)
                        ("a" α 12)
                        ("a" α 16)
+                       ("a" α 13)
                        ("a" α 4)
                        (2 ι)
                        ("a" ι)
                        (5 ι);
-                     @SL"/tmp/test.db:foo" M?>_'
+                  @SL"/tmp/test.db:foo" M?>_'
 "a" 11 13
 2 3
 "a" 4 11 12 13 16
 5 ω
 τ
+```
+
+Persistent search collections can support multiple simultaneous readers and writers within the same process:
+
+```bash
+$ rm -f /tmp/test.db /tmp/test.db-lock
+$ bin/sigma-fast 'n1p@-("q" "a" ι)
+                       ("i" "a" α "foo")
+                       ("i" "a" α "bar")
+                       ("q" "a" ι)
+                       ("i" τ)
+                       ("i" ω)
+                       ("q" "a" ι);
+                  K pΘ.0.01`x;
+                  {i|@SL"/tmp/test.db:foo"
+                   q|@SL"/tmp/test.db:foo"} M?>_'
+"q" "a" ω
+"q" "a" ω
+"i" τ
+"i" ω
+"q" "a" "bar" "foo"
+"q" ω
 ```
 
 

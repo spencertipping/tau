@@ -16,18 +16,18 @@ sletc mapsize = τdebug ? 1ull << 33 : 1ull << 40;
 
 Sp<lmdb_db> lmdb_open(Stc &f)
 {
-  if constexpr (τdebug)
-    std::cerr << "lmdb_open(" << f << "): using 1GB instead of 1TB limit" << std::endl;
-
   let i = lmdbs.find(f);
   if (i != lmdbs.end() && !i->second.expired()) return i->second.lock();
+
+  if constexpr (τdebug)
+    std::cerr << "lmdb_open(" << f << "): using 1GB instead of 1TB limit" << std::endl;
 
   let r = Sp<lmdb_db>(new lmdb_db);
   int rc;
   A((rc = mdb_env_create(&r->e))              == MDB_SUCCESS, "mdb_env_create() failed: " << mdb_strerror(rc));
   A((rc = mdb_env_set_mapsize(r->e, mapsize)) == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
   A((rc = mdb_env_set_maxdbs(r->e, 64))       == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: " << mdb_strerror(rc));
-  A((rc = mdb_env_open(r->e, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC, 0664)) == MDB_SUCCESS,
+  A((rc = mdb_env_open(r->e, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC | MDB_NOTLS, 0664)) == MDB_SUCCESS,
     "mdb_env_open(" << f << ") failed: " << mdb_strerror(rc));
   lmdbs[f] = r;
   return r;

@@ -24,6 +24,10 @@ void πshared_float(πφ &p)
       .def_spre("T.", [](f64 x) { return tan(x); })
       .def_spre("L.", [](f64 x) { return log(x); })
       .def_spre("E.", [](f64 x) { return exp(x); })
+
+      .def_spre("Θ.", [](πi &i, f64 x)
+        { i.t()->Θ(now() + i64(x * 1e9) * 1ns);
+          return x; })
       ;
 }
 

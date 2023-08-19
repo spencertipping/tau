@@ -72,6 +72,7 @@ struct nmat_ : public virtual at_
 
 
 // TODO: add key overflow
+// TODO: add multi-layer staging (can just be keyspace, not separate tables)
 struct kviat_ : public virtual at_
 {
   kviat_(cback const &l, Sp<kv_> db) : at_(ct_map{}, l), db(db), s(0) {}
