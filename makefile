@@ -14,7 +14,7 @@ ar_wdebug = dev/emsdk emar
 
 cflags = $(shell cat compile_flags.txt)
 
-cflags_linux  = $(cflags) -O3 -flto -DBOOST_STACKTRACE_USE_NOOP -Dτdebug=0
+cflags_linux  = $(cflags) -O3 -flto -DBOOST_STACKTRACE_USE_NOOP -Dτdebug=0 -Dτallow_todo=1
 cflags_fast   = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP
 cflags_clang  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -gdwarf-4 -DDEBUG
 cflags_debug  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG
