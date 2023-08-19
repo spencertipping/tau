@@ -71,72 +71,6 @@ struct nmat_ : public virtual at_
 };
 
 
-// TODO: add key overflow
-// TODO: add multi-layer staging (can just be keyspace, not separate tables)
-struct kviat_ : public virtual at_
-{
-  kviat_(cback const &l, Sp<kv_> db) : at_(ct_map{}, l), db(db), s(0) {}
-  ~kviat_() { commit(); }
-
-  void α(ηic &k, ηic &v, ξo) override { if (xs[k].insert(v).second) staged(v.lsize()); }
-  void ι(ηic &k, ηic&, ξo o) override
-    { commit();
-      let r = db->get(k);
-      if (!r.empty()) o.r(k.lsize() + r.size() + 8) << k.all() << r.all();
-      else            o.r(k.lsize() + 2)            << k.all() << ηsig::ω; }
-
-  void τ(ηic &x, ξo o)       override { commit(); db->sync(); o.r() << ηsig::τ; }
-
-  void staged(uN n) { if ((s += n) > 1 << 20) commit(), s = 0; }
-  void commit();
-
-  Sp<kv_>      db;
-  M<ηm, S<ηm>> xs;  // staged insertions
-  uN           s;   // size of staged insertions
-};
-
-
-void kviat_::commit()
-{
-  if (!s) return;
-  ηm x;
-  for (let &[k, vs] : xs)
-  {
-    x.clear();
-    V<ηi> av(vs.begin(), vs.end());
-    let   bv = db->get(k);
-    std::sort(av.begin(), av.end());
-
-    uN t = bv.lsize();
-    for (let &v : av) t += v.osize();
-    x.reserve(t);
-
-    auto ai = av.begin();
-    auto bi = bv.begin();
-    let  ae = av.end();
-    let  be = bv.end();
-
-    while (ai != ae && bi != be)
-    {
-      let a = (*ai).one();
-      let b = (*bi).one();
-      let c = a <=> b;
-      if      (c == PO::less)       x << a.all(), ++ai;
-      else if (c == PO::greater)    x << b.all(), ++bi;
-      else if (c == PO::equivalent) x << a.all(), ++ai, ++bi;
-      else A(0, a << " <=> " << b << " is undefined");
-    }
-    while (ai != ae) x << (*ai++).one().all();
-    while (bi != be) x << (*bi).one().all(), ++bi;
-
-    db->set(k, x);
-  }
-
-  xs.clear();
-  s = 0;
-}
-
-
 Sp<at_> at(ctype t, cback b)
 {
   return std::visit(fn {
@@ -148,11 +82,11 @@ Sp<at_> at(ctype t, cback b)
       [&](ct_set,      cb_native) { return Sp<at_>(new nsat_()); },
       [&](ct_uniq,     cb_native) { return Sp<at_>(new nuat_()); },
       [&](ct_map,      cb_native) { return Sp<at_>(new nmat_()); },
-      [&](ct_index,    cb_native) { return Sp<at_>(new kviat_(cb_native{}, kv_native())); },
+      [&](ct_index,    cb_native) { return iat(cb_native{}, kv_native()); },
 
       [&](ct_set,   cb_lmdb const &l) { return lmdb_set(l); },
       [&](ct_map,   cb_lmdb const &l) { return lmdb_map(l); },
-      [&](ct_index, cb_lmdb const &l) { return Sp<at_>(new kviat_(l, kv_lmdb(l.f, l.db))); }
+      [&](ct_index, cb_lmdb const &l) { return iat(l, kv_lmdb(l.f, l.db)); }
     }, t, b);
 }
 

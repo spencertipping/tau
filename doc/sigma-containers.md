@@ -159,6 +159,40 @@ $ bin/sigma-fast 'n1p@-("q" "a" ι)
 "q" ω
 ```
 
+Queries are issued as _n ρ i q_, where _n_ is the maximum number of results to return, _i_ is the query ID (emitted with results), and _q_ is a recursively-defined query:
+
++ `("+" a b c ...)`: union queries
++ `("*" a b c ...)`: intersect queries
++ `("-" a b)` subtract `b`'s results from `a`
++ `("t" x)` retrieve term `x`, just like _(x ι)_
+
+```bash
+$ rm -f /tmp/test.db /tmp/test.db-lock
+$ bin/sigma-fast 'n1p@-("a" α "foo")
+                       ("a" α "bar")
+                       ("b" α "foo")
+                       ("b" α "bif")
+                       ("c" α "foo")
+                       ("c" α "bar")
+                       ("c" α "bok")
+                       (10 ρ "q1" ("t" "a"))
+                       (10 ρ "q2" ("*" ("t" "a") ("t" "b")))
+                       (10 ρ "q3" ("*" ("t" "a") ("t" "c")))
+                       (10 ρ "q4" ("+" ("t" "a") ("t" "b")))
+                       (10 ρ "q5" ("+" ("t" "b") ("t" "c")))
+                       (10 ρ "q6" ("-" ("t" "b") ("t" "a")))
+                       ;
+                  K @SL"/tmp/test.db:foo" M?>_'
+"q1" "bar" "foo"
+"q2" "foo"
+"q3" "bar" "foo"
+"q4" "bar" "bif" "foo"
+"q5" "bar" "bif" "bok" "foo"
+"q6" "bif"
+```
+
+**TODO:** add term-vector overflow size and maybe auto-commit size to `@S` grammar
+
 
 ## Persistent collection listing (`@|`)
 You can list everything in a disk-backed collection using `@|`:

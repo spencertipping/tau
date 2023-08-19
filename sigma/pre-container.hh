@@ -110,6 +110,10 @@ Sp<at_> lmdb_map(cb_lmdb const&);
 Sp<at_ls_> lmdb_ls(cb_lmdb const&);
 
 
+// Provided by pre-container-search.cc
+Sp<at_> iat(cback const&, Sp<kv_>);
+
+
 Sp<at_>    at   (ctype, cback);
 Sp<at_ls_> at_ls(cback);
 
