@@ -29,6 +29,7 @@ Tt concept ηauto_type   = (ηauto_<T>::ops & ηauto_op_type)   != 0;
 
 // ηY<T> contains a T that will be unpacked from an inner η.
 Tt struct ηY { T x; };
+Tt ηY(T) -> ηY<T>;
 
 
 #define deft(ct, s, yt, ve)                                             \
