@@ -1,4 +1,5 @@
 #include "pre-kv.hh"
+#include "pre-container.hh"
 #include "../tau/begin.hh"
 
 namespace σ::pre
@@ -22,6 +23,18 @@ protected:
 Sp<kv_> kv_native()
 {
   return Sp<kv_>{new kv_native_};
+}
+
+
+Sp<kv_> kv(cback b)
+{
+  return std::visit(
+    fn {
+      [](auto x)      { A(0, "kv(" << x << ") unsupported"); return Sp<kv_>{}; },
+      [](cb_native)   { return kv_native(); },
+      [](cb_lmdb l)   { return kv_lmdb(l.f, l.db); },
+      [](cb_sqlite s) { return kv_sqlite(s.db, s.t); }
+    }, b);
 }
 
 
