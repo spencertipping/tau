@@ -114,6 +114,8 @@ $ bin/sigma-fast 'n1p@-(/>"/foo/bar.bif" />"bif")
 "bif" "bif"
 "/foo/bar" "bif"
 τ
+$ bin/sigma-fast 'n1p"foo"++"bar\n"; >F1'
+foobar
 ```
 
 Testing a failure case:
