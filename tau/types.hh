@@ -247,6 +247,23 @@ struct ι  // ranged numeric iteration
 };
 
 
+// Converting iterator
+template<class I, class R> struct cit
+{
+  I i;
+  bool  operator==(cit const &y) const { return i == y.i; }
+  cit  &operator++()                   { ++i; return *this; }
+  R     operator* ()             const { return *i; }
+};
+
+template<class T, class I, class R> struct citr
+{
+  T i;
+  cit<I, R> begin() const { return {i.begin()}; }
+  cit<I, R> end()   const { return {i.end()}; }
+};
+
+
 }
 
 

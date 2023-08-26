@@ -34,7 +34,7 @@ void try_xi_simple()
   });
 
   t.l().c([&, r=r]() {
-    for (let y : r) s += y.i();
+    for (let &[y] : r.every<i64>()) s += y;
     cout << "ξ single got total: " << s << endl;
     l2e = true;
   });
@@ -69,8 +69,8 @@ void try_xi_multi()
 
   t.l().c([&, r=r]() {
     for (let x : r)
-      for (let y : ηi(x))
-        s += y.i();
+      for (let &[y] : ηi(x).every<i64>())
+        s += y;
     cout << "ξ multi got total: " << s << endl;
   });
 
