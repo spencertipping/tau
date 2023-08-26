@@ -18,6 +18,7 @@
 #include "tau/Lambda.hh"
 #include "tau/gate.hh"
 #include "tau/breaker.hh"
+#include "tau/yielder.hh"
 
 #include "tau/zeta.hh"
 #include "tau/xi.hh"
