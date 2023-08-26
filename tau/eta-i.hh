@@ -150,7 +150,7 @@ struct ηi final
   bool is_Ω() const { return is_sig() && sig() == ηsig::Ω; }
 
 
-  ηi η() const { return {data(), size()}; }
+  ηi η() const { A(is_η(), "ηi::η() on " << t()); return {data(), size()}; }
 
 
   ηsig sig() const

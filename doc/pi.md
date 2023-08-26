@@ -105,6 +105,15 @@ $ bin/sigma-fast 'n1p#=3 1 2 3 4 5 4 3 2 1; M?>_'
 2
 $ bin/sigma-fast 'n1p#=(3) (1 2) (3) (4 5) 4 (3 2) 1; M?>_'
 1
+$ bin/sigma-fast 'n1p@-(/>"/foo/bar.bif" />"bif")
+                       (</"/foo/bar.bif" </"bif")
+                       (.>"/foo/bar.bif" .>"bif")
+                       (<."/foo/bar.bif" <."bif"); M?>_'
+"bar.bif" "bif"
+"/foo" "bif"
+"bif" "bif"
+"/foo/bar" "bif"
+τ
 ```
 
 Testing a failure case:

@@ -204,6 +204,11 @@ void πshared_string(πφ &p)
     .def_spre("##3/512", sha3<512>)
     .def_spre("##3/384", sha3<384>)
     .def_spre("##3/256", sha3<256>)
+
+    .def_spre("</", [](Stc &s) { let i = s.find_last_of('/'); return i == St::npos ? s : St{s.begin(), s.begin() + i}; })
+    .def_spre("/>", [](Stc &s) { let i = s.find_last_of('/'); return i == St::npos ? s : St{s.begin() + i + 1, s.end()}; })
+    .def_spre("<.", [](Stc &s) { let i = s.find_last_of('.'); return i == St::npos ? s : St{s.begin(), s.begin() + i}; })
+    .def_spre(".>", [](Stc &s) { let i = s.find_last_of('.'); return i == St::npos ? s : St{s.begin() + i + 1, s.end()}; })
     ;
 }
 
