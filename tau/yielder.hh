@@ -14,9 +14,9 @@ namespace τ
 // Λ yielder: nop that yields after a deadline since the last yield, optionally
 // calling a function instead
 
-struct λy final
+struct λY final
 {
-  λy(ΔΘ dt = 10ms, F<void()> f = nullptr) : y_(never()), dt_(dt), f_(f) {}
+  λY(ΔΘ dt = 10ms, F<void()> f = nullptr) : y_(never()), dt_(dt), f_(f) {}
 
   void operator()()
     { if (y_ == never()) y_ = now();
