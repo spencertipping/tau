@@ -25,6 +25,8 @@ Txs struct λY final
       else    Λ_().y(λs::Y);
       y_ = now(); }
 
+  void reset() { y_ = now(); }
+
 protected:
   Θp             y_;   // last yield
   ΔΘ             dt_;  // deadline
