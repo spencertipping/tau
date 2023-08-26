@@ -21,6 +21,7 @@ struct ηm final
   ηm(ηmc&) = default;
   ηm(ηm&&) = default;
   ηm(ηic &x) { *this = x; }
+  ηm(uN c)   { reserve(c); }
 
   ηm &operator=(ηic &x)
     { x_.assign(x.odata(), x.osize() + x.asize()); return *this; }
