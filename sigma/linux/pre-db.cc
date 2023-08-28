@@ -1,5 +1,6 @@
 #include "pre-db.hh"
 #include "../../tau/begin.hh"
+#include <lmdb.h>
 
 namespace σ::pre
 {
@@ -27,7 +28,7 @@ Sp<lmdb_db> lmdb_open(Stc &f)
   A((rc = mdb_env_create(&r->e))              == MDB_SUCCESS, "mdb_env_create() failed: " << mdb_strerror(rc));
   A((rc = mdb_env_set_mapsize(r->e, mapsize)) == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
   A((rc = mdb_env_set_maxdbs(r->e, 64))       == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: " << mdb_strerror(rc));
-  A((rc = mdb_env_open(r->e, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC | MDB_NOTLS, 0664)) == MDB_SUCCESS,
+  A((rc = mdb_env_open(r->e, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC | MDB_NOTLS | MDB_NORDAHEAD, 0664)) == MDB_SUCCESS,
     "mdb_env_open(" << f << ") failed: " << mdb_strerror(rc));
   lmdbs[f] = r;
   return r;

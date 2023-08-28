@@ -84,6 +84,11 @@ struct ηi final
       while (i) ++r, ++i;
       return r; }
 
+  ηi sub(uN start, uN n) const
+    { ηi i1 = *this; while (i1 && start--) ++i1;
+      ηi i2 = i1;    while (i2 && n--) ++i2;
+      return ηi{i1.a_, i2.a_ >= i1.a_ ? uN(i2.a_ - i1.a_) : i1.l_}; }
+
   // Type of each element within this η record, up to the first 15 (used for
   // fast dispatch)
   ηtl ts() const;
