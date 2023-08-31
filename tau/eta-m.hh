@@ -23,20 +23,11 @@ struct ηm final
   ηm(ηic &x) { *this = x; }
   ηm(uN c)   { reserve(c); }
 
-  ηm &operator=(ηic &x)
-    { x_.assign(x.odata(), x.osize() + x.asize()); return *this; }
-
+  ηm &operator=(ηic &x) { x_.assign(x.ldata(), x.lsize()); return *this; }
   ηm &operator=(ηm&&) = default;
   ηm &operator=(ηmc&) = default;
 
   operator ηi() const { return y(); }
-  ηi        y() const { return ηi(x_.data(), x_.size()); }
-  Sn<u8c> all() const { return Sn<u8c>{x_.data(), x_.size()}; }
-  uN    lsize() const { return x_.size(); }
-
-  ηm  &clear()       { x_.clear();    return *this; }
-  ηm  &reserve(uN s) { x_.reserve(s); return *this; }
-  bool empty() const {                return x_.empty(); }
 
   PO   operator<=>(ηic &x) const { return y() <=> x; }
   PO   operator<=>(ηmc &x) const { return y() <=> x.y(); }
@@ -44,8 +35,22 @@ struct ηm final
 
   Tt ηm &operator<<(T const &x) { ηo{ηoc<B&>(x_)} << x; return *this; }
 
+  ηm operator+(ηic &x) const { return ηm{*this} << x; }
+
+  ηi        y() const { return ηi(x_.data(), x_.size()); }
+  Sn<u8c> all() const { return Sn<u8c>{x_.data(), x_.size()}; }
+  uN    lsize() const { return x_.size(); }
+
+  ηm  &clear()               { x_.clear();    return *this; }
+  ηm  &reserve(uN s)         { x_.reserve(s); return *this; }
+  bool empty()         const {                return x_.empty(); }
+  ηm   sub(uN i, uN n) const {                return ηm{y().sub(i, n)}; }
+
   B x_;
 };
+
+
+ηm operator+(ηic&, ηic&);
 
 
 Tt ηo<T> &operator<<(ηo<T> &x, ηmc &y)

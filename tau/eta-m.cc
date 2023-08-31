@@ -7,6 +7,11 @@
 namespace τ
 {
 
+ηm operator+(ηic &x, ηic &y)
+{
+  return ηm{x.lsize() + y.lsize()} << x << y;
+}
+
 O &operator<<(O &s, ηmc &v)
 {
   return s << v.y();
