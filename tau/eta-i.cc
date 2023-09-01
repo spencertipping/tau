@@ -148,7 +148,7 @@ Tt static O &pspan(O &s, Sn<T> const &xs)
   for (auto i = xs.begin(); i != xs.end(); ++i)
   {
     if (i != xs.begin()) s << " ";
-    s << *i;
+    s << widen(*i);
   }
   return s << "]";
 }
