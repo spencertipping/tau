@@ -27,20 +27,20 @@ using namespace std::literals;
 using namespace std::placeholders;
 
 
-typedef Ar<u8, 28> h224;
-typedef Ar<u8, 32> h256;
-typedef Ar<u8, 48> h384;
-typedef Ar<u8, 64> h512;
+typedef Ar<u8, 28> h224;  typedef h224 const h224c;
+typedef Ar<u8, 32> h256;  typedef h256 const h256c;
+typedef Ar<u8, 48> h384;  typedef h384 const h384c;
+typedef Ar<u8, 64> h512;  typedef h512 const h512c;
 
-St h_hex(h224 const&);
-St h_hex(h256 const&);
-St h_hex(h384 const&);
-St h_hex(h512 const&);
+St h_hex(h224c&);
+St h_hex(h256c&);
+St h_hex(h384c&);
+St h_hex(h512c&);
 
-St h_b64(h224 const&);
-St h_b64(h256 const&);
-St h_b64(h384 const&);
-St h_b64(h512 const&);
+St h_b64(h224c&);
+St h_b64(h256c&);
+St h_b64(h384c&);
+St h_b64(h512c&);
 
 h224 hex_h224(Stc&);
 h256 hex_h256(Stc&);
@@ -51,6 +51,11 @@ h224 b64_h224(Stc&);
 h256 b64_h256(Stc&);
 h384 b64_h384(Stc&);
 h512 b64_h512(Stc&);
+
+h224 operator^(h224c&, h224c&);
+h256 operator^(h256c&, h256c&);
+h384 operator^(h384c&, h384c&);
+h512 operator^(h512c&, h512c&);
 
 
 struct bytes { u64 n; };
