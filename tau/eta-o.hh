@@ -145,6 +145,14 @@ private:
 };
 
 
+// rvalue → lvalue adapter
+template<class X, class Y>
+ηo<X> &&operator<<(ηo<X> &&o, Y &&y)
+{
+  return mo(o << std::forward<Y>(y));
+}
+
+
 // IMPORTANT: keep these functions in the header file; if we don't, then
 // it becomes impossible to create new ηo<> instances (which π does for
 // its internal heap IO, at least at the time of this comment).
