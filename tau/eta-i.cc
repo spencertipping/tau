@@ -142,6 +142,18 @@ O &operator<<(O &s, ηicb_r x)
 }
 
 
+Tt static O &pspan(O &s, Sn<T> const &xs)
+{
+  s << "[";
+  for (auto i = xs.begin(); i != xs.end(); ++i)
+  {
+    if (i != xs.begin()) s << " ";
+    s << *i;
+  }
+  return s << "]";
+}
+
+
 static O &yone(O &s, ηic &i)
 {
   switch (i.t())
@@ -152,12 +164,12 @@ static O &yone(O &s, ηic &i)
   case ηtype::string:   return s << "\"" << i.s() << "\"";
   case ηtype::atom:     return s << i.a();
   case ηtype::name:     return s << i.n() << ":";
-  case ηtype::int8s:    return s << "i8s[" << i.size() << "]";
-  case ηtype::int16s:   return s << "i16s[" << i.size() / 2 << "]";
-  case ηtype::int32s:   return s << "i32s[" << i.size() / 4 << "]";
-  case ηtype::int64s:   return s << "i64s[" << i.size() / 8 << "]";
-  case ηtype::float32s: return s << "f32s[" << i.size() / 4 << "]";
-  case ηtype::float64s: return s << "f64s[" << i.size() / 8 << "]";
+  case ηtype::int8s:    return pspan(s << "i8s[" << i.size() << "] = ", i.i8s());
+  case ηtype::int16s:   return pspan(s << "i16s[" << i.size() / 2 << "] = ", i.i16s());
+  case ηtype::int32s:   return pspan(s << "i32s[" << i.size() / 4 << "] = ", i.i32s());
+  case ηtype::int64s:   return pspan(s << "i64s[" << i.size() / 8 << "] = ", i.i64s());
+  case ηtype::float32s: return pspan(s << "f32s[" << i.size() / 4 << "] = ", i.f32s());
+  case ηtype::float64s: return pspan(s << "f64s[" << i.size() / 8 << "] = ", i.f64s());
   case ηtype::η:        return s << "(" << i.η() << ")";
   default:
     return s << "ηi[t=" << Sc<int>(i.t()) << ", s=" << i.size() << "]";
