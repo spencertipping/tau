@@ -55,7 +55,7 @@ struct ηm final
 
 Tt ηo<T> &operator<<(ηo<T> &x, ηmc &y)
 {
-  return x << Sn<u8c>{y.x_.data(), y.x_.size()};
+  return x << y.y();
 }
 
 

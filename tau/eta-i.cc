@@ -160,8 +160,8 @@ Tt static O &pspan(O &s, Sn<T> const &xs)
 static O &hexout(O &s, Stvc &x)
 {
   for (let c : x)
-    s << "0123456789abcdef"[uN(c) >> 4]
-      << "0123456789abcdef"[uN(c) & 0x0f];
+    s << "0123456789abcdef"[u8(c) >> 4 & 0x0f]
+      << "0123456789abcdef"[u8(c)      & 0x0f];
   return s;
 }
 
