@@ -143,6 +143,8 @@ struct ηi final
   bool is_n()    const { return t() == ηtype::name; }
   bool is_b()    const { return is_a() && a() <= ηatom::bool_max; }
   bool is_η()    const { return t() == ηtype::η; }
+  bool is_bin()  const { return t() == ηtype::binary; }
+  bool is_e()    const { return t() == ηtype::ext; }
 
   bool is_i8s()  const { return t() == ηtype::int8s; }
   bool is_i16s() const { return t() == ηtype::int16s; }
@@ -198,6 +200,10 @@ struct ηi final
 
   Stv n() const
     { A(is_n(), "n() on non-name " << t());
+      return {Rc<chc*>(data()), size()}; }
+
+  Stv bin() const
+    { A(is_bin(), "bin() on non-binary " << t());
       return {Rc<chc*>(data()), size()}; }
 
   ηatom a() const
@@ -276,7 +282,17 @@ struct ηi final
       case ηtype::atom:    return (Ss{} << a()).str();
       case ηtype::name:    return St{n()};
       case ηtype::string:  return St{s()};
-      default: A(0, "η::cs(" << t() << "=" << *this << ")"); return 0;
+      case ηtype::binary:  return St{bin()};
+      default: A(0, "η::cs(" << t() << "=" << *this << ")"); return {};
+      } }
+
+  ηbin cbin() const
+    { switch (t())
+      {
+      case ηtype::string: return {St{s()}};
+      case ηtype::binary: return {St{bin()}};
+      case ηtype::int8s:  return {St{Rc<chc*>(i8s().data()), i8s().size()}};
+      default: A(0, "η::cbin(" << t() << "=" << *this << ")"); return {};
       } }
 
 

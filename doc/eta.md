@@ -6,6 +6,8 @@
 + [η signal conventions](eta-signals.md)
 + [η/C++ destructuring](eta-cpp.md)
 
+η values have the property that the same logical value will always encode to exactly the same bytestream. There is no redundancy in the encoding.
+
 
 ## Format
 Each η value's size can be calculated in constant time, with the exception of the toplevel value which is a stream of values. Each value begins with a control byte, which describes the type and size-encoding of the thing that comes after it. There are 16 types and 16 size encodings:
@@ -19,15 +21,15 @@ Each η value's size can be calculated in constant time, with the exception of t
 | `0x4_`      | atom (`true`/`false`/`null`)                |
 | `0x5_`      | sub-η stream (used for nesting)             |
 | `0x6_`      | name prefix                                 |
-| `0x7_`      | **reserved**                                |
+| `0x7_`      | opaque binary data                          |
 | `0x8_`      | `int8s`                                     |
 | `0x9_`      | `int16s` (big-endian)                       |
 | `0xa_`      | `int32s` (big-endian)                       |
 | `0xb_`      | `int64s` (big-endian)                       |
 | `0xc_`      | `float32s` (big-endian)                     |
 | `0xd_`      | `float64s` (big-endian)                     |
-| `0xe_`      | **reserved**                                |
-| `0xf_`      | **reserved**                                |
+| `0xe_`      | extended type                               |
+| `0xf_`      | **reserved (invalid)**                      |
 
 | Low 4 bits | Next bytes     | Size encoding |
 |------------|----------------|---------------|

@@ -43,14 +43,14 @@ enum class ηtype : u8
   atom     = 4,
   η        = 5,
   name     = 6,
-  res7     = 7,   // reserved
+  binary   = 7,
   int8s    = 8,
   int16s   = 9,
   int32s   = 10,
   int64s   = 11,
   float32s = 12,
   float64s = 13,
-  res14    = 14,  // reserved
+  ext      = 14,
   res15    = 15,  // reserved
   invalid  = 15,  // reserved for illegal values
   max      = 15,
@@ -61,6 +61,13 @@ enum class ηtype : u8
 // a name rather than a string. Otherwise we'd have ambiguity at the C++
 // type-mapping level (e.g. in ηauto).
 struct ηname
+{
+  St x;
+};
+
+
+// Alternative type to mark binary data.
+struct ηbin
 {
   St x;
 };

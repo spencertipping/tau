@@ -105,6 +105,7 @@ Tt struct ηo final
   ηo &operator<<(Stvc &s);
   ηo &operator<<(chc *s);
   ηo &operator<<(ηname const &n);
+  ηo &operator<<(ηbin const &b);
 
   ηo &operator<<(bool b);
   ηo &operator<<(ηatom a);
@@ -244,6 +245,17 @@ Tt ηo<T> &ηo<T>::operator<<(ηname const &n)
   let s = n.x.size();
   if (!reserve(s + 1 + ηsb(s))) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::name, s);
+  memcpy(b_.data() + s_, n.x.data(), s);
+  s_ += s;
+  return *this;
+}
+
+
+Tt ηo<T> &ηo<T>::operator<<(ηbin const &n)
+{
+  let s = n.x.size();
+  if (!reserve(s + 1 + ηsb(s))) return *this;
+  s_ += ηcb(b_.subspan(s_), ηtype::binary, s);
   memcpy(b_.data() + s_, n.x.data(), s);
   s_ += s;
   return *this;

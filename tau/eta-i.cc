@@ -59,6 +59,7 @@ PO ηi::operator<=>(ηic &x) const
   case ηtype::string:   r = s()    <=> x.s();    break;
   case ηtype::atom:     r = a()    <=> x.a();    break;
   case ηtype::name:     r = n()    <=> x.n();    break;
+  case ηtype::binary:   r = bin()  <=> x.bin();  break;
   case ηtype::int8s:    r = i8s()  <=> x.i8s();  break;
   case ηtype::int16s:   r = i16s() <=> x.i16s(); break;
   case ηtype::int32s:   r = i32s() <=> x.i32s(); break;
@@ -66,6 +67,8 @@ PO ηi::operator<=>(ηic &x) const
   case ηtype::float32s: r = f32s() <=> x.f32s(); break;
   case ηtype::float64s: r = f64s() <=> x.f64s(); break;
   case ηtype::η:        r = η()    <=> x.η();    break;
+
+  // NOTE: ext data is always unordered
   default:              r = PO::unordered;       break;
   }
 
@@ -154,6 +157,15 @@ Tt static O &pspan(O &s, Sn<T> const &xs)
 }
 
 
+static O &hexout(O &s, Stvc &x)
+{
+  for (let c : x)
+    s << "0123456789abcdef"[uN(c) >> 4]
+      << "0123456789abcdef"[uN(c) & 0x0f];
+  return s;
+}
+
+
 static O &yone(O &s, ηic &i)
 {
   switch (i.t())
@@ -164,6 +176,7 @@ static O &yone(O &s, ηic &i)
   case ηtype::string:   return s << "\"" << i.s() << "\"";
   case ηtype::atom:     return s << i.a();
   case ηtype::name:     return s << i.n() << ":";
+  case ηtype::binary:   return hexout(s << "bin[" << i.size() << "] = ", i.bin());
   case ηtype::int8s:    return pspan(s << "i8s[" << i.size() << "] = ", i.i8s());
   case ηtype::int16s:   return pspan(s << "i16s[" << i.size() / 2 << "] = ", i.i16s());
   case ηtype::int32s:   return pspan(s << "i32s[" << i.size() / 4 << "] = ", i.i32s());
@@ -171,6 +184,7 @@ static O &yone(O &s, ηic &i)
   case ηtype::float32s: return pspan(s << "f32s[" << i.size() / 4 << "] = ", i.f32s());
   case ηtype::float64s: return pspan(s << "f64s[" << i.size() / 8 << "] = ", i.f64s());
   case ηtype::η:        return s << "(" << i.η() << ")";
+  case ηtype::ext:      return s << "ext[" << i.size() << "]";
   default:
     return s << "ηi[t=" << Sc<int>(i.t()) << ", s=" << i.size() << "]";
   }

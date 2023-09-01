@@ -57,12 +57,14 @@ O &operator<<(O &s, ηtype t)
   case ηtype::string:   return s << "str";
   case ηtype::atom:     return s << "atom";
   case ηtype::name:     return s << "name";
+  case ηtype::binary:   return s << "binary";
   case ηtype::int8s:    return s << "i8s";
   case ηtype::int16s:   return s << "i16s";
   case ηtype::int32s:   return s << "i32s";
   case ηtype::int64s:   return s << "i64s";
   case ηtype::float32s: return s << "f32s";
   case ηtype::float64s: return s << "f64s";
+  case ηtype::ext:      return s << "ext";
   case ηtype::η:        return s << "η";
   default:              return s << "t" << int(t);
   }

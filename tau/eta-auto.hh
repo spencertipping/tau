@@ -54,6 +54,7 @@ deft(ηsig,  2, sig,  i.sig())
 deft(ηatom, 2, atom, i.a())
 
 deft(ηname, 16, name,   ηname{St{i.n()}})
+deft(ηbin,  16, binary, ηbin{St{i.bin()}})
 deft(Stv,   16, string, i.s())
 deft(St,    16, string, St{i.cs()})
 
