@@ -27,11 +27,6 @@ Tt concept ηauto_decode = (ηauto_<T>::ops & ηauto_op_decode) != 0;
 Tt concept ηauto_type   = (ηauto_<T>::ops & ηauto_op_type)   != 0;
 
 
-// ηY<T> contains a T that will be unpacked from an inner η.
-Tt struct ηY { T x; };
-Tt ηY(T) -> ηY<T>;
-
-
 #define deft(ct, s, yt, ve)                                             \
   Tn struct ηauto_<ct>                                                  \
   { sletc ops = ηauto_op_decode | ηauto_op_encode | ηauto_op_type;      \
@@ -67,11 +62,16 @@ deft(Sn<f64bc>, 512, float64s, i.f64s())
 
 Tt struct ηauto_<ηY<T>>
 {
-  sletc ops = ηauto_op_decode | ηauto_op_type;
+  sletc ops = ηauto_op_encode | ηauto_op_decode | ηauto_op_type;
   sletc t = ηtype::η;
   sletc n = 64;
   static ηY<T> v(ηic &i) { return {ηauto_<T>::v(i.η())}; }
 };
+
+template<class T, ηauto_encode X> ηo<T> &operator<<(ηo<T> &x, ηY<X> const &y)
+{
+  return x << (ηm{ηauto_<X>::n} << y.x);
+}
 
 
 // Inline value, which can be encoded and decoded but does not have
@@ -122,9 +122,39 @@ struct ηauto_<T<X, Y, Xs...>>
                             ηauto_<T<Y, Xs...>>::v(i.next())); }
 };
 
+Tx struct ηauto_<V<X>>
+{
+  sletc ops = (ηauto_encode<X> ? ηauto_op_encode : 0)
+            | (ηauto_decode<X> ? ηauto_op_decode : 0)
+            | ηauto_op_type;
+  sletc t = ηtype::η;
+  sletc n = ηauto_<X>::n * 64;
+  static V<X> v(ηi i)
+    { V<X> r;
+      while (i) r.push_back(ηauto_<X>::v(i)), ++i;
+      return r; }
+};
+
+template<class X, class Y> struct ηauto_<M<X, Y>>
+{
+  sletc ops = (ηauto_encode<X> && ηauto_encode<Y> ? ηauto_op_encode : 0)
+            | (ηauto_decode<X> && ηauto_decode<Y> ? ηauto_op_decode : 0)
+    | ηauto_op_type;
+  sletc t = ηtype::η;
+  sletc n = (ηauto_<X>::n + ηauto_<Y>::n) * 16;
+  static M<X, Y> v(ηi i)
+    { M<X, Y> r;
+      while (i && i.has_next())
+      { let k = i; ++i;
+        let v = i; ++i;
+        r[ηauto_<X>::v(k)] = ηauto_<Y>::v(v); }
+      return r; }
+};
+
+
 Tn struct ηauto_<V<ηi>>
 {
-  sletc ops = ηauto_op_encode;
+  sletc ops = ηauto_op_decode;
 
   // NOTE: no t or n because V<ηi> is read-only (i.e. we don't serialize
   // V<ηi> back to η directly)

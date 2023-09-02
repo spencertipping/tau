@@ -60,17 +60,23 @@ enum class ηtype : u8
 // Alternative type used to mark the fact that this thing is meant to be
 // a name rather than a string. Otherwise we'd have ambiguity at the C++
 // type-mapping level (e.g. in ηauto).
-struct ηname
-{
-  St x;
-};
+struct ηname { St x; };
 
 
 // Alternative type to mark binary data.
-struct ηbin
-{
-  St x;
-};
+struct ηbin  { St      x; };
+struct ηbinv { Sn<u8c> x; };
+
+
+// ηY<T> contains a T that will be unpacked from an inner η. (used in
+// auto conversions)
+Tt struct ηY { T x; };
+Tt ηY(T) -> ηY<T>;
+
+
+// ηvec<T>, where T = i8, i16, i32, i64, f32, f64, contains a vector of
+// primitives
+Tt struct ηvec { V<T> x; };
 
 
 // An unordered set of types encoded as a 16-bit mask.

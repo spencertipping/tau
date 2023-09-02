@@ -105,7 +105,8 @@ Tt struct ηo final
   ηo &operator<<(Stvc &s);
   ηo &operator<<(chc *s);
   ηo &operator<<(ηname const &n);
-  ηo &operator<<(ηbin const &b);
+  ηo &operator<<(ηbin  const &b);
+  ηo &operator<<(ηbinv const &b);
 
   ηo &operator<<(bool b);
   ηo &operator<<(ηatom a);
@@ -128,12 +129,15 @@ Tt struct ηo final
   ηo &operator<<(Sn<f32c> const&);
   ηo &operator<<(Sn<f64c> const&);
 
-  ηo &operator<<(V<i8>  const&);
-  ηo &operator<<(V<i16> const&);
-  ηo &operator<<(V<i32> const&);
-  ηo &operator<<(V<i64> const&);
-  ηo &operator<<(V<f32> const&);
-  ηo &operator<<(V<f64> const&);
+  ηo &operator<<(ηvec<i8>  const&);
+  ηo &operator<<(ηvec<i16> const&);
+  ηo &operator<<(ηvec<i32> const&);
+  ηo &operator<<(ηvec<i64> const&);
+  ηo &operator<<(ηvec<f32> const&);
+  ηo &operator<<(ηvec<f64> const&);
+
+  template<class X>          ηo &operator<<(Vc<X>&);
+  template<class X, class Y> ηo &operator<<(Mc<X, Y>&);
 
 
 private:
@@ -258,8 +262,17 @@ Tt ηo<T> &ηo<T>::operator<<(ηname const &n)
   return *this;
 }
 
-
 Tt ηo<T> &ηo<T>::operator<<(ηbin const &n)
+{
+  let s = n.x.size();
+  if (!reserve(s + 1 + ηsb(s))) return *this;
+  s_ += ηcb(b_.subspan(s_), ηtype::binary, s);
+  memcpy(b_.data() + s_, n.x.data(), s);
+  s_ += s;
+  return *this;
+}
+
+Tt ηo<T> &ηo<T>::operator<<(ηbinv const &n)
 {
   let s = n.x.size();
   if (!reserve(s + 1 + ηsb(s))) return *this;
@@ -316,6 +329,20 @@ Tt ηo<T> &ηo<T>::operator<<(ηoc<B&> &o)
 }
 
 
+Tt Tx ηo<T> &ηo<T>::operator<<(Vc<X> &xs)
+{
+  for (let &x : xs) *this << x;
+  return *this;
+}
+
+
+Tt template<class X, class Y> ηo<T> &ηo<T>::operator<<(Mc<X, Y> &xs)
+{
+  for (let &[k, v] : xs) *this << k << v;
+  return *this;
+}
+
+
 #define τηspan(st, tt, ηt)                            \
   Tt ηo<T> &ηo<T>::operator<<(Sn<tt const> const &xs) \
   { let sb = xs.size_bytes();                         \
@@ -335,12 +362,12 @@ Tt ηo<T> &ηo<T>::operator<<(ηoc<B&> &o)
     s_ += sb;                                         \
     return *this; }                                   \
                                                       \
-  Tt ηo<T> &ηo<T>::operator<<(V<De<st>> const &xs)    \
-  { let sb = xs.size() * sizeof(st);                  \
+  Tt ηo<T> &ηo<T>::operator<<(ηvec<De<st>> const &xs) \
+  { let sb = xs.x.size() * sizeof(st);                \
     if (!reserve(sb + 1 + ηsb(sb))) return *this;     \
     s_ += ηcb(b_.subspan(s_), ηtype::ηt, sb);         \
     tt *y = Rc<tt*>(b_.data() + s_);                  \
-    for (let x : xs) *y++ = x;                        \
+    for (let x : xs.x) *y++ = x;                      \
     s_ += sb;                                         \
     return *this; }
 

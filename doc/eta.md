@@ -6,7 +6,9 @@
 + [η signal conventions](eta-signals.md)
 + [η/C++ destructuring](eta-cpp.md)
 
-η values have the property that the same logical value will always encode to exactly the same bytestream. There is no redundancy in the encoding.
+η values have the property that the same logical value will always encode to exactly the same bytestream. There is no redundancy in the encoding. (Note that map key ordering is observable: you can address a map as a tuple and read the keys as ordinary values.)
+
+**TODO:** demote vectors to non-toplevel types; we should probably have some type of value-packing API like perl's `pack()`
 
 
 ## Format
