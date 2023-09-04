@@ -30,6 +30,8 @@ $ bin/sigma-fast 'n1 p1 G<[|px x+1 x+2]; M?>_'
 
 
 ## Examples/tests
+**TODO:** convert these into a much more cohesive structure, where we go through different data types and operations and such
+
 ```bash
 $ bin/sigma-fast 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M?>_'
 0 false (0 false) (0 2 0 1) 1
