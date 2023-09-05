@@ -86,6 +86,10 @@ struct ηi final
   explicit operator bool() const { return !empty(); }
 
   Txs operator T<Xs...>() const { return ηauto_<T<Xs...>>::v(*this); }
+  Txxs auto          as() const
+    { if constexpr (sizeof...(Xs) == 0) return ηauto_<X>::v(*this);
+      else                              return ηauto_<T<X, Xs...>>::v(*this); }
+
 
   uN len() const
     { ηi i = *this;

@@ -74,6 +74,19 @@ template<class T, ηauto_encode X> ηo<T> &operator<<(ηo<T> &x, ηY<X> const &y
 }
 
 
+template<uN N> struct ηauto_<Ar<u8, N>>
+{
+  sletc ops = ηauto_op_encode | ηauto_op_decode | ηauto_op_type;
+  sletc t   = ηtype::binary;
+  sletc n   = N;
+  static auto v(ηic &i)
+    { A(i.size() == N, "ηi → u8[" << N << "]: invalid size " << i.size());
+      Ar<u8, N> r;
+      for (uN j = 0; j < N; ++j) r[j] = i.data()[j];
+      return r; }
+};
+
+
 // Inline value, which can be encoded and decoded but does not have
 // a type.
 Tn struct ηauto_<Sn<u8c>>
