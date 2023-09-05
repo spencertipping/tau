@@ -107,6 +107,7 @@ Tt struct ηo final
   ηo &operator<<(ηname const &n);
   ηo &operator<<(ηbin  const &b);
   ηo &operator<<(ηbinv const &b);
+  template<uN N> ηo &operator<<(Ar<u8, N> const&);
 
   ηo &operator<<(bool b);
   ηo &operator<<(ηatom a);
@@ -279,6 +280,15 @@ Tt ηo<T> &ηo<T>::operator<<(ηbinv const &n)
   s_ += ηcb(b_.subspan(s_), ηtype::binary, s);
   memcpy(b_.data() + s_, n.x.data(), s);
   s_ += s;
+  return *this;
+}
+
+Tt template<uN N> ηo<T> &ηo<T>::operator<<(Ar<u8, N> const &xs)
+{
+  if (!reserve(N + 1 + ηsb(N))) return *this;
+  s_ += ηcb(b_.subspan(s_), ηtype::binary, N);
+  memcpy(b_.data() + s_, xs.data(), N);
+  s_ += N;
   return *this;
 }
 
