@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #define XXH_INLINE_ALL 1
 #include <xxhash.h>
 
@@ -6,6 +8,18 @@
 
 namespace τ
 {
+
+
+ηm ηm::sorted() const
+{
+  V<ηi> xs;
+  for (let &x : y()) xs.push_back(x);
+  std::sort(xs.begin(), xs.end());
+  ηm r{lsize()};
+  for (let &x : xs) r << x;
+  return r;
+}
+
 
 ηm operator+(ηic &x, ηic &y)
 {

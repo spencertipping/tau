@@ -37,6 +37,8 @@ struct ηm final
 
   ηm operator+(ηic &x) const { return ηm{*this} << x; }
 
+  ηm sorted() const;
+
   ηi        y() const { return ηi(x_.data(), x_.size()); }
   Sn<u8c> all() const { return Sn<u8c>{x_.data(), x_.size()}; }
   uN    lsize() const { return x_.size(); }
