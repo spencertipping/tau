@@ -68,6 +68,10 @@ struct ηbin  { St      x; };
 struct ηbinv { Sn<u8c> x; };
 
 
+inline ηname operator""_yn(chc *s, uS n) { return ηname{St(s, n)}; }
+inline ηbin  operator""_yb(chc *s, uS n) { return ηbin {St(s, n)}; }
+
+
 // ηY<T> contains a T that will be unpacked from an inner η. (used in
 // auto conversions)
 Tt struct ηY { T x; };
