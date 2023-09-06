@@ -27,6 +27,7 @@
 #include "tau/tau.hh"
 
 #include "tau/eta.hh"
+#include "tau/sha.hh"
 #include "tau/eta-signal.hh"
 
 #include "tau/phi.hh"

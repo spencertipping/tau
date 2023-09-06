@@ -53,8 +53,8 @@ h384 b64_h384(Stc&);
 h512 b64_h512(Stc&);
 
 
-template<uN N> Ar<u8, N>
-operator^(Ar<u8, N> const &a, Ar<u8, N> const &b)
+template<uN N>
+Ar<u8, N> operator^(Ar<u8, N> const &a, Ar<u8, N> const &b)
 {
   Ar<u8, N> r;
   for (uN i = 0; i < r.size(); ++i) r[i] = a[i] ^ b[i];
