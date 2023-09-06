@@ -9,7 +9,6 @@
 namespace τ
 {
 
-
 ηm ηm::sorted() const
 {
   V<ηi> xs;

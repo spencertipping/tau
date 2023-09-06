@@ -52,10 +52,14 @@ h256 b64_h256(Stc&);
 h384 b64_h384(Stc&);
 h512 b64_h512(Stc&);
 
-h224 operator^(h224c&, h224c&);
-h256 operator^(h256c&, h256c&);
-h384 operator^(h384c&, h384c&);
-h512 operator^(h512c&, h512c&);
+
+template<uN N> Ar<u8, N>
+operator^(Ar<u8, N> const &a, Ar<u8, N> const &b)
+{
+  Ar<u8, N> r;
+  for (uN i = 0; i < r.size(); ++i) r[i] = a[i] ^ b[i];
+  return r;
+}
 
 
 struct bytes { u64 n; };

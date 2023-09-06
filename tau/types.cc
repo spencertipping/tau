@@ -39,19 +39,6 @@ h384 h384_b64(Stc &s) { return from_vec<h384>(cppcodec::base64_rfc4648::decode(s
 h512 h512_b64(Stc &s) { return from_vec<h512>(cppcodec::base64_rfc4648::decode(s)); }
 
 
-Tt T operator^(T const &a, T const &b)
-{
-  T r;
-  for (uN i = 0; i < r.size(); ++i) r[i] = a[i] ^ b[i];
-  return r;
-}
-
-template h224 operator^<h224>(h224c&, h224c&);
-template h256 operator^<h256>(h256c&, h256c&);
-template h384 operator^<h384>(h384c&, h384c&);
-template h512 operator^<h512>(h512c&, h512c&);
-
-
 O &operator<<(O &s, byte_suffix b)
 {
   switch (b)
