@@ -33,6 +33,8 @@ struct ηm final
   PO   operator<=>(ηmc &x) const { return y() <=> x.y(); }
   bool operator== (ηmc &x) const { return x_  ==  x.x_; }
 
+  Tt auto operator[](T const &x) const { return y()[x]; }
+
   Tt ηm &operator<<(T const &x) { ηo{ηoc<B&>(x_)} << x; return *this; }
 
   ηm operator+(ηic &x) const { return ηm{*this} << x; }
