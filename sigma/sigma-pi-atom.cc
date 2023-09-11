@@ -39,6 +39,13 @@ void πshared_atom(πφ &p)
     .def_sa([](φaL<'S', 'r'>) { return πk(ηsig::ρ); })
     .def_sa([](φaL<'S', 'h'>) { return πk(ηsig::θ); })
 
+    .def_sa([](φaL<'A'>) { return π1{"A", [](πi &i) { i.push(i.i(i.x(), i[i.x()].one())); }}; })
+    .def_sa([](φaL<'B'>) { return π1{"B", [](πi &i) { i.push(i.i(i.x(), i[i.x()][1].one())); }}; })
+    .def_sa([](φaL<'C'>) { return π1{"C", [](πi &i) { i.push(i.i(i.x(), i[i.x()][2].one())); }}; })
+    .def_sa([](φaL<'D'>) { return π1{"D", [](πi &i) { i.push(i.i(i.x(), i[i.x()][3].one())); }}; })
+    .def_sa([](φaL<'E'>) { return π1{"E", [](πi &i) { i.push(i.i(i.x(), i[i.x()][4].one())); }}; })
+    .def_sa([](φaL<'F'>) { return π1{"F", [](πi &i) { i.push(i.i(i.x(), i[i.x()][5].one())); }}; })
+
     .def_sa([](φaL<'$'>, φident n)
       { return π1{"$" + n.x, [=](πi &i) { i.push(i.mg(n.x)); }}; })
 

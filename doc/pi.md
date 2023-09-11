@@ -118,6 +118,8 @@ $ bin/sigma-fast 'n1p@-(/>"/foo/bar.bif" />"bif")
 τ
 $ bin/sigma-fast 'n1p"foo"++"bar\n"; >F1'
 foobar
+$ bin/sigma-fast 'n1p 1 2 3 4; p D C B A; M?>_'
+4 3 2 1
 ```
 
 Testing a failure case:
