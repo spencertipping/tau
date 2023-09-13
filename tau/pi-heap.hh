@@ -92,8 +92,7 @@ struct πh final
     { A(r, "πh::i(null, " << y << ")");
       return {r.o, r.l, πhrn(y.odata() - (h_.data() + r.o)), πhrn(y.lsize())}; }
 
-  // Write a value into the heap and return a reference to it. ηi values are copied
-  // in their entirety; they are not boxed.
+  // Write a value into the heap and return a reference to it.
   Tt πhr operator<<(T const &x)
     { A(!r_,  "πh<< is not re-entrant");
       A(!hn_, "πh<< during GC");
