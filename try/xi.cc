@@ -69,7 +69,7 @@ void try_xi_multi()
 
   t.l().c([&, r=r]() {
     for (let x : r)
-      for (let &[y] : ηi(x).every<i64>())
+      for (let &y : ηi(x).every<i64>())
         s += y;
     cout << "ξ multi got total: " << s << endl;
   });

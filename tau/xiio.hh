@@ -46,7 +46,7 @@ struct ξi final
 
 
   // Enables loops like for (let &[x, y, z] : foo.every<St, i64, bool>())
-  Txs citr<ξi, it, T<Xs...>> every() const { return {*this}; }
+  Txs citr<ξi, T<Xs...>> every() const { return {*this}; }
 
 
 protected:

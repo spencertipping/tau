@@ -124,7 +124,14 @@ struct ηi final
   it begin() const { return it{{a_, l_}}; }
   it end()   const { return it{{a_ + l_, 0}}; }
 
-  Txs citr<ηi, it, T<Xs...>> every() const { return {*this}; }
+
+  // every<X>() unpacks a single value into a non-tuple
+  // every<X, Y, ...>() unpacks multiple values from a sub-η
+  template<class X> auto every() const
+    { return fitr(*this, [](ηic &x) { return ηauto_<X>::v(x); }); }
+
+  template<class X, class Y, class... Xs> auto every() const
+    { return fitr(*this, [](ηic &x) { return ηauto_<T<X, Y, Xs...>>::v(x.η()); }); }
 
 
   bool operator==(Stc  &s_) const { return is_s() && s() == s_; }

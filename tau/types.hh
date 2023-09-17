@@ -265,12 +265,34 @@ template<class I, class R> struct cit
   R     operator* ()             const { return *i; }
 };
 
-template<class T, class I, class R> struct citr
+template<class T, class R> struct citr
 {
   T i;
-  cit<I, R> begin() const { return {i.begin()}; }
-  cit<I, R> end()   const { return {i.end()}; }
+  cit<decltype(i.begin()), R> begin() const { return {i.begin()}; }
+  cit<decltype(i.begin()), R> end()   const { return {i.end()}; }
 };
+
+
+// Function-transforming iterator
+template<class I, class F> struct fit
+{
+  I i;
+  F f;
+  bool  operator==(fit const &y) const { return i == y.i; }
+  fit  &operator++()                   { ++i; return *this; }
+  auto  operator* ()             const { return f(*i); }
+};
+
+template<class T, class F> struct fitr
+{
+  fitr(T const &i_, F const &f_) : i(i_), f(f_) {}
+  T i;
+  F f;
+  fit<decltype(i.begin()), F> begin() const { return {i.begin(), f}; }
+  fit<decltype(i.begin()), F> end()   const { return {i.end(),   f}; }
+};
+
+template<class T, class F> fitr(T const&, F const&) -> fitr<T, F>;
 
 
 }
