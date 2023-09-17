@@ -1,3 +1,5 @@
+#if τgl
+
 #include <GLES2/gl2.h>
 #include <stdexcept>
 
@@ -197,3 +199,5 @@ void gl_vbo::draw(GLenum mode) const
 }
 
 #include "end.hh"
+
+#endif

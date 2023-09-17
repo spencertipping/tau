@@ -1,3 +1,5 @@
+#if τgl
+
 #include <GLES2/gl2.h>
 #include <stdexcept>
 
@@ -157,3 +159,5 @@ void gl_render_state::gc_end()
 }
 
 #include "end.hh"
+
+#endif

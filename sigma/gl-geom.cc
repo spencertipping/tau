@@ -1,3 +1,5 @@
+#if τgl
+
 #include "gl-geom.hh"
 #include "begin.hh"
 
@@ -131,3 +133,5 @@ O &operator<<(O &s, mat4 const &m)
 }
 
 #include "end.hh"
+
+#endif

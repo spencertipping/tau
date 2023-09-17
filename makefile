@@ -1,3 +1,6 @@
+cc_server = g++
+cc_sfast  = g++
+cc_sdebug = g++
 cc_linux  = g++
 cc_fast   = g++
 cc_clang  = clang++
@@ -5,6 +8,9 @@ cc_debug  = g++
 cc_wasm   = dev/emsdk em++
 cc_wdebug = dev/emsdk em++
 
+ar_server = ar
+ar_sfast  = ar
+ar_sdebug = ar
 ar_linux  = ar
 ar_fast   = ar
 ar_clang  = ar
@@ -14,15 +20,21 @@ ar_wdebug = dev/emsdk emar
 
 cflags = $(shell cat compile_flags.txt)
 
-cflags_linux  = $(cflags) -O3 -flto -DBOOST_STACKTRACE_USE_NOOP -Dτdebug=0 -Dτallow_todo=1
-cflags_fast   = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP
-cflags_clang  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -gdwarf-4 -DDEBUG
-cflags_debug  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG
-cflags_wasm   = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -flto -fexceptions \
+cflags_server = $(cflags) -O3 -flto -DBOOST_STACKTRACE_USE_NOOP -Dτdebug=0 -Dτallow_todo=1
+cflags_sfast  = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP
+cflags_sdebug = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG
+cflags_linux  = $(cflags) -O3 -flto -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -Dτdebug=0 -Dτallow_todo=1
+cflags_fast   = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1
+cflags_clang  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -gdwarf-4 -DDEBUG -Dτgl=1
+cflags_debug  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG -Dτgl=1
+cflags_wasm   = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -flto -fexceptions \
                 -Wno-mathematical-notation-identifier-extension
-cflags_wdebug = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -g -fexceptions \
+cflags_wdebug = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -g -fexceptions \
                 -Wno-mathematical-notation-identifier-extension
 
+ldflags_server = -flto
+ldflags_sfast  =
+ldflags_sdebug = -lboost_stacktrace_backtrace -lbacktrace
 ldflags_linux  = -flto
 ldflags_fast   =
 ldflags_clang  = -lboost_stacktrace_backtrace -lbacktrace
@@ -33,10 +45,14 @@ ldflags_wdebug =       -sASYNCIFY -sTOTAL_MEMORY=1024MB # -sSTACK_SIZE=1024KB -s
 # NOTE: stack size args seem to have no effect for wasm
 
 
-native_libs = -lsqlite3 -lboost_context -lzstd -llmdb \
+server_libs = -lsqlite3 -lboost_context -lzstd -llmdb
+native_libs = $(server_libs) \
 	      -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 \
 	      -lharfbuzz -lcairo \
 	      -lxcb -lxcb-keysyms -lX11 -lGL -lX11-xcb
+libs_server = $(server_libs)
+libs_sfast  = $(server_libs)
+libs_sdebug = $(server_libs)
 libs_linux  = $(native_libs)
 libs_fast   = $(native_libs)
 libs_clang  = $(native_libs)
@@ -51,6 +67,12 @@ sigma_cs = $(wildcard sigma/*.cc)
 try_cs   = $(wildcard try/*.cc)
 
 
+try_bins_server = $(patsubst try/%.cc,        bin/%-server, $(try_cs)) \
+	          $(patsubst try/server/%.cc, bin/%-server, $(try_cs_server))
+try_bins_sfast  = $(patsubst try/%.cc,        bin/%-sfast, $(try_cs)) \
+	          $(patsubst try/sfast/%.cc,  bin/%-sfast, $(try_cs_sfast))
+try_bins_sdebug = $(patsubst try/%.cc,        bin/%-sdebug, $(try_cs)) \
+	          $(patsubst try/sdebug/%.cc, bin/%-sdebug, $(try_cs_sdebug))
 try_bins_linux  = $(patsubst try/%.cc,        bin/%, $(try_cs)) \
 	          $(patsubst try/linux/%.cc,  bin/%, $(try_cs_linux))
 try_bins_fast   = $(patsubst try/%.cc,        bin/%-fast, $(try_cs)) \
@@ -101,13 +123,13 @@ bin/$1-bin/%.o: try/$1/%.cc bin/$1-bin/%.d | bin
 endef
 
 
-$(foreach x, linux fast clang debug wasm wdebug, $(eval $(call target,$(x))))
+$(foreach x, server sfast sdebug linux fast clang debug wasm wdebug, $(eval $(call target,$(x))))
 
 
 top: fast wasm
 	./test
 
-all: linux fast wasm debug clang wdebug
+all: server sfast sdebug linux fast wasm debug clang wdebug
 	./test
 
 bench: linux-bench wasm-bench
@@ -129,6 +151,12 @@ wasm-bench: wasm
 	node bin/xi-bench.js
 
 
+bin/%-server: $(tau_os_server) $(sigma_os_server) bin/server-bin/%.o
+	$(cc_server) -o $@ $^ $(libs_server) $(ldflags_server)
+bin/%-sfast: $(tau_os_sfast) $(sigma_os_sfast) bin/sfast-bin/%.o
+	$(cc_sfast) -o $@ $^ $(libs_sfast) $(ldflags_sfast)
+bin/%-sdebug: $(tau_os_sdebug) $(sigma_os_sdebug) bin/sdebug-bin/%.o
+	$(cc_sdebug) -o $@ $^ $(libs_sdebug) $(ldflags_sdebug)
 bin/%: $(tau_os_linux) $(sigma_os_linux) bin/linux-bin/%.o
 	$(cc_linux) -o $@ $^ $(libs_linux) $(ldflags_linux)
 bin/%-fast: $(tau_os_fast) $(sigma_os_fast) bin/fast-bin/%.o
@@ -144,7 +172,10 @@ bin/%-debug.js: $(tau_os_wdebug) $(sigma_os_wdebug) bin/wdebug-bin/%.o
 
 
 bin:
-	mkdir -p bin/linux  bin/linux-bin \
+	mkdir -p bin/server bin/server-bin \
+	         bin/sfast  bin/sfast-bin \
+	         bin/sdebug bin/sdebug-bin \
+		 bin/linux  bin/linux-bin \
 	         bin/fast   bin/fast-bin \
 	         bin/clang  bin/clang-bin \
 	         bin/debug  bin/debug-bin \
@@ -152,9 +183,18 @@ bin:
 	         bin/wdebug bin/wdebug-bin
 
 
-.PHONY: clean linux-clean fast-clean clang-clean debug-clean wasm-clean wdebug-clean
+.PHONY: clean server-clean sfast-clean sdebug-clean linux-clean fast-clean clang-clean debug-clean wasm-clean wdebug-clean
 clean:
 	rm -rf bin
+
+server-clean:
+	rm -f bin/server*/*
+
+sfast-clean:
+	rm -f bin/sfast*/*
+
+sdebug-clean:
+	rm -f bin/sdebug*/*
 
 linux-clean:
 	rm -f bin/linux*/*
@@ -176,7 +216,8 @@ wdebug-clean:
 
 
 # Header file tracing
-header-deps: linux-header-deps fast-header-deps clang-header-deps \
+header-deps: server-header-deps sfast-header-deps sdebug-header-deps \
+             linux-header-deps fast-header-deps clang-header-deps \
              debug-header-deps \
 	     wasm-header-deps wdebug-header-deps
 
@@ -204,4 +245,4 @@ bin/$1-bin/%.d: try/$1/%.cc | bin
 endef
 
 
-$(foreach x, linux fast clang debug wasm wdebug, $(eval $(call hdeps,$(x))))
+$(foreach x, server sfast sdebug linux fast clang debug wasm wdebug, $(eval $(call hdeps,$(x))))
