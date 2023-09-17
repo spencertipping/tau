@@ -50,14 +50,16 @@ Aside from dropping its input (i.e. exiting), the worker can indicate finality i
 
 ```bash
 $ $sigma 'n1p@-("a" 1)("b" 2)("a" 3)("a" τ)("b" τ);
-          K *|p@>@' | sort
+          K *|p@>@; g'
 "a" (1) (3)
 "b" (2)
+τ
 $ $sigma 'n1p@-("a" 1)("b" 2)("a" ω)("a" 3)("b" 4);
-          K *|p@>@' | sort
+          K *|p@>@; g'
 "a" (1)
 "a" (3)
 "b" (2) (4)
+τ
 ```
 
 
