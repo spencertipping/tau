@@ -23,15 +23,15 @@ Although you could in principle have an unterminated `{`, it isn't common in pra
 Multiplexed ξ alternatives may terminate independently; by default, `{}` will send `k ω` for any `k` that does so. `{}` will fail if you write to an expired alternative.
 
 ```bash
-$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3);
-                  K {a|p"foo"x+1; b|p"bar"x-1} M?>_' | sort
+$ $sigma 'n1p@-("a" 1)("b" 2)("a" 3);
+          K {a|p"foo"x+1; b|p"bar"x-1}' | sort
 "a" "foo" 2
 "a" "foo" 4
 "a" ω
 "b" "bar" 1
 "b" ω
-$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3)("a" ω)("a" 4);
-                  K {a|p"foo"x+1; b|p"bar"x-1} M?>_' | sort
+$ $sigma 'n1p@-("a" 1)("b" 2)("a" 3)("a" ω)("a" 4);
+          K {a|p"foo"x+1; b|p"bar"x-1}' | sort
 "a" "foo" 2
 "a" "foo" 4
 "a" ω
@@ -49,12 +49,12 @@ Aside from dropping its input (i.e. exiting), the worker can indicate finality i
 2. _(τ, ...)_: send a final message `...` and indicate that the worker can be reinitialized with _(α, ...)_ -- this is a keepalive
 
 ```bash
-$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" 3)("a" τ)("b" τ);
-                  K *|p@>@; M?>_' | sort
+$ $sigma 'n1p@-("a" 1)("b" 2)("a" 3)("a" τ)("b" τ);
+          K *|p@>@' | sort
 "a" (1) (3)
 "b" (2)
-$ bin/sigma-fast 'n1p@-("a" 1)("b" 2)("a" ω)("a" 3)("b" 4);
-                  K *|p@>@; M?>_' | sort
+$ $sigma 'n1p@-("a" 1)("b" 2)("a" ω)("a" 3)("b" 4);
+          K *|p@>@' | sort
 "a" (1)
 "a" (3)
 "b" (2) (4)

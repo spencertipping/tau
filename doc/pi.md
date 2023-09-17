@@ -22,9 +22,9 @@ Since (1) is easy, let's talk about (2). It's also pretty easy; we just need to 
 π/Γ interop can collect either _all_ ηs from the ξ (vertical), or just the first one (horizontal).
 
 ```bash
-$ bin/sigma-fast 'n1 p1 G>[px x+1 x+2]; M?>_'
+$ $sigma 'n1 p1 G>[px x+1 x+2]'
 1 2 3
-$ bin/sigma-fast 'n1 p1 G<[|px x+1 x+2]; M?>_'
+$ $sigma 'n1 p1 G<[|px x+1 x+2]'
 1 2 3
 ```
 
@@ -33,7 +33,7 @@ $ bin/sigma-fast 'n1 p1 G<[|px x+1 x+2]; M?>_'
 **TODO:** convert these into a much more cohesive structure, where we go through different data types and operations and such
 
 ```bash
-$ bin/sigma-fast 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M?>_'
+$ $sigma 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1'
 0 false (0 false) (0 2 0 1) 1
 1 false (1 false) (1 3 1 2) 2
 2 true (2 false) (2 4 2 3) 3
@@ -44,19 +44,19 @@ $ bin/sigma-fast 'n10 px x>1 (x x>5) (x x+2 x x+1) x+1; M?>_'
 7 true (7 true) (7 9 7 8) 8
 8 true (8 true) (8 10 8 9) 9
 9 true (9 true) (9 11 9 10) 10
-$ bin/sigma-fast 'n3 p[[x]+1] M?>_'
+$ $sigma 'n3 p[[x]+1]'
 1
 2
 3
-$ bin/sigma-fast 'n3 px [x]+1; M?>_'
+$ $sigma 'n3 px [x]+1'
 0 1
 1 2
 2 3
-$ bin/sigma-fast 'n3 px`x+1`x+2 x; M?>_'
+$ $sigma 'n3 px`x+1`x+2 x'
 2 0
 3 1
 4 2
-$ bin/sigma-fast 'n3 p:foo x+1;$foo+1; M?>_'
+$ $sigma 'n3 p:foo x+1;$foo+1'
 2
 3
 4
@@ -65,70 +65,70 @@ $ bin/sigma-fast 'n3 p:foo x+1;$foo+1; M?>_'
 A few more tests:
 
 ```bash
-$ bin/sigma-fast 'n3 p:foo x+1 x+2 x<1;$foo $foo; M?>_'
+$ $sigma 'n3 p:foo x+1 x+2 x<1;$foo $foo'
 1 2 true 1 2 true
 2 3 false 2 3 false
 3 4 false 3 4 false
-$ bin/sigma-fast 'n1p[1 @(2 3)] M?>_'
+$ $sigma 'n1p[1 @(2 3)]'
 1 2 3
-$ bin/sigma-fast 'n1p1@(2 3);M?>_'
+$ $sigma 'n1p1@(2 3)'
 1 2 3
-$ bin/sigma-fast "n3p['a x+1'b5]:'a;M?>_"
+$ $sigma "n3p['a x+1'b5]:'a"
 1
 2
 3
-$ bin/sigma-fast 'n1p"a" "b" |- 1 2 3;M?>_'
+$ $sigma 'n1p"a" "b" |- 1 2 3'
 "a" "b" 1
 "a" "b" 2
 "a" "b" 3
 τ
-$ bin/sigma-fast 'n1p"a" "b"-|1 2 3;M?>_'
+$ $sigma 'n1p"a" "b"-|1 2 3'
 "a" 1 2 3
 "b" 1 2 3
 τ
-$ bin/sigma-fast 'n1p@_|- 1 2 3;M?>_'
+$ $sigma 'n1p@_|- 1 2 3'
 1
 2
 3
 τ
-$ bin/sigma-fast 'n1p||- 1 2 3;M?>_'
+$ $sigma 'n1p||- 1 2 3'
 1
 2
 3
 τ
-$ bin/sigma-fast 'n1p@- (1 2) (3) (4 5 6);M?>_'
+$ $sigma 'n1p@- (1 2) (3) (4 5 6)'
 1 2
 3
 4 5 6
 τ
-$ bin/sigma-fast 'n1p@-(1 2)(3)(4 5 6); p>@; M?>_'
+$ $sigma 'n1p@-(1 2)(3)(4 5 6); p>@'
 ((1 2) (3) (4 5 6))
-$ bin/sigma-fast 'n1p#=3 1 2 3 4 5 4 3 2 1; M?>_'
+$ $sigma 'n1p#=3 1 2 3 4 5 4 3 2 1'
 2
-$ bin/sigma-fast 'n1p#=(3) (1 2) (3) (4 5) 4 (3 2) 1; M?>_'
+$ $sigma 'n1p#=(3) (1 2) (3) (4 5) 4 (3 2) 1'
 1
-$ bin/sigma-fast 'n1p@-(/>"/foo/bar.bif" />"bif")
+$ $sigma 'n1p@-(/>"/foo/bar.bif" />"bif")
                        (</"/foo/bar.bif" </"bif")
                        (.>"/foo/bar.bif" .>"bif")
-                       (<."/foo/bar.bif" <."bif"); M?>_'
+                       (<."/foo/bar.bif" <."bif")'
 "bar.bif" "bif"
 "/foo" "bif"
 "bif" "bif"
 "/foo/bar" "bif"
 τ
-$ bin/sigma-fast 'n1p"foo"++"bar\n"; >F1'
+$ $sigma 'n1p"foo"++"bar\n"; >F1'
 foobar
-$ bin/sigma-fast 'n1p 1 2 3 4; p D C B A; M?>_'
+$ $sigma 'n1p 1 2 3 4; p D C B A'
 4 3 2 1
 ```
 
 Testing a failure case:
 
 ```bash
-$ bin/sigma-fast 'n1px##TEST "a" "b"; M?>_'
+$ $sigma 'n1px##TEST "a" "b"'
 TEST: 0 a b
 0
-$ bin/sigma-fast 'n1px##iTEST 56 "78"; M?>_'
+$ $sigma 'n1px##iTEST 56 "78"'
 iTEST: 0 56 78
 0
 ```
@@ -169,7 +169,7 @@ _x {c₁ y₁ c₂ y₂ ... z}_ evaluates the _y_ corresponding to _c = x_. If n
 _c_ values are not assumed to be constant; they are evaluated one-by-one, sequentially, until either _x_ is matched or we fall through to _z_.
 
 ```bash
-$ bin/sigma-fast 'n5 px{0 "a" 1 "b" 2 x+1 x+2}; p>@; M?>_'
+$ $sigma 'n5 px{0 "a" 1 "b" 2 x+1 x+2}; p>@'
 (("a") ("b") (3) (5) (6))
 ```
 

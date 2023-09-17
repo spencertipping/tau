@@ -4,12 +4,12 @@ See [π](pi.md) for an overview of the language structure. This page describes t
 
 ## Examples
 ```bash
-$ diff <(bin/sigma-fast 'n10M?>_') <(seq 0 9)
-$ diff <(bin/sigma-fast 'n10p[x+1]M?>_') <(seq 10)
-$ diff <(bin/sigma-fast ':foo [n10p[x+1]] :bar [n20] $foo M?>_') <(seq 10)
-$ bin/sigma-fast 'n1pακιτωΩρθ;M?>_'
+$ diff <($sigma 'n10') <(seq 0 9)
+$ diff <($sigma 'n10p[x+1]') <(seq 10)
+$ diff <($sigma ':foo [n10p[x+1]] :bar [n20] $foo') <(seq 10)
+$ $sigma 'n1pακιτωΩρθ'
 α κ ι τ ω Ω ρ θ
-$ bin/sigma-fast 'i5N p@>@; p>>|x; M?>_'
+$ $sigma 'i5N p@>@; p>>|x'
 (2) (3) (4)
 ```
 

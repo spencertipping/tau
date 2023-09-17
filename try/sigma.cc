@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
   if (debug) cerr << "Γ = " << r.r() << endl;
 
-  r.r()(Ξ{t}.push());
+  (r.r() | g.parse("M?>_").r())(Ξ{t}.push());
   t.go();
   return 0;
 }

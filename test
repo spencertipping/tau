@@ -2,4 +2,6 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+export sigma=bin/sigma-fast
+
 ./lazytest README.md `find doc -name '*.md'` | bash
