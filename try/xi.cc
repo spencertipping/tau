@@ -17,6 +17,18 @@ void try_spans()
 }
 
 
+void try_eta()
+{
+  ηm a;
+  ηm b; b = ηm{};
+  ηm c; c = (ηm{} << ηm{}).y().η();
+  A(a.y().lsize() == 0, "a.lsize() = " << a.y().lsize());
+  A(b.y().lsize() == 0, "b.lsize() = " << b.y().lsize());
+  A(c.y().lsize() == 0, "c.lsize() = " << c.y().lsize());
+  cout << "ηs are ok" << endl;
+}
+
+
 void try_xi_simple()
 {
   τe t;
@@ -163,6 +175,7 @@ void try_xi_head()
 int main()
 {
   try_spans();
+  try_eta();
   try_xi_simple();
   try_xi_multi();
   try_xi_head();

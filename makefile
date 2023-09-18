@@ -126,6 +126,9 @@ endef
 $(foreach x, server sfast sdebug linux fast clang debug wasm wdebug, $(eval $(call target,$(x))))
 
 
+t: fast
+	./test
+
 top: fast wasm
 	./test
 
