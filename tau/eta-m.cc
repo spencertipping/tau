@@ -16,13 +16,14 @@ namespace τ
   std::sort(xs.begin(), xs.end());
   ηm r{lsize()};
   for (let &x : xs) r << x;
+  A(r.lsize() == lsize(), "ηm::sorted() miscalculated final size");
   return r;
 }
 
 
 ηm operator+(ηic &x, ηic &y)
 {
-  return ηm{x.lsize() + y.lsize()} << x << y;
+  return ηm{x.lsize() + y.lsize()} << x.all() << y.all();
 }
 
 O &operator<<(O &s, ηmc &v)
