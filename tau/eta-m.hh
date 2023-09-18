@@ -14,6 +14,9 @@ struct ηm;
 typedef ηm const ηmc;
 
 
+ηm operator+(ηic&, ηic&);
+
+
 // η memory buffer: store an ηi's datastream as a C++ object
 struct ηm final
 {
@@ -37,7 +40,7 @@ struct ηm final
 
   Tt ηm &operator<<(T const &x) { ηo{ηoc<B&>(x_)} << x; return *this; }
 
-  ηm operator+(ηic &x) const { return ηm{*this} << x; }
+  ηm operator+(ηic &x) const { return y() + x; }
 
   ηm sorted() const;
 
@@ -52,9 +55,6 @@ struct ηm final
 
   B x_;
 };
-
-
-ηm operator+(ηic&, ηic&);
 
 
 Tt ηo<T> &operator<<(ηo<T> &x, ηmc &y)

@@ -23,7 +23,10 @@ namespace τ
 
 ηm operator+(ηic &x, ηic &y)
 {
-  return ηm{x.lsize() + y.lsize()} << x.all() << y.all();
+  ηm r{x.lsize() + y.lsize()};
+  r << x.all() << y.all();
+  A(r.lsize() == x.lsize() + y.lsize(), "ηm::operator+() miscalculated final size");
+  return r;
 }
 
 O &operator<<(O &s, ηmc &v)
