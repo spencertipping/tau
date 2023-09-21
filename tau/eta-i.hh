@@ -125,6 +125,25 @@ struct ηi final
   it end()   const { return it{{a_ + l_, 0}}; }
 
 
+  // k/v iteration
+  struct it2
+  {
+    Sn<u8c> x;
+    bool      operator==(it2 const &y) const { return x.empty() == y.x.empty(); }
+    it2      &operator++()                   { x = ηi(x).next().after(); return *this; }
+    P<ηi, ηi> operator*()              const { let i = ηi(x); return mp(i, i.next()); }
+  };
+
+  struct it2_
+  {
+    ηic &x;
+    it2 begin() const { return {x.begin().x}; }
+    it2 end()   const { return {x.end().x}; }
+  };
+
+  it2_ kvs() const { return {*this}; }
+
+
   // every<X>() unpacks a single value into a non-tuple
   // every<X, Y, ...>() unpacks multiple values from a sub-η
   template<class X> auto every() const
