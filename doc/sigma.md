@@ -36,6 +36,17 @@ $ $sigma 'n1p[@-("a" 1)("b" 2 3)("a" 0)("b" 1)(τ);`
 τ
 ```
 
+Testing early-exit (this command should return quickly):
+
+```bash
+$ $sigma 'n1000000000' | head -n5; true
+0
+1
+2
+3
+4
+```
+
 
 ## Parse tables
 First an overall map of which characters are mapped to which tables. Numbers represent Ψ levels, `S` represents syntax (comments/whitespace).
