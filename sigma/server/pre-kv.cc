@@ -1,6 +1,7 @@
 #include "pre-db.hh"
 #include "../pre-kv.hh"
 #include "../../tau/begin.hh"
+#include <lmdb.h>
 
 namespace σ::pre
 {
@@ -18,9 +19,13 @@ struct kv_lmdb_ final : public virtual kv_
 
 
   void close_reader()    { if (r_) mdb_txn_abort(r_),  r_ = nullptr; }
-  void commit() override { if (w_) mdb_txn_commit(w_), w_ = nullptr; }
   void abort()           { if (w_) mdb_txn_abort(w_),  w_ = nullptr; }
   void sync()   override { close_reader(); commit(); mdb_env_sync(mdb_->e, 1); }
+  void commit() override
+    { int rc;
+      if (w_)
+      { A((rc = mdb_txn_commit(w_)) == MDB_SUCCESS, "mdb_txn_commit() failed: " << mdb_strerror(rc));
+        w_ = nullptr; } }
 
 
   MDB_txn *r()
@@ -49,30 +54,28 @@ struct kv_lmdb_ final : public virtual kv_
       let t = r();
       let rc = mdb_get(t, dbi_, &k, &v);
       if (rc == MDB_NOTFOUND) return ηi{};
-      A(rc == MDB_SUCCESS, "mdb_get() failed: " << mdb_strerror(rc));
+      A(rc == MDB_SUCCESS, "mdb_get(" << x << ") failed: " << mdb_strerror(rc));
       return ηi{(u8c*)v.mv_data, v.mv_size}; }
 
   void set(ηic &k, ηic &v) override
     { MDB_val k_{k.lsize(), (void *)k.ldata()};
       MDB_val v_{v.lsize(), (void *)v.ldata()};
       auto t = w();
-      mdb_del(t, dbi_, &k_, nullptr);
       auto rc = mdb_put(t, dbi_, &k_, &v_, 0);
       while (rc == MDB_MAP_FULL)
-      { abort();
+      { commit();
         MDB_envinfo i;
         mdb_env_info(mdb_->e, &i);
         mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
         t  = w();
-        mdb_del(t, dbi_, &k_, nullptr);
         rc = mdb_put(t, dbi_, &k_, &v_, 0); }
-      A(rc == MDB_SUCCESS, "mdb_put() failed: " << mdb_strerror(rc)); }
+      A(rc == MDB_SUCCESS, "mdb_put(" << k << ", " << v << ") failed: " << mdb_strerror(rc)); }
 
   void del(ηic &k) override
     { MDB_val k_{k.lsize(), (void *)k.ldata()};
       let t = w();
       let rc = mdb_del(t, dbi_, &k_, nullptr);
-      A(rc == MDB_SUCCESS, "mdb_del() failed: " << mdb_strerror(rc)); }
+      A(rc == MDB_SUCCESS, "mdb_del(" << k << ") failed: " << mdb_strerror(rc)); }
 
   bool has(ηic &k) override
     { MDB_val k_{k.lsize(), (void *)k.ldata()};
@@ -80,7 +83,7 @@ struct kv_lmdb_ final : public virtual kv_
       let t = r();
       let rc = mdb_get(t, dbi_, &k_, &v);
       if (rc == MDB_NOTFOUND) return false;
-      A(rc == MDB_SUCCESS, "mdb_get() failed: " << mdb_strerror(rc));
+      A(rc == MDB_SUCCESS, "mdb_get(" << k << ") failed: " << mdb_strerror(rc));
       return true; }
 
 
