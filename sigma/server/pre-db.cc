@@ -28,8 +28,7 @@ Sp<lmdb_db> lmdb_open(Stc &f)
   let r = Sp<lmdb_db>(new lmdb_db);
   int rc;
 
-  uN  m = filesize(f);
-  if (!m) m = 1ull << 30;  // default mapsize of 1GB
+  uN m = std::max(filesize(f) * 2ull, 1ull << 30);
 
   A((rc = mdb_env_create(&r->e))        == MDB_SUCCESS, "mdb_env_create() failed: "      << mdb_strerror(rc));
   A((rc = mdb_env_set_maxdbs(r->e, 64)) == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: "  << mdb_strerror(rc));
