@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   if (debug) cerr << "Γ = " << r.r() << endl;
 
   let has_out = tau.find(">F1") != τ::St::npos;
-  let p       = has_out ? r.r() : (r.r() | g.parse("p>sx;>F1").r());
+  let p       = has_out ? r.r() : (r.r() | g.parse("p>Snx;>F1").r());
   p(Ξ{t}.push());
   t.go();
   return 0;

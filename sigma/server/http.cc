@@ -41,7 +41,7 @@ void http_req_loop(ξi i, ξo o)
   // TODO: make this a proper state machine with a buffer, content-length,
   // and transfer-encoding
   St b;
-  for (let x : i)
+  for (let &x : i)
   {
     if (x.is_s())
     {
@@ -60,7 +60,7 @@ void http_req_loop(ξi i, ξo o)
 // Output: chunks of HTTP response data, to the socket
 void http_res_loop(ξi i, ξo o)
 {
-  for (auto x : i)
+  for (let &x : i)
     if (x.is_i() && x.has_next())  // structured reply
     {
       let [code, msg] = ηT<i64, St>(x);
