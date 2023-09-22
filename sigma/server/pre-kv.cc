@@ -54,8 +54,15 @@ struct kv_lmdb_ final : public virtual kv_
   void set(ηic &k, ηic &v) override
     { MDB_val k_{k.lsize(), (void *)k.ldata()};
       MDB_val v_{v.lsize(), (void *)v.ldata()};
-      let t = w();
-      let rc = mdb_put(t, dbi_, &k_, &v_, 0);
+      auto t = w();
+      auto rc = mdb_put(t, dbi_, &k_, &v_, 0);
+      while (rc == MDB_MAP_FULL)
+      { mdb_txn_abort(t);
+        MDB_envinfo i;
+        mdb_env_info(mdb_->e, &i);
+        mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
+        w();
+        rc = mdb_put(t, dbi_, &k_, &v_, 0); }
       A(rc == MDB_SUCCESS, "mdb_put() failed: " << mdb_strerror(rc)); }
 
   void del(ηic &k) override
