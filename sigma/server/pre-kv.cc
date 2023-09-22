@@ -57,25 +57,29 @@ struct kv_lmdb_ final : public virtual kv_
       A(rc == MDB_SUCCESS, "mdb_get(" << x << ") failed: " << mdb_strerror(rc));
       return ηi{(u8c*)v.mv_data, v.mv_size}; }
 
+  // Important: we must commit after every successful write in order to avoid data loss
+  // from map expansion.
   void set(ηic &k, ηic &v) override
     { MDB_val k_{k.lsize(), (void *)k.ldata()};
       MDB_val v_{v.lsize(), (void *)v.ldata()};
       auto t = w();
       auto rc = mdb_put(t, dbi_, &k_, &v_, 0);
       while (rc == MDB_MAP_FULL)
-      { commit();
+      { abort();
         MDB_envinfo i;
         mdb_env_info(mdb_->e, &i);
         mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
         t  = w();
         rc = mdb_put(t, dbi_, &k_, &v_, 0); }
-      A(rc == MDB_SUCCESS, "mdb_put(" << k << ", " << v << ") failed: " << mdb_strerror(rc)); }
+      A(rc == MDB_SUCCESS, "mdb_put(" << k << ", " << v << ") failed: " << mdb_strerror(rc));
+      commit(); }
 
   void del(ηic &k) override
     { MDB_val k_{k.lsize(), (void *)k.ldata()};
       let t = w();
       let rc = mdb_del(t, dbi_, &k_, nullptr);
-      A(rc == MDB_SUCCESS, "mdb_del(" << k << ") failed: " << mdb_strerror(rc)); }
+      A(rc == MDB_SUCCESS || rc == MDB_NOTFOUND, "mdb_del(" << k << ") failed: " << mdb_strerror(rc));
+      commit(); }
 
   bool has(ηic &k) override
     { MDB_val k_{k.lsize(), (void *)k.ldata()};
