@@ -161,7 +161,8 @@ St η_to_json(ηic &x)
 }
 
 
-St hex_encode(Stc &x) {
+St hex_encode(Stc &x)
+{
   Ss r;
   r << std::hex << std::setfill('0');
   for (ch c : x) r << std::setw(2) << int(u8(c));
@@ -169,7 +170,8 @@ St hex_encode(Stc &x) {
 }
 
 
-St hex_decode(Stc &x) {
+St hex_decode(Stc &x)
+{
   St r;
   for (uN i = 0; i < x.length(); i += 2)
     r += ch(std::stoi(x.substr(i, 2), nullptr, 16));
@@ -200,6 +202,8 @@ void πshared_string(πφ &p)
     .def_spre("<J", [](πi &i, Stc &s)  { return i << json_to_η(s).all(); })
     .def_spre(">S",  [](ηic &x)        { return (Ss{} << x).str(); })
     .def_spre(">Sn", [](ηic &x)        { return (Ss{} << x << "\n").str(); })
+    .def_spre("S>B", [](St &&x)        { return ηbin{mo(x)}; })
+    .def_spre("B>S", [](ηbin &&x)      { return mo(x.x); })
     .def_spre("##2",     [](Stvc &s)   { St r; r.resize(32); picosha2::hash256(s, r); return r; })
     .def_spre("##2/256", [](Stvc &s)   { St r; r.resize(32); picosha2::hash256(s, r); return r; })
     .def_spre("##3",     sha3<512>)
