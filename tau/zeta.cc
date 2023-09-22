@@ -26,8 +26,8 @@ uN   ζallocated  ()     { return ζmem_; }
   let ys = new u8[c_];
   if (wrapped())
   {
-    memcpy(ys,             xs + wi, ci - wi);  // (wi..ci)
-    memcpy(ys + (ci - wi), xs,      ri);       // (0..ri)
+    memcpy(ys,             xs + ri, ci - ri);  // (ri..ci)
+    memcpy(ys + (ci - ri), xs,      wi);       // (0..wi)
   }
   else
     memcpy(ys, xs + ri, wi - ri);
