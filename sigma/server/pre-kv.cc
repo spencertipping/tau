@@ -24,7 +24,8 @@ struct kv_lmdb_ final : public virtual kv_
   void commit() override
     { int rc;
       if (w_)
-      { A((rc = mdb_txn_commit(w_)) == MDB_SUCCESS, "mdb_txn_commit() failed: " << mdb_strerror(rc));
+      { A((rc = mdb_txn_commit(w_)) == MDB_SUCCESS,
+          "mdb_txn_commit() failed: " << mdb_strerror(rc));
         w_ = nullptr; } }
 
 
@@ -57,32 +58,17 @@ struct kv_lmdb_ final : public virtual kv_
       A(rc == MDB_SUCCESS, "mdb_get(" << x << ") failed: " << mdb_strerror(rc));
       return ηi{(u8c*)v.mv_data, v.mv_size}; }
 
-  // Important: we must commit after every successful write in order to avoid data loss
-  // from map expansion.
-  void set(ηic &k, ηic &v) override
-    { MDB_val k_{k.lsize(), (void *)k.ldata()};
-      MDB_val v_{v.lsize(), (void *)v.ldata()};
-      auto t = w();
-      auto rc = mdb_put(t, dbi_, &k_, &v_, 0);
-      while (rc == MDB_MAP_FULL)
-      { abort();
-        MDB_envinfo i;
-        mdb_env_info(mdb_->e, &i);
-        mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
-        t  = w();
-        rc = mdb_put(t, dbi_, &k_, &v_, 0); }
-      A(rc == MDB_SUCCESS, "mdb_put(" << k << ", " << v << ") failed: " << mdb_strerror(rc));
-      commit(); }
+  void set(ηic &k, ηic &v) override;
 
   void del(ηic &k) override
-    { MDB_val k_{k.lsize(), (void *)k.ldata()};
+    { MDB_val k_{k.lsize(), (void*) k.ldata()};
       let t = w();
       let rc = mdb_del(t, dbi_, &k_, nullptr);
       A(rc == MDB_SUCCESS || rc == MDB_NOTFOUND, "mdb_del(" << k << ") failed: " << mdb_strerror(rc));
       commit(); }
 
   bool has(ηic &k) override
-    { MDB_val k_{k.lsize(), (void *)k.ldata()};
+    { MDB_val k_{k.lsize(), (void*) k.ldata()};
       MDB_val v;
       let t = r();
       let rc = mdb_get(t, dbi_, &k_, &v);
@@ -99,6 +85,34 @@ protected:
   MDB_dbi     dbi_;
   Λcsw        csw_;
 };
+
+
+void kv_lmdb_::set(ηic &k, ηic &v)
+{
+  MDB_val k_{k.lsize(), (void*) k.ldata()};
+  MDB_val v_{v.lsize(), (void*) v.ldata()};
+  int rc;
+  while (1)
+  {
+    auto t = w();
+    if ((rc = mdb_put(t, dbi_, &k_, &v_, 0)) == MDB_SUCCESS)
+      if ((rc = mdb_txn_commit(t)) == MDB_SUCCESS)
+      {
+        w_ = nullptr;
+        return;
+      }
+
+    if (rc == MDB_MAP_FULL)
+    {
+      abort();
+      MDB_envinfo i;
+      mdb_env_info(mdb_->e, &i);
+      mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
+    }
+    else
+      A(0, "mdb_put(" << k << ", " << v << ") or commit failed: " << mdb_strerror(rc));
+  }
+}
 
 
 Sp<kv_> kv_lmdb(Stc &path, Stc &db)
