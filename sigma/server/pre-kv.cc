@@ -64,6 +64,7 @@ struct kv_lmdb_ final : public virtual kv_
         mdb_env_info(mdb_->e, &i);
         mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
         t  = w();
+        mdb_del(t, dbi_, &k_, nullptr);
         rc = mdb_put(t, dbi_, &k_, &v_, 0); }
       A(rc == MDB_SUCCESS, "mdb_put() failed: " << mdb_strerror(rc)); }
 
