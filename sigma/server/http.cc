@@ -68,7 +68,7 @@ void http_res_loop(ξi i, ξo o)
       ηi h = x.next().next();
       while (h.has_next())
       {
-        r << h.n() << ": " << h.next().cs() << "\r\n";
+        r << h.cs() << ": " << h.next().cs() << "\r\n";
         h = h.next();
         if (h.has_next()) h = h.next();
         else              break;
