@@ -19,6 +19,7 @@ struct kv_lmdb_ final : public virtual kv_
 
   void close_reader()    { if (r_) mdb_txn_abort(r_),  r_ = nullptr; }
   void commit() override { if (w_) mdb_txn_commit(w_), w_ = nullptr; }
+  void abort()           { if (w_) mdb_txn_abort(w_),  w_ = nullptr; }
   void sync()   override { close_reader(); commit(); mdb_env_sync(mdb_->e, 1); }
 
 
@@ -57,7 +58,7 @@ struct kv_lmdb_ final : public virtual kv_
       auto t = w();
       auto rc = mdb_put(t, dbi_, &k_, &v_, 0);
       while (rc == MDB_MAP_FULL)
-      { commit();
+      { abort();
         MDB_envinfo i;
         mdb_env_info(mdb_->e, &i);
         mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
