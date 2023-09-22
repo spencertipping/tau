@@ -56,6 +56,7 @@ struct kv_lmdb_ final : public virtual kv_
     { MDB_val k_{k.lsize(), (void *)k.ldata()};
       MDB_val v_{v.lsize(), (void *)v.ldata()};
       auto t = w();
+      mdb_del(t, dbi_, &k_, nullptr);
       auto rc = mdb_put(t, dbi_, &k_, &v_, 0);
       while (rc == MDB_MAP_FULL)
       { abort();
