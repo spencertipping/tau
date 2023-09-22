@@ -15,9 +15,9 @@ static bool lmdb_should_resize(MDB_env* e, uS n, f64 safety = 1.5)
   if (mdb_env_stat(e, &s) != MDB_SUCCESS || mdb_env_info(e, &i) != MDB_SUCCESS)
     return true;
 
-  let t = s.ms_psize * (uS) i.me_mapsize / s.ms_psize;
-  let f = t - s.ms_psize * (uS) i.me_last_pgno;
-  return n * safety >= f;
+  let t =     s.ms_psize * (uS) i.me_mapsize / s.ms_psize;
+  let f = t - s.ms_psize * (uS) i.me_last_pgno * safety;
+  return n >= f;
 }
 
 
