@@ -7,6 +7,20 @@ namespace σ::pre
 {
 
 
+// Return true if we should resize the map prior to writing n bytes
+static bool lmdb_should_resize(MDB_env* e, uS n, f64 safety = 1.5)
+{
+  MDB_stat    s;
+  MDB_envinfo i;
+  if (mdb_env_stat(e, &s) != MDB_SUCCESS || mdb_env_info(e, &i) != MDB_SUCCESS)
+    return true;
+
+  let t = s.ms_psize * (uS) i.me_mapsize / s.ms_psize;
+  let f = t - s.ms_psize * (uS) i.me_last_pgno;
+  return n * safety >= f;
+}
+
+
 // A single LMDB database within a file.
 struct kv_lmdb_ final : public virtual kv_
 {
@@ -22,10 +36,9 @@ struct kv_lmdb_ final : public virtual kv_
   void abort()           { if (w_) mdb_txn_abort(w_), w_ = nullptr; }
   void sync()   override { close_reader(); commit(); mdb_env_sync(mdb_->e, 1); }
   void commit() override
-    { int rc;
-      if (w_)
-      { A((rc = mdb_txn_commit(w_)) == MDB_SUCCESS,
-          "mdb_txn_commit() failed: " << mdb_strerror(rc));
+    { if (w_)
+      { let rc = mdb_txn_commit(w_);
+        A(rc == MDB_SUCCESS, "mdb_txn_commit() failed: " << mdb_strerror(rc));
         w_ = nullptr; } }
 
 
@@ -58,14 +71,20 @@ struct kv_lmdb_ final : public virtual kv_
       A(rc == MDB_SUCCESS, "mdb_get(" << x << ") failed: " << mdb_strerror(rc));
       return ηi{(u8c*)v.mv_data, v.mv_size}; }
 
-  void set(ηic &k, ηic &v) override;
+  void set(ηic &k, ηic &v) override
+    { MDB_val k_{k.lsize(), (void*) k.ldata()};
+      MDB_val v_{v.lsize(), (void*) v.ldata()};
+      reserve(k_.mv_size + v_.mv_size);
+      let t = w();
+      let rc = mdb_put(t, dbi_, &k_, &v_, 0);
+      A(rc == MDB_SUCCESS, "mdb_put(" << k << ", " << v << ") failed: " << mdb_strerror(rc)); }
 
   void del(ηic &k) override
     { MDB_val k_{k.lsize(), (void*) k.ldata()};
-      let t = w();
+      reserve(k.lsize() + 64);
+      let t  = w();
       let rc = mdb_del(t, dbi_, &k_, nullptr);
-      A(rc == MDB_SUCCESS || rc == MDB_NOTFOUND, "mdb_del(" << k << ") failed: " << mdb_strerror(rc));
-      commit(); }
+      A(rc == MDB_SUCCESS || rc == MDB_NOTFOUND, "mdb_del(" << k << ") failed: " << mdb_strerror(rc)); }
 
   bool has(ηic &k) override
     { MDB_val k_{k.lsize(), (void*) k.ldata()};
@@ -77,6 +96,18 @@ struct kv_lmdb_ final : public virtual kv_
       return true; }
 
 
+  void reserve(uN s)
+    { while (lmdb_should_resize(mdb_->e, s))
+      { close_reader();
+        commit();
+        MDB_envinfo i;
+        int rc = mdb_env_info(mdb_->e, &i);
+        A(rc == MDB_SUCCESS, "mdb_env_info() failed: " << mdb_strerror(rc));
+        rc = mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
+        A(rc == MDB_SUCCESS,
+          "mdb_env_set_mapsize(" << i.me_mapsize * 2 << ") failed: " << mdb_strerror(rc)); } }
+
+
 protected:
   Sp<lmdb_db> mdb_;
   Stc         db_;
@@ -85,34 +116,6 @@ protected:
   MDB_dbi     dbi_;
   Λcsw        csw_;
 };
-
-
-void kv_lmdb_::set(ηic &k, ηic &v)
-{
-  MDB_val k_{k.lsize(), (void*) k.ldata()};
-  MDB_val v_{v.lsize(), (void*) v.ldata()};
-  while (1)
-  {
-    int  rc;
-    auto t = w();
-    if ((rc = mdb_put(t, dbi_, &k_, &v_, 0)) == MDB_SUCCESS)
-      if ((rc = mdb_txn_commit(t)) == MDB_SUCCESS)
-      {
-        w_ = nullptr;
-        return;
-      }
-
-    abort();
-    if (rc == MDB_MAP_FULL)
-    {
-      MDB_envinfo i;
-      mdb_env_info(mdb_->e, &i);
-      mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
-    }
-    else
-      A(0, "mdb_put(" << k << ", " << v << ") or commit failed: " << mdb_strerror(rc));
-  }
-}
 
 
 Sp<kv_> kv_lmdb(Stc &path, Stc &db)
