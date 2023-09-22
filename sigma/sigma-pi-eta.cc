@@ -16,7 +16,9 @@ void πshared_η(πφ &p)
     .def_ppost("`", [](πi &i, πpe<π1> const &y, πhr const&)
       { return y.x(i).pop(); })
 
-    .def_spre(">s", [](ηic &x) { return (Ss{} << x << "\n").str(); })
+    .def_spre(">s",  [](ηic &x) { return (Ss{} << x << "\n").str(); })
+    .def_spre(">\"", [](ηic &x) { return St{Rc<chc*>(x.ldata()), x.lsize()}; })
+    .def_spre(".|",  [](ηic &x) { return i64(x.lsize()); })
     ;
 }
 
