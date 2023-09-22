@@ -103,6 +103,7 @@ struct kv_lmdb_ final : public virtual kv_
         MDB_envinfo i;
         int rc = mdb_env_info(mdb_->e, &i);
         A(rc == MDB_SUCCESS, "mdb_env_info() failed: " << mdb_strerror(rc));
+        std::cerr << "mapsize = " << i.me_mapsize << ", doubling to " << i.me_mapsize * 2 << std::endl;
         rc = mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
         A(rc == MDB_SUCCESS,
           "mdb_env_set_mapsize(" << i.me_mapsize * 2 << ") failed: " << mdb_strerror(rc)); } }
