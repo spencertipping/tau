@@ -72,7 +72,7 @@ struct ζ
   u8 *iptr(uN l)   // insertion pointer to l bytes, or null
     { if      (l > wa())                                                   return nullptr;
       else if (!wrapped() && l + wi > c) { ci = wi; wi = 0; ri = wrap(ri); return xs; }
-      else                               { let a = wi;                     return xs + a; } }
+      else                                                                 return xs + wi; }
 
   void advance(uN l)  // advance writer by l bytes; you must have called iptr(l) first
     { wi += l; }
@@ -83,11 +83,11 @@ struct ζ
 
 
 protected:
-  uN   c;   // capacity in bytes
-  u8  *xs;  // circular buffer
-  uN   ri;  // read index (0..c-1)
-  uN   wi;  // write index (0..c-1)
-  uN   ci;  // circular index (0..c-1)
+  uN  c;   // capacity in bytes
+  u8 *xs;  // circular buffer
+  uN  ri;  // read index (0..c-1)
+  uN  wi;  // write index (0..c-1)
+  uN  ci;  // circular index (0..c-1)
 
   friend O &operator<<(O&, ζ const&);
 
