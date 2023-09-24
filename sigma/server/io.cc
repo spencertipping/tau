@@ -64,7 +64,10 @@ slet ΓT_ = Ψauto([](i64 addr, φaL<':'>, i64 port, φig, Γa<Γ> g, ψ q, ξo 
     a.sin_addr.s_addr = htonl(addr);
     A(!bind(fd, (sockaddr*)&a, sizeof(a)),
       "bind to port " << port << ", addr " << addr << " failed");
-    listen(fd, 5);
+
+    // We may not get back to this socket for a while, so we want to
+    // have enough space to hold many inbound connections.
+    listen(fd, 64);
 
     for (;;)
     {
