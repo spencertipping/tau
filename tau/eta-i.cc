@@ -175,7 +175,7 @@ static O &yone(O &s, ηic &i)
   case ηtype::n_float:  return s << i.f();
   case ηtype::string:   return s << "\"" << i.s() << "\"";
   case ηtype::atom:     return s << i.a();
-  case ηtype::name:     return s << i.n() << ":";
+  case ηtype::name:     return s << i.n().x << ":";
   case ηtype::binary:   return hexout(i.size() > 64 ? s << "bin[" << i.size() << "] = " : s, i.bin());
   case ηtype::int8s:    return pspan(s << "i8s[" << i.size() << "] = ", i.i8s());
   case ηtype::int16s:   return pspan(s << "i16s[" << i.size() / 2 << "] = ", i.i16s());

@@ -67,9 +67,8 @@ static void json_encode(Document::AllocatorType &a, Value &v, ηic &x)
   case ηtype::n_float: v.SetFloat(x.f()); break;
 
   case ηtype::binary:  v.SetString(hex_encode(x.cs()).c_str(), a); break;
-
+  case ηtype::name:    v.SetString(x.n().x.c_str(), a); break;
   case ηtype::string:
-  case ηtype::name:
   {
     let s = x.cs();
     v.SetString(s.c_str(), s.size(), a);
