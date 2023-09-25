@@ -60,12 +60,20 @@ enum class ηtype : u8
 // Alternative type used to mark the fact that this thing is meant to be
 // a name rather than a string. Otherwise we'd have ambiguity at the C++
 // type-mapping level (e.g. in ηauto).
-struct ηname { St x; };
+struct ηname
+{
+  St x;
+  auto operator<=>(ηname const&) const = default;
+};
 
 
 // Alternative type to mark binary data.
-struct ηbin  { St      x; };
 struct ηbinv { Sn<u8c> x; };
+struct ηbin
+{
+  St x;
+  auto operator<=>(ηbin const&) const = default;
+};
 
 
 inline ηname operator""_yn(chc *s, uS n) { return ηname{St(s, n)}; }
