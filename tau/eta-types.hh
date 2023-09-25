@@ -6,9 +6,9 @@
 
 #include "begin.hh"
 
+
 namespace τ
 {
-
 
 enum class ηsig : u8
 {
@@ -179,8 +179,31 @@ O &operator<<(O&, ηts);
 O &operator<<(O&, ηtl);
 O &operator<<(O&, ηname const&);
 
+}
+
+
+namespace std
+{
+
+Tn struct hash<τ::ηname>
+{
+  τ::uS operator()(τ::ηname const& x) const
+  {
+    return hash<τ::St>()(x.x);
+  }
+};
+
+
+Tn struct hash<τ::ηbin>
+{
+  τ::uS operator()(τ::ηbin const& x) const
+  {
+    return hash<τ::St>()(x.x);
+  }
+};
 
 }
+
 
 #include "end.hh"
 
