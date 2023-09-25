@@ -38,7 +38,7 @@ gl_render_state &gl_render_state::operator<<(ηic &x)
 
 void gl_render_state::apply(ηic &x)
 {
-  let s = x[0].n();
+  let s = x[0].n().x;
   let c = x.next();
 
   t->use();
@@ -108,7 +108,7 @@ void gl_render_state::uniforms(ηic &x)
   let &p = prog(x.one());
   for (let &y : x.next())
     if (y.is_n())
-      p.us.at(St{y.n()}) = y.next().one();
+      p.us.at(y.n().x) = y.next().one();
 }
 
 

@@ -58,7 +58,7 @@ PO ηi::operator<=>(ηic &x) const
   case ηtype::n_float:  r = f()    <=> x.f();    break;
   case ηtype::string:   r = s()    <=> x.s();    break;
   case ηtype::atom:     r = a()    <=> x.a();    break;
-  case ηtype::name:     r = n()    <=> x.n();    break;
+  case ηtype::name:     r = n().x  <=> x.n().x;  break;
   case ηtype::binary:   r = bin()  <=> x.bin();  break;
   case ηtype::int8s:    r = i8s()  <=> x.i8s();  break;
   case ηtype::int16s:   r = i16s() <=> x.i16s(); break;

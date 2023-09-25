@@ -84,7 +84,7 @@ static void json_encode(Document::AllocatorType &a, Value &v, ηic &x)
       v.SetObject();
       while (y)
       {
-        Value k(St{y.n()}.c_str(), a);
+        Value k(y.n().x.c_str(), a);
         Value z;
         json_encode(a, z, y.next());
         v.AddMember(k, z, a);

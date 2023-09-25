@@ -159,8 +159,8 @@ struct ηi final
   bool operator==(i64   i_) const { return is_i() && i() == i_; }
   bool operator==(ηic  &b_) const { return (*this <=> b_) == PO::equivalent; }
 
-  bool is_n(Stc  &n_) const { return is_n() && n() == n_; }
-  bool is_n(Stvc &n_) const { return is_n() && n() == n_; }
+  bool is_n(Stc  &n_) const { return is_n() && n().x == n_; }
+  bool is_n(Stvc &n_) const { return is_n() && n().x == n_; }
 
 
   PO operator<=>(ηi const &x) const;
@@ -236,9 +236,9 @@ struct ηi final
     { A(is_s(), "s() on non-string " << t());
       return {Rc<chc*>(data()), size()}; }
 
-  Stv n() const
+  ηname n() const
     { A(is_n(), "n() on non-name " << t());
-      return {Rc<chc*>(data()), size()}; }
+      return {St{Rc<chc*>(data()), size()}}; }
 
   Stv bin() const
     { A(is_bin(), "bin() on non-binary " << t());
@@ -318,7 +318,7 @@ struct ηi final
       case ηtype::n_int:   return (Ss{} << i()).str();
       case ηtype::n_float: return (Ss{} << f()).str();
       case ηtype::atom:    return (Ss{} << a()).str();
-      case ηtype::name:    return St{n()};
+      case ηtype::name:    return n().x;
       case ηtype::string:  return St{s()};
       case ηtype::binary:  return St{bin()};
       default: A(0, "η::cs(" << t() << "=" << *this << ")"); return {};
