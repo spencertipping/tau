@@ -17,7 +17,7 @@ void Γhttp(Γφ &g)
 
 bool http_req_parse(Stc &b, ξo o)
 {
-  Re  r(R"(^([A-Z]+) ([^ ]+) HTTP/1\.1\r\n((?:[A-Za-z0-9-]+: [^\r\n]*\r\n)+)\r\n)");
+  Re  r(R"(^([A-Z]+) ([^ ]+) HTTP/1\.1\r?\n((?:[A-Za-z0-9-]+: [^\r\n]*\r?\n)+)\r?\n)");
   Rsm m;
 
   if (!std::regex_match(b, m, r)) return false;
@@ -26,7 +26,7 @@ bool http_req_parse(Stc &b, ξo o)
   w << m[1].str() << m[2].str();
 
   Stc hs = m[3].str();
-  Re  hr(R"(([A-Za-z0-9-]+): ([^\r\n]*)\r\n)");
+  Re  hr(R"(([A-Za-z0-9-]+):[ \t]*([^\r\n]*)\r?\n)");
   for (Rsi i(hs.begin(), hs.end(), hr), e; i != e; ++i)
     w << ηname{(*i)[1].str()} << (*i)[2].str();
 
@@ -46,7 +46,7 @@ void http_req_loop(ξi i, ξo o)
     if (x.is_s())
     {
       b.append(x.s().begin(), x.s().end());
-      if (b.find("\r\n\r\n") != St::npos)
+      if (b.find("\r\n\r\n") != St::npos || b.find("\n\n") != St::npos)
       {
         if (http_req_parse(b, o)) b.clear();
         else                      break;
