@@ -10,15 +10,11 @@ namespace σ
 using namespace τ;
 
 
-// FIXME: reader + writer for sockets; otherwise we close the FD
-// on the read-side before the write-side is done (sometimes)
-
-
 slet ΓrF_ = Ψauto([](fd_t fd, ψ q, ξo o)
   {
     St d; d.reserve(65536);
     τe &t = q.t();
-    q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_RD); t.close(fd); });
+    q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_RD); t.close(fd, true, false); });
 
     if (t.detached()) return;
     t.reg(fd, true, false);
@@ -33,7 +29,7 @@ slet ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
   {
     τe &t = q.t();
     q.pin();
-    q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_WR); t.close(fd); });
+    q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_WR); t.close(fd, false, true); });
     if (t.detached()) goto done;
     t.reg(fd, false, true);
     for (let &x : i)

@@ -37,7 +37,8 @@ struct τe : public τb
 
   ~τe()
     { V<fd_t> fds;
-      for (let &[fd, g] : gs) fds.push_back(fd);
+      for (let &[fd, g] : rgs) fds.push_back(fd);
+      for (let &[fd, g] : wgs) fds.push_back(fd);
       for (let x : fds) close(x);
       if (efd != -1) ::close(efd); }
 
@@ -51,15 +52,11 @@ struct τe : public τb
   void detach();
 
 
-  // λg pair: one gate to wait until a file is readable, one for write;
-  // gates return false on error.
+  // Directional λg container: gates for IO and error events
   struct λgs
   {
-    bool re;     // registered for read events
-    bool we;     // registered for write events
-    λg<bool> r;  // inline read availability, false on error
-    λg<bool> w;  // inline write availability, false on error
-    λg<bool> e;  // out-of-band error reports
+    λg<bool> io;  // IO is ready, or immediate error
+    λg<bool> e;   // out-of-band error
   };
 
 
@@ -70,9 +67,8 @@ struct τe : public τb
       return fd; }
 
 
-  λg<bool> *rg(fd_t fd) { if (let g = at(fd)) return &g->r; else return nullptr; }
-  λg<bool> *wg(fd_t fd) { if (let g = at(fd)) return &g->w; else return nullptr; }
-  λg<bool> *eg(fd_t fd) { if (let g = at(fd)) return &g->e; else return nullptr; }
+  λg<bool> *rg(fd_t fd) { if (let g = rat(fd)) return &g->io; else return nullptr; }
+  λg<bool> *wg(fd_t fd) { if (let g = wat(fd)) return &g->io; else return nullptr; }
 
   iN read  (fd_t fd, u8  *b, uN l)       { return gated(rg(fd), λs::τR, ::read,   fd, b, l); }
   iN write (fd_t fd, u8c *b, uN l)       { return gated(wg(fd), λs::τW, ::write,  fd, b, l); }
@@ -85,14 +81,14 @@ struct τe : public τb
 
   // Register a file descriptor for IO events; this must be called before
   // using it with any epoll-mediated syscalls.
-  bool reg(fd_t fd, bool r = true, bool w = true);
-  void unreg(fd_t fd);
+  bool reg  (fd_t fd, bool r = true, bool w = true);
+  void unreg(fd_t fd, bool r = true, bool w = true);
 
 
   // Close an FD and remove it from the epoll watch set. Also delete
   // its gates after awakening both with false to indicate that any
   // pending operations should not move forwards.
-  int close(fd_t);
+  int close(fd_t, bool r = true, bool w = true);
 
   bool detached() const { return efd == -1; }
 
@@ -109,7 +105,7 @@ struct τe : public τb
 
 
   explicit operator bool() const
-    { return !gs.empty() || l_() || hn() != forever(); }
+    { return !rgs.empty() || !wgs.empty() || l_() || hn() != forever(); }
 
   τe &go(bool                nonblock = false,
          F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); });
@@ -121,14 +117,16 @@ struct τe : public τb
 
 
 protected:
-  fd_t          efd;   // epoll control FD
-  M<fd_t, λgs*> gs;    // edge-triggered gate pairs
-  S<pid_t>      pids;  // child pids
-  bool          fin;   // true if we're terminating
+  fd_t             efd;  // epoll control FD
+  M<fd_t, Sp<λgs>> rgs;  // read gate sets
+  M<fd_t, Sp<λgs>> wgs;  // write gate sets
+  S<pid_t>         pids;  // child pids
+  bool             fin;   // true if we're terminating
 
 
   // Return the gate set for a FD, or nullptr if it's not registered.
-  λgs *at(fd_t fd) { return gs.contains(fd) ? gs.at(fd) : nullptr; }
+  Sp<λgs> rat(fd_t fd) { return rgs.contains(fd) ? rgs.at(fd) : nullptr; }
+  Sp<λgs> wat(fd_t fd) { return wgs.contains(fd) ? wgs.at(fd) : nullptr; }
 
 
   // Run a function by repeating it against a gate as long as EAGAIN

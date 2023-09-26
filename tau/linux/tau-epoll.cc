@@ -45,15 +45,21 @@ void τe::detach()
 
   // Close FDs without removing from epoll; the goal is to leave any existing
   // τ objects intact. This is used when we fork() to create a child process.
-  for (let &[fd, g] : gs)
+  for (let &[fd, g] : rgs)
   {
     ::close(fd);
-    g->r.w(false);
-    g->w.w(false);
+    g->io.w(false);
     g->e.w(false);
-    delete g;
   }
-  gs.clear();
+  for (let &[fd, g] : wgs)
+  {
+    ::close(fd);
+    g->io.w(false);
+    g->e.w(false);
+  }
+
+  rgs.clear();
+  wgs.clear();
 
   // Clear out any time-queue entries
   while (!h_.empty()) h_.pop();
@@ -66,45 +72,50 @@ void τe::detach()
 bool τe::reg(fd_t fd, bool r, bool w)
 {
   A(efd != -1, "τe::reg(" << fd << ") on detached");
-
-  if (gs.contains(fd))
-  {
-    epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
-    delete gs.at(fd);
-    gs.erase(fd);
-  }
+  A(!r || !rgs.contains(fd), "τe::reg(" << fd << ") already registered for read");
+  A(!w || !wgs.contains(fd), "τe::reg(" << fd << ") already registered for write");
 
   epoll_event ev;
   ev.events  = (r ? EPOLLIN | EPOLLHUP : 0) | (w ? EPOLLOUT | EPOLLERR : 0) | EPOLLET;
   ev.data.fd = nb(fd);
   if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return false;
-  gs[fd] = new λgs{r, w, l_, l_, l_};
+  if (r) rgs[fd] = Sp<λgs>{new λgs{l_, l_}};
+  if (w) wgs[fd] = Sp<λgs>{new λgs{l_, l_}};
   return true;
 }
 
 
-void τe::unreg(fd_t fd)
+void τe::unreg(fd_t fd, bool r, bool w)
 {
-  if (gs.contains(fd))
+  if (r && rgs.contains(fd))
   {
-    let g = gs.at(fd);
-    g->r.w(false);
-    g->w.w(false);
-    g->e.w(false);
-    delete g;
-    gs.erase(fd);
+    let g = rgs.at(fd);
+    g->io.w(false);
+    g->e.w (false);
+    rgs.erase(fd);
+  }
+
+  if (w && wgs.contains(fd))
+  {
+    let g = wgs.at(fd);
+    g->io.w(false);
+    g->e.w (false);
+    wgs.erase(fd);
   }
 
   // Explicitly deregister FD from epoll; see
   // https://idea.popcount.org/2017-03-20-epoll-is-fundamentally-broken-22/
-  if (efd != -1) epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
+  if (efd != -1 && !rgs.contains(fd) && !wgs.contains(fd))
+    epoll_ctl(efd, EPOLL_CTL_DEL, fd, nullptr);
 }
 
 
-int τe::close(fd_t fd)
+int τe::close(fd_t fd, bool r, bool w)
 {
-  unreg(fd);
-  return ::close(fd);
+  unreg(fd, r, w);
+  return !rgs.contains(fd) && !wgs.contains(fd)
+       ? ::close(fd)
+       : 0;
 }
 
 
@@ -135,7 +146,8 @@ void τe::term()
   // use the time with CPU-bound tasks.
   nonblock |= l_();
 
-  while (!fin && now() < hn() && (!gs.empty() || hn() != forever()))
+  while (!fin && now() < hn() &&
+         (!rgs.empty() || !wgs.empty() || hn() != forever()))
   {
     epoll_event evs[256];
 
@@ -152,15 +164,21 @@ void τe::term()
     for (int i = 0; i < n; ++i)
     {
       let f = evs[i].data.fd;
-      if (gs.contains(f))
+      if (rgs.contains(f))
       {
-        let g = at(f);
+        let g = rat(f);
         let e = evs[i].events;
-
-        // ERR overrides OUT -- don't write if sigpipe
         // IN overrides HUP -- HUP doesn't preclude data being available
-        if (e & (EPOLLIN  | EPOLLHUP)) g->r.w(  e & EPOLLIN);
-        if (e & (EPOLLERR | EPOLLOUT)) g->w.w(!(e & EPOLLERR));
+        if (e & (EPOLLIN | EPOLLHUP)) g->io.w(e & EPOLLIN);
+        if (e & EPOLLERR)             g->e.w(true);
+      }
+
+      if (wgs.contains(f))
+      {
+        let g = wat(f);
+        let e = evs[i].events;
+        // ERR overrides OUT -- don't write if sigpipe
+        if (e & (EPOLLERR | EPOLLOUT)) g->io.w(!(e & EPOLLERR));
         if (e & EPOLLERR)              g->e.w(true);
       }
     }
@@ -190,7 +208,8 @@ void τe::term()
   qs_.clear();
   l_.clear();
   V<fd_t> fds;
-  for (let &[fd, g] : gs) fds.push_back(fd);
+  for (let &[fd, g] : rgs) fds.push_back(fd);
+  for (let &[fd, g] : wgs) fds.push_back(fd);
   for (let x : fds) close(x);
   while (!h_.empty()) h_.pop();
   return *this;
