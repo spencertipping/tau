@@ -28,3 +28,45 @@ A TCP server on a port creates a [Ξ](Xi.md) with a read/write [ψ](psi.md) for 
 `A` supports OAuth2 for some providers.
 
 **TODO:** define the authentication backend API
+
+
+## Tests
+The following request from Joyce's Chrome crashes the server:
+
+```
+GET /8a3040aa6b8f70d0bfff71d2b3802768485b88d6f4bf9f90b35f016d92c15983 HTTP/1.1
+x-forwarded-host: ijen.35.duck:3000
+x-forwarded-proto: http
+x-forwarded-port: 3000
+x-forwarded-for: 10.35.1.75
+cookie: rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2B1bIu%2Fb4YwCojCkDeNL%2FWGNkg8p4RS0ShBxk%2F8EOcHVZrTCiHE3KV%2B%2B6QIdYKs%2FlYlSpAsjGqzQA%3D%3D; rl_group_id=RudderEncrypt%3AU2FsdGVkX19tVzrspteCSIkgVICtxfUEv7SEbrfLdrk%3D; rl_group_trait=RudderEncrypt%3AU2FsdGVkX1%2B2OLq5k0BZTUh49iZqA51dk7zdoVrFj00%3D; rl_user_id=RudderEncrypt%3AU2FsdGVkX1%2FPcNHPVO8FbQjormehKfwdfkA%2Bi%2FT8IIWmyHxAiSAEj%2F3RrDA85a7w; rl_trait=RudderEncrypt%3AU2FsdGVkX19sR02HlC3IQlnCyCD388ZTrcrWDulvetw%3D
+accept-language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7
+accept-encoding: gzip, deflate
+referer: http://ijen.35.duck:3000/
+accept: */*
+user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36
+connection: close
+host: localhost:3001
+
+
+```
+
+
+```bash
+$ $sigma 'n1p||-"GET /8a3040aa6b8f70d0bfff71d2b3802768485b88d6f4bf9f90b35f016d92c15983 HTTP/1.1
+x-forwarded-host: ijen.35.duck:3000
+x-forwarded-proto: http
+x-forwarded-port: 3000
+x-forwarded-for: 10.35.1.75
+cook" "ie: rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2B1bIu%2Fb4YwCojCkDeNL%2FWGNkg8p4RS0ShBxk%2F8EOcHVZrTCiHE3KV%2B%2B6QIdYKs%2FlYlSpAsjGqzQA%3D%3D; rl_group_id=RudderEncrypt%3AU2FsdGVkX19tVzrspteCSIkgVICtxfUEv7SEbrfLdrk%3D; rl_group_trait=RudderEncrypt%3AU2FsdGVkX1%2B2OLq5k0BZTUh49iZqA51dk7zdoVrFj00%3D; rl_user_id=RudderEncrypt%3AU2FsdGVkX1%2FPcNHPVO8FbQjormehKfwdfkA%2Bi%2FT8IIWmyHxAiSAEj%2F3RrDA85a7w; rl_trait=RudderEncrypt%3AU2FsdGVkX19sR02HlC3IQlnCyCD388ZTrcrWDulvetw%3D
+accept-language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7
+accep" "t-encoding: gzip, deflate
+referer: http://ijen.35.duck:3000/
+accept: */*
+user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36
+connection: close
+host: localhost:3001
+
+" H'
+"GET" "/8a3040aa6b8f70d0bfff71d2b3802768485b88d6f4bf9f90b35f016d92c15983" x-forwarded-host: "ijen.35.duck:3000" x-forwarded-proto: "http" x-forwarded-port: "3000" x-forwarded-for: "10.35.1.75" cookie: "rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2B1bIu%2Fb4YwCojCkDeNL%2FWGNkg8p4RS0ShBxk%2F8EOcHVZrTCiHE3KV%2B%2B6QIdYKs%2FlYlSpAsjGqzQA%3D%3D; rl_group_id=RudderEncrypt%3AU2FsdGVkX19tVzrspteCSIkgVICtxfUEv7SEbrfLdrk%3D; rl_group_trait=RudderEncrypt%3AU2FsdGVkX1%2B2OLq5k0BZTUh49iZqA51dk7zdoVrFj00%3D; rl_user_id=RudderEncrypt%3AU2FsdGVkX1%2FPcNHPVO8FbQjormehKfwdfkA%2Bi%2FT8IIWmyHxAiSAEj%2F3RrDA85a7w; rl_trait=RudderEncrypt%3AU2FsdGVkX19sR02HlC3IQlnCyCD388ZTrcrWDulvetw%3D" accept-language: "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7" accept-encoding: "gzip, deflate" referer: "http://ijen.35.duck:3000/" accept: "*/*" user-agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36" connection: "close" host: "localhost:3001"
+```

@@ -108,9 +108,9 @@ $ $sigma 'n1p#=3 1 2 3 4 5 4 3 2 1'
 $ $sigma 'n1p#=(3) (1 2) (3) (4 5) 4 (3 2) 1'
 1
 $ $sigma 'n1p@-(/>"/foo/bar.bif" />"bif")
-                       (</"/foo/bar.bif" </"bif")
-                       (.>"/foo/bar.bif" .>"bif")
-                       (<."/foo/bar.bif" <."bif")'
+               (</"/foo/bar.bif" </"bif")
+               (.>"/foo/bar.bif" .>"bif")
+               (<."/foo/bar.bif" <."bif")'
 "bar.bif" "bif"
 "/foo" "bif"
 "bif" "bif"

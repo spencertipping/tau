@@ -42,17 +42,16 @@ void http_req_loop(ξi i, ξo o)
   // and transfer-encoding
   St b;
   for (let &x : i)
-  {
-    if (x.is_s())
+    if (x.is_s() || x.is_bin())
     {
-      b.append(x.s().begin(), x.s().end());
+      b.append(x.data(), x.data() + x.size());
       if (b.find("\r\n\r\n") != St::npos || b.find("\n\n") != St::npos)
       {
         if (http_req_parse(b, o)) b.clear();
-        else                      break;
+        else
+          A(0, "http_req_loop: parse error on " << b);
       }
     }
-  }
 }
 
 
