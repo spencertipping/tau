@@ -10,6 +10,10 @@ namespace σ
 using namespace τ;
 
 
+// FIXME: reader + writer for sockets; otherwise we close the FD
+// on the read-side before the write-side is done (sometimes)
+
+
 slet ΓrF_ = Ψauto([](fd_t fd, ψ q, ξo o)
   {
     St d; d.reserve(65536);
@@ -40,7 +44,7 @@ slet ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
         while (w < x.size())
         {
           let n = t.write(fd, x.data() + w, x.size() - w);
-          if (n < 0) { std::cerr << strerror(errno) << std::endl; goto done; }
+          if (n < 0) goto done;
           else       w += n;
         }
       }
