@@ -46,7 +46,11 @@ typedef πf<-1> π_1;
 
 
 inline π_1 πf_pop() { return {"_", [](πi &i) { i.pop(); }}; }
-inline π0  πf_η()   { return {"η", [](πi &i) { i.push(i.ypop()); }}; }
+inline π0  πf_η()   { return {"η", [](πi &i)
+  { // NOTE: extra mechanics required because i.ypop() is GC-volatile
+    // and we want to avoid off-heap allocations
+    i.h().reserve(i.ypeek().lsize());
+    i.push(i.ypop()); }}; }
 
 
 // Shorthand to push a constant
