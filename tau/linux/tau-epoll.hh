@@ -137,9 +137,9 @@ protected:
   // errno represents the syscall's error state when this function
   // returns.
   template<class F, class... Xs>
-  iN gated(λg<bool> *g, λs ys, F f, Xs... xs)
+  iN gated(λg<bool> *g, λs ys, F const &f, Xs&&... xs)
     { iN r, e;
-      while ((r = f(xs...)) == -1 &&
+      while ((r = f(std::forward<Xs>(xs)...)) == -1 &&
              ((e = errno) == EAGAIN || e == EINTR))
         // NOTE: errno may have been async-reset within g->y, so restore
         // it here before breaking

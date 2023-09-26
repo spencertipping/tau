@@ -32,15 +32,15 @@ slet ΓwF_ = Ψauto([](fd_t fd, ψ q, ξi i)
     q.fx([&, fd](ψ_&) { shutdown(fd, SHUT_WR); t.close(fd); });
     if (t.detached()) goto done;
     t.reg(fd, false, true);
-    for (let x : i)
+    for (let &x : i)
       if (x.is_ω()) goto done;
-      else if (x.is_s())
+      else if (x.is_s() || x.is_bin())
       {
         uN w = 0;
         while (w < x.size())
         {
           let n = t.write(fd, x.data() + w, x.size() - w);
-          if (n < 0) goto done;
+          if (n < 0) { std::cerr << strerror(errno) << std::endl; goto done; }
           else       w += n;
         }
       }
