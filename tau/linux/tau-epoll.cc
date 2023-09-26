@@ -72,8 +72,10 @@ void τe::detach()
 bool τe::reg(fd_t fd, bool r, bool w)
 {
   A(efd != -1, "τe::reg(" << fd << ") on detached");
-  A(!r || !rgs.contains(fd), "τe::reg(" << fd << ") already registered for read");
-  A(!w || !wgs.contains(fd), "τe::reg(" << fd << ") already registered for write");
+  r |= rgs.contains(fd);
+  w |= wgs.contains(fd);
+  if (rgs.contains(fd)) unreg(fd, true, false);
+  if (wgs.contains(fd)) unreg(fd, false, true);
 
   epoll_event ev;
   ev.events  = (r ? EPOLLIN | EPOLLHUP : 0) | (w ? EPOLLOUT | EPOLLERR : 0) | EPOLLET;
