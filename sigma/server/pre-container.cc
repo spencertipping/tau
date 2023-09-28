@@ -55,7 +55,7 @@ struct lmdb_ls_ : public virtual at_ls_
       MDB_val k, v;
       while ((rc = mdb_cursor_get(c, &k, &v, MDB_NEXT)) == MDB_SUCCESS)
         o.r(k.mv_size + v.mv_size + 8)
-          << Sn<u8c>{Rc<u8c*>(k.mv_data), k.mv_size}
+          << ηi{Rc<u8c*>(k.mv_data), k.mv_size}
           << Sn<u8c>{Rc<u8c*>(v.mv_data), v.mv_size};
       A(rc == MDB_NOTFOUND, "mdb_cursor_get() failed: " << mdb_strerror(rc)); }
 
