@@ -5,6 +5,7 @@
 #include "fork.hh"
 #include "http.hh"
 #include "io.hh"
+#include "zstd.hh"
 
 #include "gl.hh"
 
@@ -22,6 +23,7 @@ void Γnative(Γφ &g)
   Γio(g);
   Γhttp(g);
   Γlinux_gl(g);
+  Γzstd(g);
 
   // Compile-time file IO
   g.def_g("$<", [&](Stc &f, Ξc &x)
