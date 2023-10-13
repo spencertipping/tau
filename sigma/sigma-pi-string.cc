@@ -219,7 +219,7 @@ void πshared_string(πφ &p)
     .def_spre("##3/384", sha3<384>)
     .def_spre("##3/256", sha3<256>)
 
-    .def_spre("s#", [](Stvc &s) { return i64(s.size()); })
+    .def_spre("s#", [](ηic &x) { return i64(x.size()); })
 
     .def_spost("++", [](πsa<St> b, Stc &a) { return a + b.x; })
 
