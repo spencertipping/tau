@@ -11,13 +11,12 @@ void Γzstd(Γφ &g)
 {
   g .pi()
     .def_spre(">Z", [](πP<i64> l, ηic &x)
-    {
-      ηbin r; r.x.resize(ZSTD_compressBound(x.size()));
-      let n = ZSTD_compress(r.x.data(), r.x.size(),
-                            x.data(), x.size(), l.x);
-      r.x.resize(ZSTD_isError(n) ? 0 : n);
-      return r;
-    })
+      {
+        ηbin r; r.x.resize(ZSTD_compressBound(x.size()));
+        let n = ZSTD_compress(r.x.data(), r.x.size(), x.data(), x.size(), l.x);
+        r.x.resize(ZSTD_isError(n) ? 0 : n);
+        return r;
+      })
     .def_spre("<Z", [](ηic &x)
       {
         ηbin r; r.x.resize(ZSTD_findFrameCompressedSize(x.data(), x.size()));

@@ -295,6 +295,15 @@ template<class T, class F> struct fitr
 template<class T, class F> fitr(T const&, F const&) -> fitr<T, F>;
 
 
+inline O &hexout(O &s, Stvc &x)
+{
+  for (let c : x)
+    s << "0123456789abcdef"[u8(c) >> 4 & 0x0f]
+      << "0123456789abcdef"[u8(c)      & 0x0f];
+  return s;
+}
+
+
 }
 
 

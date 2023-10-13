@@ -104,6 +104,12 @@ O &operator<<(O &s, ηname const &n)
 }
 
 
+O &operator<<(O &s, ηbin const &b)
+{
+  return hexout(s, b.x);
+}
+
+
 }
 
 #include "end.hh"

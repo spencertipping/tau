@@ -186,6 +186,7 @@ O &operator<<(O&, ηtype);
 O &operator<<(O&, ηts);
 O &operator<<(O&, ηtl);
 O &operator<<(O&, ηname const&);
+O &operator<<(O&, ηbin const&);
 
 }
 
