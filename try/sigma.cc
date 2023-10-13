@@ -45,6 +45,14 @@ int main(int argc, char *argv[])
         return lhs; });
   }
 
+  {
+    // Test for a specific failure case involving only the first tuple element being
+    // written to the output
+    using namespace τ;
+    g.pi().def_spost("##TUPLETEST", [](i64 x)
+      { return std::make_tuple(std::make_tuple(x, "foo", "bar", x + 1)); });
+  }
+
   τ::St tau = argv[1];
   if (access(argv[1], F_OK) != -1) tau = read_file(tau);
 

@@ -195,14 +195,19 @@ auto πauto_ci_split_(T<X, Xs...> *n, let &t)
 }
 
 
+Tt inline void πpush_(πi &i, T const &x)
+{
+  if constexpr (Eq<T, πhr>) i.push(     x);
+  else                      i.push(i << x);
+}
+
+
 // Convert a function's return value to a vertical series of η-castable
 // things, each of which will be pushed as a separate stack entry.
 Tt struct πvrauto_
 {
   sletc n = 1;
-  static void push(πi &i, T const &x)
-    { if constexpr (Eq<T, πhr>) i.push(     x);
-      else                      i.push(i << x); }
+  static void push(πi &i, T const &x) { πpush_(i, x); }
 };
 
 Tn struct πvrauto_<void>
@@ -216,7 +221,7 @@ Txs struct πvrauto_<T<Xs...>>
   static void push(πi &i, T<Xs...> const &x)
     { vpush<sizeof...(Xs) - 1>(i, x); }
   template<iN I> static void vpush(πi &i, T<Xs...> const &x)
-    { πvrauto_<std::tuple_element_t<I, T<Xs...>>>::push(i, std::get<I>(x));
+    { πpush_(i, std::get<I>(x));
       if constexpr (I > 0) vpush<I - 1>(i, x); }
 };
 

@@ -133,6 +133,13 @@ iTEST: 0 56 78
 0
 ```
 
+Testing another failure case:
+
+```bash
+$ $sigma 'n1p 10 ##TUPLETEST'
+10 "foo" "bar" 11
+```
+
 
 ## Proximal and distal values
 `x` and `y` are variables meaning "this" and "that", respectively. Unary contexts use `x` alone, whereas binary contexts (like sort comparators or key/value loops) use both.
