@@ -66,7 +66,11 @@ template<class πφ> struct πφ_
 
 protected:
   Tt struct is_φ       : std::false_type {};
-  Tt struct is_φ<φ<T>> : std::true_type {};
+  Tt struct is_φ<φ<T>> : std::true_type  {};
+
+  Tx auto parsify(Stc &n, X &&x)
+    { if constexpr (is_φ<De<X>>::value) return x;
+      else                              return πauto(self(), n, std::function(std::forward<X>(x))); }
 
   Tt πφ &def_(φ<T>&, Stc&) { return self(); }
 
@@ -74,9 +78,7 @@ protected:
   πφ &def_(φ<T> &d, Stc &n, X const &f, Xs&&... xs)
     { auto &d_ = d.template as<φd_<T>>();
       if (!d_.has(n)) d_.def(n, φa0<T>(d.name() + n));
-      auto &p = d_.at(n).template as<φa_<T>>();
-      if constexpr (is_φ<X>::value) p << f;
-      else                          p << πauto(self(), n, std::function(f));
+      d_.at(n).template as<φa_<T>>() << parsify(n, f);
       return def_(d, n, std::forward<Xs>(xs)...); }
 
 
