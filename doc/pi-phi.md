@@ -13,13 +13,13 @@ So a plural value is just multiple singular values separated by commas and/or sp
 
 ```
 π ::= ... | (p '`')* p
-p ::= ((s ','?)+ | ppre p) ppost* ';'?
-s ::= (satom | spre s) spost*
+p ::= ((s ','?)+ | pl) pr* ';'?
+s ::= sl sr*
 
-satom ::= '[' p ']' | '(' p ')' | ...
+sl ::= '[' p ']' | '(' p ')' | ...
 ```
 
-`π`, `satom`, `spre`, `ppre`, `ppost`, and `spost` are all extensible parsers, some of which may refer back to `p` and `s` to parse subexpressions. For example, `?` is an `spost` whose parse continuation is `p ':' p`.
+`π`, `sl`, `sr`, `pl`, and `pr` are all extensible parsers, some of which may refer back to `p` and `s` to parse subexpressions. For example, `?` is an `spost` whose parse continuation is `p ':' p`.
 
 `p` expressions self-optimize when possible: if only one element is parsed, then no splicing is done. This prevents values from being unnecessarily copied when they are already on the heap.
 
@@ -34,30 +34,25 @@ Perl and π both share the _greedy-plural_ problem: operators that accept a plur
 The goal of π FFI is to derive as much interfacing information as possible from the function signature. For example, a lazy ternary operator should be definable like this:
 
 ```cpp
-def_spost("?", [](πi &i, πpe<π1> const &t, φaL<':'>, πpe<π1> const &e, bool c)
-  { return (c ? t.x(i) : e.x(i)).pop(); });
+def_sr("?", [](πi &i, πSc<bool> &c,  // NOTE: πS<> is optional for clarity
+                      πpc<π1> &t, φaL<':'>&, πpc<π1> &e)
+  { return (c.x ? t.x(i) : e.x(i)).pop(); });
 ```
 
-There's a lot going on here. First, each parameter may introduce a parser into the operator sequence. In this case we have three: `πpe<π1>`, `φaL<":">`, and `πpe<π1>`. `bool` is assumed to be present on the stack already since it's the left operand. This means our operator will be parsed using this grammar:
+There's a lot going on here. First, each parameter may introduce a parser into the operator sequence. In this case we have three: `πp<π1>`, `φaL<":">`, and `πp<π1>`. `bool` is assumed to be present on the stack already since it's the left operand. This means our π function is a `πf<0>` and it will be parsed with this grammar:
 
 ```
 '?' p ':' p
 ```
 
 
-## Alternatives
-`def_spost()` and other functions can (1) accept multiple arguments, and (2) be called multiple times, in each case to define multiple parse alternatives.
-
-**TODO:** spec this out if necessary; it's pretty straightforward
-
-
 ### Stack vs immediate operands
-Why is `bool` pulled from the stack while `πse<π1>` is parsed? It has to do with the argument class, which is one of:
+Why is `bool` pulled from the stack while `πp<π1>` is parsed? It has to do with the argument class, which is one of:
 
 + **Meta:** things like `πi&` and `πhr_<N>`, which have nothing to do with the stack nor parsing
-+ **Constant:** things which are not stored on the stack, e.g. `πse<π1>`, `φa...`, or `πP<T>`
-+ **Immediate:** things which have an expression-mode annotation for parsing and are stored on the stack, e.g. `πse<i64>`
 + **Stack:** things which are stored on the stack up front, and which can be η-decoded, e.g. `bool`, `πhr`, and other such types (`ηauto` covers these)
++ **Constant:** things which are not stored on the stack, e.g. `πs<π1>`, `φa...`, or `πP<T>`
++ **Immediate:** things which have an expression-mode annotation for parsing and are stored on the stack, e.g. `πsl<i64>`
 
 Each immediate is inlined as a `πf<1>` that is prepended to the resulting function. This results in immediates being present above stack arguments. As a result, arguments must be ordered like this:
 

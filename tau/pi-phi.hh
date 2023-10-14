@@ -23,7 +23,7 @@ namespace τ
 //
 // To use this struct, inherit from it for the core grammar and mix in
 // structs from pi-phi-basic.hh to add parsers.
-template<class πφ> struct πφ_
+template<class πφ> struct πφ_  // NOTE: CRTP for p(), see self()
 {
   πφ_();
   virtual ~πφ_() {}
@@ -42,26 +42,37 @@ template<class πφ> struct πφ_
 
 
   φ<π1> t()  const { return wt_; }
-  φ<π1> ts() const { return wse_; }
-  φ<π1> tp() const { return wpe_; }
+  φ<π1> ts() const { return ws_; }
+  φ<π1> tp() const { return wp_; }
 
-  Txs πφ &def_t    (Stc &n, Xs&&... xs) { return def_<π1>(t_,     n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_sa   (Stc &n, Xs&&... xs) { return def_<π1>(sa_,    n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_se   (Stc &n, Xs&&... xs) { return def_<π1>(se_,    n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_pe   (Stc &n, Xs&&... xs) { return def_<π1>(pe_,    n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_ppre (Stc &n, Xs&&... xs) { return def_<π0>(ppre_,  n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_ppost(Stc &n, Xs&&... xs) { return def_<π0>(ppost_, n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_spre (Stc &n, Xs&&... xs) { return def_<π0>(spre_,  n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_spost(Stc &n, Xs&&... xs) { return def_<π0>(spost_, n, std::forward<Xs>(xs)...); }
+
+#define def_defn(name, ptype) \
+  Txs πφ &def_##name (Stc &n, Xs&&... xs) \
+    { return def_<ptype>(name##_, n, std::forward<Xs>(xs)...); }
+
+  def_defn(t,  π1)
+  def_defn(s,  π1)
+  def_defn(p,  π1)
+  def_defn(pl, π1)
+  def_defn(pr, π0)
+  def_defn(sl, π1)
+  def_defn(sr, π0)
+
+#undef def_defn
 
 
   // NOTE: returning the wrong type is intentional. Every πsa<T> should
   // arise from a π1 that we parse, and it's up to πauto to convert the
   // π1 to T using immediate stack indirection. See pi-auto for details.
   Tt φ<πt <π1>> p(πt <T>*) const { return wt_  * [](π1 &&x) { return πt <π1>{mo(x)}; }; }
-  Tt φ<πpe<π1>> p(πpe<T>*) const { return wpe_ * [](π1 &&x) { return πpe<π1>{mo(x)}; }; }
-  Tt φ<πsa<π1>> p(πsa<T>*) const { return wsa_ * [](π1 &&x) { return πsa<π1>{mo(x)}; }; }
-  Tt φ<πse<π1>> p(πse<T>*) const { return wse_ * [](π1 &&x) { return πse<π1>{mo(x)}; }; }
+  Tt φ<πp <π1>> p(πp<T>*)  const { return wp_  * [](π1 &&x) { return πp <π1>{mo(x)}; }; }
+  Tt φ<πs <π1>> p(πs<T>*)  const { return ws_  * [](π1 &&x) { return πs <π1>{mo(x)}; }; }
+  Tt φ<πsl<π1>> p(πsl<T>*) const { return wsl_ * [](π1 &&x) { return πsl<π1>{mo(x)}; }; }
+  Tt φ<πpl<π1>> p(πsl<T>*) const { return wpl_ * [](π1 &&x) { return πpl<π1>{mo(x)}; }; }
+
+  // Not polymorphic because functions are always constant
+  φ<πpr<π0>> p(πpr<π0>*) const { return wpr_ * [](π0 &&x) { return πpr<π0>{mo(x)}; }; }
+  φ<πsr<π0>> p(πsr<π0>*) const { return wsr_ * [](π0 &&x) { return πsr<π0>{mo(x)}; }; }
 
 
 protected:
@@ -84,60 +95,55 @@ protected:
 
   // All parsers are dispatch tables with φa<> per entry
   φ<π1> t_;      // toplevel program
-  φ<π1> pe_;     // plural expressions
-  φ<π1> se_;     // singular expressions
-  φ<π1> sa_;     // singular atoms
-  φ<π0> ppre_;
-  φ<π0> ppost_;
-  φ<π0> spre_;
-  φ<π0> spost_;
+  φ<π1> p_;      // plural full expression
+  φ<π1> s_;      // singular full expression
+  φ<π1> pl_;     // plural left
+  φ<π0> pr_;     // plural right
+  φ<π1> sl_;     // singular left
+  φ<π0> sr_;     // singular left
 
   // Wrapped+weakened versions of the above, which allow whitespace
   φ<π1> wt_;     // wrap(φW(t_))
-  φ<π1> wpe_;
-  φ<π1> wse_;
-  φ<π1> wsa_;
-  φ<π0> wppre_;
-  φ<π0> wppost_;
-  φ<π0> wspre_;
-  φ<π0> wspost_;
+  φ<π1> wp_;
+  φ<π1> ws_;
+  φ<π1> wpl_;
+  φ<π0> wpr_;
+  φ<π1> wsl_;
+  φ<π0> wsr_;
 };
 
 
 template<class πφ>
 πφ_<πφ>::πφ_()
-  : t_    (φd<π1>("π")),
-    pe_   (φd<π1>("πpe")),
-    se_   (φd<π1>("πse")),
-    sa_   (φd<π1>("πsa")),
-    ppre_ (φd<π0>("πppre")),
-    ppost_(φd<π0>("πppost")),
-    spre_ (φd<π0>("πspre")),
-    spost_(φd<π0>("πspost")),
+  : t_ (φd<π1>("π")),
+    p_ (φd<π1>("πp")),
+    s_ (φd<π1>("πs")),
+    pl_(φd<π1>("πpl")),
+    pr_(φd<π0>("πpr")),
+    sl_(φd<π1>("πsl")),
+    sr_(φd<π0>("πsr")),
 
-    wt_    (φwrap(φW(t_))),
-    wpe_   (φwrap(φW(pe_))),
-    wse_   (φwrap(φW(se_))),
-    wsa_   (φwrap(φW(sa_))),
-    wppre_ (φwrap(φW(ppre_))),
-    wppost_(φwrap(φW(ppost_))),
-    wspre_ (φwrap(φW(spre_))),
-    wspost_(φwrap(φW(spost_)))
+    wt_ (φwrap(φW(t_))),
+    wp_ (φwrap(φW(p_))),
+    ws_ (φwrap(φW(s_))),
+    wpl_(φwrap(φW(pl_))),
+    wpr_(φwrap(φW(pr_))),
+    wsl_(φwrap(φW(sl_))),
+    wsr_(φwrap(φW(sr_)))
 {
   // π ::= ... | (p '`')* p
-  def_t("", (φn(φ1("πpe`", wpe_, φl("`"))) & wpe_) % seq);
+  def_t("", (φn(φ1("πp`", wp_, φl("`"))) & wp_) % seq);
 
-  // p ::= ((s ','?)+ | ppre p) ppost* ';'?
-  let p1 = φn(wse_ << φo(φco_()), 1) * πφnp;  // (s ','?)+
-  let p2 = (wppre_ & wpe_) % pre;             // ppre p
-  def_pe("", ((p1 | p2) & φn(wppost_)) % post << φo(φl(";")));
+  // p ::= ((s ','?)+ | pl) ppost* ';'?
+  let sn = φn(ws_ << φo(φco_()), 1) * πφnp;  // (s ','?)+
+  def_p("", ((sn | wpl_) & φn(wpr_)) % post << φo(φl(";")));
 
   // s ::= (satom | spre s) spost*
-  def_se("", ((wsa_ | (wspre_ & wse_) % pre) & φn(wspost_)) % post);
+  def_s("", (wsl_ & φn(wsr_)) % post);
 
-  // satom ::= '[' p ']' | '(' p ')'
-  def_sa("[", φ1("[]", wpe_, φrb_()));
-  def_sa("(", φ1("()", wpe_, φrp_()) * [](π1 const &x) { return x | πf_η(); });
+  // sl ::= '[' p ']' | '(' p ')'
+  def_sl("[", φ1("[]", wp_, φrb_()));
+  def_sl("(", φ1("()", wp_, φrp_()) * [](π1 const &x) { return x | πf_η(); });
 }
 
 

@@ -39,17 +39,23 @@ Tt                struct πautoclass_<πP<T>> { sletc c = πautoclass::constant;
 
 // NOTE: πsa and friends can apply to both eager values (which are stack-compatible)
 // and lazy values (which are encoded as πf<N>).
-template<πautostack T> struct πautoclass_<πsa<T>> { sletc c = πautoclass::immediate; };
-template<πautostack T> struct πautoclass_<πse<T>> { sletc c = πautoclass::immediate; };
-template<πautostack T> struct πautoclass_<πpe<T>> { sletc c = πautoclass::immediate; };
+template<πautostack T> struct πautoclass_<πt<T>>  { sletc c = πautoclass::immediate; };
+template<πautostack T> struct πautoclass_<πs<T>>  { sletc c = πautoclass::immediate; };
+template<πautostack T> struct πautoclass_<πsl<T>> { sletc c = πautoclass::immediate; };
+template<πautostack T> struct πautoclass_<πp<T>>  { sletc c = πautoclass::immediate; };
+template<πautostack T> struct πautoclass_<πpl<T>> { sletc c = πautoclass::immediate; };
 
 template<iN N> struct πautoclass_<πt <πf<N>>> { sletc c = πautoclass::constant; };
-template<iN N> struct πautoclass_<πsa<πf<N>>> { sletc c = πautoclass::constant; };
-template<iN N> struct πautoclass_<πse<πf<N>>> { sletc c = πautoclass::constant; };
-template<iN N> struct πautoclass_<πpe<πf<N>>> { sletc c = πautoclass::constant; };
+template<iN N> struct πautoclass_<πs <πf<N>>> { sletc c = πautoclass::constant; };
+template<iN N> struct πautoclass_<πsl<πf<N>>> { sletc c = πautoclass::constant; };
+template<iN N> struct πautoclass_<πp <πf<N>>> { sletc c = πautoclass::constant; };
+template<iN N> struct πautoclass_<πpl<πf<N>>> { sletc c = πautoclass::constant; };
+template<iN N> struct πautoclass_<πsr<πf<N>>> { sletc c = πautoclass::constant; };
+template<iN N> struct πautoclass_<πpr<πf<N>>> { sletc c = πautoclass::constant; };
 
-template<>               struct πautoclass_<πhr> { sletc c = πautoclass::stack; };
-template<ηauto_decode T> struct πautoclass_<T>   { sletc c = πautoclass::stack; };
+template<>               struct πautoclass_<πhr>   { sletc c = πautoclass::stack; };
+template<ηauto_decode T> struct πautoclass_<πS<T>> { sletc c = πautoclass::stack; };
+template<ηauto_decode T> struct πautoclass_<T>     { sletc c = πautoclass::stack; };
 
 
 // Split all function args into separate lists, each of which occurs in the same
@@ -58,9 +64,9 @@ Txs struct πautoclassify_;
 Tn struct πautoclassify_<>
 {
   using M = T<>;
+  using S = T<>;
   using C = T<>;
   using I = T<>;
-  using S = T<>;
   using P = T<>;  // parseable things (const + immediate)
 };
 
@@ -68,64 +74,63 @@ Tn struct πautoclassify_<>
 template<πautometa X, class... Xs> struct πautoclassify_<X, Xs...>
 {
   using M = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::M>::t;
+  using S = typename πautoclassify_<Xs...>::S;
   using C = typename πautoclassify_<Xs...>::C;
   using I = typename πautoclassify_<Xs...>::I;
-  using S = typename πautoclassify_<Xs...>::S;
   using P = typename πautoclassify_<Xs...>::P;
-};
-
-template<πautoconst X, class... Xs> struct πautoclassify_<X, Xs...>
-{
-  using M = typename πautoclassify_<Xs...>::M;
-  using C = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::C>::t;
-  using I = typename πautoclassify_<Xs...>::I;
-  using S = typename πautoclassify_<Xs...>::S;
-  using P = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::P>::t;
-
-  // No meta args may come after const
-  static_assert(std::tuple_size_v<M> == 0, "meta arg after const");
-};
-
-template<πautoimmed X, class... Xs> struct πautoclassify_<X, Xs...>
-{
-  using M = typename πautoclassify_<Xs...>::M;
-  using C = typename πautoclassify_<Xs...>::C;
-  using I = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::I>::t;
-  using S = typename πautoclassify_<Xs...>::S;
-  using P = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::P>::t;
-
-  // No meta args may come after immed
-  static_assert(std::tuple_size_v<M> == 0, "meta arg after immed");
 };
 
 template<πautostack X, class... Xs> struct πautoclassify_<X, Xs...>
 {
   using M = typename πautoclassify_<Xs...>::M;
+  using S = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::S>::t;
   using C = typename πautoclassify_<Xs...>::C;
   using I = typename πautoclassify_<Xs...>::I;
-  using S = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::S>::t;
   using P = typename πautoclassify_<Xs...>::P;
 
-  // No const, meta, or immed args may come after stack
+  // No meta args after stack
   static_assert(std::tuple_size_v<M> == 0, "meta arg after stack");
-  static_assert(std::tuple_size_v<C> == 0, "const arg after stack");
-  static_assert(std::tuple_size_v<I> == 0, "immed arg after stack");
 };
 
+template<πautoconst X, class... Xs> struct πautoclassify_<X, Xs...>
+{
+  using M = typename πautoclassify_<Xs...>::M;
+  using S = typename πautoclassify_<Xs...>::S;
+  using C = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::C>::t;
+  using I = typename πautoclassify_<Xs...>::I;
+  using P = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::P>::t;
+
+  // No meta or stack args may come after const
+  static_assert(std::tuple_size_v<M> == 0, "meta arg after const");
+  static_assert(std::tuple_size_v<S> == 0, "stack arg after const");
+};
+
+template<πautoimmed X, class... Xs> struct πautoclassify_<X, Xs...>
+{
+  using M = typename πautoclassify_<Xs...>::M;
+  using S = typename πautoclassify_<Xs...>::S;
+  using C = typename πautoclassify_<Xs...>::C;
+  using I = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::I>::t;
+  using P = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::P>::t;
+
+  // No meta or stack args may come after immed
+  static_assert(std::tuple_size_v<M> == 0, "meta arg after immed");
+  static_assert(std::tuple_size_v<S> == 0, "stack arg after immed");
+};
 
 // Unknowns will be treated as constants
 template<πautounknown X, class... Xs> struct πautoclassify_<X, Xs...>
 {
   using M = typename πautoclassify_<Xs...>::M;
+  using S = typename πautoclassify_<Xs...>::S;
   using C = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::C>::t;
   using I = typename πautoclassify_<Xs...>::I;
-  using S = typename πautoclassify_<Xs...>::S;
   using P = typename Tcons_<T<X>, typename πautoclassify_<Xs...>::P>::t;
 
-  // No meta args may come after const
+  // No meta or stack args may come after const
   static_assert(std::tuple_size_v<M> == 0, "meta arg after const [inferred from unknown]");
+  static_assert(std::tuple_size_v<S> == 0, "stack arg after const [inferred from unknown]");
 };
-
 
 
 // Fill a single native function argument -- it will be a meta, immediate,
@@ -180,8 +185,8 @@ R πauto_apply_(F<R(Xs...)> const &f,
 //
 // NOTE: this function uses two tuples. The first provides type information,
 // the second provides the actual values. This is to accommodate the conversion
-// from πsa<i64> to πsa<π1>, which would otherwise cause all πsa and similar
-// to be misclassified as constants.
+// from πs<i64> to πs<π1>, which would otherwise cause all πs and similar to be
+// misclassified as constants.
 inline P<T<>, T<>> πauto_ci_split_(T<>*, let&) { return P<T<>, T<>>{}; }
 
 template<class X, class... Xs>
@@ -195,7 +200,7 @@ auto πauto_ci_split_(T<X, Xs...> *n, let &t)
 }
 
 
-Tt inline void πpush_(πi &i, T const &x)
+Tt void πpush_(πi &i, T const &x)
 {
   if constexpr (Eq<T, πhr>) i.push(     x);
   else                      i.push(i << x);
@@ -242,12 +247,12 @@ auto πauto_(Stc &n, F<R(Xs...)> const &f, T<Cs...> &&t)
 
 
 // Push immediate arguments in reverse order onto the stack, in this case by
-// inlining each.
+// inlining each. This function is why pi-phi p(πs<T>) returns πs<π1>: we
+// evaluate the value each time the expression is executed.
 inline π0 πauto_ipush_(T<> const&) { return π0{}; }
-
 Txxs auto πauto_ipush_(T<X, Xs...> const &t)
 {
-  // NOTE: here, t contains M<π1>, where M is πsa, πse, or πpe
+  // NOTE: here, t contains M<π1>, where M is πs, πp, etc
   static_assert(is_πv_<X>::value);
   return πauto_ipush_(tdrop(t)) | std::get<0>(t).x;
 }
@@ -288,6 +293,8 @@ auto πauto(A const &a, Stc &n, F<R(Xs...)> const &f)
   return φm(πauto_parser_(a, n, null<P>()),
             [n, f](auto &&t)
               { auto [c, i] = πauto_ci_split_(null<P>(), t);
+                // FIXME: stack args are in the wrong location for parameter
+                // unpacking; we need them to be above ipushed things
                 return πauto_ipush_(i) | πauto_(πauto_name_(n, c), f, mo(c)); });
 }
 
