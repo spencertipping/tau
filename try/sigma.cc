@@ -33,26 +33,6 @@ int main(int argc, char *argv[])
   τe t;
   auto g = σΓ();
 
-  {
-    // Test for a specific failure case involving duplicated π args
-    using namespace τ;
-    g.pi().def_ppost("##TEST", [](πi &i, πse<St> s1, πse<St> s2, πhr lhs)
-      { std::cout << "TEST: " << i[lhs] << " " << s1 << " " << s2 << std::endl;
-        return lhs; });
-
-    g.pi().def_ppost("##iTEST", [](πi &i, πse<i64> s1, πse<St> s2, πhr lhs)
-      { std::cout << "iTEST: " << i[lhs] << " " << s1 << " " << s2 << std::endl;
-        return lhs; });
-  }
-
-  {
-    // Test for a specific failure case involving only the first tuple element being
-    // written to the output
-    using namespace τ;
-    g.pi().def_spost("##TUPLETEST", [](i64 x)
-      { return std::make_tuple(std::make_tuple(x, "foo", "bar", x + 1)); });
-  }
-
   τ::St tau = argv[1];
   if (access(argv[1], F_OK) != -1) tau = read_file(tau);
 
@@ -67,7 +47,7 @@ int main(int argc, char *argv[])
   if (debug) cerr << "Γ = " << r.r() << endl;
 
   let has_out = tau.find(">F1") != τ::St::npos;
-  let p       = has_out ? r.r() : (r.r() | g.parse("p>Snx;>F1").r());
+  let p       = has_out ? r.r() : (r.r() | g.parse("px>Sn;>F1").r());
   p(Ξ{t}.push());
   t.go();
   return 0;
