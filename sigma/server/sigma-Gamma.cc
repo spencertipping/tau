@@ -35,7 +35,7 @@ void Γnative(Γφ &g)
 
 void πnative(πφ &p)
 {
-  p .def_sa([](φaL<'u', 'P'>) { return π1{"getpid", [](πi &i) { i.push(i << i64(getpid())); }}; });
+  p .def_sa("uP", []() { return i64(getpid()); });
 }
 
 

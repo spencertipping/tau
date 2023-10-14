@@ -45,15 +45,14 @@ template<class πφ> struct πφ_
   φ<π1> ts() const { return wse_; }
   φ<π1> tp() const { return wpe_; }
 
-  Tt πφ &def_t (T const &f) { t_ .as<φa_<π1>>() << φauto(self(), f); return self(); }
-  Tt πφ &def_sa(T const &f) { sa_.as<φa_<π1>>() << φauto(self(), f); return self(); }
-  Tt πφ &def_se(T const &f) { se_.as<φa_<π1>>() << φauto(self(), f); return self(); }
-  Tt πφ &def_pe(T const &f) { pe_.as<φa_<π1>>() << φauto(self(), f); return self(); }
-
-  Txs πφ &def_ppre (Stc &n, Xs&&... xs) { return def_(ppre_,  n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_ppost(Stc &n, Xs&&... xs) { return def_(ppost_, n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_spre (Stc &n, Xs&&... xs) { return def_(spre_,  n, std::forward<Xs>(xs)...); }
-  Txs πφ &def_spost(Stc &n, Xs&&... xs) { return def_(spost_, n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_t    (Stc &n, Xs&&... xs) { return def_<π1>(t_,     n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_sa   (Stc &n, Xs&&... xs) { return def_<π1>(sa_,    n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_se   (Stc &n, Xs&&... xs) { return def_<π1>(se_,    n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_pe   (Stc &n, Xs&&... xs) { return def_<π1>(pe_,    n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_ppre (Stc &n, Xs&&... xs) { return def_<π0>(ppre_,  n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_ppost(Stc &n, Xs&&... xs) { return def_<π0>(ppost_, n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_spre (Stc &n, Xs&&... xs) { return def_<π0>(spre_,  n, std::forward<Xs>(xs)...); }
+  Txs πφ &def_spost(Stc &n, Xs&&... xs) { return def_<π0>(spost_, n, std::forward<Xs>(xs)...); }
 
 
   // NOTE: returning the wrong type is intentional. Every πsa<T> should
@@ -66,19 +65,25 @@ template<class πφ> struct πφ_
 
 
 protected:
-  πφ &def_(φ<π0>&, Stc&) { return self(); }
+  Tt struct is_φ       : std::false_type {};
+  Tt struct is_φ<φ<T>> : std::true_type {};
 
-  Txxs πφ &def_(φ<π0> &d, Stc &n, X const &f, Xs&&... xs)
-    { auto &d_ = d.as<φd_<π0>>();
-      if (!d_.has(n)) d_.def(n, φa0<π0>(d.name() + n));
-      d_.at(n).as<φa_<π0>>() << πauto(self(), n, std::function(f));
+  Tt πφ &def_(φ<T>&, Stc&) { return self(); }
+
+  template<class T, class X, class... Xs>  // T = parser type, X and Xs... are parsers
+  πφ &def_(φ<T> &d, Stc &n, X const &f, Xs&&... xs)
+    { auto &d_ = d.template as<φd_<T>>();
+      if (!d_.has(n)) d_.def(n, φa0<T>(d.name() + n));
+      auto &p = d_.at(n).template as<φa_<T>>();
+      if constexpr (is_φ<X>::value) p << f;
+      else                          p << πauto(self(), n, std::function(f));
       return def_(d, n, std::forward<Xs>(xs)...); }
 
 
   φ<π1> t_;      // toplevel program (alt)
   φ<π1> pe_;     // plural expressions (alt)
   φ<π1> se_;     // singular expressions (alt)
-  φ<π1> sa_;     // singular atoms (alt)
+  φ<π1> sa_;     // singular atoms (dsp)
   φ<π0> ppre_;   // dsp
   φ<π0> ppost_;  // dsp
   φ<π0> spre_;   // dsp
@@ -98,14 +103,14 @@ protected:
 
 template<class πφ>
 πφ_<πφ>::πφ_()
-  : t_    (φa0<π1>("π")),
-    pe_   (φa0<π1>("πpe")),
-    se_   (φa0<π1>("πse")),
-    sa_   (φa0<π1>("πsa")),
-    ppre_ (φd <π0>("πppre")),
-    ppost_(φd <π0>("πppost")),
-    spre_ (φd <π0>("πspre")),
-    spost_(φd <π0>("πspost")),
+  : t_    (φd<π1>("π")),
+    pe_   (φd<π1>("πpe")),
+    se_   (φd<π1>("πse")),
+    sa_   (φd<π1>("πsa")),
+    ppre_ (φd<π0>("πppre")),
+    ppost_(φd<π0>("πppost")),
+    spre_ (φd<π0>("πspre")),
+    spost_(φd<π0>("πspost")),
 
     wt_    (φwrap(φW(t_))),
     wpe_   (φwrap(φW(pe_))),
@@ -117,19 +122,19 @@ template<class πφ>
     wspost_(φwrap(φW(spost_)))
 {
   // π ::= ... | (p '`')* p
-  def_t((φn(φ1("πpe`", wpe_, φl("`"))) & wpe_) % seq);
+  def_t("", (φn(φ1("πpe`", wpe_, φl("`"))) & wpe_) % seq);
 
   // p ::= ((s ','?)+ | ppre p) ppost* ';'?
   let p1 = φn(wse_ << φo(φco_()), 1) * πφnp;  // (s ','?)+
   let p2 = (wppre_ & wpe_) % pre;             // ppre p
-  def_pe(((p1 | p2) & φn(wppost_)) % post << φo(φl(";")));
+  def_pe("", ((p1 | p2) & φn(wppost_)) % post << φo(φl(";")));
 
   // s ::= (satom | spre s) spost*
-  def_se(((wsa_ | (wspre_ & wse_) % pre) & φn(wspost_)) % post);
+  def_se("", ((wsa_ | (wspre_ & wse_) % pre) & φn(wspost_)) % post);
 
   // satom ::= '[' p ']' | '(' p ')'
-  def_sa(φgroup(wpe_));
-  def_sa(φ2("()", φlp_(), wpe_, φrp_()) * [](π1 const &x) { return x | πf_η(); });
+  def_sa("[", φ1("[]", wpe_, φrb_()));
+  def_sa("(", φ1("()", wpe_, φrp_()) * [](π1 const &x) { return x | πf_η(); });
 }
 
 

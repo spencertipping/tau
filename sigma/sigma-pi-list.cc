@@ -15,12 +15,12 @@ void πshared_list(πφ &p)
     .def_spost("@[", [](πi &i, πse<i64> s, φaL<','>, πse<i64> n, φaL<']'>, πhr x)
       { return i.i(x, i[x].η().sub(s.x, n.x)); })
 
-    .def_sa([](φaL<'>', '@'>) { return π1{">@", [](πi &i)
+    .def_sa(">@", [](πi &i)
       { ηm m;
         for (let x : i.fi())
           if (x.is_τ()) break;
           else          m << x;
-        i.push(i << m); }}; })
+        return m; })
 
     .def_ppost("|-", [](πi &i, πpe<πhr> y, ηic &x)
       { for (let z : i[y.x]) i.fo().r() << x.all() << z.one().all(); return ηsig::τ; })
