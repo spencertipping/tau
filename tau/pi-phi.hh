@@ -82,17 +82,18 @@ protected:
       return def_(d, n, std::forward<Xs>(xs)...); }
 
 
-  φ<π1> t_;      // toplevel program (alt)
-  φ<π1> pe_;     // plural expressions (alt)
-  φ<π1> se_;     // singular expressions (alt)
-  φ<π1> sa_;     // singular atoms (dsp)
-  φ<π0> ppre_;   // dsp
-  φ<π0> ppost_;  // dsp
-  φ<π0> spre_;   // dsp
-  φ<π0> spost_;  // dsp
+  // All parsers are dispatch tables with φa<> per entry
+  φ<π1> t_;      // toplevel program
+  φ<π1> pe_;     // plural expressions
+  φ<π1> se_;     // singular expressions
+  φ<π1> sa_;     // singular atoms
+  φ<π0> ppre_;
+  φ<π0> ppost_;
+  φ<π0> spre_;
+  φ<π0> spost_;
 
   // Wrapped+weakened versions of the above, which allow whitespace
-  φ<π1> wt_;   // wrap(φW(t_))
+  φ<π1> wt_;     // wrap(φW(t_))
   φ<π1> wpe_;
   φ<π1> wse_;
   φ<π1> wsa_;
