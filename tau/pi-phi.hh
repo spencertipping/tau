@@ -68,7 +68,7 @@ template<class πφ> struct πφ_  // NOTE: CRTP for p(), see self()
   Tt φ<πp <π1>> p(πp<T>*)  const { return wp_  * [](π1 &&x) { return πp <π1>{mo(x)}; }; }
   Tt φ<πs <π1>> p(πs<T>*)  const { return ws_  * [](π1 &&x) { return πs <π1>{mo(x)}; }; }
   Tt φ<πsl<π1>> p(πsl<T>*) const { return wsl_ * [](π1 &&x) { return πsl<π1>{mo(x)}; }; }
-  Tt φ<πpl<π1>> p(πsl<T>*) const { return wpl_ * [](π1 &&x) { return πpl<π1>{mo(x)}; }; }
+  Tt φ<πpl<π1>> p(πpl<T>*) const { return wpl_ * [](π1 &&x) { return πpl<π1>{mo(x)}; }; }
 
   // Not polymorphic because functions are always constant
   φ<πpr<π0>> p(πpr<π0>*) const { return wpr_ * [](π0 &&x) { return πpr<π0>{mo(x)}; }; }
@@ -89,7 +89,10 @@ protected:
   πφ &def_(φ<T> &d, Stc &n, X const &f, Xs&&... xs)
     { auto &d_ = d.template as<φd_<T>>();
       if (!d_.has(n)) d_.def(n, φa0<T>(d.name() + n));
-      d_.at(n).template as<φa_<T>>() << parsify(n, f);
+      let p = parsify(n, f);
+      static_assert(std::is_same_v<De<decltype(p)>, φ<T>>,
+                    "arity or parser-type mismatch in πφ::def_()");
+      d_.at(n).template as<φa_<T>>() << p;
       return def_(d, n, std::forward<Xs>(xs)...); }
 
 

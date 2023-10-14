@@ -10,25 +10,25 @@ using namespace τ;
 
 void πshared_float(πφ &p)
 {
-    p .def_spost("+.", [](πse<f64> y, f64 x) { return x + y.x; })
-      .def_spost("-.", [](πse<f64> y, f64 x) { return x - y.x; })
-      .def_spost("*.", [](πse<f64> y, f64 x) { return x * y.x; })
-      .def_spost("/.", [](πse<f64> y, f64 x) { return x / y.x; })
-      .def_spost("%.", [](πse<f64> y, f64 x) { return fmod(x, y.x); })
+  p .def_sr("+.", [](f64 x, πs<f64> y) { return x + y.x; })
+    .def_sr("-.", [](f64 x, πs<f64> y) { return x - y.x; })
+    .def_sr("*.", [](f64 x, πs<f64> y) { return x * y.x; })
+    .def_sr("/.", [](f64 x, πs<f64> y) { return x / y.x; })
+    .def_sr("%.", [](f64 x, πs<f64> y) { return fmod(x, y.x); })
 
-      .def_spre("|.", [](f64 x) { return fabs(x); })
-      .def_spre("_.", [](f64 x) { return -x; })
+    .def_sl("|.", [](πs<f64> x) { return fabs(x.x); })
+    .def_sl("_.", [](πs<f64> x) { return -x.x; })
 
-      .def_spre("S.", [](f64 x) { return sin(x); })
-      .def_spre("C.", [](f64 x) { return cos(x); })
-      .def_spre("T.", [](f64 x) { return tan(x); })
-      .def_spre("L.", [](f64 x) { return log(x); })
-      .def_spre("E.", [](f64 x) { return exp(x); })
+    .def_sl("S.", [](πs<f64> x) { return sin(x.x); })
+    .def_sl("C.", [](πs<f64> x) { return cos(x.x); })
+    .def_sl("T.", [](πs<f64> x) { return tan(x.x); })
+    .def_sl("L.", [](πs<f64> x) { return log(x.x); })
+    .def_sl("E.", [](πs<f64> x) { return exp(x.x); })
 
-      .def_spre("Θ.", [](πi &i, f64 x)
-        { i.t()->Θ(now() + i64(x * 1e9) * 1ns);
-          return x; })
-      ;
+    .def_sr("Θ.", [](πi &i, f64 x)
+      { i.t()->Θ(now() + i64(x * 1e9) * 1ns);
+        return x; })
+    ;
 }
 
 

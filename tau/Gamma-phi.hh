@@ -69,13 +69,16 @@ struct Γφ_
 
 
   Tt auto p(πt <T> *x) const { return pf_.p(x); }
-  Tt auto p(πsa<T> *x) const { return pf_.p(x); }
-  Tt auto p(πse<T> *x) const { return pf_.p(x); }
-  Tt auto p(πpe<T> *x) const { return pf_.p(x); }
+  Tt auto p(πs <T> *x) const { return pf_.p(x); }
+  Tt auto p(πp <T> *x) const { return pf_.p(x); }
+  Tt auto p(πsl<T> *x) const { return pf_.p(x); }
+  Tt auto p(πsr<T> *x) const { return pf_.p(x); }
+  Tt auto p(πpl<T> *x) const { return pf_.p(x); }
+  Tt auto p(πpr<T> *x) const { return pf_.p(x); }
 
   // Parse-time evaluation of a π expression
   φ<ηm> p(ηm*) const
-    { return φm(p(null<πsa<π1>>()), [](πsa<π1> &&f)
+    { return φm(p(null<πs<π1>>()), [](πs<π1> &&f)
       { ηm b; πi i; f.x(i); b << i.ypop().all(); return b; }); }
 
 

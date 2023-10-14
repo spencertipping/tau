@@ -39,6 +39,9 @@ struct πhr final
 };
 
 
+typedef πhr const πhrc;
+
+
 B &πh_b(πh &h);  // NOTE: required to break circular dependency
 
 

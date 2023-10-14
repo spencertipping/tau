@@ -10,14 +10,14 @@ using namespace τ;
 
 void πshared_η(πφ &p)
 {
-  p .def_spost("?", [](πi &i, πpe<π1> const &y, φaL<':'>, πpe<π1> const &z, bool c)
+  p .def_sr("?", [](πi &i, bool c, πpc<π1> &y, φaL<':'>, πpc<π1> &z)
       { return (c ? y.x(i) : z.x(i)).pop(); })
 
-    .def_ppost("`", [](πi &i, πpe<π1> const &y, πhr const&)
+    .def_pr("`", [](πi &i, πhrc&, πpc<π1> &y)
       { return y.x(i).pop(); })
 
-    .def_spre(">\"", [](ηic &x) { return St{Rc<chc*>(x.ldata()), x.lsize()}; })
-    .def_spre(".|",  [](ηic &x) { return i64(x.lsize()); })
+    .def_sl(">\"", [](πsc<ηi> &x) { return St{Rc<chc*>(x.x.ldata()), x.x.lsize()}; })
+    .def_sl(".|",  [](πsc<ηi> &x) { return i64(x.x.lsize()); })
     ;
 }
 

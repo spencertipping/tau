@@ -38,7 +38,7 @@ void Γnative(Γφ &g)
 
 void πnative(πφ &p)
 {
-  p .def_sa("uP", []() { return i64(getpid()); });
+  p .def_sl("uP", []() { return i64(getpid()); });
 }
 
 

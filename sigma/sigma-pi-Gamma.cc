@@ -10,7 +10,7 @@ using namespace τ;
 
 void πshared_Γ(πφ &p)
 {
-  p .def_ppost("G>", [](πi &i, πP<Γa<Γ>> g, ηic &x)
+  p .def_pr("G>", [](πi &i, ηic &x, πP<Γa<Γ>> g)
     { A(i.t(), "π G> with no τe");
       ξi r;
       {
@@ -22,7 +22,7 @@ void πshared_Γ(πφ &p)
       for (let y : r) return i << y.all();
       return πhr{}; })
 
-    .def_ppost("G<", [](πi &i, πP<Γa<Γ>> g, ηic &x)
+    .def_pr("G<", [](πi &i, ηic &x, πP<Γa<Γ>> g)
       { A(i.t(), "π G< with no τe");
         ξi r;
         {

@@ -10,21 +10,21 @@ using namespace τ;
 
 void πshared_map(πφ &p)
 {
-  p .def_spost(":", [](πi &i, πP<ηname> const &n, πhr const &x)
+  p .def_sr(":", [](πi &i, πhrc &x, πPc<ηname> &n)
       { let r = i[x][n.x];
         return r.empty() ? i << ηsig::ω : i.i(x, r.one()); })
 
-    .def_spre("@k", [](πi &i, πhr x)
+    .def_sl("@k", [](πi &i, πs<πhr> x)
       { πhlv hv{i.h()};
-        hv << x;
-        return i.r(i[x].lsize(), [&](auto &&r)
-          { for (let &[k, v] : i[x].η().kvs()) r << k.one().all(); }); })
+        hv << x.x;
+        return i.r(i[x.x].lsize(), [&](auto &&r)
+          { for (let &[k, v] : i[x.x].η().kvs()) r << k.one().all(); }); })
 
-    .def_spre("@v", [](πi &i, πhr x)
+    .def_sl("@v", [](πi &i, πs<πhr> x)
       { πhlv hv{i.h()};
-        hv << x;
-        return i.r(i[x].lsize(), [&](auto &&r)
-          { for (let &[k, v] : i[x].η().kvs()) r << v.one().all(); }); })
+        hv << x.x;
+        return i.r(i[x.x].lsize(), [&](auto &&r)
+          { for (let &[k, v] : i[x.x].η().kvs()) r << v.one().all(); }); })
     ;
 }
 

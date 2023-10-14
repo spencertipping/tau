@@ -37,7 +37,7 @@ template<uN N> struct πautoclass_<πhr_<N>> { sletc c = πautoclass::meta; };
 template<is_φa T> struct πautoclass_<T>     { sletc c = πautoclass::constant; };
 Tt                struct πautoclass_<πP<T>> { sletc c = πautoclass::constant; };
 
-// NOTE: πsa and friends can apply to both eager values (which are stack-compatible)
+// NOTE: πs and friends can apply to both eager values (which are stack-compatible)
 // and lazy values (which are encoded as πf<N>).
 template<πautostack T> struct πautoclass_<πt<T>>  { sletc c = πautoclass::immediate; };
 template<πautostack T> struct πautoclass_<πs<T>>  { sletc c = πautoclass::immediate; };
@@ -152,30 +152,31 @@ template<is_πv        T> struct πauto1_<T> { static auto f(πi &i) { return De
 //
 // Note that we must do this with imperative recursion as opposed to any type
 // of unpacking-into-call-args because evaluation order matters.
+//
+// NOTE: this function runs backwards because stack args are on the left.
 
-template<uS I,         // destination function arg (FFI function)
+template<iS I,         // destination function arg (FFI function)
          iN J,         // closure tuple position
          class R,      // function's return type
          class... Xs,  // function arg types
          class... Cs,  // closure value types
          class... Ys>  // transformed value types (converges to Xs...)
 
-R πauto_apply_(F<R(Xs...)> const &f,
-               T<Cs...>    const &t,
+R πauto_apply_(F<R(Xs...)> const &f,  // function being called
+               T<Cs...>    const &t,  // closure values
                πi &i,
-               Ys&&... ys)  // NOTE: args collected here
+               Ys&&... ys)  // NOTE: closure + immediate args collected here
 {
-  // Once all function args are satisfied, apply the function
-  if constexpr (I == sizeof...(Xs)) return f(std::forward<Ys>(ys)...);
+  if constexpr (I < 0) return f(std::forward<Ys>(ys)...);
   else
   {
     using X = std::tuple_element_t<I, T<Xs...>>;
     if constexpr (πautoclass_<De<X>>::c == πautoclass::constant)
-      return πauto_apply_<I + 1, J + 1>(
-        f, t, i, std::forward<Ys>(ys)..., std::get<J>(t));
+      return πauto_apply_<I - 1, J - 1>(
+        f, t, i, std::get<J>(t), std::forward<Ys>(ys)...);
     else
-      return πauto_apply_<I + 1, J>(
-        f, t, i, std::forward<Ys>(ys)..., πauto1_<De<X>>::f(i));
+      return πauto_apply_<I - 1, J>(
+        f, t, i, πauto1_<De<X>>::f(i), std::forward<Ys>(ys)...);
   }
 }
 
@@ -240,21 +241,23 @@ auto πauto_(Stc &n, F<R(Xs...)> const &f, T<Cs...> &&t)
   sletc rvals = int(πvrauto_<R>::n);
   sletc svals = int(std::tuple_size_v<typename Cl::S>);
   sletc ivals = int(std::tuple_size_v<typename Cl::I>);
+  sletc xlen  = int(sizeof...(Xs));
+  sletc clen  = int(sizeof...(Cs));
   return πf<rvals - svals - ivals>{n, [t=mo(t), f](πi &i)
-    { if constexpr (Eq<R, void>) πauto_apply_<0, 0>(f, t, i);
-      else  πvrauto_<R>::push(i, πauto_apply_<0, 0>(f, t, i)); }};
+    { if constexpr (Eq<R, void>) πauto_apply_<xlen - 1, clen - 1>(f, t, i);
+      else  πvrauto_<R>::push(i, πauto_apply_<xlen - 1, clen - 1>(f, t, i)); }};
 }
 
 
-// Push immediate arguments in reverse order onto the stack, in this case by
-// inlining each. This function is why pi-phi p(πs<T>) returns πs<π1>: we
-// evaluate the value each time the expression is executed.
+// Push immediate arguments onto the stack, in this case by inlining each. This
+// function is why pi-phi p(πs<T>) returns πs<π1>: we evaluate the value each
+// time the expression is executed.
 inline π0 πauto_ipush_(T<> const&) { return π0{}; }
 Txxs auto πauto_ipush_(T<X, Xs...> const &t)
 {
   // NOTE: here, t contains M<π1>, where M is πs, πp, etc
   static_assert(is_πv_<X>::value);
-  return πauto_ipush_(tdrop(t)) | std::get<0>(t).x;
+  return std::get<0>(t).x | πauto_ipush_(tdrop(t));
 }
 
 
@@ -293,8 +296,6 @@ auto πauto(A const &a, Stc &n, F<R(Xs...)> const &f)
   return φm(πauto_parser_(a, n, null<P>()),
             [n, f](auto &&t)
               { auto [c, i] = πauto_ci_split_(null<P>(), t);
-                // FIXME: stack args are in the wrong location for parameter
-                // unpacking; we need them to be above ipushed things
                 return πauto_ipush_(i) | πauto_(πauto_name_(n, c), f, mo(c)); });
 }
 

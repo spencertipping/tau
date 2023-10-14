@@ -11,19 +11,19 @@ using namespace τ;
 
 void πshared_cmp(πφ &p)
 {
-  using case_pair = φaS<πse<π1>, πse<π1>>;
+  using case_pair = φaS<πs<π1>, πs<π1>>;
   using cases     = φaS<φaN<case_pair>,  // main cases
-                        πse<π1>>;        // default
+                        πs<π1>>;         // default
 
 
-  p .def_spost(">",  [](πse<ηi> const &y, ηic &x) { return x > y.x; })
-    .def_spost(">=", [](πse<ηi> const &y, ηic &x) { return x >= y.x; })
-    .def_spost("<",  [](πse<ηi> const &y, ηic &x) { return x < y.x; })
-    .def_spost("<=", [](πse<ηi> const &y, ηic &x) { return x <= y.x; })
-    .def_spost("==", [](πse<ηi> const &y, ηic &x) { return (x <=> y.x) == PO::equivalent; })
-    .def_spost("!=", [](πse<ηi> const &y, ηic &x) { return (x <=> y.x) != PO::equivalent; })
+  p .def_sr(">",  [](ηic &x, πs<ηi> const &y) { return x > y.x; })
+    .def_sr(">=", [](ηic &x, πs<ηi> const &y) { return x >= y.x; })
+    .def_sr("<",  [](ηic &x, πs<ηi> const &y) { return x < y.x; })
+    .def_sr("<=", [](ηic &x, πs<ηi> const &y) { return x <= y.x; })
+    .def_sr("==", [](ηic &x, πs<ηi> const &y) { return (x <=> y.x) == PO::equivalent; })
+    .def_sr("!=", [](ηic &x, πs<ηi> const &y) { return (x <=> y.x) != PO::equivalent; })
 
-    .def_spost("{", [](πi &i, πP<φrbrace<cases>> const &cs, πhr x)
+    .def_sr("{", [](πi &i, πhr x, πP<φrbrace<cases>> const &cs)
       { πhlv v{i.h()};
         v << x;
         let [c, d] = cs.x.x.x;
