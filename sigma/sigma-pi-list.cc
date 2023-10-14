@@ -30,12 +30,6 @@ void πshared_list(πφ &p)
     .def_pr(">|",  [](πi &i, πhr x) { return i.i(x, i[x].next()); })
     .def_pr(">>|", [](πi &i, πhr x) { return i.i(x, i[x].next().next()); })
 
-    .def_pr("#=", [](πi &i, ηic &xs, πsl<πhr> x)
-      { i64 r = 0;
-        let a = i[x.x].one();
-        for (let b : xs) if (a == b.one()) ++r;
-        return r; })
-
     .def_pr("||-", [](πi &i, πhr x)
       { for (let y : i[x]) i.fo().r() << y.one().all(); return ηsig::τ; })
     .def_pr("@-",  [](πi &i, πhr x)

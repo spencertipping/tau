@@ -14,23 +14,17 @@ There are several things happening here; let's break them down.
 
 
 ## Static multiplexer syntax
-`{` and `}` are mirror operators: `{` splits from the left and joins from the right, `}` does the opposite. `{` terminates the top ξ and awaits a series of named-ξ Γ definitions, each of which will transform a keyed axis of the demultiplexed ξ. `}` then joins all keyed things back into the top ξ.
-
-Internally, we do this with scope indexes: `{` increments the scope index and `}` collects+decrements it.
-
-Although you could in principle have an unterminated `{`, it isn't common in practice.
-
 Multiplexed ξ alternatives may terminate independently; by default, `{}` will send `k ω` for any `k` that does so. `{}` will fail if you write to an expired alternative.
 
 ```bash
-$ $sigma 'n1p@-("a" 1)("b" 2)("a" 3);
+$ $sigma 'n1p("a" 1)("b" 2)("a" 3)@-
           K {a|p"foo"x+1; b|p"bar"x-1}' | sort
 "a" "foo" 2
 "a" "foo" 4
 "a" ω
 "b" "bar" 1
 "b" ω
-$ $sigma 'n1p@-("a" 1)("b" 2)("a" 3)("a" ω)("a" 4);
+$ $sigma 'n1p("a" 1)("b" 2)("a" 3)("a" ω)("a" 4)@-
           K {a|p"foo"x+1; b|p"bar"x-1}' | sort
 "a" "foo" 2
 "a" "foo" 4
@@ -49,12 +43,12 @@ Aside from dropping its input (i.e. exiting), the worker can indicate finality i
 2. _(τ, ...)_: send a final message `...` and indicate that the worker can be reinitialized with _(α, ...)_ -- this is a keepalive
 
 ```bash
-$ $sigma 'n1p@-("a" 1)("b" 2)("a" 3)("a" τ)("b" τ);
+$ $sigma 'n1p("a" 1)("b" 2)("a" 3)("a" τ)("b" τ)@-
           K *|p@>@; g'
 "a" (1) (3)
 "b" (2)
 τ
-$ $sigma 'n1p@-("a" 1)("b" 2)("a" ω)("a" 3)("b" 4);
+$ $sigma 'n1p("a" 1)("b" 2)("a" ω)("a" 3)("b" 4)@-
           K *|p@>@; g'
 "a" (1)
 "a" (3)

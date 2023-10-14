@@ -57,10 +57,10 @@ Why is `bool` pulled from the stack while `πp<π1>` is parsed? It has to do wit
 Each immediate is inlined as a `πf<1>` that is prepended to the resulting function. This results in immediates being present above stack arguments. As a result, arguments must be ordered like this:
 
 ```
-meta* (const | immed)* stack*
+meta* stack* (const | immed)*
 ```
 
-Immediate and stack arguments are unpacked top-to-bottom. This means immediates are prepended right-to-left, then all arguments are unpacked in interpreter stack order (with interspersed constants as appropriate).
+This works because immediate and stack arguments are popped right-to-left.
 
 
 ### Auto-constructing a `πf<N>`

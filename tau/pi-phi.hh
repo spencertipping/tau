@@ -89,24 +89,28 @@ protected:
   πφ &def_(φ<T> &d, Stc &n, X const &f, Xs&&... xs)
     { auto &d_ = d.template as<φd_<T>>();
       if (!d_.has(n)) d_.def(n, φa0<T>(d.name() + n));
-      let p = parsify(n, f);
-      static_assert(std::is_same_v<De<decltype(p)>, φ<T>>,
-                    "arity or parser-type mismatch in πφ::def_()");
-      d_.at(n).template as<φa_<T>>() << p;
+      let  p  = parsify(n, f);
+      letc ok = std::is_same_v<De<decltype(p)>, φ<T>>;
+
+      // NOTE: replace noisy << overload failure with a static_assert for brevity
+      // in error reports
+      static_assert(ok, "arity or parser-type mismatch in πφ::def_()");
+      if constexpr (ok) d_.at(n).template as<φa_<T>>() << p;
+
       return def_(d, n, std::forward<Xs>(xs)...); }
 
 
   // All parsers are dispatch tables with φa<> per entry
-  φ<π1> t_;      // toplevel program
-  φ<π1> p_;      // plural full expression
-  φ<π1> s_;      // singular full expression
-  φ<π1> pl_;     // plural left
-  φ<π0> pr_;     // plural right
-  φ<π1> sl_;     // singular left
-  φ<π0> sr_;     // singular left
+  φ<π1> t_;   // toplevel program
+  φ<π1> p_;   // plural full expression
+  φ<π1> s_;   // singular full expression
+  φ<π1> pl_;  // plural left
+  φ<π0> pr_;  // plural right
+  φ<π1> sl_;  // singular left
+  φ<π0> sr_;  // singular left
 
   // Wrapped+weakened versions of the above, which allow whitespace
-  φ<π1> wt_;     // wrap(φW(t_))
+  φ<π1> wt_;  // wrap(φW(t_))
   φ<π1> wp_;
   φ<π1> ws_;
   φ<π1> wpl_;
@@ -137,11 +141,11 @@ template<class πφ>
   // π ::= ... | (p '`')* p
   def_t("", (φn(φ1("πp`", wp_, φl("`"))) & wp_) % seq);
 
-  // p ::= ((s ','?)+ | pl) ppost* ';'?
+  // p ::= ((s ','?)+ | pl) pr* ';'?
   let sn = φn(ws_ << φo(φco_()), 1) * πφnp;  // (s ','?)+
   def_p("", ((sn | wpl_) & φn(wpr_)) % post << φo(φl(";")));
 
-  // s ::= (satom | spre s) spost*
+  // s ::= sl sr*
   def_s("", (wsl_ & φn(wsr_)) % post);
 
   // sl ::= '[' p ']' | '(' p ')'

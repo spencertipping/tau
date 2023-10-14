@@ -9,7 +9,7 @@ $ diff <($sigma 'n10p[x+1]') <(seq 10)
 $ diff <($sigma ':foo [n10p[x+1]] :bar [n20] $foo') <(seq 10)
 $ $sigma 'n1pακιτωΩρθ'
 α κ ι τ ω Ω ρ θ
-$ $sigma 'i5N p@>@; p>>|x'
+$ $sigma 'i5N p@>@; px>>|'
 (2) (3) (4)
 $ $sigma 'n1p@k("a" 1 "b" 2)'
 "a" "b"

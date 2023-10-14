@@ -22,8 +22,8 @@ You can think about it like this: Γ transforms Ξ _cables_ (many streams), Ψ t
 
 
 ```bash
-$ $sigma 'n1p[@-("a" 1)("b" 2 3)("a" 0)("b" 1)(τ);`
-              @-("a" 1)("Z" 1)("0" 0)]
+$ $sigma 'n1p[("a" 1)("b" 2 3)("a" 0)("b" 1)(τ)@-`
+              ("a" 1)("Z" 1)("0" 0)@-]
           g'
 "a" 0
 "a" 1

@@ -91,53 +91,22 @@ $ $sigma 'n1p@_|- 1 2 3'
 2
 3
 τ
-$ $sigma 'n1p||- 1 2 3'
+$ $sigma 'n1p1 2 3||-'
 1
 2
 3
 τ
-$ $sigma 'n1p@- (1 2) (3) (4 5 6)'
+$ $sigma 'n1p(1 2) (3) (4 5 6) @-'
 1 2
 3
 4 5 6
 τ
-$ $sigma 'n1p@-(1 2)(3)(4 5 6); p>@'
+$ $sigma 'n1p(1 2)(3)(4 5 6) @- p>@'
 ((1 2) (3) (4 5 6))
-$ $sigma 'n1p#=3 1 2 3 4 5 4 3 2 1'
-2
-$ $sigma 'n1p#=(3) (1 2) (3) (4 5) 4 (3 2) 1'
-1
-$ $sigma 'n1p@-(/>"/foo/bar.bif" />"bif")
-               (</"/foo/bar.bif" </"bif")
-               (.>"/foo/bar.bif" .>"bif")
-               (<."/foo/bar.bif" <."bif")'
-"bar.bif" "bif"
-"/foo" "bif"
-"bif" "bif"
-"/foo/bar" "bif"
-τ
 $ $sigma 'n1p"foo"++"bar\n"; >F1'
 foobar
 $ $sigma 'n1p 1 2 3 4; p D C B A'
 4 3 2 1
-```
-
-Testing a failure case:
-
-```bash
-$ $sigma 'n1px##TEST "a" "b"'
-TEST: 0 a b
-0
-$ $sigma 'n1px##iTEST 56 "78"'
-iTEST: 0 56 78
-0
-```
-
-Testing another failure case:
-
-```bash
-$ $sigma 'n1p 10 ##TUPLETEST'
-10 "foo" "bar" 11
 ```
 
 
@@ -199,13 +168,13 @@ Your function must handle this in one of a few ways:
 2. Create a `πhlv{}` to update local `πhr`s when a GC happens, and accept all arguments only as by-value or `πhr` types
 3. Construct returned values inside the function with (2), then return with `T<πhr, ...>`
 
-For example, here's a function that returns a new map with an additional k/v binding on the end:
+For example, here's a function that returns a new map with an additional k/v binding on the end (which is useless because σ provides splicing, but it's a reasonble example):
 
 ```cpp
-πhr map_append(πi &i, πhr m, ηname k, πhr v)
+πhr map_append(πi &i, πhr m, πsl<ηname> k, πsl<πhr> v)
 {
   πhlv hv{i.h()};
-  hv << m << v;  // track values for GC, which may happen during i.r()
+  hv << m << v.x;  // track values for GC, which may happen during i.r()
 
   // Add a new value to the map, reserving two bytes for the key control+size
   // and 8 bytes for any container size changes (this is generous, but that's
@@ -215,15 +184,15 @@ For example, here's a function that returns a new map with an additional k/v bin
   // i.r() may cause a GC that relocates m and v, which would invalidate the
   // resulting ηi objects. That is, i.r() creates a GC barrier between the
   // outside and inside of its lambda.
-  return i.r(i[m].lsize() + k.size() + 2 + i[v].osize() + 8,
+  return i.r(i[m].lsize() + k.x.size() + 2 + i[v.x].osize() + 8,
              [&](auto &&r)
     {
       // At this point we've reserved enough memory to safely write things without
       // any further GC happening. We guarantee this by creating a πhgl, which
       // locks GC while in scope.
       πhgl l{i.h()};
-      r << i[m].all();       // copy existing map entries
-      r << k << i[v].all();  // add new entry
+      r << i[m].all();         // copy existing map entries
+      r << k << i[v.x].all();  // add new entry
     });
 }
 ```

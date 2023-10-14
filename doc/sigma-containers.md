@@ -5,21 +5,21 @@ As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures
 
 
 ```bash
-$ $sigma 'n1p@-(5 α)(5 ι)(6 ι)(τ)(5 ι); @?N'
+$ $sigma 'n1p(5 α)(5 ι)(6 ι)(τ)(5 ι)@-; @?N'
 5 true
 6 false
 τ
 5 false
 τ
-$ $sigma 'n1p@-("a" α 11 12)(2 α 3)("a" ι)(2 ι)(5 ι)
-               (τ)(2 ι); @:N'
+$ $sigma 'n1p("a" α 11 12)(2 α 3)("a" ι)(2 ι)(5 ι)
+             (τ)(2 ι)@-; @:N'
 "a" 11 12
 2 3
 5 ω
 τ
 2 ω
 τ
-$ $sigma 'n1p@- (1 α)(2 α)(1 α)(3 α); @uN'
+$ $sigma 'n1p(1 α)(2 α)(1 α)(3 α)@-; @uN'
 1
 2
 3
@@ -30,7 +30,7 @@ Same is true for LMDB:
 
 ```bash
 $ rm -f /tmp/test.db
-$ $sigma 'n1p@-("a" α 11 12)(2 α 3)("a" ι)(2 ι)(5 ι);
+$ $sigma 'n1p("a" α 11 12)(2 α 3)("a" ι)(2 ι)(5 ι)@-
           @:L"/tmp/test.db:foo"'
 "a" 11 12
 2 3
@@ -118,17 +118,17 @@ Search terms can overflow if too many values are mapped to a term, or if the tot
 
 ```bash
 $ rm -f /tmp/test.db /tmp/test.db-lock
-$ $sigma 'n1p@-("a" α 11)
-               ("a" α 13)
-               (2 α 3)
-               ("a" ι)
-               ("a" α 12)
-               ("a" α 16)
-               ("a" α 13)
-               ("a" α 4)
-               (2 ι)
-               ("a" ι)
-               (5 ι);
+$ $sigma 'n1p("a" α 11)
+             ("a" α 13)
+             (2 α 3)
+             ("a" ι)
+             ("a" α 12)
+             ("a" α 16)
+             ("a" α 13)
+             ("a" α 4)
+             (2 ι)
+             ("a" ι)
+             (5 ι)@-
           @SL"/tmp/test.db:foo"'
 "a" 11 13
 2 3
@@ -141,14 +141,14 @@ Persistent search collections can support multiple simultaneous readers and writ
 
 ```bash
 $ rm -f /tmp/test.db /tmp/test.db-lock
-$ $sigma 'n1p@-("q" "a" ι)
-               ("i" "a" α "foo")
-               ("i" "a" α "bar")
-               ("q" "a" ι)
-               ("i" τ)
-               ("i" ω)
-               ("q" "a" ι);
-          K pΘ.0.01`x;
+$ $sigma 'n1p("q" "a" ι)
+             ("i" "a" α "foo")
+             ("i" "a" α "bar")
+             ("q" "a" ι)
+             ("i" τ)
+             ("i" ω)
+             ("q" "a" ι)@-
+          K p0.01Θ.`x;
           {i|@SL"/tmp/test.db:foo"
            q|@SL"/tmp/test.db:foo"}'
 "q" "a" ω
@@ -168,20 +168,20 @@ Queries are issued as _n ρ i q_, where _n_ is the maximum number of results to 
 
 ```bash
 $ rm -f /tmp/test.db /tmp/test.db-lock
-$ $sigma 'n1p@-("a" α "foo")
-               ("a" α "bar")
-               ("b" α "foo")
-               ("b" α "bif")
-               ("c" α "foo")
-               ("c" α "bar")
-               ("c" α "bok")
-               (10 ρ "q1" ("t" "a"))
-               (10 ρ "q2" ("*" ("t" "a") ("t" "b")))
-               (10 ρ "q3" ("*" ("t" "a") ("t" "c")))
-               (10 ρ "q4" ("+" ("t" "a") ("t" "b")))
-               (10 ρ "q5" ("+" ("t" "b") ("t" "c")))
-               (10 ρ "q6" ("-" ("t" "b") ("t" "a")))
-               ;
+$ $sigma 'n1p("a" α "foo")
+             ("a" α "bar")
+             ("b" α "foo")
+             ("b" α "bif")
+             ("c" α "foo")
+             ("c" α "bar")
+             ("c" α "bok")
+             (10 ρ "q1" ("t" "a"))
+             (10 ρ "q2" ("*" ("t" "a") ("t" "b")))
+             (10 ρ "q3" ("*" ("t" "a") ("t" "c")))
+             (10 ρ "q4" ("+" ("t" "a") ("t" "b")))
+             (10 ρ "q5" ("+" ("t" "b") ("t" "c")))
+             (10 ρ "q6" ("-" ("t" "b") ("t" "a")))
+             @-
           K @SL"/tmp/test.db:foo"'
 "q1" "bar" "foo"
 "q2" "foo"
