@@ -10,6 +10,10 @@
 + [σ/π stdlib](sigma-pi-stdlib.md)
 
 
+## Types, operators, and dialects
+**A dialect is a sub-grammar optimized for a specific data type.** For example, a `M` prefix might enable a "matrix manipulation" dialect: `Mx+1` might mean "`+` is broadcast".
+
+
 ## Examples/tests
 **TODO:** completely rework operators so they are properly organized into two-char things with mnemonic sigils
 
