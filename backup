@@ -9,6 +9,7 @@ CD_EXTENSIONS=( encfs )
 
 cd "$(dirname "$0")"
 git push
+git push github
 
 if [[ -f .git ]]; then
   cd `ni .git p'/(\S+)\/.git/'`
@@ -35,5 +36,3 @@ for p in "${points[@]}"; do
     rsync -aP --delete 4raOSMRmHnWJJlJS7,6Zgd,I "$p/" ) &
 done
 wait
-
-git push github
