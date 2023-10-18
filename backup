@@ -35,3 +35,5 @@ for p in "${points[@]}"; do
     rsync -aP --delete 4raOSMRmHnWJJlJS7,6Zgd,I "$p/" ) &
 done
 wait
+
+git push github
