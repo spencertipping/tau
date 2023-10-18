@@ -20,10 +20,11 @@ ar_wdebug = dev/emsdk emar
 
 cflags = $(shell cat compile_flags.txt)
 
-cflags_server = $(cflags) -O3 -flto -DBOOST_STACKTRACE_USE_NOOP -Dτdebug=0 -Dτallow_todo=1
+# NOTE: -flto crashes the linker when building asqi
+cflags_server = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -Dτdebug=0 -Dτallow_todo=1
 cflags_sfast  = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP
 cflags_sdebug = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG
-cflags_linux  = $(cflags) -O3 -flto -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -Dτdebug=0 -Dτallow_todo=1
+cflags_linux  = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -Dτdebug=0 -Dτallow_todo=1
 cflags_fast   = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1
 cflags_clang  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -gdwarf-4 -DDEBUG -Dτgl=1
 cflags_debug  = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG -Dτgl=1
@@ -32,10 +33,10 @@ cflags_wasm   = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -flto -fexcep
 cflags_wdebug = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -g -fexceptions \
                 -Wno-mathematical-notation-identifier-extension
 
-ldflags_server = -flto
+ldflags_server =
 ldflags_sfast  =
 ldflags_sdebug = -lboost_stacktrace_backtrace -lbacktrace
-ldflags_linux  = -flto
+ldflags_linux  =
 ldflags_fast   =
 ldflags_clang  = -lboost_stacktrace_backtrace -lbacktrace
 ldflags_debug  = -lboost_stacktrace_backtrace -lbacktrace
