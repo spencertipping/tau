@@ -35,7 +35,11 @@ void Γnative(Γφ &g)
 
 void πnative(πφ &p)
 {
-  p .def_s("uP", []() { return i64(getpid()); });
+  p .def_sl("uP", []() { return i64(getpid()); })
+    .def_sl("$<", [](πslc<St> &f)
+      { std::ifstream f_(f.x);
+        A(f_, "could not open file " << f.x);
+        return St{std::istreambuf_iterator<char>(f_), std::istreambuf_iterator<char>()}; });
 }
 
 
