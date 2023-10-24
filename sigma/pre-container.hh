@@ -48,6 +48,8 @@ struct at_
   at_(ctype const &t, cback const &b) : t_(t), b_(b) {}
   virtual ~at_() {}
 
+  // FIXME: add non-ξo variants for C++ native usage
+
   virtual void α(ηic&, ηic&, ξo) { A(0, "α → " << *this << " unsupported"); }
   virtual void ω(ηic&, ηic&, ξo) { A(0, "ω → " << *this << " unsupported"); }
   virtual void κ(ηic&, ηic&, ξo) { A(0, "κ → " << *this << " unsupported"); }

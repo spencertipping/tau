@@ -3,6 +3,7 @@
 
 #include "tau.hh"
 #include "sigma/pre-container.hh"
+#include "sigma/pre-container-search.hh"
 #include "sigma/pre-multiplex.hh"
 
 #include "tau/begin.hh"
