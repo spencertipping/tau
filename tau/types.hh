@@ -220,6 +220,16 @@ typedef std::chrono::steady_clock       Θc;
 typedef std::chrono::nanoseconds        ΔΘ;
 typedef std::chrono::time_point<Θc, ΔΘ> Θp;
 
+inline auto seconds(Θp t)
+{
+  return std::chrono::duration_cast<std::chrono::seconds>(t.time_since_epoch()).count();
+}
+
+inline auto nanos(Θp t)
+{
+  return t.time_since_epoch().count();
+}
+
 // Definition of time quantum
 ΔΘ constexpr Θq = 1ns;
 static_assert(Θq.count() == 1);
