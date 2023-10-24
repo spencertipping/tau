@@ -7,6 +7,7 @@ namespace σ::pre
 
 Sp<iit_> kviat_::query_(ηic &q)
 {
+  commit();
   let c = q.η().s();
   if (c == "t") return Sp<iit_>(new ηiit(db->get(q.η().next())));
   if (c == "-")

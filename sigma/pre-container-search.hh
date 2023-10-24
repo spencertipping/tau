@@ -8,6 +8,7 @@
 namespace σ::pre
 {
 
+
 // Index iterator base
 struct iit_
 {
@@ -140,6 +141,7 @@ struct kviat_ : public virtual at_
   void ρ(ηic &n, ηic &q, ξo o) override { commit(); o.r() << q.one().all() << query(n.ci(), q.next()).all(); }
 
 
+  ηi   at(ηic &k)   { commit(); return db->get(k); }
   void staged(uN n) { if ((s += n) > 1 << 20) commit(); }
   void commit();
 
