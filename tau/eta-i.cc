@@ -92,9 +92,15 @@ PO ηi::operator<=>(ηic &x) const
 }
 
 
-T<ηicb_r, uN, u8> ηicb(u8c *a, uN l)
+static inline u64 ηicb_result(ηicb_r r, uN s, u8 c)
 {
-  if (!l) return {ηicb_r::no_ctrl, 0, 0};
+  return u64(s) << 16 | u64(r) << 8 | c;
+}
+
+
+u64 ηicb(u8c *a, uN l)
+{
+  if (!l) return ηicb_result(ηicb_r::no_ctrl, 0, 0);
   let sn = *a & 0x0f;
   uN  s;  // decoded size
   u8  c;  // number of control+size bytes
@@ -102,17 +108,17 @@ T<ηicb_r, uN, u8> ηicb(u8c *a, uN l)
   if      (sn <= 0x0c) c = 1, s = sn;
   else if (sn == 0x0d)
   {
-    if (l < 2) return {ηicb_r::short_len1, 0, 0};
+    if (l < 2) return ηicb_result(ηicb_r::short_len1, 0, 0);
     c = 2, s = 13 + a[1];
   }
   else if (sn == 0x0e)
   {
-    if (l < 3) return {ηicb_r::short_len2, 0, 0};
+    if (l < 3) return ηicb_result(ηicb_r::short_len2, 0, 0);
     c = 3, s = 269 + (u16(a[1]) << 8 | a[2]);
   }
   else
   {
-    if (l < 5) return {ηicb_r::short_len4, 0, 0};
+    if (l < 5) return ηicb_result(ηicb_r::short_len4, 0, 0);
     c = 5;
     s = 65805 + (  u32(a[1]) << 24
                  | u32(a[2]) << 16
@@ -122,9 +128,9 @@ T<ηicb_r, uN, u8> ηicb(u8c *a, uN l)
 
   // NOTE: this looks weird, but we're making sure that we aren't
   // overflowing unsigned int math so the l check is valid.
-  if (s + c <= s) return {ηicb_r::int_overflow, 0, 0};
-  if (s + c > l)  return {ηicb_r::size_overflow, 0, 0};
-  return {ηicb_r::ok, s, c};
+  if (s + c <= s) return ηicb_result(ηicb_r::int_overflow, 0, 0);
+  if (s + c > l)  return ηicb_result(ηicb_r::size_overflow, 0, 0);
+  return ηicb_result(ηicb_r::ok, s, c);
 }
 
 

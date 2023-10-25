@@ -37,7 +37,14 @@ O &operator<<(O&, ηicb_r);
 // Check to see whether we can decode an ηi from the given location.
 // This function is always safe, as long as the input points to valid
 // memory.
-T<ηicb_r, uN, u8> ηicb(u8c*, uN);
+//
+// Unpacking format is like this:
+//
+// 0xllll_llll_llll_rrtt
+//
+// Where l = length, r = result, t = type
+
+u64 ηicb(u8c*, uN);
 
 
 // η input: read from fixed location in memory
@@ -341,7 +348,10 @@ private:
   u8   c_;  // control length (byte + size); a_ + c_ == data
 
   void decode_cb()
-    { let [r, s, c] = ηicb(a_, l_);
+    { let cb = ηicb(a_, l_);
+      let c  = cb & 0xff;
+      let r  = Sc<ηicb_r>(cb >> 8 & 0xff);
+      let s  = cb >> 16;
       let r0 = r;  // NOTE: this fixes a reference capture in the A() lambda
       A(r == ηicb_r::ok || r == ηicb_r::no_ctrl,
         "ηi bounds error: " << r0 << " at " << (void*)a_ << "+" << l_);

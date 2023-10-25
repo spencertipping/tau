@@ -13,6 +13,11 @@ namespace σ::pre
 using namespace τ;
 
 
+// FIXME: lmdb_db needs to track the current write transaction and commit
+// it when the map is resized. The transaction is currently owned by kv_,
+// which causes problems when multiple kv_ use the same database in a non-
+// τ context.
+
 struct lmdb_db final
 {
   MDB_env *e;
