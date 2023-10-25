@@ -38,7 +38,7 @@ cflags_wdebug = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -g -fexceptio
 
 ldflags_server =
 ldflags_sfast  =
-ldflags_sprof  =
+ldflags_sprof  = -pg
 ldflags_sdebug = -lboost_stacktrace_backtrace -lbacktrace
 ldflags_linux  =
 ldflags_fast   =
