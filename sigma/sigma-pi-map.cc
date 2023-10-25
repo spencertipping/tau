@@ -25,6 +25,11 @@ void πshared_map(πφ &p)
         hv << x.x;
         return i.r(i[x.x].lsize(), [&](auto &&r)
           { for (let &[k, v] : i[x.x].η().kvs()) r << v.one().all(); }); })
+
+    .def_sr("@m>", [](πi &i, πhr x)
+      { for (let &[k, v] : i[x].η().kvs()) i.fo().r() << k.one().all() << v.one().all();
+        i.fo().r() << ηsig::τ;
+        return πhr{}; })
     ;
 }
 
