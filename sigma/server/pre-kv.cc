@@ -25,7 +25,7 @@ static bool lmdb_should_resize(MDB_env* e, uS n, f64 safety = 4.0)
 struct kv_lmdb_ final : public virtual kv_
 {
   kv_lmdb_(Sp<lmdb_db> mdb, Stc &db)
-    : mdb_(mdb), db_(db), r_(nullptr), w_(nullptr), dbi_(0),
+    : mdb_(mdb), db_(db), r_(nullptr), w_(nullptr), dbi_(0), us_(0),
       csw_([this]() { commit(); close_reader(); })
     {}
 
@@ -39,6 +39,7 @@ struct kv_lmdb_ final : public virtual kv_
     { if (w_)
       { let rc = mdb_txn_commit(w_);
         A(rc == MDB_SUCCESS, "mdb_txn_commit() failed: " << mdb_strerror(rc));
+        us_ = 0;
         w_ = nullptr; } }
 
 
@@ -97,7 +98,7 @@ struct kv_lmdb_ final : public virtual kv_
 
 
   void reserve(uN s)
-    { while (lmdb_should_resize(mdb_->e, s))
+    { while (lmdb_should_resize(mdb_->e, us_ + s))
       { close_reader();
         commit();
         MDB_envinfo i;
@@ -105,7 +106,8 @@ struct kv_lmdb_ final : public virtual kv_
         A(rc == MDB_SUCCESS, "mdb_env_info() failed: " << mdb_strerror(rc));
         rc = mdb_env_set_mapsize(mdb_->e, i.me_mapsize * 2);
         A(rc == MDB_SUCCESS,
-          "mdb_env_set_mapsize(" << i.me_mapsize * 2 << ") failed: " << mdb_strerror(rc)); } }
+          "mdb_env_set_mapsize(" << i.me_mapsize * 2 << ") failed: " << mdb_strerror(rc)); }
+      us_ += s; }
 
 
 protected:
@@ -114,6 +116,7 @@ protected:
   MDB_txn    *r_;
   MDB_txn    *w_;
   MDB_dbi     dbi_;
+  uN          us_;   // uncommitted size
   Λcsw        csw_;
 };
 
