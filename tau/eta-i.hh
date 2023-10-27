@@ -34,19 +34,6 @@ enum class ηicb_r : u8
 O &operator<<(O&, ηicb_r);
 
 
-// Check to see whether we can decode an ηi from the given location.
-// This function is always safe, as long as the input points to valid
-// memory.
-//
-// Unpacking format is like this:
-//
-// 0xllll_llll_llll_rrtt
-//
-// Where l = length, r = result, t = type
-
-u64 ηicb(u8c*, uN);
-
-
 // η input: read from fixed location in memory
 struct ηi final
 {
@@ -347,19 +334,7 @@ private:
   uN   s_;  // immediate size
   u8   c_;  // control length (byte + size); a_ + c_ == data
 
-  void decode_cb()
-    { let cb = ηicb(a_, l_);
-      let c  = cb & 0xff;
-      let r  = Sc<ηicb_r>(cb >> 8 & 0xff);
-      let s  = cb >> 16;
-      let r0 = r;  // NOTE: this fixes a reference capture in the A() lambda
-      A(r == ηicb_r::ok || r == ηicb_r::no_ctrl,
-        "ηi bounds error: " << r0 << " at " << (void*)a_ << "+" << l_);
-
-      // Segfault if we try to access data in an empty η
-      if (r == ηicb_r::no_ctrl) a_ = nullptr;
-      s_ = s;
-      c_ = c; }
+  void decode_cb();
 };
 
 

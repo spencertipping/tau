@@ -92,45 +92,53 @@ PO ηi::operator<=>(ηic &x) const
 }
 
 
-static inline u64 ηicb_result(ηicb_r r, uN s, u8 c)
+void ηi::decode_cb()
 {
-  return u64(s) << 16 | u64(r) << 8 | c;
-}
+  ηicb_r r;
 
+  if (!l_) { r = ηicb_r::no_ctrl; goto err; }
 
-u64 ηicb(u8c *a, uN l)
-{
-  if (!l) return ηicb_result(ηicb_r::no_ctrl, 0, 0);
-  let sn = *a & 0x0f;
-  uN  s;  // decoded size
-  u8  c;  // number of control+size bytes
+  {
+    let sn = *a_ & 0x0f;
 
-  if      (sn <= 0x0c) c = 1, s = sn;
-  else if (sn == 0x0d)
-  {
-    if (l < 2) return ηicb_result(ηicb_r::short_len1, 0, 0);
-    c = 2, s = 13 + a[1];
-  }
-  else if (sn == 0x0e)
-  {
-    if (l < 3) return ηicb_result(ηicb_r::short_len2, 0, 0);
-    c = 3, s = 269 + (u16(a[1]) << 8 | a[2]);
-  }
-  else
-  {
-    if (l < 5) return ηicb_result(ηicb_r::short_len4, 0, 0);
-    c = 5;
-    s = 65805 + (  u32(a[1]) << 24
-                 | u32(a[2]) << 16
-                 | u32(a[3]) << 8
-                 |     a[4]);
+    if      (sn <= 0x0c) c_ = 1, s_ = sn;
+    else if (sn == 0x0d)
+    {
+      if (l_ < 2) { r = ηicb_r::short_len1; goto err; }
+      c_ = 2, s_ = 13 + a_[1];
+    }
+    else if (sn == 0x0e)
+    {
+      if (l_ < 3) { r = ηicb_r::short_len2; goto err; }
+      c_ = 3, s_ = 269 + (u16(a_[1]) << 8 | a_[2]);
+    }
+    else
+    {
+      if (l_ < 5) { r = ηicb_r::short_len4; goto err; }
+      c_ = 5;
+      s_  = 65805 + ( u32(a_[1]) << 24
+                    | u32(a_[2]) << 16
+                    | u32(a_[3]) << 8
+                    |     a_[4]);
+    }
   }
 
   // NOTE: this looks weird, but we're making sure that we aren't
   // overflowing unsigned int math so the l check is valid.
-  if (s + c <= s) return ηicb_result(ηicb_r::int_overflow, 0, 0);
-  if (s + c > l)  return ηicb_result(ηicb_r::size_overflow, 0, 0);
-  return ηicb_result(ηicb_r::ok, s, c);
+  if (s_ + c_ <= s_) { r = ηicb_r::int_overflow;  goto err; }
+  if (s_ + c_ > l_)  { r = ηicb_r::size_overflow; goto err; }
+  r = ηicb_r::ok;
+  goto done;
+
+err:
+  s_ = c_ = 0;
+
+done:
+  A(r == ηicb_r::ok || r == ηicb_r::no_ctrl,
+    "ηi bounds error: " << r << " at " << (void*)a_ << "+" << l_);
+
+  // Segfault if we try to access data in an empty η
+  if (r == ηicb_r::no_ctrl) a_ = nullptr;
 }
 
 
