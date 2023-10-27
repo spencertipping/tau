@@ -60,6 +60,9 @@ deft(Sn<i64bc>, 512, int64s,   i.i64s())
 deft(Sn<f32bc>, 256, float32s, i.f32s())
 deft(Sn<f64bc>, 512, float64s, i.f64s())
 
+#undef deft
+
+
 Tt struct ηauto_<ηY<T>>
 {
   sletc ops = ηauto_op_encode | ηauto_op_decode | ηauto_op_type;
@@ -72,6 +75,18 @@ template<class T, ηauto_encode X> ηo<T> &operator<<(ηo<T> &x, ηY<X> const &y
 {
   return x << (ηm{ηauto_<X>::n} << y.x);
 }
+
+
+Tn struct ηauto_<char>
+{
+  sletc ops = ηauto_op_encode | ηauto_op_decode | ηauto_op_type;
+  sletc t   = ηtype::string;
+  sletc n   = 1;
+  static char v(ηic &i)
+    { A(i.is_s(), "ηi → char: not a string");
+      A(i.size() == 1, "ηi → char: invalid size " << i.size());
+      return i.data()[0]; }
+};
 
 
 template<uN N> struct ηauto_<Ar<u8, N>>
@@ -178,8 +193,6 @@ Tn struct ηauto_<V<ηi>>
       while (j.has_next()) r.push_back(j = j.next());
       return r; }
 };
-
-#undef deft
 
 
 template<class R, class... Xs>
