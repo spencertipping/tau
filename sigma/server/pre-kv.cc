@@ -8,7 +8,7 @@ namespace σ::pre
 
 
 // Return true if we should resize the map prior to writing n bytes
-static bool lmdb_should_resize(MDB_env* e, uS n, f64 safety = 1.5)
+static bool lmdb_should_resize(MDB_env* e, uS n, f64 safety = 4.0)
 {
   MDB_stat    s;
   MDB_envinfo i;
