@@ -99,7 +99,7 @@ k₁ ρ k₂ → m       ⇒ m → τ[k₁ ... k₂]  # range query (not always 
 
 
 ## Multimaps (`@;`)
-Finally we have multimaps:
+Finally we have multimaps, which store multiple values per key. We always return the values in a deterministic order, which may or may not be η-sorted. Values must be scalar, not plural. Multimaps are usually based on regular key/value maps and do not duplicate keys.
 
 ```
 k  α v  → m                    ⇒ {k:v,m}
@@ -110,9 +110,31 @@ k₁ ρ k₂ → m                    ⇒ m → τ[k₁ ... k₂]  # range (not 
 τ       → m                    ⇒ () → τ
 ```
 
+Internally, multimaps are used by search indexes (`@S`). Multimap implementations prevent quadratic insertion times by staging incremental updates and zipping them together when they are sufficiently large. Multimaps provide the `κ` signal as a manual compaction operator:
+
+```
+k κ   # compact a key
+κ     # compact all keys
+```
+
+Internally, we arrange this by wrapping the underlying map with control mappings, which take one of these forms:
+
++ `0 k → 0 xs...`: `xs...` are the values (simple case for fast small keys)
++ `0 k → N ks...`: `M₁ k₁ M₂ k₂ ...`: values are unioned from `k₁`, `k₂`, etc.
++ `1 k₁ → M xs...`: `k₁` is generated internally, and is one of the `ks...` entries; there are `M` `xs...`, which are values being stored
+
+`xs...` are always sorted so we can zipper-union them for retrieval. When `N` is too large, we compact the key by combining the smallest sub-keys. The goal is to flatten the structure without spending too much effort.
+
+As for insertions, we always do one of two things:
+
+1. If the smallest key is sufficiently small or we are within half its size, then we merge with it directly
+2. Otherwise, we create a new key and defer the merge
+
+This results in at-worst halving sizes on average.
+
 
 ## Search indexes (`@S`)
-Search indexes are like multimaps, but always return results in sorted order. Values must be scalar, not plural. Keys take the role of terms and values are elements that should be returned for those terms.
+Search indexes use multimaps under the hood. Values must be scalar, not plural. Keys take the role of terms and values are elements that should be returned for those terms.
 
 Search terms can overflow if too many values are mapped to a term, or if the total value size is too large. You can set the limit at creation-time. Overflowed terms can no longer be used.
 

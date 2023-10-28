@@ -112,8 +112,8 @@ Tt struct weak_ptr final
 
   explicit operator bool() const noexcept { return !expired(); }
 
-  bool expired()  const noexcept { return !c || !c->p; }
-  T   *get()      const noexcept { return p; }
+  bool expired() const noexcept { return !c || !c->p; }
+  T   *get()     const noexcept { return p; }
 
   shared_ptr<T> lock() const noexcept
     { if (expired()) return {nullptr};

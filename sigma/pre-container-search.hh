@@ -106,23 +106,6 @@ struct diit final : public virtual iit_
 };
 
 
-// Balanced application, so we get log(n) depth
-template<class F, class T>
-static T bin_apply(F const &f, V<T> &xs)
-{
-  while (xs.size() > 1)
-  {
-    V<T> ys;
-    ys.reserve(xs.size() / 2 + 1);
-    for (uN i = 0; i < xs.size(); i += 2)
-      ys.push_back(f(xs[i], xs[i + 1]));
-    if (xs.size() & 1) ys.push_back(xs.back());
-    xs = ys;
-  }
-  return xs.back();
-}
-
-
 // TODO: add key overflow
 // TODO: add multi-layer staging (can just be keyspace, not separate tables)
 struct kviat_ : public virtual at_

@@ -25,7 +25,7 @@ cflags = $(shell cat compile_flags.txt)
 # NOTE: -flto crashes the linker when building asqi
 cflags_server = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -Dτdebug=0 -Dτallow_todo=1
 cflags_sfast  = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP
-cflags_sprof  = $(cflags) -O2 -DBOOST_STACKTRACE_USE_NOOP -pg
+cflags_sprof  = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -g -pg
 cflags_sdebug = $(cflags) -O0 -DBOOST_STACKTRACE_LINK -DBOOST_STACKTRACE_USE_BACKTRACE -g -DDEBUG
 cflags_linux  = $(cflags) -O3 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -Dτdebug=0 -Dτallow_todo=1
 cflags_fast   = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1
@@ -38,7 +38,7 @@ cflags_wdebug = $(cflags) -O1 -DBOOST_STACKTRACE_USE_NOOP -Dτgl=1 -g -fexceptio
 
 ldflags_server =
 ldflags_sfast  =
-ldflags_sprof  = -pg
+ldflags_sprof  = -g -pg
 ldflags_sdebug = -lboost_stacktrace_backtrace -lbacktrace
 ldflags_linux  =
 ldflags_fast   =

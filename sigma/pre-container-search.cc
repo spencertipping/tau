@@ -5,6 +5,23 @@ namespace σ::pre
 {
 
 
+// Balanced application, so we get log(n) depth
+template<class F, class T>
+static T bin_apply(F const &f, V<T> &xs)
+{
+  while (xs.size() > 1)
+  {
+    V<T> ys;
+    ys.reserve(xs.size() / 2 + 1);
+    for (uN i = 0; i < xs.size(); i += 2)
+      ys.push_back(f(xs[i], xs[i + 1]));
+    if (xs.size() & 1) ys.push_back(xs.back());
+    xs = ys;
+  }
+  return xs.back();
+}
+
+
 Sp<iit_> kviat_::query_(ηic &q)
 {
   commit();

@@ -74,7 +74,7 @@ Tt struct ηo final
   ηo(ηo const&) = delete;
   ηo(ηo&&)      = delete;
 
-  ηo(ηoc<T> o, uN c0 = 256) : o_(o), s_(0)
+  ηo(ηoc<T> const &o, uN c0 = 256) : o_(o), s_(0)
     { A(c0, "ηo with no initial capacity");
       if (!o_.expired()) b_ = o_.iptr(c0), ηo_track_iptr();
       else               λx(), τunreachable(); }
