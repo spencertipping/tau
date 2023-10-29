@@ -155,6 +155,23 @@ template<uS n, class X>       using Ttake = typename Tsub_<0, n, X>::t;
 template<uS n, class X>       using Tdrop = typename Tsub_<n, std::tuple_size<X>::value - n, X>::t;
 
 
+// Balanced application, so we get log(n) depth
+template<class F, class T>
+static T balanced_apply(V<T> &&xs, F const &f)
+{
+  while (xs.size() > 1)
+  {
+    V<T> ys;
+    ys.reserve(xs.size() / 2 + 1);
+    for (uN i = 0; i < xs.size(); i += 2)
+      ys.push_back(f(xs[i], xs[i + 1]));
+    if (xs.size() & 1) ys.push_back(xs.back());
+    xs = ys;
+  }
+  return xs.back();
+}
+
+
 // Span/vector comparisons
 template<class T, class U>
 PO svc(T const &a, U const &b)

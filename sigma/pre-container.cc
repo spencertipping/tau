@@ -84,9 +84,10 @@ Sp<at_> at(ctype t, cback b)
       [&](ct_map,      cb_native) { return Sp<at_>(new nmat_()); },
       [&](ct_index,    cb_native) { return iat(cb_native{}, kv_native()); },
 
-      [&](ct_set,   cb_lmdb const &l) { return lmdb_set(l); },
-      [&](ct_map,   cb_lmdb const &l) { return lmdb_map(l); },
-      [&](ct_index, cb_lmdb const &l) { return iat(l, kv_lmdb(l.f, l.db)); }
+      [&](ct_set,               cb_lmdb const &l) { return lmdb_set(l); },
+      [&](ct_map,               cb_lmdb const &l) { return lmdb_map(l); },
+      [&](ct_multimap const &m, cb_lmdb const &l) { return lmdb_multimap(m, l); },
+      [&](ct_index,             cb_lmdb const &l) { return iat(l, kv_lmdb(l.f, l.db)); }
     }, t, b);
 }
 

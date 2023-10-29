@@ -1,38 +1,9 @@
 #include "pre-db.hh"
+#include "../pre-container-kv.hh"
 #include "../begin.hh"
 
 namespace σ::pre
 {
-
-
-struct kvsat_ : public virtual at_
-{
-  kvsat_(cback const &l, Sp<kv_> db) : at_(ct_set{}, l), db(db) {}
-
-  void α(ηic &x, ηic&, ξo)   override { db->set(x, ηic{m, 1}); }
-  void ω(ηic &x, ηic&, ξo)   override { db->del(x); }
-  void ι(ηic &x, ηic&, ξo o) override { o.r(x.lsize() + 2) << x.all() << db->has(x); }
-  void τ(ηic &x, ξo o)       override { db->sync(); o.r() << ηsig::τ; }
-
-  Sp<kv_> db;
-
-  static constexpr u8 m[] = {0x11, 0};
-};
-
-
-struct kvmat_ : public virtual at_
-{
-  kvmat_(cback const &l, Sp<kv_> db) : at_(ct_map{}, l), db(db) {}
-  void α(ηic &k, ηic &v, ξo) override { db->set(k, v); }
-  void ω(ηic &k, ηic&, ξo)   override { db->del(k); }
-  void ι(ηic &k, ηic&, ξo o) override
-    { let r = db->get(k);
-      if (!r.empty()) o.r(k.lsize() + r.size() + 8) << k.all() << r.all();
-      else            o.r(k.lsize() + 2)            << k.all() << ηsig::ω; }
-  void τ(ηic &x, ξo o) override { db->sync(); o.r() << ηsig::τ; }
-
-  Sp<kv_> db;
-};
 
 
 struct lmdb_ls_ : public virtual at_ls_
@@ -72,6 +43,11 @@ Sp<at_> lmdb_set(cb_lmdb const &l)
 Sp<at_> lmdb_map(cb_lmdb const &l)
 {
   return Sp<at_>(new kvmat_(l, kv_lmdb(l.f, l.db)));
+}
+
+Sp<at_> lmdb_multimap(ct_multimap const &m, cb_lmdb const &l)
+{
+  return Sp<at_>(new kvmmat_(m, l, kv_lmdb(l.f, l.db)));
 }
 
 

@@ -17,6 +17,12 @@ Sp<at_> lmdb_map(cb_lmdb const&)
   return {};
 }
 
+Sp<at_> lmdb_multimap(ct_multimap const&, cb_lmdb const&)
+{
+  A(0, "lmdb_multimap unsupported on wasm");
+  return {};
+}
+
 
 Sp<at_ls_> lmdb_ls(cb_lmdb const&)
 {

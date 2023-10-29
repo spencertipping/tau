@@ -18,7 +18,7 @@ struct ct_bloom    { u64 n; f64 fp; };
 struct ct_uniq     {};
 struct ct_set      {};
 struct ct_map      {};
-struct ct_multimap {};
+struct ct_multimap {};  // TODO: parameters
 struct ct_index    {};
 struct ct_spatial  { Γ g; };
 
@@ -48,14 +48,14 @@ struct at_
   at_(ctype const &t, cback const &b) : t_(t), b_(b) {}
   virtual ~at_() {}
 
-  // FIXME: add non-ξo variants for C++ native usage
-
   virtual void α(ηic&, ηic&, ξo) { A(0, "α → " << *this << " unsupported"); }
   virtual void ω(ηic&, ηic&, ξo) { A(0, "ω → " << *this << " unsupported"); }
   virtual void κ(ηic&, ηic&, ξo) { A(0, "κ → " << *this << " unsupported"); }
   virtual void ι(ηic&, ηic&, ξo) { A(0, "ι → " << *this << " unsupported"); }
   virtual void ρ(ηic&, ηic&, ξo) { A(0, "ρ → " << *this << " unsupported"); }
   virtual void τ(ηic&,       ξo) { A(0, "τ → " << *this << " unsupported"); }
+
+  // TODO: superset methods for C++ native access
 
   ctype t_;
   cback b_;
@@ -74,6 +74,7 @@ struct at_ls_
 // NOTE: provided by platform-specific backends
 Sp<at_> lmdb_set(cb_lmdb const&);
 Sp<at_> lmdb_map(cb_lmdb const&);
+Sp<at_> lmdb_multimap(ct_multimap const&, cb_lmdb const&);
 
 Sp<at_ls_> lmdb_ls(cb_lmdb const&);
 

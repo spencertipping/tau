@@ -5,19 +5,94 @@ namespace σ::pre
 {
 
 
+template<bool fast>
+void ηsstream_intersect_<fast>::sync()
+{
+  while (*a && *b)
+  {
+    let c = base_::compare((**a).one(), (**b).one());
+    if      (base_::lt(c)) ++*a;
+    else if (base_::gt(c)) ++*b;
+    else if (base_::eq(c)) break;
+    else                   base_::cmp_error((**a).one(), (**b).one());
+  }
+}
+
+
+template<bool fast>
+ηi ηsstream_union_<fast>::operator*()
+{
+  if (!*a) return (**b).one();
+  if (!*b) return (**a).one();
+  let a_ = (**a).one();
+  let b_ = (**b).one();
+  let c = base_::compare(a_, b_);
+  return base_::lt(c) || base_::eq(c) ? a_ : b_;
+}
+
+
+template<bool fast>
+void ηsstream_union_<fast>::operator++()
+{
+  if      (!*a) ++*b;
+  else if (!*b) ++*a;
+  else
+  {
+    let a_ = (**a).one();
+    let b_ = (**b).one();
+    let c = base_::compare(a_, b_);
+    if      (base_::lt(c)) ++*a;
+    else if (base_::gt(c)) ++*b;
+    else if (base_::eq(c)) ++*a, ++*b;
+    else                   base_::cmp_error(a_, b_);
+  }
+}
+
+
+template<bool fast>
+void ηsstream_diff_<fast>::operator++()
+{
+  ++*a;
+  while (*a && *b)
+  {
+    let c = base_::compare((**a).one(), (**b).one());
+    if      (base_::lt(c)) break;
+    else if (base_::gt(c)) ++*b;
+    else if (base_::eq(c)) ++*a, ++*b;
+    else                   base_::cmp_error((**a).one(), (**b).one());
+  }
+}
+
+
+template struct ηsstream_intersect_<true>;
+template struct ηsstream_intersect_<false>;
+
+template struct ηsstream_union_<true>;
+template struct ηsstream_union_<false>;
+
+template struct ηsstream_diff_<true>;
+template struct ηsstream_diff_<false>;
+
+
 ηsstream ηisstream(ηic &x)
 {
   return ηsstream(new ηisstream_<ηsstream_fast>(x));
 }
 
+
+ηsstream ηsosstream(So<ηm> const &x)
+{
+  return ηsstream(new ηsosstream_<ηsstream_fast>(x));
+}
+
 ηsstream ηsstream_union(Vc<ηsstream> &xs)
 {
-  return ηss_bin_apply(V<ηsstream>{xs}, [](ηsstream &x, ηsstream &y) { return x | y; });
+  return balanced_apply(V<ηsstream>{xs}, [](ηsstream &x, ηsstream &y) { return x | y; });
 }
 
 ηsstream ηsstream_intersect(Vc<ηsstream> &xs)
 {
-  return ηss_bin_apply(V<ηsstream>{xs}, [](ηsstream &x, ηsstream &y) { return x & y; });
+  return balanced_apply(V<ηsstream>{xs}, [](ηsstream &x, ηsstream &y) { return x & y; });
 }
 
 
