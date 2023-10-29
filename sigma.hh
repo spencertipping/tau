@@ -5,6 +5,7 @@
 #include "sigma/pre-container.hh"
 #include "sigma/pre-container-search.hh"
 #include "sigma/pre-multiplex.hh"
+#include "sigma/pre-sstream.hh"
 
 #include "tau/begin.hh"
 

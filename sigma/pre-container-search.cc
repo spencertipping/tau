@@ -5,40 +5,22 @@ namespace σ::pre
 {
 
 
-// Balanced application, so we get log(n) depth
-template<class F, class T>
-static T bin_apply(F const &f, V<T> &xs)
-{
-  while (xs.size() > 1)
-  {
-    V<T> ys;
-    ys.reserve(xs.size() / 2 + 1);
-    for (uN i = 0; i < xs.size(); i += 2)
-      ys.push_back(f(xs[i], xs[i + 1]));
-    if (xs.size() & 1) ys.push_back(xs.back());
-    xs = ys;
-  }
-  return xs.back();
-}
-
-
-Sp<iit_> kviat_::query_(ηic &q)
+ηsstream kviat_::query_(ηic &q)
 {
   commit();
   let c = q.η().s();
-  if (c == "t") return Sp<iit_>(new ηiit(db->get(q.η().next())));
+  if (c == "t") return ηisstream(db->get(q.η().next()));
   if (c == "-")
-    return Sp<iit_>(new diit(query_(q.η().next()),
-                             query_(q.η().next().next())));
+    return query_(q.η().next()) - query_(q.η().next().next());
 
-  V<Sp<iit_>> xs;
+  V<ηsstream> xs;
   for (let &x : q.η().next()) xs.push_back(query_(x));
-  if      (c == "+") return bin_apply([](Sp<iit_> a, Sp<iit_> b) { return Sp<iit_>(new uiit(a, b)); }, xs);
-  else if (c == "*") return bin_apply([](Sp<iit_> a, Sp<iit_> b) { return Sp<iit_>(new iiit(a, b)); }, xs);
+  if      (c == "+") return ηsstream_union(xs);
+  else if (c == "*") return ηsstream_intersect(xs);
   else
   {
     A(0, "unknown query operator: " << c << " in " << q);
-    return nullptr;
+    τunreachable();
   }
 }
 

@@ -157,7 +157,11 @@ struct ηi final
   bool is_n(Stvc &n_) const { return is_n() && n().x == n_; }
 
 
-  PO operator<=>(ηi const &x) const;
+  PO operator<=> (ηic &x) const;  // logical ordering (3.0 < 4.0 etc)
+  SO fast_compare(ηic &x) const   // NOTE: not compatible with <=>
+    { if (let c = lsize() <=> x.lsize(); c != SO::equal) return c;
+      let c = memcmp(ldata(), x.ldata(), lsize());
+      return c < 0 ? SO::less : c > 0 ? SO::greater : SO::equal; }
 
 
   ηi operator[](uN)           const;
