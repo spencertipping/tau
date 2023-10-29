@@ -83,61 +83,82 @@ struct kvmat_ : public virtual at_
 // ("i" "k1")  → "bar"                          ← 1 value here
 // ("i" "k2")  → "a" "b" "c" "d"                ← 4 values here
 // ("i" "k3")  → ...                            ← 18 values here
+//
+// A key is balanced when no two of its indirects have more than a factor of two
+// difference in #items, or it has fewer than log2(largest) indirects.
 
 struct kvmmat_ : public virtual at_
 {
+  typedef So<ηm, ηsstream_cmp> stage;
+
+  typedef ηic key;  // user-facing key
+  typedef ηic ind;  // key that we expect to be indirect
+
   kvmmat_(ct_multimap const &m, cback const &l, Sp<kv_> db)
     : at_(m, l), db_(db), ss_(0),
-      svo_(1048576), sko_(64), lvs_(4096) {}
+      svo_(1048576), sko_(64), lvs_(1024),
+      nk_((isha2{} << (ηm{} << now().time_since_epoch().count()))()) {}
 
 
-  void α(ηic &k, ηic &v, ξo)   override;
-  void ω(ηic &k, ηic &v, ξo)   override;
-  void ι(ηic &k, ηic&,   ξo o) override;
-  void κ(ηic &k, ηic&,   ξo)   override;
+  void α(key &k, ηic &v, ξo)   override;
+  void ω(key &k, ηic &v, ξo)   override;
+  void ι(key &k, ηic&,   ξo o) override;
+  void κ(key &k, ηic&,   ξo)   override;
   void τ(ηic &x, ξo o)         override;
 
 
-  void astage (ηic &k, ηic &v);  // stage addition
-  void dstage (ηic &k, ηic &v);  // stage deletion
-  void merge  (ηic &k);          // fully merge all indirects (expensive)
-  void balance(ηic &k);          // partially merge (usually cheap)
-  void touch  (ηic &k);          // check for stage overflow and maybe flush
-  ηm   flush  (ηic &k);          // flush stage to indirect key, return key
-  void flush  ();                // flush all staged values
-  void del    (ηic &k);          // delete all values at key
+  void balance(key &k);
+  void flush  (key &k);
+  void flush  ();
 
-  bool has_add(ηic &k) const;
-  bool has_del(ηic &k) const;
-
-
-  ηm write_ikey(ηic &k, ηic &v);  // returns #items k
+  void stage_add  (key &k, ηic &v);
+  void stage_add  (key &k, ηm &&v);
+  void stage_del  (key &k, ηic &v);
+  void stage_del  (key &k, ηm &&v);
+  void unstage_add(key &k, ηic &v);
+  void unstage_del(key &k, ηic &v);
 
 
-  ηm    lkey(ηic &k)        const { return ηm{} << "l" << k.all(); }
-  ηm    ikey(ηic &k)        const { return ηm{} << "i" << k.all(); }
-  ηm    ikey(h256 const &k) const { return ηm{} << "i" << k; }
-  ηm    genkey();                // generate a new indirect key
+  ηsstream ss          (key &k) const;  // unified view of values at key
+  ηsstream ss_add_stage(key &k) const;
+  ηsstream ss_del_stage(key &k) const;
+  ηsstream ss_kv       (key &k) const;
+  ηsstream ss_literal  (key &k) const;  // fetch literal values
+  ηsstream ss_indirect (key &k) const;  // union all indirect keys
+  ηsstream ss_indirect1(ind &k) const;  // retrieve single indirect key
 
-  bool  kv_has        (ηic &k) const;
-  bool  kv_is_indirect(ηic &k) const;
-  uN    kv_ilen       (ηic &k) const;  // number of indirects for key (0 = literal)
-  ηi    kv_literal    (ηic &k) const;  // literal retrieval (fail if indirect)
-  V<ηm> kv_indirect   (ηic &k) const;  // indirect keys
-
-  ηsstream kv_at(ηic &k) const;  // stream of values in k/v
-  ηsstream at   (ηic &k) const;  // stream of values at key
+  bool     kv_has      (key &k) const;
+  uN       kv_ilen     (key &k) const;  // #indirects, or 0 for literal
+  V<ηm>    kv_indirects(key &k) const;  // indirect keys
+  So<ηm>   kv_ind_asc  (key &k) const;  // (n k) pairs sorted by asc n
 
 
-  Sp<kv_>                     db_;
-  M<ηm, So<ηm, ηsstream_cmp>> add_;  // staged values to add
-  M<ηm, So<ηm, ηsstream_cmp>> del_;  // staged values to delete
-  iN                          ss_;   // staged size = ∑|v| in stage
-  uN                          svo_;  // staged value overflow (bytes)
-  uN                          sko_;  // staged key overflow (#keys)
-  uN                          iks_;  // indirect key size limit (bytes)
-  uN                          lvs_;  // literal value size limit (bytes)
-  h256                        nk_;   // next indirect key seed
+  ind  new_indirect   (stage const &v);
+
+  void add_kv_literal (key &k, stage const &v);
+  void add_kv_indirect(key &k, stage const &v);
+  void add_kv         (key &k, stage const &v);
+
+  void del_literal    (key &k, stage const &v);
+  void del_indirect   (key &k, stage const &v);
+  void del_kv         (key &k, stage const &v);
+  void del_all        (key &k);         // delete all values at key
+
+
+  ηm genkey();
+  ηm lkey(ηic &k)        const { return ηm{} << "l" << k.all(); }
+  ηm ikey(ηic &k)        const { return ηm{} << "i" << k.all(); }
+  ηm ikey(h256 const &k) const { return ηm{} << "i" << k; }
+
+
+  Sp<kv_>      db_;
+  M<ηm, stage> add_;  // staged values to add
+  M<ηm, stage> del_;  // staged values to delete
+  iN           ss_;   // staged size = ∑|v| in stage
+  uN           svo_;  // staged value overflow (bytes)
+  uN           sko_;  // staged key overflow (#keys)
+  uN           lvs_;  // literal value size limit (bytes)
+  h256         nk_;   // seed for genkey()
 };
 
 
