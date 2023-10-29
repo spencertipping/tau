@@ -74,15 +74,21 @@ template struct ηsstream_diff_<true>;
 template struct ηsstream_diff_<false>;
 
 
-ηsstream ηisstream(ηic &x)
+ηsstream ηesstream()
 {
-  return ηsstream(new ηisstream_<ηsstream_fast>(x));
+  static ηsstream esstream_;
+  if (!esstream_) esstream_ = ηsstream(new ηesstream_<ηsstream_fast>());
+  return esstream_;
 }
 
-
-ηsstream ηsosstream(So<ηm> const &x)
+ηsstream ηisstream(ηic &x)
 {
-  return ηsstream(new ηsosstream_<ηsstream_fast>(x));
+  return x.empty() ? ηesstream() : ηsstream(new ηisstream_<ηsstream_fast>(x));
+}
+
+ηsstream ηsosstream(So<ηm, ηsstream_cmp> const &x)
+{
+  return x.empty() ? ηesstream() : ηsstream(new ηsosstream_<ηsstream_fast>(x));
 }
 
 ηsstream ηsstream_union(Vc<ηsstream> &xs)

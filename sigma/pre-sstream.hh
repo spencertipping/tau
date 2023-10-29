@@ -50,6 +50,28 @@ struct ηsstream_
   virtual operator   bool() = 0;  // do we have a current item?
   virtual ηi   operator* () = 0;
   virtual void operator++() = 0;
+
+  ηm all()&& { ηm r; while (*this) r << **this; return r; }
+};
+
+
+template<bool fast>
+struct ηsstream_cmp_
+{
+  typedef ηsstream_<fast> cmp;
+  bool comp (ηic &a, ηic &b) const { return cmp::lt(cmp::compare(a, b)); }
+  bool equiv(ηic &a, ηic &b) const { return cmp::eq(cmp::compare(a, b)); }
+};
+
+
+// Empty set
+template<bool fast>
+struct ηesstream_ final : public virtual ηsstream_<fast>
+{
+  ηesstream_() {}
+  operator   bool() override { return false; }
+  ηi   operator* () override { τunreachable(); }
+  void operator++() override { τunreachable(); }
 };
 
 
@@ -72,14 +94,15 @@ struct ηisstream_ final : public virtual ηsstream_<fast>
 template<bool fast>
 struct ηsosstream_ final : public virtual ηsstream_<fast>
 {
-  ηsosstream_(So<ηm> const &x) : ηsstream_<fast>(), x(x.begin()), e(x.end()) {}
+  ηsosstream_(So<ηm, ηsstream_cmp_<fast>> const &x)
+    : ηsstream_<fast>(), x(x.begin()), e(x.end()) {}
 
   operator   bool() override { return x != e; }
   ηi   operator* () override { return *x; }
   void operator++() override { ++x; }
 
-  So<ηm>::const_iterator x;
-  So<ηm>::const_iterator e;
+  typename So<ηm, ηsstream_cmp_<fast>>::const_iterator x;
+  typename So<ηm, ηsstream_cmp_<fast>>::const_iterator e;
 };
 
 
@@ -145,32 +168,38 @@ template struct ηsstream_<false>;
 
 template<bool fast>
 Sp<ηsstream_<fast>> operator|(Sp<ηsstream_<fast>> a, Sp<ηsstream_<fast>> b)
-{ return Sp<ηsstream_<fast>>{new ηsstream_union_<fast>(a, b)}; }
+{
+  if (!*a) return b;
+  if (!*b) return a;
+  return Sp<ηsstream_<fast>>{new ηsstream_union_<fast>(a, b)};
+}
 
 template<bool fast>
 Sp<ηsstream_<fast>> operator&(Sp<ηsstream_<fast>> a, Sp<ηsstream_<fast>> b)
-{ return Sp<ηsstream_<fast>>{new ηsstream_intersect_<fast>(a, b)}; }
+{
+  if (!*a) return a;
+  if (!*b) return b;
+  return Sp<ηsstream_<fast>>{new ηsstream_intersect_<fast>(a, b)};
+}
 
 template<bool fast>
 Sp<ηsstream_<fast>> operator-(Sp<ηsstream_<fast>> a, Sp<ηsstream_<fast>> b)
-{ return Sp<ηsstream_<fast>>{new ηsstream_diff_<fast>(a, b)}; }
+{
+  if (!*a || !*b) return a;
+  return Sp<ηsstream_<fast>>{new ηsstream_diff_<fast>(a, b)};
+}
 
 
 typedef Sp<ηsstream_<ηsstream_fast>> ηsstream;
 
+typedef ηsstream_cmp_<ηsstream_fast> ηsstream_cmp;
 
+
+ηsstream ηesstream         ();
 ηsstream ηisstream         (ηic&);
-ηsstream ηsosstream        (So<ηm> const&);
+ηsstream ηsosstream        (So<ηm, ηsstream_cmp> const&);
 ηsstream ηsstream_union    (Vc<ηsstream>&);
 ηsstream ηsstream_intersect(Vc<ηsstream>&);
-
-
-struct ηsstream_cmp
-{
-  typedef ηsstream_<ηsstream_fast> cmp;
-  bool comp (ηic &a, ηic &b) const { return cmp::lt(cmp::compare(a, b)); }
-  bool equiv(ηic &a, ηic &b) const { return cmp::eq(cmp::compare(a, b)); }
-};
 
 
 }

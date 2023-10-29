@@ -59,9 +59,9 @@ struct kvmat_ : public virtual at_
 // Additionally, we insert a special key to track the ID of the next indirect
 // key we plan to create. Here's an example of all this in action:
 //
-// ("l" "foo") → 0 1 2 3 4      # literal key "foo" with values 1 2 3 4
-// ("l" "bar") → 2 "k1" 2 "k2"  # "foo"'s values are stored at "k1" and "k2",
-// ("i" "k1")  → 1 3            #   each of which has two values
+// ("l" "foo") → 0 1 2 3 4    # literal key "foo" with values 1 2 3 4
+// ("l" "bar") → 1 "k1" "k2"  # "foo"'s values are stored at "k1" and "k2",
+// ("i" "k1")  → 1 3          #   each of which has two values
 // ("i" "k2")  → 2 4
 //
 // We keep an in-memory stage so we aren't flushing things to the database too
@@ -76,26 +76,52 @@ struct kvmmat_ : public virtual at_
 {
   kvmmat_(ct_multimap const &m, cback const &l, Sp<kv_> db)
     : at_(m, l), db_(db), ss_(0),
-      svo_(1048576), sko_(64) {}
+      svo_(1048576), sko_(64), lvs_(4096) {}
+
 
   void α(ηic &k, ηic &v, ξo)   override;
   void ω(ηic &k, ηic &v, ξo)   override;
   void ι(ηic &k, ηic&,   ξo o) override;
+  void κ(ηic &k, ηic&,   ξo)   override;
   void τ(ηic &x, ξo o)         override;
 
-  void stage(ηic &k, ηic &v);    // add to stage
-  void merge(ηic &k, uN n = 1);  // merge all but n indirects into a single key
-  ηm   flush(ηic &k);            // flush stage to indirect key, return key
-  void flush();                  // flush all staged values
 
-  ηsstream at(ηic &k);           // stream of values at key
+  void astage(ηic &k, ηic &v);  // stage addition
+  void dstage(ηic &k, ηic &v);  // stage deletion
+  void merge(ηic &k);           // merge all indirect keys
+  ηm   flush(ηic &k);           // flush stage to indirect key, return key
+  void flush();                 // flush all staged values
+  void del(ηic &k);             // delete all values at key
+
+  bool has_add(ηic &k) const;
+  bool has_del(ηic &k) const;
+  void post_stage(ηic &k);      // commit if overflow
+
+
+  ηm    lkey(ηic &k)        const { return ηm{} << "l" << k.all(); }
+  ηm    ikey(ηic &k)        const { return ηm{} << "i" << k.all(); }
+  ηm    ikey(h256 const &k) const { return ηm{} << "i" << k; }
+  ηm    genkey();                // generate a new indirect key
+
+  bool  kv_has        (ηic &k) const;
+  bool  kv_is_indirect(ηic &k) const;
+  uN    kv_ilen       (ηic &k) const;  // number of indirects for key (0 = literal)
+  ηi    kv_literal    (ηic &k) const;  // literal retrieval (fail if indirect)
+  V<ηm> kv_indirect   (ηic &k) const;  // indirect keys
+
+  ηsstream kv_at(ηic &k) const;  // stream of values in k/v
+  ηsstream at   (ηic &k) const;  // stream of values at key
+
 
   Sp<kv_>                     db_;
   M<ηm, So<ηm, ηsstream_cmp>> add_;  // staged values to add
   M<ηm, So<ηm, ηsstream_cmp>> del_;  // staged values to delete
-  uN                          ss_;   // staged size = ∑|v| in stage
+  iN                          ss_;   // staged size = ∑|v| in stage
   uN                          svo_;  // staged value overflow (bytes)
   uN                          sko_;  // staged key overflow (#keys)
+  uN                          iks_;  // indirect key size limit (bytes)
+  uN                          lvs_;  // literal value size limit (bytes)
+  h256                        nk_;   // next indirect key seed
 };
 
 
