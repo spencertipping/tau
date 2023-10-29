@@ -59,9 +59,9 @@ struct kvmat_ : public virtual at_
 // Additionally, we insert a special key to track the ID of the next indirect
 // key we plan to create. Here's an example of all this in action:
 //
-// ("l" "foo") → 0 1 2 3 4    # literal key "foo" with values 1 2 3 4
-// ("l" "bar") → 1 "k1" "k2"  # "foo"'s values are stored at "k1" and "k2",
-// ("i" "k1")  → 1 3          #   each of which has two values
+// ("l" "foo") → 0 1 2 3 4            # literal key "foo" with values 1 2 3 4
+// ("l" "bar") → 2 (2 "k1") (2 "k2")  # indirect key
+// ("i" "k1")  → 1 3
 // ("i" "k2")  → 2 4
 //
 // We keep an in-memory stage so we aren't flushing things to the database too
@@ -71,6 +71,18 @@ struct kvmat_ : public virtual at_
 // Insertion, deletion, and retrieval can all kick off a single-key merge, which
 // causes all indirect values to be flattened into a single list. This is done
 // with η sorted streams, so it's fast and space-efficient.
+//
+// Indirect keys need some explanation. First, the literal value is a lookup
+// table for all of the indirects: it starts with the number of indirect keys
+// and each further entry is (n k), where n == db[k].len(). We store them this
+// way because later balance the indirects by merging the smallest ones.
+//
+// In summary:
+//
+// ("l" "foo") → 3 (1 "k1") (4 "k2") (18 "k3")  ← 3 means "three indirects"
+// ("i" "k1")  → "bar"                          ← 1 value here
+// ("i" "k2")  → "a" "b" "c" "d"                ← 4 values here
+// ("i" "k3")  → ...                            ← 18 values here
 
 struct kvmmat_ : public virtual at_
 {
@@ -86,16 +98,20 @@ struct kvmmat_ : public virtual at_
   void τ(ηic &x, ξo o)         override;
 
 
-  void astage(ηic &k, ηic &v);  // stage addition
-  void dstage(ηic &k, ηic &v);  // stage deletion
-  void merge(ηic &k);           // merge all indirect keys
-  ηm   flush(ηic &k);           // flush stage to indirect key, return key
-  void flush();                 // flush all staged values
-  void del(ηic &k);             // delete all values at key
+  void astage (ηic &k, ηic &v);  // stage addition
+  void dstage (ηic &k, ηic &v);  // stage deletion
+  void merge  (ηic &k);          // fully merge all indirects (expensive)
+  void balance(ηic &k);          // partially merge (usually cheap)
+  void touch  (ηic &k);          // check for stage overflow and maybe flush
+  ηm   flush  (ηic &k);          // flush stage to indirect key, return key
+  void flush  ();                // flush all staged values
+  void del    (ηic &k);          // delete all values at key
 
   bool has_add(ηic &k) const;
   bool has_del(ηic &k) const;
-  void post_stage(ηic &k);      // commit if overflow
+
+
+  ηm write_ikey(ηic &k, ηic &v);  // returns #items k
 
 
   ηm    lkey(ηic &k)        const { return ηm{} << "l" << k.all(); }

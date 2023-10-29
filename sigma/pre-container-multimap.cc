@@ -40,7 +40,7 @@ void kvmmat_::astage(ηic &k, ηic &v)
   if (add_[k].insert(v).second) ss_ += v.lsize();
   let i = del_.find(k);
   if (i != del_.end()) if (i->second.erase(v)) ss_ -= v.lsize();
-  post_stage(k);
+  touch(k);
 }
 
 void kvmmat_::dstage(ηic &k, ηic &v)
@@ -48,7 +48,7 @@ void kvmmat_::dstage(ηic &k, ηic &v)
   if (del_[k].insert(v).second) ss_ += v.lsize();
   let i = add_.find(k);
   if (i != add_.end()) if (i->second.erase(v)) ss_ -= v.lsize();
-  post_stage(k);
+  touch(k);
 }
 
 void kvmmat_::merge(ηic &k)
@@ -59,15 +59,19 @@ void kvmmat_::merge(ηic &k)
   let ks = kv_indirect(k);  // save these so we can delete them later
   if (ks.size() == 1 && !has_add(k) && !has_del(k)) return;
 
-  let ik = genkey();
-  db_->set(ikey(ik), mo(*at(k)).all());
-  db_->set(lkey(k), ηm{} << 1 << ik.all());
+  let ik = write_ikey(genkey(), mo(*at(k)).all());
+  db_->set(lkey(k), ηm{} << ik);
   for (let &i : ks) db_->del(ikey(i));
 
   // Remove from stage
   if (add_.contains(k)) for (let &a : add_.at(k)) ss_ -= a.lsize();
   if (del_.contains(k)) for (let &d : del_.at(k)) ss_ -= d.lsize();
   A(ss_ >= 0, "kvmmat_::merge: bad stage accounting: ss_ = " << ss_);
+}
+
+void kvmmat_::balance(ηic &k)
+{
+
 }
 
 ηm kvmmat_::flush(ηic &k)
