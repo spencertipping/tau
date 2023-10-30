@@ -163,9 +163,9 @@ struct kvmmat_ : public virtual at_
   M<ηm, stage> add_;  // staged values to add
   M<ηm, stage> del_;  // staged values to delete
   iN           ss_;   // staged size = ∑|v| in stage
-  uN           svo_;  // staged value overflow (bytes)
-  uN           sko_;  // staged key overflow (#keys)
-  uN           lvs_;  // literal value size limit (bytes)
+  iN           svo_;  // staged value overflow (bytes)
+  iN           sko_;  // staged key overflow (#keys)
+  iN           lvs_;  // literal value size limit (bytes)
   h256         nk_;   // seed for genkey()
 };
 
