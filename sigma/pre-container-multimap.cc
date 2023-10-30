@@ -250,8 +250,8 @@ So<ηm> kvmmat_::kv_ind_asc(key &k) const
 void kvmmat_::make_indirect(key &k)
 {
   let ik = genkey();
-  let v  = db_->get(lkey(k)).next();
-  let n  = v.len();
+  let v  = ηm{db_->get(lkey(k)).next()};
+  let n  = v.y().len();
   db_->set(ikey(ik), v);
   db_->set(lkey(k),  ηm{} << 1 << (ηm{} << i64(n) << ik.all()));
 }
