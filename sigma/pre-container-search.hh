@@ -12,14 +12,16 @@ namespace σ::pre
 
 struct kviat_ : public virtual at_
 {
-  kviat_(cback const &l, Sp<kvmmat_> mm) : at_(ct_index{}, l), mm(mm) {}
+  kviat_(cback const &l, Sp<kvmmat_> mm)
+    : at_(ct_index{}, l), mm(mm) {}
 
   void α(ηic &k, ηic &v, ξo o) override { mm->α(k, v, o); }
-  void ι(ηic &k, ηic &v, ξo o) override { o.r() << k.all() << term(k)->all(); }
+  void ι(ηic &k, ηic &v, ξo o) override { o.r() << k.all() << term(k)->all().all(); }
   void κ(ηic &k, ηic &v, ξo o) override { mm->κ(k, v, o); }
   void τ(ηic &x, ξo o)         override { mm->τ(x, o); }
   void ρ(ηic &n, ηic &q, ξo o) override
     { o.r() << q.one().all() << query(n.ci(), q.next()).all(); }
+  void ω(ηic &k, ηic &v, ξo o) override { mm->ω(k, v, o); }
 
 
   ηsstream term(ηic &k) { return mm->ss(k); }

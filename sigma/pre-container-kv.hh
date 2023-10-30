@@ -1,6 +1,7 @@
 #ifndef σpre_container_kv_h
 #define σpre_container_kv_h
 
+#include "../tau.hh"
 #include "pre-container.hh"
 #include "pre-kv.hh"
 #include "pre-sstream.hh"
@@ -97,7 +98,8 @@ struct kvmmat_ : public virtual at_
   kvmmat_(ct_multimap const &m, cback const &l, Sp<kv_> db)
     : at_(m, l), db_(db), ss_(0),
       svo_(1048576), sko_(64), lvs_(1024),
-      nk_((isha2{} << (ηm{} << now().time_since_epoch().count()))()) {}
+      nk_((isha2{} << (ηm{} << now().time_since_epoch().count()))()),
+      csw_([this] { flush(); }) {}
 
   ~kvmmat_() { flush(); }
 
@@ -167,6 +169,7 @@ struct kvmmat_ : public virtual at_
   iN           sko_;  // staged key overflow (#keys)
   iN           lvs_;  // literal value size limit (bytes)
   h256         nk_;   // seed for genkey()
+  Λcsw         csw_;  // auto-flush on context switch
 };
 
 

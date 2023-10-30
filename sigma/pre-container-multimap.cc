@@ -219,14 +219,14 @@ uN kvmmat_::kv_ilen(key &k) const
 V<ηm> kvmmat_::kv_indirects(key &k) const
 {
   V<ηm> r; r.reserve(kv_ilen(k));
-  for (let &x : db_->get(lkey(k))) r.push_back(x.η()[1]);
+  for (let &x : db_->get(lkey(k)).next()) r.push_back(x.η()[1]);
   return r;
 }
 
 So<ηm> kvmmat_::kv_ind_asc(key &k) const
 {
   So<ηm> r;
-  for (let &x : db_->get(lkey(k))) r.insert(x.η());
+  for (let &x : db_->get(lkey(k)).next()) r.insert(x.η());
   return r;
 }
 

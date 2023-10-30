@@ -155,7 +155,7 @@ $ $sigma 'n1p("a" α 11)
 "a" 11 13
 2 3
 "a" 4 11 12 13 16
-5 ω
+5
 τ
 ```
 
@@ -176,9 +176,9 @@ $ $sigma 'n1p("q" "a" ι)
 "q" "a" ω
 "q" "a" ω
 "i" τ
-"i" ω
+"i"
 "q" "a" "bar" "foo"
-"q" ω
+"q"
 ```
 
 Queries are issued as _n ρ i q_, where _n_ is the maximum number of results to return, _i_ is the query ID (emitted with results), and _q_ is a recursively-defined query:
