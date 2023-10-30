@@ -111,6 +111,9 @@ struct kvmmat_ : public virtual at_
   void τ(ηic &x, ξo o)         override;
 
 
+  // FIXME: add directly to literal if it is within size
+
+
   void balance(key &k);
 
   void touch();
