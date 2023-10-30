@@ -61,6 +61,7 @@ struct ηsstream_cmp_
   typedef ηsstream_<fast> cmp;
   bool comp (ηic &a, ηic &b) const { return cmp::lt(cmp::compare(a, b)); }
   bool equiv(ηic &a, ηic &b) const { return cmp::eq(cmp::compare(a, b)); }
+  bool operator()(ηic &a, ηic &b) const { return comp(a, b); }
 };
 
 

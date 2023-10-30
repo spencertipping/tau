@@ -1,4 +1,6 @@
 #include "pre-container.hh"
+#include "pre-container-kv.hh"
+#include "pre-container-search.hh"
 #include "pre-spatial.hh"
 #include "begin.hh"
 
@@ -82,12 +84,13 @@ Sp<at_> at(ctype t, cback b)
       [&](ct_set,      cb_native) { return Sp<at_>(new nsat_()); },
       [&](ct_uniq,     cb_native) { return Sp<at_>(new nuat_()); },
       [&](ct_map,      cb_native) { return Sp<at_>(new nmat_()); },
-      [&](ct_index,    cb_native) { return iat(cb_native{}, kv_native()); },
+      [&](ct_index,    cb_native) { return Sp<at_>(new kvmmat_(ct_multimap{}, cb_native{}, kv_native())); },
 
       [&](ct_set,               cb_lmdb const &l) { return lmdb_set(l); },
       [&](ct_map,               cb_lmdb const &l) { return lmdb_map(l); },
       [&](ct_multimap const &m, cb_lmdb const &l) { return lmdb_multimap(m, l); },
-      [&](ct_index,             cb_lmdb const &l) { return iat(l, kv_lmdb(l.f, l.db)); }
+      [&](ct_index,             cb_lmdb const &l)
+        { return Sp<at_>{new kviat_(l, at(ct_multimap{}, l).as<kvmmat_>())}; }
     }, t, b);
 }
 

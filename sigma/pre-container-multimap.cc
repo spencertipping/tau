@@ -55,7 +55,7 @@ void kvmmat_::balance(key &k)
     else           oks.push_back(x);
 
   let mn = ηsstream_union(mss)->all();
-  let ik = ηm{} << mn.y().len() << new_indirect(mn);
+  let ik = ηm{} << i64(mn.y().len()) << new_indirect(mn);
   oks.push_back(ik);
   ηm lv;
   lv << i64(oks.size());
@@ -70,7 +70,8 @@ void kvmmat_::balance(key &k)
 void kvmmat_::touch()
 {
   // Not sophisticated, but it should basically work
-  if (ss_ >= svo_ || add_.size() >= sko_ || del_.size() >= sko_) flush();
+  if (ss_ >= svo_ || iN(add_.size()) >= sko_ || iN(del_.size()) >= sko_)
+    flush();
 }
 
 void kvmmat_::flush()
@@ -250,7 +251,7 @@ void kvmmat_::make_indirect(key &k)
   let v  = db_->get(lkey(k)).next();
   let n  = v.len();
   db_->set(ikey(ik), v);
-  db_->set(lkey(k),  ηm{} << 1 << (ηm{} << n << ik));
+  db_->set(lkey(k),  ηm{} << 1 << (ηm{} << i64(n) << ik));
 }
 
 
@@ -265,9 +266,9 @@ void kvmmat_::add_kv_literal(key &k, stage const &v)
 void kvmmat_::add_kv_indirect(key &k, stage const &v)
 {
   let  ik = new_indirect(v);
-  auto ks = kv_indirects(k); ks.push_back(ηm{} << v.size() << ik);
+  auto ks = kv_indirects(k); ks.push_back(ηm{} << i64(v.size()) << ik);
   ηm   lv;
-  lv << ks.size();
+  lv << i64(ks.size());
   for (let &k : ks) lv << k;
   db_->set(lkey(k), lv);
 }
