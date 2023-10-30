@@ -81,6 +81,7 @@ void kvmmat_::flush()
   for (let &[k, _] : del_) ks.insert(k);
   for (let &k : ks) flush(k);
   db_->commit();
+  A(!ss_, "kvmmat_::ss_ != 0: " << ss_);
 }
 
 void kvmmat_::flush(key &k)
