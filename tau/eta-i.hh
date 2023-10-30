@@ -332,6 +332,9 @@ struct ηi final
       } }
 
 
+  St inspect() const;
+
+
 private:
   u8c *a_;  // control byte location
   uN   l_;  // outer buffer length

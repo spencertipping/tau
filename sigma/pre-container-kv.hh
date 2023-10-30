@@ -141,8 +141,8 @@ struct kvmmat_ : public virtual at_
   So<ηm>   kv_ind_asc  (key &k) const;  // (n k) pairs sorted by asc n
 
 
-  ind  new_indirect   (stage const &v);
-  ind  new_indirect   (ηic &v);
+  ηm   new_indirect   (stage const &v);
+  ηm   new_indirect   (ηic &v);
   void make_indirect  (key &k);
 
   void add_kv_literal (key &k, stage const &v);

@@ -20,7 +20,7 @@ struct kviat_ : public virtual at_
   void κ(ηic &k, ηic &v, ξo o) override { mm->κ(k, v, o); }
   void τ(ηic &x, ξo o)         override { mm->τ(x, o); }
   void ρ(ηic &n, ηic &q, ξo o) override
-    { o.r() << q.one().all() << query(n.ci(), q.next()).all(); }
+    { o.r() << q.one().all() << query(q.next())->take(n.ci()).all(); }
   void ω(ηic &k, ηic &v, ξo o) override { mm->ω(k, v, o); }
 
 
@@ -33,15 +33,14 @@ struct kviat_ : public virtual at_
   // ("+" a b ...) → union a b ...
   // ("-" a b)     → difference a b
   // ("t" x)       → lookup term x
-  ηm       query (uN n, ηic &q) { return query_(q)->all(); }
-  ηsstream query_(ηic &q)
+  ηsstream query(ηic &q)
   { let c = q.η().s();
     if (c == "t") return term(q.η().next());
     if (c == "-")
-      return query_(q.η().next()) - query_(q.η().next().next());
+      return query(q.η().next()) - query(q.η().next().next());
 
     V<ηsstream> xs;
-    for (let &x : q.η().next()) xs.push_back(query_(x));
+    for (let &x : q.η().next()) xs.push_back(query(x));
     if      (c == "+") return ηsstream_union(xs);
     else if (c == "*") return ηsstream_intersect(xs);
     else

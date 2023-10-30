@@ -163,6 +163,18 @@ Persistent search collections can support multiple simultaneous readers and writ
 
 ```bash
 $ rm -f /tmp/test.db /tmp/test.db-lock
+$ $sigma 'n1p("a" ι)
+             ("a" α "foo")
+             ("a" κ)
+             ("a" ι)
+             ("a" α "bar")
+             ("a" κ)
+             ("a" ι)@-
+          K @SL"/tmp/test.db:foo"'
+"a"
+"a" "foo"
+"a" "bar" "foo"
+$ rm -f /tmp/test.db /tmp/test.db-lock
 $ $sigma 'n1p("q" "a" ι)
              ("i" "a" α "foo")
              ("i" "a" α "bar")
@@ -173,12 +185,12 @@ $ $sigma 'n1p("q" "a" ι)
           K p0.01Θ.`x;
           {i|@SL"/tmp/test.db:foo"
            q|@SL"/tmp/test.db:foo"}'
-"q" "a" ω
-"q" "a" ω
-"i" τ
-"i"
+"q" "a"
 "q" "a" "bar" "foo"
-"q"
+"i" τ
+"i" ω
+"q" "a" "bar" "foo"
+"q" ω
 ```
 
 Queries are issued as _n ρ i q_, where _n_ is the maximum number of results to return, _i_ is the query ID (emitted with results), and _q_ is a recursively-defined query:

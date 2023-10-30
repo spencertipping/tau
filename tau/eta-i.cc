@@ -92,6 +92,14 @@ PO ηi::operator<=>(ηic &x) const
 }
 
 
+St ηi::inspect() const
+{
+  Ss s;
+  s << *this;
+  return s.str();
+}
+
+
 void ηi::decode_cb()
 {
   ηicb_r r;

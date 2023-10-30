@@ -55,8 +55,7 @@ void kvmmat_::balance(key &k)
     else           oks.push_back(x);
 
   let mn = ηsstream_union(mss)->all();
-  let ik = ηm{} << i64(mn.y().len()) << new_indirect(mn);
-  oks.push_back(ik);
+  oks.push_back(ηm{} << i64(mn.y().len()) << new_indirect(mn).all());
   ηm lv;
   lv << i64(oks.size());
   for (let &x : oks) lv << x;
@@ -81,6 +80,7 @@ void kvmmat_::flush()
   for (let &[k, _] : add_) ks.insert(k);
   for (let &[k, _] : del_) ks.insert(k);
   for (let &k : ks) flush(k);
+  db_->commit();
 }
 
 void kvmmat_::flush(key &k)
@@ -185,7 +185,7 @@ bool kvmmat_::staged_del(key &k)
 {
   if (!db_->has(lkey(k))) return ηesstream();
   let i = db_->get(lkey(k));
-  return i.i() ? ss_literal(k) : ss_indirect(k);
+  return !i.i() ? ss_literal(k) : ss_indirect(k);
 }
 
 ηsstream kvmmat_::ss_literal(key &k) const
@@ -218,6 +218,7 @@ uN kvmmat_::kv_ilen(key &k) const
 
 V<ηm> kvmmat_::kv_indirects(key &k) const
 {
+  A(kv_ilen(k), "kv_ind_asc on non-indirect " << k);
   V<ηm> r; r.reserve(kv_ilen(k));
   for (let &x : db_->get(lkey(k)).next()) r.push_back(x.η()[1]);
   return r;
@@ -225,20 +226,21 @@ V<ηm> kvmmat_::kv_indirects(key &k) const
 
 So<ηm> kvmmat_::kv_ind_asc(key &k) const
 {
+  A(kv_ilen(k), "kv_ind_asc on non-indirect " << k);
   So<ηm> r;
   for (let &x : db_->get(lkey(k)).next()) r.insert(x.η());
   return r;
 }
 
 
-kvmmat_::ind kvmmat_::new_indirect(stage const &v)
+ηm kvmmat_::new_indirect(stage const &v)
 {
   uN s = 0;           for (let &x : v) s += x.lsize();
-  ηm m; m.reserve(s); for (let &x : v) m << x;
+  ηm m; m.reserve(s); for (let &x : v) m << x.all();
   return new_indirect(m);
 }
 
-kvmmat_::ind kvmmat_::new_indirect(ηic &v)
+ηm kvmmat_::new_indirect(ηic &v)
 {
   let k = genkey();
   db_->set(ikey(k), v);
@@ -251,7 +253,7 @@ void kvmmat_::make_indirect(key &k)
   let v  = db_->get(lkey(k)).next();
   let n  = v.len();
   db_->set(ikey(ik), v);
-  db_->set(lkey(k),  ηm{} << 1 << (ηm{} << i64(n) << ik));
+  db_->set(lkey(k),  ηm{} << 1 << (ηm{} << i64(n) << ik.all()));
 }
 
 
@@ -259,14 +261,14 @@ void kvmmat_::add_kv_literal(key &k, stage const &v)
 {
   A(!db_->has(lkey(k)), "add_kv_literal on existing key " << k);
   uN s = 0;                       for (let &x : v) s += x.lsize();
-  ηm m; m.reserve(s + 2); m << 0; for (let &x : v) m << x;
+  ηm m; m.reserve(s + 2); m << 0; for (let &x : v) m << x.all();
   db_->set(lkey(k), m);
 }
 
 void kvmmat_::add_kv_indirect(key &k, stage const &v)
 {
   let  ik = new_indirect(v);
-  auto ks = kv_indirects(k); ks.push_back(ηm{} << i64(v.size()) << ik);
+  auto ks = kv_ind_asc(k); ks.insert(ηm{} << i64(v.size()) << ik.all());
   ηm   lv;
   lv << i64(ks.size());
   for (let &k : ks) lv << k;

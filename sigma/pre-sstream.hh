@@ -51,7 +51,8 @@ struct ηsstream_
   virtual ηi   operator* () = 0;
   virtual void operator++() = 0;
 
-  ηm all() { ηm r; while (*this) r << (**this).all(), ++*this; return r; }
+  ηm all()      { ηm r;           while          (*this) r << (**this).all(), ++*this;      return r; }
+  ηm take(uN n) { uN i = 0; ηm r; while (i < n && *this) r << (**this).all(), ++*this, ++i; return r; }
 };
 
 
@@ -83,7 +84,7 @@ struct ηisstream_ final : public virtual ηsstream_<fast>
   ηisstream_(ηic &x) : ηsstream_<fast>(), x(x.begin()), e(x.end()) {}
 
   operator   bool() override { return x != e; }
-  ηi   operator* () override { return *x; }
+  ηi   operator* () override { return (*x).one(); }
   void operator++() override { ++x; }
 
   ηi::it x;
