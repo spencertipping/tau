@@ -2,7 +2,7 @@
 #define σpre_container_search_h
 
 #include "pre-container.hh"
-#include "pre-spatial.hh"
+#include "pre-container-kv.hh"
 #include "pre-sstream.hh"
 #include "../tau/begin.hh"
 
@@ -10,35 +10,46 @@ namespace σ::pre
 {
 
 
-// TODO: add key overflow
-// TODO: add multi-layer staging (can just be keyspace, not separate tables)
 struct kviat_ : public virtual at_
 {
-  kviat_(cback const &l, Sp<kv_> db) : at_(ct_map{}, l), db(db), s(0) {}
-  ~kviat_() { commit(); }
+  kviat_(cback const &l, Sp<kvmmat_> mm)
+    : at_(ct_index{}, l),
+      mm(at(ct_multimap{}, l).as<kvmmat_>()) {}
 
-  void α(ηic &k, ηic &v, ξo) override { if (xs[k].insert(v).second) staged(v.lsize()); }
-  void ι(ηic &k, ηic&, ξo o) override
-    { commit();
-      let r = db->get(k);
-      if (!r.empty()) o.r(k.lsize() + r.size() + 8) << k.all() << r.all();
-      else            o.r(k.lsize() + 2)            << k.all() << ηsig::ω; }
-
-  void τ(ηic &x, ξo o)         override { commit(); db->sync(); o.r() << ηsig::τ; }
-  void ρ(ηic &n, ηic &q, ξo o) override { commit(); o.r() << q.one().all() << query(n.ci(), q.next()).all(); }
+  void α(ηic &k, ηic &v, ξo o) override { mm->α(k, v, o); }
+  void ι(ηic &k, ηic &v, ξo o) override { mm->ι(k, v, o); }
+  void κ(ηic &k, ηic &v, ξo o) override { mm->κ(k, v, o); }
+  void τ(ηic &x, ξo o)         override { mm->τ(x, o); }
+  void ρ(ηic &n, ηic &q, ξo o) override
+    { o.r() << q.one().all() << query(n.ci(), q.next()).all(); }
 
 
-  ηi   at(ηic &k)   { commit(); return db->get(k); }
-  void staged(uN n) { if ((s += n) > 1 << 20) commit(); }
-  void commit();
-
-  ηm       query (uN n, ηic&);
-  ηsstream query_(ηic&);
+  ηsstream term(ηic &k) { return mm->ss(k); }
 
 
-  Sp<kv_>      db;
-  M<ηm, S<ηm>> xs;  // staged insertions
-  uN           s;   // size of staged insertions
+  // Query syntax:
+  //
+  // ("*" a b ...) → intersect a b ...
+  // ("+" a b ...) → union a b ...
+  // ("-" a b)     → difference a b
+  // ("t" x)       → lookup term x
+  ηm       query (uN n, ηic &q) { return query_(q)->all(); }
+  ηsstream query_(ηic &q)
+  { let c = q.η().s();
+    if (c == "t") return term(q.η().next());
+    if (c == "-")
+      return query_(q.η().next()) - query_(q.η().next().next());
+
+    V<ηsstream> xs;
+    for (let &x : q.η().next()) xs.push_back(query_(x));
+    if      (c == "+") return ηsstream_union(xs);
+    else if (c == "*") return ηsstream_intersect(xs);
+    else
+    { A(0, "unknown query operator: " << c << " in " << q);
+      τunreachable(); } }
+
+
+  Sp<kvmmat_> mm;
 };
 
 

@@ -37,15 +37,41 @@ void kvmmat_::τ(ηic &x, ξo o)
 
 void kvmmat_::balance(key &k)
 {
-  TODO("balance");
+  if (!kv_has(k) || !kv_ilen(k)) return;
+
+  let iks = kv_ind_asc(k);
+  let nk  = *iks.rbegin();      // largest (n k) pair
+  let mi  = ubits(nk.y().i());  // max #indirects
+
+  if (iks.size() <= mi) return;
+
+  let nm = iks.size() - mi;          // number of merges required
+  V<ηm>       mks; mks.reserve(nm);  // keys to merge
+  V<ηsstream> mss; mss.reserve(nm);  // streams to merge
+  V<ηm>       oks; oks.reserve(mi);  // other keys, preserved verbatim
+  uN i = 0;
+  for (let &x : iks)
+    if (i++ <= nm) mks.push_back(x[1]), mss.push_back(ss_indirect1(x[1]));
+    else           oks.push_back(x);
+
+  let mn = ηsstream_union(mss)->all();
+  let ik = ηm{} << mn.y().len() << new_indirect(mn);
+  oks.push_back(ik);
+  ηm lv;
+  lv << i64(oks.size());
+  for (let &x : oks) lv << x;
+  db_->set(lkey(k), lv);
+
+  // Finally, delete the now-merged indirects
+  for (let &i : mks) db_->del(ikey(i));
 }
 
 
-void kvmmat_::flush(key &k)
+void kvmmat_::touch()
 {
-  TODO("flush");
+  // Not sophisticated, but it should basically work
+  if (ss_ >= svo_ || add_.size() >= sko_ || del_.size() >= sko_) flush();
 }
-
 
 void kvmmat_::flush()
 {
@@ -56,29 +82,53 @@ void kvmmat_::flush()
   for (let &k : ks) flush(k);
 }
 
+void kvmmat_::flush(key &k)
+{
+  // Add staged values first, then delete; this way we get the rebalancing
+  // in as necessary.
+  if (staged_add(k))
+  {
+    add_kv(k, add_.at(k));
+    for (let &x : add_.at(k)) ss_ -= x.lsize();
+    add_.erase(k);
+    balance(k);
+  }
+
+  if (staged_del(k))
+  {
+    del_kv(k, del_.at(k));
+    for (let &x : del_.at(k)) ss_ -= x.lsize();
+    del_.erase(k);
+  }
+}
+
 
 void kvmmat_::stage_add(key &k, ηic &v)
 {
-  add_[k].insert(v);
+  if (add_[k].insert(v).second) ss_ += v.lsize();
   unstage_del(k, v);
+  touch();
 }
 
 void kvmmat_::stage_add(key &k, ηm &&v)
 {
-  add_[k].insert(mo(v));
+  if (add_[k].insert(mo(v)).second) ss_ += v.lsize();
   unstage_del(k, v);
+  touch();
 }
 
 void kvmmat_::stage_del(key &k, ηic &v)
 {
-  del_[k].insert(v);
+  if (del_[k].insert(v).second) ss_ += v.lsize();
   unstage_add(k, v);
+  touch();
 }
 
 void kvmmat_::stage_del(key &k, ηm &&v)
 {
-  del_[k].insert(mo(v));
+  if (del_[k].insert(mo(v)).second) ss_ += v.lsize();
   unstage_add(k, v);
+  touch();
 }
 
 void kvmmat_::unstage_add(key &k, ηic &v)
@@ -86,9 +136,8 @@ void kvmmat_::unstage_add(key &k, ηic &v)
   let i = add_.find(k);
   if (i != add_.end())
   {
-    let j = i->second.find(v);
-    if (j != i->second.end()) i->second.erase(j);
-    if (i->second.empty()) add_.erase(i);
+    if (i->second.erase(v)) ss_ -= v.lsize();
+    if (i->second.empty())  add_.erase(i);
   }
 }
 
@@ -97,12 +146,27 @@ void kvmmat_::unstage_del(key &k, ηic &v)
   let i = del_.find(k);
   if (i != del_.end())
   {
-    let j = i->second.find(v);
-    if (j != i->second.end()) i->second.erase(j);
-    if (i->second.empty()) add_.erase(i);
+    if (i->second.erase(v)) ss_ -= v.lsize();
+    if (i->second.empty())  del_.erase(i);
   }
 }
 
+bool kvmmat_::staged_add(key &k)
+{
+  // NOTE: should never be empty, but let's be sure
+  return add_.contains(k) && !add_.at(k).empty();
+}
+
+bool kvmmat_::staged_del(key &k)
+{
+  return del_.contains(k) && !del_.at(k).empty();
+}
+
+
+ηsstream kvmmat_::ss(key &k) const
+{
+  return (ss_kv(k) | ss_add_stage(k)) - ss_del_stage(k);
+}
 
 ηsstream kvmmat_::ss_add_stage(key &k) const
 {
@@ -154,25 +218,39 @@ uN kvmmat_::kv_ilen(key &k) const
 V<ηm> kvmmat_::kv_indirects(key &k) const
 {
   V<ηm> r; r.reserve(kv_ilen(k));
-  for (let &x : db_->get(lkey(k))) r.push_back(x[1]);
+  for (let &x : db_->get(lkey(k))) r.push_back(x.η()[1]);
   return r;
 }
 
 So<ηm> kvmmat_::kv_ind_asc(key &k) const
 {
   So<ηm> r;
-  for (let &x : db_->get(lkey(k))) r.insert(x);
+  for (let &x : db_->get(lkey(k))) r.insert(x.η());
   return r;
 }
 
 
 kvmmat_::ind kvmmat_::new_indirect(stage const &v)
 {
-  let k = genkey();
   uN s = 0;           for (let &x : v) s += x.lsize();
   ηm m; m.reserve(s); for (let &x : v) m << x;
-  db_->set(k, m);
+  return new_indirect(m);
+}
+
+kvmmat_::ind kvmmat_::new_indirect(ηic &v)
+{
+  let k = genkey();
+  db_->set(ikey(k), v);
   return k;
+}
+
+void kvmmat_::make_indirect(key &k)
+{
+  let ik = genkey();
+  let v  = db_->get(lkey(k)).next();
+  let n  = v.len();
+  db_->set(ikey(ik), v);
+  db_->set(lkey(k),  ηm{} << 1 << (ηm{} << n << ik));
 }
 
 
@@ -182,6 +260,56 @@ void kvmmat_::add_kv_literal(key &k, stage const &v)
   uN s = 0;                       for (let &x : v) s += x.lsize();
   ηm m; m.reserve(s + 2); m << 0; for (let &x : v) m << x;
   db_->set(lkey(k), m);
+}
+
+void kvmmat_::add_kv_indirect(key &k, stage const &v)
+{
+  let  ik = new_indirect(v);
+  auto ks = kv_indirects(k); ks.push_back(ηm{} << v.size() << ik);
+  ηm   lv;
+  lv << ks.size();
+  for (let &k : ks) lv << k;
+  db_->set(lkey(k), lv);
+}
+
+void kvmmat_::add_kv(key &k, stage const &v)
+{
+  if      (!kv_has(k))                    add_kv_literal(k, v);
+  else if (!kv_ilen(k)) make_indirect(k), add_kv_indirect(k, v);
+  else                                    add_kv_indirect(k, v);
+}
+
+
+void kvmmat_::del_kv_literal(key &k, stage const &v)
+{
+  TODO("del_kv_literal");
+}
+
+void kvmmat_::del_kv_indirect(key &k, stage const &v)
+{
+  TODO("del_kv_indirect");
+}
+
+void kvmmat_::del_kv(key &k, stage const &v)
+{
+  TODO("del_kv");
+}
+
+void kvmmat_::del_all(key &k)
+{
+  TODO("del_all");
+}
+
+
+ηm kvmmat_::genkey()
+{
+  ++*(i64*)(nk_.data());
+  while (db_->has(ikey(ηm{} << nk_)))
+  {
+    *(i64*)(nk_.data()) += now().time_since_epoch().count();
+    nk_ = (isha2{} << (ηm{} << nk_))();
+  }
+  return ηm{} << nk_;
 }
 
 

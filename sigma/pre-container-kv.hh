@@ -84,8 +84,8 @@ struct kvmat_ : public virtual at_
 // ("i" "k2")  → "a" "b" "c" "d"                ← 4 values here
 // ("i" "k3")  → ...                            ← 18 values here
 //
-// A key is balanced when no two of its indirects have more than a factor of two
-// difference in #items, or it has fewer than log2(largest) indirects.
+// A key is balanced when it has fewer than log2(largest indirect) indirects.
+// We always merge the smallest indirects first.
 
 struct kvmmat_ : public virtual at_
 {
@@ -99,6 +99,8 @@ struct kvmmat_ : public virtual at_
       svo_(1048576), sko_(64), lvs_(1024),
       nk_((isha2{} << (ηm{} << now().time_since_epoch().count()))()) {}
 
+  ~kvmmat_() { flush(); }
+
 
   void α(key &k, ηic &v, ξo)   override;
   void ω(key &k, ηic &v, ξo)   override;
@@ -108,8 +110,10 @@ struct kvmmat_ : public virtual at_
 
 
   void balance(key &k);
-  void flush  (key &k);
-  void flush  ();
+
+  void touch();
+  void flush();
+  void flush(key &k);
 
   void stage_add  (key &k, ηic &v);
   void stage_add  (key &k, ηm &&v);
@@ -117,6 +121,8 @@ struct kvmmat_ : public virtual at_
   void stage_del  (key &k, ηm &&v);
   void unstage_add(key &k, ηic &v);
   void unstage_del(key &k, ηic &v);
+  bool staged_add (key &k);
+  bool staged_del (key &k);
 
 
   ηsstream ss          (key &k) const;  // unified view of values at key
@@ -134,13 +140,15 @@ struct kvmmat_ : public virtual at_
 
 
   ind  new_indirect   (stage const &v);
+  ind  new_indirect   (ηic &v);
+  void make_indirect  (key &k);
 
   void add_kv_literal (key &k, stage const &v);
   void add_kv_indirect(key &k, stage const &v);
   void add_kv         (key &k, stage const &v);
 
-  void del_literal    (key &k, stage const &v);
-  void del_indirect   (key &k, stage const &v);
+  void del_kv_literal (key &k, stage const &v);
+  void del_kv_indirect(key &k, stage const &v);
   void del_kv         (key &k, stage const &v);
   void del_all        (key &k);         // delete all values at key
 

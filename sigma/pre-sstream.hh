@@ -51,7 +51,7 @@ struct ηsstream_
   virtual ηi   operator* () = 0;
   virtual void operator++() = 0;
 
-  ηm all()&& { ηm r; while (*this) r << **this; return r; }
+  ηm all() { ηm r; while (*this) r << **this; return r; }
 };
 
 
