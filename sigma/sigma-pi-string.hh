@@ -10,7 +10,7 @@ namespace σ
 using namespace τ;
 
 St η_to_json(ηic&);
-ηm η_from_json(Stc&);
+ηm json_to_η(Stc&);
 
 St hex_decode(Stc&);
 St hex_encode(Stc&);

@@ -113,6 +113,8 @@ struct kvmmat_ : public virtual at_
 
   // FIXME: add directly to literal if it is within size
 
+  // FIXME: allow tuning
+
 
   void balance(key &k);
 
