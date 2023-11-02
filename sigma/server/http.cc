@@ -17,7 +17,7 @@ void Γhttp(Γφ &g)
 
 bool http_req_parse(Stc &b, ξo o)
 {
-  Re  r(R"(^([A-Z]+) ([^ ]+) HTTP/1\.1\r?\n((?:[A-Za-z0-9-]+: [^\r\n]*\r?\n)+)\r?\n)");
+  Re  r(R"(^([A-Z]+) ([^ ]+) HTTP/1\.1\r?\n((?:[A-Za-z0-9-]+: [^\r\n]*\r?\n)*)\r?\n)");
   Rsm m;
 
   if (!std::regex_match(b, m, r)) return false;
