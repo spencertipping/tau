@@ -172,23 +172,23 @@ struct ηi final
   h256 sha256() const;  // hash for collision resistance
 
 
-  bool is_sig()  const { return t() == ηtype::sig; }
-  bool is_i()    const { return t() == ηtype::n_int; }
-  bool is_f()    const { return t() == ηtype::n_float; }
-  bool is_s()    const { return t() == ηtype::string; }
-  bool is_a()    const { return t() == ηtype::atom; }
-  bool is_n()    const { return t() == ηtype::name; }
-  bool is_b()    const { return is_a() && a() <= ηatom::bool_max; }
-  bool is_η()    const { return t() == ηtype::η; }
-  bool is_bin()  const { return t() == ηtype::binary; }
-  bool is_e()    const { return t() == ηtype::ext; }
+  bool is_sig()  const { return !empty() && t() == ηtype::sig; }
+  bool is_i()    const { return !empty() && t() == ηtype::n_int; }
+  bool is_f()    const { return !empty() && t() == ηtype::n_float; }
+  bool is_s()    const { return !empty() && t() == ηtype::string; }
+  bool is_a()    const { return !empty() && t() == ηtype::atom; }
+  bool is_n()    const { return !empty() && t() == ηtype::name; }
+  bool is_b()    const { return !empty() && is_a() && a() <= ηatom::bool_max; }
+  bool is_η()    const { return !empty() && t() == ηtype::η; }
+  bool is_bin()  const { return !empty() && t() == ηtype::binary; }
+  bool is_e()    const { return !empty() && t() == ηtype::ext; }
 
-  bool is_i8s()  const { return t() == ηtype::int8s; }
-  bool is_i16s() const { return t() == ηtype::int16s; }
-  bool is_i32s() const { return t() == ηtype::int32s; }
-  bool is_i64s() const { return t() == ηtype::int64s; }
-  bool is_f32s() const { return t() == ηtype::float32s; }
-  bool is_f64s() const { return t() == ηtype::float64s; }
+  bool is_i8s()  const { return !empty() && t() == ηtype::int8s; }
+  bool is_i16s() const { return !empty() && t() == ηtype::int16s; }
+  bool is_i32s() const { return !empty() && t() == ηtype::int32s; }
+  bool is_i64s() const { return !empty() && t() == ηtype::int64s; }
+  bool is_f32s() const { return !empty() && t() == ηtype::float32s; }
+  bool is_f64s() const { return !empty() && t() == ηtype::float64s; }
 
   bool is_α() const { return is_sig() && sig() == ηsig::α; }
   bool is_ι() const { return is_sig() && sig() == ηsig::ι; }
