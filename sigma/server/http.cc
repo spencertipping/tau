@@ -76,7 +76,7 @@ void http_res_loop(ξi i, ξo o)
       let s = r.str();
       o.r(s.size() + 8) << s;
     }
-    else if (x.is_s()) o << x;
+    else if (x.is_s() || x.is_bin()) o << x;
     else if (x.is_τ())  // end of reply
     {
       // TODO: reset state
