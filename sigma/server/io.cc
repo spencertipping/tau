@@ -59,6 +59,11 @@ slet ΓT_ = Ψauto([](i64 addr, φaL<':'>, i64 port, φig, Γa<Γ> g, ψ q, ξo 
     A(t.reg(fd, true, false), "τ::reg(<" << fd << ") failed");
 
     sockaddr_in a;
+
+    int v = 1;
+    A(!setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &v, sizeof(v)),
+      "setsockopt(SO_REUSEADDR) failed");
+
     a.sin_family = AF_INET;
     a.sin_port = htons(port);
     a.sin_addr.s_addr = htonl(addr);
