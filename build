@@ -50,7 +50,8 @@ install_deps()
        libboost-context-dev libboost-stacktrace-dev libzstd-dev libsqlite3-dev liblmdb-dev \
        libxcb1-dev libx11-dev libx11-xcb-dev libgl-dev libxcb-xinput-dev \
        libxcb-keysyms1-dev \
-       libpango1.0-dev libcairo2-dev libpangocairo-1.0-0
+       libpango1.0-dev libcairo2-dev libpangocairo-1.0-0 \
+       clang
 }
 
 
