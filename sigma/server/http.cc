@@ -17,18 +17,31 @@ void Γhttp(Γφ &g)
 
 bool http_req_parse(Stc &b, ξo o)
 {
-  Re  r(R"(^([A-Z]+) ([^ ]+) HTTP/1\.1\r?\n((?:[A-Za-z0-9-]+: [^\r\n]*\r?\n)*)\r?\n)");
-  Rsm m;
-
-  if (!std::regex_match(b, m, r)) return false;
+  // NOTE: std::regex is unsafe here because it segfaults (stack overflows)
+  // on large values. We have to parse the request manually.
+  let  me  = b.find(' ');
+  let  ue  = b.find(' ', me + 1);
+  auto l1e = b.find('\n', ue + 1);
+  if (l1e == St::npos) return false;
 
   auto w = o.r(b.size() + 256);
-  w << m[1].str() << m[2].str();
+  w << b.substr(0, me) << b.substr(me + 1, ue - (me + 1));
 
-  Stc hs = m[3].str();
-  Re  hr(R"(([A-Za-z0-9-]+):[ \t]*([^\r\n]*)\r?\n)");
-  for (Rsi i(hs.begin(), hs.end(), hr), e; i != e; ++i)
-    w << ηname{(*i)[1].str()} << (*i)[2].str();
+  for (auto le = l1e, hls = l1e + 1;  // header line start
+       le != St::npos;
+       hls = le + 1)
+  {
+    le = b.find('\n', hls);
+    if (le == St::npos) return false;  // bogus HTTP request
+    let hve = b[le - 1] == '\r' ? le - 1 : le;
+
+    if (hve == hls) break;  // empty line (end of headers)
+
+    let hc = b.find(':', hls);
+    auto hvs = hc + 1;
+    while (hvs < hve && (b[hvs] == ' ' || b[hvs] == '\t')) ++hvs;
+    w << ηname{b.substr(hls, hc - hls)} << b.substr(hvs, hve - hvs);
+  }
 
   return true;
 }
