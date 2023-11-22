@@ -184,8 +184,9 @@ bool kvmmat_::staged_del(key &k)
 
 ηsstream kvmmat_::ss_kv(key &k) const
 {
-  if (!db_->has(lkey(k))) return ηesstream();
-  let i = db_->get(lkey(k));
+  let l = lkey(k);
+  if (!db_->has(l)) return ηesstream();
+  let i = db_->get(l);
   return !i.i() ? ss_literal(k) : ss_indirect(k);
 }
 

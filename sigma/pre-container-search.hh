@@ -34,18 +34,19 @@ struct kviat_ : public virtual at_
   // ("-" a b)     → difference a b
   // ("t" x)       → lookup term x
   ηsstream query(ηic &q)
-  { let c = q.η().s();
-    if (c == "t") return term(q.η().next());
-    if (c == "-")
-      return query(q.η().next()) - query(q.η().next().next());
+    { let y = q.η();
+      let c = y.s();
+      if (c == "t") return term(y[1]);
+      if (c == "-")
+        return query(y[1].one()) - query(y[2].one());
 
-    V<ηsstream> xs;
-    for (let &x : q.η().next()) xs.push_back(query(x));
-    if      (c == "+") return ηsstream_union(xs);
-    else if (c == "*") return ηsstream_intersect(xs);
-    else
-    { A(0, "unknown query operator: " << c << " in " << q);
-      τunreachable(); } }
+      V<ηsstream> xs;
+      for (let &x : y.next()) xs.push_back(query(x.one()));
+      if      (c == "+") return ηsstream_union(xs);
+      else if (c == "*") return ηsstream_intersect(xs);
+      else
+      { A(0, "unknown query operator: " << c << " in " << q);
+        τunreachable(); } }
 
 
   Sp<kvmmat_> mm;
