@@ -47,8 +47,8 @@ O &operator<<(O &s, φword  const &x) { return s << x.x; }
 
 φ<φword> φword_()
 {
-  slet r = φm(φcs("abcdefghjiklmnopqrstuvxyz", false, 1),
-              [](St &&x) { return φword{mo(x)}; });
+  slet r = φm(φre("[a-z][a-z_0-9]*"),
+              [](Vc<St> &x) { return φword{x.front()}; });
   return r;
 }
 
