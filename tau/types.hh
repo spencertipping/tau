@@ -163,7 +163,7 @@ static T balanced_apply(V<T> &&xs, F const &f)
   {
     V<T> ys;
     ys.reserve(xs.size() / 2 + 1);
-    for (uN i = 0; i < xs.size(); i += 2)
+    for (uN i = 0; i < xs.size() - 1; i += 2)
       ys.push_back(f(xs[i], xs[i + 1]));
     if (xs.size() & 1) ys.push_back(xs.back());
     xs = ys;
