@@ -52,6 +52,8 @@ static void json_decode(ηm &w, Value const &v)
 
 static void json_encode(Document::AllocatorType &a, Value &v, ηic &x)
 {
+  if (x.empty()) { v.SetNull(); return; }
+
   switch (x.t())
   {
   case ηtype::atom:
