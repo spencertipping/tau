@@ -1,3 +1,7 @@
+#include <boost/context/stack_context.hpp>
+#include <sys/mman.h>
+#include <unistd.h>
+
 #include "../types.hh"
 #include "../lambda-types.hh"
 #include "../lambda-class.hh"
@@ -9,6 +13,42 @@ namespace τ
 {
 
 namespace λbc = boost::context;
+
+
+struct guarded_stack_allocator
+{
+  static uS page_size()
+    {
+      static uS page_size_ = 0;
+      if (!page_size_) page_size_ = sysconf(_SC_PAGESIZE);
+      return page_size_;
+    }
+
+  bc::stack_context allocate()
+    {
+      // Allocate memory with an extra page at each end for the guard
+      let m = ::mmap(nullptr, λss + 2 * page_size(),
+                     PROT_READ | PROT_WRITE,
+                     MAP_PRIVATE | MAP_ANON, -1, 0);
+
+      ::mprotect(m, page_size(), PROT_NONE);
+      ::mprotect(Sc<ch*>(m) + page_size() + λss, page_size(), PROT_NONE);
+
+      bc::stack_context r;
+      r.size = λss;
+      r.sp   = Sc<ch*>(m) + page_size() + λss;
+      return r;
+    }
+
+  void deallocate(boost::context::stack_context& sctx)
+    {
+      ::munmap(Sc<ch*>(sctx.sp) - sctx.size - page_size(),
+               sctx.size + 2 * page_size());
+    }
+};
+
+
+static guarded_stack_allocator λssa;
 
 
 bool λmi;  // true if current continuation is main
@@ -30,12 +70,12 @@ void λm(λbc::continuation &&cc)
   {
     λtrack_alloc(λss);
     k = new λbc::continuation(λbc::callcc(
-      std::allocator_arg, λbc::fixedsize_stack(λss),
-      [&](λbc::continuation &&cc)
-        { λm(cc.resume());
-          f();
-          fin();
-          return mo(**λmk()); }));
+                                std::allocator_arg, λssa,
+                                [&](λbc::continuation &&cc)
+                                  { λm(cc.resume());
+                                    f();
+                                    fin();
+                                    return mo(**λmk()); }));
   }
 }
 
@@ -73,7 +113,7 @@ void λ::fin()
     k = new λbc::continuation;
     λtrack_alloc(λss);
     auto cc = λbc::callcc(
-      std::allocator_arg, λbc::fixedsize_stack(λss),
+      std::allocator_arg, λssa,
       [&](λbc::continuation &&cc)
         { λm(cc.resume());
           f();
