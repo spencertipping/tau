@@ -72,6 +72,7 @@
       std::cerr << m << ", errno = " << strerror(errno)                 \
            << "\nat " << boost::stacktrace::stacktrace() << "\n";       \
     }                                                                   \
+    τdebugging = false;                                                 \
     throw τafs.str();                                                   \
   })()
 
