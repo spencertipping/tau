@@ -111,12 +111,16 @@ struct τe : public τb
   // Run a function in a background thread, returning the result once it's done.
   // tp() automatically calls wake for us via its ef() callback.
   Txxs auto operator()(X &&f, Xs&&... xs) -> decltype(f(xs...))
-    { using T = decltype(f(xs...));
-      Fu<T> r = tp(std::forward<X>(f), std::forward<Xs>(xs)...);
-      while (r.wait_for(0s) != std::future_status::ready)
+    { return fg(bg(std::forward<X>(f), std::forward<Xs>(xs)...)); }
+
+  Txxs auto bg(X &&f, Xs&&... xs) -> Fu<decltype(f(xs...))>
+    { return tp(std::forward<X>(f), std::forward<Xs>(xs)...); }
+
+  Tt T fg(Fu<T> &&f)
+    { while (f.wait_for(0s) != std::future_status::ready)
       { reset_wake();
         rg(wfd)->y(λs::T); }
-      return r.get(); }
+      return f.get(); }
 
 
   // Fork and track child PID, return result

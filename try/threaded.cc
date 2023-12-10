@@ -24,6 +24,21 @@ void try_basic_thread()
   });
 
   t.l().c([&, r=r]() {
+    let  t0 = now();
+    auto lt = now();
+    int  qs = 0;
+
+    // Make sure the event loop isn't blocked during threading
+    while (now() - t0 < 200ms)
+    {
+      A(now() - lt < 10ms, "unexpected quantum of " << now() - lt);
+      lt = now();
+      t.Θ(now() + 1ms);
+      ++qs;
+    }
+
+    A(qs > 100, "quantum count too low: " << qs);
+
     for (let &x : r)
       cout << "got " << x << endl;
   });

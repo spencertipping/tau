@@ -32,9 +32,9 @@ struct thread_pool final
       for (auto &w : ws) w.join(); }
 
 
-  uN running() const { return rn; }
-  uN queued()  const { return ts.size(); }
-  uN tasks()   const { return rn + ts.size(); }
+  uN running() const {               return rn; }
+  uN queued()  const { Lg<Mu> l(qm); return ts.size(); }
+  uN tasks()   const { Lg<Mu> l(qm); return rn + ts.size(); }
 
 
   template<class F, class... Xs>
@@ -57,7 +57,7 @@ protected:
   At<uN>       rn;  // number of running threads
   V<Th>        ws;
   Q<F<void()>> ts;
-  Mu           qm;  // protects the queue
+  mutable Mu   qm;  // protects the queue
   Cv           cv;
   F<void()>    ef;  // call this after each promise is set
   bool         fin;
