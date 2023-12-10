@@ -16,7 +16,7 @@ sync()
   local host=${1:-set.128}
   local path=${2:-/nvme/asqi/tau}
   rsync -azP --delete \
-        build dep doc README.md tau.hh sigma.hh sigma tau try \
+        build dep dev doc README.md tau.hh sigma.hh sigma tau try \
         test lazytest makefile compile_flags.txt \
         $host:$path/ &
   rsync -azP --delete dev/emsdk $host:$path/dev/ &
