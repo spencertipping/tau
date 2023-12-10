@@ -18,7 +18,10 @@ void Λ::clear()
   uN tries = 0;
   while (!ls.empty())
   {
-    for (auto &[k, v] : ls) x(k);
+    {
+      Lg<Rmu> l(m_);
+      for (auto &[k, v] : ls) x(k);
+    }
     step();  // give all λs a chance to clear themselves
     A(++tries < 100,
       "Λ::clear: " << ls.size() << " λ(s) still exist");
@@ -31,6 +34,7 @@ void Λ::clear()
 
 λi Λ::c(λf &&f)
 {
+  Lg<Rmu> l(m_);
   if (fin) return 0;
   let i = ιi(ni, ls);
   ls[i].reset(new Λt([f=mo(f)]()
@@ -68,6 +72,7 @@ void Λ::clear()
 
 Λ &Λ::r(λi i, λs s)
 {
+  Lg<Rmu> l_(m_);
   if (fin || !e(i)) return *this;
   auto &l = *ls.at(i);
   l.s = s;
@@ -78,24 +83,35 @@ void Λ::clear()
 
 Λ &Λ::operator<<(λi i)
 {
-  if (fin) return *this;
-  A(!ri, "Λ<< from non-main thread");
-  rs.erase(i);
-  auto &l = *ls.at(ri = i);
-  qΘ.start();
+  Sp<Λt> l;
+  {
+    Lg<Rmu> l_(m_);
+    if (fin) return *this;
+    A(!ri, "Λ<< from non-main thread");
+    qΘ.start();
+    rs.erase(i);
+    l = ls.at(ri = i);
+  }
+
   ++cs_;
   Λ_(this);
-  l.run();
+  l->run();
+
   for (let &c : csws) c->f();
-  ri = 0;
-  if (l.done()) ls.erase(i);
-  qΘ.stop();
+
+  {
+    Lg<Rmu> l_(m_);
+    ri = 0;
+    if (l->done()) ls.erase(i);
+    qΘ.stop();
+  }
   return *this;
 }
 
 
 λi Λ::operator()() const
 {
+  Lg<Rmu> l(m_);
   if (fin) return 0;
   for (let i : rs) if (e(i) && ls.at(i)->runnable()) return i;
   return 0;
@@ -104,6 +120,8 @@ void Λ::clear()
 Λ &Λ::step()
 {
   for (λi t; (t = (*this)()); *this << t);
+
+  Lg<Rmu> l(m_);
   for (let &[i, s] : ls) if (s->s == λs::Y) r(i, λs::R);
   return *this;
 }
@@ -116,6 +134,7 @@ O &operator<<(O &s, Λt const &l)
 
 O &operator<<(O &s, Λ &l)
 {
+  Lg<Rmu> l_(l.m_);
   s << "Λ λ=" << l.i() << " r=";
   for (let i : l.rs) s << i << " "; s << std::endl;
   for (let &[k, v] : l.ls) s << "  " << k << "\t" << *v << std::endl;

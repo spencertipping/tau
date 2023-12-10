@@ -41,6 +41,9 @@ S<ξ*> &ξs();
 //
 // NOTE: don't create ξs directly; use τe::pipe(), which wraps with
 // ξi and ξo and does proper memory management.
+//
+// NOTE: ξ is not thread-safe. You need to manually lock around all ξ
+// operations if using it within a multi-threaded context.
 struct ξ final
 {
   ξ(Λ &l, uN c)
@@ -128,6 +131,7 @@ protected:
   Sp<ψ_>   iqs;  // input (supplying) ψ -- default strong reference
   Wp<ψ_>   iqw;  // input ψ -- optional weak reference
   Wp<ψ_>   oqw;  // output (consuming) ψ
+
 
   uN next_size() const
     { A(ra(), "next_size() with !ra(): " << z);

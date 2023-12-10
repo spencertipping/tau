@@ -46,6 +46,10 @@ void Λ_(Λ*);  // set current Λ
 
 
 // NOTE: managed λs should yield out with Λ.y, not λy() defined by lambda.hh
+//
+// NOTE: Λ is not fully threadsafe. All methods except r() must be called only
+// from one thread. r() may be called from any thread, but if not from main, it
+// can be used only to migrate a λ from a blocked to a running state.
 struct Λ final
 {
   Λ(Λ&)  = delete;
@@ -60,7 +64,7 @@ struct Λ final
   // world is ending, nothing matters from here.
   ~Λ() { fin = true; Λ_(nullptr); }
 
-  bool e(λi i) const { return fin ? false : ls.contains(i); }
+  bool e(λi i) const { Lg<Rmu> l(m_); return fin ? false : ls.contains(i); }
   λi   i()     const { return ri; }
   u64  cs()    const { return cs_; }
 
@@ -90,6 +94,7 @@ protected:
   λi             ri  = 0;      // currently running λi (0 = main thread)
   bool           fin = false;  // we're done; ignore all requests
   u64            cs_ = 0;      // total context switches
+  mutable Rmu    m_;           // lock for all state changes
 
   friend O &operator<<(O&, Λ&);
 };
