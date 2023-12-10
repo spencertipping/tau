@@ -24,24 +24,26 @@ Tt struct λg;
 // and wake λs that are blocked.
 Tt struct λgc
 {
-  λgc(Λ &l_) : l(l_), m{} {}
+  λgc(Λ &l_) : l(l_), r{} {}
 
   // NOTE: by-value Sp<> acquisition here is necessary to ensure λgc lives
   // through this whole function call
   T y(λs s, Sp<λgc<T>> p)
-    { ps.push_back(l.i());
+    { { Lg<Mu> l_(m); ps.push_back(l.i()); }
       l.y(s);
-      return m; }
+      return r; }
 
   void w(T x)
-    { m = x;
+    { Lg<Mu> l_(m);
+      r = x;
       for (let p : ps) l.r(p);
       ps.clear(); }
 
 protected:
   Λ     &l;
   V<λi>  ps;
-  T      m;
+  T      r;
+  Mu     m;
 };
 
 

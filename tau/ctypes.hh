@@ -3,6 +3,7 @@
 
 
 #include <array>
+#include <atomic>
 #include <compare>
 #include <complex>
 #include <cstddef>
@@ -154,6 +155,7 @@ typedef int fd_t;
 
 template<class T, uN S>    using Ar  = std::array<T, S>;
 template<class T, uN S>    using Arc = std::array<T, S> const;
+template<class T>          using At  = std::atomic<T>;
 template<class... T>       using D   = std::deque<T...>;
 template<class T>          using F   = std::function<T>;
 template<class T>          using Fc  = std::function<T> const;
