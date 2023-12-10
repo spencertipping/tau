@@ -90,7 +90,7 @@ Sp<at_> at(ctype t, cback b)
       [&](ct_map,               cb_lmdb const &l) { return lmdb_map(l); },
       [&](ct_multimap const &m, cb_lmdb const &l) { return lmdb_multimap(m, l); },
       [&](ct_index,             cb_lmdb const &l)
-        { return Sp<at_>{new kviat_(l, at(ct_multimap{}, l).as<kvmmat_>())}; }
+        { return Sp<at_>{new kviat_(l, dpc<kvmmat_>(at(ct_multimap{}, l)))}; }
     }, t, b);
 }
 

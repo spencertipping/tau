@@ -11,13 +11,9 @@
 #include "debug.hh"
 
 #include "ctypes.hh"
-#include "cptr.hh"
 #include "mptr.hh"
 
 #include "begin.hh"
-
-
-#define τuse_nonvolatile_sharedptr 1
 
 
 namespace τ
@@ -86,21 +82,12 @@ O &operator<<(O&, byte_suffix);
 O &operator<<(O&, bytes);
 
 
-#if !τuse_nonvolatile_sharedptr
-  Txs using Sp = std::shared_ptr<Xs...>;
-  Txs using Wp = std::weak_ptr<Xs...>;
+Txs using Sp = std::shared_ptr<Xs...>;
+Txs using Wp = std::weak_ptr<Xs...>;
 
-  template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return std::dynamic_pointer_cast<U>(x); }
-  Tt          T*    wpg(Wp<T> const &x) { return x.lock().get(); }
-  Tt          Sp<T> ms (T &&x)          { return std::make_shared(mo(x)); }
-#else
-  template<class... T> using Sp = shared_ptr<T...>;
-  template<class... T> using Wp = weak_ptr<T...>;
-
-  template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return x.template as<U>(); }
-  Tt          T*    wpg(Wp<T> const &x) { return x.get(); }
-  Tt          Sp<T> ms (T &&x)          { let r = Sp<T>(new T{}); *r = mo(x); return r; }
-#endif
+template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return std::dynamic_pointer_cast<U>(x); }
+Tt          T*    wpg(Wp<T> const &x) { return x.lock().get(); }
+Tt          Sp<T> ms (T &&x)          { return std::make_shared(mo(x)); }
 
 Txs using Mp = mptr<Xs...>;
 

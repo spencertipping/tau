@@ -5,7 +5,6 @@
 #include "tau/arch.hh"
 #include "tau/debug.hh"
 
-#include "tau/cptr.hh"
 #include "tau/mptr.hh"
 #include "tau/ctypes.hh"
 #include "tau/types.hh"
