@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <strings.h>
 #include <sys/epoll.h>
+#include <sys/eventfd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -31,8 +32,10 @@ struct τe : public τb
 {
   τe(τe&)  = delete;
   τe(τe&&) = delete;
-  τe() : τb(), efd(epoll_create1(0)), fin(false)
-    { A(efd != -1, "epoll_create1 failure " << errno);
+  τe() : τb(), fin(false)
+    { A((efd = epoll_create1(0)) != -1, "epoll_create1 failure " << errno);
+      A((wfd = eventfd(0, 0))    != -1, "eventfd() failure "     << errno);
+      A(reg(wfd, true, false),          "wfd reg() failure "     << errno);
       init_signals(); }
 
   ~τe()
@@ -40,6 +43,7 @@ struct τe : public τb
       for (let &[fd, g] : rgs) fds.push_back(fd);
       for (let &[fd, g] : wgs) fds.push_back(fd);
       for (let x : fds) close(x);
+      if (wfd != -1) close(wfd);
       if (efd != -1) ::close(efd); }
 
 
@@ -93,6 +97,11 @@ struct τe : public τb
   bool detached() const { return efd == -1; }
 
 
+  // Break out of the epoll_wait loop so we can continue scheduling λs.
+  // This is called from background threads.
+  void wake() { u64 x = 1; ::write(wfd, &x, sizeof(x)); }
+
+
   // Fork and track child PID, return result
   int  fork();
   void term();
@@ -105,7 +114,7 @@ struct τe : public τb
 
 
   explicit operator bool() const
-    { return !rgs.empty() || !wgs.empty() || l_() || hn() != forever(); }
+    { return rgs.size() > 1 || !wgs.empty() || l_() || hn() != forever(); }
 
   τe &go(bool                nonblock = false,
          F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); });
@@ -117,9 +126,10 @@ struct τe : public τb
 
 
 protected:
-  fd_t             efd;  // epoll control FD
-  M<fd_t, Sp<λgs>> rgs;  // read gate sets
-  M<fd_t, Sp<λgs>> wgs;  // write gate sets
+  fd_t             efd;   // epoll control FD
+  fd_t             wfd;   // eventfd wake FD
+  M<fd_t, Sp<λgs>> rgs;   // read gate sets
+  M<fd_t, Sp<λgs>> wgs;   // write gate sets
   S<pid_t>         pids;  // child pids
   bool             fin;   // true if we're terminating
 

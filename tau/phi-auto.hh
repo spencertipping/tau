@@ -33,7 +33,7 @@ auto φauto_(A const &a, F<T(Xs...)> &&f)
     return φm(φR<int>(0), [f=mo(f)](int) -> T { return f(); });
   else
     return φm(φs("auto", a.p(null<De<Xs>>())...),
-              [f=mo(f)](auto &&xs) -> T { return std::apply(f, xs); });
+              [f=mo(f)](auto &&xs) -> T { return std::apply(f, mo(xs)); });
 }
 
 template<class A, class F>

@@ -66,6 +66,10 @@ void τe::detach()
 
   // Also delete all child pids, as they are probably managed by our parent
   pids.clear();
+
+  // Finally, clear wfd
+  ::close(wfd);
+  wfd = -1;
 }
 
 
@@ -114,6 +118,8 @@ void τe::unreg(fd_t fd, bool r, bool w)
 
 int τe::close(fd_t fd, bool r, bool w)
 {
+  // NOTE: sometimes we close only for reading or only for writing; close the
+  // actual FD only if both directions are done.
   unreg(fd, r, w);
   return !rgs.contains(fd) && !wgs.contains(fd)
        ? ::close(fd)
@@ -148,8 +154,10 @@ void τe::term()
   // use the time with CPU-bound tasks.
   nonblock |= l_();
 
+  // NOTE: rgs will never be empty because epoll_wait always listens to
+  // wfd, which is an eventfd that allows it to be awoken from threads.
   while (!fin && now() < hn() &&
-         (!rgs.empty() || !wgs.empty() || hn() != forever()))
+         (rgs.size() > 1 || !wgs.empty() || hn() != forever()))
   {
     epoll_event evs[256];
 
