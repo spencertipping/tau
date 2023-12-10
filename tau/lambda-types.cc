@@ -14,6 +14,7 @@ O &operator<<(O &s, λs t)
   case λs::X:  return s << "X";
   case λs::Y:  return s << "Y";
   case λs::Θ:  return s << "Θ";
+  case λs::T:  return s << "T";
   case λs::ξR: return s << "ξR";
   case λs::ξW: return s << "ξW";
   case λs::τR: return s << "τR";

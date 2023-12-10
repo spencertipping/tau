@@ -157,7 +157,7 @@ void τe::term()
   // NOTE: rgs will never be empty because epoll_wait always listens to
   // wfd, which is an eventfd that allows it to be awoken from threads.
   while (!fin && now() < hn() &&
-         (rgs.size() > 1 || !wgs.empty() || hn() != forever()))
+         (rgs.size() > 1 || !wgs.empty() || tp.tasks() || hn() != forever()))
   {
     epoll_event evs[256];
 

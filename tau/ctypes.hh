@@ -6,9 +6,11 @@
 #include <atomic>
 #include <compare>
 #include <complex>
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <future>
 #include <initializer_list>
 #include <iostream>
 #include <limits>
@@ -156,9 +158,11 @@ typedef int fd_t;
 template<class T, uN S>    using Ar  = std::array<T, S>;
 template<class T, uN S>    using Arc = std::array<T, S> const;
 template<class T>          using At  = std::atomic<T>;
+typedef  std::condition_variable Cv;
 template<class... T>       using D   = std::deque<T...>;
 template<class T>          using F   = std::function<T>;
 template<class T>          using Fc  = std::function<T> const;
+template<class T>          using Fu  = std::future<T>;
 template<class... T>       using Il  = std::initializer_list<T...>;
 template<class T>          using H   = std::hash<T>;
 template<class T>          using Lg  = std::lock_guard<T>;
@@ -170,6 +174,7 @@ template<class T>          using Nl  = std::numeric_limits<T>;
 typedef             std::ostream O;
 template<class T>          using Op  = std::optional<T>;
 template<class T, class U> using P   = std::pair<T, U>;
+template<class T>          using Pt  = std::packaged_task<T>;
 template<class... T>       using Q   = std::queue<T...>;
 typedef               std::regex Re;
 typedef     std::recursive_mutex Rmu;
@@ -184,6 +189,7 @@ typedef        std::stringstream Ss;
 template<class... X>       using T   = std::tuple<X...>;
 template<class... X>       using Tc  = std::tuple<X...> const;
 typedef              std::thread Th;
+template<class... T>       using Ul  = std::unique_lock<T...>;
 template<class... T>       using Up  = std::unique_ptr<T...>;
 template<class... T>       using V   = std::vector<T...>;
 template<class... T>       using Vc  = std::vector<T...> const;

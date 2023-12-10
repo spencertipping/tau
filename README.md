@@ -19,6 +19,19 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 **Q:** what should OTs be able to synchronize? All η values? That would be pretty killer.
 
 
+## Stray tests
+```bash
+$ bin/threaded-fast
+starting τ
+starting worker
+worker returning 42
+worker returned 42
+got 42
+τ returned
+all ok
+```
+
+
 
 ## Compute model
 ```

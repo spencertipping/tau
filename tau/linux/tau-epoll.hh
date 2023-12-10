@@ -16,6 +16,8 @@
 #include "../Lambda.hh"
 #include "../gate.hh"
 
+#include "threadpool.hh"
+
 #include "../tau-common.hh"
 
 
@@ -27,12 +29,15 @@ namespace τ
 
 struct ψ;
 
+Tt struct λfg;
+
 
 struct τe : public τb
 {
   τe(τe&)  = delete;
   τe(τe&&) = delete;
-  τe() : τb(), fin(false)
+  τe(int threads = Th::hardware_concurrency())
+    : τb(), fin(false), tp(threads, [this]() { this->wake(); })
     { A((efd = epoll_create1(0)) != -1, "epoll_create1 failure " << errno);
       A((wfd = eventfd(0, 0))    != -1, "eventfd() failure "     << errno);
       A(reg(wfd, true, false),          "wfd reg() failure "     << errno);
@@ -99,7 +104,19 @@ struct τe : public τb
 
   // Break out of the epoll_wait loop so we can continue scheduling λs.
   // This is called from background threads.
-  void wake() { u64 x = 1; ::write(wfd, &x, sizeof(x)); }
+  void wake()       { u64 x = 1;  A(::write(wfd, &x, sizeof(x)) != -1, "τe::wake error"); }
+  bool reset_wake() { u64 x; return ::read (wfd, &x, sizeof(x)) != -1; }
+
+
+  // Run a function in a background thread, returning the result once it's done.
+  // tp() automatically calls wake for us via its ef() callback.
+  Txxs auto operator()(X &&f, Xs&&... xs) -> decltype(f(xs...))
+    { using T = decltype(f(xs...));
+      Fu<T> r = tp(std::forward<X>(f), std::forward<Xs>(xs)...);
+      while (r.wait_for(0s) != std::future_status::ready)
+      { reset_wake();
+        rg(wfd)->y(λs::T); }
+      return r.get(); }
 
 
   // Fork and track child PID, return result
@@ -114,7 +131,8 @@ struct τe : public τb
 
 
   explicit operator bool() const
-    { return rgs.size() > 1 || !wgs.empty() || l_() || hn() != forever(); }
+    { return rgs.size() > 1 || !wgs.empty()
+          || tp.tasks() || l_() || hn() != forever(); }
 
   τe &go(bool                nonblock = false,
          F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); });
@@ -132,6 +150,7 @@ protected:
   M<fd_t, Sp<λgs>> wgs;   // write gate sets
   S<pid_t>         pids;  // child pids
   bool             fin;   // true if we're terminating
+  thread_pool      tp;
 
 
   // Return the gate set for a FD, or nullptr if it's not registered.
