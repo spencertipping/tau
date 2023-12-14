@@ -21,6 +21,7 @@
 #include <queue>
 #include <regex>
 #include <set>
+#include <shared_mutex>
 #include <span>
 #include <stack>
 #include <string>
@@ -182,6 +183,8 @@ typedef              std::smatch Rsm;
 typedef     std::sregex_iterator Rsi;
 template<class... K>       using S   = std::unordered_set<K...>;
 template<class... T>       using Sk  = std::stack<T...>;
+template<class... T>       using Sl  = std::shared_lock<T...>;
+typedef        std::shared_mutex Smu;
 template<class... T>       using Sn  = std::span<T...>;
 template<class... T>       using Snc = std::span<T...> const;
 template<class... K>       using So  = std::set<K...>;
