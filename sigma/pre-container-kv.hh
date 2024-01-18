@@ -97,7 +97,7 @@ struct kvmmat_ : public virtual at_
 
   kvmmat_(ct_multimap const &m, cback const &l, Sp<kv_> db)
     : at_(m, l), db_(db), ss_(0),
-      svo_(1048576), sko_(64), lvs_(1024),
+      svo_(1048576 * 64), sko_(65536), lvs_(8192),
       nk_((isha2{} << (ηm{} << now().time_since_epoch().count()))()),
       csw_([this] { flush(); }) {}
 
