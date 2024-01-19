@@ -130,12 +130,13 @@ struct ηi final
 
   struct it2_
   {
-    ηic &x;
-    it2 begin() const { return {x.begin().x}; }
-    it2 end()   const { return {x.end().x}; }
+    Sn<u8c> b;
+    Sn<u8c> e;
+    it2 begin() const { return {b}; }
+    it2 end()   const { return {e}; }
   };
 
-  it2_ kvs() const { return {*this}; }
+  it2_ kvs() const { return {begin().x, end().x}; }
 
 
   // every<X>() unpacks a single value into a non-tuple
