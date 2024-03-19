@@ -46,6 +46,7 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 # define τhas_fast_exceptions  1
 # define τhas_fds              1
 # define τplatform             τplatform_linux
+# define τhas_threads          1
 # define τhas_stacktrace       BOOST_STACKTRACE_USE_BACKTRACE
 
 # if τwordsize == 64
@@ -65,6 +66,7 @@ static_assert(sizeof(std::size_t) << 3 == τwordsize);
 # define τhas_fast_exceptions  0
 # define τhas_fds              0
 # define τplatform             τplatform_wasm
+# define τhas_threads          0  // FIXME?
 # define τhas_stacktrace       0
 
 # if τwordsize == 64

@@ -73,7 +73,7 @@ void τe::detach()
 }
 
 
-bool τe::reg(fd_t fd, bool r, bool w)
+bool τe::reg(fd_t fd, bool r, bool w, bool et)
 {
   A(efd != -1, "τe::reg(" << fd << ") on detached");
   r |= rgs.contains(fd);
@@ -82,7 +82,9 @@ bool τe::reg(fd_t fd, bool r, bool w)
   if (wgs.contains(fd)) unreg(fd, false, true);
 
   epoll_event ev;
-  ev.events  = (r ? EPOLLIN | EPOLLHUP : 0) | (w ? EPOLLOUT | EPOLLERR : 0) | EPOLLET;
+  ev.events  = (r ? EPOLLIN | EPOLLHUP : 0)
+             | (w ? EPOLLOUT | EPOLLERR : 0)
+             | (et ? EPOLLET : 0);
   ev.data.fd = nb(fd);
   if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev) == -1) return false;
   if (r) rgs[fd] = Sp<λgs>{new λgs{l_, l_}};
@@ -124,6 +126,46 @@ int τe::close(fd_t fd, bool r, bool w)
   return !rgs.contains(fd) && !wgs.contains(fd)
        ? ::close(fd)
        : 0;
+}
+
+
+uN τe::new_tid()
+{
+  let r = ++tid;
+  { Ul<Smu> l_(trs_m); trs.insert(r); }
+  return r;
+}
+
+
+void τe::wake(uN tid)
+{
+  // Important: first mark the task as done by removing it from the set of
+  // running tasks. Then wake epoll.
+  { Ul<Smu> l_(trs_m); trs.erase(tid); }
+
+  u64 x = 1;
+  A(::write(wfd, &x, sizeof(x)) != -1, "τe::wake error");
+}
+
+
+bool τe::is_awake(uN tid)
+{
+  // This function is called after epoll_wait wakes up from the ::write() call
+  // in wake(tid), so we need to check for set membership in trs. If we're
+  // there, then we are _not_ done and must not consume a value from the
+  // eventfd.
+  bool w;
+  { Sl<Smu> l_(trs_m); w = !trs.contains(tid); }
+
+  if (w)
+  {
+    // We're done and can/must consume the eventfd value.
+    u64 x;
+    A(::read(wfd, &x, sizeof(x)) != -1,
+      "τe::is_awake(" << tid << "): eventfd read error");
+  }
+
+  return w;
 }
 
 

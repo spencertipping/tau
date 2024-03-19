@@ -37,10 +37,14 @@ struct τe : public τb
   τe(τe&)  = delete;
   τe(τe&&) = delete;
   τe(int threads = Th::hardware_concurrency())
-    : τb(), fin(false), tp(threads, [this]() { this->wake(); })
-    { A((efd = epoll_create1(0)) != -1, "epoll_create1 failure " << errno);
-      A((wfd = eventfd(0, 0))    != -1, "eventfd() failure "     << errno);
-      A(reg(wfd, true, false),          "wfd reg() failure "     << errno);
+    : τb(), fin(false), tp(threads), tid(0)
+    { A((efd = epoll_create1(0)) != -1, "epoll_create1 failure (τe::efd)");
+      A((wfd = eventfd(0, EFD_SEMAPHORE | EFD_CLOEXEC)) != -1,
+        "eventfd() failure (τe::wfd)");
+
+      // IMPORTANT: wfd must be registered _without_ edge triggering or we will
+      // get thread deadlocks.
+      A(reg(wfd, true, false, false), "wfd reg() failure");
       init_signals(); }
 
   ~τe()
@@ -48,7 +52,7 @@ struct τe : public τb
       for (let &[fd, g] : rgs) fds.push_back(fd);
       for (let &[fd, g] : wgs) fds.push_back(fd);
       for (let x : fds) close(x);
-      if (wfd != -1) close(wfd);
+      if (wfd != -1)   close(wfd);
       if (efd != -1) ::close(efd); }
 
 
@@ -90,7 +94,7 @@ struct τe : public τb
 
   // Register a file descriptor for IO events; this must be called before
   // using it with any epoll-mediated syscalls.
-  bool reg  (fd_t fd, bool r = true, bool w = true);
+  bool reg  (fd_t fd, bool r = true, bool w = true, bool et = true);
   void unreg(fd_t fd, bool r = true, bool w = true);
 
 
@@ -104,8 +108,9 @@ struct τe : public τb
 
   // Break out of the epoll_wait loop so we can continue scheduling λs.
   // This is called from background threads.
-  void wake()       { u64 x = 1;  A(::write(wfd, &x, sizeof(x)) != -1, "τe::wake error"); }
-  bool reset_wake() { u64 x; return ::read (wfd, &x, sizeof(x)) != -1; }
+  uN   new_tid();
+  void wake    (uN tid);
+  bool is_awake(uN tid);
 
 
   // Run a function in a background thread, returning the result once it's done.
@@ -113,14 +118,18 @@ struct τe : public τb
   Txxs auto operator()(X &&f, Xs&&... xs) -> decltype(f(xs...))
     { return fg(bg(std::forward<X>(f), std::forward<Xs>(xs)...)); }
 
-  Txxs auto bg(X &&f, Xs&&... xs) -> Fu<decltype(f(xs...))>
-    { return tp(std::forward<X>(f), std::forward<Xs>(xs)...); }
+  Txxs auto bg(X &&f, Xs&&... xs) -> P<uN, Fu<decltype(f(xs...))>>
+    { let args = std::make_tuple(std::forward<Xs>(xs)...);
+      let id   = new_tid();  // create running task reservation
+      return {id, tp([this, f=std::forward<X>(f), xs=mo(args), id]()
+        { let r = std::apply(f, xs);
+          wake(id);  // remove from trs and wake eventfd
+          return r; })}; }
 
-  Tt T fg(Fu<T> &&f)
-    { while (f.wait_for(0s) != std::future_status::ready)
-      { reset_wake();
-        rg(wfd)->y(λs::T); }
-      return f.get(); }
+  Tt T fg(P<uN, Fu<T>> &&f)
+    { auto &[id, fu] = f;
+      while (!is_awake(id)) rg(wfd)->y(λs::T);  // consume eventfd once awake
+      return fu.get(); }
 
 
   // Fork and track child PID, return result
@@ -148,13 +157,16 @@ struct τe : public τb
 
 
 protected:
-  fd_t             efd;   // epoll control FD
-  fd_t             wfd;   // eventfd wake FD
-  M<fd_t, Sp<λgs>> rgs;   // read gate sets
-  M<fd_t, Sp<λgs>> wgs;   // write gate sets
-  S<pid_t>         pids;  // child pids
-  bool             fin;   // true if we're terminating
+  fd_t             efd;    // epoll control FD
+  fd_t             wfd;    // eventfd wake FD
+  M<fd_t, Sp<λgs>> rgs;    // read gate sets
+  M<fd_t, Sp<λgs>> wgs;    // write gate sets
+  S<pid_t>         pids;   // child pids
+  bool             fin;    // true if we're terminating
   thread_pool      tp;
+  At<uN>           tid;    // task ID counter
+  S<uN>            trs;    // set of running tasks
+  Smu              trs_m;  // shared mutex for trs
 
 
   // Return the gate set for a FD, or nullptr if it's not registered.

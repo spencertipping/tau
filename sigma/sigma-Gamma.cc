@@ -52,6 +52,7 @@ void πshared(πφ &p)
   πshared_map(p);
   πshared_string(p);
   πshared_Γ(p);
+  πshared_π(p);
 }
 
 

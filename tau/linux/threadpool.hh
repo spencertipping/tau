@@ -11,7 +11,7 @@ namespace τ
 
 struct thread_pool final
 {
-  thread_pool(uN n, F<void()> ef_) : rn(0), ef(ef_), fin(false)
+  thread_pool(uN n) : rn(0), fin(false)
     { for(uN i = 0; i < n; ++i)
         ws.emplace_back([this]
           { while (true)
@@ -46,7 +46,7 @@ struct thread_pool final
     {
       Ul<Mu> l(qm);
       A(!fin, "enqueue on stopped thread_pool");
-      ts.emplace([this, t](){ (*t)(); this->ef(); });
+      ts.emplace([t](){ (*t)(); });
     }
     cv.notify_one();
     return t->get_future();
@@ -59,7 +59,6 @@ protected:
   Q<F<void()>> ts;
   mutable Mu   qm;  // protects the queue
   Cv           cv;
-  F<void()>    ef;  // call this after each promise is set
   bool         fin;
 };
 
