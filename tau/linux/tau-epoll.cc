@@ -131,8 +131,12 @@ int τe::close(fd_t fd, bool r, bool w)
 
 uN τe::new_tid()
 {
-  let r = ++tid;
-  { Ul<Smu> l_(trs_m); trs.insert(r); }
+  uN r = ++tid;
+  {
+    Ul<Smu> l_(trs_m);
+    while (trs.contains(r)) r = ++tid;  // make sure to claim a new ID
+    trs.insert(r);
+  }
   return r;
 }
 
