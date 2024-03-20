@@ -99,6 +99,8 @@ void lmdb_db::commit()
   int rc = mdb_get(rt(), open(db), &key, &val);
   if (rc == MDB_NOTFOUND) return ηi{};
   A(rc == MDB_SUCCESS, "mdb_get() failed: " << mdb_strerror(rc));
+
+
   return ηi{(u8c*) val.mv_data, val.mv_size};
 }
 
@@ -106,8 +108,11 @@ void lmdb_db::commit()
 bool lmdb_db::has(Stc &db, ηic &k)
 {
   MDB_val key = {k.lsize(), (void *) k.ldata()};
-  int rc = mdb_get(rt(), open(db), &key, nullptr);
-  return rc == MDB_SUCCESS;
+  MDB_val val;
+  int rc = mdb_get(rt(), open(db), &key, &val);
+  if (rc == MDB_NOTFOUND) return false;
+  A(rc == MDB_SUCCESS, "mdb_get() failed: " << mdb_strerror(rc));
+  return true;
 }
 
 
