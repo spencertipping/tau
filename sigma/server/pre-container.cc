@@ -15,7 +15,7 @@ struct lmdb_ls_ : public virtual at_ls_
       MDB_dbi     dbi;
       int         rc;
 
-      A((rc = mdb_txn_begin(mdb->e, nullptr, MDB_RDONLY, &r)) == MDB_SUCCESS,
+      A((rc = mdb_txn_begin(mdb->env(), nullptr, MDB_RDONLY, &r)) == MDB_SUCCESS,
         "r::mdb_txn_begin() failed: " << mdb_strerror(rc));
       A((rc = mdb_dbi_open(r, db.c_str(), MDB_CREATE, &dbi)) == MDB_SUCCESS,
         "r::mdb_dbi_open() failed: " << mdb_strerror(rc));

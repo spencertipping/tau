@@ -13,16 +13,53 @@ namespace σ::pre
 using namespace τ;
 
 
-// FIXME: lmdb_db needs to track the current write transaction and commit
-// it when the map is resized. The transaction is currently owned by kv_,
-// which causes problems when multiple kv_ use the same database in a non-
-// τ context.
+struct lmdb_db;
+
 
 struct lmdb_db final
 {
-  MDB_env *e;
-  ~lmdb_db() { mdb_env_close(e); }
+  struct reader final
+  {
+    uN       rev;
+    MDB_txn *t;
+  };
+
+
+  lmdb_db(Stc &f, uN max_dbs = 64, uN mapsize = 1ull << 24);
+  ~lmdb_db();
+
+  void sync();
+  void commit();
+
+  ηi   get(Stc&, ηic &k);
+  bool has(Stc&, ηic &k);
+  void del(Stc&, ηic &k);
+  void set(Stc&, ηic &k, ηic &v);
+
+  MDB_env *env() const { return e_; }
+
+  void reset();  // reset readers
+
+
+protected:
+  MDB_env           *e_ = nullptr;  // DB env
+  MDB_txn           *w_ = nullptr;  // write transaction, or null
+  Rmu                wm_;           // writer management mutex
+  M<Th::id, reader>  r_;            // read transactions
+  Smu                rm_;           // reader management mutex
+  M<St, MDB_dbi>     d_;            // cache of DB tables
+  Smu                dm_;           // DBI table management mutex
+  uN                 us_ = 0;       // uncommitted data size
+  At<uN>             re_ = 0;       // revision (to signal to readers)
+
+  bool should_resize(uN n, f64 safety = 4.0) const;
+  void reserve(uN);
+
+  MDB_txn *rt();
+  MDB_txn *wt();
+  MDB_dbi  open(Stc&);
 };
+
 
 struct sqlite_db final
 {
@@ -30,7 +67,7 @@ struct sqlite_db final
   M<St, sqlite3_stmt*> ss;
 
   ~sqlite_db()
-    { for (auto& s : ss) sqlite3_finalize(s.second);
+    { for (let &s : ss) sqlite3_finalize(s.second);
       sqlite3_close(db); }
 };
 
