@@ -143,7 +143,13 @@ err:
 
 done:
   A(r == ηicb_r::ok || r == ηicb_r::no_ctrl,
-    "ηi bounds error: " << r << " at " << (void*)a_ << "+" << l_);
+    "ηi bounds error: " << r << " at " << (void*) a_ << "+" << l_ <<
+    ": (s=" << s_ << ", c=" << c_ << ", l=" << l_ << "); " <<
+    "e = " << r << "; " <<
+    "a[0] = " << std::hex << (l_ > 0 ? *(uint8_t*)a_ : -1) << std::dec << " " <<
+    "a[1] = " << std::hex << (l_ > 1 ? *(uint8_t*)(a_+1) : -1) << std::dec << " " <<
+    "a[2] = " << std::hex << (l_ > 2 ? *(uint8_t*)(a_+2) : -1) << std::dec << " " <<
+    "a[3] = " << std::hex << (l_ > 3 ? *(uint8_t*)(a_+3) : -1) << std::dec << " ");
 
   // Segfault if we try to access data in an empty η
   if (r == ηicb_r::no_ctrl) a_ = nullptr;
