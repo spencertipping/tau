@@ -104,6 +104,9 @@ void ηi::decode_cb()
 {
   ηicb_r r;
 
+  uN orig_s_ = 0;
+  uN orig_c_ = 0;
+
   if (!l_) { r = ηicb_r::no_ctrl; goto err; }
 
   {
@@ -139,14 +142,17 @@ void ηi::decode_cb()
   goto done;
 
 err:
+  orig_s_ = s_;
+  orig_c_ = c_;
+
   s_ = c_ = 0;
 
 done:
   A(r == ηicb_r::ok || r == ηicb_r::no_ctrl,
     "ηi bounds error: " << r << " at " << (void*) a_ << "+" << l_ <<
-    ": (s=" << s_ << ", c=" << c_ << ", l=" << l_ << "); " <<
+    ": (s=" << orig_s_ << ", c=" << orig_c_ << ", l=" << l_ << "); " <<
     "e = " << r << "; " <<
-    "a[0] = " << std::hex << (l_ > 0 ? *(uint8_t*)a_ : -1) << std::dec << " " <<
+    "a[0] = " << std::hex << (l_ > 0 ? *(uint8_t*) a_    : -1) << std::dec << " " <<
     "a[1] = " << std::hex << (l_ > 1 ? *(uint8_t*)(a_+1) : -1) << std::dec << " " <<
     "a[2] = " << std::hex << (l_ > 2 ? *(uint8_t*)(a_+2) : -1) << std::dec << " " <<
     "a[3] = " << std::hex << (l_ > 3 ? *(uint8_t*)(a_+3) : -1) << std::dec << " ");
