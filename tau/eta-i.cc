@@ -127,10 +127,10 @@ void ηi::decode_cb()
     {
       if (l_ < 5) { r = ηicb_r::short_len4; goto err; }
       c_ = 5;
-      s_  = 65805 + ( u32(a_[1]) << 24
-                    | u32(a_[2]) << 16
-                    | u32(a_[3]) << 8
-                    |     a_[4]);
+      s_ = 65805 + ( u32(a_[1]) << 24
+                   | u32(a_[2]) << 16
+                   | u32(a_[3]) << 8
+                   |     a_[4]);
     }
   }
 
@@ -155,7 +155,13 @@ done:
     "a[0] = " << std::hex << (l_ > 0 ? *(uint8_t*) a_    : -1) << std::dec << " " <<
     "a[1] = " << std::hex << (l_ > 1 ? *(uint8_t*)(a_+1) : -1) << std::dec << " " <<
     "a[2] = " << std::hex << (l_ > 2 ? *(uint8_t*)(a_+2) : -1) << std::dec << " " <<
-    "a[3] = " << std::hex << (l_ > 3 ? *(uint8_t*)(a_+3) : -1) << std::dec << " ");
+    "a[3] = " << std::hex << (l_ > 3 ? *(uint8_t*)(a_+3) : -1) << std::dec << " " <<
+    "a[4] = " << std::hex << (l_ > 4 ? *(uint8_t*)(a_+4) : -1) << std::dec << " " <<
+    "a[5] = " << std::hex << (l_ > 5 ? *(uint8_t*)(a_+5) : -1) << std::dec << " " <<
+    "a[6] = " << std::hex << (l_ > 6 ? *(uint8_t*)(a_+6) : -1) << std::dec << " " <<
+    "a[7] = " << std::hex << (l_ > 7 ? *(uint8_t*)(a_+7) : -1) << std::dec << " " <<
+    "a[8] = " << std::hex << (l_ > 8 ? *(uint8_t*)(a_+8) : -1) << std::dec << " " <<
+    "a[9] = " << std::hex << (l_ > 9 ? *(uint8_t*)(a_+9) : -1) << std::dec << " ");
 
   // Segfault if we try to access data in an empty η
   if (r == ηicb_r::no_ctrl) a_ = nullptr;
