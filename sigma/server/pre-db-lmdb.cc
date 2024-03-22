@@ -27,7 +27,7 @@ lmdb_db::lmdb_db(Stc &f, uN max_dbs, uN mapsize)
   A((rc = mdb_env_create(&e_))             == MDB_SUCCESS, "mdb_env_create() failed: "      << mdb_strerror(rc));
   A((rc = mdb_env_set_maxdbs(e_, max_dbs)) == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: "  << mdb_strerror(rc));
   A((rc = mdb_env_set_mapsize(e_, m))      == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
-  A((rc = mdb_env_open(e_, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC | MDB_NORDAHEAD, 0664)) == MDB_SUCCESS,
+  A((rc = mdb_env_open(e_, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC | MDB_NORDAHEAD | MDB_NOTLS, 0664)) == MDB_SUCCESS,
     "mdb_env_open(" << f << ") failed: " << mdb_strerror(rc));
 }
 

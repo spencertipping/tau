@@ -7,20 +7,20 @@ namespace σ::pre
 
 void kvmmat_::α(key &k, ηic &v, ξo)
 {
-  Ul<Rmu> l(lock_);
+  Ul<Smu> l(lock_);
   stage_add(k, v);
 }
 
 void kvmmat_::ω(key &k, ηic &v, ξo)
 {
-  Ul<Rmu> l(lock_);
+  Ul<Smu> l(lock_);
   if (v.empty()) del_all(k);
   else           stage_del(k, v);
 }
 
 void kvmmat_::ι(key &k, ηic&, ξo o)
 {
-  Ul<Rmu> l(lock_);
+  Sl<Smu> l(lock_);
   auto i = ss(k);
   while (*i) o.r() << **i, ++*i;
   o.r() << ηsig::τ;
@@ -35,6 +35,25 @@ void kvmmat_::τ(ηic &x, ξo o)
 {
   flush();
   o.r() << ηsig::τ;
+}
+
+
+void kvmmat_::flush()
+{
+  Ul<Smu> l(lock_);
+  flush_();
+}
+
+void kvmmat_::flush(key &k)
+{
+  Ul<Smu> l(lock_);
+  flush_(k);
+}
+
+ηsstream kvmmat_::ss(key &k) const
+{
+  Sl<Smu> l(lock_);
+  return (ss_kv(k) | ss_add_stage(k)) - ss_del_stage(k);
 }
 
 
@@ -73,26 +92,22 @@ void kvmmat_::touch()
 {
   // Not sophisticated, but it should basically work
   if (ss_ >= svo_ || iN(add_.size()) >= sko_ || iN(del_.size()) >= sko_)
-    flush();
+    flush_();
 }
 
-void kvmmat_::flush()
+void kvmmat_::flush_()
 {
-  Ul<Rmu> l(lock_);
-
   // Invariant: elements from add_ and del_ are disjoint, but keys might not be.
   S<ηm> ks;
   for (let &[k, _] : add_) ks.insert(k);
   for (let &[k, _] : del_) ks.insert(k);
-  for (let &k : ks) flush(k);
+  for (let &k : ks) flush_(k);
   db_->commit();
   A(!ss_, "kvmmat_::ss_ != 0: " << ss_);
 }
 
-void kvmmat_::flush(key &k)
+void kvmmat_::flush_(key &k)
 {
-  Ul<Rmu> l(lock_);
-
   // Add staged values first, then delete; this way we get the rebalancing
   // in as necessary.
   if (staged_add(k))
@@ -171,12 +186,6 @@ bool kvmmat_::staged_del(key &k)
   return del_.contains(k) && !del_.at(k).empty();
 }
 
-
-ηsstream kvmmat_::ss(key &k) const
-{
-  Ul<Rmu> l(lock_);
-  return (ss_kv(k) | ss_add_stage(k)) - ss_del_stage(k);
-}
 
 ηsstream kvmmat_::ss_add_stage(key &k) const
 {

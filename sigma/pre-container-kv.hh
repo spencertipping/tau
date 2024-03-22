@@ -125,6 +125,9 @@ struct kvmmat_ : public virtual at_
 
 
 protected:
+  void flush_();        // assumes lock is acquired
+  void flush_(key &k);  // assumes lock is acquired
+
   void touch();
   void balance(key &k);
 
@@ -172,7 +175,7 @@ protected:
 
 
   Sp<kv_>      db_;
-  mutable Rmu  lock_;  // lock for all mutations
+  mutable Smu  lock_;  // lock for all mutations
   M<ηm, stage> add_;   // staged values to add
   M<ηm, stage> del_;   // staged values to delete
   iN           ss_;    // staged size = ∑|v| in stage
