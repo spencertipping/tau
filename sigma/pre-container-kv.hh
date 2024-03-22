@@ -118,12 +118,15 @@ struct kvmmat_ : public virtual at_
 
   // FIXME: allow tuning
 
-
-  void balance(key &k);
-
-  void touch();
   void flush();
   void flush(key &k);
+
+  ηsstream ss(key &k) const;  // unified view of values at key
+
+
+protected:
+  void touch();
+  void balance(key &k);
 
   void stage_add  (key &k, ηic &v);
   void stage_add  (key &k, ηm &&v);
@@ -135,7 +138,6 @@ struct kvmmat_ : public virtual at_
   bool staged_del (key &k);
 
 
-  ηsstream ss          (key &k) const;  // unified view of values at key
   ηsstream ss_add_stage(key &k) const;
   ηsstream ss_del_stage(key &k) const;
   ηsstream ss_kv       (key &k) const;
@@ -170,14 +172,15 @@ struct kvmmat_ : public virtual at_
 
 
   Sp<kv_>      db_;
-  M<ηm, stage> add_;  // staged values to add
-  M<ηm, stage> del_;  // staged values to delete
-  iN           ss_;   // staged size = ∑|v| in stage
-  iN           svo_;  // staged value overflow (bytes)
-  iN           sko_;  // staged key overflow (#keys)
-  iN           lvs_;  // literal value size limit (bytes)
-  h256         nk_;   // seed for genkey()
-  Λcsw         csw_;  // auto-flush on context switch
+  mutable Rmu  lock_;  // lock for all mutations
+  M<ηm, stage> add_;   // staged values to add
+  M<ηm, stage> del_;   // staged values to delete
+  iN           ss_;    // staged size = ∑|v| in stage
+  iN           svo_;   // staged value overflow (bytes)
+  iN           sko_;   // staged key overflow (#keys)
+  iN           lvs_;   // literal value size limit (bytes)
+  h256         nk_;    // seed for genkey()
+  Λcsw         csw_;   // auto-flush on context switch
 };
 
 
