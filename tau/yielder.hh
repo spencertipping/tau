@@ -21,8 +21,8 @@ Txs struct λY final
   void operator()(Xs &&... xs)
     { if (y_ == never()) y_ = now();
       if (now() - y_ < dt_) return;
-      if (f_) f_(xs...);
-      else    Λ_().y(λs::Y);
+      if      (f_)           f_(xs...);
+      else if (let l = Λ_()) l->y(λs::Y);
       y_ = now(); }
 
   void reset() { y_ = now(); }

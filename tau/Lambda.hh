@@ -41,7 +41,7 @@ struct Λt final
 struct Λ;
 struct Λcsw;
 
-Λ   &Λ_();    // current Λ (the one running the current thread)
+Λ   *Λ_();    // current Λ (the one running the current thread)
 void Λ_(Λ*);  // set current Λ
 
 
@@ -81,14 +81,14 @@ struct Λ final
 
   uN n() const { return ls.size(); }
 
-  void ccsw(Λcsw const *x) { if (!fin) csws.insert(x); }
-  void xcsw(Λcsw const *x) { if (!fin) csws.erase(x); }
+  void ccsw(Λcsw *x) { if (!fin) csws.insert(x); }
+  void xcsw(Λcsw *x) { if (!fin) csws.erase(x); }
 
 
 protected:
   M<λi, Sp<Λt>>  ls;           // all λs
   S<λi>          rs;           // run set
-  S<Λcsw const*> csws;         // context switch callbacks
+  S<Λcsw*>       csws;         // context switch callbacks
   ΣΘΔ            qΘ;           // quantum time measurement
   λi             ni  = 0;      // next λi (always nonzero for managed λ)
   λi             ri  = 0;      // currently running λi (0 = main thread)
@@ -103,11 +103,12 @@ protected:
 struct Λcsw final
 {
   F<void()> f;
-  Λ        &l;
 
-  Λcsw(F<void()> &&f_) : f(mo(f_)), l(Λ_()) { l.ccsw(this); }
-  ~Λcsw()                                   { l.xcsw(this); }
+  Λcsw(F<void()> &&f_) : f(mo(f_)) { Λ_()->ccsw(this); }
+  ~Λcsw()                          { if (let l = Λ_()) l->xcsw(this); }
 };
+
+
 
 
 O &operator<<(O&, Λt const &);

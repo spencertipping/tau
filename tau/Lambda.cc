@@ -7,7 +7,7 @@ namespace τ
 
 static Λ *L = nullptr;
 
-Λ   &Λ_()     { A(L, "Λ_ with no active Λ"); return *L; }
+Λ   *Λ_()     { return L; }
 void Λ_(Λ *l) { L = l; }
 
 
