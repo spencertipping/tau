@@ -86,6 +86,8 @@ void lmdb_db::commit()
   if (w_ != nullptr)
   {
     int rc = mdb_txn_commit(w_);
+    std::cerr << "write commit" << std::endl;
+    --ws_;
     A(rc == MDB_SUCCESS, "mdb_txn_commit() failed: " << mdb_strerror(rc));
     us_ = 0;
     w_  = nullptr;
@@ -191,6 +193,8 @@ MDB_txn *lmdb_db::wt()
   Ul<Rmu> l{wm_};
   if (w_ == nullptr)
   {
+    std::cerr << "write begin" << std::endl;
+    ++ws_;
     let rc = mdb_txn_begin(e_, nullptr, 0, &w_);
     A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc));
   }
