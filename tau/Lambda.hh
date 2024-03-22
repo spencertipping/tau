@@ -81,8 +81,8 @@ struct Λ final
 
   uN n() const { return ls.size(); }
 
-  void ccsw(Λcsw const *x) { csws.insert(x); }
-  void xcsw(Λcsw const *x) { csws.erase(x); }
+  void ccsw(Λcsw const *x) { if (!fin) csws.insert(x); }
+  void xcsw(Λcsw const *x) { if (!fin) csws.erase(x); }
 
 
 protected:
