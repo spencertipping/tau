@@ -31,15 +31,18 @@ struct kvmat_ : public virtual at_
 {
   kvmat_(cback const &l, Sp<kv_> db) : at_(ct_map{}, l), db(db) {}
 
-  void α(ηic &k, ηic &v, ξo) override { db->set(k, v); }
-  void ω(ηic &k, ηic&, ξo)   override { db->del(k); }
+  void α(ηic &k, ηic &v, ξo) override { db->set(key(k), v); }
+  void ω(ηic &k, ηic&, ξo)   override
+    { db->del(key(k)); }
   void ι(ηic &k, ηic&, ξo o) override
-    { let r = db->get(k);
+    { let r = db->get(key(k));
       if (!r.empty()) o.r(k.lsize() + r.size() + 8) << k.all() << r.all();
       else            o.r(k.lsize() + 2)            << k.all() << ηsig::ω; }
   void τ(ηic &x, ξo o) override { db->sync(); o.r() << ηsig::τ; }
 
   Sp<kv_> db;
+
+  ηi key(ηic &k) { return k.is_η() ? k.η() : k; }
 };
 
 
