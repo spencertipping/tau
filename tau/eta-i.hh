@@ -154,8 +154,7 @@ struct ηi final
   bool operator==(i64   i_) const { return is_i() && i() == i_; }
   bool operator==(ηic  &b_) const { return (*this <=> b_) == PO::equivalent; }
 
-  bool is_n(Stc  &n_) const { return is_n() && n().x == n_; }
-  bool is_n(Stvc &n_) const { return is_n() && n().x == n_; }
+  bool is_n(Stc &n_) const { return is_n() && n().x == n_; }
 
 
   PO operator<=> (ηic &x) const;  // logical ordering (3.0 < 4.0 etc)
