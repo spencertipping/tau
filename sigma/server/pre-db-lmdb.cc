@@ -58,8 +58,9 @@ void lmdb_db::reserve(uN n)
 {
   while (should_resize(us_ + n))
   {
-    Ul<Rmu> l{wm_};
-    commit();
+    Ul<Smu> l1{rm_};
+    Ul<Rmu> l2{wm_};
+    reset();
 
     MDB_envinfo i;
     int rc = mdb_env_info(e_, &i);
@@ -99,8 +100,6 @@ void lmdb_db::commit()
   int rc = mdb_get(rt(), open(db), &key, &val);
   if (rc == MDB_NOTFOUND) return ηi{};
   A(rc == MDB_SUCCESS, "mdb_get() failed: " << mdb_strerror(rc));
-
-
   return ηi{(u8c*) val.mv_data, val.mv_size};
 }
 
