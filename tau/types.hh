@@ -223,6 +223,12 @@ typedef std::chrono::steady_clock       Θc;
 typedef std::chrono::nanoseconds        ΔΘ;
 typedef std::chrono::time_point<Θc, ΔΘ> Θp;
 
+inline auto epoch_seconds()
+{
+  return std::chrono::duration_cast<std::chrono::seconds>(
+    Θc::now().time_since_epoch()).count();
+}
+
 inline auto seconds(Θp t)
 {
   return std::chrono::duration_cast<std::chrono::seconds>(t.time_since_epoch()).count();
