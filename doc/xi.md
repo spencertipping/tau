@@ -11,6 +11,7 @@ There are some basic tests for ξ in [try/xi.cc](../try/xi.cc):
 $ bin/xi-fast
 spans are ok
 ηs are ok
+η tuple conversion is ok
 ξ single got total: 49995000
 ξ multi got total: 161700
 ξ single got total: 499500

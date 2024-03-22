@@ -29,6 +29,19 @@ void try_eta()
 }
 
 
+void try_eta_tuple_conversion()
+{
+  ηm a;
+  a << 1 << 2 << 3;
+
+  let [x, y, z] = a.y().as<i64, i64, i64>();
+  let x0 = x; A(x == 1, "x = " << x0);
+  let y0 = y; A(y == 2, "y = " << y0);
+  let z0 = z; A(z == 3, "z = " << z0);
+  cout << "η tuple conversion is ok" << endl;
+}
+
+
 void try_xi_simple()
 {
   τe t;
@@ -176,6 +189,7 @@ int main()
 {
   try_spans();
   try_eta();
+  try_eta_tuple_conversion();
   try_xi_simple();
   try_xi_multi();
   try_xi_head();
