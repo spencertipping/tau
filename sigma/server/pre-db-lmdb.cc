@@ -141,7 +141,8 @@ void lmdb_db::set(Stc &db, ηic &k, ηic &v)
 
 void lmdb_db::reset()
 {
-  Ul<Rmu> l{wm_};
+  Ul<Rmu> l1{wm_};
+  Ul<Smu> l2{rm_};
   commit();
   close_readers();
 }
@@ -196,6 +197,7 @@ MDB_txn *lmdb_db::wt()
   Ul<Rmu> l{wm_};
   if (w_ == nullptr)
   {
+    Ul<Smu> l2{rm_};
     close_readers();
     MDB_envinfo i;
     mdb_env_info(e_, &i);
