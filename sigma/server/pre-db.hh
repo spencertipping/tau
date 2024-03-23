@@ -42,9 +42,11 @@ struct lmdb_db final
 
 
 protected:
+  thread_pool        wp_;           // always do writes on this thread
   MDB_env           *e_ = nullptr;  // DB env
-  MDB_txn           *w_ = nullptr;  // write transaction, or null
-  Rmu                wm_;           // writer management mutex
+  Mu                 wqm_;          // write queue mutex
+  M<ηm, ηm>          wq_;           // write queue
+  S<ηm>              dq_;           // deletion queue
   M<Th::id, reader>  r_;            // read transactions
   Smu                rm_;           // reader management mutex
   M<St, MDB_dbi>     d_;            // cache of DB tables

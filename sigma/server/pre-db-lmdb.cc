@@ -10,6 +10,35 @@ namespace σ::pre
 {
 
 
+// TODO
+// All write operations need to go through a dedicated thread, which here is the
+// thread pool. Read operations are fine; we can do them however we want to.
+//
+// This is pretty simple; we can just have commit() commit the staged values and
+// auto-commit after so much data is buffered up. Write transactions are very
+// short-lived, and we maintain view consistency by nuking all read transactions
+// on commit.
+
+// TODO (obviated; see further todo below)
+// Tie read transactions to return values using RAII to avoid race conditions
+// where memory is corrupted by LMDB while we're using it. This basically entails
+// returning a wrapped ηi that holds a shared pointer to the transaction that
+// created the value. Most of the time these pointers will be released quickly,
+// so we shouldn't have lingering transactions.
+//
+// NOTE: this is awkward given that some values may be staged and can be moved
+// without transactions changing. We need to copy the values out.
+
+// TODO
+// Tau's whole API for k/v stores is broken unless we assume the value is
+// consumed immediately and within a single operation-quantum: ηi is not stable.
+// τ containers made sense when we fully serialized access by copying through ζ
+// pipes, but anything in-memory is going to fail.
+//
+// We need to copy out to avoid this problem, which means an update to the core
+// kv_ interface.
+
+
 static uN filesize(Stc &f)
 {
   std::ifstream in(f, std::ifstream::ate | std::ifstream::binary);
@@ -18,7 +47,7 @@ static uN filesize(Stc &f)
 }
 
 
-lmdb_db::lmdb_db(Stc &f, uN max_dbs, uN mapsize)
+lmdb_db::lmdb_db(Stc &f, uN max_dbs, uN mapsize) : wp_(1)
 {
   int rc;
 
@@ -58,7 +87,6 @@ void lmdb_db::reserve(uN n)
   while (should_resize(us_ + n))
   {
     Ul<Smu> l1{rm_};
-    Ul<Rmu> l2{wm_};
     reset();
 
     MDB_envinfo i;
@@ -199,10 +227,6 @@ MDB_txn *lmdb_db::wt()
   {
     Ul<Smu> l2{rm_};
     close_readers();
-    MDB_envinfo i;
-    mdb_env_info(e_, &i);
-    A(i.me_numreaders == 0,
-      "me_numreaders = " << i.me_numreaders << " (should be 0)");
 
     let rc = mdb_txn_begin(e_, nullptr, 0, &w_);
     A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc));
