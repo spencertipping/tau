@@ -35,9 +35,7 @@ lmdb_db::lmdb_db(Stc &f, uN max_dbs, uN mapsize)
 lmdb_db::~lmdb_db()
 {
   commit();
-  std::cerr << "closing with " << rs_ << " active reader(s)" << std::endl;
-  for (let &i : r_) mdb_txn_abort(i.second.t);
-
+  close_readers();
   mdb_env_close(e_);
 }
 
@@ -49,8 +47,6 @@ bool lmdb_db::should_resize(uN n, f64 safety) const
   if (mdb_env_stat(e_, &s) != MDB_SUCCESS || mdb_env_info(e_, &i) != MDB_SUCCESS)
     return true;
 
-  std::cerr << "readers: " << i.me_numreaders << " of " << i.me_maxreaders << std::endl;
-
   let t =     s.ms_psize * (uS) i.me_mapsize / s.ms_psize;
   let f = t - s.ms_psize * (uS) i.me_last_pgno * safety;
   return n >= f;
@@ -61,8 +57,6 @@ void lmdb_db::reserve(uN n)
 {
   while (should_resize(us_ + n))
   {
-    std::cerr << "reserve loop" << std::endl;
-
     Ul<Smu> l1{rm_};
     Ul<Rmu> l2{wm_};
     reset();
@@ -72,7 +66,6 @@ void lmdb_db::reserve(uN n)
     A(rc == MDB_SUCCESS, "mdb_env_info() failed: " << mdb_strerror(rc));
     rc = mdb_env_set_mapsize(e_, i.me_mapsize * 2);
     A(rc == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
-    std::cerr << "resized to " << i.me_mapsize * 2 << " bytes" << std::endl;
   }
 
   us_ += n;
@@ -92,8 +85,6 @@ void lmdb_db::commit()
   if (w_ != nullptr)
   {
     int rc = mdb_txn_commit(w_);
-    std::cerr << "write commit" << std::endl;
-    --ws_;
     A(rc == MDB_SUCCESS, "mdb_txn_commit() failed: " << mdb_strerror(rc));
     us_ = 0;
     w_  = nullptr;
@@ -158,7 +149,7 @@ void lmdb_db::reset()
 
 void lmdb_db::close_readers()
 {
-  for (let &i : r_) mdb_txn_abort(i.second.t), std::cerr << "read abort" << std::endl, --rs_;
+  for (let &i : r_) mdb_txn_abort(i.second.t);
   r_.clear();
 }
 
@@ -182,17 +173,12 @@ MDB_txn *lmdb_db::rt()
 
     if (r.t != nullptr)
     {
-      std::cerr << "read renew; rs_ = " << rs_ << std::endl;
-      --rs_;
       mdb_txn_reset(r.t);
       rc = mdb_txn_renew(r.t);
-      ++rs_;
       A(rc == MDB_SUCCESS, "mdb_txn_renew() failed: " << mdb_strerror(rc));
     }
     else
     {
-      ++rs_;
-      std::cerr << "read begin; rs_ = " << rs_ << std::endl;
       rc = mdb_txn_begin(e_, nullptr, MDB_RDONLY, &r.t);
       A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc));
     }
@@ -211,8 +197,11 @@ MDB_txn *lmdb_db::wt()
   if (w_ == nullptr)
   {
     close_readers();
-    std::cerr << "write begin" << std::endl;
-    ++ws_;
+    MDB_envinfo i;
+    mdb_env_info(e_, &i);
+    A(i.me_numreaders == 0,
+      "me_numreaders = " << i.me_numreaders << " (should be 0)");
+
     let rc = mdb_txn_begin(e_, nullptr, 0, &w_);
     A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc));
   }

@@ -51,8 +51,6 @@ protected:
   Smu                dm_;           // DBI table management mutex
   uN                 us_ = 0;       // uncommitted data size
   At<uN>             re_ = 0;       // revision (to signal to readers)
-  At<i64>            ws_ = 0;  // write transactions (XXX)
-  At<i64>            rs_ = 0;  // read transactions (XXX)
 
   bool should_resize(uN n, f64 safety = 4.0) const;
   void reserve(uN);
