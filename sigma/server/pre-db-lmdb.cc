@@ -147,6 +147,12 @@ void lmdb_db::reset()
 {
   Ul<Rmu> l{wm_};
   commit();
+  close_readers();
+}
+
+
+void lmdb_db::close_readers()
+{
   for (let &i : r_) mdb_txn_abort(i.second.t), std::cerr << "read abort" << std::endl, --rs_;
   r_.clear();
 }
@@ -171,7 +177,7 @@ MDB_txn *lmdb_db::rt()
 
     if (r.t != nullptr)
     {
-      std::cerr << "read renew" << std::endl;
+      std::cerr << "read renew; rs_ = " << rs_ << std::endl;
       --rs_;
       mdb_txn_reset(r.t);
       rc = mdb_txn_renew(r.t);
@@ -181,7 +187,7 @@ MDB_txn *lmdb_db::rt()
     else
     {
       ++rs_;
-      std::cerr << "read begin" << std::endl;
+      std::cerr << "read begin; rs_ = " << rs_ << std::endl;
       rc = mdb_txn_begin(e_, nullptr, MDB_RDONLY, &r.t);
       A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc));
     }
@@ -199,6 +205,7 @@ MDB_txn *lmdb_db::wt()
   Ul<Rmu> l{wm_};
   if (w_ == nullptr)
   {
+    close_readers();
     std::cerr << "write begin" << std::endl;
     ++ws_;
     let rc = mdb_txn_begin(e_, nullptr, 0, &w_);

@@ -38,7 +38,7 @@ struct lmdb_db final
 
   MDB_env *env() const { return e_; }
 
-  void reset();  // reset readers
+  void reset();  // commit and close readers
 
 
 protected:
@@ -56,6 +56,7 @@ protected:
 
   bool should_resize(uN n, f64 safety = 4.0) const;
   void reserve(uN);
+  void close_readers();
 
   MDB_txn *rt();
   MDB_txn *wt();
