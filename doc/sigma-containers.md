@@ -1,4 +1,30 @@
 # σ containers
+OK! New design. The great majority of these constructs are useless or broken, so let's start from the ground up and fix things. In particular, _σ should not provide Ψ-level container processes._ Instead, it should make it easy to define your own using minimal APIs.
+
+That means we're bringing everything much closer to the underlying backends: no more unified k/v stuff unless it's done in a way that works with zero-copy databases like LMDB.
+
+Sample abstraction for that btw:
+
+```cpp
+struct lmdb_db final
+{
+  struct value_reader final
+  {
+    // NOTE: only one of these will be set
+    Sp<read_txn_wrapper> rt;
+    Sp<staged_value>     rv;
+    ηi                   v;
+  };
+
+  value_reader get(ηic &k) const;
+  void         set(ηic &k, ηic &v);
+  void         commit(bool sync = false);
+};
+```
+
+`set()` uses a stage, `commit()` writes to the DB using a dedicated writer thread because LMDB requires it. Sometimes `set()` will trigger a `commit()` and await the result; it depends on how much staged data there is.
+
+
 As mentioned in [σ search](sigma-search.md), containers -- i.e. data structures -- follow some conventions to simplify interfacing with other components. The set of operators depends on the structure.
 
 **TODO:** rewrite this page because it's confusing
