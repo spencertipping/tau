@@ -59,6 +59,8 @@ void lmdb_db::reserve(uN n)
 {
   while (should_resize(us_ + n))
   {
+    std::cerr << "reserve loop" << std::endl;
+
     Ul<Smu> l1{rm_};
     Ul<Rmu> l2{wm_};
     reset();
@@ -68,6 +70,7 @@ void lmdb_db::reserve(uN n)
     A(rc == MDB_SUCCESS, "mdb_env_info() failed: " << mdb_strerror(rc));
     rc = mdb_env_set_mapsize(e_, i.me_mapsize * 2);
     A(rc == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
+    std::cerr << "resized to " << i.me_mapsize * 2 << " bytes" << std::endl;
   }
 
   us_ += n;
