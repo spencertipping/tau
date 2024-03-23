@@ -49,6 +49,8 @@ bool lmdb_db::should_resize(uN n, f64 safety) const
   if (mdb_env_stat(e_, &s) != MDB_SUCCESS || mdb_env_info(e_, &i) != MDB_SUCCESS)
     return true;
 
+  std::cerr << "readers: " << i.me_numreaders << " of " << i.me_maxreaders << std::endl;
+
   let t =     s.ms_psize * (uS) i.me_mapsize / s.ms_psize;
   let f = t - s.ms_psize * (uS) i.me_last_pgno * safety;
   return n >= f;
