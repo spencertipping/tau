@@ -204,12 +204,12 @@ bool kvmmat_::staged_del(key &k)
   let l = lkey(k);
   if (!db_->has(l)) return ηesstream();
   let i = db_->get(l);
-  return !i.i() ? ss_literal(k) : ss_indirect(k);
+  return !i.y().i() ? ss_literal(k) : ss_indirect(k);
 }
 
 ηsstream kvmmat_::ss_literal(key &k) const
 {
-  return ηisstream(db_->get(lkey(k)).next());
+  return ηisstream(db_->get(lkey(k)).y().next());
 }
 
 ηsstream kvmmat_::ss_indirect(key &k) const
@@ -232,14 +232,14 @@ bool kvmmat_::kv_has(key &k) const
 
 uN kvmmat_::kv_ilen(key &k) const
 {
-  return db_->get(lkey(k)).i();
+  return db_->get(lkey(k)).y().i();
 }
 
 V<ηm> kvmmat_::kv_indirects(key &k) const
 {
   A(kv_ilen(k), "kv_ind_asc on non-indirect " << k);
   V<ηm> r; r.reserve(kv_ilen(k));
-  for (let &x : db_->get(lkey(k)).next()) r.push_back(x.η()[1]);
+  for (let &x : db_->get(lkey(k)).y().next()) r.push_back(x.η()[1]);
   return r;
 }
 
@@ -247,7 +247,7 @@ So<ηm> kvmmat_::kv_ind_asc(key &k) const
 {
   A(kv_ilen(k), "kv_ind_asc on non-indirect " << k);
   So<ηm> r;
-  for (let &x : db_->get(lkey(k)).next()) r.insert(x.η());
+  for (let &x : db_->get(lkey(k)).y().next()) r.insert(x.η());
   return r;
 }
 
@@ -269,7 +269,7 @@ So<ηm> kvmmat_::kv_ind_asc(key &k) const
 void kvmmat_::make_indirect(key &k)
 {
   let ik = genkey();
-  let v  = ηm{db_->get(lkey(k)).next()};
+  let v  = ηm{db_->get(lkey(k)).y().next()};
   let n  = v.y().len();
   db_->set(ikey(ik), v);
   db_->set(lkey(k),  ηm{} << 1 << (ηm{} << i64(n) << ik.all()));

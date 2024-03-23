@@ -38,6 +38,14 @@ namespace σ::pre
 // We need to copy out to avoid this problem, which means an update to the core
 // kv_ interface.
 
+// NOTE
+// We can commit to LMDB for everything; no more SQLite. So maybe we don't need
+// a generic interface for k/v, so we can have an API that makes it work
+// correctly. We get a lot of benefit from managing transactions carefully, as
+// well as zero-copy reads (which I still think are good to have). It's probably
+// worth wrapping returned values in some shared-pointer against the
+// transaction.
+
 
 static uN filesize(Stc &f)
 {

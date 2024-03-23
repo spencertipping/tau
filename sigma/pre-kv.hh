@@ -16,7 +16,7 @@ struct kv_
 {
   virtual ~kv_() {}
 
-  virtual ηi   get(ηic&) = 0;
+  virtual ηm   get(ηic&) = 0;
   virtual void set(ηic&, ηic&) = 0;
   virtual void del(ηic&) = 0;
   virtual bool has(ηic&) = 0;
