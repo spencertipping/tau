@@ -35,6 +35,7 @@ lmdb_db::lmdb_db(Stc &f, uN max_dbs, uN mapsize)
 lmdb_db::~lmdb_db()
 {
   commit();
+  std::cerr << "closing with " << rs_ << " active reader(s)" << std::endl;
   for (let &i : r_) mdb_txn_abort(i.second.t);
 
   mdb_env_close(e_);
@@ -146,7 +147,7 @@ void lmdb_db::reset()
 {
   Ul<Rmu> l{wm_};
   commit();
-  for (let &i : r_) mdb_txn_abort(i.second.t);
+  for (let &i : r_) mdb_txn_abort(i.second.t), std::cerr << "read abort" << std::endl, --rs_;
   r_.clear();
 }
 
@@ -170,12 +171,17 @@ MDB_txn *lmdb_db::rt()
 
     if (r.t != nullptr)
     {
+      std::cerr << "read renew" << std::endl;
+      --rs_;
       mdb_txn_reset(r.t);
       rc = mdb_txn_renew(r.t);
+      ++rs_;
       A(rc == MDB_SUCCESS, "mdb_txn_renew() failed: " << mdb_strerror(rc));
     }
     else
     {
+      ++rs_;
+      std::cerr << "read begin" << std::endl;
       rc = mdb_txn_begin(e_, nullptr, MDB_RDONLY, &r.t);
       A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc));
     }
