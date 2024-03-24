@@ -10,11 +10,7 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 + Add OT Ψs to σ
 + WASM websocket client
 + HTTP websocket server
-+ Static file server
-+ HTTP authentication
 + Formalize/test Λ scheduling system; right now there are probably some edge cases involving CPU blocking and Θ races
-
-**Q:** do we want to write compute-heavy Ψs in π, or in C++? Probably C++, but π has some side advantages like much lower compile times.
 
 **Q:** what should OTs be able to synchronize? All η values? That would be pretty killer.
 
