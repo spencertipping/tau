@@ -28,18 +28,18 @@ public:
   // RAII value wrapper: holds the zero-copy value in place until deleted.
   Tt struct v final
   {
-    v(T const &x = {}, Sp<rtx_> const &rtx = {}, Sp<ηm> const &stv = {})
-      : x(x), rtx(rtx), stv(stv) {}
-
-    v(T const &x, v<T> const &o) : x(x), rtx(o.rtx), stv(o.stv) {}
+    T x;
 
     v(v<T> const&) = default;
     v(v<T> &&)     = default;
+    v(T const &x, v<T> const &o) : x(x), rtx(o.rtx), stv(o.stv) {}
+    v(T const &x = {}, Sp<rtx_> const &rtx = {}, Sp<ηm> const &stv = {})
+      : x(x), rtx(rtx), stv(stv) {}
 
-    T x;
+    v &operator=(v const&) = default;
+    v &operator=(v&&)      = default;
 
-    Tx auto map(X const &f) -> decltype(f(x))
-      { return v{f(x), *this}; }
+    Tx auto map(X const &f) -> decltype(f(x)) { return v{f(x), *this}; }
 
   protected:
     // Only one of the two values below will be populated; it depends on where
