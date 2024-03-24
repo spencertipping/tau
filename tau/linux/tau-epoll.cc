@@ -213,6 +213,7 @@ bool τe::is_awake(uN tid)
 void τe::sig(int s)
 {
   for (let &f : sfs) (*f)(s);
+  exit(2);
 }
 
 
