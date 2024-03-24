@@ -72,15 +72,21 @@ struct lmdb_index final
   typedef ηmc key;  // user-facing key
   typedef ηmc ind;  // key that we expect to be indirect
 
-  lmdb_index(Stc &p, Stc &t,
+  lmdb_index(τe &te,
+             Stc &p, Stc &t,
              iN svo = 64ll << 20,  // staged value overflow (bytes)
              iN sko = 64ll << 10,  // staged key overflow (#keys)
              iN lvs = 8ll << 10)   // literal value size (bytes)
-    : db_{p, t}, ss_(0),
+    : te_(te), db_{te, p, t}, ss_(0),
       svo_(svo), sko_(sko), lvs_(lvs),
-      nk_((τ::isha2{} << (ηm{} << τ::epoch_seconds()))()) {}
+      nk_((τ::isha2{} << (ηm{} << τ::epoch_seconds()))())
+    { on_sig_ = τ::Sp<τ::F<void(int)>>
+        {new τ::F<void(int)> { [this](int) { flush(); } }};
+      te_.sig_register(on_sig_); }
 
-  ~lmdb_index() { flush(); }
+  ~lmdb_index()
+    { flush();
+      te_.sig_unregister(on_sig_); }
 
 
   void add(key &k, ηic &v);
@@ -148,15 +154,17 @@ protected:
   ηm ikey(τ::h256c &k) const { return ηm{} << "i" << k; }
 
 
-  lmdb           db_;
-  mutable τ::Smu lock_;  // lock for all mutations
-  M<ηm, stage>   add_;   // staged values to add
-  M<ηm, stage>   del_;   // staged values to delete
-  iN             ss_;    // staged size = ∑|v| in stage
-  iN             svo_;   // staged value overflow (bytes)
-  iN             sko_;   // staged key overflow (#keys)
-  iN             lvs_;   // literal value size limit (bytes)
-  τ::h256        nk_;    // seed for genkey()
+  τe                    &te_;
+  τ::Sp<τ::F<void(int)>> on_sig_;
+  lmdb                   db_;
+  mutable τ::Smu         lock_;  // lock for all mutations
+  M<ηm, stage>           add_;   // staged values to add
+  M<ηm, stage>           del_;   // staged values to delete
+  iN                     ss_;    // staged size = ∑|v| in stage
+  iN                     svo_;   // staged value overflow (bytes)
+  iN                     sko_;   // staged key overflow (#keys)
+  iN                     lvs_;   // literal value size limit (bytes)
+  τ::h256                nk_;    // seed for genkey()
 };
 
 

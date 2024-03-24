@@ -130,6 +130,9 @@ struct τe : public τb
   // Handle signals
   void sig(int s);
 
+  void sig_register  (Sp<F<void(int)>> f) { sfs.insert(f); }
+  void sig_unregister(Sp<F<void(int)>> f) { sfs.erase(f); }
+
 
   // Call epoll_wait() and invoke all wakeups and Θ-blocked functions.
   // If nonblock = true, epoll_wait() will have a timeout of zero, making
@@ -146,16 +149,17 @@ struct τe : public τb
 
 
 protected:
-  fd_t             efd;    // epoll control FD
-  fd_t             wfd;    // eventfd wake FD
-  M<fd_t, Sp<λgs>> rgs;    // read gate sets
-  M<fd_t, Sp<λgs>> wgs;    // write gate sets
-  S<pid_t>         pids;   // child pids
-  bool             fin;    // true if we're terminating
-  thread_pool      tp;
-  At<uN>           tid;    // task ID counter
-  S<uN>            trs;    // set of running tasks
-  Smu              trs_m;  // shared mutex for trs
+  fd_t                efd;    // epoll control FD
+  fd_t                wfd;    // eventfd wake FD
+  M<fd_t, Sp<λgs>>    rgs;    // read gate sets
+  M<fd_t, Sp<λgs>>    wgs;    // write gate sets
+  S<pid_t>            pids;   // child pids
+  bool                fin;    // true if we're terminating
+  thread_pool         tp;
+  At<uN>              tid;    // task ID counter
+  S<uN>               trs;    // set of running tasks
+  Smu                 trs_m;  // shared mutex for trs
+  S<Sp<F<void(int)>>> sfs;  // signal handler functions
 
 
   // Return the gate set for a FD, or nullptr if it's not registered.

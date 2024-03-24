@@ -49,7 +49,7 @@ public:
   };
 
 
-  lmdb(τ::Stc &f, τ::Stc &t,
+  lmdb(τe &te, τ::Stc &f, τ::Stc &t,
        τ::uN mapsize = 1ull << 24,
        τ::uN maxdbs  = 64,
        τ::uN mss     = 64ull << 20);
@@ -68,16 +68,18 @@ public:
 
 
 protected:
-  MDB_env          *e_;
-  MDB_dbi           d_;
-  mutable τ::Smu    rmu_;     // read transaction mutex
-  mutable Sp<rtx_>  rt_;      // current read transaction, if any
-  mutable τ::Smu    smu_;     // stage mutex
-  τ::uN             ss_;      // stage size (protected by smu_)
-  τ::M<ηm, Sp<ηm>>  istage_;  // insert/update stage (smu_)
-  τ::S<ηm>          dstage_;  // delete stage (smu_)
-  τ::uN             mss_;     // max stage size before auto-commit
-  τ::Smu            cmu_;     // commit mutex (writers share, committer locks)
+  τe                 &te_;
+  MDB_env            *e_;
+  MDB_dbi             d_;
+  mutable τ::Smu      rmu_;     // read transaction mutex
+  mutable Sp<rtx_>    rt_;      // current read transaction, if any
+  mutable τ::Smu      smu_;     // stage mutex
+  τ::uN               ss_;      // stage size (protected by smu_)
+  τ::M<ηm, Sp<ηm>>    istage_;  // insert/update stage (smu_)
+  τ::S<ηm>            dstage_;  // delete stage (smu_)
+  τ::uN               mss_;     // max stage size before auto-commit
+  τ::Smu              cmu_;     // commit mutex (writers share, committer locks)
+  Sp<τ::F<void(int)>> on_sig_;
 
   // Read transaction: aborts when deleted
   struct rtx_ final

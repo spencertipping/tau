@@ -9,9 +9,9 @@ using namespace τ;
 
 void Γlmdb(Γφ &g)
 {
-  g.def_p1("@|L", [](φig, Stc &f, φig, Stc &t, ξo o)
+  g.def_p1("@|L", [](φig, Stc &f, φig, Stc &t, ψ q, ξo o)
     {
-      lmdb db{f, t};
+      lmdb db{q.t(), f, t};
 
       Mp<MDB_txn> r(mdb_txn_abort);
       MDB_dbi     dbi;
@@ -43,11 +43,15 @@ static uN filesize(Stc &f)
 }
 
 
-lmdb::lmdb(Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss) : mss_(mss)
+lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss)
+  : te_(te), mss_(mss)
 {
   int rc;
 
-  uN m = std::max(filesize(f) * 2ull, mapsize * 1ull);
+  on_sig_ = Sp<F<void(int)>>{new F<void(int)>{[this](int) { commit(true); }}};
+  te_.sig_register(on_sig_);
+
+  uN m = std::max(filesize(f) * 4ull, mapsize * 1ull);
 
   A((rc = mdb_env_create(&e_))            == MDB_SUCCESS, "mdb_env_create() failed: "      << mdb_strerror(rc));
   A((rc = mdb_env_set_maxdbs(e_, maxdbs)) == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: "  << mdb_strerror(rc));
@@ -66,6 +70,7 @@ lmdb::lmdb(Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss) : mss_(mss)
 
 lmdb::~lmdb()
 {
+  te_.sig_unregister(on_sig_);
   commit();
   mdb_env_close(e_);
 }
