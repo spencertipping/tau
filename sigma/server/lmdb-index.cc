@@ -1,63 +1,55 @@
-#include "pre-container-kv.hh"
-#include "begin.hh"
+#include "lmdb-index.hh"
+#include "../begin.hh"
 
-namespace σ::pre
+namespace σ
 {
 
+using namespace τ;
 
-void kvmmat_::α(key &k, ηic &v, ξo)
+
+void lmdb_index::add(key &k, ηic &v)
 {
   Ul<Smu> l(lock_);
   stage_add(k, v);
 }
 
-void kvmmat_::ω(key &k, ηic &v, ξo)
+void lmdb_index::del(key &k, ηic &v)
 {
   Ul<Smu> l(lock_);
   if (v.empty()) del_all(k);
   else           stage_del(k, v);
 }
 
-void kvmmat_::ι(key &k, ηic&, ξo o)
+ηm lmdb_index::get(key &k, uN limit) const
 {
   Sl<Smu> l(lock_);
   auto i = ss(k);
-  while (*i) o.r() << **i, ++*i;
-  o.r() << ηsig::τ;
-}
-
-void kvmmat_::κ(key &k, ηic&, ξo o)
-{
-  flush(k);
-}
-
-void kvmmat_::τ(ηic &x, ξo o)
-{
-  flush();
-  o.r() << ηsig::τ;
+  ηm r;
+  for (uN n = 0; (!limit || n < limit) && *i; ++*i, ++n) r << **i;
+  return r;
 }
 
 
-void kvmmat_::flush()
+void lmdb_index::flush()
 {
   Ul<Smu> l(lock_);
   flush_();
 }
 
-void kvmmat_::flush(key &k)
+void lmdb_index::flush(key &k)
 {
   Ul<Smu> l(lock_);
   flush_(k);
 }
 
-ηsstream kvmmat_::ss(key &k) const
+ηsstream lmdb_index::ss(key &k) const
 {
   Sl<Smu> l(lock_);
   return (ss_kv(k) | ss_add_stage(k)) - ss_del_stage(k);
 }
 
 
-void kvmmat_::balance(key &k)
+void lmdb_index::balance(key &k)
 {
   if (!kv_has(k) || !kv_ilen(k)) return;
 
@@ -81,32 +73,32 @@ void kvmmat_::balance(key &k)
   ηm lv;
   lv << i64(oks.size());
   for (let &x : oks) lv << x;
-  db_->set(lkey(k), lv);
+  db_.set(lkey(k), lv);
 
   // Finally, delete the now-merged indirects
-  for (let &i : mks) db_->del(ikey(i));
+  for (let &i : mks) db_.del(ikey(i));
 }
 
 
-void kvmmat_::touch()
+void lmdb_index::touch()
 {
   // Not sophisticated, but it should basically work
   if (ss_ >= svo_ || iN(add_.size()) >= sko_ || iN(del_.size()) >= sko_)
     flush_();
 }
 
-void kvmmat_::flush_()
+void lmdb_index::flush_()
 {
   // Invariant: elements from add_ and del_ are disjoint, but keys might not be.
   S<ηm> ks;
   for (let &[k, _] : add_) ks.insert(k);
   for (let &[k, _] : del_) ks.insert(k);
   for (let &k : ks) flush_(k);
-  db_->commit();
+  db_.commit();
   A(!ss_, "kvmmat_::ss_ != 0: " << ss_);
 }
 
-void kvmmat_::flush_(key &k)
+void lmdb_index::flush_(key &k)
 {
   // Add staged values first, then delete; this way we get the rebalancing
   // in as necessary.
@@ -127,35 +119,35 @@ void kvmmat_::flush_(key &k)
 }
 
 
-void kvmmat_::stage_add(key &k, ηic &v)
+void lmdb_index::stage_add(key &k, ηic &v)
 {
   if (add_[k].insert(v).second) ss_ += v.lsize();
   unstage_del(k, v);
   touch();
 }
 
-void kvmmat_::stage_add(key &k, ηm &&v)
+void lmdb_index::stage_add(key &k, ηm &&v)
 {
   if (add_[k].insert(mo(v)).second) ss_ += v.lsize();
   unstage_del(k, v);
   touch();
 }
 
-void kvmmat_::stage_del(key &k, ηic &v)
+void lmdb_index::stage_del(key &k, ηic &v)
 {
   if (del_[k].insert(v).second) ss_ += v.lsize();
   unstage_add(k, v);
   touch();
 }
 
-void kvmmat_::stage_del(key &k, ηm &&v)
+void lmdb_index::stage_del(key &k, ηm &&v)
 {
   if (del_[k].insert(mo(v)).second) ss_ += v.lsize();
   unstage_add(k, v);
   touch();
 }
 
-void kvmmat_::unstage_add(key &k, ηic &v)
+void lmdb_index::unstage_add(key &k, ηic &v)
 {
   let i = add_.find(k);
   if (i != add_.end())
@@ -165,7 +157,7 @@ void kvmmat_::unstage_add(key &k, ηic &v)
   }
 }
 
-void kvmmat_::unstage_del(key &k, ηic &v)
+void lmdb_index::unstage_del(key &k, ηic &v)
 {
   let i = del_.find(k);
   if (i != del_.end())
@@ -175,126 +167,127 @@ void kvmmat_::unstage_del(key &k, ηic &v)
   }
 }
 
-bool kvmmat_::staged_add(key &k)
+bool lmdb_index::staged_add(key &k)
 {
   // NOTE: should never be empty, but let's be sure
   return add_.contains(k) && !add_.at(k).empty();
 }
 
-bool kvmmat_::staged_del(key &k)
+bool lmdb_index::staged_del(key &k)
 {
   return del_.contains(k) && !del_.at(k).empty();
 }
 
 
-ηsstream kvmmat_::ss_add_stage(key &k) const
+ηsstream lmdb_index::ss_add_stage(key &k) const
 {
   let i = add_.find(k);
   return i != add_.end() ? ηsosstream(i->second) : ηesstream();
 }
 
-ηsstream kvmmat_::ss_del_stage(key &k) const
+ηsstream lmdb_index::ss_del_stage(key &k) const
 {
   let i = del_.find(k);
   return i != del_.end() ? ηsosstream(i->second) : ηesstream();
 }
 
-ηsstream kvmmat_::ss_kv(key &k) const
+ηsstream lmdb_index::ss_kv(key &k) const
 {
   let l = lkey(k);
-  if (!db_->has(l)) return ηesstream();
-  let i = db_->get(l);
-  return !i.y().i() ? ss_literal(k) : ss_indirect(k);
+  if (!db_.has(l)) return ηesstream();
+  return !db_.get(l).x.i() ? ss_literal(k) : ss_indirect(k);
 }
 
-ηsstream kvmmat_::ss_literal(key &k) const
+ηsstream lmdb_index::ss_literal(key &k) const
 {
-  return ηisstream(db_->get(lkey(k)).y().next());
+  return ηisstream(db_.get(lkey(k)).x.next());
 }
 
-ηsstream kvmmat_::ss_indirect(key &k) const
+ηsstream lmdb_index::ss_indirect(key &k) const
 {
   V<ηsstream> ss;
   for (let &k : kv_indirects(k)) ss.push_back(ss_indirect1(k));
   return ηsstream_union(ss);
 }
 
-ηsstream kvmmat_::ss_indirect1(key &k) const
+ηsstream lmdb_index::ss_indirect1(key &k) const
 {
-  return ηisstream(db_->get(ikey(k)));
+  return ηisstream(db_.get(ikey(k)));
 }
 
 
-bool kvmmat_::kv_has(key &k) const
+bool lmdb_index::kv_has(key &k) const
 {
-  return db_->has(lkey(k));
+  return db_.has(lkey(k));
 }
 
-uN kvmmat_::kv_ilen(key &k) const
+uN lmdb_index::kv_ilen(key &k) const
 {
-  return db_->get(lkey(k)).y().i();
+  return db_.get(lkey(k)).x.i();
 }
 
-V<ηm> kvmmat_::kv_indirects(key &k) const
+V<ηm> lmdb_index::kv_indirects(key &k) const
 {
   A(kv_ilen(k), "kv_ind_asc on non-indirect " << k);
   V<ηm> r; r.reserve(kv_ilen(k));
-  for (let &x : db_->get(lkey(k)).y().next()) r.push_back(x.η()[1]);
+  let v = db_.get(lkey(k));
+  for (let &x : v.x.next()) r.push_back(x.η()[1]);
   return r;
 }
 
-So<ηm> kvmmat_::kv_ind_asc(key &k) const
+So<ηm> lmdb_index::kv_ind_asc(key &k) const
 {
   A(kv_ilen(k), "kv_ind_asc on non-indirect " << k);
   So<ηm> r;
-  for (let &x : db_->get(lkey(k)).y().next()) r.insert(x.η());
+  let v = db_.get(lkey(k));
+  for (let &x : v.x.next()) r.insert(x.η());
   return r;
 }
 
 
-ηm kvmmat_::new_indirect(stage const &v)
+ηm lmdb_index::new_indirect(stage const &v)
 {
   uN s = 0;           for (let &x : v) s += x.lsize();
   ηm m; m.reserve(s); for (let &x : v) m << x.all();
   return new_indirect(m);
 }
 
-ηm kvmmat_::new_indirect(ηic &v)
+ηm lmdb_index::new_indirect(ηic &v)
 {
   let k = genkey();
-  db_->set(ikey(k), v);
+  db_.set(ikey(k), v);
   return k;
 }
 
-void kvmmat_::make_indirect(key &k)
+void lmdb_index::make_indirect(key &k)
 {
   let ik = genkey();
-  let v  = ηm{db_->get(lkey(k)).y().next()};
+  let v  = ηm{db_.get(lkey(k)).x.next()};
   let n  = v.y().len();
-  db_->set(ikey(ik), v);
-  db_->set(lkey(k),  ηm{} << 1 << (ηm{} << i64(n) << ik.all()));
+  db_.set(ikey(ik), v);
+  db_.set(lkey(k),  ηm{} << 1 << (ηm{} << i64(n) << ik.all()));
 }
 
 
-void kvmmat_::add_kv_literal(key &k, stage const &v)
+void lmdb_index::add_kv_literal(key &k, stage const &v)
 {
-  A(!db_->has(lkey(k)), "add_kv_literal on existing key " << k);
+  A(!db_.has(lkey(k)), "add_kv_literal on existing key " << k);
   uN s = 0;                       for (let &x : v) s += x.lsize();
   ηm m; m.reserve(s + 2); m << 0; for (let &x : v) m << x.all();
-  db_->set(lkey(k), m);
+  db_.set(lkey(k), m);
 }
 
-void kvmmat_::add_kv_indirect(key &k, stage const &v)
+void lmdb_index::add_kv_indirect(key &k, stage const &v)
 {
   let  ik = new_indirect(v);
   auto ks = kv_ind_asc(k); ks.insert(ηm{} << i64(v.size()) << ik.all());
   ηm   lv;
   lv << i64(ks.size());
   for (let &k : ks) lv << k;
-  db_->set(lkey(k), lv);
+  db_.set(lkey(k), lv);
 }
 
-void kvmmat_::add_kv(key &k, stage const &v)
+void lmdb_index::add_kv(key &k, stage const &v)
 {
   if      (!kv_has(k))                    add_kv_literal(k, v);
   else if (!kv_ilen(k)) make_indirect(k), add_kv_indirect(k, v);
@@ -302,31 +295,31 @@ void kvmmat_::add_kv(key &k, stage const &v)
 }
 
 
-void kvmmat_::del_kv_literal(key &k, stage const &v)
+void lmdb_index::del_kv_literal(key &k, stage const &v)
 {
   TODO("del_kv_literal");
 }
 
-void kvmmat_::del_kv_indirect(key &k, stage const &v)
+void lmdb_index::del_kv_indirect(key &k, stage const &v)
 {
   TODO("del_kv_indirect");
 }
 
-void kvmmat_::del_kv(key &k, stage const &v)
+void lmdb_index::del_kv(key &k, stage const &v)
 {
   TODO("del_kv");
 }
 
-void kvmmat_::del_all(key &k)
+void lmdb_index::del_all(key &k)
 {
   TODO("del_all");
 }
 
 
-ηm kvmmat_::genkey()
+ηm lmdb_index::genkey()
 {
   ++*(i64*)(nk_.data());
-  while (db_->has(ikey(ηm{} << nk_)))
+  while (db_.has(ikey(ηm{} << nk_)))
   {
     *(i64*)(nk_.data()) += now().time_since_epoch().count();
     nk_ = (isha2{} << (ηm{} << nk_))();
@@ -337,4 +330,4 @@ void kvmmat_::del_all(key &k)
 
 }
 
-#include "end.hh"
+#include "../end.hh"

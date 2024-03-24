@@ -1,8 +1,10 @@
-#include "pre-sstream.hh"
-#include "../tau/begin.hh"
+#include "lmdb-sstream.hh"
+#include "../begin.hh"
 
-namespace σ::pre
+namespace σ
 {
+
+using namespace τ;
 
 
 template<bool fast>
@@ -81,9 +83,9 @@ template struct ηsstream_diff_<false>;
   return esstream_;
 }
 
-ηsstream ηisstream(ηic &x)
+ηsstream ηisstream(lmdb::v<ηi> const &x)
 {
-  return x.empty() ? ηesstream() : ηsstream(new ηisstream_<ηsstream_fast>(x));
+  return x.x.empty() ? ηesstream() : ηsstream(new ηisstream_<ηsstream_fast>(x));
 }
 
 ηsstream ηsosstream(So<ηm, ηsstream_cmp> const &x)
@@ -104,4 +106,4 @@ template struct ηsstream_diff_<false>;
 
 }
 
-#include "../tau/end.hh"
+#include "../end.hh"

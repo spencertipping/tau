@@ -5,6 +5,8 @@
 
 #if τlinux
 # include "linux/lmdb.hh"
+# include "linux/lmdb-index.hh"
+# include "linux/lmdb-sstream.hh"
 #endif
 
 

@@ -43,7 +43,7 @@ lmdb::~lmdb()
 }
 
 
-lmdb::v lmdb::get(ηmc &k)
+lmdb::v<ηi> lmdb::get(ηmc &k) const
 {
   // NOTE: must hold sl through reader() call to guarantee consistent data
   Sl<Smu> sl{smu_};
@@ -61,7 +61,7 @@ lmdb::v lmdb::get(ηmc &k)
 }
 
 
-bool lmdb::has(ηmc &k)
+bool lmdb::has(ηmc &k) const
 {
   // NOTE: must hold sl through reader() call to guarantee consistent data
   Sl<Smu> sl{smu_};
@@ -102,6 +102,12 @@ void lmdb::set(ηmc &k, ηm &&v)
     ss_ += k.lsize() + vp->lsize();
   }
   maybe_commit();
+}
+
+
+void lmdb::set(ηmc &k, ηic &v)
+{
+  set(k, ηm{v});
 }
 
 
@@ -197,7 +203,17 @@ bool lmdb::should_resize(uN n, f64 safety) const
 }
 
 
-Sp<lmdb::rtx_> lmdb::reader()
+void lmdb::maybe_commit()
+{
+  {
+    Sl<Smu> l{smu_};
+    if (ss_ < mss_) return;
+  }
+  commit();
+}
+
+
+Sp<lmdb::rtx_> lmdb::reader() const
 {
   // NOTE: this function is always called from a context with a shared stage
   // lock (which matters due to its potential interaction with commit())

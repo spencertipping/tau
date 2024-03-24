@@ -1,48 +1,13 @@
-#ifndef σpre_container_kv_h
-#define σpre_container_kv_h
+#ifndef σserver_lmdb_index_h
+#define σserver_lmdb_index_h
 
-#include "../tau.hh"
-#include "pre-container.hh"
-#include "pre-kv.hh"
-#include "pre-sstream.hh"
+#include "lmdb.hh"
+#include "lmdb-sstream.hh"
 
-#include "../tau/begin.hh"
+#include "../begin.hh"
 
-namespace σ::pre
+namespace σ
 {
-
-
-struct kvsat_ : public virtual at_
-{
-  kvsat_(cback const &l, Sp<kv_> db) : at_(ct_set{}, l), db(db) {}
-
-  void α(ηic &x, ηic&, ξo)   override { db->set(x, ηic{m, 1}); }
-  void ω(ηic &x, ηic&, ξo)   override { db->del(x); }
-  void ι(ηic &x, ηic&, ξo o) override { o.r(x.lsize() + 2) << x.all() << db->has(x); }
-  void τ(ηic &x, ξo o)       override { db->sync(); o.r() << ηsig::τ; }
-
-  Sp<kv_> db;
-
-  static constexpr u8 m[] = {0x11, 0};  // int8 0
-};
-
-
-struct kvmat_ : public virtual at_
-{
-  kvmat_(cback const &l, Sp<kv_> db) : at_(ct_map{}, l), db(db) {}
-
-  void α(ηic &k, ηic &v, ξo) override { db->set(key(k), v); }
-  void ω(ηic &k, ηic&, ξo)   override { db->del(key(k)); }
-  void ι(ηic &k, ηic&, ξo o) override
-    { let r = db->get(key(k));
-      if (!r.empty()) o.r(k.lsize() + r.lsize() + 8) << k.all() << r.all();
-      else            o.r(k.lsize() + 2)             << k.all() << ηsig::ω; }
-  void τ(ηic &x, ξo o) override { db->sync(); o.r() << ηsig::τ; }
-
-  Sp<kv_> db;
-
-  ηi key(ηic &k) { return k.is_η() ? k.η() : k; }
-};
 
 
 // A scalable multimap that allows for large sets of values per key. Values per
@@ -90,27 +55,37 @@ struct kvmat_ : public virtual at_
 // A key is balanced when it has fewer than log2(largest indirect) indirects.
 // We always merge the smallest indirects first.
 
-struct kvmmat_ : public virtual at_
+struct lmdb_index final
 {
-  typedef So<ηm, ηsstream_cmp> stage;
+  Txs using V  = τ::V<Xs...>;
+  Txs using M  = τ::M<Xs...>;
+  Tx  using So = τ::So<X>;
 
-  typedef ηic key;  // user-facing key
-  typedef ηic ind;  // key that we expect to be indirect
+  using iN  = τ::iN;
+  using Stc = τ::Stc;
+  using ηm  = τ::ηm;
+  using ηmc = τ::ηmc;
+  using ηic = τ::ηic;
 
-  kvmmat_(ct_multimap const &m, cback const &l, Sp<kv_> db)
-    : at_(m, l), db_(db), ss_(0),
-      svo_(1048576 * 64), sko_(65536), lvs_(8192),
-      nk_((isha2{} << (ηm{} << now().time_since_epoch().count()))()),
-      csw_([this] { flush(); }) {}
+  typedef τ::So<ηm, ηsstream_cmp> stage;
 
-  ~kvmmat_() { flush(); }
+  typedef ηmc key;  // user-facing key
+  typedef ηmc ind;  // key that we expect to be indirect
+
+  lmdb_index(Stc &p, Stc &t,
+             iN svo = 64ll << 20,  // staged value overflow (bytes)
+             iN sko = 64ll << 10,  // staged key overflow (#keys)
+             iN lvs = 8ll << 10)   // literal value size (bytes)
+    : db_{p, t}, ss_(0),
+      svo_(svo), sko_(sko), lvs_(lvs),
+      nk_((τ::isha2{} << (ηm{} << τ::epoch_seconds()))()) {}
+
+  ~lmdb_index() { flush(); }
 
 
-  void α(key &k, ηic &v, ξo)   override;
-  void ω(key &k, ηic &v, ξo)   override;
-  void ι(key &k, ηic&,   ξo o) override;
-  void κ(key &k, ηic&,   ξo)   override;
-  void τ(ηic &x, ξo o)         override;
+  void add(key &k, ηic &v);
+  void del(key &k, ηic &v);
+  ηm   get(key &k, τ::uN limit = 0) const;
 
 
   // FIXME: add directly to literal if it is within size
@@ -148,7 +123,7 @@ protected:
   ηsstream ss_indirect1(ind &k) const;  // retrieve single indirect key
 
   bool     kv_has      (key &k) const;
-  uN       kv_ilen     (key &k) const;  // #indirects, or 0 for literal
+  τ::uN    kv_ilen     (key &k) const;  // #indirects, or 0 for literal
   V<ηm>    kv_indirects(key &k) const;  // indirect keys
   So<ηm>   kv_ind_asc  (key &k) const;  // (n k) pairs sorted by asc n
 
@@ -168,21 +143,20 @@ protected:
 
 
   ηm genkey();
-  ηm lkey(ηic &k)        const { return ηm{} << "l" << k.all(); }
-  ηm ikey(ηic &k)        const { return ηm{} << "i" << k.all(); }
-  ηm ikey(h256 const &k) const { return ηm{} << "i" << k; }
+  ηm lkey(ηic &k)      const { return ηm{} << "l" << k.all(); }
+  ηm ikey(ηic &k)      const { return ηm{} << "i" << k.all(); }
+  ηm ikey(τ::h256c &k) const { return ηm{} << "i" << k; }
 
 
-  Sp<kv_>      db_;
-  mutable Smu  lock_;  // lock for all mutations
-  M<ηm, stage> add_;   // staged values to add
-  M<ηm, stage> del_;   // staged values to delete
-  iN           ss_;    // staged size = ∑|v| in stage
-  iN           svo_;   // staged value overflow (bytes)
-  iN           sko_;   // staged key overflow (#keys)
-  iN           lvs_;   // literal value size limit (bytes)
-  h256         nk_;    // seed for genkey()
-  Λcsw         csw_;   // auto-flush on context switch
+  lmdb           db_;
+  mutable τ::Smu lock_;  // lock for all mutations
+  M<ηm, stage>   add_;   // staged values to add
+  M<ηm, stage>   del_;   // staged values to delete
+  iN             ss_;    // staged size = ∑|v| in stage
+  iN             svo_;   // staged value overflow (bytes)
+  iN             sko_;   // staged key overflow (#keys)
+  iN             lvs_;   // literal value size limit (bytes)
+  τ::h256        nk_;    // seed for genkey()
 };
 
 

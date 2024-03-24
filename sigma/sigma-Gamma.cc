@@ -1,5 +1,4 @@
 #include "platform.hh"
-#include "container.hh"
 #include "multiplex.hh"
 #include "quote.hh"
 #include "sigma-Gamma-pieces.hh"
@@ -26,7 +25,6 @@ using namespace τ;
 void Γshared(Γφ &g)
 {
   Γshared_ψ(g);
-  Γcontainer(g);
   Γmultiplex(g);
   Γquote(g);
 

@@ -3,8 +3,8 @@
 
 
 #include "tau.hh"
+
 #include "sigma-pre.hh"
-#include "sigma/container.hh"
 #include "sigma/multiplex.hh"
 #include "sigma/platform.hh"
 #include "sigma/quote.hh"

@@ -1,5 +1,5 @@
-#ifndef σ_server_lmdb_h
-#define σ_server_lmdb_h
+#ifndef σserver_lmdb_h
+#define σserver_lmdb_h
 
 #include <lmdb.h>
 
@@ -23,12 +23,20 @@ protected:
 
 public:
   // RAII value wrapper: holds the zero-copy value in place until deleted.
-  struct v final
+  Tt struct v final
   {
-    v(ηic &x = {}, Sp<rtx_> const &rtx = {}, Sp<ηm> const &stv = {})
+    v(T const &x = {}, Sp<rtx_> const &rtx = {}, Sp<ηm> const &stv = {})
       : x(x), rtx(rtx), stv(stv) {}
 
-    ηi x;
+    v(T const &x, v<T> const &o) : x(x), rtx(o.rtx), stv(o.stv) {}
+
+    v(v<T> const&) = default;
+    v(v<T> &&)     = default;
+
+    T x;
+
+    Tx auto map(X const &f) -> decltype(f(x))
+      { return v{f(x), *this}; }
 
   protected:
     // Only one of the two values below will be populated; it depends on where
@@ -44,11 +52,11 @@ public:
        τ::uN mss     = 64ull << 20);
   ~lmdb();
 
-  v    get(ηmc&);
-  bool has(ηmc&);
-  void set(ηmc&, ηic&);
-  void set(ηmc&, ηm&&);
-  void del(ηmc&);
+  v<ηi> get(ηmc&) const;
+  bool  has(ηmc&) const;
+  void  set(ηmc&, ηic&);
+  void  set(ηmc&, ηm&&);
+  void  del(ηmc&);
 
   // Commit stage to DB, sync to disk if requested
   void commit(bool sync = false);
@@ -57,9 +65,9 @@ public:
 protected:
   MDB_env          *e_;
   MDB_dbi           d_;
-  τ::Smu            rmu_;     // read transaction mutex
-  Sp<rtx_>          rt_;      // current read transaction, if any
-  τ::Smu            smu_;     // stage mutex
+  mutable τ::Smu    rmu_;     // read transaction mutex
+  mutable Sp<rtx_>  rt_;      // current read transaction, if any
+  mutable τ::Smu    smu_;     // stage mutex
   τ::uN             ss_;      // stage size (protected by smu_)
   τ::M<ηm, Sp<ηm>>  istage_;  // insert/update stage (smu_)
   τ::S<ηm>          dstage_;  // delete stage (smu_)
@@ -80,8 +88,8 @@ protected:
   bool should_resize(τ::uN n, τ::f64 safety_factor = 4.0) const;
 
   void  maybe_commit();
-  Sp<rtx_> reader();
-  MDB_val val(ηic&) const;
+  Sp<rtx_> reader() const;
+  MDB_val val(ηic &x) const { return {x.lsize(), Cc<τ::u8*>(x.ldata())}; }
 };
 
 

@@ -1,13 +1,12 @@
-#ifndef σpre_sstream_h
-#define σpre_sstream_h
+#ifndef σlmdb_sstream_h
+#define σlmdb_sstream_h
 
-#include "../tau.hh"
-#include "../tau/begin.hh"
+#include "lmdb.hh"
 
-namespace σ::pre
+#include "../begin.hh"
+
+namespace σ
 {
-
-using namespace τ;
 
 
 sletc ηsstream_fast = true;
@@ -17,8 +16,14 @@ sletc ηsstream_fast = true;
 template<bool fast>
 struct ηsstream_
 {
+  using SO  = τ::SO;
+  using PO  = τ::PO;
+  using ηi  = τ::ηi;
+  using ηm  = τ::ηm;
+  using ηic = τ::ηic;
+
   sletc fast_ordering = fast;
-  typedef Co<fast, SO, PO> ord;
+  typedef τ::Co<fast, SO, PO> ord;
 
   static ord compare(ηic &a, ηic &b)
     { if constexpr (fast) return a.fast_compare(b);
@@ -51,14 +56,15 @@ struct ηsstream_
   virtual ηi   operator* () = 0;
   virtual void operator++() = 0;
 
-  ηm all()      { ηm r;           while          (*this) r << (**this).all(), ++*this;      return r; }
-  ηm take(uN n) { uN i = 0; ηm r; while (i < n && *this) r << (**this).all(), ++*this, ++i; return r; }
+  ηm all()         { ηm r;              while          (*this) r << (**this).all(), ++*this;      return r; }
+  ηm take(τ::uN n) { τ::uN i = 0; ηm r; while (i < n && *this) r << (**this).all(), ++*this, ++i; return r; }
 };
 
 
 template<bool fast>
 struct ηsstream_cmp_
 {
+  using ηic = τ::ηic;
   typedef ηsstream_<fast> cmp;
   bool comp (ηic &a, ηic &b) const { return cmp::lt(cmp::compare(a, b)); }
   bool equiv(ηic &a, ηic &b) const { return cmp::eq(cmp::compare(a, b)); }
@@ -71,9 +77,9 @@ template<bool fast>
 struct ηesstream_ final : public virtual ηsstream_<fast>
 {
   ηesstream_() {}
-  operator   bool() override { return false; }
-  ηi   operator* () override { τunreachable(); }
-  void operator++() override { τunreachable(); }
+  operator    bool() override { return false; }
+  τ::ηi operator* () override { τunreachable(); }
+  void  operator++() override { τunreachable(); }
 };
 
 
@@ -81,12 +87,16 @@ struct ηesstream_ final : public virtual ηsstream_<fast>
 template<bool fast>
 struct ηisstream_ final : public virtual ηsstream_<fast>
 {
-  ηisstream_(ηic &x) : ηsstream_<fast>(), x(x.begin()), e(x.end()) {}
+  using ηi  = τ::ηi;
+  using ηic = τ::ηic;
+  ηisstream_(lmdb::v<ηi> const &v)
+    : ηsstream_<fast>(), v(v), x(v.x.begin()), e(v.x.end()) {}
 
   operator   bool() override { return x != e; }
   ηi   operator* () override { return (*x).one(); }
   void operator++() override { ++x; }
 
+  lmdb::v<ηi> v;
   ηi::it x;
   ηi::it e;
 };
@@ -96,6 +106,10 @@ struct ηisstream_ final : public virtual ηsstream_<fast>
 template<bool fast>
 struct ηsosstream_ final : public virtual ηsstream_<fast>
 {
+  Txs using So = τ::So<Xs...>;
+  using ηi = τ::ηi;
+  using ηm = τ::ηm;
+
   ηsosstream_(So<ηm, ηsstream_cmp_<fast>> const &x)
     : ηsstream_<fast>(), x(x.begin()), e(x.end()) {}
 
@@ -111,6 +125,9 @@ struct ηsosstream_ final : public virtual ηsstream_<fast>
 template<bool fast>
 struct ηsstream_intersect_ final : public virtual ηsstream_<fast>
 {
+  Tt using Sp = τ::Sp<T>;
+  using ηi = τ::ηi;
+
   typedef ηsstream_<fast> base_;
   typedef Sp<base_>       sstream_;
 
@@ -131,6 +148,9 @@ struct ηsstream_intersect_ final : public virtual ηsstream_<fast>
 template<bool fast>
 struct ηsstream_union_ final : public virtual ηsstream_<fast>
 {
+  Tt using Sp = τ::Sp<T>;
+  using ηi = τ::ηi;
+
   typedef ηsstream_<fast> base_;
   typedef Sp<base_>       sstream_;
 
@@ -149,6 +169,9 @@ struct ηsstream_union_ final : public virtual ηsstream_<fast>
 template<bool fast>
 struct ηsstream_diff_ final : public virtual ηsstream_<fast>
 {
+  Tt using Sp = τ::Sp<T>;
+  using ηi = τ::ηi;
+
   typedef ηsstream_<fast> base_;
   typedef Sp<base_>       sstream_;
 
@@ -169,43 +192,46 @@ template struct ηsstream_<false>;
 
 
 template<bool fast>
-Sp<ηsstream_<fast>> operator|(Sp<ηsstream_<fast>> a, Sp<ηsstream_<fast>> b)
+τ::Sp<ηsstream_<fast>> operator|(τ::Sp<ηsstream_<fast>> a,
+                                 τ::Sp<ηsstream_<fast>> b)
 {
   if (!*a) return b;
   if (!*b) return a;
-  return Sp<ηsstream_<fast>>{new ηsstream_union_<fast>(a, b)};
+  return τ::Sp<ηsstream_<fast>>{new ηsstream_union_<fast>(a, b)};
 }
 
 template<bool fast>
-Sp<ηsstream_<fast>> operator&(Sp<ηsstream_<fast>> a, Sp<ηsstream_<fast>> b)
+τ::Sp<ηsstream_<fast>> operator&(τ::Sp<ηsstream_<fast>> a,
+                                 τ::Sp<ηsstream_<fast>> b)
 {
   if (!*a) return a;
   if (!*b) return b;
-  return Sp<ηsstream_<fast>>{new ηsstream_intersect_<fast>(a, b)};
+  return τ::Sp<ηsstream_<fast>>{new ηsstream_intersect_<fast>(a, b)};
 }
 
 template<bool fast>
-Sp<ηsstream_<fast>> operator-(Sp<ηsstream_<fast>> a, Sp<ηsstream_<fast>> b)
+τ::Sp<ηsstream_<fast>> operator-(τ::Sp<ηsstream_<fast>> a,
+                                 τ::Sp<ηsstream_<fast>> b)
 {
   if (!*a || !*b) return a;
-  return Sp<ηsstream_<fast>>{new ηsstream_diff_<fast>(a, b)};
+  return τ::Sp<ηsstream_<fast>>{new ηsstream_diff_<fast>(a, b)};
 }
 
 
-typedef Sp<ηsstream_<ηsstream_fast>> ηsstream;
+typedef τ::Sp<ηsstream_<ηsstream_fast>> ηsstream;
 
 typedef ηsstream_cmp_<ηsstream_fast> ηsstream_cmp;
 
 
 ηsstream ηesstream         ();
-ηsstream ηisstream         (ηic&);
-ηsstream ηsosstream        (So<ηm, ηsstream_cmp> const&);
-ηsstream ηsstream_union    (Vc<ηsstream>&);
-ηsstream ηsstream_intersect(Vc<ηsstream>&);
+ηsstream ηisstream         (lmdb::v<τ::ηi> const&);
+ηsstream ηsosstream        (τ::So<τ::ηm, ηsstream_cmp> const&);
+ηsstream ηsstream_union    (τ::Vc<ηsstream>&);
+ηsstream ηsstream_intersect(τ::Vc<ηsstream>&);
 
 
 }
 
-#include "../tau/end.hh"
+#include "../end.hh"
 
 #endif
