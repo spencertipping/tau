@@ -50,9 +50,9 @@ public:
 
 
   lmdb(τe &te, τ::Stc &f, τ::Stc &t,
-       τ::uN mapsize = 1ull << 24,
+       τ::uN mapsize = 1ull << 40,    // 1TiB by default
        τ::uN maxdbs  = 64,
-       τ::uN mss     = 64ull << 20);
+       τ::uN mss     = 64ull << 20);  // 64MB max staged data
   ~lmdb();
 
   v<ηi> get(ηmc&) const;

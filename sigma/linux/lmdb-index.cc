@@ -30,16 +30,16 @@ void lmdb_index::del(key &k, ηic &v)
 }
 
 
-void lmdb_index::flush()
+void lmdb_index::commit()
 {
   Ul<Smu> l(lock_);
-  flush_();
+  commit_();
 }
 
-void lmdb_index::flush(key &k)
+void lmdb_index::commit(key &k)
 {
   Ul<Smu> l(lock_);
-  flush_(k);
+  commit_(k);
 }
 
 ηsstream lmdb_index::ss(key &k) const
@@ -84,21 +84,21 @@ void lmdb_index::touch()
 {
   // Not sophisticated, but it should basically work
   if (ss_ >= svo_ || iN(add_.size()) >= sko_ || iN(del_.size()) >= sko_)
-    flush_();
+    commit_();
 }
 
-void lmdb_index::flush_()
+void lmdb_index::commit_()
 {
   // Invariant: elements from add_ and del_ are disjoint, but keys might not be.
   S<ηm> ks;
   for (let &[k, _] : add_) ks.insert(k);
   for (let &[k, _] : del_) ks.insert(k);
-  for (let &k : ks) flush_(k);
+  for (let &k : ks) commit_(k);
   db_.commit();
   A(!ss_, "kvmmat_::ss_ != 0: " << ss_);
 }
 
-void lmdb_index::flush_(key &k)
+void lmdb_index::commit_(key &k)
 {
   // Add staged values first, then delete; this way we get the rebalancing
   // in as necessary.

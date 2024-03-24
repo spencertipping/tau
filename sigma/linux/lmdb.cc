@@ -174,6 +174,11 @@ void lmdb::commit(bool sync)
     for (let &[k, pv] : istage_) us += k.lsize() + pv->lsize() + 64;
     while (should_resize(us))
     {
+      TODO("LMDB map resizing doesn't work yet; we need to close all readers, "
+           "which is problematic because they may be holding active resources "
+           "in other threads. The workaround for now is to use a large initial "
+           "map size that doesn't later require expansion.");
+
       MDB_envinfo i;
       int rc = mdb_env_info(e_, &i);
       A(rc == MDB_SUCCESS, "mdb_env_info() failed: " << mdb_strerror(rc));

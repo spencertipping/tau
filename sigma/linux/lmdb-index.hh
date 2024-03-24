@@ -32,7 +32,7 @@ namespace σ
 // ("i" "k1")  → 1 3
 // ("i" "k2")  → 2 4
 //
-// We keep an in-memory stage so we aren't flushing things to the database too
+// We keep an in-memory stage so we aren't commiting things to the database too
 // eagerly. This allows us to write a batch of values into an indirect key and
 // avoid fragmentation in the process.
 //
@@ -81,11 +81,11 @@ struct lmdb_index final
       svo_(svo), sko_(sko), lvs_(lvs),
       nk_((τ::isha2{} << (ηm{} << τ::epoch_seconds()))())
     { on_sig_ = τ::Sp<τ::F<void(int)>>
-        {new τ::F<void(int)> { [this](int) { flush(); } }};
+        {new τ::F<void(int)> { [this](int) { commit(); } }};
       te_.sig_register(on_sig_); }
 
   ~lmdb_index()
-    { flush();
+    { commit();
       te_.sig_unregister(on_sig_); }
 
 
@@ -98,15 +98,15 @@ struct lmdb_index final
 
   // FIXME: allow tuning
 
-  void flush();
-  void flush(key &k);
+  void commit();
+  void commit(key &k);
 
   ηsstream ss(key &k) const;  // unified view of values at key
 
 
 protected:
-  void flush_();        // assumes lock is acquired
-  void flush_(key &k);  // assumes lock is acquired
+  void commit_();        // assumes lock is acquired
+  void commit_(key &k);  // assumes lock is acquired
 
   void touch();
   void balance(key &k);
