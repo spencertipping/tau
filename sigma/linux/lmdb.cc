@@ -196,7 +196,7 @@ void lmdb::commit(bool sync)
     for (let &k : dstage_)
     {
       MDB_val mk = val(k);
-      A((rc = mdb_del(w, d_, &mk, nullptr)) == MDB_SUCCESS,
+      A((rc = mdb_del(w, d_, &mk, nullptr)) == MDB_SUCCESS || rc == MDB_NOTFOUND,
         "mdb_del() failed: " << mdb_strerror(rc));
     }
 
