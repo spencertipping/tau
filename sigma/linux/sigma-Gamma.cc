@@ -1,12 +1,17 @@
 #include <fstream>
 #include <unistd.h>
 
+
 #include "../../sigma.hh"
+
+#if τgl
+# include "gl.hh"
+#endif
+
 #include "http.hh"
 #include "io.hh"
+#include "lmdb.hh"
 #include "zstd.hh"
-
-#include "gl.hh"
 
 #include "../begin.hh"
 
@@ -18,9 +23,13 @@ using namespace τ;
 
 void Γnative(Γφ &g)
 {
-  Γio(g);
-  Γhttp(g);
+#if τgl
   Γlinux_gl(g);
+#endif
+
+  Γhttp(g);
+  Γio(g);
+  Γlmdb(g);
   Γzstd(g);
 
   // Compile-time file IO
