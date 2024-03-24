@@ -48,5 +48,6 @@
 #define Tn   template<>
 #define Tt   template<class T>
 #define Tx   template<class X>
+#define Txy  template<class X, class Y>
 #define Txs  template<class... Xs>
 #define Txxs template<class X, class... Xs>

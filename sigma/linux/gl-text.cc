@@ -4,6 +4,8 @@
 namespace σ
 {
 
+using namespace τ;
+
 
 GLuint gl_text::texture()
 {

@@ -1,7 +1,7 @@
 #ifndef σplatform_h
 #define σplatform_h
 
-#include "../sigma.hh"
+#include "../sigma-pre.hh"
 #include "begin.hh"
 
 namespace σ

@@ -1,19 +1,17 @@
 #ifndef σstring_h
 #define σstring_h
 
-#include "../sigma.hh"
+#include "../sigma-pre.hh"
 #include "begin.hh"
 
 namespace σ
 {
 
-using namespace τ;
+τ::St η_to_json(τ::ηic&);
+τ::ηm json_to_η(τ::Stc&);
 
-St η_to_json(ηic&);
-ηm json_to_η(Stc&);
-
-St hex_decode(Stc&);
-St hex_encode(Stc&);
+τ::St hex_decode(τ::Stc&);
+τ::St hex_encode(τ::Stc&);
 
 void πstring(πφ&);
 

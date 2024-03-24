@@ -9,8 +9,6 @@
 namespace σ
 {
 
-using namespace τ;
-
 
 struct gl_usable
 {
@@ -31,10 +29,10 @@ struct gl_fbo_texture final : public virtual gl_usable
 
   gl_fbo_texture()                      = default;
   gl_fbo_texture(gl_fbo_texture const&) = default;
-  gl_fbo_texture(gl_fbo_texture &&t_) { *this = mo(t_); }
+  gl_fbo_texture(gl_fbo_texture &&t_) { *this = τ::mo(t_); }
 
-  gl_fbo_texture(vec2c &dims, F<void()> const &render);
-  gl_fbo_texture(ηic &x);
+  gl_fbo_texture(vec2c &dims, τ::F<void()> const &render);
+  gl_fbo_texture(τ::ηic &x);
 
   ~gl_fbo_texture()
     { if (tid) glDeleteTextures(1, &tid);
@@ -59,6 +57,9 @@ struct gl_fbo_texture final : public virtual gl_usable
 
 struct gl_uniform final
 {
+  using f64 = τ::f64;
+  using i64 = τ::i64;
+
   GLuint loc = -1;
   GLint  size = 0;
   GLenum type = 0;
@@ -88,7 +89,7 @@ struct gl_uniform final
       return *this;
     }
 
-  gl_uniform const &operator=(ηic &x) const
+  gl_uniform const &operator=(τ::ηic &x) const
     {
       switch (type)
       {
@@ -104,6 +105,10 @@ struct gl_uniform final
 
 struct gl_program final : public virtual gl_usable
 {
+  using St  = τ::St;
+  using Stc = τ::Stc;
+  Txs using M = τ::M<Xs...>;
+
   St     vertex;
   St     frag;
   GLuint vid = 0;
@@ -113,20 +118,20 @@ struct gl_program final : public virtual gl_usable
 
   gl_program()                  = default;
   gl_program(gl_program const&) = default;
-  gl_program(gl_program &&p_) { *this = mo(p_); }
+  gl_program(gl_program &&p_) { *this = τ::mo(p_); }
 
   gl_program(Stc &vertex, Stc &frag);
-  gl_program(ηic &x) : gl_program(x[0].cs(), x[1].cs()) {}
+  gl_program(τ::ηic &x) : gl_program(x[0].cs(), x[1].cs()) {}
 
   ~gl_program();
 
   gl_program &operator=(gl_program &&p)
-    { vertex = mo(p.vertex);
-      frag   = mo(p.frag);
+    { vertex = τ::mo(p.vertex);
+      frag   = τ::mo(p.frag);
       vid    = p.vid;
       fid    = p.fid;
       pid    = p.pid;
-      us     = mo(p.us);
+      us     = τ::mo(p.us);
       p.vid  = 0;
       p.fid  = 0;
       p.pid  = 0;
@@ -142,14 +147,18 @@ struct gl_program final : public virtual gl_usable
 
 struct gl_vbo final
 {
+  using uN = τ::uN;
+  Txy using P = τ::P<X, Y>;
+  Txs using V = τ::V<Xs...>;
+
   GLuint  vid    = 0;
   GLsizei vsize  = 0;
   GLsizei stride = 0;
   V<P<uN, uN>> as;
 
   gl_vbo() = default;
-  gl_vbo(gl_vbo &&v_) { *this = mo(v_); }
-  gl_vbo(ηic &x);
+  gl_vbo(gl_vbo &&v_) { *this = τ::mo(v_); }
+  gl_vbo(τ::ηic &x);
 
   ~gl_vbo() { if (vid) glDeleteBuffers(1, &vid); }
 
@@ -157,7 +166,7 @@ struct gl_vbo final
     { vid    = v.vid;
       vsize  = v.vsize;
       stride = v.stride;
-      as     = mo(v.as);
+      as     = τ::mo(v.as);
       v.vid  = 0;
       return *this; }
 

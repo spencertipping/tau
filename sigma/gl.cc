@@ -9,6 +9,8 @@
 namespace σ
 {
 
+using namespace τ;
+
 
 gl_render_state &gl_render_state::begin()
 {

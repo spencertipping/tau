@@ -8,6 +8,9 @@ namespace σ
 {
 
 
+using namespace τ;
+
+
 sletc scratch_canvas = "#tau-gl-text-scratch";
 
 

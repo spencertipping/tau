@@ -1,2 +1,2 @@
-#include "../sigma.hh"
+#include "../sigma-pre.hh"
 #include "../tau/begin.hh"

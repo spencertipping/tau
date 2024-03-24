@@ -39,6 +39,7 @@ struct τe : public τb
   τe(int threads = Th::hardware_concurrency())
     : τb(), fin(false), tp(threads), tid(0)
     { A((efd = epoll_create1(0)) != -1, "epoll_create1 failure (τe::efd)");
+      fcntl(efd, F_SETFL, fcntl(efd, F_GETFL) | O_CLOEXEC);
       A((wfd = eventfd(0, EFD_SEMAPHORE | EFD_CLOEXEC)) != -1,
         "eventfd() failure (τe::wfd)");
 
@@ -57,12 +58,6 @@ struct τe : public τb
 
 
   void init_signals();
-
-
-  // Closes all managed FDs and the epoll FD, all without modifying the epoll
-  // interest list. This is used in τfork to leave the original epoll intact
-  // and create a new one for the child process.
-  void detach();
 
 
   // Directional λg container: gates for IO and error events
@@ -132,9 +127,8 @@ struct τe : public τb
       return fu.get(); }
 
 
-  // Fork and track child PID, return result
-  int  fork();
-  void term();
+  // Handle signals
+  void sig(int s);
 
 
   // Call epoll_wait() and invoke all wakeups and Θ-blocked functions.
@@ -149,11 +143,6 @@ struct τe : public τb
 
   τe &go(bool                nonblock = false,
          F<bool(τe&)> const &f        = [](τe &f) { return Sc<bool>(f); });
-
-
-  // Cancel all ongoing work and unregister all file descriptors, destroying
-  // all active ψs. This prepares the τ for new ψs, e.g. after a fork().
-  τe &clear();
 
 
 protected:

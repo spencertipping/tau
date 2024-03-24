@@ -1,5 +1,12 @@
 # σ: the τ standard library
-σ defines common utilities that make τ ergonomic and useful. This includes [Γ](Gamma.md) components and [φ](phi.md) parsers. The `σ` namespace doesn't export `τ` by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
+σ is a mixture of C++ and τ-hosted utilities for writing applications, including [Γ](Gamma.md) components and [φ](phi.md) parsers. The `σ` namespace doesn't export `τ`'s definitions by default. Most programs don't need to import `τ`, as `σ` provides entry points for common operations.
+
+σ has two header files:
+
++ `sigma-pre.hh`: defines `σ::Γφ` and `σ::πφ`, the core parsers
++ `sigma.hh`: imports `sigma-pre.hh` and adds σ userspace code
+
+σ users will import `sigma.hh`.
 
 
 ## Sub-topics

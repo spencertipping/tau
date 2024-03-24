@@ -21,8 +21,6 @@
 namespace σ
 {
 
-using namespace τ;
-
 
 struct x11_gl_window final : public virtual gl_window_base,
                              public virtual gl_usable
@@ -60,7 +58,7 @@ struct x11_gl_window final : public virtual gl_window_base,
   xcb_key_symbols_t *ks_;
   GLXContext         glc_;
   GLXWindow          glw_;
-  u32                wid_;
+  τ::u32             wid_;
   int                si_;    // screen index
   vec2               pos_;
   vec2               dims_;
@@ -72,16 +70,16 @@ struct x11_gl_window final : public virtual gl_window_base,
                 vec2c     &dims = { 1080, 640 },
                 colorc    &bgf  = { 0.1, 0.2, 0.3, 0.9 },
                 colorc    &bgu  = { 0.1, 0.2, 0.3, 0.5 },
-                u32        evs  = evs0,
+                τ::u32     evs  = evs0,
                 int const *vas  = vas0);
 
   ~x11_gl_window();
 
   void clear(colorc &bg);
 
-  fd_t                 xcb_fd();
+  τ::fd_t              xcb_fd();
   xcb_generic_event_t *xcb_poll();
-  ch                   xcb_decode_keycode(xcb_keycode_t, bool);
+  char                 xcb_decode_keycode(xcb_keycode_t, bool);
 
   void notify_resize(vec2c &dims);
 

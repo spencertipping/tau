@@ -12,11 +12,11 @@
 namespace σ
 {
 
-using namespace τ;
-
 
 struct gl_window_base
 {
+  using Stc = τ::Stc;
+
   Stc addr;  // X11 display or canvas ID
 
   gl_window_base(Stc &addr_) : addr(addr_) {}
@@ -29,7 +29,7 @@ struct gl_window_base
 
 
 // Render ops in (see gl_render_state), events out
-Γ Γgl_window(Stc&, Ψd = Ψd::f);
+Γ Γgl_window(τ::Stc&, τ::Ψd = τ::Ψd::f);
 
 
 // Each frame is rendered by streaming η render instructions into this struct.
@@ -40,6 +40,14 @@ struct gl_window_base
 // frame-level GC.
 struct gl_render_state final
 {
+  using ηic  = τ::ηic;
+  using ηm   = τ::ηm;
+  using h256 = τ::h256;
+
+  Txs using M = τ::M<Xs...>;
+  Txs using S = τ::S<Xs...>;
+
+
   gl_render_state(gl_usable *t_) : t(t_), f(false) {}
   ~gl_render_state() {}
 

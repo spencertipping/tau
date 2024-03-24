@@ -5,6 +5,8 @@
 namespace σ
 {
 
+using namespace τ;
+
 
 static xcb_visualid_t get_visualid_by_depth(xcb_screen_t *const s,
                                             u16c                d)

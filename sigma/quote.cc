@@ -4,6 +4,8 @@
 namespace σ
 {
 
+using namespace τ;
+
 
 // NOTE: must have platform-invariant endianness
 typedef u64b qN;

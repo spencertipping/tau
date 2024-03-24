@@ -2,7 +2,6 @@
 #include <unistd.h>
 
 #include "../../sigma.hh"
-#include "fork.hh"
 #include "http.hh"
 #include "io.hh"
 #include "zstd.hh"
@@ -19,7 +18,6 @@ using namespace τ;
 
 void Γnative(Γφ &g)
 {
-  Γfork(g);
   Γio(g);
   Γhttp(g);
   Γlinux_gl(g);

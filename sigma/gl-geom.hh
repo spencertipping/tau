@@ -3,13 +3,11 @@
 
 #include <GLES2/gl2.h>
 
-#include "../sigma.hh"
+#include "../sigma-pre.hh"
 #include "begin.hh"
 
 namespace σ
 {
-
-using namespace τ;
 
 
 struct color;
@@ -27,14 +25,17 @@ typedef mat4  const mat4c;
 
 struct color
 {
+  using f64 = τ::f64;
+  using u32 = τ::u32;
+
   f64 r, g, b, a;
 
   color() = default;
   color(f64 r, f64 g, f64 b, f64 a)     : r(r), g(g), b(b), a(a) {}
   color(f64 r, f64 g, f64 b)            : r(r), g(g), b(b), a(1) {}
   color(f64 r)                          : r(r), g(r), b(r), a(1) {}
-  color(T<f64, f64, f64, f64> const &t) : r(std::get<0>(t)), g(std::get<1>(t)), b(std::get<2>(t)), a(std::get<3>(t)) {}
-  color(ηic &x)                         : r(x[0].cf()), g(x[1].cf()), b(x[2].cf()), a(x[3].cf()) {}
+  color(τ::T<f64, f64, f64, f64> const &t) : r(std::get<0>(t)), g(std::get<1>(t)), b(std::get<2>(t)), a(std::get<3>(t)) {}
+  color(τ::ηic &x)                         : r(x[0].cf()), g(x[1].cf()), b(x[2].cf()), a(x[3].cf()) {}
 
   color blend(color const &o) const
   {
@@ -60,23 +61,26 @@ struct color
            | u32(a * 255);
     }
 
-  St hex() const
+  τ::St hex() const
     {
-      return (Ss{} << "rgba(" << int(r * 255) << ","
-                              << int(g * 255) << ","
-                              << int(b * 255) << "," << a << ")").str();
+      return (τ::Ss{} << "rgba("
+              << int(r * 255) << ","
+              << int(g * 255) << ","
+              << int(b * 255) << "," << a << ")").str();
     }
 };
 
 
 struct vec2 final
 {
+  using f64 = τ::f64;
+
   f64 x, y;
 
   vec2() = default;
   vec2(f64 x, f64 y) : x(x), y(y) {}
   vec2(f64 x) : x(x), y(x) {}
-  vec2(ηic &i) : x(i[0].cf()), y(i[1].cf()) {}
+  vec2(τ::ηic &i) : x(i[0].cf()), y(i[1].cf()) {}
 
   explicit operator bool() const { return x != 0 || y != 0; }
 
@@ -108,12 +112,14 @@ struct vec2 final
 
 struct vec3 final
 {
+  using f64 = τ::f64;
+
   f64 x, y, z;
 
   vec3() = default;
   vec3(f64 x, f64 y, f64 z) : x(x), y(y), z(z) {}
   vec3(f64 x) : x(x), y(x), z(x) {}
-  vec3(ηic &i) : x(i[0].cf()), y(i[1].cf()), z(i[2].cf()) {}
+  vec3(τ::ηic &i) : x(i[0].cf()), y(i[1].cf()), z(i[2].cf()) {}
 
   explicit operator bool() const { return x != 0 || y != 0 || z != 0; }
 
@@ -152,13 +158,15 @@ struct vec3 final
 
 struct vec4 final
 {
+  using f64 = τ::f64;
+
   f64 x, y, z, w;
 
   vec4() = default;
   vec4(f64 x, f64 y, f64 z, f64 w) : x(x), y(y), z(z), w(w) {}
   vec4(f64 x) : x(x), y(x), z(x), w(x) {}
   vec4(vec3 const &v, f64 w) : x(v.x), y(v.y), z(v.z), w(w) {}
-  vec4(ηic &i) : x(i[0].cf()), y(i[1].cf()), z(i[2].cf()), w(i[3].cf()) {}
+  vec4(τ::ηic &i) : x(i[0].cf()), y(i[1].cf()), z(i[2].cf()), w(i[3].cf()) {}
 
   explicit operator bool() const { return x != 0 || y != 0 || z != 0 || w != 0; }
 
@@ -188,6 +196,8 @@ struct vec4 final
 
 struct mat4 final
 {
+  using f64 = τ::f64;
+
   f64 m[4][4];
 
 # define for_ij                                 \
@@ -236,10 +246,11 @@ struct mat4 final
 };
 
 
-O &operator<<(O &s, color const &c);
-O &operator<<(O &s, vec2 const &v);
-O &operator<<(O &s, vec3 const &v);
-O &operator<<(O &s, mat4 const &v);
+τ::O &operator<<(τ::O &s, color const &c);
+τ::O &operator<<(τ::O &s, vec2 const &v);
+τ::O &operator<<(τ::O &s, vec3 const &v);
+τ::O &operator<<(τ::O &s, mat4 const &v);
+
 
 }
 

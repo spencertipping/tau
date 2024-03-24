@@ -22,6 +22,7 @@
 #undef Tn
 #undef Tt
 #undef Tx
+#undef Txy
 #undef Txs
 #undef Txxs
 

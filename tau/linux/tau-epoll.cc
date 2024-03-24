@@ -31,45 +31,14 @@ void τe::init_signals()
 
   // Terminate all children on SIGTERM or SIGINT
   sigemptyset(&sa.sa_mask);
-  sa.sa_handler = [](int) { if (current_t) current_t->term(); exit(2); };
+  sa.sa_handler = [](int) { if (current_t) current_t->sig(SIGTERM); exit(2); };
   sa.sa_flags   = 0;
   sigaction(SIGTERM, &sa, nullptr);
-  sigaction(SIGINT,  &sa, nullptr);
-}
 
-
-void τe::detach()
-{
-  if (efd != -1) ::close(efd);
-  efd = -1;
-
-  // Close FDs without removing from epoll; the goal is to leave any existing
-  // τ objects intact. This is used when we fork() to create a child process.
-  for (let &[fd, g] : rgs)
-  {
-    ::close(fd);
-    g->io.w(false);
-    g->e.w(false);
-  }
-  for (let &[fd, g] : wgs)
-  {
-    ::close(fd);
-    g->io.w(false);
-    g->e.w(false);
-  }
-
-  rgs.clear();
-  wgs.clear();
-
-  // Clear out any time-queue entries
-  while (!h_.empty()) h_.pop();
-
-  // Also delete all child pids, as they are probably managed by our parent
-  pids.clear();
-
-  // Finally, clear wfd
-  ::close(wfd);
-  wfd = -1;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_handler = [](int) { if (current_t) current_t->sig(SIGINT); };
+  sa.sa_flags   = 0;
+  sigaction(SIGINT, &sa, nullptr);
 }
 
 
@@ -173,23 +142,6 @@ bool τe::is_awake(uN tid)
 }
 
 
-int τe::fork()
-{
-  let r = ::fork();
-  if (r) pids.insert(r);
-  return r;
-}
-
-
-void τe::term()
-{
-  for (let p : pids) kill(p, SIGTERM);
-  pids.clear();
-
-  fin = true;
-}
-
-
 τe &τe::operator()(bool nonblock)
 {
   A(efd != -1, "τe() on detached");
@@ -258,17 +210,9 @@ void τe::term()
 }
 
 
-τe &τe::clear()
+void τe::sig(int s)
 {
-  b_.clear();
-  qs_.clear();
-  l_.clear();
-  V<fd_t> fds;
-  for (let &[fd, g] : rgs) fds.push_back(fd);
-  for (let &[fd, g] : wgs) fds.push_back(fd);
-  for (let x : fds) close(x);
-  while (!h_.empty()) h_.pop();
-  return *this;
+  TODO("τe::sig");
 }
 
 

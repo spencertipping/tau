@@ -6,6 +6,8 @@
 namespace σ
 {
 
+using namespace τ;
+
 
 mat4 mat4::identity()
 {

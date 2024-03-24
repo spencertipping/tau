@@ -11,6 +11,11 @@ namespace σ
 
 struct gl_text final : public virtual gl_usable
 {
+  using uN  = τ::uN;
+  using St  = τ::St;
+  using Stc = τ::Stc;
+  using ηic = τ::ηic;
+
   St     t;  // text
   St     f;  // font
   color  bg   = {0,0,0,0};
@@ -21,7 +26,8 @@ struct gl_text final : public virtual gl_usable
   gl_text()               = default;
   gl_text(gl_text const&) = default;
   gl_text(gl_text &&t_)
-    : t(mo(t_.t)), f(mo(t_.f)), bg(t_.bg), fg(t_.fg), tid(t_.tid), dims(t_.dims)
+    : t(τ::mo(t_.t)), f(τ::mo(t_.f)), bg(t_.bg), fg(t_.fg),
+      tid(t_.tid), dims(t_.dims)
     { t_.tid = 0; }
 
   gl_text(Stc &t, Stc &f, colorc &bg, colorc &fg)

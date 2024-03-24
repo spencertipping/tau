@@ -10,6 +10,8 @@
 namespace σ
 {
 
+using namespace τ;
+
 
 static void compile(GLuint id, Stc &source)
 {

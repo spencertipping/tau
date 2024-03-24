@@ -1,9 +1,6 @@
 # σ containers
-OK! New design. The great majority of these constructs are useless or broken, so let's start from the ground up and fix things. In particular, _σ should not provide Ψ-level container processes._ Instead, it should make it easy to define your own using minimal APIs.
+σ containers are C++ structures designed to make it easy to write case-specific Ψ wrappers. Because C++ provides native in-memory data structures, σ containers are focused on persistent k/v maps backed by LMDB. In particular, we define a zero-copy API that manages LMDB transactions automatically, reducing LMDB integration to a normal key/value store with RAII keys.
 
-That means we're bringing everything much closer to the underlying backends: no more unified k/v stuff unless it's done in a way that works with zero-copy databases like LMDB.
-
-Sample abstraction for that btw:
 
 ```cpp
 struct lmdb_db final
