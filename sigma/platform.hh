@@ -2,6 +2,12 @@
 #define σplatform_h
 
 #include "../sigma-pre.hh"
+
+#if τlinux
+# include "linux/lmdb.hh"
+#endif
+
+
 #include "begin.hh"
 
 namespace σ
