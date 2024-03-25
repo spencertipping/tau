@@ -15,7 +15,7 @@ void Γprof(Γφ &g)
 {
   g.def_p1("prof", [](f64 s, ψ q, ξo o)
     {
-      i64 ns = s / 1e9;
+      i64 ns = s * 1e9;
       while (o)
       {
         M<ηm, Sp<measurement>> m;
