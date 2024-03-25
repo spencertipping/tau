@@ -3,6 +3,7 @@
 
 #include <lmdb.h>
 
+#include "../prof.hh"
 #include "../begin.hh"
 
 namespace σ
@@ -66,9 +67,14 @@ public:
 
   MDB_env *env() const { return e_; }
 
+  τ::Stc &filename() const { return f_; }
+  τ::Stc &table()    const { return t_; }
+
 
 protected:
   τe                 &te_;
+  τ::Stc              f_;
+  τ::Stc              t_;
   MDB_env            *e_;
   MDB_dbi             d_;
   mutable τ::Smu      rmu_;     // read transaction mutex
@@ -81,6 +87,17 @@ protected:
   τ::Smu              cmu_;     // commit mutex (writers share, committer locks)
   Sp<τ::F<void(int)>> on_sig_;
 
+  measurement &prof_get_outer_,
+    &prof_get_inner_,
+    &prof_has_outer_,
+    &prof_has_inner_,
+    &prof_del_staged_,
+    &prof_set_staged_,
+    &prof_commit_outer_,
+    &prof_commit_write_,
+    &prof_reader_;
+
+
   // Read transaction: aborts when deleted
   struct rtx_ final
   {
@@ -89,10 +106,6 @@ protected:
     MDB_txn *t;
   };
 
-
-  // Returns true if we should resize the database before writing n more bytes
-  // of data into it.
-  bool should_resize(τ::uN n, τ::f64 safety_factor = 4.0) const;
 
   void  maybe_commit();
   Sp<rtx_> reader() const;

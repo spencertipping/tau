@@ -52,7 +52,7 @@ void Γprof(Γφ &g)
 }
 
 
-measurement &measurement_for(ηic &k)
+measurement &measurement_for(ηmc &k)
 {
   Ul<Mu> l{measurements_mu_};
   let i = measurements_.find(k);
@@ -69,7 +69,7 @@ measurement &measurement_for(Stc &k)
 }
 
 
-timer prof(ηic &k) { return measurement_for(k).start(); }
+timer prof(ηmc &k) { return measurement_for(k).start(); }
 timer prof(Stc &k) { return measurement_for(k).start(); }
 
 

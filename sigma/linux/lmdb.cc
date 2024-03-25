@@ -44,7 +44,16 @@ static uN filesize(Stc &f)
 
 
 lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss)
-  : te_(te), ss_(0), mss_(mss)
+  : te_(te), f_(f), t_(t), ss_(0), mss_(mss),
+    prof_get_outer_(measurement_for(ηm{} << "lmdb" << f << t << "get_outer")),
+    prof_get_inner_(measurement_for(ηm{} << "lmdb" << f << t << "get_inner")),
+    prof_has_outer_(measurement_for(ηm{} << "lmdb" << f << t << "has_outer")),
+    prof_has_inner_(measurement_for(ηm{} << "lmdb" << f << t << "has_inner")),
+    prof_del_staged_(measurement_for(ηm{} << "lmdb" << f << t << "del_staged")),
+    prof_set_staged_(measurement_for(ηm{} << "lmdb" << f << t << "set_staged")),
+    prof_commit_outer_(measurement_for(ηm{} << "lmdb" << f << t << "commit_outer")),
+    prof_commit_write_(measurement_for(ηm{} << "lmdb" << f << t << "commit_write")),
+    prof_reader_(measurement_for(ηm{} << "lmdb" << f << t << "reader"))
 {
   int rc;
 
@@ -79,11 +88,13 @@ lmdb::~lmdb()
 lmdb::v<ηi> lmdb::get(ηmc &k) const
 {
   // NOTE: must hold sl through reader() call to guarantee consistent data
+  let     t1 = prof_get_outer_.start();
   Sl<Smu> sl{smu_};
   if (dstage_.contains(k)) return {};
   if (let i = istage_.find(k); i != istage_.end())
     return {*i->second, {}, i->second};
 
+  let     t2 = prof_get_inner_.start();
   let     r  = reader();
   MDB_val mk = val(k);
   MDB_val mv;
@@ -97,10 +108,12 @@ lmdb::v<ηi> lmdb::get(ηmc &k) const
 bool lmdb::has(ηmc &k) const
 {
   // NOTE: must hold sl through reader() call to guarantee consistent data
+  let t1 = prof_has_outer_.start();
   Sl<Smu> sl{smu_};
   if (dstage_.contains(k))                         return false;
   if (let i = istage_.find(k); i != istage_.end()) return true;
 
+  let     t2 = prof_has_inner_.start();
   let     r  = reader();
   MDB_val mk = val(k);
   MDB_val mv;
@@ -114,6 +127,7 @@ bool lmdb::has(ηmc &k) const
 void lmdb::del(ηmc &k)
 {
   {
+    let t = prof_del_staged_.start();
     Sl<Smu> cl{cmu_};  // IMPORTANT: cannot modify stage during commit
     Ul<Smu> sl{smu_};
     istage_.erase(k);  // no updates to this key are relevant anymore
@@ -128,6 +142,7 @@ void lmdb::set(ηmc &k, ηm &&v)
 {
   let vp = Sp<ηm>{new ηm{mo(v)}};
   {
+    let t = prof_set_staged_.start();
     Sl<Smu> cl{cmu_};  // IMPORTANT: cannot modify stage during commit
     Ul<Smu> sl{smu_};
     dstage_.erase(k);
@@ -146,6 +161,8 @@ void lmdb::set(ηmc &k, ηic &v)
 
 void lmdb::commit(bool sync)
 {
+  let t = prof_commit_outer_.start();
+
   // NOTE: cl locks out all modification operators for the duration of this
   // commit, which is critical because we switch from non-blocking to blocking
   // when we drop sl below.
@@ -162,6 +179,7 @@ void lmdb::commit(bool sync)
   }
 
   {
+    let t = prof_commit_write_.start();
     Sl<Smu> sl{smu_};
 
     MDB_txn *w;
@@ -205,19 +223,6 @@ void lmdb::commit(bool sync)
 }
 
 
-bool lmdb::should_resize(uN n, f64 safety) const
-{
-  MDB_stat    s;
-  MDB_envinfo i;
-  if (mdb_env_stat(e_, &s) != MDB_SUCCESS || mdb_env_info(e_, &i) != MDB_SUCCESS)
-    return true;
-
-  let t =     s.ms_psize * (uS) i.me_mapsize / s.ms_psize;
-  let f = t - s.ms_psize * (uS) i.me_last_pgno * safety;
-  return n >= f;
-}
-
-
 void lmdb::maybe_commit()
 {
   {
@@ -230,6 +235,8 @@ void lmdb::maybe_commit()
 
 Sp<lmdb::rtx_> lmdb::reader() const
 {
+  let t = prof_reader_.start();
+
   // NOTE: this function is always called from a context with a shared stage
   // lock (which matters due to its potential interaction with commit())
   {

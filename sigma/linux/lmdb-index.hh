@@ -3,6 +3,7 @@
 
 #include "lmdb.hh"
 #include "lmdb-sstream.hh"
+#include "../prof.hh"
 
 #include "../begin.hh"
 
@@ -73,15 +74,32 @@ struct lmdb_index final
   typedef ηmc key;  // user-facing key
   typedef ηmc ind;  // key that we expect to be indirect
 
-  lmdb_index(τe &te,
-             Stc &p, Stc &t,
-             uN mapsize = 1ull << 40,
-             iN svo     = 64ll << 20,  // staged value overflow (bytes)
-             iN sko     = 64ll << 10,  // staged key overflow (#keys)
-             iN lvs     = 8ll << 10)   // literal value size (bytes)
-    : te_(te), db_{te, p, t, mapsize}, ss_(0),
+  lmdb_index(τe &te, lmdb &db,
+             iN svo = 64ll << 20,  // staged value overflow (bytes)
+             iN sko = 64ll << 10,  // staged key overflow (#keys)
+             iN lvs = 8ll << 10)   // literal value size (bytes)
+    : te_(te), db_{db}, ss_(0),
       svo_(svo), sko_(sko), lvs_(lvs),
-      nk_((τ::isha2{} << (ηm{} << τ::epoch_seconds()))())
+      nk_((τ::isha2{} << (ηm{} << τ::epoch_seconds()))()),
+      prof_add_            (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "add")),
+      prof_del_            (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "del")),
+      prof_get_            (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "get")),
+      prof_commit_         (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "commit")),
+      prof_commit_key_     (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "commit_key")),
+      prof_ss_             (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "ss")),
+      prof_balance_        (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "balance")),
+      prof_touch_          (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "touch")),
+      prof_stage_add_      (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "stage_add")),
+      prof_stage_del_      (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "stage_del")),
+      prof_unstage_add_    (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "unstage_add")),
+      prof_unstage_del_    (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "unstage_del")),
+      prof_kv_indirects_   (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "kv_indirects")),
+      prof_kv_ind_asc_     (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "kv_ind_asc")),
+      prof_new_indirect_   (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "new_indirect")),
+      prof_make_indirect_  (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "make_indirect")),
+      prof_add_kv_literal_ (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "add_kv_literal")),
+      prof_add_kv_indirect_(measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "add_kv_indirect")),
+      prof_genkey_         (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "genkey"))
     { on_sig_ = τ::Sp<τ::F<void(int)>>
         {new τ::F<void(int)> { [this](int) { commit(); } }};
       te_.sig_register(on_sig_); }
@@ -157,8 +175,8 @@ protected:
 
 
   τe                    &te_;
+  lmdb                  &db_;
   τ::Sp<τ::F<void(int)>> on_sig_;
-  lmdb                   db_;
   mutable τ::Smu         lock_;  // lock for all mutations
   M<ηm, stage>           add_;   // staged values to add
   M<ηm, stage>           del_;   // staged values to delete
@@ -167,6 +185,26 @@ protected:
   iN                     sko_;   // staged key overflow (#keys)
   iN                     lvs_;   // literal value size limit (bytes)
   τ::h256                nk_;    // seed for genkey()
+
+  measurement &prof_add_,
+    &prof_del_,
+    &prof_get_,
+    &prof_commit_,
+    &prof_commit_key_,
+    &prof_ss_,
+    &prof_balance_,
+    &prof_touch_,
+    &prof_stage_add_,
+    &prof_stage_del_,
+    &prof_unstage_add_,
+    &prof_unstage_del_,
+    &prof_kv_indirects_,
+    &prof_kv_ind_asc_,
+    &prof_new_indirect_,
+    &prof_make_indirect_,
+    &prof_add_kv_literal_,
+    &prof_add_kv_indirect_,
+    &prof_genkey_;
 };
 
 
