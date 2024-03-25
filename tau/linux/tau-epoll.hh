@@ -130,8 +130,8 @@ struct τe : public τb
   // Handle signals
   void sig(int s);
 
-  void sig_register  (Sp<F<void(int)>> f) { sfs.insert(f); }
-  void sig_unregister(Sp<F<void(int)>> f) { sfs.erase(f); }
+  void sig_register  (Sp<F<void(int)>> f) { if (!fin) sfs.insert(f); }
+  void sig_unregister(Sp<F<void(int)>> f) { if (!fin) sfs.erase(f); }
 
 
   // Call epoll_wait() and invoke all wakeups and Θ-blocked functions.
