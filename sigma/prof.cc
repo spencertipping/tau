@@ -13,8 +13,9 @@ static Mu                     measurements_mu_;
 
 void Γprof(Γφ &g)
 {
-  g.def_p1("prof", [](ψ q, ξo o)
+  g.def_p1("prof", [](f64 s, ψ q, ξo o)
     {
+      i64 ns = s / 1e9;
       while (o)
       {
         M<ηm, Sp<measurement>> m;
@@ -45,7 +46,7 @@ void Γprof(Γφ &g)
 
         o.r() << ηsig::τ;
 
-        q.t().Θ(now() + 1s);
+        q.t().Θ(now() + ns * 1ns);
       }
     });
 }

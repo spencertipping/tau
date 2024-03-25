@@ -1,5 +1,6 @@
 #include "platform.hh"
 #include "multiplex.hh"
+#include "prof.hh"
 #include "quote.hh"
 #include "sigma-Gamma-pieces.hh"
 #include "begin.hh"
@@ -27,6 +28,7 @@ void Γshared(Γφ &g)
   Γshared_ψ(g);
   Γmultiplex(g);
   Γquote(g);
+  Γprof(g);
 
   g .def_g("=",  [](               Ξc &x) { return x.push(); })
     .def_g("_",  [](               Ξc &x) { return x.drop(); })
