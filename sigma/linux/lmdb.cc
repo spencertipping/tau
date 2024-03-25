@@ -44,7 +44,7 @@ static uN filesize(Stc &f)
 
 
 lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss)
-  : te_(te), mss_(mss)
+  : te_(te), ss_(0), mss_(mss)
 {
   int rc;
 
@@ -164,29 +164,6 @@ void lmdb::commit(bool sync)
   {
     Sl<Smu> sl{smu_};
 
-    // First things first: figure out how much data we're committing and resize
-    // the map if necessary. This must be done before we create the write
-    // transaction. I'm adding 64 bytes of overhead per thing here because
-    // that's a reasonable upper bound on LMDB overhead per key (I measured 38
-    // bytes on 1M keys).
-    uN us = 0;
-    for (let &k       : dstage_) us += k.lsize() + 64;
-    for (let &[k, pv] : istage_) us += k.lsize() + pv->lsize() + 64;
-    while (should_resize(us))
-    {
-      TODO("LMDB map resizing doesn't work yet; we need to close all readers, "
-           "which is problematic because they may be holding active resources "
-           "in other threads. The workaround for now is to use a large initial "
-           "map size that doesn't later require expansion.");
-
-      MDB_envinfo i;
-      int rc = mdb_env_info(e_, &i);
-      A(rc == MDB_SUCCESS, "mdb_env_info() failed: " << mdb_strerror(rc));
-      rc = mdb_env_set_mapsize(e_, i.me_mapsize * 2);
-      A(rc == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
-    }
-
-    // Now we're safe to create the write transaction and commit the stage.
     MDB_txn *w;
     int rc = mdb_txn_begin(e_, nullptr, 0, &w);
     A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc));
