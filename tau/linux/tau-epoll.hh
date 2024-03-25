@@ -28,8 +28,13 @@ namespace τ
 
 
 struct ψ;
+struct τe;
 
 Tt struct λfg;
+
+
+τe  *τe_();  // global τe instance
+void τe_(τe*);
 
 
 struct τe : public τb
@@ -38,7 +43,8 @@ struct τe : public τb
   τe(τe&&) = delete;
   τe(int threads = Th::hardware_concurrency())
     : τb(), fin(false), tp(threads), tid(0)
-    { A((efd = epoll_create1(0)) != -1, "epoll_create1 failure (τe::efd)");
+    { τe_(this);
+      A((efd = epoll_create1(0)) != -1, "epoll_create1 failure (τe::efd)");
       fcntl(efd, F_SETFL, fcntl(efd, F_GETFL) | O_CLOEXEC);
       A((wfd = eventfd(0, EFD_SEMAPHORE | EFD_CLOEXEC)) != -1,
         "eventfd() failure (τe::wfd)");
@@ -54,7 +60,8 @@ struct τe : public τb
       for (let &[fd, g] : wgs) fds.push_back(fd);
       for (let x : fds) close(x);
       if (wfd != -1)   close(wfd);
-      if (efd != -1) ::close(efd); }
+      if (efd != -1) ::close(efd);
+      τe_(nullptr); }
 
 
   void init_signals();

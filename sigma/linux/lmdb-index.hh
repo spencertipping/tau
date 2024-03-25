@@ -86,7 +86,7 @@ struct lmdb_index final
 
   ~lmdb_index()
     { commit();
-      te_.sig_unregister(on_sig_); }
+      if (τ::τe_() != nullptr) te_.sig_unregister(on_sig_); }
 
 
   void add(key &k, ηic &v);

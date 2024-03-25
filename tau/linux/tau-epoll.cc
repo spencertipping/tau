@@ -12,12 +12,12 @@ namespace τ
 
 static τe *current_t = nullptr;
 
+τe  *τe_()      { return current_t; }
+void τe_(τe *t) { current_t = t; }
+
 
 void τe::init_signals()
 {
-  // Keep track of the current signal receiver (not elegant, but it works)
-  current_t = this;
-
   // Important: ignore SIGPIPE so we can catch it as an error on FD ops
   signal(SIGPIPE, SIG_IGN);
 
@@ -213,6 +213,7 @@ bool τe::is_awake(uN tid)
 void τe::sig(int s)
 {
   for (let &f : sfs) (*f)(s);
+  τe_(nullptr);
   exit(2);
 }
 

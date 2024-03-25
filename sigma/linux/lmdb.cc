@@ -70,7 +70,7 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss)
 
 lmdb::~lmdb()
 {
-  te_.sig_unregister(on_sig_);
+  if (τe_() != nullptr) te_.sig_unregister(on_sig_);
   commit();
   mdb_env_close(e_);
 }
