@@ -61,6 +61,7 @@ struct lmdb_index final
   Txs using M  = τ::M<Xs...>;
   Tx  using So = τ::So<X>;
 
+  using uN  = τ::uN;
   using iN  = τ::iN;
   using Stc = τ::Stc;
   using ηm  = τ::ηm;
@@ -74,10 +75,11 @@ struct lmdb_index final
 
   lmdb_index(τe &te,
              Stc &p, Stc &t,
-             iN svo = 64ll << 20,  // staged value overflow (bytes)
-             iN sko = 64ll << 10,  // staged key overflow (#keys)
-             iN lvs = 8ll << 10)   // literal value size (bytes)
-    : te_(te), db_{te, p, t}, ss_(0),
+             uN mapsize = 1ull << 40,
+             iN svo     = 64ll << 20,  // staged value overflow (bytes)
+             iN sko     = 64ll << 10,  // staged key overflow (#keys)
+             iN lvs     = 8ll << 10)   // literal value size (bytes)
+    : te_(te), db_{te, p, t, mapsize}, ss_(0),
       svo_(svo), sko_(sko), lvs_(lvs),
       nk_((τ::isha2{} << (ηm{} << τ::epoch_seconds()))())
     { on_sig_ = τ::Sp<τ::F<void(int)>>
