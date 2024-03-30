@@ -74,7 +74,7 @@ measurement &measurement_for(Stc &k)
 
 M<ηm, Sp<measurement>> measurements()
 {
-  Sl<Mu> l{measurements_mu_};
+  Ul<Mu> l{measurements_mu_};
   return measurements_;
 }
 
