@@ -34,12 +34,15 @@ void Γprof(Γφ &g)
         {
           let v = m[k];
           Ss s;
-          s << v->n()      << "x  "
-            << v->real()   << " real  "
-            << v->mean()   << " mean  "
-            << v->min()    << " min  "
-            << v->max()    << " max  "
-            << v->active() << " active";
+          s << v->n()          << "x  "
+            << v->duty() * 100 << "%  "
+            << v->real()       << " real  "
+            << v->mean()       << " mean  "
+            << v->min()        << " min  "
+            << v->max()        << " max  "
+            << v->down()       << " down  "
+            << v->gap()        << " gap  "
+            << v->active()     << " active";
 
           o.r() << k << s.str();
         }
@@ -85,7 +88,11 @@ timer prof(Stc &k) { return measurement_for(k).start(); }
 timer measurement::start()
 {
   Ul<Smu> l{mu_};
-  if (!active_++) since_ = now();
+  if (!active_++)
+  {
+    down_ += now() - last_;
+    since_ = now();
+  }
   return {*this};
 }
 
@@ -105,6 +112,7 @@ void measurement::stop(ΔΘ dt)
   {
     real_ += n - since_;
     since_ = never();
+    last_  = n;
   }
 }
 
@@ -113,6 +121,13 @@ void measurement::stop(ΔΘ dt)
 {
   Sl<Smu> l{mu_};
   return real_ + (active_ ? now() - since_ : 0ns);
+}
+
+
+ΔΘ measurement::down() const
+{
+  Sl<Smu> l{mu_};
+  return down_ + (active_ ? 0ns : now() - last_);
 }
 
 

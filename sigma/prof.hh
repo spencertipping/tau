@@ -24,7 +24,7 @@ struct timer final
 
 protected:
   measurement *m_;
-  τ::Θp           start_;
+  τ::Θp        start_;
 };
 
 
@@ -35,6 +35,8 @@ struct measurement final
   using uN = τ::uN;
   using iN = τ::iN;
 
+  measurement() : last_(τ::now()) {}
+
   timer start();
   void  stop(ΔΘ);
 
@@ -42,10 +44,14 @@ struct measurement final
   ΔΘ min()  const { return min_; }
   ΔΘ max()  const { return max_; }
   ΔΘ mean() const { τ::Sl<τ::Smu> l{mu_}; return n_ ? ΔΘ{virtual_ / n_} : 0ns; }
+  ΔΘ gap()  const { τ::Sl<τ::Smu> l{mu_}; return n_ ? ΔΘ{down()   / n_} : 0ns; }
+
+  τ::f64 duty() const { τ::Sl<τ::Smu> l{mu_}; return real() / (real() + down()); }
 
   uN active() const { return active_; }
 
   ΔΘ real() const;
+  ΔΘ down() const;
 
 
 protected:
@@ -54,9 +60,11 @@ protected:
   ΔΘ min_     = τ::forever() - τ::never();  // minimum measurement
   ΔΘ max_     = 0ns;                        // maximum measurement
   Θp since_   = τ::never();                 // when the measurement became active
-  iN active_  = 0;                    // active timers
-  ΔΘ virtual_ = 0ns;                  // virtual (overlapping) time
-  ΔΘ real_    = 0ns;                  // real (non-overlapping) time
+  Θp last_    = τ::never();                 // when the last interval was complete
+  iN active_  = 0;                          // active timers
+  ΔΘ virtual_ = 0ns;                        // virtual (overlapping) time
+  ΔΘ real_    = 0ns;                        // real (non-overlapping) time
+  ΔΘ down_    = 0ns;                        // total downtime
 };
 
 
