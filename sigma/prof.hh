@@ -70,6 +70,7 @@ protected:
 
 measurement &measurement_for(τ::ηmc&);
 measurement &measurement_for(τ::Stc&);
+τ::M<τ::ηm, τ::Sp<measurement>> measurements();
 
 timer prof(τ::ηmc&);  // profile an action
 timer prof(τ::Stc&);  // profile an action

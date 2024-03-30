@@ -72,6 +72,13 @@ measurement &measurement_for(Stc &k)
 }
 
 
+M<ηm, Sp<measurement>> measurements()
+{
+  Sl<Mu> l{measurements_mu_};
+  return measurements_;
+}
+
+
 timer prof(ηmc &k) { return measurement_for(k).start(); }
 timer prof(Stc &k) { return measurement_for(k).start(); }
 
