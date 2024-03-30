@@ -46,7 +46,7 @@ struct measurement final
   ΔΘ mean() const { τ::Sl<τ::Smu> l{mu_}; return n_ ? ΔΘ{virtual_ / n_} : 0ns; }
   ΔΘ gap()  const { τ::Sl<τ::Smu> l{mu_}; return n_ ? ΔΘ{down()   / n_} : 0ns; }
 
-  τ::f64 duty() const { τ::Sl<τ::Smu> l{mu_}; return real() / (real() + down()); }
+  τ::f64 duty() const { τ::Sl<τ::Smu> l{mu_}; return τ::f64(real().count()) / (real() + down()).count(); }
 
   uN active() const { return active_; }
 
