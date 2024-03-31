@@ -101,11 +101,9 @@ int τe::close(fd_t fd, bool r, bool w)
 uN τe::new_tid()
 {
   Ul<Mu> l_(trs_m);
-  std::cerr << "new_tid called" << std::endl;
   uN r = ++tid;
   while (trs.contains(r)) r = ++tid;  // make sure to claim a new ID
   trs.insert(r);
-  std::cerr << "new_tid returning " << r << std::endl;
   return r;
 }
 
@@ -115,12 +113,10 @@ void τe::wake(uN tid)
   // Important: first mark the task as done by removing it from the set of
   // running tasks. Then wake epoll.
   Ul<Mu> l_(trs_m);
-  std::cerr << "wake(" << tid << ")" << std::endl;
   trs.erase(tid);
 
   u64 x = 1;
   A(::write(wfd, &x, sizeof(x)) != -1, "τe::wake(" << tid << ") error");
-  std::cerr << "wake(" << tid << ") write done" << std::endl;
 }
 
 
@@ -131,10 +127,7 @@ bool τe::is_awake(uN tid)
   // there, then we are _not_ done and must not consume a value from the
   // eventfd.
   Ul<Mu> l_(trs_m);
-  std::cerr << "is_awake(" << tid << ")" << std::endl;
   let w = !trs.contains(tid);
-
-  std::cerr << "is_awake(" << tid << ") done=" << w << std::endl;
 
   if (w)
   {
@@ -144,7 +137,6 @@ bool τe::is_awake(uN tid)
       "τe::is_awake(" << tid << "): eventfd read error");
   }
 
-  std::cerr << "is_awake(" << tid << ") returning " << w << std::endl;
   return w;
 }
 
@@ -179,6 +171,7 @@ bool τe::is_awake(uN tid)
     for (int i = 0; i < n; ++i)
     {
       let f = evs[i].data.fd;
+
       if (rgs.contains(f))
       {
         let g = rat(f);
@@ -202,6 +195,11 @@ bool τe::is_awake(uN tid)
     // for anything other than the first one -- we need to run another
     // Λ quantum to consume the events.
     nonblock = true;
+
+    // Run a single quantum of the Λ scheduler to clear the eventfd if
+    // applicable. Otherwise this loop will run forever, having resumed the λ
+    // but never completed the wfd wakeup handshake.
+    l_.step();
   }
 
   while (now() >= hn()) l_.r(h_.top().l, λs::R), h_.pop();
