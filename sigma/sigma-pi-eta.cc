@@ -16,7 +16,7 @@ void πshared_η(πφ &p)
     .def_pr("`", [](πi &i, πhrc&, πpc<π1> &y)
       { return y.x(i).pop(); })
 
-    .def_sl(">\"", [](πsc<ηi> &x) { return St{Rc<chc*>(x.x.ldata()), x.x.lsize()}; })
+    .def_sr(">\"", [](ηic &x)     { return St{Rc<chc*>(x.ldata()), x.lsize()}; })
     .def_sl(".|",  [](πsc<ηi> &x) { return i64(x.x.lsize()); })
     ;
 }
