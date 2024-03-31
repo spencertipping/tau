@@ -52,7 +52,6 @@ struct τe : public τb
       // IMPORTANT: wfd must be registered _without_ edge triggering or we will
       // get thread deadlocks.
       A(reg(wfd, true, false, false), "wfd reg() failure");
-      std::cerr << "τe: wfd = " << wfd << std::endl;
       init_signals(); }
 
   ~τe()
