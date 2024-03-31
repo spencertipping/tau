@@ -54,6 +54,14 @@ $ $sigma 'n1000000000' | head -n5; true
 4
 ```
 
+Testing threading:
+
+```bash
+$ $sigma 'n1p&&|"foo"'
+"foo"
+$ diff <($sigma 'n10p&&|x') <(seq 0 9)
+```
+
 
 ## Parse tables
 First an overall map of which characters are mapped to which tables. Numbers represent Ψ levels, `S` represents syntax (comments/whitespace).

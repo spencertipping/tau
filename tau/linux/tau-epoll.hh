@@ -52,6 +52,7 @@ struct τe : public τb
       // IMPORTANT: wfd must be registered _without_ edge triggering or we will
       // get thread deadlocks.
       A(reg(wfd, true, false, false), "wfd reg() failure");
+      std::cerr << "τe: wfd = " << wfd << std::endl;
       init_signals(); }
 
   ~τe()
@@ -165,8 +166,8 @@ protected:
   thread_pool         tp;
   At<uN>              tid;    // task ID counter
   S<uN>               trs;    // set of running tasks
-  Smu                 trs_m;  // shared mutex for trs
-  S<Sp<F<void(int)>>> sfs;  // signal handler functions
+  Mu                  trs_m;  // shared mutex for trs and associated IO
+  S<Sp<F<void(int)>>> sfs;    // signal handler functions
 
 
   // Return the gate set for a FD, or nullptr if it's not registered.

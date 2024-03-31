@@ -100,12 +100,12 @@ int τe::close(fd_t fd, bool r, bool w)
 
 uN τe::new_tid()
 {
+  Ul<Mu> l_(trs_m);
+  std::cerr << "new_tid called" << std::endl;
   uN r = ++tid;
-  {
-    Ul<Smu> l_(trs_m);
-    while (trs.contains(r)) r = ++tid;  // make sure to claim a new ID
-    trs.insert(r);
-  }
+  while (trs.contains(r)) r = ++tid;  // make sure to claim a new ID
+  trs.insert(r);
+  std::cerr << "new_tid returning " << r << std::endl;
   return r;
 }
 
@@ -114,10 +114,13 @@ void τe::wake(uN tid)
 {
   // Important: first mark the task as done by removing it from the set of
   // running tasks. Then wake epoll.
-  { Ul<Smu> l_(trs_m); trs.erase(tid); }
+  Ul<Mu> l_(trs_m);
+  std::cerr << "wake(" << tid << ")" << std::endl;
+  trs.erase(tid);
 
   u64 x = 1;
-  A(::write(wfd, &x, sizeof(x)) != -1, "τe::wake error");
+  A(::write(wfd, &x, sizeof(x)) != -1, "τe::wake(" << tid << ") error");
+  std::cerr << "wake(" << tid << ") write done" << std::endl;
 }
 
 
@@ -127,8 +130,11 @@ bool τe::is_awake(uN tid)
   // in wake(tid), so we need to check for set membership in trs. If we're
   // there, then we are _not_ done and must not consume a value from the
   // eventfd.
-  bool w;
-  { Sl<Smu> l_(trs_m); w = !trs.contains(tid); }
+  Ul<Mu> l_(trs_m);
+  std::cerr << "is_awake(" << tid << ")" << std::endl;
+  let w = !trs.contains(tid);
+
+  std::cerr << "is_awake(" << tid << ") done=" << w << std::endl;
 
   if (w)
   {
@@ -138,6 +144,7 @@ bool τe::is_awake(uN tid)
       "τe::is_awake(" << tid << "): eventfd read error");
   }
 
+  std::cerr << "is_awake(" << tid << ") returning " << w << std::endl;
   return w;
 }
 
