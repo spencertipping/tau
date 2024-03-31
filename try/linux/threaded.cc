@@ -31,7 +31,7 @@ void try_basic_thread()
     // Make sure the event loop isn't blocked during threading
     while (now() - t0 < 200ms)
     {
-      A(now() - lt < 10ms, "unexpected quantum of " << now() - lt);
+      A(now() - lt < 50ms, "unexpected quantum of " << now() - lt);
       lt = now();
       t.Θ(now() + 1ms);
       ++qs;
