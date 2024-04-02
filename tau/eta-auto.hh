@@ -96,6 +96,7 @@ template<uN N> struct ηauto_<Ar<u8, N>>
   sletc n   = N;
   static auto v(ηic &i)
     { A(i.size() == N, "ηi → u8[" << N << "]: invalid size " << i.size());
+      A(i.is_bin() || i.is_s(), "ηi → u8[" << N << "]: not a binary or string");
       Ar<u8, N> r;
       for (uN j = 0; j < N; ++j) r[j] = i.data()[j];
       return r; }
