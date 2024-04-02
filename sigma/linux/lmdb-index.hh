@@ -100,13 +100,9 @@ struct lmdb_index final
       prof_add_kv_literal_ (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "add_kv_literal")),
       prof_add_kv_indirect_(measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "add_kv_indirect")),
       prof_genkey_         (measurement_for(ηm{} << "lmdb_index" << db.filename() << db.table() << "genkey"))
-    { on_sig_ = τ::Sp<τ::F<void(int)>>
-        {new τ::F<void(int)> { [this](int) { commit(); } }};
-      te_.sig_register(on_sig_); }
+    {}
 
-  ~lmdb_index()
-    { commit();
-      if (τ::τe_() != nullptr) te_.sig_unregister(on_sig_); }
+  ~lmdb_index() { commit(); }
 
 
   void add(key &k, ηic &v);
@@ -174,17 +170,16 @@ protected:
   ηm ikey(τ::h256c &k) const { return ηm{} << "i" << k; }
 
 
-  τe                    &te_;
-  lmdb                  &db_;
-  τ::Sp<τ::F<void(int)>> on_sig_;
-  mutable τ::Smu         lock_;  // lock for all mutations
-  M<ηm, stage>           add_;   // staged values to add
-  M<ηm, stage>           del_;   // staged values to delete
-  iN                     ss_;    // staged size = ∑|v| in stage
-  iN                     svo_;   // staged value overflow (bytes)
-  iN                     sko_;   // staged key overflow (#keys)
-  iN                     lvs_;   // literal value size limit (bytes)
-  τ::h256                nk_;    // seed for genkey()
+  τe             &te_;
+  lmdb           &db_;
+  mutable τ::Smu  lock_;  // lock for all mutations
+  M<ηm, stage>    add_;   // staged values to add
+  M<ηm, stage>    del_;   // staged values to delete
+  iN              ss_;    // staged size = ∑|v| in stage
+  iN              svo_;   // staged value overflow (bytes)
+  iN              sko_;   // staged key overflow (#keys)
+  iN              lvs_;   // literal value size limit (bytes)
+  τ::h256         nk_;    // seed for genkey()
 
   measurement &prof_add_,
     &prof_del_,

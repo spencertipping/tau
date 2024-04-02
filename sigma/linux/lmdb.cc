@@ -57,9 +57,6 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss)
 {
   int rc;
 
-  on_sig_ = Sp<F<void(int)>>{new F<void(int)>{[this](int) { commit(true); }}};
-  te_.sig_register(on_sig_);
-
   uN m = std::max(filesize(f) * 4ull, mapsize * 1ull);
 
   A((rc = mdb_env_create(&e_))            == MDB_SUCCESS, "mdb_env_create() failed: "      << mdb_strerror(rc));
@@ -79,7 +76,6 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss)
 
 lmdb::~lmdb()
 {
-  if (τe_() != nullptr) te_.sig_unregister(on_sig_);
   commit();
   mdb_env_close(e_);
 }

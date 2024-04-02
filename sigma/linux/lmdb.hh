@@ -72,20 +72,19 @@ public:
 
 
 protected:
-  τe                 &te_;
-  τ::Stc              f_;
-  τ::Stc              t_;
-  MDB_env            *e_;
-  MDB_dbi             d_;
-  mutable τ::Smu      rmu_;     // read transaction mutex
-  mutable Sp<rtx_>    rt_;      // current read transaction, if any
-  mutable τ::Smu      smu_;     // stage mutex
-  τ::uN               ss_;      // stage size (protected by smu_)
-  τ::M<ηm, Sp<ηm>>    istage_;  // insert/update stage (smu_)
-  τ::S<ηm>            dstage_;  // delete stage (smu_)
-  τ::uN               mss_;     // max stage size before auto-commit
-  τ::Smu              cmu_;     // commit mutex (writers share, committer locks)
-  Sp<τ::F<void(int)>> on_sig_;
+  τe              &te_;
+  τ::Stc           f_;
+  τ::Stc           t_;
+  MDB_env         *e_;
+  MDB_dbi          d_;
+  mutable τ::Smu   rmu_;     // read transaction mutex
+  mutable Sp<rtx_> rt_;      // current read transaction, if any
+  mutable τ::Smu   smu_;     // stage mutex
+  τ::uN            ss_;      // stage size (protected by smu_)
+  τ::M<ηm, Sp<ηm>> istage_;  // insert/update stage (smu_)
+  τ::S<ηm>         dstage_;  // delete stage (smu_)
+  τ::uN            mss_;     // max stage size before auto-commit
+  τ::Smu           cmu_;     // commit mutex (writers share, committer locks)
 
   measurement &prof_get_outer_,
     &prof_get_inner_,
