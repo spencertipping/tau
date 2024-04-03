@@ -23,8 +23,8 @@ void Γshared_ψ(Γφ &g)
     .def_p2("N",   [](               ξi i, ξo o) { ηl(i, o, [&](ηi x) { for (i64 n = 0; n < x.i(); ++n) o.r(12) << n; o.r() << ηsig::τ; }); })
     .def_p2("M?",  [](               ξi i, ξo o) { for (let x : i) std::cerr <<              x << std::endl, o << x; })
     .def_p2("M??", [](St n,          ξi i, ξo o) { for (let x : i) std::cerr << n << ": " << x << std::endl, o << x; })
-    .def_p2("p",   [](πt<π1> f, ψ q, ξi i, ξo o) { πi p(q.t(), i, o); q.weaken(); for (let x : i) { p.push(p << x.all()); p.def_x(); f.x(p); if (let r = p.pop()) o << p[r]; p.clear_xy(); } })
-    .def_p2("r",   [](πt<π1> f, ψ q, ξi i, ξo o) { πi p(q.t(), i, o); q.weaken(); for (let x : i) { p.push(p << x.all()); p.def_x(); f.x(p); if (p.ypop().cb()) o << x; p.clear_xy(); } })
+    .def_p2("p",   [](πt<π1> f, ψ q, ξi i, ξo o) { πi p(q.t(), i, o); q.weaken(); for (let &x : i) { p.push(p << x.all()); p.def_x(); f.x(p); if (let r = p.pop()) o << p[r]; p.clear_xy(); } })
+    .def_p2("r",   [](πt<π1> f, ψ q, ξi i, ξo o) { πi p(q.t(), i, o); q.weaken(); for (let &x : i) { p.push(p << x.all()); p.def_x(); f.x(p); if (p.ypop().cb()) o << x; p.clear_xy(); } })
 
     .def_p2("g",   [](          ξi i, ξo o)
       { V<ηm> xs;
