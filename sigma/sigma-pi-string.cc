@@ -224,7 +224,7 @@ void πshared_string(πφ &p)
 
     .def_sr("s#", [](ηic &x) { return i64(x.size()); })
 
-    .def_sr("++", [](Stc &a, πs<St> b) { return a + b.x; })
+    .def_sr("++", [](Stc &a, πsc<St> &b) { return a + b.x; })
     ;
 }
 

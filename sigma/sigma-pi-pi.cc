@@ -13,7 +13,7 @@ void πshared_π(πφ &p)
 #if τhas_threads
   p .def_sl("&&|", [](πi &i, πpc<π1> &f)
     { (*i.t())([&]() { f.x(i); return 0; });
-        return i.pop(); });
+      return i.pop(); });
 #endif
 
   p .def_sl("dΘ|", [](πi &i, πpc<π1> &f)

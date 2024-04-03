@@ -16,14 +16,14 @@ void πshared_cmp(πφ &p)
                         πs<π1>>;         // default
 
 
-  p .def_sr(">",  [](ηic &x, πs<ηi> const &y) { return x > y.x; })
-    .def_sr(">=", [](ηic &x, πs<ηi> const &y) { return x >= y.x; })
-    .def_sr("<",  [](ηic &x, πs<ηi> const &y) { return x < y.x; })
-    .def_sr("<=", [](ηic &x, πs<ηi> const &y) { return x <= y.x; })
-    .def_sr("==", [](ηic &x, πs<ηi> const &y) { return (x <=> y.x) == PO::equivalent; })
-    .def_sr("!=", [](ηic &x, πs<ηi> const &y) { return (x <=> y.x) != PO::equivalent; })
+  p .def_sr(">",  [](ηic &x, πsc<ηi> &y) { return x > y.x; })
+    .def_sr(">=", [](ηic &x, πsc<ηi> &y) { return x >= y.x; })
+    .def_sr("<",  [](ηic &x, πsc<ηi> &y) { return x < y.x; })
+    .def_sr("<=", [](ηic &x, πsc<ηi> &y) { return x <= y.x; })
+    .def_sr("==", [](ηic &x, πsc<ηi> &y) { return (x <=> y.x) == PO::equivalent; })
+    .def_sr("!=", [](ηic &x, πsc<ηi> &y) { return (x <=> y.x) != PO::equivalent; })
 
-    .def_sr("{", [](πi &i, πhr x, πP<φrbrace<cases>> const &cs)
+    .def_sr("{", [](πi &i, πhr x, πPc<φrbrace<cases>> &cs)
       { πhlv v{i.h()};
         v << x;
         let [c, d] = cs.x.x.x;

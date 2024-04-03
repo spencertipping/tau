@@ -10,16 +10,16 @@ using namespace τ;
 
 void πshared_atom(πφ &p)
 {
-  p .def_sl("",   [](πP<f64>   x) { return x.x; })
-    .def_sl("",   [](πP<i64>   x) { return x.x; })
-    .def_sl("",   [](πP<i64>   x) { return x.x; })
-    .def_sl("",   [](πP<St>    x) { return x.x; })
-    .def_sl("",   [](πP<ηname> n) { return n.x; })
-    .def_sl("t.", []()            { return 6.28318530717959; })
-    .def_sl("x",  [](πi &i)       { return i.x(); })
-    .def_sl("y",  [](πi &i)       { return i.y(); })
-    .def_sl("()", []()            { return ηi();  })
-    .def_sl("@_", []()            { return πhr{}; })
+  p .def_sl("",   [](πPc<f64>   &x) { return x.x; })
+    .def_sl("",   [](πPc<i64>   &x) { return x.x; })
+    .def_sl("",   [](πPc<i64>   &x) { return x.x; })
+    .def_sl("",   [](πPc<St>    &x) { return x.x; })
+    .def_sl("",   [](πPc<ηname> &n) { return n.x; })
+    .def_sl("t.", []()              { return 6.28318530717959; })
+    .def_sl("x",  [](πi &i)         { return i.x(); })
+    .def_sl("y",  [](πi &i)         { return i.y(); })
+    .def_sl("()", []()              { return ηi();  })
+    .def_sl("@_", []()              { return πhr{}; })
 
     .def_sl("α", []() { return ηsig::α; })
     .def_sl("κ", []() { return ηsig::κ; })
@@ -46,8 +46,8 @@ void πshared_atom(πφ &p)
     .def_sl("E", [](πi &i) { return i.i(i.x(), i[i.x()][4].one()); })
     .def_sl("F", [](πi &i) { return i.i(i.x(), i[i.x()][5].one()); })
 
-    .def_sl("$", [](πi &i, πP<φident> n) { return i.mg(n.x.x); })
-    .def_p (":", [](πi &i, πP<φident> n, πp<π1> y, πp<π1> z)
+    .def_sl("$", [](πi &i, πPc<φident> &n) { return i.mg(n.x.x); })
+    .def_p (":", [](πi &i, πPc<φident> &n, πpc<π1> &y, πpc<π1> &z)
       { y.x(i); i.ms(n.x.x, i.pop()); z.x(i); return i.pop(); })
     ;
 }
