@@ -28,7 +28,7 @@ void Γprof(Γφ &g)
         for (let &[k, v] : m) ks.push_back(k);
         std::sort(ks.begin(), ks.end(),
           [&](ηmc &a, ηmc &b)
-          { return m[a]->real() > m[b]->real(); });
+          { return m[a]->real() < m[b]->real(); });
 
         for (let &k : ks)
         {
