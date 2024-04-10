@@ -1,3 +1,4 @@
+#if τgl
 #include "gl.hh"
 
 #include "../begin.hh"
@@ -364,3 +365,4 @@ void x11_gl_window::swap()
 }
 
 #include "../end.hh"
+#endif

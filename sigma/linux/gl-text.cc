@@ -1,3 +1,4 @@
+#if tgl
 #include "gl.hh"
 #include "../begin.hh"
 
@@ -74,3 +75,4 @@ vec2 gl_text::measure()
 }
 
 #include "../end.hh"
+#endif
