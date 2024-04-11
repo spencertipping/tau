@@ -1,3 +1,5 @@
+#include <sys/mman.h>
+
 #include "lmdb.hh"
 #include "../begin.hh"
 
@@ -49,6 +51,8 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss)
     prof_get_inner_(measurement_for(ηm{} << "lmdb" << f << t << "get_inner")),
     prof_has_outer_(measurement_for(ηm{} << "lmdb" << f << t << "has_outer")),
     prof_has_inner_(measurement_for(ηm{} << "lmdb" << f << t << "has_inner")),
+    prof_prefetch_outer_(measurement_for(ηm{} << "lmdb" << f << t << "prefetch_outer")),
+    prof_prefetch_inner_(measurement_for(ηm{} << "lmdb" << f << t << "prefetch_inner")),
     prof_del_staged_(measurement_for(ηm{} << "lmdb" << f << t << "del_staged")),
     prof_set_staged_(measurement_for(ηm{} << "lmdb" << f << t << "set_staged")),
     prof_commit_outer_(measurement_for(ηm{} << "lmdb" << f << t << "commit_outer")),
@@ -152,6 +156,24 @@ void lmdb::set(ηmc &k, ηm &&v)
 void lmdb::set(ηmc &k, ηic &v)
 {
   set(k, ηm{v});
+}
+
+
+void lmdb::prefetch(ηmc &k) const
+{
+  // NOTE: must hold sl through reader() call to guarantee consistent data
+  let t1 = prof_prefetch_outer_.start();
+  Sl<Smu> sl{smu_};
+  if (dstage_.contains(k))                         return;
+  if (let i = istage_.find(k); i != istage_.end()) return;
+
+  let     t2 = prof_prefetch_inner_.start();
+  let     r  = reader();
+  MDB_val mk = val(k);
+  MDB_val mv;
+  let rc = mdb_get(r->t, d_, &mk, &mv);
+  if (rc != MDB_SUCCESS) return;  // errors are fine here; prefetch will be nop
+  madvise(mv.mv_data, mv.mv_size, MADV_WILLNEED);
 }
 
 

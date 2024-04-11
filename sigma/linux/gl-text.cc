@@ -1,4 +1,4 @@
-#if tgl
+#if τgl
 #include "gl.hh"
 #include "../begin.hh"
 
