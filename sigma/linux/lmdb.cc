@@ -306,42 +306,47 @@ void lmdb::repack(bool sync)
   int rc;
   MDB_envinfo ei;
   A((rc = mdb_env_info(e_.get(), &ei)) == MDB_SUCCESS,
-    "mdb_env_info() failed: " << mdb_strerror(rc));
+    "lmdb::repack mdb_env_info() failed: " << mdb_strerror(rc));
 
   MDB_env *ne;
   A((rc = mdb_env_create(&ne)) == MDB_SUCCESS,
-    "mdb_env_create() failed: " << mdb_strerror(rc));
+    "lmdb::repack mdb_env_create() failed: " << mdb_strerror(rc));
 
   A((rc = mdb_env_set_mapsize(ne, ei.me_mapsize)) == MDB_SUCCESS,
-    "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
+    "lmdb::repack mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
 
   unsigned flags;
   A((rc = mdb_env_get_flags(e_.get(), &flags)) == MDB_SUCCESS,
-    "mdb_env_get_flags() failed: " << mdb_strerror(rc));
+    "lmdb::repack mdb_env_get_flags() failed: " << mdb_strerror(rc));
 
   A((rc = mdb_env_open(ne, repack_f.c_str(), flags, 0664)) == MDB_SUCCESS,
-    "mdb_env_open() failed: " << mdb_strerror(rc));
+    "lmdb::repack mdb_env_open() failed: " << mdb_strerror(rc));
 
   // Copy data; to do this, we first need to create the new database.
+  MDB_txn *r;
+  A((rc = mdb_txn_begin(e_.get(), nullptr, MDB_RDONLY, &r)) == MDB_SUCCESS,
+    "lmdb::repack mdb_txn_begin() for reader failed: " << mdb_strerror(rc));
+
   MDB_txn *w;
   A((rc = mdb_txn_begin(ne, nullptr, 0, &w)) == MDB_SUCCESS,
-    "mdb_txn_begin() failed: " << mdb_strerror(rc));
+    "lmdb::repack mdb_txn_begin() for writer failed: " << mdb_strerror(rc));
 
   MDB_dbi d;
   A((rc = mdb_dbi_open(w, t_.c_str(), MDB_CREATE, &d)) == MDB_SUCCESS,
-    "mdb_dbi_open() failed: " << mdb_strerror(rc));
+    "lmdb::repack mdb_dbi_open() for writer failed: " << mdb_strerror(rc));
 
   MDB_cursor *c;
-  A((rc = mdb_cursor_open(w, d, &c)) == MDB_SUCCESS,
-    "mdb_cursor_open() failed: " << mdb_strerror(rc));
+  A((rc = mdb_cursor_open(r, d_, &c)) == MDB_SUCCESS,
+    "lmdb::repack mdb_cursor_open() for reader failed: " << mdb_strerror(rc));
 
   MDB_val mk, mv;
   while ((rc = mdb_cursor_get(c, &mk, &mv, MDB_NEXT)) == MDB_SUCCESS)
-    A((rc = mdb_put(w, d_, &mk, &mv, 0)) == MDB_SUCCESS,
-      "mdb_put() failed: " << mdb_strerror(rc));
+    A((rc = mdb_put(w, d, &mk, &mv, 0)) == MDB_SUCCESS,
+      "lmdb::repack mdb_put() failed: " << mdb_strerror(rc));
 
-  A(rc == MDB_NOTFOUND, "mdb_cursor_get() failed: " << mdb_strerror(rc));
+  A(rc == MDB_NOTFOUND, "lmdb::repack mdb_cursor_get() failed: " << mdb_strerror(rc));
 
+  mdb_txn_abort(r);
   mdb_cursor_close(c);
   mdb_txn_commit(w);
 
