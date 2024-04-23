@@ -191,9 +191,10 @@ void lmdb::commit(bool sync)
   // NOTE: cl locks out all modification operators for the duration of this
   // commit, which is critical because we switch from non-blocking to blocking
   // when we drop sl below.
-  Ul<Smu> cl{cmu_};
-
-  commit_(sync);
+  {
+    Ul<Smu> cl{cmu_};
+    commit_(sync);
+  }
   maybe_repack(sync);
 }
 
