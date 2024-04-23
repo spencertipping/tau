@@ -40,3 +40,7 @@ fabric1-static: fabric1.cc
 
 continuation-perf: continuation-perf.cc
 	g++ -O3 -o continuation-perf continuation-perf.cc -lboost_context
+
+
+lmdb-repack: lmdb-repack.cc
+	g++ -O3 -o lmdb-repack lmdb-repack.cc -llmdb

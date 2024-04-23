@@ -1,4 +1,5 @@
 #include <sys/mman.h>
+#include <sys/stat.h>
 
 #include "lmdb.hh"
 #include "../begin.hh"
@@ -19,7 +20,7 @@ void Γlmdb(Γφ &g)
       MDB_dbi     dbi;
       int         rc;
 
-      A((rc = mdb_txn_begin(db.env(), nullptr, MDB_RDONLY, &r)) == MDB_SUCCESS,
+      A((rc = mdb_txn_begin(db.env().get(), nullptr, MDB_RDONLY, &r)) == MDB_SUCCESS,
         "r::mdb_txn_begin() failed: " << mdb_strerror(rc));
       A((rc = mdb_dbi_open(r, t.c_str(), MDB_CREATE, &dbi)) == MDB_SUCCESS,
         "r::mdb_dbi_open() failed: " << mdb_strerror(rc));
@@ -45,8 +46,9 @@ static uN filesize(Stc &f)
 }
 
 
-lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss)
+lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss, f64 rf)
   : te_(te), f_(f), t_(t), ss_(0), mss_(mss),
+    dsize_(0), isize_(0), next_rep_(disk_size() * rf), rep_factor_(rf),
     prof_get_outer_(measurement_for(ηm{} << "lmdb" << f << t << "get_outer")),
     prof_get_inner_(measurement_for(ηm{} << "lmdb" << f << t << "get_inner")),
     prof_has_outer_(measurement_for(ηm{} << "lmdb" << f << t << "has_outer")),
@@ -57,31 +59,36 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss)
     prof_set_staged_(measurement_for(ηm{} << "lmdb" << f << t << "set_staged")),
     prof_commit_outer_(measurement_for(ηm{} << "lmdb" << f << t << "commit_outer")),
     prof_commit_write_(measurement_for(ηm{} << "lmdb" << f << t << "commit_write")),
-    prof_reader_(measurement_for(ηm{} << "lmdb" << f << t << "reader"))
+    prof_reader_(measurement_for(ηm{} << "lmdb" << f << t << "reader")),
+    prof_repack_outer_(measurement_for(ηm{} << "lmdb" << f << t << "repack_outer")),
+    prof_repack_inner_(measurement_for(ηm{} << "lmdb" << f << t << "repack_inner"))
 {
   int rc;
 
   uN m = std::max(filesize(f) * 4ull, mapsize * 1ull);
 
-  A((rc = mdb_env_create(&e_))            == MDB_SUCCESS, "mdb_env_create() failed: "      << mdb_strerror(rc));
-  A((rc = mdb_env_set_maxdbs(e_, maxdbs)) == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: "  << mdb_strerror(rc));
-  A((rc = mdb_env_set_mapsize(e_, m))     == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
-  A((rc = mdb_env_open(e_, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC | MDB_NORDAHEAD | MDB_NOTLS, 0664)) == MDB_SUCCESS,
+  MDB_env *e;
+  A((rc = mdb_env_create(&e))            == MDB_SUCCESS, "mdb_env_create() failed: "      << mdb_strerror(rc));
+  A((rc = mdb_env_set_maxdbs(e, maxdbs)) == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: "  << mdb_strerror(rc));
+  A((rc = mdb_env_set_mapsize(e, m))     == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
+  A((rc = mdb_env_open(e, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC | MDB_NORDAHEAD | MDB_NOTLS, 0664)) == MDB_SUCCESS,
     "mdb_env_open(" << f << ") failed: " << mdb_strerror(rc));
 
   MDB_txn *dbi_t;
-  A((rc = mdb_txn_begin(e_, nullptr, 0, &dbi_t)) == MDB_SUCCESS,
+  A((rc = mdb_txn_begin(e, nullptr, 0, &dbi_t)) == MDB_SUCCESS,
     "mdb_txn_begin() failed: " << mdb_strerror(rc));
   A((rc = mdb_dbi_open(dbi_t, t.c_str(), MDB_CREATE, &d_)) == MDB_SUCCESS,
     "mdb_dbi_open(\"" << t << "\") failed: " << mdb_strerror(rc));
   mdb_txn_commit(dbi_t);
+
+  e_ = Sp<MDB_env>{e, mdb_env_close};
 }
 
 
 lmdb::~lmdb()
 {
   commit();
-  mdb_env_close(e_);
+  mdb_env_close(e_.get());
 }
 
 
@@ -186,6 +193,35 @@ void lmdb::commit(bool sync)
   // when we drop sl below.
   Ul<Smu> cl{cmu_};
 
+  commit_(sync);
+  maybe_repack(sync);
+}
+
+
+void lmdb::maybe_repack(bool sync)
+{
+  if (rep_factor_ == 0) return;
+
+  {
+    Sl<Smu> cl{cmu_};
+    if (dsize_ + isize_ < next_rep_) return;
+  }
+  repack(sync);
+}
+
+
+uS lmdb::disk_size() const
+{
+  struct stat st;
+  if (stat(f_.c_str(), &st)) return 16384;  // some default size
+  return st.st_size;
+}
+
+
+void lmdb::commit_(bool sync)
+{
+  // NOTE: this function must be called with cmu_ unique-locked.
+
   // Lose the default reference to the current read transaction: best case we
   // close it, otherwise we prepare to open a new one with updated data. Note
   // that we don't block readers at this point, so they may create a new
@@ -201,7 +237,7 @@ void lmdb::commit(bool sync)
     Sl<Smu> sl{smu_};
 
     MDB_txn *w;
-    int rc = mdb_txn_begin(e_, nullptr, 0, &w);
+    int rc = mdb_txn_begin(e_.get(), nullptr, 0, &w);
     A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc));
 
     // Deletions come first because they can free space that will be used by
@@ -209,6 +245,8 @@ void lmdb::commit(bool sync)
     for (let &k : dstage_)
     {
       MDB_val mk = val(k);
+      MDB_val mv;
+      if (mdb_get(w, d_, &mk, &mv) == MDB_SUCCESS) dsize_ += mv.mv_size;
       A((rc = mdb_del(w, d_, &mk, nullptr)) == MDB_SUCCESS || rc == MDB_NOTFOUND,
         "mdb_del() failed: " << mdb_strerror(rc));
     }
@@ -216,6 +254,10 @@ void lmdb::commit(bool sync)
     // Now handle insertions/updates
     for (let &[k, v] : istage_)
     {
+      // Assume we're allocating new space for every written value, since a
+      // reader might refer to any value we have.
+      isize_ += v->lsize();
+
       MDB_val mk = val(k);
       MDB_val mv = val(*v);
       A((rc = mdb_put(w, d_, &mk, &mv, 0)) == MDB_SUCCESS,
@@ -241,13 +283,86 @@ void lmdb::commit(bool sync)
 }
 
 
-void lmdb::maybe_commit()
+void lmdb::repack(bool sync)
+{
+  let t = prof_repack_outer_.start();
+  Ul<Smu> cl{cmu_};
+
+  // First clear the stage. This will minimize the amount of data that
+  // accumulates as we perform the repack.
+  commit_(sync);
+
+  let t1 = prof_repack_inner_.start();
+  let repack_f = f_ + ".repack";
+
+  // Open a new environment and copy data over to it. This will replace the
+  // current env. We start by copying parameters from the current environment,
+  // then iterating through the keys.
+  //
+  // Nobody can commit while we're doing this because we're holding cmu_; if the
+  // stage fills up, the writer will block until we're done.
+
+  int rc;
+  MDB_envinfo ei;
+  A((rc = mdb_env_info(e_.get(), &ei)) == MDB_SUCCESS,
+    "mdb_env_info() failed: " << mdb_strerror(rc));
+
+  MDB_env *ne;
+  A((rc = mdb_env_create(&ne)) == MDB_SUCCESS,
+    "mdb_env_create() failed: " << mdb_strerror(rc));
+
+  A((rc = mdb_env_set_mapsize(ne, ei.me_mapsize)) == MDB_SUCCESS,
+    "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
+
+  unsigned flags;
+  A((rc = mdb_env_get_flags(e_.get(), &flags)) == MDB_SUCCESS,
+    "mdb_env_get_flags() failed: " << mdb_strerror(rc));
+
+  A((rc = mdb_env_open(ne, repack_f.c_str(), flags, 0664)) == MDB_SUCCESS,
+    "mdb_env_open() failed: " << mdb_strerror(rc));
+
+  // Copy data from this table to other table.
+  MDB_txn *w;
+  A((rc = mdb_txn_begin(ne, nullptr, 0, &w)) == MDB_SUCCESS,
+    "mdb_txn_begin() failed: " << mdb_strerror(rc));
+
+  MDB_cursor *c;
+  A((rc = mdb_cursor_open(w, d_, &c)) == MDB_SUCCESS,
+    "mdb_cursor_open() failed: " << mdb_strerror(rc));
+
+  MDB_val mk, mv;
+  while ((rc = mdb_cursor_get(c, &mk, &mv, MDB_NEXT)) == MDB_SUCCESS)
+    A((rc = mdb_put(w, d_, &mk, &mv, 0)) == MDB_SUCCESS,
+      "mdb_put() failed: " << mdb_strerror(rc));
+
+  A(rc == MDB_NOTFOUND, "mdb_cursor_get() failed: " << mdb_strerror(rc));
+
+  mdb_cursor_close(c);
+  mdb_txn_commit(w);
+
+  // Drop the current environment reference and replace it with the new one. The
+  // old environment will be closed as soon as nobody is using any values from
+  // it.
+  e_ = Sp<MDB_env>{ne, mdb_env_close};
+
+  // The stage will now apply to the new environment. We don't need to commit
+  // here, although we could if we wanted to.
+
+  A((rc = rename(repack_f.c_str(), f_.c_str())) == 0,
+    "lmdb::repack rename() failed: " << strerror(errno));
+
+  next_rep_ = disk_size() * rep_factor_;
+  isize_ = dsize_ = 0;
+}
+
+
+void lmdb::maybe_commit(bool sync)
 {
   {
     Sl<Smu> l{smu_};
     if (ss_ < mss_) return;
   }
-  commit();
+  commit(sync);
 }
 
 
@@ -267,10 +382,10 @@ Sp<lmdb::rtx_> lmdb::reader() const
 }
 
 
-lmdb::rtx_::rtx_(MDB_env *e)
+lmdb::rtx_::rtx_(Sp<MDB_env> e) : e(e)
 {
   int rc;
-  A((rc = mdb_txn_begin(e, nullptr, MDB_RDONLY, &t)) == MDB_SUCCESS,
+  A((rc = mdb_txn_begin(e.get(), nullptr, MDB_RDONLY, &t)) == MDB_SUCCESS,
     "lmdb::rtx_: mdb_txn_begin failed: " << mdb_strerror(rc));
 }
 
