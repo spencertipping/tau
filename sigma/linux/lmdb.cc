@@ -322,13 +322,17 @@ void lmdb::repack(bool sync)
   A((rc = mdb_env_open(ne, repack_f.c_str(), flags, 0664)) == MDB_SUCCESS,
     "mdb_env_open() failed: " << mdb_strerror(rc));
 
-  // Copy data from this table to other table.
+  // Copy data; to do this, we first need to create the new database.
   MDB_txn *w;
   A((rc = mdb_txn_begin(ne, nullptr, 0, &w)) == MDB_SUCCESS,
     "mdb_txn_begin() failed: " << mdb_strerror(rc));
 
+  MDB_dbi d;
+  A((rc = mdb_dbi_open(w, t_.c_str(), MDB_CREATE, &d)) == MDB_SUCCESS,
+    "mdb_dbi_open() failed: " << mdb_strerror(rc));
+
   MDB_cursor *c;
-  A((rc = mdb_cursor_open(w, d_, &c)) == MDB_SUCCESS,
+  A((rc = mdb_cursor_open(w, d, &c)) == MDB_SUCCESS,
     "mdb_cursor_open() failed: " << mdb_strerror(rc));
 
   MDB_val mk, mv;
@@ -345,6 +349,7 @@ void lmdb::repack(bool sync)
   // old environment will be closed as soon as nobody is using any values from
   // it.
   e_ = Sp<MDB_env>{ne, mdb_env_close};
+  d_ = d;
 
   // The stage will now apply to the new environment. We don't need to commit
   // here, although we could if we wanted to.
