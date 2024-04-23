@@ -88,7 +88,7 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss, f64 rf)
 lmdb::~lmdb()
 {
   commit();
-  mdb_env_close(e_.get());
+  // No need to close env; that's done for us by shared_ptr
 }
 
 
