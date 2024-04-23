@@ -47,7 +47,7 @@ static uN filesize(Stc &f)
 
 
 lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss, f64 rf)
-  : te_(te), f_(f), t_(t), ss_(0), mss_(mss),
+  : te_(te), f_(f), t_(t), maxdbs_(maxdbs), ss_(0), mss_(mss),
     dsize_(0), isize_(0), next_rep_(disk_size() * rf), rep_factor_(rf),
     prof_get_outer_(measurement_for(ηm{} << "lmdb" << f << t << "get_outer")),
     prof_get_inner_(measurement_for(ηm{} << "lmdb" << f << t << "get_inner")),
@@ -311,6 +311,9 @@ void lmdb::repack(bool sync)
   MDB_env *ne;
   A((rc = mdb_env_create(&ne)) == MDB_SUCCESS,
     "lmdb::repack mdb_env_create() failed: " << mdb_strerror(rc));
+
+  A((rc = mdb_env_set_maxdbs(ne, maxdbs_)) == MDB_SUCCESS,
+    "lmdb::repack mdb_env_set_maxdbs() failed: " << mdb_strerror(rc));
 
   A((rc = mdb_env_set_mapsize(ne, ei.me_mapsize)) == MDB_SUCCESS,
     "lmdb::repack mdb_env_set_mapsize() failed: " << mdb_strerror(rc));

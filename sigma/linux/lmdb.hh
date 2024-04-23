@@ -93,6 +93,7 @@ protected:
   τ::Stc           t_;
   Sp<MDB_env>      e_;
   MDB_dbi          d_;
+  τ::uN            maxdbs_;      // saved so we can set it for repack
   mutable τ::Smu   rmu_;         // read transaction mutex
   mutable Sp<rtx_> rt_;          // current read transaction, if any
   mutable τ::Smu   smu_;         // stage mutex (readers/committer share)
