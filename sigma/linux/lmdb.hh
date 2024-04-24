@@ -74,7 +74,7 @@ public:
   //
   // At some point I may try to make v<> handle prefetching by delaying the
   // value constructor, but I'm skeptical that's the best strategy.
-  void  prefetch(ηmc&) const;  // prefetch entry using madvise(MADV_WILLNEED)
+  void prefetch(ηmc&) const;  // prefetch entry using madvise(MADV_WILLNEED)
 
   // Commit stage to DB, sync to disk if requested
   void  commit(bool sync = false);

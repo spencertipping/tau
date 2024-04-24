@@ -47,21 +47,31 @@ static uN filesize(Stc &f)
 
 
 lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss, f64 rf)
-  : te_(te), f_(f), t_(t), maxdbs_(maxdbs), ss_(0), mss_(mss),
-    dsize_(0), isize_(0), next_rep_(disk_size() * rf), rep_factor_(rf),
-    prof_get_outer_(measurement_for(ηm{} << "lmdb" << f << t << "get_outer")),
-    prof_get_inner_(measurement_for(ηm{} << "lmdb" << f << t << "get_inner")),
-    prof_has_outer_(measurement_for(ηm{} << "lmdb" << f << t << "has_outer")),
-    prof_has_inner_(measurement_for(ηm{} << "lmdb" << f << t << "has_inner")),
+  : te_(te),
+    f_(f),
+    t_(t),
+    maxdbs_(maxdbs),
+    ss_(0),
+    mss_(mss),
+    dsize_(0),
+    isize_(0),
+    next_rep_(disk_size() * rf),
+    rep_factor_(rf),
+
+    prof_get_outer_     (measurement_for(ηm{} << "lmdb" << f << t << "get_outer")),
+    prof_get_inner_     (measurement_for(ηm{} << "lmdb" << f << t << "get_inner")),
+    prof_has_outer_     (measurement_for(ηm{} << "lmdb" << f << t << "has_outer")),
+    prof_has_inner_     (measurement_for(ηm{} << "lmdb" << f << t << "has_inner")),
     prof_prefetch_outer_(measurement_for(ηm{} << "lmdb" << f << t << "prefetch_outer")),
     prof_prefetch_inner_(measurement_for(ηm{} << "lmdb" << f << t << "prefetch_inner")),
-    prof_del_staged_(measurement_for(ηm{} << "lmdb" << f << t << "del_staged")),
-    prof_set_staged_(measurement_for(ηm{} << "lmdb" << f << t << "set_staged")),
-    prof_commit_outer_(measurement_for(ηm{} << "lmdb" << f << t << "commit_outer")),
-    prof_commit_write_(measurement_for(ηm{} << "lmdb" << f << t << "commit_write")),
-    prof_reader_(measurement_for(ηm{} << "lmdb" << f << t << "reader")),
-    prof_repack_outer_(measurement_for(ηm{} << "lmdb" << f << t << "repack_outer")),
-    prof_repack_inner_(measurement_for(ηm{} << "lmdb" << f << t << "repack_inner"))
+    prof_del_staged_    (measurement_for(ηm{} << "lmdb" << f << t << "del_staged")),
+    prof_set_staged_    (measurement_for(ηm{} << "lmdb" << f << t << "set_staged")),
+    prof_commit_outer_  (measurement_for(ηm{} << "lmdb" << f << t << "commit_outer")),
+    prof_commit_write_  (measurement_for(ηm{} << "lmdb" << f << t << "commit_write")),
+    prof_reader_        (measurement_for(ηm{} << "lmdb" << f << t << "reader")),
+    prof_repack_outer_  (measurement_for(ηm{} << "lmdb" << f << t << "repack_outer")),
+    prof_repack_inner_  (measurement_for(ηm{} << "lmdb" << f << t << "repack_inner"))
+
 {
   int rc;
 
@@ -107,7 +117,7 @@ lmdb::v<ηi> lmdb::get(ηmc &k) const
   MDB_val mv;
   let rc = mdb_get(r->t, d_, &mk, &mv);
   if (rc == MDB_NOTFOUND) return {};
-  A(rc == MDB_SUCCESS, "mdb_get() failed: " << mdb_strerror(rc));
+  A(rc == MDB_SUCCESS, "lmdb::get mdb_get() failed: " << mdb_strerror(rc));
   return {{(u8c*) mv.mv_data, mv.mv_size}, r, {}};
 }
 
@@ -115,7 +125,7 @@ lmdb::v<ηi> lmdb::get(ηmc &k) const
 bool lmdb::has(ηmc &k) const
 {
   // NOTE: must hold sl through reader() call to guarantee consistent data
-  let t1 = prof_has_outer_.start();
+  let     t1 = prof_has_outer_.start();
   Sl<Smu> sl{smu_};
   if (dstage_.contains(k))                         return false;
   if (let i = istage_.find(k); i != istage_.end()) return true;
@@ -126,7 +136,7 @@ bool lmdb::has(ηmc &k) const
   MDB_val mv;
   let rc = mdb_get(r->t, d_, &mk, &mv);
   if (rc == MDB_NOTFOUND) return false;
-  A(rc == MDB_SUCCESS, "mdb_get() failed: " << mdb_strerror(rc));
+  A(rc == MDB_SUCCESS, "lmdb::has mdb_get() failed: " << mdb_strerror(rc));
   return true;
 }
 
@@ -134,7 +144,7 @@ bool lmdb::has(ηmc &k) const
 void lmdb::del(ηmc &k)
 {
   {
-    let t = prof_del_staged_.start();
+    let     t = prof_del_staged_.start();
     Sl<Smu> cl{cmu_};  // IMPORTANT: cannot modify stage during commit
     Ul<Smu> sl{smu_};
     istage_.erase(k);  // no updates to this key are relevant anymore
@@ -149,7 +159,7 @@ void lmdb::set(ηmc &k, ηm &&v)
 {
   let vp = Sp<ηm>{new ηm{mo(v)}};
   {
-    let t = prof_set_staged_.start();
+    let     t = prof_set_staged_.start();
     Sl<Smu> cl{cmu_};  // IMPORTANT: cannot modify stage during commit
     Ul<Smu> sl{smu_};
     dstage_.erase(k);
@@ -169,7 +179,7 @@ void lmdb::set(ηmc &k, ηic &v)
 void lmdb::prefetch(ηmc &k) const
 {
   // NOTE: must hold sl through reader() call to guarantee consistent data
-  let t1 = prof_prefetch_outer_.start();
+  let     t1 = prof_prefetch_outer_.start();
   Sl<Smu> sl{smu_};
   if (dstage_.contains(k))                         return;
   if (let i = istage_.find(k); i != istage_.end()) return;
@@ -190,32 +200,12 @@ void lmdb::commit(bool sync)
 
   // NOTE: cl locks out all modification operators for the duration of this
   // commit, which is critical because we switch from non-blocking to blocking
-  // when we drop sl below.
+  // when we drop sl in commit_.
   {
     Ul<Smu> cl{cmu_};
     commit_(sync);
   }
   maybe_repack(sync);
-}
-
-
-void lmdb::maybe_repack(bool sync)
-{
-  if (rep_factor_ == 0) return;
-
-  {
-    Sl<Smu> cl{cmu_};
-    if (dsize_ + isize_ < next_rep_) return;
-  }
-  repack(sync);
-}
-
-
-uS lmdb::disk_size() const
-{
-  struct stat st;
-  if (stat(f_.c_str(), &st)) return 16384;  // some default size
-  return st.st_size;
 }
 
 
@@ -239,7 +229,7 @@ void lmdb::commit_(bool sync)
 
     MDB_txn *w;
     int rc = mdb_txn_begin(e_.get(), nullptr, 0, &w);
-    A(rc == MDB_SUCCESS, "mdb_txn_begin() failed: " << mdb_strerror(rc));
+    A(rc == MDB_SUCCESS, "lmdb::commit_ mdb_txn_begin() failed: " << mdb_strerror(rc));
 
     // Deletions come first because they can free space that will be used by
     // insertions.
@@ -249,7 +239,7 @@ void lmdb::commit_(bool sync)
       MDB_val mv;
       if (mdb_get(w, d_, &mk, &mv) == MDB_SUCCESS) dsize_ += mv.mv_size;
       A((rc = mdb_del(w, d_, &mk, nullptr)) == MDB_SUCCESS || rc == MDB_NOTFOUND,
-        "mdb_del() failed: " << mdb_strerror(rc));
+        "lmdb::commit_ mdb_del() failed: " << mdb_strerror(rc));
     }
 
     // Now handle insertions/updates
@@ -262,11 +252,11 @@ void lmdb::commit_(bool sync)
       MDB_val mk = val(k);
       MDB_val mv = val(*v);
       A((rc = mdb_put(w, d_, &mk, &mv, 0)) == MDB_SUCCESS,
-        "mdb_put() failed: " << mdb_strerror(rc));
+        "lmdb::commit_ mdb_put() failed: " << mdb_strerror(rc));
     }
 
     A((rc = mdb_txn_commit(w)) == MDB_SUCCESS,
-      "mdb_txn_commit() failed: " << mdb_strerror(rc));
+      "lmdb::commit_ mdb_txn_commit() failed: " << mdb_strerror(rc));
 
     // NOTE: it's safe to drop sl here because we're protected by cl.
   }
@@ -287,7 +277,15 @@ void lmdb::commit_(bool sync)
 void lmdb::repack(bool sync)
 {
   let t = prof_repack_outer_.start();
+
+  // From this point forward, the stage cannot be modified by anyone else.
+  // Database writers will block until the repack is complete and we have a new
+  // environment.
   Ul<Smu> cl{cmu_};
+
+  // Check to see if a repack is still appropriate. It's possible to have
+  // multiple calls stacked up by this point.
+  if (dsize_ + isize_ < next_rep_) return;
 
   // First clear the stage. This will minimize the amount of data that
   // accumulates as we perform the repack.
@@ -359,6 +357,14 @@ void lmdb::repack(bool sync)
   e_ = Sp<MDB_env>{ne, mdb_env_close};
   d_ = d;
 
+  // Drop the current read transaction so we'll be reading from the new DB. This
+  // is an optimization; we want to hand out references to new-env as soon as
+  // possible so the old one can be closed and reclaimed on disk.
+  {
+    Ul<Smu> rl{rmu_};
+    rt_ = {};
+  }
+
   // The stage will now apply to the new environment. We don't need to commit
   // here, although we could if we wanted to.
 
@@ -370,6 +376,14 @@ void lmdb::repack(bool sync)
 }
 
 
+uS lmdb::disk_size() const
+{
+  struct stat st;
+  if (stat(f_.c_str(), &st)) return 16384;  // some default size
+  return st.st_size;
+}
+
+
 void lmdb::maybe_commit(bool sync)
 {
   {
@@ -377,6 +391,18 @@ void lmdb::maybe_commit(bool sync)
     if (ss_ < mss_) return;
   }
   commit(sync);
+}
+
+
+void lmdb::maybe_repack(bool sync)
+{
+  if (rep_factor_ == 0) return;
+
+  {
+    Sl<Smu> cl{cmu_};
+    if (dsize_ + isize_ < next_rep_) return;
+  }
+  repack(sync);
 }
 
 
