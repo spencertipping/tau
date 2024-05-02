@@ -41,7 +41,7 @@ public:
     v &operator=(v const&) = default;
     v &operator=(v&&)      = default;
 
-    Tx auto map(X const &f) -> decltype(f(x)) { return v{f(x), *this}; }
+    Tx auto map(X const &f) -> v<decltype(f(x))> { return v{f(x), *this}; }
 
   protected:
     // Only one of the two values below will be populated; it depends on where
