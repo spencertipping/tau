@@ -15,10 +15,7 @@ if [[ -f .git ]]; then
   cd `ni .git p'/(\S+)\/.git/'`
 fi
 
-points=( rorbot.35:tau/
-         reichenbach.35:tau/
-         rorbot.35:/mnt/v1/st/tau/
-         orange.35:tau/
+points=( orange.35:tau/
          joyce@iya.35:.spencer/tau/
          ubuntu@dev.spencertipping.com:tau/ )
 
