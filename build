@@ -57,6 +57,17 @@ install_deps()
 }
 
 
+install_server_deps()
+{
+  sudo apt update
+  sudo apt install -y \
+       docker.io build-essential \
+       libboost-context-dev libboost-stacktrace-dev libzstd-dev libsqlite3-dev \
+       liblmdb-dev \
+       clang
+}
+
+
 todos()
 {
   ag '^[^#\n].*TODO' doc tau sigma
@@ -77,10 +88,11 @@ run()
 cmd=$1
 shift
 case $cmd in
-  sloop) sloop "$@" ;;
-  sync)  sync "$@" ;;
-  pull)  pull "$@" ;;
-  deps)  install_deps "$@" ;;
-  todo*) todos "$@" ;;
-  *)     run $cmd "$@" ;;
+  sloop)      sloop "$@" ;;
+  sync)       sync "$@" ;;
+  pull)       pull "$@" ;;
+  deps)       install_deps "$@" ;;
+  serverdeps) install_server_deps "$@" ;;
+  todo*)      todos "$@" ;;
+  *)          run $cmd "$@" ;;
 esac
