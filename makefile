@@ -150,7 +150,7 @@ t: fast
 top: fast wasm
 	./test
 
-all: server sfast sprof sdebug linux fast wasm debug clang wdebug
+all: $(targets)
 	./test
 
 bench: linux-bench wasm-bench
@@ -199,7 +199,7 @@ bin:
 	         bin/sfast  bin/sfast-bin \
 	         bin/sprof  bin/sprof-bin \
 	         bin/sdebug bin/sdebug-bin \
-		 bin/linux  bin/linux-bin \
+	         bin/linux  bin/linux-bin \
 	         bin/fast   bin/fast-bin \
 	         bin/clang  bin/clang-bin \
 	         bin/debug  bin/debug-bin \
@@ -242,11 +242,8 @@ wdebug-clean:
 	rm -f bin/wdebug*/*
 
 
-# Header file tracing
-header-deps: server-header-deps sfast-header-deps sprof-header-deps sdebug-header-deps \
-             linux-header-deps fast-header-deps clang-header-deps \
-             debug-header-deps \
-             wasm-header-deps wdebug-header-deps
+# Header file tracing: -header-deps appended to each target
+header-deps: $(foreach x, $(targets), $x-header-deps)
 
 
 define hdeps
