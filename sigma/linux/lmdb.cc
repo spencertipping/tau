@@ -1,3 +1,4 @@
+#include <lmdb.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
@@ -68,6 +69,7 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss, f64 rf)
     prof_set_staged_    (measurement_for(ηm{} << "lmdb" << f << t << "set_staged")),
     prof_commit_outer_  (measurement_for(ηm{} << "lmdb" << f << t << "commit_outer")),
     prof_commit_write_  (measurement_for(ηm{} << "lmdb" << f << t << "commit_write")),
+    prof_commit_clear_  (measurement_for(ηm{} << "lmdb" << f << t << "commit_clear")),
     prof_reader_        (measurement_for(ηm{} << "lmdb" << f << t << "reader")),
     prof_repack_outer_  (measurement_for(ηm{} << "lmdb" << f << t << "repack_outer")),
     prof_repack_inner_  (measurement_for(ηm{} << "lmdb" << f << t << "repack_inner"))
@@ -81,7 +83,7 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss, f64 rf)
   A((rc = mdb_env_create(&e))            == MDB_SUCCESS, "mdb_env_create() failed: "      << mdb_strerror(rc));
   A((rc = mdb_env_set_maxdbs(e, maxdbs)) == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: "  << mdb_strerror(rc));
   A((rc = mdb_env_set_mapsize(e, m))     == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
-  A((rc = mdb_env_open(e, f.c_str(), MDB_NOSUBDIR | MDB_NOSYNC | MDB_NOMETASYNC | MDB_NORDAHEAD | MDB_NOTLS, 0664)) == MDB_SUCCESS,
+  A((rc = mdb_env_open(e, f.c_str(), MDB_NOSUBDIR | MDB_NORDAHEAD | MDB_NOTLS, 0664)) == MDB_SUCCESS,
     "mdb_env_open(" << f << ") failed: " << mdb_strerror(rc));
 
   MDB_txn *dbi_t;
@@ -228,7 +230,23 @@ void lmdb::commit_(bool sync)
     Sl<Smu> sl{smu_};
 
     MDB_txn *w;
-    int rc = mdb_txn_begin(e_.get(), nullptr, 0, &w);
+    int      rc;
+    goto start;
+
+  upsize:
+    mdb_txn_abort(w);
+
+    MDB_envinfo ei;
+    A((rc = mdb_env_info       (e_.get(), &ei))                == MDB_SUCCESS,
+      "lmdb::commit_ mdb_env_info() failed: " << mdb_strerror(rc));
+    A((rc = mdb_env_set_mapsize(e_.get(),  ei.me_mapsize * 2)) == MDB_SUCCESS,
+      "lmdb::commit_ mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
+
+  start:
+    uN isize = 0;  // change in isize_ for this commit
+    uN dsize = 0;  // change in dsize_ for this commit
+
+    rc = mdb_txn_begin(e_.get(), nullptr, 0, &w);
     A(rc == MDB_SUCCESS, "lmdb::commit_ mdb_txn_begin() failed: " << mdb_strerror(rc));
 
     // Deletions come first because they can free space that will be used by
@@ -237,8 +255,10 @@ void lmdb::commit_(bool sync)
     {
       MDB_val mk = val(k);
       MDB_val mv;
-      if (mdb_get(w, d_, &mk, &mv) == MDB_SUCCESS) dsize_ += mv.mv_size;
-      A((rc = mdb_del(w, d_, &mk, nullptr)) == MDB_SUCCESS || rc == MDB_NOTFOUND,
+      if (mdb_get(w, d_, &mk, &mv) == MDB_SUCCESS) dsize += mv.mv_size;
+      rc = mdb_del(w, d_, &mk, nullptr);
+      if (rc == MDB_MAP_FULL) goto upsize;
+      A(rc == MDB_SUCCESS || rc == MDB_NOTFOUND,
         "lmdb::commit_ mdb_del() failed: " << mdb_strerror(rc));
     }
 
@@ -247,16 +267,23 @@ void lmdb::commit_(bool sync)
     {
       // Assume we're allocating new space for every written value, since a
       // reader might refer to any value we have.
-      isize_ += v->lsize();
+      isize += v->lsize();
 
       MDB_val mk = val(k);
       MDB_val mv = val(*v);
-      A((rc = mdb_put(w, d_, &mk, &mv, 0)) == MDB_SUCCESS,
-        "lmdb::commit_ mdb_put() failed: " << mdb_strerror(rc));
+      rc = mdb_put(w, d_, &mk, &mv, 0);
+      if (rc == MDB_MAP_FULL) goto upsize;
+      A(rc == MDB_SUCCESS, "lmdb::commit_ mdb_put() failed: " << mdb_strerror(rc));
     }
 
-    A((rc = mdb_txn_commit(w)) == MDB_SUCCESS,
-      "lmdb::commit_ mdb_txn_commit() failed: " << mdb_strerror(rc));
+    rc = mdb_txn_commit(w);
+    if (rc == MDB_MAP_FULL) goto upsize;
+    A(rc == MDB_SUCCESS, "lmdb::commit_ mdb_txn_commit() failed: " << mdb_strerror(rc));
+
+    // NOTE: indirect because we may retry the commit after resizing the map,
+    // and we don't want to double-count insertions or deletions
+    isize_ += isize;
+    dsize_ += dsize;
 
     // NOTE: it's safe to drop sl here because we're protected by cl.
   }
@@ -265,6 +292,7 @@ void lmdb::commit_(bool sync)
     // Block readers while we delete the stage and erase the current read
     // transaction, causing any future reads to pull the value from LMDB instead
     // of the stage.
+    let t = prof_commit_clear_.start();
     Ul<Smu> sl{smu_};
     Ul<Smu> rl{rmu_};
     dstage_.clear();
@@ -368,7 +396,7 @@ void lmdb::repack(bool sync)
   // The stage will now apply to the new environment. We don't need to commit
   // here, although we could if we wanted to.
 
-  A((rc = rename(repack_f.c_str(), f_.c_str())) == 0,
+  A(rename(repack_f.c_str(), f_.c_str()) == 0,
     "lmdb::repack rename() failed: " << strerror(errno));
 
   next_rep_ = disk_size() * rep_factor_;

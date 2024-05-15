@@ -52,7 +52,7 @@ public:
 
 
   lmdb(τe &te, τ::Stc &f, τ::Stc &t,
-       τ::uN mapsize = 1ull << 40,    // 1TiB by default
+       τ::uN mapsize = 1ull << 30,    // 1GiB by default
        τ::uN maxdbs  = 64,
        τ::uN mss     = 64ull << 20,   // 64MB max staged data
        τ::f64 rf     = 4.0);          // repack at 4x disk size
@@ -79,9 +79,9 @@ public:
   // Commit stage to DB, sync to disk if requested
   void  commit(bool sync = false);
   void  repack(bool sync = false);
-  τ::uS disk_size() const;  // size of DB on disk
+  τ::uS disk_size()  const;  // size of DB on disk
 
-  Sp<MDB_env> env() const { return e_; }
+  Sp<MDB_env> env()  const { return e_; }
 
   τ::Stc &filename() const { return f_; }
   τ::Stc &table()    const { return t_; }
@@ -118,6 +118,7 @@ protected:
     &prof_set_staged_,
     &prof_commit_outer_,
     &prof_commit_write_,
+    &prof_commit_clear_,
     &prof_reader_,
     &prof_repack_outer_,
     &prof_repack_inner_;
