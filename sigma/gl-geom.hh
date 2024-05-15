@@ -1,6 +1,8 @@
 #ifndef σgl_geom_h
 #define σgl_geom_h
 
+#if τgl
+
 #include <GLES2/gl2.h>
 
 #include "../sigma-pre.hh"
@@ -255,5 +257,7 @@ struct mat4 final
 }
 
 #include "end.hh"
+
+#endif  // #if τgl
 
 #endif
