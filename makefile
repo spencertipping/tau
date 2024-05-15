@@ -1,3 +1,13 @@
+server_targets = server sfast sprof sdebug
+gl_targets     = linux fast clang debug
+wasm_targets   = wasm wdebug
+
+# NOTE: GL targets disabled for now because they require a bunch of X11
+# libraries that are sometimes awkward to install -- also, we don't have much GL
+# support yet
+targets = $(server_targets) $(wasm_targets)
+
+
 cc_server = g++
 cc_sfast  = g++
 cc_sprof  = g++
@@ -131,7 +141,7 @@ bin/$1-bin/%.o: try/$1/%.cc bin/$1-bin/%.d | bin
 endef
 
 
-$(foreach x, server sfast sprof sdebug linux fast clang debug wasm wdebug, $(eval $(call target,$(x))))
+$(foreach x, $(targets), $(eval $(call target,$(x))))
 
 
 t: fast
@@ -236,7 +246,7 @@ wdebug-clean:
 header-deps: server-header-deps sfast-header-deps sprof-header-deps sdebug-header-deps \
              linux-header-deps fast-header-deps clang-header-deps \
              debug-header-deps \
-	     wasm-header-deps wdebug-header-deps
+             wasm-header-deps wdebug-header-deps
 
 
 define hdeps
@@ -262,4 +272,4 @@ bin/$1-bin/%.d: try/$1/%.cc | bin
 endef
 
 
-$(foreach x, server sfast sprof sdebug linux fast clang debug wasm wdebug, $(eval $(call hdeps,$(x))))
+$(foreach x, $(targets), $(eval $(call hdeps,$(x))))
