@@ -220,6 +220,8 @@ Txs fn(Xs...) -> fn<Xs...>;
 
 
 typedef std::chrono::seconds            ΔΘs;
+typedef std::chrono::milliseconds       ΔΘm;
+typedef std::chrono::nanoseconds        ΔΘn;
 typedef std::chrono::nanoseconds        ΔΘ;
 
 typedef std::chrono::steady_clock       Θc;
@@ -237,14 +239,29 @@ inline auto epoch_seconds()
   return Duc<ΔΘs>(ΘC::now().time_since_epoch()).count();
 }
 
+inline auto epoch_millis()
+{
+  return Duc<ΔΘm>(ΘC::now().time_since_epoch()).count();
+}
+
+inline auto epoch_nanos()
+{
+  return Duc<ΔΘn>(ΘC::now().time_since_epoch()).count();
+}
+
 inline auto seconds(ΘP t)
 {
   return Duc<ΔΘs>(t.time_since_epoch()).count();
 }
 
+inline auto millis(ΘP t)
+{
+  return Duc<ΔΘm>(t.time_since_epoch()).count();
+}
+
 inline auto nanos(ΘP t)
 {
-  return t.time_since_epoch().count();
+  return Duc<ΔΘn>(t.time_since_epoch()).count();
 }
 
 // Definition of time quantum
