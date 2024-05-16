@@ -83,7 +83,7 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss, f64 rf)
   A((rc = mdb_env_create(&e))            == MDB_SUCCESS, "mdb_env_create() failed: "      << mdb_strerror(rc));
   A((rc = mdb_env_set_maxdbs(e, maxdbs)) == MDB_SUCCESS, "mdb_env_set_maxdbs() failed: "  << mdb_strerror(rc));
   A((rc = mdb_env_set_mapsize(e, m))     == MDB_SUCCESS, "mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
-  A((rc = mdb_env_open(e, f.c_str(), MDB_NOSUBDIR | MDB_NORDAHEAD | MDB_NOTLS, 0664)) == MDB_SUCCESS,
+  A((rc = mdb_env_open(e, f.c_str(), MDB_NOSYNC | MDB_NOSUBDIR | MDB_NORDAHEAD | MDB_NOTLS, 0664)) == MDB_SUCCESS,
     "mdb_env_open(" << f << ") failed: " << mdb_strerror(rc));
 
   MDB_txn *dbi_t;
