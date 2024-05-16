@@ -20,6 +20,7 @@ struct timer final
   timer(measurement &m) : m_{&m}, start_{τ::now()} {}
   ~timer() { stop(); }
 
+  τ::ΔΘ elapsed() const { return τ::now() - start_; }
   τ::ΔΘ stop();
 
 protected:
