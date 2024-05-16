@@ -53,6 +53,7 @@ typedef ΣΘΔ_<Σ0>  ΘΔ;
 
 O &operator<<(O &s, ΔΘ const &t);
 O &operator<<(O &s, Θp const &p);
+O &operator<<(O &s, ΘP const &p);
 O &operator<<(O &s, ΣΘΔ const &w);
 O &operator<<(O &s, ΘΔ const &w);
 

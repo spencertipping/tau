@@ -16,14 +16,22 @@ O &operator<<(O &s, ΔΘ const &t)
   else if (a <= 1h)      return s << t / 1s    << "s";
   else if (a <= 10h)     return s << t / 1min  << "m";
   else if (a <= 168h)    return s << t / 1h    << "h";
-  else if (a <= 24h*730) return s << duration_cast<days>(t).count() << "d";
-  else                   return s << duration_cast<years>(t).count() << "y";
+  else if (a <= 24h*140) return s << Duc<days>(t).count()  << "d";
+  else if (a <= 24h*730) return s << Duc<weeks>(t).count() << "w";
+  else                   return s << Duc<years>(t).count() << "y";
   return s;
 }
 
 O &operator<<(O &s, Θp const &p)
 {
-  return s << "t+" << p - now();
+  let dt = p - Θc::now();
+  return s << (dt.count() < 0 ? "t-" : "t+") << abs(dt);
+}
+
+O &operator<<(O &s, ΘP const &p)
+{
+  let dt = p - ΘC::now();
+  return s << (dt.count() < 0 ? "T-" : "T+") << abs(dt);
 }
 
 O &operator<<(O &s, ΣΘΔ const &w)

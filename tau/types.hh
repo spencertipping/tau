@@ -219,22 +219,30 @@ Txs struct fn : Xs... { using Xs::operator()...; };
 Txs fn(Xs...) -> fn<Xs...>;
 
 
-typedef std::chrono::steady_clock       Θc;
+typedef std::chrono::seconds            ΔΘs;
 typedef std::chrono::nanoseconds        ΔΘ;
+
+typedef std::chrono::steady_clock       Θc;
+typedef std::chrono::system_clock       ΘC;
 typedef std::chrono::time_point<Θc, ΔΘ> Θp;
+typedef std::chrono::time_point<ΘC, ΔΘ> ΘP;
+
+inline auto anchor(Θp t)
+{
+  return ΘC::now() + (t - Θc::now());
+}
 
 inline auto epoch_seconds()
 {
-  return std::chrono::duration_cast<std::chrono::seconds>(
-    Θc::now().time_since_epoch()).count();
+  return Duc<ΔΘs>(ΘC::now().time_since_epoch()).count();
 }
 
-inline auto seconds(Θp t)
+inline auto seconds(ΘP t)
 {
-  return std::chrono::duration_cast<std::chrono::seconds>(t.time_since_epoch()).count();
+  return Duc<ΔΘs>(t.time_since_epoch()).count();
 }
 
-inline auto nanos(Θp t)
+inline auto nanos(ΘP t)
 {
   return t.time_since_epoch().count();
 }

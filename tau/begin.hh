@@ -41,9 +41,11 @@
 #define ic inline constexpr
 #define sc static constexpr
 
-#define Sc static_cast
-#define Rc reinterpret_cast
-#define Cc const_cast
+#define Sc  static_cast
+#define Rc  reinterpret_cast
+#define Cc  const_cast
+#define Dc  dynamic_cast
+#define Duc std::chrono::duration_cast
 
 #define Tn   template<>
 #define Tt   template<class T>

@@ -18,6 +18,8 @@
 #undef Sc
 #undef Rc
 #undef Cc
+#undef Dc
+#undef Duc
 
 #undef Tn
 #undef Tt

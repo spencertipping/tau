@@ -33,7 +33,7 @@ struct Σι_
     { let t = total();
       if (!t) return 0;
       F c  = 0;
-      F tc = static_cast<F>(t * p);
+      F tc = Sc<F>(t * p);
       for (uN i = 0; i < N; ++i)
         if ((c += n[i]) > tc)
           return i;
