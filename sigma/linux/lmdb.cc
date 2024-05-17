@@ -229,12 +229,13 @@ void lmdb::commit_(bool sync)
     let t = prof_commit_write_->start();
     Sl<Smu> sl{smu_};
 
-    MDB_txn *w;
+    MDB_txn *w = nullptr;
     int      rc;
     goto start;
 
   upsize:
-    mdb_txn_abort(w);
+    if (w) mdb_txn_abort(w);
+    w = nullptr;
 
     MDB_envinfo ei;
     A((rc = mdb_env_info       (e_.get(), &ei))                == MDB_SUCCESS,
@@ -276,7 +277,7 @@ void lmdb::commit_(bool sync)
       A(rc == MDB_SUCCESS, "lmdb::commit_ mdb_put() failed: " << mdb_strerror(rc));
     }
 
-    rc = mdb_txn_commit(w);
+    rc = mdb_txn_commit(w); w = nullptr;
     if (rc == MDB_MAP_FULL) goto upsize;
     A(rc == MDB_SUCCESS, "lmdb::commit_ mdb_txn_commit() failed: " << mdb_strerror(rc));
 
