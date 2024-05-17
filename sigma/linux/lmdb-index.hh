@@ -181,25 +181,26 @@ protected:
   iN              lvs_;   // literal value size limit (bytes)
   τ::h256         nk_;    // seed for genkey()
 
-  measurement &prof_add_,
-    &prof_del_,
-    &prof_get_,
-    &prof_commit_,
-    &prof_commit_key_,
-    &prof_ss_,
-    &prof_balance_,
-    &prof_touch_,
-    &prof_stage_add_,
-    &prof_stage_del_,
-    &prof_unstage_add_,
-    &prof_unstage_del_,
-    &prof_kv_indirects_,
-    &prof_kv_ind_asc_,
-    &prof_new_indirect_,
-    &prof_make_indirect_,
-    &prof_add_kv_literal_,
-    &prof_add_kv_indirect_,
-    &prof_genkey_;
+  τ::Sp<measurement>
+    prof_add_,
+    prof_del_,
+    prof_get_,
+    prof_commit_,
+    prof_commit_key_,
+    prof_ss_,
+    prof_balance_,
+    prof_touch_,
+    prof_stage_add_,
+    prof_stage_del_,
+    prof_unstage_add_,
+    prof_unstage_del_,
+    prof_kv_indirects_,
+    prof_kv_ind_asc_,
+    prof_new_indirect_,
+    prof_make_indirect_,
+    prof_add_kv_literal_,
+    prof_add_kv_indirect_,
+    prof_genkey_;
 };
 
 

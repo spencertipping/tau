@@ -27,8 +27,8 @@ void Γprof(Γφ &g)
         V<ηm> ks;
         for (let &[k, v] : m) ks.push_back(k);
         std::sort(ks.begin(), ks.end(),
-          [&](ηmc &a, ηmc &b)
-          { return m[a]->real() < m[b]->real(); });
+                  [&](ηmc &a, ηmc &b)
+                  { return m[a]->real() < m[b]->real(); });
 
         for (let &k : ks)
         {
@@ -55,18 +55,18 @@ void Γprof(Γφ &g)
 }
 
 
-measurement &measurement_for(ηmc &k)
+Sp<measurement> measurement_for(ηmc &k)
 {
   Ul<Mu> l{measurements_mu_};
   let i = measurements_.find(k);
-  if (i != measurements_.end()) return *i->second;
+  if (i != measurements_.end()) return i->second;
 
-  let m = new measurement;
-  measurements_[k] = Sp<measurement>{m};
-  return *m;
+  let m = measurements_[k] = Sp<measurement>{new measurement};
+  m->self_ = m;
+  return m;
 }
 
-measurement &measurement_for(Stc &k)
+Sp<measurement> measurement_for(Stc &k)
 {
   return measurement_for(ηm{} << k);
 }
@@ -79,8 +79,8 @@ M<ηm, Sp<measurement>> measurements()
 }
 
 
-timer prof(ηmc &k) { return measurement_for(k).start(); }
-timer prof(Stc &k) { return measurement_for(k).start(); }
+timer prof(ηmc &k) { return measurement_for(k)->start(); }
+timer prof(Stc &k) { return measurement_for(k)->start(); }
 
 
 ΔΘ timer::stop()
@@ -100,7 +100,7 @@ timer measurement::start()
     down_ += now() - last_;
     since_ = now();
   }
-  return {*this};
+  return {self_.lock()};
 }
 
 

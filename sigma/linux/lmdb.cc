@@ -107,13 +107,13 @@ lmdb::~lmdb()
 lmdb::v<ηi> lmdb::get(ηmc &k) const
 {
   // NOTE: must hold sl through reader() call to guarantee consistent data
-  let     t1 = prof_get_outer_.start();
+  let     t1 = prof_get_outer_->start();
   Sl<Smu> sl{smu_};
   if (dstage_.contains(k)) return {};
   if (let i = istage_.find(k); i != istage_.end())
     return {*i->second, {}, i->second};
 
-  let     t2 = prof_get_inner_.start();
+  let     t2 = prof_get_inner_->start();
   let     r  = reader();
   MDB_val mk = val(k);
   MDB_val mv;
@@ -127,12 +127,12 @@ lmdb::v<ηi> lmdb::get(ηmc &k) const
 bool lmdb::has(ηmc &k) const
 {
   // NOTE: must hold sl through reader() call to guarantee consistent data
-  let     t1 = prof_has_outer_.start();
+  let     t1 = prof_has_outer_->start();
   Sl<Smu> sl{smu_};
   if (dstage_.contains(k))                         return false;
   if (let i = istage_.find(k); i != istage_.end()) return true;
 
-  let     t2 = prof_has_inner_.start();
+  let     t2 = prof_has_inner_->start();
   let     r  = reader();
   MDB_val mk = val(k);
   MDB_val mv;
@@ -146,7 +146,7 @@ bool lmdb::has(ηmc &k) const
 void lmdb::del(ηmc &k)
 {
   {
-    let     t = prof_del_staged_.start();
+    let     t = prof_del_staged_->start();
     Sl<Smu> cl{cmu_};  // IMPORTANT: cannot modify stage during commit
     Ul<Smu> sl{smu_};
     istage_.erase(k);  // no updates to this key are relevant anymore
@@ -161,7 +161,7 @@ void lmdb::set(ηmc &k, ηm &&v)
 {
   let vp = Sp<ηm>{new ηm{mo(v)}};
   {
-    let     t = prof_set_staged_.start();
+    let     t = prof_set_staged_->start();
     Sl<Smu> cl{cmu_};  // IMPORTANT: cannot modify stage during commit
     Ul<Smu> sl{smu_};
     dstage_.erase(k);
@@ -181,12 +181,12 @@ void lmdb::set(ηmc &k, ηic &v)
 void lmdb::prefetch(ηmc &k) const
 {
   // NOTE: must hold sl through reader() call to guarantee consistent data
-  let     t1 = prof_prefetch_outer_.start();
+  let     t1 = prof_prefetch_outer_->start();
   Sl<Smu> sl{smu_};
   if (dstage_.contains(k))                         return;
   if (let i = istage_.find(k); i != istage_.end()) return;
 
-  let     t2 = prof_prefetch_inner_.start();
+  let     t2 = prof_prefetch_inner_->start();
   let     r  = reader();
   MDB_val mk = val(k);
   MDB_val mv;
@@ -198,7 +198,7 @@ void lmdb::prefetch(ηmc &k) const
 
 void lmdb::commit(bool sync)
 {
-  let t = prof_commit_outer_.start();
+  let t = prof_commit_outer_->start();
 
   // NOTE: cl locks out all modification operators for the duration of this
   // commit, which is critical because we switch from non-blocking to blocking
@@ -226,7 +226,7 @@ void lmdb::commit_(bool sync)
   }
 
   {
-    let t = prof_commit_write_.start();
+    let t = prof_commit_write_->start();
     Sl<Smu> sl{smu_};
 
     MDB_txn *w;
@@ -292,7 +292,7 @@ void lmdb::commit_(bool sync)
     // Block readers while we delete the stage and erase the current read
     // transaction, causing any future reads to pull the value from LMDB instead
     // of the stage.
-    let t = prof_commit_clear_.start();
+    let t = prof_commit_clear_->start();
     Ul<Smu> sl{smu_};
     Ul<Smu> rl{rmu_};
     dstage_.clear();
@@ -304,7 +304,7 @@ void lmdb::commit_(bool sync)
 
 void lmdb::repack(bool sync)
 {
-  let t = prof_repack_outer_.start();
+  let t = prof_repack_outer_->start();
 
   // From this point forward, the stage cannot be modified by anyone else.
   // Database writers will block until the repack is complete and we have a new
@@ -319,7 +319,7 @@ void lmdb::repack(bool sync)
   // accumulates as we perform the repack.
   commit_(sync);
 
-  let t1 = prof_repack_inner_.start();
+  let t1 = prof_repack_inner_->start();
   let repack_f = f_ + ".repack";
 
   // Open a new environment and copy data over to it. This will replace the
@@ -436,7 +436,7 @@ void lmdb::maybe_repack(bool sync)
 
 Sp<lmdb::rtx_> lmdb::reader() const
 {
-  let t = prof_reader_.start();
+  let t = prof_reader_->start();
 
   // NOTE: this function is always called from a context with a shared stage
   // lock (which matters due to its potential interaction with commit())

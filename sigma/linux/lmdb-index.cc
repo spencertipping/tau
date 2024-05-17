@@ -9,14 +9,14 @@ using namespace τ;
 
 void lmdb_index::add(key &k, ηic &v)
 {
-  let t = prof_add_.start();
+  let t = prof_add_->start();
   Ul<Smu> l(lock_);
   stage_add(k, v);
 }
 
 void lmdb_index::del(key &k, ηic &v)
 {
-  let t = prof_del_.start();
+  let t = prof_del_->start();
   Ul<Smu> l(lock_);
   if (v.empty()) del_all(k);
   else           stage_del(k, v);
@@ -24,7 +24,7 @@ void lmdb_index::del(key &k, ηic &v)
 
 ηm lmdb_index::get(key &k, uN limit) const
 {
-  let t = prof_get_.start();
+  let t = prof_get_->start();
   Sl<Smu> l(lock_);
   auto i = ss(k);
   ηm r;
@@ -47,7 +47,7 @@ void lmdb_index::commit(key &k)
 
 ηsstream lmdb_index::ss(key &k) const
 {
-  let t = prof_ss_.start();
+  let t = prof_ss_->start();
   Sl<Smu> l(lock_);
   return (ss_kv(k) | ss_add_stage(k)) - ss_del_stage(k);
 }
@@ -55,7 +55,7 @@ void lmdb_index::commit(key &k)
 
 void lmdb_index::balance(key &k)
 {
-  let t = prof_balance_.start();
+  let t = prof_balance_->start();
   if (!kv_has(k) || !kv_ilen(k)) return;
 
   let iks = kv_ind_asc(k);
@@ -87,7 +87,7 @@ void lmdb_index::balance(key &k)
 
 void lmdb_index::touch()
 {
-  let t = prof_touch_.start();
+  let t = prof_touch_->start();
 
   // Not sophisticated, but it should basically work
   if (ss_ >= svo_ || iN(add_.size()) >= sko_ || iN(del_.size()) >= sko_)
@@ -96,7 +96,7 @@ void lmdb_index::touch()
 
 void lmdb_index::commit_()
 {
-  let t = prof_commit_.start();
+  let t = prof_commit_->start();
 
   // Invariant: elements from add_ and del_ are disjoint, but keys might not be.
   S<ηm> ks;
@@ -109,7 +109,7 @@ void lmdb_index::commit_()
 
 void lmdb_index::commit_(key &k)
 {
-  let t = prof_commit_key_.start();
+  let t = prof_commit_key_->start();
 
   // Add staged values first, then delete; this way we get the rebalancing
   // in as necessary.
@@ -132,7 +132,7 @@ void lmdb_index::commit_(key &k)
 
 void lmdb_index::stage_add(key &k, ηic &v)
 {
-  let t = prof_stage_add_.start();
+  let t = prof_stage_add_->start();
   if (add_[k].insert(v).second) ss_ += v.lsize();
   unstage_del(k, v);
   touch();
@@ -140,7 +140,7 @@ void lmdb_index::stage_add(key &k, ηic &v)
 
 void lmdb_index::stage_add(key &k, ηm &&v)
 {
-  let t = prof_stage_add_.start();
+  let t = prof_stage_add_->start();
   if (add_[k].insert(mo(v)).second) ss_ += v.lsize();
   unstage_del(k, v);
   touch();
@@ -148,7 +148,7 @@ void lmdb_index::stage_add(key &k, ηm &&v)
 
 void lmdb_index::stage_del(key &k, ηic &v)
 {
-  let t = prof_stage_del_.start();
+  let t = prof_stage_del_->start();
   if (del_[k].insert(v).second) ss_ += v.lsize();
   unstage_add(k, v);
   touch();
@@ -156,7 +156,7 @@ void lmdb_index::stage_del(key &k, ηic &v)
 
 void lmdb_index::stage_del(key &k, ηm &&v)
 {
-  let t = prof_stage_del_.start();
+  let t = prof_stage_del_->start();
   if (del_[k].insert(mo(v)).second) ss_ += v.lsize();
   unstage_add(k, v);
   touch();
@@ -164,7 +164,7 @@ void lmdb_index::stage_del(key &k, ηm &&v)
 
 void lmdb_index::unstage_add(key &k, ηic &v)
 {
-  let t = prof_unstage_add_.start();
+  let t = prof_unstage_add_->start();
   let i = add_.find(k);
   if (i != add_.end())
   {
@@ -175,7 +175,7 @@ void lmdb_index::unstage_add(key &k, ηic &v)
 
 void lmdb_index::unstage_del(key &k, ηic &v)
 {
-  let t = prof_unstage_del_.start();
+  let t = prof_unstage_del_->start();
   let i = del_.find(k);
   if (i != del_.end())
   {
@@ -245,7 +245,7 @@ uN lmdb_index::kv_ilen(key &k) const
 
 V<ηm> lmdb_index::kv_indirects(key &k) const
 {
-  let t = prof_kv_indirects_.start();
+  let t = prof_kv_indirects_->start();
   A(kv_ilen(k), "kv_ind_asc on non-indirect " << k);
   V<ηm> r; r.reserve(kv_ilen(k));
   let v = db_.get(lkey(k));
@@ -255,7 +255,7 @@ V<ηm> lmdb_index::kv_indirects(key &k) const
 
 So<ηm> lmdb_index::kv_ind_asc(key &k) const
 {
-  let t = prof_kv_ind_asc_.start();
+  let t = prof_kv_ind_asc_->start();
   A(kv_ilen(k), "kv_ind_asc on non-indirect " << k);
   So<ηm> r;
   let v = db_.get(lkey(k));
@@ -266,7 +266,7 @@ So<ηm> lmdb_index::kv_ind_asc(key &k) const
 
 ηm lmdb_index::new_indirect(stage const &v)
 {
-  let t = prof_new_indirect_.start();
+  let t = prof_new_indirect_->start();
   uN s = 0;           for (let &x : v) s += x.lsize();
   ηm m; m.reserve(s); for (let &x : v) m << x.all();
   return new_indirect(m);
@@ -281,7 +281,7 @@ So<ηm> lmdb_index::kv_ind_asc(key &k) const
 
 void lmdb_index::make_indirect(key &k)
 {
-  let t  = prof_make_indirect_.start();
+  let t  = prof_make_indirect_->start();
   let ik = genkey();
   let v  = ηm{db_.get(lkey(k)).x.next()};
   let n  = v.y().len();
@@ -292,7 +292,7 @@ void lmdb_index::make_indirect(key &k)
 
 void lmdb_index::add_kv_literal(key &k, stage const &v)
 {
-  let t = prof_add_kv_literal_.start();
+  let t = prof_add_kv_literal_->start();
   A(!db_.has(lkey(k)), "add_kv_literal on existing key " << k);
   uN s = 0;                       for (let &x : v) s += x.lsize();
   ηm m; m.reserve(s + 2); m << 0; for (let &x : v) m << x.all();
@@ -301,7 +301,7 @@ void lmdb_index::add_kv_literal(key &k, stage const &v)
 
 void lmdb_index::add_kv_indirect(key &k, stage const &v)
 {
-  let  t  = prof_add_kv_indirect_.start();
+  let  t  = prof_add_kv_indirect_->start();
   let  ik = new_indirect(v);
   auto ks = kv_ind_asc(k); ks.insert(ηm{} << i64(v.size()) << ik.all());
   ηm   lv;
@@ -341,7 +341,7 @@ void lmdb_index::del_all(key &k)
 
 ηm lmdb_index::genkey()
 {
-  let t = prof_genkey_.start();
+  let t = prof_genkey_->start();
   ++*(i64*)(nk_.data());
   while (db_.has(ikey(ηm{} << nk_)))
   {

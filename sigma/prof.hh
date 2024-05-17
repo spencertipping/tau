@@ -17,15 +17,15 @@ struct measurement;
 
 struct timer final
 {
-  timer(measurement &m) : m_{&m}, start_{τ::now()} {}
+  timer(τ::Sp<measurement> const &m) : start_{τ::now()}, m_{m} {}
   ~timer() { stop(); }
 
   τ::ΔΘ elapsed() const { return τ::now() - start_; }
   τ::ΔΘ stop();
 
 protected:
-  measurement *m_;
-  τ::Θp        start_;
+  τ::Θp              start_;
+  τ::Sp<measurement> m_;
 };
 
 
@@ -57,6 +57,7 @@ struct measurement final
 
 protected:
   mutable τ::Smu mu_;                       // for all state
+  τ::Wp<measurement> self_;
   uN n_       = 0;                          // number of measurements
   ΔΘ min_     = τ::forever() - τ::never();  // minimum measurement
   ΔΘ max_     = 0ns;                        // maximum measurement
@@ -66,11 +67,13 @@ protected:
   ΔΘ virtual_ = 0ns;                        // virtual (overlapping) time
   ΔΘ real_    = 0ns;                        // real (non-overlapping) time
   ΔΘ down_    = 0ns;                        // total downtime
+
+  friend τ::Sp<measurement> measurement_for(τ::ηmc&);
 };
 
 
-measurement &measurement_for(τ::ηmc&);
-measurement &measurement_for(τ::Stc&);
+τ::Sp<measurement> measurement_for(τ::ηmc&);
+τ::Sp<measurement> measurement_for(τ::Stc&);
 τ::M<τ::ηm, τ::Sp<measurement>> measurements();
 
 timer prof(τ::ηmc&);  // profile an action

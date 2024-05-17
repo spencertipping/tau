@@ -107,21 +107,21 @@ protected:
   τ::uS            next_rep_;    // next repack size
   τ::f64           rep_factor_;  // repack at this * disk size
 
-  measurement
-    &prof_get_outer_,
-    &prof_get_inner_,
-    &prof_has_outer_,
-    &prof_has_inner_,
-    &prof_prefetch_outer_,
-    &prof_prefetch_inner_,
-    &prof_del_staged_,
-    &prof_set_staged_,
-    &prof_commit_outer_,
-    &prof_commit_write_,
-    &prof_commit_clear_,
-    &prof_reader_,
-    &prof_repack_outer_,
-    &prof_repack_inner_;
+  Sp<measurement>
+    prof_get_outer_,
+    prof_get_inner_,
+    prof_has_outer_,
+    prof_has_inner_,
+    prof_prefetch_outer_,
+    prof_prefetch_inner_,
+    prof_del_staged_,
+    prof_set_staged_,
+    prof_commit_outer_,
+    prof_commit_write_,
+    prof_commit_clear_,
+    prof_reader_,
+    prof_repack_outer_,
+    prof_repack_inner_;
 
 
   // Read transaction: aborts when deleted
