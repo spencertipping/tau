@@ -451,7 +451,7 @@ Sp<lmdb::rtx_> lmdb::reader() const
 }
 
 
-lmdb::rtx_::rtx_(Sp<MDB_env> e) : e(e)
+lmdb::rtx_::rtx_(Sp<MDB_env> e) : e(e), t(nullptr)
 {
   int rc;
   A((rc = mdb_txn_begin(e.get(), nullptr, MDB_RDONLY, &t)) == MDB_SUCCESS,
