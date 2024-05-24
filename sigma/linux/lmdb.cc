@@ -69,6 +69,7 @@ lmdb::lmdb(τe &te, Stc &f, Stc &t, uN mapsize, uN maxdbs, uN mss, f64 rf)
     prof_set_staged_    (measurement_for(ηm{} << "lmdb" << f << t << "set_staged")),
     prof_commit_outer_  (measurement_for(ηm{} << "lmdb" << f << t << "commit_outer")),
     prof_commit_write_  (measurement_for(ηm{} << "lmdb" << f << t << "commit_write")),
+    prof_commit_block_  (measurement_for(ηm{} << "lmdb" << f << t << "commit_block")),
     prof_commit_clear_  (measurement_for(ηm{} << "lmdb" << f << t << "commit_clear")),
     prof_reader_        (measurement_for(ηm{} << "lmdb" << f << t << "reader")),
     prof_repack_outer_  (measurement_for(ηm{} << "lmdb" << f << t << "repack_outer")),
@@ -215,6 +216,8 @@ int lmdb::commit(bool sync)
 
 int lmdb::commit_(bool sync)
 {
+  std::cout << "LMDB commit_" << std::endl;
+
   // NOTE: this function must be called with cmu_ unique-locked.
   int ups = 0;
 
@@ -228,6 +231,8 @@ int lmdb::commit_(bool sync)
     rt_ = {};
   }
 
+  if (dstage_.empty() && istage_.empty()) return 0;
+
   {
     let t = prof_commit_write_->start();
     Sl<Smu> sl{smu_};
@@ -237,6 +242,7 @@ int lmdb::commit_(bool sync)
     goto start;
 
   upsize:
+    std::cout << "LMDB commit_ upsize" << std::endl;
     ++ups;
     if (w) mdb_txn_abort(w);
     w = nullptr;
@@ -248,6 +254,7 @@ int lmdb::commit_(bool sync)
       "lmdb::commit_ mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
 
   start:
+    let tb = prof_commit_block_->start();
     uN isize = 0;  // change in isize_ for this commit
     uN dsize = 0;  // change in dsize_ for this commit
 
@@ -256,8 +263,10 @@ int lmdb::commit_(bool sync)
 
     // Deletions come first because they can free space that will be used by
     // insertions.
+    int dels = 0;
     for (let &k : dstage_)
     {
+      ++dels;
       MDB_val mk = val(k);
       MDB_val mv;
       if (mdb_get(w, d_, &mk, &mv) == MDB_SUCCESS) dsize += mv.mv_size;
@@ -267,9 +276,14 @@ int lmdb::commit_(bool sync)
         "lmdb::commit_ mdb_del() failed: " << mdb_strerror(rc));
     }
 
+    std::cout << "LMDB commit_ dels: " << dels << " dsize: " << dsize << " isize: " << isize << std::endl;
+
     // Now handle insertions/updates
+    int ins = 0;
     for (let &[k, v] : istage_)
     {
+      ++ins;
+
       // Assume we're allocating new space for every written value, since a
       // reader might refer to any value we have.
       isize += v->lsize();
@@ -281,9 +295,20 @@ int lmdb::commit_(bool sync)
       A(rc == MDB_SUCCESS, "lmdb::commit_ mdb_put() failed: " << mdb_strerror(rc));
     }
 
-    rc = mdb_txn_commit(w); w = nullptr;
-    if (rc == MDB_MAP_FULL) goto upsize;
-    A(rc == MDB_SUCCESS, "lmdb::commit_ mdb_txn_commit() failed: " << mdb_strerror(rc));
+    std::cout << "LMDB commit_ ins: " << ins << " dsize: " << dsize << " isize: " << isize << std::endl;
+
+    if (ins || dels)
+    {
+      std::cout << "LMDB commit_ commit" << std::endl;
+      rc = mdb_txn_commit(w); w = nullptr;
+      if (rc == MDB_MAP_FULL) goto upsize;
+      A(rc == MDB_SUCCESS, "lmdb::commit_ mdb_txn_commit() failed: " << mdb_strerror(rc));
+    }
+    else
+    {
+      std::cout << "LMDB commit_ abort" << std::endl;
+      mdb_txn_abort(w); w = nullptr;
+    }
 
     // NOTE: indirect because we may retry the commit after resizing the map,
     // and we don't want to double-count insertions or deletions
@@ -306,12 +331,34 @@ int lmdb::commit_(bool sync)
     ss_ = 0;
   }
 
+  // Use a cursor to count all DB values
+  MDB_txn *r;
+  MDB_cursor *c;
+
+  int rc;
+  A((rc = mdb_txn_begin(e_.get(), nullptr, MDB_RDONLY, &r)) == MDB_SUCCESS,
+    "lmdb::commit_ mdb_txn_begin() for reader failed: " << mdb_strerror(rc));
+  A((rc = mdb_cursor_open(r, d_, &c)) == MDB_SUCCESS,
+    "lmdb::commit_ mdb_cursor_open() for reader failed: " << mdb_strerror(rc));
+
+  MDB_val mk, mv;
+  uN nvals = 0;
+  while ((rc = mdb_cursor_get(c, &mk, &mv, MDB_NEXT)) == MDB_SUCCESS) ++nvals;
+  A(rc == MDB_NOTFOUND, "lmdb::commit_ mdb_cursor_get() failed: " << mdb_strerror(rc));
+
+  mdb_cursor_close(c);
+  mdb_txn_abort(r);
+
+  std::cout << "LMDB commit_ done; nvals = " << nvals << std::endl;
+
   return ups;
 }
 
 
 bool lmdb::repack(bool sync)
 {
+  std::cout << "LMDB repack" << std::endl;
+
   let t = prof_repack_outer_->start();
 
   // From this point forward, the stage cannot be modified by anyone else.
@@ -327,6 +374,28 @@ bool lmdb::repack(bool sync)
   // accumulates as we perform the repack.
   commit_(sync);
 
+  {
+    MDB_txn *r;
+    MDB_cursor *c;
+
+    int rc;
+    A((rc = mdb_txn_begin(e_.get(), nullptr, MDB_RDONLY, &r)) == MDB_SUCCESS,
+      "lmdb::commit_ mdb_txn_begin() for reader failed: " << mdb_strerror(rc));
+    A((rc = mdb_cursor_open(r, d_, &c)) == MDB_SUCCESS,
+      "lmdb::commit_ mdb_cursor_open() for reader failed: " << mdb_strerror(rc));
+
+    MDB_val mk, mv;
+    uN nvals = 0;
+    while ((rc = mdb_cursor_get(c, &mk, &mv, MDB_NEXT)) == MDB_SUCCESS) ++nvals;
+    A(rc == MDB_NOTFOUND, "lmdb::commit_ mdb_cursor_get() failed: " << mdb_strerror(rc));
+
+    mdb_cursor_close(c);
+    mdb_txn_abort(r);
+    std::cout << "LMDB repack pre: nvals = " << nvals << std::endl;
+  }
+
+  std::cout << "LMDB repack inner" << std::endl;
+
   let t1 = prof_repack_inner_->start();
   let repack_f = f_ + ".repack";
 
@@ -338,11 +407,37 @@ bool lmdb::repack(bool sync)
   // stage fills up, the writer will block until we're done.
 
   int rc;
+
+
+  // NOTE: we must create the read transaction before we create the new database
+  // to write into. As far as I can tell, this is an LMDB bug because the reader
+  // and writer are, prior to the cursor loop, unrelated to one another.
+  //
+  // If we don't initialize here, the read transaction will be one commit behind
+  // where it should be, causing data loss when copying into the new database.
+  MDB_txn    *r;
+  MDB_cursor *c;
   MDB_envinfo ei;
+  unsigned    flags;
+
   A((rc = mdb_env_info(e_.get(), &ei)) == MDB_SUCCESS,
     "lmdb::repack mdb_env_info() failed: " << mdb_strerror(rc));
 
+  A((rc = mdb_env_get_flags(e_.get(), &flags)) == MDB_SUCCESS,
+    "lmdb::repack mdb_env_get_flags() failed: " << mdb_strerror(rc));
+
+  A((rc = mdb_txn_begin(e_.get(), nullptr, MDB_RDONLY, &r)) == MDB_SUCCESS,
+    "lmdb::repack mdb_txn_begin() for reader failed: " << mdb_strerror(rc));
+
+  A((rc = mdb_cursor_open(r, d_, &c)) == MDB_SUCCESS,
+    "lmdb::repack mdb_cursor_open() for reader failed: " << mdb_strerror(rc));
+
+
+  // NOTE: this part must happen after the above code; otherwise we have data
+  // loss.
   MDB_env *ne;
+  MDB_txn *w;
+  MDB_dbi  d;
   A((rc = mdb_env_create(&ne)) == MDB_SUCCESS,
     "lmdb::repack mdb_env_create() failed: " << mdb_strerror(rc));
 
@@ -352,40 +447,32 @@ bool lmdb::repack(bool sync)
   A((rc = mdb_env_set_mapsize(ne, ei.me_mapsize)) == MDB_SUCCESS,
     "lmdb::repack mdb_env_set_mapsize() failed: " << mdb_strerror(rc));
 
-  unsigned flags;
-  A((rc = mdb_env_get_flags(e_.get(), &flags)) == MDB_SUCCESS,
-    "lmdb::repack mdb_env_get_flags() failed: " << mdb_strerror(rc));
-
   A((rc = mdb_env_open(ne, repack_f.c_str(), flags, 0664)) == MDB_SUCCESS,
     "lmdb::repack mdb_env_open() failed: " << mdb_strerror(rc));
 
-  // Copy data; to do this, we first need to create the new database.
-  MDB_txn *r;
-  A((rc = mdb_txn_begin(e_.get(), nullptr, MDB_RDONLY, &r)) == MDB_SUCCESS,
-    "lmdb::repack mdb_txn_begin() for reader failed: " << mdb_strerror(rc));
-
-  MDB_txn *w;
   A((rc = mdb_txn_begin(ne, nullptr, 0, &w)) == MDB_SUCCESS,
     "lmdb::repack mdb_txn_begin() for writer failed: " << mdb_strerror(rc));
 
-  MDB_dbi d;
   A((rc = mdb_dbi_open(w, t_.c_str(), MDB_CREATE, &d)) == MDB_SUCCESS,
     "lmdb::repack mdb_dbi_open() for writer failed: " << mdb_strerror(rc));
 
-  MDB_cursor *c;
-  A((rc = mdb_cursor_open(r, d_, &c)) == MDB_SUCCESS,
-    "lmdb::repack mdb_cursor_open() for reader failed: " << mdb_strerror(rc));
-
   MDB_val mk, mv;
+  int nvals = 0;
   while ((rc = mdb_cursor_get(c, &mk, &mv, MDB_NEXT)) == MDB_SUCCESS)
+  {
+    ++nvals;
     A((rc = mdb_put(w, d, &mk, &mv, 0)) == MDB_SUCCESS,
       "lmdb::repack mdb_put() failed: " << mdb_strerror(rc));
+  }
 
   A(rc == MDB_NOTFOUND, "lmdb::repack mdb_cursor_get() failed: " << mdb_strerror(rc));
 
-  mdb_txn_abort(r);
+  std::cout << "LMDB repack: nvals = " << nvals << std::endl;
+
   mdb_cursor_close(c);
-  mdb_txn_commit(w);
+  mdb_txn_abort(r);
+  A((rc = mdb_txn_commit(w)) == MDB_SUCCESS,
+    "lmdb::repack mdb_txn_commit() failed: " << mdb_strerror(rc));
 
   // Drop the current environment reference and replace it with the new one. The
   // old environment will be closed as soon as nobody is using any values from

@@ -82,6 +82,7 @@ public:
   τ::uS disk_size()  const;  // size of DB on disk
 
   Sp<MDB_env> env()  const { return e_; }
+  MDB_dbi     dbi()  const { return d_; }
 
   τ::Stc &filename() const { return f_; }
   τ::Stc &table()    const { return t_; }
@@ -96,6 +97,7 @@ public:
   Sp<measurement> prof_set_staged()     const { return prof_set_staged_; }
   Sp<measurement> prof_commit_outer()   const { return prof_commit_outer_; }
   Sp<measurement> prof_commit_write()   const { return prof_commit_write_; }
+  Sp<measurement> prof_commit_block()   const { return prof_commit_block_; }
   Sp<measurement> prof_commit_clear()   const { return prof_commit_clear_; }
   Sp<measurement> prof_reader()         const { return prof_reader_; }
   Sp<measurement> prof_repack_outer()   const { return prof_repack_outer_; }
@@ -133,6 +135,7 @@ protected:
     prof_set_staged_,
     prof_commit_outer_,
     prof_commit_write_,
+    prof_commit_block_,
     prof_commit_clear_,
     prof_reader_,
     prof_repack_outer_,
