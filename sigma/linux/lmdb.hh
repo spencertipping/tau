@@ -77,14 +77,29 @@ public:
   void prefetch(ηmc&) const;  // prefetch entry using madvise(MADV_WILLNEED)
 
   // Commit stage to DB, sync to disk if requested
-  void  commit(bool sync = false);
-  void  repack(bool sync = false);
+  int   commit(bool sync = false);  // return number of upsizes
+  bool  repack(bool sync = false);  // return true if actually repacked
   τ::uS disk_size()  const;  // size of DB on disk
 
   Sp<MDB_env> env()  const { return e_; }
 
   τ::Stc &filename() const { return f_; }
   τ::Stc &table()    const { return t_; }
+
+  Sp<measurement> prof_get_outer()      const { return prof_get_outer_; }
+  Sp<measurement> prof_get_inner()      const { return prof_get_inner_; }
+  Sp<measurement> prof_has_outer()      const { return prof_has_outer_; }
+  Sp<measurement> prof_has_inner()      const { return prof_has_inner_; }
+  Sp<measurement> prof_prefetch_outer() const { return prof_prefetch_outer_; }
+  Sp<measurement> prof_prefetch_inner() const { return prof_prefetch_inner_; }
+  Sp<measurement> prof_del_staged()     const { return prof_del_staged_; }
+  Sp<measurement> prof_set_staged()     const { return prof_set_staged_; }
+  Sp<measurement> prof_commit_outer()   const { return prof_commit_outer_; }
+  Sp<measurement> prof_commit_write()   const { return prof_commit_write_; }
+  Sp<measurement> prof_commit_clear()   const { return prof_commit_clear_; }
+  Sp<measurement> prof_reader()         const { return prof_reader_; }
+  Sp<measurement> prof_repack_outer()   const { return prof_repack_outer_; }
+  Sp<measurement> prof_repack_inner()   const { return prof_repack_inner_; }
 
 
 protected:
@@ -136,7 +151,7 @@ protected:
 
   void maybe_commit(bool sync = false);
   void maybe_repack(bool sync = false);
-  void commit_     (bool sync = false);  // NOTE: must be called with cmu_ held
+  int  commit_     (bool sync = false);  // NOTE: must be called with cmu_ held
 
   Sp<rtx_> reader() const;
   MDB_val  val(ηic &x) const { return {x.lsize(), Cc<τ::u8*>(x.ldata())}; }

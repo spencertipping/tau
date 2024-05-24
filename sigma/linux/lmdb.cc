@@ -196,24 +196,27 @@ void lmdb::prefetch(ηmc &k) const
 }
 
 
-void lmdb::commit(bool sync)
+int lmdb::commit(bool sync)
 {
   let t = prof_commit_outer_->start();
+  int r = 0;
 
   // NOTE: cl locks out all modification operators for the duration of this
   // commit, which is critical because we switch from non-blocking to blocking
   // when we drop sl in commit_.
   {
     Ul<Smu> cl{cmu_};
-    commit_(sync);
+    r = commit_(sync);
   }
   maybe_repack(sync);
+  return r;
 }
 
 
-void lmdb::commit_(bool sync)
+int lmdb::commit_(bool sync)
 {
   // NOTE: this function must be called with cmu_ unique-locked.
+  int ups = 0;
 
   // Lose the default reference to the current read transaction: best case we
   // close it, otherwise we prepare to open a new one with updated data. Note
@@ -234,6 +237,7 @@ void lmdb::commit_(bool sync)
     goto start;
 
   upsize:
+    ++ups;
     if (w) mdb_txn_abort(w);
     w = nullptr;
 
@@ -299,11 +303,14 @@ void lmdb::commit_(bool sync)
     dstage_.clear();
     istage_.clear();
     rt_ = {};
+    ss_ = 0;
   }
+
+  return ups;
 }
 
 
-void lmdb::repack(bool sync)
+bool lmdb::repack(bool sync)
 {
   let t = prof_repack_outer_->start();
 
@@ -314,7 +321,7 @@ void lmdb::repack(bool sync)
 
   // Check to see if a repack is still appropriate. It's possible to have
   // multiple calls stacked up by this point.
-  if (dsize_ + isize_ < next_rep_) return;
+  if (dsize_ + isize_ < next_rep_) return false;
 
   // First clear the stage. This will minimize the amount of data that
   // accumulates as we perform the repack.
@@ -402,6 +409,8 @@ void lmdb::repack(bool sync)
 
   next_rep_ = disk_size() * rep_factor_;
   isize_ = dsize_ = 0;
+
+  return true;
 }
 
 
