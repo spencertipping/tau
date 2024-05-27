@@ -8,7 +8,7 @@ Each ξ, unless it is weakened, holds a reference to the [ψ](psi.md) that write
 There are some basic tests for ξ in [try/xi.cc](../try/xi.cc):
 
 ```bash
-$ bin/xi-fast
+$ bin/xi-sfast
 spans are ok
 ηs are ok
 η tuple conversion is ok

@@ -17,7 +17,7 @@ The τ runtime ships with the [σ standard library](doc/sigma.md).
 
 ## Stray tests
 ```bash
-$ bin/threaded-fast
+$ bin/threaded-sfast
 starting τ
 starting worker
 worker returning 42

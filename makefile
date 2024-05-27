@@ -144,16 +144,16 @@ endef
 $(foreach x, $(targets), $(eval $(call target,$(x))))
 
 
-t: fast
+t: sfast
 	./test
 
-top: fast wasm
+top: sfast wasm
 	./test
 
 all: $(targets)
 	./test
 
-bench: linux-bench wasm-bench
+bench: server-bench wasm-bench
 
 
 .PHONY: linux-size wasm-size
@@ -165,8 +165,8 @@ wasm-size: bin/sigma.js
 	@echo -n "gzip -9 bin/sigma.wasm = "; cat bin/sigma.wasm | gzip -9 | wc -c
 
 
-linux-bench: linux
-	bin/xi-bench
+server-bench: server
+	bin/xi-server-bench
 
 wasm-bench: wasm
 	node bin/xi-bench.js
