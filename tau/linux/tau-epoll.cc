@@ -28,17 +28,6 @@ void τe::init_signals()
   sa.sa_handler = [](int _) { while (waitpid(-1, &_, WNOHANG) > 0); };
   sa.sa_flags   = 0;
   sigaction(SIGCHLD, &sa, nullptr);
-
-  // Terminate all children on SIGTERM or SIGINT
-  sigemptyset(&sa.sa_mask);
-  sa.sa_handler = [](int) { if (current_t) current_t->sig(SIGTERM); exit(2); };
-  sa.sa_flags   = 0;
-  sigaction(SIGTERM, &sa, nullptr);
-
-  sigemptyset(&sa.sa_mask);
-  sa.sa_handler = [](int) { if (current_t) current_t->sig(SIGINT); };
-  sa.sa_flags   = 0;
-  sigaction(SIGINT, &sa, nullptr);
 }
 
 
@@ -212,14 +201,6 @@ bool τe::is_awake(uN tid)
   l_.step();
   while (f(*this)) (*this)(nonblock), l_.step();
   return *this;
-}
-
-
-void τe::sig(int s)
-{
-  for (let &f : sfs) (*f)(s);
-  τe_(nullptr);
-  exit(2);
 }
 
 
