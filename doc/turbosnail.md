@@ -45,3 +45,5 @@ Each `ist` file is just a list of `u64b k, v` pairs, each of which describes the
 ```
 
 **TODO:** think about data locality; we should pack keys together and values together to reduce TLB churn
+
+**TODO:** pack hashed keys instead of having var-length keys

@@ -69,6 +69,12 @@ These are compiler objects, meaning that they don't actually contain live resour
 Ξs have a relatively complex state space including a stack of ξ duplexes, variable bindings, and keyed sidecar ξs. Structurally, Ξ acts as an interpreter state for Γs, which are applied concatenatively.
 
 
+## Included libraries
++ [`ctypes`](tau/ctypes.hh): aliases for C++ types, like `τ::St`
++ [`types`](tau/types.hh): `h256`, tuple accessors, time stuff
++ [Ω](doc/Omega.md): terminal storage (database) for [η](doc/eta.md) values
+
+
 ## Designing τ applications
 + [Data processing](doc/data-processing.md)
 + [Web applications](doc/web-applications.md)

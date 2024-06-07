@@ -86,7 +86,7 @@ Txs using Sp = std::shared_ptr<Xs...>;
 Txs using Wp = std::weak_ptr<Xs...>;
 
 template<class U, class T> Sp<U> dpc(Sp<T> const &x) { return std::dynamic_pointer_cast<U>(x); }
-Tt          T*    wpg(Wp<T> const &x) { return x.lock().get(); }
+Tt                         T*    wpg(Wp<T> const &x) { return x.lock().get(); }
 
 Txs using Mp = mptr<Xs...>;
 
