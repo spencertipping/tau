@@ -11,6 +11,7 @@
 #include "http.hh"
 #include "io.hh"
 #include "lmdb.hh"
+#include "Omega.hh"
 #include "zstd.hh"
 
 #include "../begin.hh"
@@ -30,6 +31,7 @@ void Γnative(Γφ &g)
   Γhttp(g);
   Γio(g);
   Γlmdb(g);
+  ΓΩ(g);
   Γzstd(g);
 
   // Compile-time file IO

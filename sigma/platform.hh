@@ -7,6 +7,7 @@
 # include "linux/lmdb.hh"
 # include "linux/lmdb-index.hh"
 # include "linux/lmdb-sstream.hh"
+# include "linux/Omega.hh"
 #endif
 
 
