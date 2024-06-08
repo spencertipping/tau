@@ -27,23 +27,25 @@ Requirements:
 Putting some numbers together:
 
 ```
-total disk space ≤ 4TB
-mean kv mapping  ≥ 1kB
-total mappings   ≤ 4B
+total disk space     ≤ 4TB
+mean kv mapping      ≥ 1kB
+total mappings       ≤ 4B
+per-mapping overhead ≤ 32 bytes
 ```
 
 
 ## Key hashing
-Keys have no inherent data distribution, but `h(k)` will be uniformly-distributed; interpolation search will provide _O(lg lg n)_ lookups. Data files are always packed by `h(k)` ordering, where `h()` is suitably fast and robust. For now, `h = xxh64`; here are Hetzner timings:
+Keys have no inherent data distribution, but `h(k)` will be uniformly-distributed; interpolation search will provide _O(lg lg n)_ lookups. Data files are always packed by `h(k)` ordering, where `h()` is suitably fast and robust. For now, `h = xxh3_128`; here are Hetzner timings:
 
 | Operation                   | Nanoseconds |
 |-----------------------------|-------------|
 | `picosha2(char[64])`        | 760         |
 | `xxh64(char[64])`           | 26.4        |
+| `xxh3_128(char[64])`        | 26.5        |
 | `unique_lock<shared_mutex>` | 7.69        |
 | `shared_lock<shared_mutex>` | 5.85        |
 
-XXH64 may have minor uniformity errors, but probably not enough to offset its much better performance.
+`xxh3_128` may have minor uniformity errors, but probably not enough to offset its performance advantage over SHA256.
 
 
 ## Hetzner NVMe timings
@@ -90,6 +92,23 @@ Sequential direct IO:
 `k→v` can be reduced to `h→m`, where `h` is hash and `m` is metadata, if we store `k` and `v` indirectly at the location specified by `m`. That means we now have a simpler problem: store a mapping between two small, fixed-size quantities -- I assume 16 bytes per `hm` pair in this analysis.
 
 So we have two files for a packed table: `hm` and `kv`. `kv` is a simple linear allocation; the interesting one is `hm`, which is all about IO locality while we search for `h`. Complicating matters is that each write transaction has the potential to insert new data that we'd like to be available to anyone looking at the files; so we should make sure the database doesn't become too fragmented as values are written. Further, we can't overwrite anything a reader might be using.
+
+Returning to the size I mentioned earlier, how do we pack a hash, offset, and size into just 16 bytes, especially if the hash is strictly 8 bytes? It involves using just 64 bits for the offset + size, which we can do pretty easily. First, let's align each `kv` entry to 16 bytes, saving four bits. Then let's set an upper data-file size to 16TiB, so we have an offset size of 40 bits. The remaining 24 bits encode the size, which can be up to 4GiB per record:
+
+```
+exp:5        trim:19                      offset16:40
+|---| |--------------------| |------------------------------------------|
+eeeee ttt ttttttttt tttttttt oooooooo oooooooo oooooooo oooooooo oooooooo
+```
+
+We unpack offset and size like this:
+
+```
+offset = uint40(offset16) << 4
+size   = (1 << uint5(exp)) * (1.0 - uint19(trim) / 1048576.0)
+```
+
+This gives us an addressible range of 16TiB and object sizes up to 4GiB with retrieval-allocation accuracy of 1ppm.
 
 
 ### One transaction per file
@@ -142,7 +161,6 @@ Hetzner `ccx43` machine timings for `idiv` and memory accesses within various ra
 | `xs[i : 1073741824]` | 162.659 | memory       |
 | `xs[i : 2147483648]` | 171.280 | memory       |
 | `xs[i : 4294967296]` | 207.092 | memory       |
-```
 
 `idiv` is easily worth it until we're within a single cache line.
 
@@ -177,7 +195,7 @@ Similar to sorted-run binning, but we also split the runs by a hash value. This 
 Hashing our database effectively divides _n_ by _p_ in exchange for multiplying memory usage by _p_.
 
 
-### Appending/merging data
+## Appending/merging data
 Any file that contains multiple runs will have a header describing them:
 
 ```
@@ -189,3 +207,7 @@ If the header has more space, we can easily just append a new run and insert its
 We can also rearrange/compact existing runs, but we have to lock the header during the whole process to avoid having readers get incomplete or corrupt data. Alternatively, we can merge into a new appended run to clear multiple existing ones; then it's just a normal append operation and we do a single header rewrite during the lock.
 
 If we clear existing runs, our file will have free space. We can punch holes in the file to allow the underlying filesystem to reclaim that space; that's probably the simplest strategy for now. Doing this means our file is effectively append-only, and we just punch holes to free data as we go. We can also make it a point to clear adjacent regions that will later create space for data we would have appended; then it's easy to reuse space instead of appending. (ext4 limits files to 16TiB at a 4kiB block size.) Finally, we can repack the whole file into a new database, which we should probably do every so often anyway. This can happen in a background thread so we don't interrupt readers.
+
+
+### Critical section timings
+All of this sort/merge discussion from above applies only to the `hm` mapping files, not to the data itself. That means a 1B-key database has only 16GiB of stuff to work with -- a reasonable amount, but only a few seconds to fully compact if we use efficient IO. Put differently, it's _much worse_ to have a high _k_ than it is to compact eagerly in almost every situation. We should try to keep _k_ below 4 and maybe at 1 or 2 if we can. This can probably be a tunable parameter.

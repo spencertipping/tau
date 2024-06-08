@@ -4,3 +4,4 @@
 Transactions are serialized by the writer, of which there can be only one at a time.
 
 + [Ω design](Omega-design.md)
++ [Ω internals](Omega-internals.md)
