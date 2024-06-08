@@ -185,3 +185,7 @@ k | r1m r2m ... rKm | r1... r2... ... rK...
 ```
 
 If the header has more space, we can easily just append a new run and insert its coordinates into the header as the next entry. This operation is cheaply atomic: the header update is the only critical section, and that's cheap because there are only _k_ runs and their metadata is small (16 bytes each, at most).
+
+We can also rearrange/compact existing runs, but we have to lock the header during the whole process to avoid having readers get incomplete or corrupt data. Alternatively, we can merge into a new appended run to clear multiple existing ones; then it's just a normal append operation and we do a single header rewrite during the lock.
+
+If we clear existing runs, our file will have free space. We can punch holes in the file to allow the underlying filesystem to reclaim that space; that's probably the simplest strategy for now. Doing this means our file is effectively append-only, and we just punch holes to free data as we go. We can also make it a point to clear adjacent regions that will later create space for data we would have appended; then it's easy to reuse space instead of appending. (ext4 limits files to 16TiB at a 4kiB block size.) Finally, we can repack the whole file into a new database, which we should probably do every so often anyway. This can happen in a background thread so we don't interrupt readers.
