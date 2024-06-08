@@ -45,6 +45,8 @@ int main() {
             auto o = unif_dist1(generator) & 0x0000'0fff'ffff'ffffull;
             auto s = unif_dist2(generator) & 0x0000'0000'ffff'ffffull;
 
+            s >>= o & 0x0f;
+
             std::cout << std::hex << "0x" << o << " 0x" << s
                       << std::dec << " "
                       << σ::Ωhm(0, o, s)
