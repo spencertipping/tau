@@ -48,6 +48,9 @@ static_assert(ubits(2) == 1);
 static_assert(ubits(4) == 2);
 static_assert(ubits(7) == 2);
 static_assert(ubits(8) == 3);
+static_assert(ubits(65535) == 15);
+static_assert(ubits(65536) == 16);
+static_assert(ubits(1ull << 32) == 32);
 
 
 }
