@@ -93,22 +93,21 @@ Sequential direct IO:
 
 So we have two files for a packed table: `hm` and `kv`. `kv` is a simple linear allocation; the interesting one is `hm`, which is all about IO locality while we search for `h`. Complicating matters is that each write transaction has the potential to insert new data that we'd like to be available to anyone looking at the files; so we should make sure the database doesn't become too fragmented as values are written. Further, we can't overwrite anything a reader might be using.
 
-Returning to the size I mentioned earlier, how do we pack a hash, offset, and size into just 16 bytes, especially if the hash is strictly 8 bytes? It involves using just 64 bits for the offset + size, which we can do pretty easily. First, let's align each `kv` entry to 16 bytes, saving four bits. Then let's set an upper data-file size to 16TiB, so we have an offset size of 40 bits. The remaining 24 bits encode the size, which can be up to 4GiB per record:
+Returning to the size I mentioned earlier, how do we pack a hash, offset, and size into just 16 bytes, especially if the hash is strictly 8 bytes? It involves using just 64 bits for the offset + size, which we can do pretty easily. Let's set an upper data-file size to 16TiB, so we have an offset size of 44 bits. The remaining 19 bits lossily encode the size, which can be up to 4GiB per record:
 
 ```
-exp:5        trim:19                      offset16:40
-|---| |--------------------| |------------------------------------------|
-eeeee ttt ttttttttt tttttttt oooooooo oooooooo oooooooo oooooooo oooooooo
+exp:5      trim:15                         offset:44
+|---| |----------------| |-----------------------------------------------|
+eeeee ttt ttttttttt tttt oooo oooooooo oooooooo oooooooo oooooooo oooooooo
 ```
 
-We unpack offset and size like this:
+`offset` is literal; `size` is calculated similar to floating-point:
 
 ```
-offset = uint40(offset16) << 4
-size   = (1 << uint5(exp)) * (1.0 - uint19(trim) / 1048576.0)
+size = (1 << uint5(exp)) * (1.0 - uint15(trim) / 65536.0)
 ```
 
-This gives us an addressible range of 16TiB and object sizes up to 4GiB with retrieval-allocation accuracy of 1ppm.
+This gives us exact packing with overreads limited to ~0.003% and lossless encoding for all objects smaller than 64kiB.
 
 
 ### One transaction per file
