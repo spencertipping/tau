@@ -107,10 +107,13 @@ We have only one file, and transactions are appended as sorted runs. However, we
 | 0.003   | 333     | 8.38   | 12.09    | 9.45%    | 1511MB         |
 | 0.001   | 1000    | 9.97   | 14.38    | 11.23%   | 1798MB         |
 
-Lookup performance is somewhat complex as it depends on memory latency, IO latency, _n_, _k_, `idiv`, and possibly more:
+Lookup performance is somewhat complex as it depends on memory latency, IO latency, _n_, _k_, `idiv`, and more. Let's model it, first without Blooms:
 
 ```
-TODO
+get     = ∑k sr(n[k]) + kvio          // assume we search all sorted runs
+sr(n)   = n < 256 ? smem(n) : sio(n)  // 256 = one page
+smem(n) = min(binmem(n), ismem(n))
+sio(n)  = TODO
 ```
 
 
