@@ -49,8 +49,8 @@ protected:
 inline Ωhm::Ωhm(Ωh h, τ::u64 o, τ::u64 s)
   : h(h)
 {
-  A(o < (1ull << 44), "Ωhm: o too large: " << o);
-  A(s < (1ull << 32), "Ωhm: s too large: " << s);
+  A(o < 1ull << 44, "Ωhm: o too large: " << o);
+  A(s < 1ull << 32, "Ωhm: s too large: " << s);
 
   let om = o & 0x0000'0fff'ffff'ffffull;
 
