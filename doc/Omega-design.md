@@ -24,6 +24,14 @@ Requirements:
 7. Most values are just inserted and then left alone
 8. Deletions tend to happen in large batches
 
+Putting some numbers together:
+
+```
+total disk space ≤ 4TB
+mean kv mapping  ≥ 1kB
+total mappings   ≤ 4B
+```
+
 
 ## Key hashing
 Keys have no inherent data distribution, but `h(k)` will be uniformly-distributed; interpolation search will provide _O(lg lg n)_ lookups. Data files are always packed by `h(k)` ordering, where `h()` is suitably fast and robust. For now, `h = xxh64`; here are Hetzner timings:
@@ -76,3 +84,35 @@ Sequential direct IO:
 | `psync`  | Read      | 64MiB      | 128GiB | 14286  | 4480  |
 | `mmap`   | Overwrite | 64MiB      | 128GiB | 139665 | 458   |
 | `mmap`   | Read      | 64MiB      | 128GiB | 104493 | 612   |
+
+
+## `h→m` mapping strategies
+`k→v` can be reduced to `h→m`, where `h` is hash and `m` is metadata, if we store `k` and `v` indirectly at the location specified by `m`. That means we now have a simpler problem: store a mapping between two small, fixed-size quantities. So we have two files for a packed table: `hm` and `kv`. `kv` is a simple linear allocation; the interesting one is `hm`, which is all about IO locality while we search for `h`. Complicating matters is that each write transaction has the potential to insert new data that we'd like to be available to anyone looking at the files; so we should make sure the database doesn't become too fragmented as values are written. Further, we can't overwrite anything a reader might be using.
+
+
+### One transaction per file
+A very dumb strategy that will quickly overwhelm our 64-file limit: each transaction commits a new file of sorted data. If we have _k_ such files, lookup is _O(k lg lg n)_ IOPs.
+
+
+### Sorted-run binning
+We have only one file, and transactions are appended as sorted runs. However, we try to compact as we go; so once _k_ increases beyond some amount we repack the smallest runs into a larger block. If the run is large enough, we prepend a Bloom filter to improve IO locality. Here's a table of overhead and time savings, assuming 16-byte `hm` pairs:
+
+| FP rate | _k_ div | Hashes | Bits/key | Overhead | 1B-key BF size |
+|---------|---------|--------|----------|----------|----------------|
+| 0.5     | 2       | 1      | 1.44     | 1.125%   | 180MB          |
+| 0.3     | 3.3     | 1.74   | 2.51     | 1.96%    | 245MB          |
+| 0.1     | 10      | 3.32   | 4.79     | 3.74%    | 599MB          |
+| 0.03    | 33      | 5.06   | 7.30     | 5.70%    | 913MB          |
+| 0.01    | 100     | 6.64   | 9.59     | 7.49%    | 1199MB         |
+| 0.003   | 333     | 8.38   | 12.09    | 9.45%    | 1511MB         |
+| 0.001   | 1000    | 9.97   | 14.38    | 11.23%   | 1798MB         |
+
+Lookup performance is somewhat complex as it depends on memory latency, IO latency, _n_, _k_, `idiv`, and possibly more:
+
+```
+TODO
+```
+
+
+### Hashed-run binning
+Similar to sorted-run binning, but we split the runs by a hash value.
