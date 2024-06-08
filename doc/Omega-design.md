@@ -87,7 +87,9 @@ Sequential direct IO:
 
 
 ## `h→m` mapping strategies
-`k→v` can be reduced to `h→m`, where `h` is hash and `m` is metadata, if we store `k` and `v` indirectly at the location specified by `m`. That means we now have a simpler problem: store a mapping between two small, fixed-size quantities. So we have two files for a packed table: `hm` and `kv`. `kv` is a simple linear allocation; the interesting one is `hm`, which is all about IO locality while we search for `h`. Complicating matters is that each write transaction has the potential to insert new data that we'd like to be available to anyone looking at the files; so we should make sure the database doesn't become too fragmented as values are written. Further, we can't overwrite anything a reader might be using.
+`k→v` can be reduced to `h→m`, where `h` is hash and `m` is metadata, if we store `k` and `v` indirectly at the location specified by `m`. That means we now have a simpler problem: store a mapping between two small, fixed-size quantities -- I assume 16 bytes per `hm` pair in this analysis.
+
+So we have two files for a packed table: `hm` and `kv`. `kv` is a simple linear allocation; the interesting one is `hm`, which is all about IO locality while we search for `h`. Complicating matters is that each write transaction has the potential to insert new data that we'd like to be available to anyone looking at the files; so we should make sure the database doesn't become too fragmented as values are written. Further, we can't overwrite anything a reader might be using.
 
 
 ### One transaction per file
@@ -95,19 +97,7 @@ A very dumb strategy that will quickly overwhelm our 64-file limit: each transac
 
 
 ### Sorted-run binning
-We have only one file, and transactions are appended as sorted runs. However, we try to compact as we go; so once _k_ increases beyond some amount we repack the smallest runs into a larger block. If the run is large enough, we prepend a Bloom filter to improve IO locality. Here's a table of overhead and time savings, assuming 16-byte `hm` pairs:
-
-| FP rate | _k_ div | Hashes | Bits/key | Overhead | 1B-key BF size |
-|---------|---------|--------|----------|----------|----------------|
-| 0.5     | 2       | 1      | 1.44     | 1.125%   | 180MB          |
-| 0.3     | 3.3     | 1.74   | 2.51     | 1.96%    | 245MB          |
-| 0.1     | 10      | 3.32   | 4.79     | 3.74%    | 599MB          |
-| 0.03    | 33      | 5.06   | 7.30     | 5.70%    | 913MB          |
-| 0.01    | 100     | 6.64   | 9.59     | 7.49%    | 1199MB         |
-| 0.003   | 333     | 8.38   | 12.09    | 9.45%    | 1511MB         |
-| 0.001   | 1000    | 9.97   | 14.38    | 11.23%   | 1798MB         |
-
-Lookup performance is somewhat complex as it depends on memory latency, IO latency, _n_, _k_, `idiv`, and more. Let's model it, first without Blooms:
+We have only one file, and transactions are appended as sorted runs. However, we try to compact as we go; so once _k_ increases beyond some amount we repack the smallest runs into a larger block. Lookup performance is somewhat complex as it depends on memory latency, IO latency, _n_, _k_, `idiv`, and more:
 
 ```
 get     = ∑k sr(n[k]) + kvio                // assume we search all sorted runs
@@ -123,11 +113,11 @@ binmem(n) = ⌈log₂ n⌉      ·  l3miss
 ismem(n)  = ⌈log₂ log₂ n⌉ · (l3miss + idiv)
 ```
 
-Hetzner machine timings for memory accesses within various ranges, provided by `dev/hackery/cache-idiv-bench.cc`:
+Hetzner `ccx43` machine timings for `idiv` and memory accesses within various ranges, provided by `dev/hackery/cache-idiv-bench.cc`:
 
 | Operation            | Nanos   | Cache level? |
 |----------------------|---------|--------------|
-| `idiv`               | 1.906   |              |
+| `idiv`               | 1.906   | N/A          |
 | `xs[0]`              | 1.359   | L1           |
 | `xs[i : 1024]`       | 1.359   | L1           |
 | `xs[i : 2048]`       | 1.359   | L1           |
@@ -157,5 +147,41 @@ Hetzner machine timings for memory accesses within various ranges, provided by `
 `idiv` is easily worth it until we're within a single cache line.
 
 
+### Bloom-annotated sorted run binning
+We still have _k_ runs to search through, so like one-file-per-transaction our lookup time is still _O(k lg lg n)_. That's fine if each sorted-bin lookup is just a single cheap IOP, but it's more problematic if we're hitting unpredictable regions as we go. If we've got 1B `hm` pairs, we have 16GB of sorted-bin data -- that's a lot of potential IOPs to pull from disk, almost all of which will be misses.
+
+To avoid this, we can prepend a Bloom filter to each sorted run. Here's a table of overhead and time savings, assuming 16-byte `hm` pairs:
+
+| FP rate | _k_ div | Hashes | Bits/key | Overhead | 1B-key BF size |
+|---------|---------|--------|----------|----------|----------------|
+| 0.5     | 2       | 1      | 1.44     | 1.125%   | 180MB          |
+| 0.3     | 3.3     | 1.74   | 2.51     | 1.96%    | 245MB          |
+| 0.1     | 10      | 3.32   | 4.79     | 3.74%    | 599MB          |
+| 0.03    | 33      | 5.06   | 7.30     | 5.70%    | 913MB          |
+| 0.01    | 100     | 6.64   | 9.59     | 7.49%    | 1199MB         |
+| 0.003   | 333     | 8.38   | 12.09    | 9.45%    | 1511MB         |
+| 0.001   | 1000    | 9.97   | 14.38    | 11.23%   | 1798MB         |
+
+Now our performance analysis from earlier becomes a bit more complex:
+
+```
+get   = ∑k[bt(n[k]) + (1 + bfp) · sr(n[k])] + kvio
+bt(n) = nh · (l3miss + idiv)
+      + max(1, min(nh / (n · nB · 4096), nh)) · iop[1]
+```
+
+
 ### Hashed-run binning
-Similar to sorted-run binning, but we split the runs by a hash value.
+Similar to sorted-run binning, but we also split the runs by a hash value. This increases the size of the stage and decreases merge work, since each run file has only _1/p_ of the values (where _p_ is the number of hash partitions).
+
+Hashing our database effectively divides _n_ by _p_ in exchange for multiplying memory usage by _p_.
+
+
+### Appending/merging data
+Any file that contains multiple runs will have a header describing them:
+
+```
+k | r1m r2m ... rKm | r1... r2... ... rK...
+```
+
+If the header has more space, we can easily just append a new run and insert its coordinates into the header as the next entry. This operation is cheaply atomic: the header update is the only critical section, and that's cheap because there are only _k_ runs and their metadata is small (16 bytes each, at most).
