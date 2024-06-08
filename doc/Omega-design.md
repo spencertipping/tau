@@ -110,11 +110,51 @@ We have only one file, and transactions are appended as sorted runs. However, we
 Lookup performance is somewhat complex as it depends on memory latency, IO latency, _n_, _k_, `idiv`, and more. Let's model it, first without Blooms:
 
 ```
-get     = ∑k sr(n[k]) + kvio          // assume we search all sorted runs
-sr(n)   = n < 256 ? smem(n) : sio(n)  // 256 = one page
+get     = ∑k sr(n[k]) + kvio                // assume we search all sorted runs
+sr(n)   = n < 256 ? smem(n) : sio(n)        // 256 = one page
 smem(n) = min(binmem(n), ismem(n))
-sio(n)  = TODO
+sio(n)  = ⌈log₂ log₂ n⌉ · (iop[16] + idiv)  // lg lg n IOPs, plus CPU overhead
 ```
+
+`binmem` and `ismem` are both pretty simple; they just measure the CPU overhead of searching an array in memory, although the memory may not be hot in L3/L2 cache yet:
+
+```
+binmem(n) = ⌈log₂ n⌉      ·  l3miss
+ismem(n)  = ⌈log₂ log₂ n⌉ · (l3miss + idiv)
+```
+
+Hetzner machine timings for memory accesses within various ranges, provided by `dev/hackery/cache-idiv-bench.cc`:
+
+| Operation            | Nanos   | Cache level? |
+|----------------------|---------|--------------|
+| `idiv`               | 1.906   |              |
+| `xs[0]`              | 1.359   | L1           |
+| `xs[i : 1024]`       | 1.359   | L1           |
+| `xs[i : 2048]`       | 1.359   | L1           |
+| `xs[i : 4096]`       | 1.359   | L1           |
+| `xs[i : 8192]`       | 1.360   | L1           |
+| `xs[i : 16384]`      | 1.360   | L1           |
+| `xs[i : 32768]`      | 1.373   | L1           |
+| `xs[i : 65536]`      | 2.718   | L2           |
+| `xs[i : 131072]`     | 3.402   | L2           |
+| `xs[i : 262144]`     | 3.759   | L2           |
+| `xs[i : 524288]`     | 4.924   | L2           |
+| `xs[i : 1048576]`    | 7.000   | L3           |
+| `xs[i : 2097152]`    | 11.287  | L3           |
+| `xs[i : 4194304]`    | 14.305  | L3           |
+| `xs[i : 8388608]`    | 16.528  | L3           |
+| `xs[i : 16777216]`   | 29.788  | memory       |
+| `xs[i : 33554432]`   | 60.563  | memory       |
+| `xs[i : 67108864]`   | 108.522 | memory       |
+| `xs[i : 134217728]`  | 133.294 | memory       |
+| `xs[i : 268435456]`  | 155.090 | memory       |
+| `xs[i : 536870912]`  | 146.056 | memory       |
+| `xs[i : 1073741824]` | 162.659 | memory       |
+| `xs[i : 2147483648]` | 171.280 | memory       |
+| `xs[i : 4294967296]` | 207.092 | memory       |
+```
+
+`idiv` is easily worth it until we're within a single cache line.
 
 
 ### Hashed-run binning

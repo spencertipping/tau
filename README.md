@@ -70,8 +70,6 @@ These are compiler objects, meaning that they don't actually contain live resour
 
 
 ## Included libraries
-+ [`ctypes`](tau/ctypes.hh): aliases for C++ types, like `τ::St`
-+ [`types`](tau/types.hh): `h256`, tuple accessors, time stuff
 + [Ω](doc/Omega.md): terminal storage (database) for [η](doc/eta.md) values
 
 
