@@ -210,3 +210,7 @@ If we clear existing runs, our file will have free space. We can punch holes in 
 
 ### Critical section timings
 All of this sort/merge discussion from above applies only to the `hm` mapping files, not to the data itself. That means a 1B-key database has only 16GiB of stuff to work with -- a reasonable amount, but only a few seconds to fully compact if we use efficient IO. Put differently, it's _much worse_ to have a high _k_ than it is to compact eagerly in almost every situation. We should try to keep _k_ below 4 and maybe at 1 or 2 if we can. This can probably be a tunable parameter.
+
+
+### Special `m` values
+**TODO:** we can get more mileage out of subnormal `e` values, which currently have redundant encoding. This would make room for special flag values.

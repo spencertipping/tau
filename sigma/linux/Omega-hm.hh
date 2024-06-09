@@ -20,19 +20,31 @@ typedef Ωm  const Ωmc;
 typedef Ωhm const Ωhmc;
 
 
+enum class Ωmv : τ::u8
+{
+  nonexistent = 0,
+  deleted     = 1,
+};
+
+
+// Metadata: 64 bits, 0 = nonexistent, -1 = deleted, other values are packed.
 struct Ωm final
 {
-  Ωm() = default;
-  Ωm(τ::u8c *p) : m(*Rc<τ::u64bc*>(p)) {}
+  constexpr Ωm() : m(0) {}
+  constexpr Ωm(Ωmc&) = default;
   constexpr Ωm(τ::u64 o, τ::u64 s);
+  constexpr Ωm(Ωmv v) : m(v == Ωmv::deleted ? τ::u64(-1) : 0) {}
+  Ωm(τ::u8c *p) : m(*Rc<τ::u64bc*>(p)) {}
 
   Ωm &operator=(Ωmc&) = default;
   τ::SO operator<=>(Ωmc &o) const
   { let oc = offset() <=> o.offset();
     return oc == τ::SO::equal ? size() <=> o.size() : oc; }
 
-  operator τ::u64() const { return m; }
+  explicit operator τ::u64() const { return m; }
 
+  bool   exists()     const { return m && ~m; }
+  bool   is_deleted() const { return !~m; }
   τ::u64 offset()     const { return m & 0x0000'0fff'ffff'ffffull; }
   τ::u64 size_error() const { return 1ull << std::max(0, int(m >> 59) + 1 - 16); }
   τ::u64 size()       const
@@ -51,9 +63,11 @@ protected:
 
 struct Ωhm final
 {
-  Ωhm() = default;
-  Ωhm(τ::u8c *p) : h(*Rc<τ::u64bc*>(p)), m(p + 8) {}
   constexpr Ωhm(Ωh h, τ::u64 o, τ::u64 s) : h(h), m(o, s) {}
+  constexpr Ωhm(Ωh h, Ωm m)               : h(h), m(m)    {}
+  constexpr Ωhm()                         : h(0), m()     {}
+  constexpr Ωhm(Ωhmc&) = default;
+  Ωhm(τ::u8c *p) : h(*Rc<τ::u64bc*>(p)), m(p + 8) {}
 
   Ωhm  &operator=  (Ωhmc&) = default;
   τ::SO operator<=>(Ωhmc &o) const { return h <=> o.h; }

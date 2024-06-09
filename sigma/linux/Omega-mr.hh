@@ -10,14 +10,35 @@ namespace σ
 {
 
 
-// Many sorted runs packed into a single file.
+// Many sorted runs packed into a single file. On disk, the format looks like
+// this:
+//
+//              +-------------------------+
+//              |                         V
+//              |                      |----|
+// N:u64b | r1sr1l r2sr2l ... rNsrNl | sr1... sr2... ... srN...
+//           |                         ^
+//           +-------------------------+
+//
+// As usual, all numbers are u64b. Run metas are always densely-packed; we don't
+// store empty metadata by setting rIl = 0 or anything.
 struct Ωmr final
 {
   Tt using Sp = τ::Sp<T>;
+  Tt using V  = τ::V<T>;
+
+  Ωmr(Sp<Ωf> f) : f_(f) {}
+
+  τ::u64 size()        const;
+  Ωsrc  &at  (τ::uN i) const;
+  Ωm     at  (ΩHc&)    const;
 
 
 protected:
   Sp<Ωf> f_;
+  V<Ωsr> srs_;
+
+  void decode_srs_();
 };
 
 
