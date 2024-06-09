@@ -1,8 +1,10 @@
 #ifndef σserver_Ω_h
 #define σserver_Ω_h
 
+#include "Omega-hm.hh"
+#include "Omega-sr.hh"
+#include "Omega-mr.hh"
 #include "../prof.hh"
-#include "Omega-internals.hh"
 #include "../begin.hh"
 
 namespace σ
@@ -35,6 +37,8 @@ struct Ω final
 
 
 protected:
+
+
   void get_(ηic&, τ::Fc<void(τ::fd_t, uN, uN)>&);
 };
 

@@ -1,32 +1,38 @@
-#ifndef σserver_Ωinternals_h
-#define σserver_Ωinternals_h
+#ifndef σserver_Ωhm_h
+#define σserver_Ωhm_h
 
 #include <xxhash.h>
 
-#include "../prof.hh"
 #include "../begin.hh"
 
 namespace σ
 {
 
 
-typedef XXH128_hash_t        ΩH;  // big hash
-typedef decltype(ΩH::high64) Ωh;  // small/partial hash
+typedef XXH128_hash_t        ΩH;   // big hash
+typedef decltype(ΩH::high64) Ωh;   // small/partial hash
+struct                       Ωm;   // 64-bit packed meta (offset + size)
+struct                       Ωhm;  // 128-bit hash/meta pair
 
-struct Ωhm;
+typedef ΩH  const ΩHc;
+typedef Ωh  const Ωhc;
+typedef Ωm  const Ωmc;
 typedef Ωhm const Ωhmc;
 
 
-struct Ωhm final  // 16-byte hash/meta pair, with packed meta
+struct Ωm final
 {
-  Ωhm() = default;
-  Ωhm(τ::u8c *p) : h(*Rc<τ::u64bc*>(p)), m(*Rc<τ::u64bc*>(p + 8)) {}
-  constexpr Ωhm(Ωh h, τ::u64 o, τ::u64 s);
+  Ωm() = default;
+  Ωm(τ::u8c *p) : m(*Rc<τ::u64bc*>(p)) {}
+  constexpr Ωm(τ::u64 o, τ::u64 s);
 
-  Ωhm  &operator=  (Ωhmc&) = default;
-  τ::SO operator<=>(Ωhmc &o) const { return h <=> o.h; }
+  Ωm &operator=(Ωmc&) = default;
+  τ::SO operator<=>(Ωmc &o) const
+  { let oc = offset() <=> o.offset();
+    return oc == τ::SO::equal ? size() <=> o.size() : oc; }
 
-  Ωh     hash()       const { return h; }
+  operator τ::u64() const { return m; }
+
   τ::u64 offset()     const { return m & 0x0000'0fff'ffff'ffffull; }
   τ::u64 size_error() const { return 1ull << std::max(0, int(m >> 59) + 1 - 16); }
   τ::u64 size()       const
@@ -35,22 +41,38 @@ struct Ωhm final  // 16-byte hash/meta pair, with packed meta
     return (1ull << e + 1)
          - (e >= 16 ? r << e + 1 - 16 : r >> 16 - (e + 1)); }
 
-  void into(τ::u8 *p) const
-  { *Rc<τ::u64b*>(p)     = h;
-    *Rc<τ::u64b*>(p + 8) = m; }
+  void into(τ::u8 *p) const { *Rc<τ::u64b*>(p) = m; }
 
 
 protected:
-  Ωh     h;  // high 64 bits of element hash
   τ::u64 m;  // exp:5 trim:15 offset:44
+};
+
+
+struct Ωhm final
+{
+  Ωhm() = default;
+  Ωhm(τ::u8c *p) : h(*Rc<τ::u64bc*>(p)), m(p + 8) {}
+  constexpr Ωhm(Ωh h, τ::u64 o, τ::u64 s) : h(h), m(o, s) {}
+
+  Ωhm  &operator=  (Ωhmc&) = default;
+  τ::SO operator<=>(Ωhmc &o) const { return h <=> o.h; }
+
+  Ωh   hash()         const { return h; }
+  Ωm   meta()         const { return m; }
+  void into(τ::u8 *p) const { *Rc<τ::u64b*>(p) = h; m.into(p + 8); }
+
+
+protected:
+  Ωh h;  // high 64 bits of element hash
+  Ωm m;
 };
 
 
 static_assert(sizeof(Ωhm) == 16);
 
 
-ic Ωhm::Ωhm(Ωh h, τ::u64 o, τ::u64 s)
-  : h(h)
+ic Ωm::Ωm(τ::u64 o, τ::u64 s)
 {
   A(o < 1ull << 44, "Ωhm: o too large: " << o);
   A(s < 1ull << 32, "Ωhm: s too large: " << s);
@@ -82,11 +104,17 @@ ic Ωhm::Ωhm(Ωh h, τ::u64 o, τ::u64 s)
 }
 
 
+inline τ::O &operator<<(τ::O &s, Ωm m)
+{
+  return s << "0x" << std::hex << m.offset()
+           << "+" << std::dec << m.size()
+           << "-" << m.size_error();
+}
+
 inline τ::O &operator<<(τ::O &s, Ωhmc &h)
 {
   return s << "Ωhm[h=0x" << std::hex << h.hash()
-           << " o=0x" << h.offset()
-           << " s=" << std::dec << h.size() << "-" << h.size_error() << "]";
+           << " " << h.meta() << "]";
 }
 
 

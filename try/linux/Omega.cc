@@ -12,14 +12,14 @@ using namespace τ;
 using namespace σ;
 
 
-void verify(u64 o, u64 s, Ωhmc &hm)
+void verify(u64 o, u64 s, Ωmc &m)
 {
-  A(o == hm.offset(), "Ωhm o != offset: " << o << " != " << hm.offset());
-  A(hm.size() >= s,   "Ωhm size < s: " << hm.size() << " < " << s);
-  A(s <= 2 || hm.size() <= s * (1.0 + 1.0/32768),
-    "Ωhm size > +0.003%: " << hm.size() << " > 1.003% * " << s);
-  A(s <= 2 || hm.size() - s <= hm.size_error(),
-    "Ωhm size - s > size_error: " << hm.size() << " - " << s << " > " << hm.size_error());
+  A(o == m.offset(), "Ωhm o != offset: " << o << " != " << m.offset());
+  A(m.size() >= s,   "Ωhm size < s: " << m.size() << " < " << s);
+  A(s <= 2 || m.size() <= s * (1.0 + 1.0/32768),
+    "Ωhm size > +0.003%: " << m.size() << " > 1.003% * " << s);
+  A(s <= 2 || m.size() - s <= m.size_error(),
+    "Ωhm size - s > size_error: " << m.size() << " - " << s << " > " << m.size_error());
 }
 
 
@@ -51,7 +51,7 @@ int main() {
             auto o = static_cast<τ::u64>(random_double1) & 0x0000'0fff'ffff'ffffull;
             auto s = static_cast<τ::u64>(random_double2) & 0x0000'0000'ffff'ffffull;
 
-            verify(o, s, Ωhm(0, o, s));
+            verify(o, s, Ωm(o, s));
         }
 
         {
@@ -60,7 +60,7 @@ int main() {
             auto s = unif_dist2(generator) & 0x0000'0000'ffff'ffffull;
 
             s >>= o & 0x0f;
-            verify(o, s, Ωhm(0, o, s));
+            verify(o, s, Ωm(o, s));
         }
 
         if (i % 1048576 == 0)

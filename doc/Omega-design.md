@@ -104,7 +104,7 @@ eeeee ttt ttttttttt tttt oooo oooooooo oooooooo oooooooo oooooooo oooooooo
 `offset` is literal; `size` is calculated similar to floating-point:
 
 ```
-size = (1 << uint5(exp)) * (1.0 - uint15(trim) / 65536.0)
+size = (1 << uint5(exp) + 1) * (1.0 - uint15(trim) / 65536.0)
 ```
 
 This gives us exact packing with overreads limited to ~0.003% and lossless encoding for all objects smaller than 64kiB.
