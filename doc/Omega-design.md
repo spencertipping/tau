@@ -160,6 +160,8 @@ Hetzner `ccx43` machine timings for `idiv` and memory accesses within various ra
 | `xs[i : 1073741824]` | 162.659 | memory       |
 | `xs[i : 2147483648]` | 171.280 | memory       |
 | `xs[i : 4294967296]` | 207.092 | memory       |
+| `write(char[8])`     | 812.569 | syscall      |
+| `write(char[64])`    | 829.685 | syscall      |
 
 `idiv` is easily worth it until we're within a single cache line.
 
