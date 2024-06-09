@@ -17,11 +17,11 @@ struct Ωhm;
 typedef Ωhm const Ωhmc;
 
 
-struct Ωhm   // 16-byte hash/meta pair, with packed meta
+struct Ωhm final  // 16-byte hash/meta pair, with packed meta
 {
   Ωhm() = default;
   Ωhm(τ::u8c *p) : h(*Rc<τ::u64bc*>(p)), m(*Rc<τ::u64bc*>(p + 8)) {}
-  Ωhm(Ωh h, τ::u64 o, τ::u64 s);
+  constexpr Ωhm(Ωh h, τ::u64 o, τ::u64 s);
 
   Ωhm  &operator=  (Ωhmc&) = default;
   τ::SO operator<=>(Ωhmc &o) const { return h <=> o.h; }
@@ -49,7 +49,7 @@ protected:
 static_assert(sizeof(Ωhm) == 16);
 
 
-inline Ωhm::Ωhm(Ωh h, τ::u64 o, τ::u64 s)
+ic Ωhm::Ωhm(Ωh h, τ::u64 o, τ::u64 s)
   : h(h)
 {
   A(o < 1ull << 44, "Ωhm: o too large: " << o);
@@ -79,13 +79,6 @@ inline Ωhm::Ωhm(Ωh h, τ::u64 o, τ::u64 s)
       m = b - 1 << 59 | (t & 0x7fff) << 44 | om;
     }
   }
-
-  A(o == offset(), "Ωhm o != offset: " << o << " != " << offset());
-  A(size() >= s,   "Ωhm size < s: " << size() << " < " << s);
-  A(s <= 2 || size() <= s * (1.0 + 1.0/32768),
-    "Ωhm size > +0.003%: " << size() << " > 1.003% * " << s);
-  A(s <= 2 || size() - s <= size_error(),
-    "Ωhm size - s > size_error: " << size() << " - " << s << " > " << size_error());
 }
 
 

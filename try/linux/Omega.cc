@@ -1,9 +1,27 @@
 #include "../../tau.hh"
 #include "../../sigma.hh"
 
+#include "../../tau/begin.hh"
+
 #include <iostream>
 #include <random>
 #include <cmath>
+
+
+using namespace τ;
+using namespace σ;
+
+
+void verify(u64 o, u64 s, Ωhmc &hm)
+{
+  A(o == hm.offset(), "Ωhm o != offset: " << o << " != " << hm.offset());
+  A(hm.size() >= s,   "Ωhm size < s: " << hm.size() << " < " << s);
+  A(s <= 2 || hm.size() <= s * (1.0 + 1.0/32768),
+    "Ωhm size > +0.003%: " << hm.size() << " > 1.003% * " << s);
+  A(s <= 2 || hm.size() - s <= hm.size_error(),
+    "Ωhm size - s > size_error: " << hm.size() << " - " << s << " > " << hm.size_error());
+}
+
 
 int main() {
     // Seed for the random number generator
@@ -23,21 +41,17 @@ int main() {
     std::uniform_int_distribution<uint64_t> unif_dist2;
 
     // Infinite loop to generate and print pairs of random integers
-    while (true) {
+    for (u64 i = 0;; i++) {
         {
             // Generate exponential distributed random doubles
             double random_double1 = exp_dist1(generator);
             double random_double2 = exp_dist2(generator);
 
             // Convert the generated doubles to integers
-            auto o = static_cast<τ::u64>(random_double1);
-            auto s = static_cast<τ::u64>(random_double2);
+            auto o = static_cast<τ::u64>(random_double1) & 0x0000'0fff'ffff'ffffull;
+            auto s = static_cast<τ::u64>(random_double2) & 0x0000'0000'ffff'ffffull;
 
-            std::cout << o << " " << s << " "
-                      << σ::Ωhm(0,
-                                o & 0x0000'0fff'ffff'ffffull,
-                                s & 0x0000'0000'ffff'ffffull)
-                      << std::endl;
+            verify(o, s, Ωhm(0, o, s));
         }
 
         {
@@ -46,12 +60,11 @@ int main() {
             auto s = unif_dist2(generator) & 0x0000'0000'ffff'ffffull;
 
             s >>= o & 0x0f;
-
-            std::cout << std::hex << "0x" << o << " 0x" << s
-                      << std::dec << " " << s << " "
-                      << σ::Ωhm(0, o, s)
-                      << std::endl;
+            verify(o, s, Ωhm(0, o, s));
         }
+
+        if (i % 1048576 == 0)
+            std::cout << "Tested " << i << " case(s)" << std::endl;
     }
 
     return 0;
