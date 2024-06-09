@@ -22,8 +22,8 @@ struct Ωhm   // 16-byte hash/meta pair, with packed meta
   Ωhm() = default;
   Ωhm(τ::u8c *p) : h(*Rc<τ::u64bc*>(p)), m(*Rc<τ::u64bc*>(p + 8)) {}
   Ωhm(Ωh h, τ::u64 o, τ::u64 s);
-  Ωhm &operator=(Ωhmc &o) = default;
 
+  Ωhm  &operator=  (Ωhmc&) = default;
   τ::SO operator<=>(Ωhmc &o) const { return h <=> o.h; }
 
   Ωh     hash()       const { return h; }
