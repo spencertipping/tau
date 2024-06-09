@@ -46,6 +46,9 @@ protected:
 };
 
 
+static_assert(sizeof(Ωhm) == 16);
+
+
 inline Ωhm::Ωhm(Ωh h, τ::u64 o, τ::u64 s)
   : h(h)
 {

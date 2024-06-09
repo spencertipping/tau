@@ -48,7 +48,7 @@ int main() {
             s >>= o & 0x0f;
 
             std::cout << std::hex << "0x" << o << " 0x" << s
-                      << std::dec << " "
+                      << std::dec << " " << s << " "
                       << σ::Ωhm(0, o, s)
                       << std::endl;
         }
