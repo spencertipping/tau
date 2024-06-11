@@ -121,7 +121,7 @@ u8c *Ωf::map() const
 
   mapsize_ = (s + pagesize_ - 1) & -pagesize_;
   A((map_ = (u8c*) mmap(nullptr, mapsize_, PROT_READ, MAP_SHARED, fd_, 0)) != MAP_FAILED,
-    "Ωf mmap() failed: " << strerror(errno));
+    "Ωf mmap() failed: " << strerror(errno) << " " << (map_ = nullptr));
   expanded_ = false;
   return map_;
 }
