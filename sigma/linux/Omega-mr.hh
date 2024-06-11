@@ -1,6 +1,7 @@
 #ifndef σserver_Ωmr_h
 #define σserver_Ωmr_h
 
+#include "Omega-types.hh"
 #include "Omega-io.hh"
 #include "Omega-sr.hh"
 
@@ -22,16 +23,13 @@ namespace σ
 //
 // As usual, all numbers are u64b. Run metas are always densely-packed; we don't
 // store empty metadata by setting rIl = 0 or anything.
-struct Ωmr final
+struct Ωmr final : Ωtypes
 {
-  Tt using Sp = τ::Sp<T>;
-  Tt using V  = τ::V<T>;
-
   Ωmr(Sp<Ωf> f) : f_(f) {}
 
-  τ::u64 size()        const;
-  Ωsrc  &at  (τ::uN i) const;
-  Ωm     at  (ΩHc&)    const;
+  u64   size()     const;
+  Ωsrc &at  (uN)   const;
+  Ωm    at  (ΩHc&) const;
 
 
 protected:

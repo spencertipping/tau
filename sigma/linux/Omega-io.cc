@@ -138,7 +138,7 @@ void Ωf::fsync()
   // FIXME: large objects need to have two bytes of size-residue prefix
   let s = x.lsize();
   let o = append(x.ldata(), s);
-  A(o != -1, "Ωf << failed");
+  A(o != -1ull, "Ωf << failed");
   return Ωm(o, s);
 }
 

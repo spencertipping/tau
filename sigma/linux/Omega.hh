@@ -1,6 +1,7 @@
 #ifndef σserver_Ω_h
 #define σserver_Ω_h
 
+#include "Omega-types.hh"
 #include "Omega-hm.hh"
 #include "Omega-sr.hh"
 #include "Omega-mr.hh"
@@ -15,23 +16,16 @@ namespace σ
 void ΓΩ(Γφ&);
 
 
-struct Ω final
+struct Ω final : Ωtypes
 {
-  using ηi    = τ::ηi;
-  using ηic   = τ::ηic;
-  using ηmc   = τ::ηmc;
-  using ηm    = τ::ηm;
-  using uN    = τ::uN;
-  Tt using Sp = τ::Sp<T>;
-
-  Ω(τ::Stc &path,
-    τ::f64  repack           = 0.5,
-    τ::u8   shard_bits       = 0,
-    uN      max_staged_total = 64ull << 20);
+  Ω(Stc &path,
+    f64  repack           = 0.5,
+    u8   shard_bits       = 0,
+    uN   max_staged_total = 64ull << 20);
   ~Ω();
 
   ηm   get(ηic&);
-  Tt T get(ηic&, τ::Fc<T(τ::fd_t, uN, uN)> &f);
+  Tt T get(ηic&, τ::Fc<T(fd_t, uN, uN)> &f);
   void set(ηic&, ηic&);
   void set(ηic&, ηm&&);
   void del(ηic&);
@@ -40,15 +34,20 @@ struct Ω final
 protected:
 
 
-  void get_(ηic&, τ::Fc<void(τ::fd_t, uN, uN)>&);
+  void get_(ηic&, τ::Fc<void(fd_t, uN, uN)>&);
 };
 
 
-Tt T Ω::get(ηic &k, τ::Fc<T(τ::fd_t, uN, uN)> &f)
+Tt T Ω::get(ηic &k, τ::Fc<T(fd_t, uN, uN)> &f)
 {
   T r;
-  get_(k, [&](τ::fd_t fd, uN offset, uN len) { r = f(fd, offset, len); });
+  get_(k, [&](fd_t fd, uN offset, uN len) { r = f(fd, offset, len); });
   return r;
+}
+
+Tn void Ω::get<void>(ηic &k, τ::Fc<void(fd_t, uN, uN)> &f)
+{
+  get_(k, f);
 }
 
 

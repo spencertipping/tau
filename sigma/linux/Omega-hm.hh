@@ -3,6 +3,7 @@
 
 #include <xxhash.h>
 
+#include "Omega-types.hh"
 #include "../begin.hh"
 
 namespace σ
@@ -28,13 +29,13 @@ enum class Ωmv : τ::u8
 
 
 // Metadata: 64 bits, 0 = nonexistent, -1 = deleted, other values are packed.
-struct Ωm final
+struct Ωm final : Ωtypes
 {
   constexpr Ωm() : m(0) {}
   constexpr Ωm(Ωmc&) = default;
-  constexpr Ωm(τ::u64 o, τ::u64 s);
-  constexpr Ωm(Ωmv v) : m(v == Ωmv::deleted ? τ::u64(-1) : 0) {}
-  Ωm(τ::u8c *p) : m(*Rc<τ::u64bc*>(p)) {}
+  constexpr Ωm(u64 o, u64 s);
+  constexpr Ωm(Ωmv v) : m(v == Ωmv::deleted ? u64(-1) : 0) {}
+  Ωm(u8c *p) : m(*Rc<u64bc*>(p)) {}
 
   Ωm &operator=(Ωmc&) = default;
   τ::SO operator<=>(Ωmc &o) const
@@ -43,17 +44,17 @@ struct Ωm final
 
   explicit operator τ::u64() const { return m; }
 
-  bool   exists()     const { return m && ~m; }
-  bool   is_deleted() const { return !~m; }
-  τ::u64 offset()     const { return m & 0x0000'0fff'ffff'ffffull; }
-  τ::u64 size_error() const { return 1ull << std::max(0, int(m >> 59) + 1 - 16); }
-  τ::u64 size()       const
+  bool exists()     const { return m && ~m; }
+  bool is_deleted() const { return !~m; }
+  u64  offset()     const { return m & 0x0000'0fff'ffff'ffffull; }
+  u64  size_error() const { return 1ull << std::max(0, int(m >> 59) + 1 - 16); }
+  u64  size()       const
   { let e = int(m >> 59 & 0x1f);
     let r = m >> 44 & 0x7fff;
     return (1ull << e + 1)
          - (e >= 16 ? r << e + 1 - 16 : r >> 16 - (e + 1)); }
 
-  void into(τ::u8 *p) const { *Rc<τ::u64b*>(p) = m; }
+  void into(u8 *p) const { *Rc<u64b*>(p) = m; }
 
 
 protected:
@@ -61,20 +62,20 @@ protected:
 };
 
 
-struct Ωhm final
+struct Ωhm final : Ωtypes
 {
-  constexpr Ωhm(Ωh h, τ::u64 o, τ::u64 s) : h(h), m(o, s) {}
-  constexpr Ωhm(Ωh h, Ωm m)               : h(h), m(m)    {}
-  constexpr Ωhm()                         : h(0), m()     {}
+  constexpr Ωhm(Ωh h, u64 o, u64 s) : h(h), m(o, s) {}
+  constexpr Ωhm(Ωh h, Ωm m)         : h(h), m(m)    {}
+  constexpr Ωhm()                   : h(0), m()     {}
   constexpr Ωhm(Ωhmc&) = default;
   Ωhm(τ::u8c *p) : h(*Rc<τ::u64bc*>(p)), m(p + 8) {}
 
-  Ωhm  &operator=  (Ωhmc&) = default;
-  τ::SO operator<=>(Ωhmc &o) const { return h <=> o.h; }
+  Ωhm &operator=  (Ωhmc&) = default;
+  auto operator<=>(Ωhmc &o) const { return h <=> o.h; }
 
-  Ωh   hash()         const { return h; }
-  Ωm   meta()         const { return m; }
-  void into(τ::u8 *p) const { *Rc<τ::u64b*>(p) = h; m.into(p + 8); }
+  Ωh   hash()      const { return h; }
+  Ωm   meta()      const { return m; }
+  void into(u8 *p) const { *Rc<u64b*>(p) = h; m.into(p + 8); }
 
 
 protected:
@@ -88,6 +89,7 @@ static_assert(sizeof(Ωhm) == 16);
 
 ic Ωm::Ωm(τ::u64 o, τ::u64 s)
 {
+  using namespace τ;
   A(o < 1ull << 44, "Ωhm: o too large: " << o);
   A(s < 1ull << 32, "Ωhm: s too large: " << s);
 
@@ -96,7 +98,7 @@ ic Ωm::Ωm(τ::u64 o, τ::u64 s)
   if (s == 0) m = om;
   else
   {
-    τ::u64 b = τ::ubits(s);
+    u64 b = ubits(s);
     if (s == 1ull << b)
       // No trim required because we hit the exact size.
       //                         44 bits = 12+ 32------|
