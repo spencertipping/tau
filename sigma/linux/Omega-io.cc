@@ -13,25 +13,23 @@ namespace σ
 using namespace τ;
 
 
-Ωf::Ωf(Stc &path, int mode, u64 append_buffer_size)
-  : fd_(-1),
+Ωf::Ωf(Stc &path, int mode)
+  : path_(path),
+    fd_(-1),
     map_(nullptr),
     mapsize_(0),
     expanded_(false),
-    pagesize_(getpagesize()),
-    append_buffer_size_(append_buffer_size)
+    pagesize_(getpagesize())
 {
   A((fd_ = open(path.c_str(), O_CREAT | O_RDWR, mode)) != -1,
     "Ωf open() failed: " << strerror(errno));
   A((pagesize_ & pagesize_ - 1) == 0,
     "Ωf getpagesize() returned non-power-of-two (wtf is your system): " << pagesize_);
-  append_buffer_.reserve(append_buffer_size_);
 }
 
 
 Ωf::~Ωf()
 {
-  commit();
   if (fd_ != -1) close(fd_);
   fd_ = -1;
 }
@@ -47,8 +45,6 @@ u64 Ωf::size() const
 
 bool Ωf::read(u8 *b, u64 s, u64 o)
 {
-  // FIXME: consult append buffer if necessary; otherwise reads are not coherent
-
   // If we already have a map and we're reading within one page, just copy out
   // from there.
   if (map_ && s <= pagesize_)
@@ -81,24 +77,9 @@ bool Ωf::write(u8c *b, u64 s, u64 o)
 u64 Ωf::append(u8c *b, u64 s)
 {
   expanded_ |= s > 0;
-  if (s >= append_buffer_size_)
-  {
-    commit();
-    let r = size();
-    A(write(b, s, r), "Ωf append() failed: " << strerror(errno));
-    return r;
-  }
-  else if (append_buffer_.size() + s > append_buffer_size_)
-  {
-    commit();
-    append_buffer_.assign(b, b + s);
-    return size();
-  }
-  else
-  {
-    append_buffer_.insert(append_buffer_.end(), b, b + s);
-    return size();
-  }
+  let r = size();
+  A(write(b, s, r), "Ωf append() failed: " << strerror(errno));
+  return r;
 }
 
 
@@ -118,15 +99,22 @@ u8c *Ωf::operator+(u64 o)
 }
 
 
-u8c *Ωf::map()
+void Ωf::unmap()
 {
-  if (map_ && !expanded_) return map_;
   if (map_)
   {
     A(munmap((void*) map_, mapsize_) != -1,
       "Ωf munmap() failed: " << strerror(errno));
-    map_ = nullptr;
+    map_     = nullptr;
+    mapsize_ = 0;
   }
+}
+
+
+u8c *Ωf::map()
+{
+  if (map_ && !expanded_) return map_;
+  unmap();
 
   let s = size();
   if (s == 0) return nullptr;
@@ -139,14 +127,9 @@ u8c *Ωf::map()
 }
 
 
-void Ωf::commit(bool fsync)
+void Ωf::fsync()
 {
-  if (append_buffer_.empty()) return;
-  A(write(append_buffer_.data(), append_buffer_.size(), size()),
-    "Ωf commit() failed: " << strerror(errno));
-  append_buffer_.clear();
-
-  if (fsync) A(::fsync(fd_) != -1, "Ωf fsync() failed: " << strerror(errno));
+  A(::fsync(fd_) != -1, "Ωf fsync() failed: " << strerror(errno));
 }
 
 
