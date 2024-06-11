@@ -19,9 +19,9 @@ Requirements:
 
 We have two files for a packed table: `hm` and `kv`. `kv` is a simple linear allocation; the interesting one is `hm`, which is all about IO locality while we search for `h`. Complicating matters is that each write transaction has the potential to insert new data that we'd like to be available to anyone looking at the files; so we should make sure the database doesn't become too fragmented as values are written. Further, we can't overwrite anything a reader might be using.
 
++ [`k→v` value log](Omega-kv.md)
 + [`h→m` strategy](Omega-hm.md)
 + [`h→m` sorted tables](Omega-sorted.md)
-+ [`k→v` value log](Omega-kv.md)
 
 
 ## Practical notes

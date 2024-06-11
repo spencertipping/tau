@@ -1,6 +1,7 @@
 #ifndef σserver_Ωio_h
 #define σserver_Ωio_h
 
+#include "Omega-types.hh"
 #include "Omega-hm.hh"
 
 #include "../prof.hh"
@@ -17,35 +18,35 @@ namespace σ
 //
 // You cannot modify memory in the mapping; i.e. it's const and we don't msync.
 // If you want to modify the file, you must use write().
-struct Ωf final
+struct Ωf final : Ωtypes
 {
-  Ωf(τ::Stc &path, int mode = 0644);
+  Ωf(Stc &path, int mode = 0644);
   ~Ωf();
 
-  bool    read     (τ::u8  *b, τ::u64 s, τ::u64 o);
-  bool    write    (τ::u8c *b, τ::u64 s, τ::u64 o);
-  τ::u64  append   (τ::u8c *b, τ::u64 s);  // → o | -1
-  τ::u8c *mapped   (τ::u64  o, τ::u64 s);  // bounds-checked
-  τ::u8c *operator+(τ::u64  o);            // partially bounds-checked
-  Tt T    get      (τ::u64  o) { return *Rc<T const*>(*this + o); }
-  τ::u8c *map();
+  bool  read     (u8  *b, u64 s, u64 o) const;
+  bool  write    (u8c *b, u64 s, u64 o);
+  u64   append   (u8c *b, u64 s);        // → o | -1
+  u8c  *mapped   (u64  o, u64 s) const;  // bounds-checked
+  u8c  *operator+(u64  o) const;         // partially bounds-checked
+  Tt T  get      (u64  o) const { return *Rc<T const*>(*this + o); }
+  u8c  *map      ()       const;
 
-  τ::u64  size()        const;             // fstat for file size
-  τ::u64  mapped_size() const { return mapsize_; }
-  bool    is_mapped()   const { return map_ != nullptr; }
-  void    unmap();
-  void    fsync();
+  u64  size       () const;  // fstat for file size
+  u64  mapped_size() const { return mapsize_; }
+  bool is_mapped  () const { return map_ != nullptr; }
+  void unmap      () const;
+  void fsync      ();
 
-  Ωm operator<<(τ::ηic&);
+  Ωm operator<<(ηic&);
 
 
 protected:
-  τ::Stc  path_;
-  τ::fd_t fd_;
-  τ::u8c *map_;
-  τ::u64  mapsize_;
-  bool    expanded_;
-  τ::u64  pagesize_;
+  Stc          path_;
+  fd_t         fd_;
+  mutable u8c *map_;
+  mutable u64  mapsize_;
+  mutable bool expanded_;
+  u64          pagesize_;
 };
 
 

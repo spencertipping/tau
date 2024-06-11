@@ -43,11 +43,11 @@ u64 Ωf::size() const
 }
 
 
-bool Ωf::read(u8 *b, u64 s, u64 o)
+bool Ωf::read(u8 *b, u64 s, u64 o) const
 {
   // If we already have a map and we're reading within one page, just copy out
   // from there.
-  if (map_ && s <= pagesize_)
+  if (map_ && s <= pagesize_ && o + s <= mapsize_)
   {
     A(o + s <= mapsize_, "Ωf read() out of bounds: " << o + s << " > " << mapsize_);
     memcpy(b, map_ + o, s);
@@ -83,23 +83,23 @@ u64 Ωf::append(u8c *b, u64 s)
 }
 
 
-u8c *Ωf::mapped(u64 o, u64 s)
+u8c *Ωf::mapped(u64 o, u64 s) const
 {
-  map();
-  A(o + s <= mapsize_, "Ωf::mapped() out of bounds: " << o + s << " > " << mapsize_);
-  return map_ + o;
+  let m = map();
+  A(o + s <= mapsize_, "Ωf::mapped() out of bounds: " << o << " + " << s << " > " << mapsize_);
+  return m + o;
 }
 
 
-u8c *Ωf::operator+(u64 o)
+u8c *Ωf::operator+(u64 o) const
 {
-  map();
+  let m = map();
   A(o <= mapsize_, "Ωf::operator+() out of bounds: " << o << " > " << mapsize_);
-  return map_ + o;
+  return m + o;
 }
 
 
-void Ωf::unmap()
+void Ωf::unmap() const
 {
   if (map_)
   {
@@ -111,7 +111,7 @@ void Ωf::unmap()
 }
 
 
-u8c *Ωf::map()
+u8c *Ωf::map() const
 {
   if (map_ && !expanded_) return map_;
   unmap();

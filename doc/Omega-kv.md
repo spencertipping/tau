@@ -8,3 +8,14 @@ len:u32b klen:u16b key... value...
 ```
 
 That's a total of 6 bytes of overhead per k/v pair, which is kind of a lot but it allows us to recover fully from just the log, which will be important for failure scenarios.
+
+```cpp
+struct Ωl
+{
+  Ωm          append(ηic&, ηic&);
+  void        fsync();
+  Ωf const   &file() const;
+  P<u64, u32> kloc(Ωm);  // key offset + size
+  P<u64, u32> vloc(Ωm);  // value offset + size
+};
+```

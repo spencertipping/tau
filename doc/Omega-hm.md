@@ -24,7 +24,7 @@ There are a couple of approaches we can take:
 1. Save space and prepend a `u16b` residue for any large values, no residue for small values
 2. Prepend a `u32b` onto every value so we get full data-log replay for recovery
 
-I prefer the second option: we do lose some space, but debugging is a lot easier and we have a full replay log in case the `h→m` files become corrupted.
+I prefer the second option: we do lose some space, but debugging is a lot easier and we have a full replay log in case the `h→m` files become corrupted. See [Ω `k→v` log files](Omega-kv.md) for details.
 
 
 ## Special `m` values
