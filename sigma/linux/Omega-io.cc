@@ -133,16 +133,6 @@ void Ωf::fsync()
 }
 
 
-Ωm Ωf::operator<<(ηic &x)
-{
-  // FIXME: large objects need to have two bytes of size-residue prefix
-  let s = x.lsize();
-  let o = append(x.ldata(), s);
-  A(o != -1ull, "Ωf << failed");
-  return Ωm(o, s);
-}
-
-
 }
 
 #include "../end.hh"

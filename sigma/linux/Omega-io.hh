@@ -31,13 +31,11 @@ struct Ωf final : Ωtypes
   Tt T  get      (u64  o) const { return *Rc<T const*>(*this + o); }
   u8c  *map      ()       const;
 
-  u64  size       () const;  // fstat for file size
-  u64  mapped_size() const { return mapsize_; }
-  bool is_mapped  () const { return map_ != nullptr; }
-  void unmap      () const;
-  void fsync      ();
-
-  Ωm operator<<(ηic&);
+  u64  size     () const;  // fstat for file size
+  u64  mapsize  () const { return mapsize_; }
+  bool is_mapped() const { return map_ != nullptr; }
+  void unmap    () const;
+  void fsync    ();
 
 
 protected:
