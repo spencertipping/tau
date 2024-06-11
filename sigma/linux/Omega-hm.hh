@@ -44,11 +44,12 @@ struct Ωm final : Ωtypes
 
   explicit operator τ::u64() const { return m; }
 
-  bool exists()     const { return m && ~m; }
-  bool is_deleted() const { return !~m; }
-  u64  offset()     const { return m & 0x0000'0fff'ffff'ffffull; }
-  u64  size_error() const { return 1ull << std::max(0, int(m >> 59) + 1 - 16); }
-  u64  size()       const
+  bool exists()          const { return m && ~m; }
+  bool is_deleted()      const { return !~m; }
+  u64  offset()          const { return m & 0x0000'0fff'ffff'ffffull; }
+  u64  size_error(u64 s) const { return size() - s; }
+  u64  size_error()      const { return 1ull << std::max(0, int(m >> 59) + 1 - 16); }
+  u64  size()            const
   { let e = int(m >> 59 & 0x1f);
     let r = m >> 44 & 0x7fff;
     return (1ull << e + 1)

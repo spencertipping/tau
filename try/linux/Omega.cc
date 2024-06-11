@@ -52,6 +52,10 @@ int main() {
             auto s = static_cast<τ::u64>(random_double2) & 0x0000'0000'ffff'ffffull;
 
             verify(o, s, Ωm(o, s));
+
+            if (i < 65536)
+                std::cout << "o: " << o << " s: " << s
+                          << " Ωm: " << Ωm(o, s) << std::endl;
         }
 
         {
@@ -61,6 +65,10 @@ int main() {
 
             s >>= o & 0x0f;
             verify(o, s, Ωm(o, s));
+
+            if (i < 65536)
+                std::cout << "o: " << o << " s: " << s
+                          << " Ωm: " << Ωm(o, s) << std::endl;
         }
 
         if (i % 1048576 == 0)

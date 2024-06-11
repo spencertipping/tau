@@ -9,8 +9,9 @@ namespace σ
 
 struct Ωtypes
 {
-  Tt using Sp = τ::Sp<T>;
-  Tt using V  = τ::V<T>;
+  Tt   using Sp = τ::Sp<T>;
+  Tt   using V  = τ::V<T>;
+	Txxs using M  = τ::M<X, Xs...>;
 
   using ηi    = τ::ηi;
   using ηic   = τ::ηic;
@@ -24,7 +25,7 @@ struct Ωtypes
   using u64bc = τ::u64bc;
   using i64   = τ::i64;
   using f64   = τ::f64;
-	using St    = τ::St;
+  using St    = τ::St;
 	using Stc   = τ::Stc;
 	using fd_t  = τ::fd_t;
 };

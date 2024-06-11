@@ -45,11 +45,6 @@ Tt T Ω::get(ηic &k, τ::Fc<T(fd_t, uN, uN)> &f)
   return r;
 }
 
-Tn void Ω::get<void>(ηic &k, τ::Fc<void(fd_t, uN, uN)> &f)
-{
-  get_(k, f);
-}
-
 
 }
 
