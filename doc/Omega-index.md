@@ -45,17 +45,29 @@ I went with 16MiB as the default lower limit because it's large enough to consis
 We can work around this by maintaining a table of active arrays in the index file header. It has a fixed size and looks like this:
 
 ```
-hb:u64b  // header size in bytes (larger than required)
-n:u64b   // number of active arrays
+"Ωidx\0" v:u16b  // header magic + version (8 bytes)
+key:u64b         // header key: unique per writer
+rev:u64b         // header revision: incremented per update
+n:u64b           // number of active arrays (max = 254)
 
-a1o:u64b a1s:u64b  // first array offset+size
+a1o:u64b a1s:u64b  // first array offset+size (always at byte 32)
 a2o:u64b a2s:u64b  // second array offset+size
 ...
 aNo:u64b aNs:u64b  // final array offset+size
-...                // padding bytes until header size == hb
+...                // padding bytes until header size == 4096
 
-array1...          // byte hb+1: array1 data
+array1...          // byte 4096: array1 data begins
 array2...
 ```
 
-The header allows us to have holes in the index file, which is important because we can append a compacted array and delete its source fragments atomically with a single header update.
+The header allows us to have holes in the index file, which is important because we can append a compacted array and delete its source fragments atomically with a single header update. Then we can either punch holes in the file or reuse earlier space.
+
+For now, `v = 1`. All other values are illegal.
+
+
+## Coordination and write-lock claims
+`rev` increases every time the header is updated. Readers watch the value and reload if it has been changed. If a change does happen, it means the entire index has potentially been invalidated.
+
+`key` coordinates writers in a similar way: there can be only one writer at a time, and the writer updates `key` to an arbitrary value on startup. If at any point `key` is modified, all write operations cease and the writer-context is invalidated. This essentially signals that someone else has claimed the write lock out from under us, and we must be willing to lose the currently-staged data. We must no longer modify the index file in any way.
+
+This locking/coordination strategy is not airtight. For example, a writer may invalidate the header twice, causing a reader to receive corrupt data if it is insufficiently attentive. Similarly, the write-claim case may be problematic if the claim is made in the middle of a slow `write()` call from the original writer. We don't necessarily know when all `write` operations have completed from the initial process.
