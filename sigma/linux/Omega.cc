@@ -12,10 +12,7 @@ void ΓΩ(Γφ&)
 }
 
 
-void Ω::get_(ηic &k, Fc<void(fd_t, uN, uN)> &f)
-{
-	TODO("Ω::get_");
-}
+
 
 
 }

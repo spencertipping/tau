@@ -1,9 +1,6 @@
 #ifndef σserver_Ωio_h
 #define σserver_Ωio_h
 
-#include "Omega-types.hh"
-#include "Omega-hm.hh"
-
 #include "../prof.hh"
 #include "../begin.hh"
 
@@ -18,33 +15,35 @@ namespace σ
 //
 // You cannot modify memory in the mapping; i.e. it's const and we don't msync.
 // If you want to modify the file, you must use write().
-struct Ωf final : Ωtypes
+struct Ωf final
 {
-  Ωf(Stc &path, int mode = 0644);
+  Ωf(τ::Stc &path, int mode = 0644);
   ~Ωf();
 
-  bool  read     (u8  *b, u64 s, u64 o) const;
-  bool  write    (u8c *b, u64 s, u64 o);
-  u64   append   (u8c *b, u64 s);        // → o | -1
-  u8c  *mapped   (u64  o, u64 s) const;  // bounds-checked
-  u8c  *operator+(u64  o) const;         // partially bounds-checked
-  Tt T  get      (u64  o) const { return *Rc<T const*>(*this + o); }
-  u8c  *map      ()       const;
+  bool     read     (τ::u8  *b, τ::u64 s, τ::u64 o) const;
+  bool     write    (τ::u8c *b, τ::u64 s, τ::u64 o);
+  τ::u64   append   (τ::u8c *b, τ::u64 s);        // → o | -1
+  τ::u8c  *mapped   (τ::u64  o, τ::u64 s) const;  // bounds-checked
+  τ::u8c  *operator+(τ::u64  o) const;            // partially bounds-checked
+  Tt T     get      (τ::u64  o) const { return *Rc<T const*>(*this + o); }
+  τ::u8c  *map      ()          const;
 
-  u64  size     () const;  // fstat for file size
-  u64  mapsize  () const { return mapsize_; }
-  bool is_mapped() const { return map_ != nullptr; }
-  void unmap    () const;
-  void fsync    ();
+  τ::Stc  &path     () const { return path_; }
+  τ::u64   size     () const;  // fstat for file size
+  τ::u64   mapsize  () const { return mapsize_; }
+  bool     is_mapped() const { return map_ != nullptr; }
+  void     unmap    () const;
+  τ::fd_t  fd       () const;
+  void     fsync    ();
 
 
 protected:
-  Stc          path_;
-  fd_t         fd_;
-  mutable u8c *map_;
-  mutable u64  mapsize_;
-  mutable bool expanded_;
-  u64          pagesize_;
+  τ::Stc          path_;
+  τ::fd_t         fd_;
+  mutable τ::u8c *map_;
+  mutable τ::u64  mapsize_;
+  mutable bool    expanded_;
+  τ::u64          pagesize_;
 };
 
 

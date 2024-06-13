@@ -45,10 +45,10 @@ I went with 16MiB as the default lower limit because it's large enough to consis
 We can work around this by maintaining a table of active arrays in the index file header. It has a fixed size and looks like this:
 
 ```
-"Ωidx\0" v:u16b  // header magic + version (8 bytes)
-key:u64b         // header key: unique per writer
-rev:u64b         // header revision: incremented per update
-n:u64b           // number of active arrays (max = 254)
+"Ωidx\0" v:u16b    // header magic + version (8 bytes)
+key:u64b           // header key: unique per writer
+rev:u64b           // header revision: incremented per update
+n:u64b             // number of active arrays (max = 254)
 
 a1o:u64b a1s:u64b  // first array offset+size (always at byte 32)
 a2o:u64b a2s:u64b  // second array offset+size
