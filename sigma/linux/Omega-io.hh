@@ -1,6 +1,9 @@
 #ifndef σserver_Ωio_h
 #define σserver_Ωio_h
 
+#define XXH_INLINE_ALL
+#include <xxhash.h>
+
 #include "../prof.hh"
 #include "../begin.hh"
 
@@ -44,12 +47,43 @@ protected:
   mutable τ::u64  mapsize_;
   mutable bool    expanded_;
   τ::u64          pagesize_;
+
+  τ::Sp<measurement>
+    prof_read_,
+    prof_write_,
+    prof_append_,
+    prof_fsync_;
 };
 
 
 // Memoized file open. We use this to avoid opening the same file multiple
 // times, which also guarantees locking.
 τ::Sp<Ωf> Ωfopen(τ::Stc &path);
+
+
+typedef XXH128_hash_t                    ΩH;  // full hash
+typedef decltype(XXH128_hash_t{}.high64) Ωh;  // partial hash
+typedef τ::u64                           Ωp;  // packed offset+size
+
+sletc Ωhm_size = 16;  // Ωh:u64b Ωp:u64b
+
+inline ΩH Ωhash(τ::ηic &x)
+{
+  return XXH3_hashLong_128b_default(x.ldata(), x.lsize(), 0, nullptr, 0);
+}
+
+
+// Sorted stream of ΩH → pack pairs
+// for (auto x = ss(); x; ++x) f(*x);
+struct Ωss
+{
+  virtual ~Ωss() {}
+  virtual operator          bool() const = 0;
+  virtual τ::P<Ωh, Ωp> operator*() const = 0;
+  virtual Ωss        &operator++()       = 0;
+
+  virtual τ::u64        max_size() const = 0;
+};
 
 
 }

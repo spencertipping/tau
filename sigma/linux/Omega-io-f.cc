@@ -14,12 +14,16 @@ using namespace τ;
 
 
 Ωf::Ωf(Stc &path, int mode)
-  : path_(path),
-    fd_(-1),
-    map_(nullptr),
-    mapsize_(0),
-    expanded_(false),
-    pagesize_(getpagesize())
+  : path_       (path),
+    fd_         (-1),
+    map_        (nullptr),
+    mapsize_    (0),
+    expanded_   (false),
+    pagesize_   (getpagesize()),
+    prof_read_  (measurement_for(ηm{} << "Ωf" << path << "read")),
+    prof_write_ (measurement_for(ηm{} << "Ωf" << path << "write")),
+    prof_append_(measurement_for(ηm{} << "Ωf" << path << "append")),
+    prof_fsync_ (measurement_for(ηm{} << "Ωf" << path << "fsync"))
 {
   A((fd_ = open(path.c_str(), O_CREAT | O_RDWR, mode)) != -1,
     "Ωf open() failed: " << strerror(errno));
@@ -45,6 +49,8 @@ u64 Ωf::size() const
 
 bool Ωf::read(u8 *b, u64 s, u64 o) const
 {
+  let t = prof_read_->start();
+
   // If we already have a map and we're reading within one page, just copy out
   // from there.
   if (map_ && s <= pagesize_ && o + s <= mapsize_)
@@ -63,6 +69,8 @@ bool Ωf::read(u8 *b, u64 s, u64 o) const
 
 bool Ωf::write(u8c *b, u64 s, u64 o)
 {
+  let t = prof_write_->start();
+
   expanded_ |= o + s > size();
 
   // No optimization for writes, since they tend to be less frequent and would
@@ -76,6 +84,8 @@ bool Ωf::write(u8c *b, u64 s, u64 o)
 
 u64 Ωf::append(u8c *b, u64 s)
 {
+  let t = prof_append_->start();
+
   expanded_ |= s > 0;
   let r = size();
   A(write(b, s, r), "Ωf append() failed: " << strerror(errno));
@@ -129,6 +139,7 @@ u8c *Ωf::map() const
 
 void Ωf::fsync()
 {
+  let t = prof_fsync_->start();
   A(::fsync(fd_) != -1, "Ωf fsync() failed: " << strerror(errno));
 }
 

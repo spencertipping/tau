@@ -17,50 +17,55 @@ void ΓΩ(Γφ&);
 
 struct Ωl final
 {
-  τ::u64 add(τ::ηic&);
-  void   del(τ::u64);
-  τ::ηm  get(τ::u64) const;
+  Ωl(τ::Stc&, bool rw = false);
+
+  τ::u64 add(τ::ηic &x) { return add(x.ldata(), x.lsize()); }
+  τ::ηm  get(τ::u64, τ::u32 = 0) const;
 
   τ::u64 add   (τ::u8c*, τ::u32);  // returns k
   τ::u32 get   (τ::u64 k, τ::u8*, τ::u32) const;
   τ::u64 offset(τ::u64 k)                 const { return k + 4; }
-  τ::u32 size  (τ::u64 k)                 const;
-  τ::u64 next  (τ::u64 k)                 const;
+  τ::u32 size  (τ::u64 k)                 const { return ro().get<τ::u32b>(k); }
+  τ::u64 next  (τ::u64 k)                 const { return offset(k) + size(k); };
 
-  τ::fd_t fd() const;
-  void    repack();
+  τ::u64  size() const { return f_.size(); }
+  τ::fd_t fd()   const { return f_.fd(); }
 
   Ωf       &rw()       { A(rw_, "Ωl::rw() on read-only file " << f_.path()); return f_; }
   Ωf const &ro() const { return f_; }
 
 protected:
-  Ωf   f_;
-  bool rw_;  // false = read-only
+  Ωf    f_;
+  bool  rw_;  // false = read-only
+  τ::Mu add_mu_;
+
+  τ::Sp<measurement>
+    prof_add_,
+    prof_get_;
 };
 
 
 struct Ωi final
 {
-  typedef XXH128_hash_t ΩH;
   typedef ΩH                   key;
   typedef τ::P<τ::u64, τ::u32> val;
 
-  static τ::u64 pack  (τ::u64 offset, τ::u32 size);
-  static val    unpack(τ::u64 packed);
+  static Ωp  pack  (τ::u64 offset, τ::u32 size);
+  static val unpack(Ωp packed);
+
+  Ωi(τ::Stc&, bool rw = false, τ::u64 mss = 1048576);
 
   void         add(key, τ::u64 offset, τ::u32 size);
-  void         del(key);
-  τ::V<val>    get(key)      const;
-  ΩH           hash(τ::ηic&) const;
-  τ::u64       size()        const;
-  τ::u64       k()           const;
-  τ::V<τ::u64> ks()          const;
-  τ::fd_t      fd()          const;
+  τ::V<val>    get(key) const;
+  τ::u64       size()   const { return ro().size(); }
+  τ::u64       k()      const { return fs_.size(); }
+  τ::V<τ::u64> ks()     const;
+  τ::fd_t      fd()     const { return f_.fd(); }
 
-  τ::u64 real_hkey  () const;
-  τ::u64 stored_hkey() const;
-  τ::u64 real_hrev  () const;
-  τ::u64 stored_hrev() const;
+  τ::u64 volatile real_hkey() const { return ro().get<τ::u64 volatile>(8); }
+  τ::u64 volatile real_hrev() const { return ro().get<τ::u64 volatile>(16); }
+  τ::u64        stored_hkey() const { return hkey_; }
+  τ::u64        stored_hrev() const { return hrev_; }
 
   bool reader_valid() const { return real_hrev() == stored_hrev(); }
   bool writer_valid() const { return real_hkey() == stored_hkey(); }
@@ -71,29 +76,51 @@ struct Ωi final
   Ωf const &ro() const { return f_; }
 
 protected:
-  Ωf     f_;
-  τ::u64 hkey_;  // header key
-  τ::u64 hrev_;  // header revision
-  bool   rw_;    // false = read-only
+  Ωf                         f_;
+  τ::V<τ::P<τ::u64, τ::u64>> fs_;     // fragments
+  τ::u64                     hkey_;   // header key
+  τ::u64                     hrev_;   // header revision
+  τ::Smu                     stage_mu_;
+  τ::M<Ωh, Ωp>               stage_;  // staged but uncommitted data
+  τ::u64                     mss_;    // maximum stage size
+  bool                       rw_;     // false = read-only
+
+  τ::Sp<measurement>
+    prof_add_,
+    prof_get_,
+    prof_repack_,
+    prof_commit_;
+
+  void read_fragments_();
+  void write_hkey_();
+  void commit_();  // assumes stage_mu_ is held
 };
 
 
 struct Ω final
 {
+  Ω(τ::Stc &path, bool rw = false);
+  ~Ω();
+
   void  add(τ::ηic &k, τ::ηic &v);
   void  del(τ::ηic &k);
   τ::ηm get(τ::ηic &k) const;
   void  commit(bool fsync);
-
-  Ωl &log();
-  Ωi &index();
-
-  bool is_valid() const;
+  Ωl   &log();
+  Ωi   &index();
+  bool  is_valid() const;
+  void  commit();  // NOTE: use this instead of separate
 
 protected:
   Ωl   log_;
   Ωi   index_;
   bool rw_;
+
+  τ::Sp<measurement>
+    prof_add_,
+    prof_del_,
+    prof_get_,
+    prof_commit_;
 };
 
 
