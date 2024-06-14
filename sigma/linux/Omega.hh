@@ -19,8 +19,9 @@ struct Ωl final
 {
   Ωl(τ::Stc&, bool rw = false);
 
-  τ::u64 add(τ::ηic &x) { return add(x.ldata(), x.lsize()); }
-  τ::ηm  get(τ::u64, τ::u32 = 0) const;
+  τ::u64 add (τ::ηic &x) { return add(x.ldata(), x.lsize()); }
+  τ::ηm  get (τ::u64, τ::u32 = 0) const;
+  τ::ηi  peek(τ::u64 k) const { return {f_ + offset(k), size(k)}; }
 
   τ::u64 add   (τ::u8c*, τ::u32);  // returns k
   τ::u32 get   (τ::u64 k, τ::u8*, τ::u32) const;
@@ -77,10 +78,14 @@ struct Ωi final
 
 protected:
   Ωf                         f_;
+  mutable τ::Smu             fs_mu_;
   τ::V<τ::P<τ::u64, τ::u64>> fs_;     // fragments
   τ::u64                     hkey_;   // header key
   τ::u64                     hrev_;   // header revision
-  τ::Smu                     stage_mu_;
+
+  // TODO: remove stage; it doesn't belong in this abstraction layer
+  // (it should be in Ω instead)
+  mutable τ::Smu             stage_mu_;
   τ::M<Ωh, Ωp>               stage_;  // staged but uncommitted data
   τ::u64                     mss_;    // maximum stage size
   bool                       rw_;     // false = read-only

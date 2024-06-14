@@ -33,9 +33,14 @@ void Ω::add(ηic &k, ηic &v)
 
 ηm Ω::get(ηic &k) const
 {
-  let vs = index_.get(Ωhash(k));
-
-  // TODO: document multiple-value behavior (should be merge of some sort)
+  // We'll have multiple candidates if the hash collides. In that case, search
+  // each until we find the matching key.
+  for (let &[o, s] : index_.get(Ωhash(k)))
+  {
+    // Peek at the key without copying the whole k/v pair. This will be
+    // optimally fast if the key fits into a single page, which is almost
+    // always.
+  }
 }
 
 

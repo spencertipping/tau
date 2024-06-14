@@ -46,7 +46,7 @@ using namespace τ;
       TODO("Ωi write initial header");
     }
 
-    read_fragments_();
+    read_fragment_table_();
 
     hkey_ = u64(getpid()) << 32 ^ intptr_t(this);
     hrev_ = real_hrev();
@@ -61,7 +61,7 @@ using namespace τ;
             << magic[0] << magic[1] << magic[2] << magic[3] << magic[4]
             << " " << int(magic[5]) << int(magic[6]) << int(magic[7]));
 
-    read_fragments_();
+    read_fragment_table_();
 
     hkey_ = real_hkey();
     hrev_ = real_hrev();
@@ -80,7 +80,20 @@ void Ωi::add(key k, u64 offset, u32 size)
 
 V<Ωi::val> Ωi::get(key k) const
 {
-  let t(prof_get_->start());
+  let    t(prof_get_->start());
+  V<val> r;
+
+  {
+    Sl<Smu> l(stage_mu_);
+    if (let i = stage_.find(k.high64); i != stage_.end())
+      r.push_back(unpack(i->second));
+  }
+
+  {
+    Sl<Smu> l(fs_mu_);
+
+  }
+
   TODO("Ωi::get: search all fragments");
 }
 

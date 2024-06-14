@@ -4,7 +4,7 @@
 + **Data log:** a sequential file of framed η values
 + **Index:** a reduction of the data log that provides _O(lg lg n)_ lookups
 
-Because Ω is log-oriented, it's optimized for insertions rather than updates; if you update data frequently, you'll have to either repack the log periodically or explicitly specify that you want to update values in-place (and manage your own allocation).
+Ω is an insertion-only log; it has no support for updates nor deletions unless you repack everything.
 
 
 ## Format specifications

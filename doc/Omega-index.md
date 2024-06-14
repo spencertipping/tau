@@ -20,7 +20,7 @@ offset = offset  // encoded verbatim, range = 16TiB
 size   = shift == 0 ? psize : (1 << 16) + psize << shift
 ```
 
-`size` is always at least as large as the value's size; this way we reserve sufficient space when reading from the log.
+`size` is encoded in such a way that it is always at least as large as the value's true size; this way we reserve sufficient space when reading from the log and complete the IO using just a single request.
 
 
 ## Staging and repacking
