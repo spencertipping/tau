@@ -91,9 +91,10 @@ protected:
     prof_repack_,
     prof_commit_;
 
-  void read_fragments_();
+  void read_fragment_table_();
   void write_hkey_();
-  void commit_();  // assumes stage_mu_ is held
+  void commit_();              // assumes stage_mu_ is held
+  void fragment_(τ::Sp<Ωss>);  // allocate new fragment, update header
 };
 
 

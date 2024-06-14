@@ -27,7 +27,15 @@ void Ω::add(ηic &k, ηic &v)
   ηm r;
   r.reserve(k.lsize() + 8 + v.lsize());
   r << k << v.all();
-  TODO("Ω::add");
+  index_.add(Ωhash(k), log_.add(r), r.lsize());
+}
+
+
+ηm Ω::get(ηic &k) const
+{
+  let vs = index_.get(Ωhash(k));
+
+  // TODO: document multiple-value behavior (should be merge of some sort)
 }
 
 

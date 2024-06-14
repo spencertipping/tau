@@ -73,7 +73,7 @@ inline ΩH Ωhash(τ::ηic &x)
 }
 
 
-// Sorted stream of ΩH → pack pairs
+// Sorted stream of Ωh → pack pairs
 // for (auto x = ss(); x; ++x) f(*x);
 struct Ωss
 {
@@ -82,8 +82,13 @@ struct Ωss
   virtual τ::P<Ωh, Ωp> operator*() const = 0;
   virtual Ωss        &operator++()       = 0;
 
+  // Maximum number of Ωh → pack pairs that can be generated from this stream
   virtual τ::u64        max_size() const = 0;
 };
+
+
+τ::Sp<Ωss> Ωss_frag (τ::Sp<Ωf>, τ::u64, τ::u64);
+τ::Sp<Ωss> Ωss_merge(τ::Sp<Ωss>, τ::Sp<Ωss>);
 
 
 }
