@@ -62,10 +62,10 @@ struct Ωi final
   τ::V<τ::u64> ks()     const;
   τ::fd_t      fd()     const { return f_.fd(); }
 
-  τ::u64 volatile real_hkey() const { return ro().get<τ::u64 volatile>(8); }
-  τ::u64 volatile real_hrev() const { return ro().get<τ::u64 volatile>(16); }
-  τ::u64        stored_hkey() const { return hkey_; }
-  τ::u64        stored_hrev() const { return hrev_; }
+  τ::u64 real_hkey  () const { return ro().get<τ::u64 volatile>(8); }
+  τ::u64 real_hrev  () const { return ro().get<τ::u64 volatile>(16); }
+  τ::u64 stored_hkey() const { return hkey_; }
+  τ::u64 stored_hrev() const { return hrev_; }
 
   bool reader_valid() const { return real_hrev() == stored_hrev(); }
   bool writer_valid() const { return real_hkey() == stored_hkey(); }
@@ -103,13 +103,11 @@ struct Ω final
   ~Ω();
 
   void  add(τ::ηic &k, τ::ηic &v);
-  void  del(τ::ηic &k);
   τ::ηm get(τ::ηic &k) const;
-  void  commit(bool fsync);
+  void  commit(bool fsync = false);
   Ωl   &log();
   Ωi   &index();
   bool  is_valid() const;
-  void  commit();  // NOTE: use this instead of separate
 
 protected:
   Ωl   log_;
@@ -118,7 +116,6 @@ protected:
 
   τ::Sp<measurement>
     prof_add_,
-    prof_del_,
     prof_get_,
     prof_commit_;
 };
