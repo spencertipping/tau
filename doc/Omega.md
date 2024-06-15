@@ -1,61 +1,65 @@
-# Ω datastore
-[η](eta.md) manages data in memory, Ω provides a persistent log with fast k/v retrieval. Ω has two pieces:
+# Ω persistence
+[η](eta.md) is a container for primitives in memory. Ω is a container for η values in files. There are different variants for different situations. Starting with low-level structures:
 
-+ **Data log:** a sequential file of framed η values
-+ **Index:** a reduction of the data log that provides _O(lg lg n)_ lookups
-
-Ω is an insertion-only log; it has no support for updates nor deletions unless you repack everything.
-
-
-## Format specifications
-+ [Log file](Omega-log.md): `data.kv`
-+ [Index file](Omega-index.md): `data.idx`
++ `Ωf`: a single file containing a single η value, atomic + durable, eventually consistent
++ `Ωl`: an append-only compact log of framed η values, atomic + durable
++ `Ωm`: a file of mutable values that can be moved/deallocated (**TODO**)
++ `Ωh<K, V>`: a persistent, mutable hash index
+  + `K → u64` is a uniformly-distributed keyspace
+  + `V` is a fixed-size object at each key
 
 
-## Core API
-Ω represents a log + index, although each piece is also available on its own. The Ω wrapper encases the key in a η container and writes that + value into a log record, hashing by the key. It also unifies multiple candidate values and chooses the appropriate one, usually the most-recently written. Finally, it marks deletions.
+## Ωf
+A short header followed by a bare η in a file, updated with a full rewrite and atomic `rename`. The header is updated when a new file has been written, at which point interested readers can reopen the file to get the new value.
 
-```cpp
-struct Ω
-{
-  void add(ηic&, ηic&);  // add key/value pair
-  void del(ηic&);        // remove key
-  ηm   get(ηic&) const;  // value at key, or empty
-  void commit(bool);     // write to files, optionally fsync
-  Ωl  &log();
-  Ωi  &index();
-};
-
-struct Ωl  // log file
-{
-  u64  append(ηic&);               // add a formatted entry
-  void del(u64);                   // delete entry at location
-  ηm   read(u64) const;            // read a formatted entry
-
-  u64  append(u8c*, u32);          // add a new entry
-  u32  read(u64, u8*, u32) const;  // read an existing entry
-  u64  offset(u64)         const;  // entry data offset (file byte location)
-  u32  size(u64)           const;  // exact entry size (capacity)
-  u64  next(u64)           const;  // next entry
-  fd_t fd()                const;  // underlying file
-  void repack();                   // rewrite the file (expensive)
-};
-
-struct Ωi  // index
-{
-  typedef XXH128_hash_t ΩH;
-
-  typedef ΩH          k;  // key being queried
-  typedef P<u64, u32> v;  // "value", i.e. offset+~size in logfile
-
-  void   add(k, u64 vo, u32 vs);
-  void   del(k);          // remove association for key
-  V<v>   get(k) const;    // fetch all candidate values for key
-  fd_t   fd()   const;    // underlying file
-  u64    size() const;    // size on disk
-  u64    k()    const;    // number of fragments
-  V<u64> ks()   const;    // fragment sizes, in bytes
-  void   repack(u64);     // repack up to #bytes of data
-  void   commit();        // write stage to file
-};
 ```
+Ωf\0      # 4-byte magic
+rev:u32b  # revision count, incremented on complete update (write + rename)
+η...      # data
+```
+
+
+## Ωl
+A header followed by many η values, each framed by its length. The header contains a `u64b` length field that describes the number of bytes in the file that are currently valid.
+
+```
+Ωl\0           # 4-byte magic
+resv:u32b      # 4 bytes of reserved stuff, currently 0
+size:u64b      # number of valid bytes (including header), updated after append
+n₁:u32b η₁...  # n₁ bytes of η data
+n₂:u32b η₂...  # n₂ bytes of η data
+...
+```
+
+
+## Ωh
+A file similar to [LSM](https://en.wikipedia.org/wiki/Log-structured_merge-tree) that stores sorted runs of hashed key data, mapping to arbitrary fixed-length values. Keys are hashes that may collide, so retrieval typically involves returning zero or more candidates for a given key insertion.
+
+```
+Ωh\0               # 4-byte magic
+rev:u32b           # 4-byte revision, incremented by writer
+hsize:u32b         # header size in bytes
+n:u32b             # number of active arrays
+
+a1o:u64b a1s:u64b  # first array offset+size
+a2o:u64b a2s:u64b  # second array offset+size
+...
+aNo:u64b aNs:u64b  # final array offset+size
+...                # padding until byte hsize
+
+array1...          # byte hsize: array1 data begins
+array2...
+...
+arrayN...
+```
+
+Some important points:
+
+1. The ordering of arrays in the header need not correspond to the order in which they are stored
+2. Arrays are compacted in a background process
+
+
+### Locking
+Ωh files are mutable, so advisory locks coordinate data access across processes.
+
+**TODO:** specify exact strategy

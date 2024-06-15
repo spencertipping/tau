@@ -87,7 +87,7 @@ void πh::mark(πhr const &r)
 {
   A(hn_, "πh::move(" << r << ") called outside of gc");
   if (!r) return r;
-  if (let d = *Rc<πhrn*>(hn_->data() + r.o - πhrns))
+  if (let d = *Uap<πhrn>(hn_->data() + r.o - πhrns))
     return {πhrn(d), r.l, r.i, r.il};
 
   let d = h_.size() + πhrns;

@@ -58,6 +58,43 @@ Ar<u8, N> operator^(Ar<u8, N> const &a, Ar<u8, N> const &b)
 }
 
 
+// Unaligned pointer, const if T is const
+Tt struct Uap;
+Tt using Uapc = Uap<T> const;
+
+Tt struct Uap
+{
+  Uap(void const *p) : p((uintptr_t) p) {}
+
+  SO       operator  <=>(Uapc<T> &y) const = default;
+  explicit operator bool()           const { return p != 0; }
+
+  Rct<T>  operator* ()     const { Rct<T> r; memcpy(&r, (void const*) p, sizeof(T)); return r; }
+  Uap<T> &operator++()           { p += sizeof(T); return *this; }
+  Uap<T> &operator--()           { p -= sizeof(T); return *this; }
+  Uap<T> &operator+=(iN n)       { p += n * sizeof(T); return *this; }
+  Uap<T> &operator-=(iN n)       { p -= n * sizeof(T); return *this; }
+  Uap<T>  operator+ (iN n) const { return {p + n * sizeof(T)}; }
+  Uap<T>  operator- (iN n) const { return {p - n * sizeof(T)}; }
+  Rct<T>  operator[](iN n) const { return *(*this + n); }
+
+  // NOTE: no -> operator because you cannot use the value in place since it is
+  // unaligned
+
+  ptrdiff_t operator-(Uapc<T> &y) const { return (p - y.p) / sizeof(T); }
+
+  void set(T const &x) const
+    { A(!Isc<T>, "Cannot set const value");
+      memcpy((void*) p, &x, sizeof(T)); }
+
+protected:
+  uintptr_t p;
+};
+
+Tt Uap<T const> uap(void const *p) { return {p}; }
+Tt Uap<T>       uap(void       *p) { return {p}; }
+
+
 struct bytes { u64 n; };
 
 enum class byte_suffix : u64

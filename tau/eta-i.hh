@@ -214,10 +214,10 @@ struct ηi final
     { A(is_i(), "i() on non-int " << t());
       switch (size())
       {
-      case 1: return *Rc<i8bc*> (data());
-      case 2: return *Rc<i16bc*>(data());
-      case 4: return *Rc<i32bc*>(data());
-      case 8: return *Rc<i64bc*>(data());
+      case 1: return *uap<i8b>(data());
+      case 2: return *uap<i16b>(data());
+      case 4: return *uap<i32b>(data());
+      case 8: return *uap<i64b>(data());
         TA(0, "η invalid int size: " << size());
       } }
 
@@ -225,8 +225,8 @@ struct ηi final
     { A(is_f(), "f() on non-float " << t());
       switch (size())
       {
-      case 4: return *Rc<f32bc*>(data());
-      case 8: return *Rc<f64bc*>(data());
+      case 4: return *uap<f32b>(data());
+      case 8: return *uap<f64b>(data());
         TA(0, "η invalid float size: " << size());
       } }
 
@@ -258,26 +258,31 @@ struct ηi final
   Sn<i16bc> i16s() const
     { A(is_i16s(), "i16s() on " << t());
       A(!(size() & 1), "i16s invalid size: " << size());
+      TODO("ηi::i16s()");
       return {Rc<i16bc*>(data()), size() >> 1}; }
 
   Sn<i32bc> i32s() const
     { A(is_i32s(), "i32s() on " << t());
       A(!(size() & 3), "i32s invalid size: " << size());
+      TODO("ηi::i32s()");
       return {Rc<i32bc*>(data()), size() >> 2}; }
 
   Sn<i64bc> i64s() const
     { A(is_i64s(), "i64s() on " << t());
       A(!(size() & 7), "i64s invalid size: " << size());
+      TODO("ηi::i64s()");
       return {Rc<i64bc*>(data()), size() >> 3}; }
 
   Sn<f32bc> f32s() const
     { A(is_f32s(), "f32s() on " << t());
       A(!(size() & 3), "f32s invalid size: " << size());
+      TODO("ηi::f32s()");
       return {Rc<f32bc*>(data()), size() >> 2}; }
 
   Sn<f64bc> f64s() const
     { A(is_f64s(), "f64s() on " << t());
       A(!(size() & 7), "f64s invalid size: " << size());
+      TODO("ηi::f64s()");
       return {Rc<f64bc*>(data()), size() >> 3}; }
 
 

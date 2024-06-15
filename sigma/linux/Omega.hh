@@ -20,7 +20,7 @@ struct Ωl final
   Ωl(τ::Stc&, bool rw = false);
 
   τ::u64 add (τ::ηic &x) { return add(x.ldata(), x.lsize()); }
-  τ::ηm  get (τ::u64, τ::u32 = 0) const;
+  τ::ηm  get (τ::u64 k, τ::u32 se = 0) const;
   τ::ηi  peek(τ::u64 k) const { return {f_ + offset(k), size(k)}; }
 
   τ::u64 add   (τ::u8c*, τ::u32);  // returns k
@@ -96,10 +96,11 @@ protected:
     prof_repack_,
     prof_commit_;
 
-  void read_fragment_table_();
-  void write_hkey_();
-  void commit_();              // assumes stage_mu_ is held
-  void fragment_(τ::Sp<Ωss>);  // allocate new fragment, update header
+  void       read_fragment_table_();
+  void       write_hkey_();
+  void       commit_();               // assumes stage_mu_ is held
+  τ::Sp<Ωss> fragment_(τ::u64) const;
+  void       fragment_(τ::Sp<Ωss>);   // allocate new fragment, update header
 };
 
 
