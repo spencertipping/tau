@@ -11,7 +11,7 @@ namespace τ
 
 u64 ηi::hash() const
 {
-  return XXH64(ldata(), lsize(), 0);
+  return XXH3_64bits(ldata(), lsize());
 }
 
 
@@ -33,7 +33,7 @@ h256 ηi::sha256() const
   uN  n = 0;
   while (i.has_next() && n < 15)
   {
-    r = r & ~(0xf << n * 4) | u64(i.t()) << n * 4;
+    r = r & ~(0xfull << n * 4) | u64(i.t()) << n * 4;
     ++i;
     ++n;
   }
