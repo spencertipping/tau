@@ -60,6 +60,43 @@ Some important points:
 
 
 ### Locking
-Ωh files are mutable, so advisory locks coordinate data access across processes.
+Ωh files are mutable and use advisory locks for inter-process coordination. The lock regions are:
 
-**TODO:** specify exact strategy
++ `hrev`: locked exclusively by the writer
++ `a1o..aNs`
+  + Writer locks exclusively during header updates
+  + Readers lock shared during lookups
+
+The `hrev` lock verifies that only one writer exists at any given time and serves no other purpose.
+
+The `a1o..aNs` lock allows readers to claim existing arrays, preventing them from being overwritten. The exclusive lock is required to delete or reuse any existing array space, although it is _not_ required to append new arrays or use already-free space. So the writer follows this logic (pseudocode):
+
+```
+void allocate(array xs)
+{
+  if (we_are_destroying_stuff())
+  {
+    lock_arrays();    // we now hold the exclusive lock
+    // overwrite/destroy any arrays we'd like to
+    unlock_arrays();  // new arrays are ready to use
+  }
+  else
+  {
+    write_into_free_space(xs);  // reuse free or append
+    lock_arrays();              // just a metadata update
+    update_header();            // drop consumed arrays, add new one
+    unlock_arrays();            // new arrays are ready to use
+  }
+}
+```
+
+Readers are simpler:
+
+```
+int find(K x, V *vs, int n)
+{
+  shared_lock_arrays();     // no exclusive locks can exist beyond this point
+  do_find_stuff(x, vs, n);
+  shared_unlock_arrays();   // we're done, arrays can be updated
+}
+```
