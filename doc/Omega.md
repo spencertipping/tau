@@ -18,6 +18,10 @@ rev:u32b  # revision count, incremented on complete update (write + rename)
 η...      # data
 ```
 
+This file does not use locks. When replaced, `rev` in the _original_ file is incremented to signal to readers that new data is available. It doesn't matter whether the update to `rev` is atomic: any change means that the file should be reopened.
+
+If multiple writers attempt to replace a file, the last one wins; atomicity is provided by the OS.
+
 
 ## Ωl
 A header followed by many η values, each framed by its length. The header contains a `u64b` length field that describes the number of bytes in the file that are currently valid.
@@ -30,6 +34,8 @@ n₁:u32b η₁...  # n₁ bytes of η data
 n₂:u32b η₂...  # n₂ bytes of η data
 ...
 ```
+
+Appenders acquire an exclusive lock against `size` for the duration of the append and `size` update. Otherwise no locking is used. Readers consult `size`, which will always be a valid endpoint because it is updated after the append that increases it.
 
 
 ## Ωh
