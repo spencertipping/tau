@@ -30,7 +30,7 @@ A header followed by many η values, each framed by its length. The header conta
 Ωl\0           # 4-byte magic
 resv:u32b      # 4 bytes of reserved stuff, currently 0
 size:u64b      # number of valid bytes (including header), updated after append
-n₁:u32b η₁...  # n₁ bytes of η data
+n₁:u32b η₁...  # n₁ bytes of η data, always at byte 16
 n₂:u32b η₂...  # n₂ bytes of η data
 ...
 ```

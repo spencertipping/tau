@@ -169,6 +169,8 @@ template<class T>          using H   = std::hash<T>;
 template<class T>          using Lg  = std::lock_guard<T>;
 template<class... T>       using M   = std::unordered_map<T...>;
 template<class... T>       using Mc  = std::unordered_map<T...> const;
+template<class... T>       using MM  = std::unordered_multimap<T...>;
+template<class... T>       using MMc = std::unordered_multimap<T...> const;
 template<class... T>       using Mo  = std::map<T...>;
 typedef               std::mutex Mu;
 template<class T>          using Nl  = std::numeric_limits<T>;
@@ -239,9 +241,6 @@ ic decltype(auto) bi(Xs && ...xs) { return std::bind(std::forward<Xs>(xs)...); }
 
 template<class T>
 ic decltype(auto) mo(T &&x) { return std::move(x); }
-
-template<class T> ic T&& fo(T &&x) { return Sc<T&&>(x); }
-template<class T> ic T&& fo(T  &x) { return Sc<T&&>(x); }
 
 template<class T, class U>
 ic decltype(auto) mp(T &&a, U &&b) { return std::make_pair(std::forward<T>(a), std::forward<U>(b)); }
