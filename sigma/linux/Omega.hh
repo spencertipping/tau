@@ -1,7 +1,8 @@
 #ifndef σserver_Ω_h
 #define σserver_Ω_h
 
-#include <xxhash.h>
+#include "Omega-io.hh"
+#include "Omega-h.hh"
 
 #include "../prof.hh"
 #include "../begin.hh"
@@ -13,90 +14,49 @@ namespace σ
 void ΓΩ(Γφ&);
 
 
-struct Ωfl final
-{
-  Ωfl (τ::fd_t, bool rw = false);
-  ~Ωfl();
-
-protected:
-  τ::fd_t fd_;
-  bool    rw_;
-};
-
-
 struct Ωf final
 {
-  Ωf (τ::Stc&, bool rw = false);
-  ~Ωf();
+  Ωf(τ::Stc&, bool rw = false);
 
   Ωf   &operator=(τ::ηic&);
   τ::ηm operator*() const;
 
+  τ::u64 size() const;
+  τ::u32 rev () const;
+
+  void write_header_into(Ωfd) const;
+
 protected:
-  τ::Stc  f_;
-  τ::fd_t fd_;
-  bool    rw_;
+  τ::Stc         f_;
+  mutable Ωfd    fd_;
+  mutable τ::u32 rev_;
+  bool           rw_;
 };
 
 
 struct Ωl final
 {
-  Ωl (τ::Stc&, bool rw = false);
-  ~Ωl();
+  Ωl(τ::Stc&, bool rw = false);
 
   typedef τ::u64 key;
 
   key    operator<<(τ::ηic&);
-  τ::ηi  operator[](key) const;  // memory-mapped (for smaller values)
-  τ::ηm  get       (key) const;  // bulk-loaded (for larger values)
-  key    next      (key) const;
-  τ::u64 offset    (key) const;
-  τ::u64 size      (key) const;
+  τ::ηm  get       (key) const;
+  key    next      (key k) const { return k + 4 + size(k); }
+  τ::u64 offset    (key k) const { return k + 4; }
+  τ::u64 size      ()      const { return *τ::uap<τ::u64bc>(map_ + 8); }
+  τ::u32 size      (key k) const
+    { let s = size();
+      A(map_.ensure(k + 4) && k + 4 <= s, "Ωl: key " << k << " beyond EOF " << s);
+      return *τ::uap<τ::u32bc>(map_ + k); }
+
+  void write_header(τ::u64);
 
 protected:
-  τ::Stc      f_;
-  τ::fd_t     fd_;
-  bool        rw_;
-  void const *map_;
-};
-
-
-template<class K, class V> struct Ωh final
-{
-  typedef K const Kc;
-  typedef V const Vc;
-
-  Ωh (τ::Stc&, bool rw = false);
-  ~Ωh();
-
-  void   add   (Kc&, Vc&);
-  τ::u32 get   (Kc&, V*, τ::u32) const;
-  void   commit();        // commit the stage to a new array
-  void   repack(τ::f64);  // repack up to this fraction of values
-
-protected:
-  struct array final
-  {
-    τ::u64 o;
-    τ::u64 s;
-  };
-
-  τ::Stc      f_;
-  τ::fd_t     fd_;
-  bool        rw_;
-  void const *map_;
-  τ::u32      rev_;
-  τ::u32      cap_;
-  τ::V<array> as_;        // active arrays, always sorted by ascending o
-  τ::Smu      stage_mu_;
-  τ::MM<K, V> stage_;
-
-  τ::u32 largest_array_ () const;
-  τ::u32 smallest_array_() const;
-
-  // TODO: find gaps
-
-  Ωfl lock_arrays_(bool rw);
+  τ::Stc f_;
+  Ωfd    fd_;
+  bool   rw_;
+  Ωfm    map_;
 };
 
 
