@@ -24,6 +24,17 @@ struct Ωfd_ final
       A(fstat(fd_, &s) != -1, "Ωfd_(" << fd_ << ")::size() stat failed");
       return s.st_size; }
 
+  void fdatasync() const { A(::fdatasync(fd_) != -1, "Ωfd::fdatasync() failed"); }
+  void fsync()     const { A(::fsync(fd_)     != -1, "Ωfd::fsync() failed"); }
+
+  void pread(void *buf, τ::u64 s, τ::u64 o = 0) const
+  { A(::pread(fd_, buf, s, o) == s,
+      "Ωfd::pread(fd=" << fd_ << ", s=" << s << ", o=" << o << ") failed"); }
+
+  void pwrite(void *buf, τ::u64 s, τ::u64 o = 0)
+  { A(::pwrite(fd_, buf, s, o) == s,
+      "Ωfd::pwrite(fd=" << fd_ << ", s=" << s << ", o=" << o << ") failed"); }
+
 protected:
   τ::fd_t fd_;
 };
@@ -60,6 +71,8 @@ struct Ωfl final  // file region lock
           "fcntl unlock(" << fd_->fd() << ") failed");
       locked_ = false; }
 
+  bool locked() const { return locked_; }
+
 protected:
   Ωfd                  fd_;
   bool                 rw_;
@@ -81,8 +94,14 @@ struct Ωfm final  // file mmap; const means it represents the same file
   ~Ωfm() { unmap(); }
 
 
-  bool ok()        const { return fd_ != nullptr && (map_ != nullptr || fd_->ok()); }
-  bool is_mapped() const { return map_ != nullptr; }
+  bool  ok()        const { return fd_ != nullptr && (map_ != nullptr || fd_->ok()); }
+  bool  is_mapped() const { return map_ != nullptr; }
+  void *mapping()   const { map(); return map_; }
+  void  sync(τ::u64 o = 0, τ::u64 s = 0, bool fsync = false) const
+    { if (!map()) return;
+      if (o == 0 && s == 0) s = mapsize_;
+      A(msync((τ::ch*) map_ + o, s, MS_SYNC) != -1, "msync() failed");
+      if (fsync) fd_->fdatasync(); }
 
   bool ensure(τ::u64 o) const
     { if (o > mapsize_) update();

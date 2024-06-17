@@ -23,16 +23,16 @@ Tkl struct Ωh final
 
   Ωh(τ::Stc &path,
      bool    rw     = false,
-     τ::f64  auto_f = 1.5,
+     τ::f64  auto_f = 0.25,
      τ::u32  mss    = 1048576,
      τ::u32  cap    = 255);
   ~Ωh();
 
   void   add     (Kc&, Lc&);
   τ::u32 get     (Kc&, L*, τ::u32) const;
-  void   commit  ();        // commit the stage to a new array
-  void   repack  (τ::u64);  // repack up to this many _bytes_
-  τ::u64 unpacked() const;  // how many _bytes_ of k/v entries are unpacked
+  void   commit  (bool fsync = false);
+  void   repack  (τ::u64 max_bytes, bool fsync = false);
+  τ::u64 unpacked() const;
 
 
 protected:
@@ -63,8 +63,8 @@ protected:
   typedef hd const hdc;
   typedef ar const arc;
 
-  static_assert(sizeof(hd) == 16);
-  static_assert(sizeof(ar) == 16);
+  sletc hdb = sizeof(hd);  static_assert(hdb == 16);
+  sletc arb = sizeof(ar);  static_assert(arb == 16);
 
 
   τ::Stc         f_;
@@ -77,7 +77,7 @@ protected:
   τ::u32         rev_;       // last-read revision (readers)
   τ::u32         cap_;       // max #arrays (writers)
   mutable τ::Smu as_mu_;
-  τ::V<ar>       as_;        // active arrays, always sorted by ascending o
+  τ::V<ar>       as_;        // active arrays, no ordering
   mutable τ::Smu stage_mu_;
   τ::MM<K, L>    stage_;     // staged insertions
 
@@ -89,10 +89,13 @@ protected:
 
   τ::u32 search_in_(ar const&, Kc&, L*, τ::u32) const;
 
-  Ωfl  lock_arrays_ (bool rw) const { return {fd_, rw, 16, 16 * cap_}; }
-  bool read_header_ ();
-  void write_header_(τ::u32 cap);
-  void commit_      ();  // assumes stage_mu_ is unique-locked
+  Ωfl    lock_arrays_ (bool rw) const { return {fd_, rw, hdb, arb * cap_}; }
+  bool   read_header_ ();
+  void   write_header_(τ::u32 cap, bool fsync);
+  void   write_arrays_(bool fsync);
+  void   commit_      (bool fsync);                    // stage_mu_ is unique-locked
+  void   repack_      (τ::u64 max_bytes, bool fsync);  // ar_mu_ is unique-locked
+  τ::u64 insert_at_   (τ::u64 bytes) const;            // ar_mu_ is u/s-locked
 
   static ss merge_(ss, ss);
 };
@@ -113,18 +116,18 @@ Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss, τ::u32 cap
   if (rw_)
   {
     revl_.lock(4, 4);  // claim unique write access
-    if (fd_->size() < 16) write_header_(cap);
+    if (fd_->size() < hdb) write_header_(cap);
   }
   else
   {
-    A(fd_->size() >= 16, "Ωh::Ωh(ro): no data in " << f);
+    A(fd_->size() >= hdb, "Ωh::Ωh(ro): no data in " << f);
     read_header_();
   }
 }
 
 Tkl Ωh<K, L>::~Ωh()
 {
-  if (rw_) commit();
+  if (rw_) commit(true);
 }
 
 
@@ -213,26 +216,70 @@ Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n) const
 }
 
 
-Tkl void Ωh<K, L>::commit()
+Tkl void Ωh<K, L>::commit(bool fsync)
 {
-  τ::Ul<τ::Smu> l(stage_mu_);
-  commit_();
+  using namespace τ;
+  Ul<Smu> l(stage_mu_);
+  commit_(fsync);
+}
+
+Tkl void Ωh<K, L>::commit_(bool fsync)
+{
+  using namespace τ;
+  Ul<Smu> sl(stage_mu_);  if (stage_.empty()) return;
+  Ul<Smu> al(as_mu_);
+  if (as_.size() + 1 >= cap_) repack_(fd_->size() * auto_f_, fsync);
+
+  let as = stage_.size() * klb;
+  let ao = insert_at_(as);
+  V<kl> kls;  kls.reserve(stage_.size());
+  for (let &[k, l] : stage_) kls.push_back({k, l});
+  std::sort(kls.begin(), kls.end(), [](klc &a, klc &b) { return a.k < b.k; });
+
+  for (u32 i = 0; i < kls.size(); ++i) memcpy(map_ + (ao + i * klb), &kls[i], klb);
+  map_.sync(ao, as, fsync);
+  as_.push_back({ao, as});
+  repack_(as * 3, fsync);  // repack iff ≥50% of next-largest array
+  write_arrays_(fsync);
 }
 
 
-Tkl void Ωh<K, L>::repack(τ::u64 max_bytes)
+Tkl τ::u64 Ωh<K, L>::insert_at_(τ::u64 bytes) const
 {
   using namespace τ;
-  Ul<Smu> l(as_mu_);
+  if (as_.empty()) return hdb + cap_ * arb;
+
+  V<u32> aoi(as_.size());  // indexes of as_ by ascending offset
+  for (u32 i = 0; i < as_.size(); ++i) aoi.push_back(i);
+  std::sort(aoi.begin(), aoi.end(), [&](u32 a, u32 b) { return as_[a].o < as_[b].o; });
+
+  // Now look for any gap large enough to accept the new array. By default we
+  // append to the end of the file, but it's possible that we'll have a gap
+  // large enough for the new array.
+  for (u32 i = 0; i + 1 < aoi.size(); ++i)
+    if (as_[aoi[i + 1]].o - (as_[aoi[i]].o + as_[aoi[i]].s) >= bytes)
+      return as_[aoi[i]].o + as_[aoi[i]].s;
+  return as_.back().o + as_.back().s;
+}
+
+
+Tkl void Ωh<K, L>::repack(τ::u64 max_bytes, bool fsync)
+{
+  using namespace τ;
+  Ul<Smu> al(as_mu_);
+  repack_(max_bytes, fsync);
+}
+
+Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
+{
+  using namespace τ;
 
   // We always repack the smallest arrays first, so find out how many fit into
   // max_bytes and how big they would be if we combined them. Then figure out
   // whether they fit into an existing gap, or whether we should append.
   V<u32> asi(as_.size());  // indexes of as_ by ascending size
-  V<u32> aoi(as_.size());  // indexes of as_ by ascending offset
-  for (u32 i = 0; i < as_.size(); ++i) asi.push_back(i), aoi.push_back(i);
+  for (u32 i = 0; i < as_.size(); ++i) asi.push_back(i);
   std::sort(asi.begin(), asi.end(), [&](u32 a, u32 b) { return as_[a].s < as_[b].s; });
-  std::sort(aoi.begin(), aoi.end(), [&](u32 a, u32 b) { return as_[a].o < as_[b].o; });
 
   u64 bytes = 0;
   u32 n     = 0;
@@ -245,22 +292,25 @@ Tkl void Ωh<K, L>::repack(τ::u64 max_bytes)
   // Can't repack fewer than two arrays.
   if (n < 2) return;
 
-  // Now look for any gap large enough to accept the new array. By default we
-  // append to the end of the file, but it's possible that we'll have a gap
-  // large enough for the new array.
-  u64 append_at = fd_->size();
-  for (u32 i = 0; i + 1 < aoi.size(); ++i)
-    if (as_[aoi[i + 1]].o - (as_[aoi[i]].o + as_[aoi[i]].s) >= bytes)
-    {
-      append_at = as_[aoi[i]].o + as_[aoi[i]].s;
-      break;
-    }
-
-  map_.update();
-  V<ss> sas(n);  // streams to merge
+  map_.update();  // make sure we can read everything
+  V<ss> sas(n);   // streams to merge
   for (u32 i = 0; i < n; ++i) sas.push_back(as_[asi[i]].stream(map_));
   ss m = balanced_apply(sas, merge_);
-  // TODO: write m's entries into new space
+
+  let ao = insert_at_(bytes);
+  u32 j  = 0;
+  for (; *m; ++m, ++j)
+  {
+    let kl = **m;
+    memcpy(map_ + (ao + j * klb), &kl, klb);
+  }
+  map_.sync(ao, j * klb, fsync);
+
+  V<ar> nas;  // new arrays
+  for (u32 i = n; i < as_.size(); ++i) nas.push_back(as_[asi[i]]);
+  nas.push_back({ao, j * klb});
+  as_ = nas;
+  write_arrays_(fsync);
 }
 
 
@@ -280,17 +330,33 @@ Tkl bool Ωh<K, L>::read_header_()
 }
 
 
-Tkl void Ωh<K, L>::write_header_(τ::u32 cap)
+Tkl void Ωh<K, L>::write_header_(τ::u32 cap, bool fsync)
 {
   using namespace τ;
+  A(rw_ && revl_.locked(), "Ωh::write_header_: not writable");
   hd h;
   memcpy(h.magic, "Ωh\0", 4);
   h.rev = rev_;
   h.cap = cap;
   h.n   = as_.size();
-  A(pwrite(fd_->fd(), &h, 16, 0) == 16,
-    "Ωh::write_header_: pwrite failed");
+  fd_->pwrite(&h, 16, 0);
+  if (fsync) fd_->fdatasync();
 }
+
+
+Tkl void Ωh<K, L>::write_arrays_(bool fsync)
+{
+  using namespace τ;
+  let al = lock_arrays_(true);
+  St ab; ab.resize(cap_ * arb);
+  for (u32 i = 0; i < as_.size(); ++i) memcpy(&ab[arb*i], &as_[i], arb);
+  fd_->pwrite(ab.data(), cap_ * arb, hdb);
+  write_header_(cap_, false);
+  if (fsync) fd_->fdatasync();
+}
+
+
+template<> struct Ωh<τ::u64, τ::u64>;
 
 
 #undef Tkl

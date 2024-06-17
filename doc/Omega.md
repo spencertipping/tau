@@ -51,7 +51,7 @@ a1o:u64b a1s:u64b  # first array offset+size at byte 16
 a2o:u64b a2s:u64b  # second array offset+size
 ...
 aNo:u64b aNs:u64b  # final array offset+size
-...                # padding until byte hsize
+...                # padding until byte hsize (arbitrary data)
 
 array1...          # byte 16 + 16 * capacity: array1 data begins
 array2...
@@ -67,9 +67,7 @@ Some important points:
 
 
 ### Staging and compaction
-Insertions are staged in an `unordered_multimap` and are written into new tail arrays, which are merged in the background. Writers are blocked when array space becomes unavailable; that is, when `n * 16 == hsize - 1`. At that point no further values can be staged until compaction has merged some arrays.
-
-Merging applies to the smallest _k_ of _n_ arrays, and happens automatically when:
+Insertions are staged in an `unordered_multimap` and are written into new arrays, which are merged synchronously by the writer. Merging applies to the smallest _k_ of _n_ arrays, and happens automatically when:
 
 1. We write a new array whose size is ≥50% of the smallest array
 2. We have more than _f · log₂(largest array)_ arrays, where _f_ is tunable
