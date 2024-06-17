@@ -28,11 +28,11 @@ struct Ωfd_ final
   void fsync()     const { A(::fsync(fd_)     != -1, "Ωfd::fsync() failed"); }
 
   void pread(void *buf, τ::u64 s, τ::u64 o = 0) const
-  { A(::pread(fd_, buf, s, o) == s,
+  { A(::pread(fd_, buf, s, o) == τ::iS(s),
       "Ωfd::pread(fd=" << fd_ << ", s=" << s << ", o=" << o << ") failed"); }
 
-  void pwrite(void *buf, τ::u64 s, τ::u64 o = 0)
-  { A(::pwrite(fd_, buf, s, o) == s,
+  void pwrite(void const *buf, τ::u64 s, τ::u64 o = 0)
+  { A(::pwrite(fd_, buf, s, o) == τ::iS(s),
       "Ωfd::pwrite(fd=" << fd_ << ", s=" << s << ", o=" << o << ") failed"); }
 
 protected:

@@ -20,29 +20,6 @@ using namespace τ;
 }
 
 
-u64 Ωf::size() const
-{
-  struct stat st;
-  A(fstat(fd_->fd(), &st) == 0, "Ωf::size(): fstat failed");
-  return st.st_size;
-}
-
-
-u32 Ωf::rev() const
-{
-  u32b rev;
-  A(pread(fd_->fd(), &rev, 4, 4) == 4, "Ωf::rev(): failed to read revision");
-  return rev;
-}
-
-
-void Ωf::write_header_into(Ωfd f) const
-{
-  A(pwrite(f->fd(), "Ωf\0\0\0\0\0", 8, 0) == 8,
-    "Ωf::write_header_into(" << f->fd() << "): failed to write header");
-}
-
-
 Ωf &Ωf::operator=(ηic &x)
 {
   A(rw_, "Ωf::operator=(ηic): read-only file");
@@ -53,8 +30,7 @@ void Ωf::write_header_into(Ωfd f) const
   A(fd->ok(), "Ωf::operator=(ηic): mkstemp(\"" << fn << "\") failed");
 
   write_header_into(fd);
-  A(pwrite(fd->fd(), x.ldata(), x.lsize(), 8) == x.lsize(),
-    "Ωf::operator=(ηic): failed to write data");
+  fd->pwrite(x.ldata(), x.lsize(), 8);
 
   A(rename(ft.c_str(), f_.c_str()) == 0,
     "Ωf::operator=(ηic): rename(\"" << ft << "\", \"" << f_ << "\") failed");
@@ -62,8 +38,7 @@ void Ωf::write_header_into(Ωfd f) const
   // Now that the new file is in place, signal all existing readers by bumping
   // the revision.
   u32b next_rev = rev() + 1;  // note: fd_ still refers to old file
-  A(pwrite(fd_->fd(), &next_rev, 4, 4) == 4,
-    "Ωf::operator=(ηic): failed to increase revision");
+  fd_->pwrite(&next_rev, 4, 4);
   fd_ = fd;
   return *this;
 }
@@ -82,8 +57,7 @@ void Ωf::write_header_into(Ωfd f) const
   ηm  r;
   let n = size();
   r.x_.resize(n - 8);
-  A(pread(fd_->fd(), r.x_.data(), n - 8, 8) == n - 8,
-    "Ωf::operator*(): failed to read data");
+  fd_->pread(r.x_.data(), n - 8, 8);
   return r;
 }
 

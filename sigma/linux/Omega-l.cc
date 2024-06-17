@@ -34,10 +34,8 @@ using namespace τ;
 void Ωl::write_header(u64 s)
 {
   u64b sb = s;
-  A(pwrite(fd_->fd(), "Ωl\0\0\0\0\0", 8, 0) == 8,
-    "Ωl::write_header: failed to write header");
-  A(pwrite(fd_->fd(), &sb, 8, 8) == 8,
-    "Ωl::write_header: failed to write size");
+  fd_->pwrite("Ωl\0\0\0\0\0", 8, 0);
+  fd_->pwrite(&sb, 8, 8);
 }
 
 
@@ -47,9 +45,8 @@ void Ωl::write_header(u64 s)
   key  k = size();
   u32b s = x.lsize();
   let  e = k + 4 + s;
-  A(pwrite(fd_->fd(), &s, 4, k) == 4, "Ωl::operator<<: failed to write size");
-  A(pwrite(fd_->fd(), x.ldata(), s, k + 4) == s,
-    "Ωl::operator<<: failed to write data");
+  fd_->pwrite(&s, 4, k);
+  fd_->pwrite(x.ldata(), s, k + 4);
   write_header(e);
   map_.update();
   return k;
