@@ -17,6 +17,7 @@ Tkl struct Ωh final
   typedef L const Lc;
 
   struct kl final { K k; L l; };
+  typedef kl const klc;
   sletc  klb = sizeof(kl);
 
 
@@ -35,7 +36,7 @@ Tkl struct Ωh final
 
 
 protected:
-  struct header final
+  struct hd final
   {
     τ::ch   magic[4];
     τ::u32b rev;
@@ -43,14 +44,27 @@ protected:
     τ::u32b n;
   };
 
-  struct array final
+  struct ss_
+  {
+    virtual ~ss_() = default;
+    virtual explicit operator bool() const = 0;
+    virtual kl       operator*    () const = 0;
+    virtual ss_     &operator++   ()       = 0;
+  };
+  typedef τ::Sp<ss_> ss;
+
+  struct ar final
   {
     τ::u64b o;
     τ::u64b s;
+    ss stream(Ωfm const &m) const;
   };
 
-  static_assert(sizeof(header) == 16);
-  static_assert(sizeof(array)  == 16);
+  typedef hd const hdc;
+  typedef ar const arc;
+
+  static_assert(sizeof(hd) == 16);
+  static_assert(sizeof(ar) == 16);
 
 
   τ::Stc         f_;
@@ -63,22 +77,24 @@ protected:
   τ::u32         rev_;       // last-read revision (readers)
   τ::u32         cap_;       // max #arrays (writers)
   mutable τ::Smu as_mu_;
-  τ::V<array>    as_;        // active arrays, always sorted by ascending o
+  τ::V<ar>       as_;        // active arrays, always sorted by ascending o
   mutable τ::Smu stage_mu_;
   τ::MM<K, L>    stage_;     // staged insertions
 
-  // NOTE: always lock stage_mu_ before as_mu_
+  // NOTE: always lock stage_mu_ before as_mu_? (TODO: justify)
 
 
   τ::u32 largest_array_index_ () const;
   τ::u32 smallest_array_index_() const;
 
-  τ::u32 search_in_(array const&, Kc&, L*, τ::u32) const;
+  τ::u32 search_in_(ar const&, Kc&, L*, τ::u32) const;
 
   Ωfl  lock_arrays_ (bool rw) const { return {fd_, rw, 16, 16 * cap_}; }
   bool read_header_ ();
   void write_header_(τ::u32 cap);
-  void commit_      ();  // assumes stage_mu_ is locked
+  void commit_      ();  // assumes stage_mu_ is unique-locked
+
+  static ss merge_(ss, ss);
 };
 
 
@@ -112,33 +128,86 @@ Tkl Ωh<K, L>::~Ωh()
 }
 
 
-Tkl void Ωh<K, L>::add(Kc &k, Vc &v)
+Tkl typename Ωh<K, L>::ss Ωh<K, L>::ar::stream(Ωfm const &m) const
+{
+  struct ars final : public virtual ss_
+  {
+    ars(Ωfm const &m, τ::u64 o, τ::u64 s)
+      : ss_(), m_(m), o_(o), s_(s), i_(0) {}
+
+    explicit operator bool() const { return i_ * klb < s_; }
+    kl       operator*    () const { return *τ::uap<klc>(m_ + (o_ + i_ * klb)); }
+    ss_     &operator++   ()       { ++i_; return this; }
+
+  protected:
+    Ωfm const &m_;
+    τ::u64     o_;
+    τ::u64     s_;
+    τ::u64     i_;  // current element
+  };
+
+  return std::make_shared<ars>(m, o, s);
+}
+
+
+Tkl typename Ωh<K, L>::ss Ωh<K, L>::merge_(ss a, ss b)
+{
+  struct ms final : public virtual ss_
+  {
+    ms(ss a, ss b) : a_(a), b_(b),
+                     ae_(!*a_),
+                     be_(!*b_),
+                     av_(ae_ ? kl{0, 0} : **a_),
+                     bv_(be_ ? kl{0, 0} : **b_) {}
+
+    explicit operator bool() const { return !ae_ && !be_; }
+    kl       operator*    () const { return ae_ ? bv_ : be_ ? av_ : std::min(av_, bv_); }
+    ss_     &operator++   ()
+      { let av0 = av_;
+        let ae0 = ae_;
+        if (!ae_ && (be_ || av_ <= bv_) && !(ae_ = !++*a_)) av_ = **a_;
+        if (!be_ && (ae0 || bv_ <= av0) && !(be_ = !++*b_)) bv_ = **b_; }
+
+  protected:
+    ss   a_;
+    ss   b_;
+    bool ae_;
+    bool be_;
+    kl   av_;
+    kl   bv_;
+  };
+
+  return std::make_shared<ms>(a, b);
+}
+
+
+Tkl void Ωh<K, L>::add(Kc &k, Lc &l)
 {
   using namespace τ;
-  Ul<Smu> l(stage_mu_);
-  stage_.insert({k, v});
+  Ul<Smu> sl(stage_mu_);
+  stage_.insert({k, l});
   if (stage_.size() > mss_) commit_();
 }
 
 
-Tkl τ::u32 Ωh<K, L>::get(Kc &k, V *v, τ::u32 n) const
+Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n) const
 {
   using namespace τ;
   u32 r = 0;
 
   {
-    Sl<Smu> l(stage_mu_);
+    Sl<Smu> sl(stage_mu_);
     let     e = stage_.equal_range(k);
     for (auto i = e.first; i != e.second; ++i)
-      if (v && r < n) *v[r++] = i->second;
+      if (l && r < n) *l[r++] = i->second;
   }
 
   {
-    // NOTE: obtain file lock first? (TODO: justify this)
+    // NOTE: obtain file lock first? (TODO: justify)
     let     fl = lock_arrays_(false);
-    Sl<Smu> l(as_mu_);
+    Sl<Smu> al(as_mu_);
     for (u32 i = 0; r < n && i < as_.size(); ++i)
-      r += search_in_(as_[i], k, v ? v + r : 0, n - r);
+      r += search_in_(as_[i], k, l ? l + r : 0, n - r);
   }
   return r;
 }
@@ -187,22 +256,25 @@ Tkl void Ωh<K, L>::repack(τ::u64 max_bytes)
       break;
     }
 
-  V<array> ams(n);  // arrays to merge
-  // TODO: array-merge machinery here (into append_at)
+  map_.update();
+  V<ss> sas(n);  // streams to merge
+  for (u32 i = 0; i < n; ++i) sas.push_back(as_[asi[i]].stream(map_));
+  ss m = balanced_apply(sas, merge_);
+  // TODO: write m's entries into new space
 }
 
 
 Tkl bool Ωh<K, L>::read_header_()
 {
   using namespace τ;
-  let h = *uap<header const>(map_ + 0);
+  let h = *uap<hdc>(map_ + 0);
   if (h.rev == rev_) return false;
   else
   {
     map_.update();
     as_.resize(h.n);
     for (u32 i = 0; i < as_.size(); ++i)
-      as_[i] = *uap<array const>(map_ + (16 + 16*i));
+      as_[i] = *uap<arc>(map_ + (16 + 16*i));
     return true;
   }
 }
@@ -211,7 +283,7 @@ Tkl bool Ωh<K, L>::read_header_()
 Tkl void Ωh<K, L>::write_header_(τ::u32 cap)
 {
   using namespace τ;
-  header h;
+  hd h;
   memcpy(h.magic, "Ωh\0", 4);
   h.rev = rev_;
   h.cap = cap;
