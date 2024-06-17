@@ -61,7 +61,7 @@ arrayN...
 
 Some important points:
 
-1. The ordering of arrays in the header need not correspond to the order in which they are stored
+1. The ordering of arrays in the header need not correspond to the order in which they are stored in the file (i.e. `array2` can be located before `array1`)
 2. Arrays are compacted in a background process
 3. Readers must release locks quickly; they are not allowed to hold array locks for longer than absolutely necessary
 
@@ -79,7 +79,7 @@ Merging applies to the smallest _k_ of _n_ arrays, and happens automatically whe
 ### Locking
 Ωh files are mutable and use advisory locks for inter-process coordination. The lock regions are:
 
-+ `hrev`: locked exclusively by the writer
++ `rev`: locked exclusively by the writer
 + `a1o..aNs`
   + Writer locks exclusively during header updates
   + Readers lock shared during lookups

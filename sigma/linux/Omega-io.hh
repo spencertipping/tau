@@ -38,25 +38,33 @@ inline Ωfd Ωopen(τ::Stc &path, bool rw = false, int mode = 0644)
 
 struct Ωfl final  // file region lock
 {
-  Ωfl (Ωfd fd, τ::u64 o, τ::u64 s, bool rw = false) : fd_(fd), rw_(rw)
-    { A(fd->ok(), "Ωfl(" << o << ", " << s << ", rw=" << rw << ") on invalid fd");
+  Ωfl(Ωfd fd, bool rw = false) : fd_(fd), rw_(rw), locked_(false)
+    { A(fd_->ok(), "Ωfl(" << fd_->fd() << ") failed: invalid fd"); }
+  Ωfl(Ωfd fd, bool rw, τ::u64 o, τ::u64 s) : Ωfl(fd, rw) { lock(o, s); }
+  ~Ωfl() { unlock(); }
+
+  void lock(τ::u64 o, τ::u64 s) const
+    { if (locked_) return;
       fl_.l_whence = SEEK_SET;
       fl_.l_start  = o;
       fl_.l_len    = s;
       fl_.l_type   = rw_ ? F_WRLCK : F_RDLCK;
       A(fcntl(fd_->fd(), F_OFD_SETLKW, &fl_) != -1,
-        "fcntl lock(" << fd_->fd() << ", " << o << ", " << s <<
-        ", rw=" << rw_ << ") failed"); }
+        "fcntl lock(" << fd_->fd() << ") failed");
+      locked_ = true; }
 
-  ~Ωfl()
-    { fl_.l_type = F_UNLCK;
-      A(fcntl(fd_->fd(), F_OFD_SETLKW, &fl_) != -1,
-        "fcntl unlock(" << fd_->fd() << ") failed"); }
+  void unlock() const
+    { if (!locked_) return;
+      fl_.l_type = F_UNLCK;
+        A(fcntl(fd_->fd(), F_OFD_SETLKW, &fl_) != -1,
+          "fcntl unlock(" << fd_->fd() << ") failed");
+      locked_ = false; }
 
 protected:
-  struct flock fl_;
-  Ωfd          fd_;
-  bool         rw_;
+  Ωfd                  fd_;
+  bool                 rw_;
+  mutable bool         locked_;
+  mutable struct flock fl_;
 };
 
 
