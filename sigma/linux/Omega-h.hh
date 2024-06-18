@@ -84,7 +84,10 @@ protected:
   mutable τ::Smu stage_mu_;
   τ::MM<K, L>    stage_;     // staged insertions
 
-  // NOTE: always lock stage_mu_ before as_mu_? (TODO: justify)
+  // NOTE: if stage_mu_ and ar_mu_ both need to be locked, always acquire
+  // stage_mu_ first.
+  //
+  // NOTE: acquire file locks last because these span processes.
 
 
   τ::u32 search_in_(arc&, Kc&, L*, τ::u32) const;
@@ -206,7 +209,6 @@ Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n) const
   }
 
   {
-    // NOTE: obtain file lock first? (TODO: justify)
     let     fl = lock_arrays_(false);
     Sl<Smu> al(as_mu_);
     for (u32 i = 0; r < n && i < as_.size(); ++i)
@@ -319,8 +321,8 @@ Tkl bool Ωh<K, L>::read_header_()
   if (h.rev == rev_) return false;
   else
   {
-    let fl = lock_arrays_(false);
     Ul<Smu> al{as_mu_};
+    let fl = lock_arrays_(false);
     map_.update();
     as_.resize(h.n);
     for (u32 i = 0; i < as_.size(); ++i)
