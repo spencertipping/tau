@@ -1,6 +1,10 @@
 #ifndef σserver_Ωh_h
 #define σserver_Ωh_h
 
+#ifndef τarch
+# define σserver_Ωh_debug_instantiations
+#endif
+
 #include "Omega-io.hh"
 #include "../prof.hh"
 #include "../begin.hh"
@@ -389,8 +393,20 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
 }
 
 
-template struct Ωh<τ::u64, τ::u64>;
-template struct Ωh<τ::u64, τ::P<τ::u64, τ::u32>>;
+#ifdef σserver_Ωh_debug_instantiations
+  namespace
+  {
+    struct os
+    {
+      τ::u64 o;
+      τ::u32 s;
+      τ::SO operator<=>(os const&) const = default;
+    };
+  }
+
+  template struct Ωh<τ::u64, τ::u64>;
+  template struct Ωh<τ::u64, os>;
+#endif
 
 
 #undef Tkl
