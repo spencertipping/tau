@@ -114,7 +114,7 @@ Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss)
     rw_    (rw),
     revl_  (fd_, rw_),
     auto_f_(auto_f),
-    map_   (fd_, false),
+    map_   (fd_, rw_),
     mss_   (mss),
     rev_   (0)
 {
@@ -231,8 +231,9 @@ Tkl void Ωh<K, L>::commit(bool fsync)
 
 Tkl void Ωh<K, L>::commit_(bool fsync)
 {
+  // NOTE: stage_mu_ is held uniquely when this function is called
   using namespace τ;
-  Ul<Smu> sl(stage_mu_);  if (stage_.empty()) return;
+  if (stage_.empty()) return;
   Ul<Smu> al(as_mu_);
   if (as_.size() + 1 >= cap_) repack_(fd_->size() * auto_f_, fsync);
 
@@ -241,6 +242,12 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
   V<kl> kls;  kls.reserve(stage_.size());
   for (let &[k, l] : stage_) kls.push_back({k, l});
   std::sort(kls.begin(), kls.end(), [](klc &a, klc &b) { return a.k < b.k; });
+
+  // Important: we're writing to a memory mapping, so make sure (1) the file is
+  // already large enough to contain the new array, and (2) we've updated the
+  // mapping as well.
+  if (ao + as > fd_->size()) ftruncate(fd_->fd(), ao + as);
+  map_.update();
 
   for (u32 i = 0; i < kls.size(); ++i) memcpy(map_.at(ao + i * klb), &kls[i], klb);
   map_.sync(ao, as, fsync);
@@ -298,7 +305,7 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
 
   map_.update();  // make sure we can read everything
   V<ss> sas(n);   // streams to merge
-  for (u32 i = 0; i < n; ++i) sas.push_back(as_[asi[i]].stream(map_));
+  for (u32 i = 0; i < n; ++i) sas[i] = as_[asi[i]].stream(map_);
   ss m = balanced_apply(mo(sas), merge_);
 
   let ao = insert_at_(bytes);
@@ -409,7 +416,7 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
     struct os_large
     {
       τ::u64 o;
-      τ::u32 s;
+      τ::u64 s;
       τ::SO operator<=>(os_large const&) const = default;
     };
   }

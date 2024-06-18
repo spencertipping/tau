@@ -26,6 +26,11 @@
 #endif
 
 
+#define AE(x, y) \
+  A((x) == (y), \
+    #x "(" << (x) << ") != " #y "(" << (y) << ")");
+
+
 #if τallow_todo
 # define TODO(x) A(0, "TODO: " << x)
 #else

@@ -25,6 +25,9 @@ using namespace τ;
   ηm  m;
   let s = size(k);
   m.x_.resize(s);
+
+  // TODO: memcpy instead of pread if all data is contained within the page we
+  // loaded by checking size(k) above
   fd_->pread(m.x_.data(), s, offset(k));
   return m;
 }

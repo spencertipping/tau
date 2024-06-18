@@ -96,10 +96,13 @@ struct Ωfm final  // file mmap; const means it represents the same file
   bool  is_mapped() const { return map_ != nullptr; }
   void *mapping()   const { map(); return map_; }
 
-  void  sync(τ::u64 o = 0, τ::u64 s = 0, bool fsync = false) const
+  void sync(τ::u64 o = 0, τ::u64 s = 0, bool fsync = false) const
     { if (!map()) return;
       if (o == 0 && s == 0) s = mapsize_;
-      A(msync((τ::ch*) map_ + o, s, MS_SYNC) != -1, "msync() failed");
+      let ro = o & ~(getpagesize() - 1);  // align to page
+      s += o - ro;
+      A(msync((τ::ch*) map_ + ro, s, MS_SYNC) != -1,
+        "msync(o=" << o << ", s=" << s << ") failed");
       if (fsync) fd_->fdatasync(); }
 
   bool ensure(τ::u64 o) const

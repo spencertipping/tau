@@ -76,6 +76,28 @@ protected:
 };
 
 
+struct Ωa final  // insert-only k/v store
+{
+  Ωa(τ::Stc&, bool rw = false);
+
+  void  add(τ::ηic&, τ::ηic&);
+  τ::ηm get(τ::ηic&) const;
+  void  commit(bool fsync = false);
+
+protected:
+  Ωl                 l_;
+  Ωh<τ::u64, τ::u64> h_;  // hash(k) → Ωl key
+
+  τ::Sp<measurement>
+    prof_ladd_,
+    prof_hadd_,
+    prof_hget_,
+    prof_hresults_,
+    prof_commit_,
+    prof_fsync_;
+};
+
+
 }
 
 #include "../end.hh"

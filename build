@@ -5,16 +5,16 @@ cd "$(dirname "$0")"
 
 pull()
 {
-  local host=${1:-set.128}
-  local path=${2:-/nvme/asqi/tau}
+  local host=${1:-rockhopper.35}
+  local path=${2:-tau}
   rsync -auzP $host:$path/bin ./
 }
 
 
 sync()
 {
-  local host=${1:-set.128}
-  local path=${2:-/nvme/asqi/tau}
+  local host=${1:-rockhopper.35}
+  local path=${2:-tau}
   rsync -azP --delete \
         build dep dev doc README.md tau.hh sigma*.hh sigma tau try \
         test lazytest makefile compile_flags.txt \
@@ -33,8 +33,8 @@ sloop()
 
 server_build()
 {
-  local host=${1:-set.128}
-  local path=${2:-/nvme/asqi/tau}
+  local host=${1:-rockhopper.35}
+  local path=${2:-tau}
   shift 2
   sync $host $path
   ssh $host bash -c ":; cd $path; $*"
@@ -75,16 +75,6 @@ todos()
 }
 
 
-run()
-{
-  if [[ ${HOSTNAME:0:1} == i ]]; then
-    server_build set.128 /nvme/asqi/tau "$@"
-  else
-    exec "$@"
-  fi
-}
-
-
 cmd=$1
 shift
 case $cmd in
@@ -94,5 +84,4 @@ case $cmd in
   deps)       install_deps "$@" ;;
   serverdeps) install_server_deps "$@" ;;
   todo*)      todos "$@" ;;
-  *)          run $cmd "$@" ;;
 esac
