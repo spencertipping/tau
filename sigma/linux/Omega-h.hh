@@ -33,7 +33,7 @@ Tkl struct Ωh final
   ~Ωh();
 
   void   add     (Kc&, Lc&);
-  τ::u32 get     (Kc&, L*, τ::u32) const;
+  τ::u32 get     (Kc&, L*, τ::u32);
   void   commit  (bool fsync = false);
   void   repack  (τ::u64 max_bytes, bool fsync = false);
   τ::u64 unpacked() const;
@@ -200,7 +200,7 @@ Tkl void Ωh<K, L>::add(Kc &k, Lc &l)
 }
 
 
-Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n) const
+Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n)
 {
   using namespace τ;
   u32 r = 0;
@@ -213,7 +213,8 @@ Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n) const
   }
 
   {
-    let     fl = lock_arrays_(false);
+    let fl = lock_arrays_(false);
+    read_header_();
     Sl<Smu> al(as_mu_);
     for (u32 i = 0; r < n && i < as_.size(); ++i)
       r += search_in_(as_[i], k, l ? l + r : 0, n - r);
