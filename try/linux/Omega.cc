@@ -39,11 +39,16 @@ int main()
     Ωl l1("/tmp/omegaf-test", true);
     k1 = l1 << (ηm{} << "hi there" << 5);  v21 = l2[k1];
     k2 = l1 << (ηm{});                     v22 = l2[k2];
+
+    A(k1 == 16, "k1 = " << k1);
+    A(k2 == k1 + v21.lsize() + 4, "k2 = " << k2);
   }
 
   Ωl l1("/tmp/omegaf-test", true);
   k3 = l1 << (ηm{} << true);         v23 = l2[k3];
   k4 = l1 << (ηm{} << ηm{} << ηm{}); v24 = l2[k4];
+  A(k3 == k2 + v22.lsize() + 4, "k3 = " << k3);
+  A(k4 == k3 + v23.lsize() + 4, "k4 = " << k4);
 
   A(l1[k1] == v21, "l1[k1] v21");
   A(l1[k2] == v22, "l1[k2] v22");
