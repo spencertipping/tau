@@ -16,16 +16,14 @@ Tkl struct Ωh final
   typedef K const Kc;
   typedef L const Lc;
 
-  struct kl final { K k; L l; };
-  typedef kl const klc;
-  sletc  klb = sizeof(kl);
+  struct  kl final { K k; L l; };
+  typedef kl const klc;  sletc klb = sizeof(kl);
 
 
   Ωh(τ::Stc &path,
      bool    rw     = false,
-     τ::f64  auto_f = 0.25,
-     τ::u32  mss    = 1048576,
-     τ::u32  cap    = 255);
+     τ::f64  auto_f = 0.25,      // repack up to 25% of file
+     τ::u32  mss    = 1048576);  // max stage size (elements)
   ~Ωh();
 
   void   add     (Kc&, Lc&);
@@ -57,14 +55,13 @@ protected:
   {
     τ::u64b o;
     τ::u64b s;
-    ss stream(Ωfm const &m) const;
+    ss stream(Ωfmc &m) const;
   };
 
-  typedef hd const hdc;
-  typedef ar const arc;
+  typedef hd const hdc;  sletc hdb = sizeof(hd);  static_assert(hdb == 16);
+  typedef ar const arc;  sletc arb = sizeof(ar);  static_assert(arb == 16);
 
-  sletc hdb = sizeof(hd);  static_assert(hdb == 16);
-  sletc arb = sizeof(ar);  static_assert(arb == 16);
+  sletc cap_ = 255;
 
 
   τ::Stc         f_;
@@ -75,7 +72,6 @@ protected:
   Ωfm            map_;
   τ::u32         mss_;       // max stage size (#elements)
   τ::u32         rev_;       // last-read revision (readers)
-  τ::u32         cap_;       // max #arrays (writers)
   mutable τ::Smu as_mu_;
   τ::V<ar>       as_;        // active arrays, no ordering
   mutable τ::Smu stage_mu_;
@@ -87,11 +83,11 @@ protected:
   τ::u32 largest_array_index_ () const;
   τ::u32 smallest_array_index_() const;
 
-  τ::u32 search_in_(ar const&, Kc&, L*, τ::u32) const;
+  τ::u32 search_in_(arc&, Kc&, L*, τ::u32) const;
 
   Ωfl    lock_arrays_ (bool rw) const { return {fd_, rw, hdb, arb * cap_}; }
   bool   read_header_ ();
-  void   write_header_(τ::u32 cap, bool fsync);
+  void   write_header_(bool fsync);
   void   write_arrays_(bool fsync);
   void   commit_      (bool fsync);                    // stage_mu_ is unique-locked
   void   repack_      (τ::u64 max_bytes, bool fsync);  // ar_mu_ is unique-locked
@@ -101,7 +97,7 @@ protected:
 };
 
 
-Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss, τ::u32 cap)
+Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss)
   : f_     (f),
     fd_    (Ωopen(f, rw)),
     rw_    (rw),
@@ -109,14 +105,13 @@ Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss, τ::u32 cap
     auto_f_(auto_f),
     mss_   (mss),
     map_   (fd_, false),
-    rev_   (0),
-    cap_   (cap)
+    rev_   (0)
 {
   using namespace τ;
   if (rw_)
   {
     revl_.lock(4, 4);  // claim unique write access
-    if (fd_->size() < hdb) write_header_(cap);
+    if (fd_->size() < hdb) write_header_();
   }
   else
   {
@@ -131,11 +126,11 @@ Tkl Ωh<K, L>::~Ωh()
 }
 
 
-Tkl typename Ωh<K, L>::ss Ωh<K, L>::ar::stream(Ωfm const &m) const
+Tkl typename Ωh<K, L>::ss Ωh<K, L>::ar::stream(Ωfmc &m) const
 {
   struct ars final : public virtual ss_
   {
-    ars(Ωfm const &m, τ::u64 o, τ::u64 s)
+    ars(Ωfmc &m, τ::u64 o, τ::u64 s)
       : ss_(), m_(m), o_(o), s_(s), i_(0) {}
 
     explicit operator bool() const { return i_ * klb < s_; }
@@ -143,10 +138,10 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::ar::stream(Ωfm const &m) const
     ss_     &operator++   ()       { ++i_; return this; }
 
   protected:
-    Ωfm const &m_;
-    τ::u64     o_;
-    τ::u64     s_;
-    τ::u64     i_;  // current element
+    Ωfmc  &m_;
+    τ::u64 o_;
+    τ::u64 s_;
+    τ::u64 i_;  // current element
   };
 
   return std::make_shared<ars>(m, o, s);
@@ -202,7 +197,7 @@ Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n) const
     Sl<Smu> sl(stage_mu_);
     let     e = stage_.equal_range(k);
     for (auto i = e.first; i != e.second; ++i)
-      if (l && r < n) *l[r++] = i->second;
+      if (l && r < n) l[r++] = i->second;
   }
 
   {
@@ -330,14 +325,14 @@ Tkl bool Ωh<K, L>::read_header_()
 }
 
 
-Tkl void Ωh<K, L>::write_header_(τ::u32 cap, bool fsync)
+Tkl void Ωh<K, L>::write_header_(bool fsync)
 {
   using namespace τ;
   A(rw_ && revl_.locked(), "Ωh::write_header_: not writable");
   hd h;
   memcpy(h.magic, "Ωh\0", 4);
   h.rev = rev_;
-  h.cap = cap;
+  h.cap = cap_;
   h.n   = as_.size();
   fd_->pwrite(&h, 16, 0);
   if (fsync) fd_->fdatasync();
@@ -351,7 +346,7 @@ Tkl void Ωh<K, L>::write_arrays_(bool fsync)
   St ab; ab.resize(cap_ * arb);
   for (u32 i = 0; i < as_.size(); ++i) memcpy(&ab[arb*i], &as_[i], arb);
   fd_->pwrite(ab.data(), cap_ * arb, hdb);
-  write_header_(cap_, false);
+  write_header_(false);
   if (fsync) fd_->fdatasync();
 }
 

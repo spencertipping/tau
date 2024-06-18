@@ -40,11 +40,12 @@ protected:
 };
 
 typedef τ::Sp<Ωfd_> Ωfd;
+typedef Ωfd const Ωfdc;
 
 
 inline Ωfd Ωfd_manage(τ::fd_t fd) { return τ::Sp<Ωfd_>{new Ωfd_{fd}}; }
 inline Ωfd Ωopen(τ::Stc &path, bool rw = false, int mode = 0644)
-  { return Ωfd_manage(open(path.c_str(), rw ? O_RDWR : O_RDONLY, mode)); }
+  { return Ωfd_manage(open(path.c_str(), rw ? O_RDWR | O_CREAT : O_RDONLY, mode)); }
 
 
 struct Ωfl final  // file region lock
@@ -60,8 +61,9 @@ struct Ωfl final  // file region lock
       fl_.l_start  = o;
       fl_.l_len    = s;
       fl_.l_type   = rw_ ? F_WRLCK : F_RDLCK;
+      fl_.l_pid    = 0;  // NOTE: important (otherwise invalid argument)
       A(fcntl(fd_->fd(), F_OFD_SETLKW, &fl_) != -1,
-        "fcntl lock(" << fd_->fd() << ") failed");
+        "fcntl lock(" << fd_->fd() << ", o=" << o << ", s=" << s << ", rw=" << rw_ << ") failed");
       locked_ = true; }
 
   void unlock() const
@@ -79,6 +81,8 @@ protected:
   mutable bool         locked_;
   mutable struct flock fl_;
 };
+
+typedef Ωfl const Ωflc;
 
 
 struct Ωfm final  // file mmap; const means it represents the same file
@@ -147,6 +151,8 @@ protected:
   mutable τ::u64  mapsize_;  // size of file when mapped
   bool            rw_;
 };
+
+typedef Ωfm const Ωfmc;
 
 
 }
