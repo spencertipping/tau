@@ -100,6 +100,7 @@ protected:
   bool   read_header_ ();
   void   write_header_(bool fsync);
   void   write_arrays_(bool fsync);
+  void   ensure_write_(τ::u64 size);
   void   commit_      (bool fsync);                    // stage_mu_ is unique-locked
   void   repack_      (τ::u64 max_bytes, bool fsync);  // ar_mu_ is unique-locked
   τ::u64 insert_at_   (τ::u64 bytes) const;            // ar_mu_ is u/s-locked
@@ -247,14 +248,23 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
   // Important: we're writing to a memory mapping, so make sure (1) the file is
   // already large enough to contain the new array, and (2) we've updated the
   // mapping as well.
-  if (ao + as > fd_->size()) ftruncate(fd_->fd(), ao + as);
-  map_.update();
+  ensure_write_(ao + as);
 
   for (u32 i = 0; i < kls.size(); ++i) memcpy(map_.at(ao + i * klb), &kls[i], klb);
   map_.sync(ao, as, fsync);
   as_.push_back({ao, as});
   repack_(as * 3, fsync);  // repack iff ≥50% of next-largest array
   write_arrays_(fsync);
+}
+
+
+Tkl void Ωh<K, L>::ensure_write_(τ::u64 size)
+{
+  using namespace τ;
+  if (fd_->size() < size)
+    A(ftruncate(fd_->fd(), size) != -1,
+      "Ωh::ensure_write_: ftruncate(" << size << ") failed");
+  map_.update();
 }
 
 
@@ -309,8 +319,12 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   for (u32 i = 0; i < n; ++i) sas[i] = as_[asi[i]].stream(map_);
   ss m = balanced_apply(mo(sas), merge_);
 
+  // Important: we're writing to a memory mapping, so make sure (1) the file is
+  // already large enough to contain the new array, and (2) we've updated the
+  // mapping as well.
   let ao = insert_at_(bytes);
   u32 j  = 0;
+  ensure_write_(ao + bytes);
   for (; *m; ++*m, ++j)
   {
     let kl = **m;

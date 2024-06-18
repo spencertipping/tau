@@ -86,7 +86,10 @@ void Ωa_bench()
   {
     let t = prof("Ωa_bench/add");
     for (i64 i = 0; i < 1048576 * 64; ++i)
+    {
       a.add(ηm{} << "key" << i, ηm{} << "val" << i);
+      if (i % 65536 == 0) std::cerr << "\radd " << i << " / " << 1048576 * 64 << "  " << std::flush;
+    }
     a.commit(true);
   }
 
@@ -97,10 +100,11 @@ void Ωa_bench()
 
   {
     let t = prof("Ωa_bench/fetch");
-    for (let i : xs)
+    for (i64 i = 0; i < i64(xs.size()); ++i)
     {
-      let k = ηm{} << "key" << i;
-      AE(a.get(k), ηm{} << k << "val" << i);
+      let k = ηm{} << "key" << xs[i];
+      AE(a.get(k), ηm{} << k << "val" << xs[i]);
+      if (i % 65536 == 0) std::cerr << "\rfetch " << i << " / " << 1048576 * 64 << "  " << std::flush;
     }
   }
 
