@@ -2,6 +2,7 @@
 #define σserver_Ωh_h
 
 #include "Omega-io.hh"
+#include "../prof.hh"
 #include "../begin.hh"
 
 namespace σ
@@ -86,9 +87,6 @@ protected:
   // NOTE: always lock stage_mu_ before as_mu_? (TODO: justify)
 
 
-  τ::u32 largest_array_index_ () const;
-  τ::u32 smallest_array_index_() const;
-
   τ::u32 search_in_(arc&, Kc&, L*, τ::u32) const;
 
   Ωfl    lock_arrays_ (bool rw) const { return {fd_, rw, hdb, arb * cap_}; }
@@ -161,8 +159,8 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::merge_(ss a, ss b)
     ms(ss a, ss b) : a_(a), b_(b),
                      ae_(!*a_),
                      be_(!*b_),
-                     av_(ae_ ? kl{0, 0} : **a_),
-                     bv_(be_ ? kl{0, 0} : **b_) {}
+                     av_(ae_ ? kl{0, {}} : **a_),
+                     bv_(be_ ? kl{0, {}} : **b_) {}
 
     explicit operator bool() const { return !ae_ && !be_; }
     kl       operator*    () const { return ae_ ? bv_ : be_ ? av_ : std::min(av_, bv_); }
@@ -321,10 +319,12 @@ Tkl bool Ωh<K, L>::read_header_()
   if (h.rev == rev_) return false;
   else
   {
+    let fl = lock_arrays_(false);
+    Ul<Smu> al{as_mu_};
     map_.update();
     as_.resize(h.n);
     for (u32 i = 0; i < as_.size(); ++i)
-      as_[i] = *uap<arc>(map_ + (16 + 16*i));
+      as_[i] = *uap<arc>(map_ + (hdb + arb*i));
     return true;
   }
 }
@@ -339,7 +339,7 @@ Tkl void Ωh<K, L>::write_header_(bool fsync)
   h.rev = rev_;
   h.cap = cap_;
   h.n   = as_.size();
-  fd_->pwrite(&h, 16, 0);
+  fd_->pwrite(&h, hdb, 0);
   if (fsync) fd_->fdatasync();
 }
 
@@ -376,7 +376,7 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
     {
       // We're within the range of keys, but we don't know that we're at the
       // beginning. Let's find the beginning and proceed to the end.
-      for (l = m; l >= 0 && a.at(map_, l).k == kn; --l);
+      for (l = m; l > 0 && a.at(map_, l - 1).k == kn; --l);
       for (; r < n && l < a.n() && a.at(map_, l).k == kn; ++l)
         ls[r++] = a.at(map_, l).l;
       return r;
@@ -388,6 +388,7 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
 
 
 template struct Ωh<τ::u64, τ::u64>;
+template struct Ωh<τ::u64, τ::P<τ::u64, τ::u32>>;
 
 
 #undef Tkl
