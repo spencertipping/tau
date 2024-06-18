@@ -77,14 +77,41 @@ void try_Ωa_stress()
 }
 
 
-int main()
+void Ωa_bench()
 {
-  τassert_begin
+  unlink("/tmp/omegaa-bench.kv");
+  unlink("/tmp/omegaa-bench.hm");
+  Ωa a("/tmp/omegaa-bench", true);
 
-  try_pwrite_and_size();
-  try_Ωa();
-  try_Ωa_stress();
+  {
+    let t = prof("Ωa_bench/add");
+    for (i64 i = 0; i < 1048576 * 64; ++i)
+      a.add(ηm{} << "key" << i, ηm{} << "val" << i);
+    a.commit(true);
+  }
 
+  V<i64> xs;
+  xs.reserve(1048576 * 64);
+  for (i64 i = 0; i < 1048576 * 64; ++i) xs.push_back(i);
+  std::shuffle(xs.begin(), xs.end(), std::mt19937_64{});
+
+  {
+    let t = prof("Ωa_bench/fetch");
+    for (let i : xs)
+    {
+      let k = ηm{} << "key" << i;
+      AE(a.get(k), ηm{} << k << "val" << i);
+    }
+  }
+
+  std::cerr << measurement_for("Ωa_bench/init") << std::endl;
+  std::cerr << measurement_for("Ωa_bench/fetch") << std::endl;
+  std::cout << "Ωa_bench ok" << std::endl;
+}
+
+
+void try_Ωl()
+{
   unlink("/tmp/omegal-test");
   { Ωl l1("/tmp/omegal-test", true); }  // write header
   Ωl l2("/tmp/omegal-test", false);
@@ -116,6 +143,19 @@ int main()
   for (let &x : l2) A(x == *ms[i++], "array mismatch at i = " << i - 1);
 
   std::cout << "Ωl ok" << std::endl;
+}
+
+
+int main()
+{
+  τassert_begin
+
+  try_pwrite_and_size();
+  try_Ωl();
+  try_Ωa();
+  Ωa_bench();
+  try_Ωa_stress();
+
   return 0;
   τassert_end
 }
