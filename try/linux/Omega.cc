@@ -56,8 +56,9 @@ void try_Ωa_stress()
   for (i64 i = 0; i < 100000; ++i)
   {
     aw.add(ηm{} << "sk" << i, ηm{} << "sv" << i << b64.substr(0, i * 25519 % (b64.size() + 1)));
-    if (i % 3094 == 0) aw.commit();
-    if (i > 0 && i % 1000 == 0)
+    if ((i + 1) % 3094 == 0)
+    {
+      aw.commit();
       for (i64 j = std::max<i64>(0, i * 1337 % i + (i - 2000)); j < i; ++j)
       {
         let k = ηm{} << "sk" << j;
@@ -71,6 +72,7 @@ void try_Ωa_stress()
         AE(ar2.get(ηm{} << "sk" << j), awv);
         ++ntests;
       }
+    }
   }
 
   std::cout << "Ωa stress ok; #tests = " << ntests << std::endl;

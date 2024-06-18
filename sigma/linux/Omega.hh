@@ -85,8 +85,8 @@ struct Ωa final  // insert-only k/v store
   void  commit(bool fsync = false);
 
 protected:
-  Ωl                         l_;
-  mutable Ωh<τ::u64, τ::u64> h_;  // hash(k) → Ωl key
+  Ωl                           l_;
+  mutable Ωh<τ::u64b, τ::u64b> h_;  // hash(k) → Ωl key
 
   τ::Sp<measurement>
     prof_ladd_,

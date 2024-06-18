@@ -252,6 +252,24 @@ ic decltype(auto) flip(P<T, U> const &p) { return mp(std::get<1>(p), std::get<0>
 }
 
 
+namespace std
+{
+
+
+Tn struct hash<τ::i8b>  { size_t operator()(τ::i8b  x) const { return std::hash<τ::i8> {}(x); } };
+Tn struct hash<τ::i16b> { size_t operator()(τ::i16b x) const { return std::hash<τ::i16>{}(x); } };
+Tn struct hash<τ::i32b> { size_t operator()(τ::i32b x) const { return std::hash<τ::i32>{}(x); } };
+Tn struct hash<τ::i64b> { size_t operator()(τ::i64b x) const { return std::hash<τ::i64>{}(x); } };
+
+Tn struct hash<τ::u8b>  { size_t operator()(τ::u8b  x) const { return std::hash<τ::u8> {}(x); } };
+Tn struct hash<τ::u16b> { size_t operator()(τ::u16b x) const { return std::hash<τ::u16>{}(x); } };
+Tn struct hash<τ::u32b> { size_t operator()(τ::u32b x) const { return std::hash<τ::u32>{}(x); } };
+Tn struct hash<τ::u64b> { size_t operator()(τ::u64b x) const { return std::hash<τ::u64>{}(x); } };
+
+
+}
+
+
 #include "end.hh"
 
 

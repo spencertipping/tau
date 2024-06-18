@@ -34,7 +34,7 @@ void Ωa::add(ηic &k, ηic &v)
 ηm Ωa::get(ηic &k) const
 {
   auto hgt = prof_hget_->start();
-  u64 os[256];
+  u64b os[256];
   let n = h_.get(k.hash(), os, sizeof(os) / sizeof(os[0]));
   hgt.stop();
 

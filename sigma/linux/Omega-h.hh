@@ -423,24 +423,27 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
   {
     struct os_small
     {
-      τ::u64 o;
-      τ::u32 s;
+      τ::u64b o;
+      τ::u32b s;
       τ::SO operator<=>(os_small const&) const = default;
     };
 
     struct os_large
     {
-      τ::u64 o;
-      τ::u64 s;
+      τ::u64b o;
+      τ::u64b s;
       τ::SO operator<=>(os_large const&) const = default;
     };
   }
 
-  template struct Ωh<τ::u64, τ::u64>;
-  template struct Ωh<τ::u32, τ::u32>;
-  template struct Ωh<τ::u32, τ::u64>;
-  template struct Ωh<τ::u64, os_small>;
-  template struct Ωh<τ::u64, os_large>;
+  template struct Ωh<τ::u64b, τ::u64b>;
+  template struct Ωh<τ::u64,  τ::u64>;
+  template struct Ωh<τ::u32b, τ::u32b>;
+  template struct Ωh<τ::u32,  τ::u32>;
+  template struct Ωh<τ::u32b, τ::u64b>;
+  template struct Ωh<τ::u32,  τ::u64>;
+  template struct Ωh<τ::u64b, os_small>;
+  template struct Ωh<τ::u64b, os_large>;
 #endif
 
 
