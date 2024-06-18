@@ -16,8 +16,9 @@ Tkl struct Ωh final
   typedef K const Kc;
   typedef L const Lc;
 
-  struct  kl final { K k; L l; };
-  typedef kl const klc;  sletc klb = sizeof(kl);
+  struct kl; typedef kl const klc;
+  struct  kl final { K k; L l; τ::SO operator<=>(klc&) const = default; };
+  sletc klb = sizeof(kl);
 
 
   Ωh(τ::Stc &path,
@@ -55,13 +56,18 @@ protected:
   {
     τ::u64b o;
     τ::u64b s;
-    ss stream(Ωfmc &m) const;
+
+    τ::u64b n     ()                  const { return s / klb; }
+    kl      at    (Ωfmc &m, τ::u64 i) const { return *τ::uap<klc>(m + (o + i * klb)); }
+    ss      stream(Ωfmc &m)           const;
   };
 
   typedef hd const hdc;  sletc hdb = sizeof(hd);  static_assert(hdb == 16);
   typedef ar const arc;  sletc arb = sizeof(ar);  static_assert(arb == 16);
 
-  sletc cap_ = 255;
+  sletc cap_ = 255;               // max #arrays capacity, constant
+  sletc a0o_ = hdb + cap_ * arb;  // first array offset
+  static_assert(a0o_ == 4096);
 
 
   τ::Stc         f_;
@@ -103,15 +109,15 @@ Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss)
     rw_    (rw),
     revl_  (fd_, rw_),
     auto_f_(auto_f),
-    mss_   (mss),
     map_   (fd_, false),
+    mss_   (mss),
     rev_   (0)
 {
   using namespace τ;
   if (rw_)
   {
     revl_.lock(4, 4);  // claim unique write access
-    if (fd_->size() < hdb) write_header_();
+    if (fd_->size() < hdb) write_header_(false);
   }
   else
   {
@@ -135,7 +141,7 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::ar::stream(Ωfmc &m) const
 
     explicit operator bool() const { return i_ * klb < s_; }
     kl       operator*    () const { return *τ::uap<klc>(m_ + (o_ + i_ * klb)); }
-    ss_     &operator++   ()       { ++i_; return this; }
+    ss_     &operator++   ()       { ++i_; return *this; }
 
   protected:
     Ωfmc  &m_;
@@ -164,7 +170,8 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::merge_(ss a, ss b)
       { let av0 = av_;
         let ae0 = ae_;
         if (!ae_ && (be_ || av_ <= bv_) && !(ae_ = !++*a_)) av_ = **a_;
-        if (!be_ && (ae0 || bv_ <= av0) && !(be_ = !++*b_)) bv_ = **b_; }
+        if (!be_ && (ae0 || bv_ <= av0) && !(be_ = !++*b_)) bv_ = **b_;
+        return *this; }
 
   protected:
     ss   a_;
@@ -184,7 +191,7 @@ Tkl void Ωh<K, L>::add(Kc &k, Lc &l)
   using namespace τ;
   Ul<Smu> sl(stage_mu_);
   stage_.insert({k, l});
-  if (stage_.size() > mss_) commit_();
+  if (stage_.size() > mss_) commit_(false);
 }
 
 
@@ -231,7 +238,7 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
   for (let &[k, l] : stage_) kls.push_back({k, l});
   std::sort(kls.begin(), kls.end(), [](klc &a, klc &b) { return a.k < b.k; });
 
-  for (u32 i = 0; i < kls.size(); ++i) memcpy(map_ + (ao + i * klb), &kls[i], klb);
+  for (u32 i = 0; i < kls.size(); ++i) memcpy(map_.at(ao + i * klb), &kls[i], klb);
   map_.sync(ao, as, fsync);
   as_.push_back({ao, as});
   repack_(as * 3, fsync);  // repack iff ≥50% of next-largest array
@@ -283,21 +290,19 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
     if (bytes + as_[asi[n]].s > max_bytes) break;
     bytes += as_[asi[n]].s;
   }
-
-  // Can't repack fewer than two arrays.
   if (n < 2) return;
 
   map_.update();  // make sure we can read everything
   V<ss> sas(n);   // streams to merge
   for (u32 i = 0; i < n; ++i) sas.push_back(as_[asi[i]].stream(map_));
-  ss m = balanced_apply(sas, merge_);
+  ss m = balanced_apply(mo(sas), merge_);
 
   let ao = insert_at_(bytes);
   u32 j  = 0;
-  for (; *m; ++m, ++j)
+  for (; *m; ++*m, ++j)
   {
     let kl = **m;
-    memcpy(map_ + (ao + j * klb), &kl, klb);
+    memcpy(map_.at(ao + j * klb), &kl, klb);
   }
   map_.sync(ao, j * klb, fsync);
 
@@ -351,7 +356,38 @@ Tkl void Ωh<K, L>::write_arrays_(bool fsync)
 }
 
 
-template<> struct Ωh<τ::u64, τ::u64>;
+Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
+{
+  using namespace τ;
+  u32 r  = 0;
+  u64 u  = a.n();
+  u64 l  = 0;
+  u64 ku = Nl<u64>::max();
+  u64 kl = Nl<u64>::min();
+  let kn = u64(k);
+
+  while (ku > kl && u - l > 1)
+  {
+    let m  = std::min<u64>(u - 1, l + (u - l) * f64(kn - kl) / (ku - kl));
+    let am = a.at(map_, m);
+    if      (am.k < kn) { ku = am.k; u = m; }
+    else if (am.k > kn) { kl = am.k; l = m + 1; }
+    else
+    {
+      // We're within the range of keys, but we don't know that we're at the
+      // beginning. Let's find the beginning and proceed to the end.
+      for (l = m; l >= 0 && a.at(map_, l).k == kn; --l);
+      for (; r < n && l < a.n() && a.at(map_, l).k == kn; ++l)
+        ls[r++] = a.at(map_, l).l;
+      return r;
+    }
+  }
+
+  return 0;
+}
+
+
+template struct Ωh<τ::u64, τ::u64>;
 
 
 #undef Tkl

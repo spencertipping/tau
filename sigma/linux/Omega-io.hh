@@ -87,7 +87,7 @@ typedef Ωfl const Ωflc;
 
 struct Ωfm final  // file mmap; const means it represents the same file
 {
-  Ωfm ()                        : fd_(),   map_(nullptr), mapsize_(0), rw_(false) {}
+  Ωfm (bool rw = false)         : fd_(),   map_(nullptr), mapsize_(0), rw_(rw) {}
   Ωfm (Ωfd fd, bool rw = false) : fd_(fd), map_(nullptr), mapsize_(0), rw_(rw)
     { if ((map_ = mmap(nullptr, fd_->size(), PROT_READ | (rw_ ? PROT_WRITE : 0),
                        MAP_SHARED, fd_->fd(), 0)) == MAP_FAILED)
@@ -101,6 +101,7 @@ struct Ωfm final  // file mmap; const means it represents the same file
   bool  ok()        const { return fd_ != nullptr && (map_ != nullptr || fd_->ok()); }
   bool  is_mapped() const { return map_ != nullptr; }
   void *mapping()   const { map(); return map_; }
+
   void  sync(τ::u64 o = 0, τ::u64 s = 0, bool fsync = false) const
     { if (!map()) return;
       if (o == 0 && s == 0) s = mapsize_;
@@ -111,9 +112,8 @@ struct Ωfm final  // file mmap; const means it represents the same file
     { if (o > mapsize_) update();
       return map() && o <= mapsize_; }
 
-  void const *operator+(τ::u64 o) const
-    { if (!ensure(o)) return nullptr;
-      return (τ::chc*) map_ + o; }
+  void       *at       (τ::u64 o)       { return Cc<void*>(*this + o); }
+  void const *operator+(τ::u64 o) const { return !ensure(o) ? nullptr : (τ::chc*) map_ + o; }
 
   void prefetch(τ::u64 o, τ::u64 s, int flags = 0) const
     { if (!map()) return;
