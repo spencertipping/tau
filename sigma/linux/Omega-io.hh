@@ -88,13 +88,7 @@ typedef Ωfl const Ωflc;
 struct Ωfm final  // file mmap; const means it represents the same file
 {
   Ωfm (bool rw = false)         : fd_(),   map_(nullptr), mapsize_(0), rw_(rw) {}
-  Ωfm (Ωfd fd, bool rw = false) : fd_(fd), map_(nullptr), mapsize_(0), rw_(rw)
-    { if ((map_ = mmap(nullptr, fd_->size(), PROT_READ | (rw_ ? PROT_WRITE : 0),
-                       MAP_SHARED, fd_->fd(), 0)) == MAP_FAILED)
-        map_ = nullptr;
-      else
-        mapsize_ = fd_->size(); }
-
+  Ωfm (Ωfd fd, bool rw = false) : fd_(fd), map_(nullptr), mapsize_(0), rw_(rw) {}
   ~Ωfm() { unmap(); }
 
 
@@ -127,12 +121,11 @@ struct Ωfm final  // file mmap; const means it represents the same file
       if (let n = fd_->size();
           (map_ = mmap(nullptr, n, PROT_READ | (rw_ ? PROT_WRITE : 0),
                        MAP_SHARED, fd_->fd(), 0)) != MAP_FAILED)
-      { mapsize_ = n;
-        return true; }
+        { mapsize_ = n; return true; }
       else
-      { map_     = nullptr;
-        mapsize_ = 0;
-        return false; } }
+        { map_     = nullptr;
+          mapsize_ = 0;
+          return false; } }
 
   void unmap() const
   { if (is_mapped())

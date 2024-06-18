@@ -11,7 +11,7 @@ namespace σ
 using namespace τ;
 
 
-Ωl::Ωl(Stc &path, bool rw) : f_(path), rw_(rw), map_(true)
+Ωl::Ωl(Stc &path, bool rw) : f_(path), rw_(rw), map_(rw_)
 {
   A((fd_ = Ωopen(f_, rw_, 0644))->ok(),
     "Ωl::Ωl: failed to open " << f_ << " with rw=" << rw_);
