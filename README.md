@@ -25,6 +25,9 @@ worker returned 42
 got 42
 τ returned
 all ok
+$ bin/Omega-sfast
+pwrite/size ok
+Ωl ok
 ```
 
 

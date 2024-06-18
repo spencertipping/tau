@@ -394,18 +394,31 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
 
 
 #ifdef σserver_Ωh_debug_instantiations
+  // NOTE: this happens only in the editor; we don't want to force these
+  // specific instantiations for real builds
+
   namespace
   {
-    struct os
+    struct os_small
     {
       τ::u64 o;
       τ::u32 s;
-      τ::SO operator<=>(os const&) const = default;
+      τ::SO operator<=>(os_small const&) const = default;
+    };
+
+    struct os_large
+    {
+      τ::u64 o;
+      τ::u32 s;
+      τ::SO operator<=>(os_large const&) const = default;
     };
   }
 
   template struct Ωh<τ::u64, τ::u64>;
-  template struct Ωh<τ::u64, os>;
+  template struct Ωh<τ::u32, τ::u32>;
+  template struct Ωh<τ::u32, τ::u64>;
+  template struct Ωh<τ::u64, os_small>;
+  template struct Ωh<τ::u64, os_large>;
 #endif
 
 
