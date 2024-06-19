@@ -29,3 +29,29 @@ V<L> get(ηi x)
   return r;
 }
 ```
+
+Alternatively, it can be understood that `Ωs` provides a _superset_ of accurate results rather than an exact list. How exact it is depends on the key's bit width:
+
++ `Ωs32<L>`: 32-bit overhead per key, very inexact
++ `Ωs64<L>`: 64-bit overhead per key, almost exact
++ `Ωs128<L>`: 128-bit overhead per key (SHA256), exact
+
+
+## Lost uniformity
+Search term → document lists don't same uniformity as general 1:1 k/v pairings because we can have the same term listed many times:
+
+```
+term1 → doc1  | ← term1 may be overrepresented
+term1 → doc2  |
+...           |
+term1 → docN  |
+term2 → doc5
+term3 → doc8
+term4 → doc3
+term4 → doc7
+...
+```
+
+In practice, interpolation search is still acceptable and perhaps optimal here: we don't have a predictable bias to the distribution, so `E[k]` is still best predicted by the hash value.
+
+**TODO:** we may benefit from defensively avoiding edge predictions to guarantee progress
