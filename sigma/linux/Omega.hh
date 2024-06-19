@@ -92,7 +92,6 @@ protected:
     prof_ladd_,
     prof_hadd_,
     prof_hget_,
-    prof_hresults_,
     prof_commit_,
     prof_fsync_;
 };

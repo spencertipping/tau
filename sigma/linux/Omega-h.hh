@@ -13,7 +13,31 @@ namespace σ
 {
 
 
-#define Tkl template<class K, class L>
+Tt concept Ωh_k = requires (T x, T y)
+{
+  { x <=> y }           -> std::convertible_to<τ::SO>;
+  { Sc<τ::u64>(x) }     -> std::convertible_to<τ::u64>;
+  { std::hash<T>{}(x) } -> std::convertible_to<τ::u64>;
+};
+
+Tt concept Ωh_l = requires (T x, T y)
+{
+  { x <=> y }           -> std::convertible_to<τ::SO>;
+  { std::hash<T>{}(x) } -> std::convertible_to<τ::u64>;
+};
+
+
+#define Tkl template<::σ::Ωh_k K, ::σ::Ωh_l L>
+
+
+Tkl struct Ωh_kl final
+{
+  K k;
+  L l;
+  τ::SO operator<=>(Ωh_kl const&) const = default;
+};
+
+Tkl using Ωh_klc = Ωh_kl<K, L> const;
 
 
 Tkl struct Ωh final
@@ -21,8 +45,8 @@ Tkl struct Ωh final
   typedef K const Kc;
   typedef L const Lc;
 
-  struct kl; typedef kl const klc;
-  struct  kl final { K k; L l; τ::SO operator<=>(klc&) const = default; };
+  typedef Ωh_kl<K, L> kl;
+  typedef kl const klc;
   sletc klb = sizeof(kl);
 
 
@@ -32,10 +56,17 @@ Tkl struct Ωh final
      τ::u32  mss    = 1048576);  // max stage size (elements)
   ~Ωh();
 
-  void   add   (Kc&, Lc&);
-  τ::u32 get   (Kc&, L*, τ::u32);
-  void   commit(bool fsync = false);
-  void   repack(τ::u64 max_bytes, bool fsync = false);
+  void add   (Kc&, Lc&);
+  bool get   (Kc&, τ::Fc<bool(Lc&)>&);
+  void commit(bool fsync = false);
+  void repack(τ::u64 max_bytes, bool fsync = false);
+
+  τ::u32 fragments () const { τ::Sl<τ::Smu> l{as_mu_}; return as_.size(); }
+  τ::f64 efficiency() const { return τ::f64(asize()) / τ::f64(fd_->size()); }
+  τ::u64 asize     () const
+    { τ::Sl<τ::Smu> l{as_mu_};
+      τ::u64 ts = 0; for (let &a : as_) ts += a.s;
+      return ts; }
 
 
 protected:
@@ -94,7 +125,7 @@ protected:
   // NOTE: acquire file locks last because these span processes.
 
 
-  τ::u32 search_in_(arc&, Kc&, L*, τ::u32) const;
+  bool   search_in_(arc&, Kc&, τ::Fc<bool(Lc&)>&) const;
 
   Ωfl    lock_arrays_ (bool rw) const { return {fd_, rw, hdb, arb * cap_}; }
   bool   read_header_ ();
@@ -107,6 +138,25 @@ protected:
 
   static ss merge_(ss, ss);
 };
+
+
+}
+
+
+namespace std
+{
+
+Tkl struct hash<σ::Ωh_kl<K, L>>
+{
+  size_t operator()(σ::Ωh_klc<K, L> &x) const
+    { return std::hash<K>{}(x.k) * 33 ^ std::hash<L>{}(x.l); }
+};
+
+}
+
+
+namespace σ
+{
 
 
 Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss)
@@ -203,28 +253,25 @@ Tkl void Ωh<K, L>::add(Kc &k, Lc &l)
 }
 
 
-Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n)
+Tkl bool Ωh<K, L>::get(Kc &k, τ::Fc<bool(Lc&)> &f)
 {
   using namespace τ;
-  u32 r = 0;
-
   {
     Sl<Smu> sl(stage_mu_);
     let     e = stage_.equal_range(k);
     for (auto i = e.first; i != e.second; ++i)
-      if (r < n)
-        if (l) l[r++] = i->second;
-        else   ++r;
+      if (!f(i->second)) return false;
   }
 
   {
     let fl = lock_arrays_(false);
     read_header_();
     Sl<Smu> al(as_mu_);
-    for (u32 i = 0; r < n && i < as_.size(); ++i)
-      r += search_in_(as_[i], k, l ? l + r : 0, n - r);
+    for (u32 i = 0; i < as_.size(); ++i)
+      if (!search_in_(as_[i], k, f)) return false;
   }
-  return r;
+
+  return true;
 }
 
 
@@ -246,8 +293,16 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
   let as = stage_.size() * klb;
   let ao = insert_at_(as);
   V<kl> kls;  kls.reserve(stage_.size());
-  for (let &[k, l] : stage_) kls.push_back({k, l});
-  std::sort(kls.begin(), kls.end(), [](klc &a, klc &b) { return a.k < b.k; });
+  {
+    S<kl> klss;
+    for (let &[k, l] : stage_)
+      if (klss.insert({k, l}).second)
+        kls.push_back({k, l});
+  }
+
+  // Important: always make sure to sort by both k and l because this will
+  // enable us to deduplicate later when we merge arrays.
+  std::sort(kls.begin(), kls.end(), [](klc &a, klc &b) { return a < b; });
 
   // Important: we're writing to a memory mapping, so make sure (1) the file is
   // already large enough to contain the new array, and (2) we've updated the
@@ -333,10 +388,11 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   let ao = insert_at_(bytes);
   u32 j  = 0;
   ensure_write_(ao + bytes);
-  for (; *m; ++*m, ++j)
+  for (kl last = {}; *m; ++*m)
   {
     let kl = **m;
-    memcpy(map_.at(ao + j * klb), &kl, klb);
+    if (kl != last) memcpy(map_.at(ao + j++ * klb), &kl, klb);
+    last = kl;
   }
   map_.sync(ao, j * klb, fsync);
 
@@ -392,10 +448,9 @@ Tkl void Ωh<K, L>::write_arrays_(bool fsync)
 }
 
 
-Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
+Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
 {
   using namespace τ;
-  u32 r  = 0;
   u64 u  = a.n();
   u64 l  = 0;
   u64 ku = Nl<u64>::max();
@@ -414,13 +469,13 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
       // We're within the range of keys, but we don't know that we're at the
       // beginning. Let's find the beginning and proceed to the end.
       for (l = m; l > 0 && a.at(map_, l - 1).k == kn; --l);
-      for (; r < n && l < a.n() && a.at(map_, l).k == kn; ++l)
-        ls[r++] = a.at(map_, l).l;
-      return r;
+      for (Ωh_kl<K, L> x; l < a.n() && (x = a.at(map_, l)).k == kn; ++l)
+        if (!f(x.l)) return false;
+      return true;
     }
   }
 
-  return 0;
+  return true;
 }
 
 
@@ -444,6 +499,29 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
       τ::SO operator<=>(os_large const&) const = default;
     };
   }
+
+}
+
+namespace std
+{
+
+Tn struct std::hash<σ::os_small>
+{
+  τ::u64 operator()(σ::os_small const &x) const
+    { return std::hash<τ::u64b>{}(x.o) ^ std::hash<τ::u32b>{}(x.s); }
+};
+
+Tn struct std::hash<σ::os_large>
+{
+  τ::u64 operator()(σ::os_large const &x) const
+    { return std::hash<τ::u64b>{}(x.o) ^ std::hash<τ::u64b>{}(x.s); }
+};
+
+}
+
+
+namespace σ
+{
 
   template struct Ωh<τ::u64b, τ::u64b>;
   template struct Ωh<τ::u64,  τ::u64>;
