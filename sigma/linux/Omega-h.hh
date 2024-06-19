@@ -471,11 +471,18 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
   u64 kl = Nl<u64>::min();
   let kn = Sc<u64>(k);
 
+  int limit = ubits(u);  // max #iterations before switching to binary search
+
   while (ku > kl && u > l)
   {
-    let m  = std::min<u64>(u - 1, l + (u - l) * f64(kn - kl) / (ku - kl));
-    let am = a.at(map_, m);
+    // Use an interpolation search until we get to log₂(n) iterations; by that
+    // point we can reasonably infer that the values are not well-distributed,
+    // so we fall back to binary search to avoid O(n) worst-case complexity.
+    let m = limit-- > 0
+      ? std::min<u64>(u - 1, l + (u - l) * f64(kn - kl) / (ku - kl))
+      : (u + l) / 2;
 
+    let am = a.at(map_, m);
     if      (kn < am.k) { ku = am.k; u = m; }
     else if (kn > am.k) { kl = am.k; l = m + 1; }
     else
