@@ -61,6 +61,7 @@ protected:
     τ::u64b o;
     τ::u64b s;
 
+    τ::SO operator<=>(ar const&) const = default;
     τ::u64b n     ()                  const { return s / klb; }
     kl      at    (Ωfmc &m, τ::u64 i) const { return *τ::uap<klc>(m + (o + i * klb)); }
     ss      stream(Ωfmc &m)           const;
@@ -167,7 +168,7 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::merge_(ss a, ss b)
                      av_(ae_ ? kl{0, {}} : **a_),
                      bv_(be_ ? kl{0, {}} : **b_) {}
 
-    explicit operator bool() const { return !ae_ && !be_; }
+    explicit operator bool() const { return !ae_ || !be_; }
     kl       operator*    () const { return ae_ ? bv_ : be_ ? av_ : std::min(av_, bv_); }
     ss_     &operator++   ()
       { if      (ae_)       nb();
@@ -284,10 +285,11 @@ Tkl τ::u64 Ωh<K, L>::insert_at_(τ::u64 bytes) const
   // Now look for any gap large enough to accept the new array. By default we
   // append to the end of the file, but it's possible that we'll have a gap
   // large enough for the new array.
+  let n1 = aoi.size() - 1;
   for (u32 i = 0; i + 1 < aoi.size(); ++i)
     if (as_[aoi[i + 1]].o - (as_[aoi[i]].o + as_[aoi[i]].s) >= bytes)
       return as_[aoi[i]].o + as_[aoi[i]].s;
-  return as_.back().o + as_.back().s;
+  return as_[aoi[n1]].o + as_[aoi[n1]].s;
 }
 
 

@@ -138,6 +138,25 @@ void measurement::stop(ΔΘ dt)
 }
 
 
+O &operator<<(O &s, measurement const &m)
+{
+  return s << m.n()          << "x  "
+           << m.duty() * 100 << "%  "
+           << m.real()       << " real  "
+           << m.mean()       << " mean  "
+           << m.min()        << " min  "
+           << m.max()        << " max  "
+           << m.down()       << " down  "
+           << m.gap()        << " gap  "
+           << m.active()     << " active";
+}
+
+O &operator<<(O &s, Sp<measurement> m)
+{
+  return s << *m;
+}
+
+
 }
 
 

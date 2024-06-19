@@ -63,7 +63,7 @@ void try_Ωa_stress()
       {
         let k = ηm{} << "sk" << j;
         let awv = aw.get(k);
-        A(!awv.empty(), "empty key " << k << ", j = " << j);
+        A(!awv.empty(), "empty key " << k << ", i = " << i << ", j = " << j << ", kh = " << std::hex << k.y().hash());
         AE(awv.y()[0].η(), k.y());
         AE(awv.y()[1].cs(), "sv");
         AE(awv.y()[2].ci(), j);
@@ -79,34 +79,44 @@ void try_Ωa_stress()
 }
 
 
-void Ωa_bench()
+void Ωa_bench(i64 iterations = 1048576)
 {
   unlink("/tmp/omegaa-bench.kv");
   unlink("/tmp/omegaa-bench.hm");
   Ωa a("/tmp/omegaa-bench", true);
 
   {
-    let t = prof("Ωa_bench/add");
-    for (i64 i = 0; i < 1048576 * 64; ++i)
+    let m = measurement_for("Ωa_bench/add");
+    for (i64 i = 0; i < iterations; ++i)
     {
-      a.add(ηm{} << "key" << i, ηm{} << "val" << i);
-      if (i % 65536 == 0) std::cerr << "\radd " << i << " / " << 1048576 * 64 << "  " << std::flush;
+      let k = ηm{} << "key" << i;
+      let v = ηm{} << "val" << i;
+      {
+        let t = m->start();
+        a.add(k, v);
+      }
+      if (i % 65536 == 0) std::cerr << "\radd " << i << " / " << iterations << "  " << std::flush;
     }
     a.commit(true);
   }
 
   V<i64> xs;
-  xs.reserve(1048576 * 64);
-  for (i64 i = 0; i < 1048576 * 64; ++i) xs.push_back(i);
+  xs.reserve(iterations);
+  for (i64 i = 0; i < iterations; ++i) xs.push_back(i);
   std::shuffle(xs.begin(), xs.end(), std::mt19937_64{});
 
   {
-    let t = prof("Ωa_bench/fetch");
+    let m = measurement_for("Ωa_bench/fetch");
     for (i64 i = 0; i < i64(xs.size()); ++i)
     {
       let k = ηm{} << "key" << xs[i];
-      AE(a.get(k), ηm{} << k << "val" << xs[i]);
-      if (i % 65536 == 0) std::cerr << "\rfetch " << i << " / " << 1048576 * 64 << "  " << std::flush;
+      ηm r;
+      {
+        let t = m->start();
+        r = a.get(k);
+      }
+      AE(r, ηm{} << k << "val" << xs[i]);
+      if (i % 65536 == 0) std::cerr << "\rfetch " << i << " / " << iterations << "  " << std::flush;
     }
   }
 
@@ -160,7 +170,8 @@ int main()
   try_Ωl();
   try_Ωa();
   try_Ωa_stress();
-  Ωa_bench();
+  Ωa_bench(1048576);
+  Ωa_bench(1048576 * 8);
 
   return 0;
   τassert_end

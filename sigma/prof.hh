@@ -80,6 +80,10 @@ timer prof(τ::ηmc&);  // profile an action
 timer prof(τ::Stc&);  // profile an action
 
 
+τ::O &operator<<(τ::O&, measurement const&);
+τ::O &operator<<(τ::O&, τ::Sp<measurement>);
+
+
 }
 
 #include "end.hh"
