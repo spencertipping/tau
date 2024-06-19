@@ -26,6 +26,14 @@ Some important points:
 3. Readers must release locks quickly; they are not allowed to hold array locks for longer than absolutely necessary
 
 
+## Duplicate-value insertion
+[Ωs indexes](Omega-s.md) can use `Ωh` as a backend, and may insert duplicate values in the process. `Ωh` must deduplicate these values to prevent redundant results from being stored and later returned. This is done at three points:
+
+1. When compacting the stage to an array
+2. When merging arrays
+3. When returning results
+
+
 ## Staging and compaction
 Insertions are staged in an `unordered_multimap` and are written into new arrays, which are merged synchronously by the writer. Merging applies to the smallest _k_ of _n_ arrays, and happens automatically when:
 
