@@ -126,6 +126,32 @@ void Ωa_bench(i64 iterations = 1048576)
 }
 
 
+void try_Ωh_multi()
+{
+  unlink("/tmp/omegah-multi-test");
+  Ωh<u64b, u64b> h("/tmp/omegah-multi-test", true);
+
+  for (u64 i = 0; i < 1048576; ++i)
+  {
+    h.add(i % 4096 >> 3, i % 43);
+    if (i % 178321 == 0) h.commit();
+  }
+  h.commit();
+
+  std::cerr << "frag = " << h.fragments() << std::endl;
+  std::cerr << "efficiency = " << h.efficiency() << std::endl;
+
+  for (u64 i = 0; i < 4096; ++i)
+  {
+    u64 n = 0;
+    h.get(i >> 3, [&](u64 x) { ++n; return true; });
+    A(n == 43, "i = " << i << ", k = " << (i >> 3) << ", n = " << n);
+  }
+
+  std::cout << "Ωh_multi ok" << std::endl;
+}
+
+
 void try_Ωl()
 {
   unlink("/tmp/omegal-test");
@@ -168,6 +194,7 @@ int main()
 
   try_pwrite_and_size();
   try_Ωl();
+  try_Ωh_multi();
   try_Ωa();
   try_Ωa_stress();
   Ωa_bench(1048576);

@@ -333,11 +333,16 @@ Tkl void Ωh<K, L>::ensure_write_(τ::u64 size)
 Tkl τ::u64 Ωh<K, L>::insert_at_(τ::u64 bytes) const
 {
   using namespace τ;
-  if (as_.empty()) return hdb + cap_ * arb;
+  let he = hdb + cap_ * arb;
+  if (as_.empty()) return he;
 
   V<u32> aoi(as_.size());  // indexes of as_ by ascending offset
   for (u32 i = 0; i < as_.size(); ++i) aoi[i] = i;
   std::sort(aoi.begin(), aoi.end(), [&](u32 a, u32 b) { return as_[a].o < as_[b].o; });
+
+  // Does the range fit between end of header and the first array? If so, use
+  // that.
+  if (bytes <= as_[aoi.front()].o - he) return he;
 
   // Now look for any gap large enough to accept the new array. By default we
   // append to the end of the file, but it's possible that we'll have a gap
@@ -388,11 +393,13 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   let ao = insert_at_(bytes);
   u32 j  = 0;
   ensure_write_(ao + bytes);
+  bool first = true;
   for (kl last = {}; *m; ++*m)
   {
     let kl = **m;
-    if (kl != last) memcpy(map_.at(ao + j++ * klb), &kl, klb);
+    if (first || kl != last) memcpy(map_.at(ao + j++ * klb), &kl, klb);
     last = kl;
+    first = false;
   }
   map_.sync(ao, j * klb, fsync);
 
@@ -441,8 +448,15 @@ Tkl void Ωh<K, L>::write_arrays_(bool fsync)
   using namespace τ;
   let al = lock_arrays_(true);
   St ab; ab.resize(cap_ * arb);
-  for (u32 i = 0; i < as_.size(); ++i) memcpy(&ab[arb*i], &as_[i], arb);
+  u64 max_extent = hdb + cap_ * arb;
+  for (u32 i = 0; i < as_.size(); ++i)
+  {
+    max_extent = std::max<u64>(max_extent, as_[i].o + as_[i].s);
+    memcpy(&ab[arb*i], &as_[i], arb);
+  }
   fd_->pwrite(ab.data(), cap_ * arb, hdb);
+  A(ftruncate(fd_->fd(), max_extent) != -1,
+    "Ωh::write_arrays_: ftruncate(" << max_extent << ") failed");
   write_header_(false);
   if (fsync) fd_->fdatasync();
 }
