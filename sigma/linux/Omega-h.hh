@@ -32,11 +32,10 @@ Tkl struct Ωh final
      τ::u32  mss    = 1048576);  // max stage size (elements)
   ~Ωh();
 
-  void   add     (Kc&, Lc&);
-  τ::u32 get     (Kc&, L*, τ::u32);
-  void   commit  (bool fsync = false);
-  void   repack  (τ::u64 max_bytes, bool fsync = false);
-  τ::u64 unpacked() const;
+  void   add   (Kc&, Lc&);
+  τ::u32 get   (Kc&, L*, τ::u32);
+  void   commit(bool fsync = false);
+  void   repack(τ::u64 max_bytes, bool fsync = false);
 
 
 protected:
@@ -142,18 +141,16 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::ar::stream(Ωfmc &m) const
 {
   struct ars final : public virtual ss_
   {
-    ars(Ωfmc &m, τ::u64 o, τ::u64 s)
-      : ss_(), m_(m), o_(o), s_(s), i_(0) {}
-
+    ars(Ωfmc &m, τ::u64 o, τ::u64 s) : ss_(), m_(m), o_(o), s_(s), i_(0) {}
     explicit operator bool() const { return i_ * klb < s_; }
     kl       operator*    () const { return *τ::uap<klc>(m_ + (o_ + i_ * klb)); }
-    ss_     &operator++   ()       { ++i_; return *this; }
+    ss_     &operator++   () { ++i_; return *this; }
 
   protected:
-    Ωfmc  &m_;
-    τ::u64 o_;
-    τ::u64 s_;
-    τ::u64 i_;  // current element
+    Ωfmc   &m_;
+    τ::u64c o_;
+    τ::u64c s_;
+    τ::u64  i_;  // current element
   };
 
   return std::make_shared<ars>(m, o, s);
@@ -206,11 +203,14 @@ Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n)
   using namespace τ;
   u32 r = 0;
 
+  std::cerr << "get(" << k << "; stage_.size() = " << stage_.size() << std::endl;
+
   {
     Sl<Smu> sl(stage_mu_);
     let     e = stage_.equal_range(k);
     for (auto i = e.first; i != e.second; ++i)
       if (l && r < n) l[r++] = i->second;
+    std::cerr << "post-stage: r = " << r << std::endl;
   }
 
   {
@@ -218,7 +218,10 @@ Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n)
     read_header_();
     Sl<Smu> al(as_mu_);
     for (u32 i = 0; r < n && i < as_.size(); ++i)
+    {
+      std::cerr << "searching array " << i << " of " << as_.size() << std::endl;
       r += search_in_(as_[i], k, l ? l + r : 0, n - r);
+    }
   }
   return r;
 }
@@ -255,6 +258,9 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
   as_.push_back({ao, as});
   repack_(as * 3, fsync);  // repack iff ≥50% of next-largest array
   write_arrays_(fsync);
+
+  // Very important: clear the fucking stage
+  stage_.clear();
 }
 
 
@@ -314,6 +320,7 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   }
   if (n < 2) return;
 
+  // FIXME: we are losing items in the merge, most likely
   map_.update();  // make sure we can read everything
   V<ss> sas(n);   // streams to merge
   for (u32 i = 0; i < n; ++i) sas[i] = as_[asi[i]].stream(map_);
@@ -392,14 +399,18 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
   u64 l  = 0;
   u64 ku = Nl<u64>::max();
   u64 kl = Nl<u64>::min();
-  let kn = u64(k);
+  let kn = Sc<u64>(k);
 
-  while (ku > kl && u - l > 1)
+  while (ku > kl && u > l)
   {
     let m  = std::min<u64>(u - 1, l + (u - l) * f64(kn - kl) / (ku - kl));
     let am = a.at(map_, m);
-    if      (am.k < kn) { ku = am.k; u = m; }
-    else if (am.k > kn) { kl = am.k; l = m + 1; }
+
+    std::cerr << "l: " << l << ", u = " << u
+              << ", m: " << m << ", kn = " << kn << ", am.k: " << am.k << std::endl;
+
+    if      (kn < am.k) { ku = am.k; u = m; }
+    else if (kn > am.k) { kl = am.k; l = m + 1; }
     else
     {
       // We're within the range of keys, but we don't know that we're at the
