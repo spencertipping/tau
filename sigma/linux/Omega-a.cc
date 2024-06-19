@@ -38,8 +38,6 @@ void Ωa::add(ηic &k, ηic &v)
   let n = h_.get(k.hash(), os, sizeof(os) / sizeof(os[0]));
   hgt.stop();
 
-  std::cerr << "get(" << k << "): " << n << " results" << std::endl;
-
   let hrt = prof_hresults_->start();
   for (u32 i = 0; i < n; ++i)
     if (let x = l_[os[i]]; x.y().η() == k) return x;

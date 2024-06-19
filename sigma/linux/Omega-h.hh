@@ -170,10 +170,11 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::merge_(ss a, ss b)
     explicit operator bool() const { return !ae_ && !be_; }
     kl       operator*    () const { return ae_ ? bv_ : be_ ? av_ : std::min(av_, bv_); }
     ss_     &operator++   ()
-      { let av0 = av_;
-        let ae0 = ae_;
-        if (!ae_ && (be_ || av_ <= bv_) && !(ae_ = !++*a_)) av_ = **a_;
-        if (!be_ && (ae0 || bv_ <= av0) && !(be_ = !++*b_)) bv_ = **b_;
+      { if      (ae_)       nb();
+        else if (be_)       na();
+        else if (bv_ < av_) nb();
+        else if (av_ < bv_) na();
+        else                na(), nb();
         return *this; }
 
   protected:
@@ -183,6 +184,9 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::merge_(ss a, ss b)
     bool be_;
     kl   av_;
     kl   bv_;
+
+    void na() { if (!(ae_ = !++*a_)) av_ = **a_; }
+    void nb() { if (!(be_ = !++*b_)) bv_ = **b_; }
   };
 
   return std::make_shared<ms>(a, b);
@@ -203,14 +207,11 @@ Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n)
   using namespace τ;
   u32 r = 0;
 
-  std::cerr << "get(" << k << "; stage_.size() = " << stage_.size() << std::endl;
-
   {
     Sl<Smu> sl(stage_mu_);
     let     e = stage_.equal_range(k);
     for (auto i = e.first; i != e.second; ++i)
       if (l && r < n) l[r++] = i->second;
-    std::cerr << "post-stage: r = " << r << std::endl;
   }
 
   {
@@ -218,10 +219,7 @@ Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n)
     read_header_();
     Sl<Smu> al(as_mu_);
     for (u32 i = 0; r < n && i < as_.size(); ++i)
-    {
-      std::cerr << "searching array " << i << " of " << as_.size() << std::endl;
       r += search_in_(as_[i], k, l ? l + r : 0, n - r);
-    }
   }
   return r;
 }
@@ -280,7 +278,7 @@ Tkl τ::u64 Ωh<K, L>::insert_at_(τ::u64 bytes) const
   if (as_.empty()) return hdb + cap_ * arb;
 
   V<u32> aoi(as_.size());  // indexes of as_ by ascending offset
-  for (u32 i = 0; i < as_.size(); ++i) aoi.push_back(i);
+  for (u32 i = 0; i < as_.size(); ++i) aoi[i] = i;
   std::sort(aoi.begin(), aoi.end(), [&](u32 a, u32 b) { return as_[a].o < as_[b].o; });
 
   // Now look for any gap large enough to accept the new array. By default we
@@ -308,7 +306,7 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   // max_bytes and how big they would be if we combined them. Then figure out
   // whether they fit into an existing gap, or whether we should append.
   V<u32> asi(as_.size());  // indexes of as_ by ascending size
-  for (u32 i = 0; i < as_.size(); ++i) asi.push_back(i);
+  for (u32 i = 0; i < as_.size(); ++i) asi[i] = i;
   std::sort(asi.begin(), asi.end(), [&](u32 a, u32 b) { return as_[a].s < as_[b].s; });
 
   u64 bytes = 0;
@@ -320,7 +318,6 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   }
   if (n < 2) return;
 
-  // FIXME: we are losing items in the merge, most likely
   map_.update();  // make sure we can read everything
   V<ss> sas(n);   // streams to merge
   for (u32 i = 0; i < n; ++i) sas[i] = as_[asi[i]].stream(map_);
@@ -405,9 +402,6 @@ Tkl τ::u32 Ωh<K, L>::search_in_(arc &a, Kc &k, L *ls, τ::u32 n) const
   {
     let m  = std::min<u64>(u - 1, l + (u - l) * f64(kn - kl) / (ku - kl));
     let am = a.at(map_, m);
-
-    std::cerr << "l: " << l << ", u = " << u
-              << ", m: " << m << ", kn = " << kn << ", am.k: " << am.k << std::endl;
 
     if      (kn < am.k) { ku = am.k; u = m; }
     else if (kn > am.k) { kl = am.k; l = m + 1; }
