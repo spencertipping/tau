@@ -68,8 +68,8 @@ void try_Ωa_stress()
         AE(awv.y()[1].cs(), "sv");
         AE(awv.y()[2].ci(), j);
         AE(awv.y()[3].t(), ηtype::string);
-        //AE(ar1.get(ηm{} << "sk" << j), awv);
-        //AE(ar2.get(ηm{} << "sk" << j), awv);
+        AE(ar1.get(ηm{} << "sk" << j), awv);
+        AE(ar2.get(ηm{} << "sk" << j), awv);
         ++ntests;
       }
     }
@@ -120,7 +120,7 @@ void Ωa_bench(i64 iterations = 1048576)
     }
   }
 
-  std::cerr << measurement_for("Ωa_bench/init") << std::endl;
+  std::cerr << measurement_for("Ωa_bench/add") << std::endl;
   std::cerr << measurement_for("Ωa_bench/fetch") << std::endl;
   std::cout << "Ωa_bench ok" << std::endl;
 }

@@ -212,7 +212,9 @@ Tkl τ::u32 Ωh<K, L>::get(Kc &k, L *l, τ::u32 n)
     Sl<Smu> sl(stage_mu_);
     let     e = stage_.equal_range(k);
     for (auto i = e.first; i != e.second; ++i)
-      if (l && r < n) l[r++] = i->second;
+      if (r < n)
+        if (l) l[r++] = i->second;
+        else   ++r;
   }
 
   {
@@ -370,7 +372,7 @@ Tkl void Ωh<K, L>::write_header_(bool fsync)
   A(rw_ && revl_.locked(), "Ωh::write_header_: not writable");
   hd h;
   memcpy(h.magic, "Ωh\0", 4);
-  h.rev = rev_;
+  h.rev = ++rev_;
   h.cap = cap_;
   h.n   = as_.size();
   fd_->pwrite(&h, hdb, 0);
