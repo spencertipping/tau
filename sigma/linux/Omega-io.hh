@@ -85,6 +85,9 @@ protected:
 typedef Ωfl const Ωflc;
 
 
+// FIXME: linux automatically makes appended data available, so no need to remap
+// for expanded files
+//
 struct Ωfm final  // file mmap; const means it represents the same file
 {
   Ωfm (bool rw = false)         : fd_(),   map_(nullptr), mapsize_(0), rw_(rw) {}
