@@ -1,6 +1,8 @@
 #ifndef σserver_Ω_h
 #define σserver_Ω_h
 
+#define σserver_Ω_debug_instantiations 0
+
 #include "Omega-io.hh"
 #include "Omega-h.hh"
 
@@ -107,6 +109,73 @@ protected:
 
 typedef Ωa const Ωac;
 
+
+template<Ωh_k K> struct Ωs_gen;
+
+template<Ωh_k K, Ωh_l L>
+struct Ωs final
+{
+  typedef K const Kc;
+  typedef L const Lc;
+
+  typedef Ωs_gen<K> G;
+
+  Ωs(τ::Stc &path, bool rw = false) : h_(path, rw) {}
+
+  void add   (τ::ηic &x, Lc &l)               { h_.add(G::gen(x), l); }
+  void commit(bool fsync = false)             { h_.commit(fsync); }
+  bool get   (τ::ηic &x, τ::Fc<bool(Lc&)> &f) { return h_.get(G::gen(x), f); }
+
+  Ωh <K, L> &h()       { return h_; }
+  Ωhc<K, L> &h() const { return h_; }
+
+protected:
+  Ωh<K, L> h_;
+};
+
+struct Ωs_h128k final  // effectively-exact 128-bit key, generated from SHA256
+{
+  τ::h128 x;
+  τ::SO operator<=>(Ωs_h128k const &o) const { return x <=> o.x; }
+  operator τ::u64() const { return *τ::uap<τ::u64bc>(x.begin()); }
+};
+
+}
+
+
+namespace std
+{
+
+Tn struct hash<σ::Ωs_h128k>
+{
+  τ::u64 operator()(σ::Ωs_h128k const &x) const { return x; }
+};
+
+}
+
+
+namespace σ
+{
+
+template<Ωh_k K> struct Ωs_gen {};
+template<> struct Ωs_gen<τ::u32b>  { static τ::u32b  gen(τ::ηic &x) { return x.hash(); } };
+template<> struct Ωs_gen<τ::u64b>  { static τ::u64b  gen(τ::ηic &x) { return x.hash(); } };
+template<> struct Ωs_gen<Ωs_h128k> { static Ωs_h128k gen(τ::ηic &x)
+  { τ::h128 r;
+    let h = x.sha256();
+    std::copy_n(h.begin(), 16, r.begin());
+    return {r}; } };
+
+Tt using Ωs32  = Ωs<τ::u32b,  T>;
+Tt using Ωs64  = Ωs<τ::u64b,  T>;
+Tt using Ωs128 = Ωs<Ωs_h128k, T>;
+
+
+#if σserver_Ω_debug_instantiations
+template struct Ωs<τ::u32b, τ::u64b>;
+template struct Ωs<τ::u64b, τ::u64b>;
+template struct Ωs<Ωs_h128k, τ::u64b>;
+#endif
 
 }
 

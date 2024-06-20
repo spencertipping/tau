@@ -23,26 +23,31 @@ using namespace std::literals;
 using namespace std::placeholders;
 
 
+typedef Ar<u8, 16> h128;  typedef h128 const h128c;
 typedef Ar<u8, 28> h224;  typedef h224 const h224c;
 typedef Ar<u8, 32> h256;  typedef h256 const h256c;
 typedef Ar<u8, 48> h384;  typedef h384 const h384c;
 typedef Ar<u8, 64> h512;  typedef h512 const h512c;
 
+St h_hex(h128c&);
 St h_hex(h224c&);
 St h_hex(h256c&);
 St h_hex(h384c&);
 St h_hex(h512c&);
 
+St h_b64(h128c&);
 St h_b64(h224c&);
 St h_b64(h256c&);
 St h_b64(h384c&);
 St h_b64(h512c&);
 
+h128 hex_h128(Stc&);
 h224 hex_h224(Stc&);
 h256 hex_h256(Stc&);
 h384 hex_h384(Stc&);
 h512 hex_h512(Stc&);
 
+h128 b64_h128(Stc&);
 h224 b64_h224(Stc&);
 h256 b64_h256(Stc&);
 h384 b64_h384(Stc&);
@@ -390,6 +395,14 @@ inline O &hexout(O &s, Stvc &x)
 
 namespace std
 {
+
+Tn struct hash<τ::h128>
+{
+  size_t operator()(τ::h128 const &x) const
+    {
+      return hash<std::string_view>{}({(char const*) x.data(), x.size()});
+    }
+};
 
 Tn struct hash<τ::h224>
 {

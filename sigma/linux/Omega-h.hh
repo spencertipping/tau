@@ -1,9 +1,7 @@
 #ifndef σserver_Ωh_h
 #define σserver_Ωh_h
 
-#ifndef τarch
-# define σserver_Ωh_debug_instantiations
-#endif
+#define σserver_Ωh_debug_instantiations 0
 
 #include "Omega-io.hh"
 #include "../prof.hh"
@@ -563,7 +561,7 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
 }
 
 
-#ifdef σserver_Ωh_debug_instantiations
+#if σserver_Ωh_debug_instantiations
   // NOTE: this happens only in the editor; we don't want to force these
   // specific instantiations for real builds
 
