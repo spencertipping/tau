@@ -70,6 +70,7 @@ Tkl struct Ωh final
 
   τ::Sp<measurement> prof_rlock_arrays     () const { return prof_rlock_arrays_; }
   τ::Sp<measurement> prof_wlock_arrays     () const { return prof_wlock_arrays_; }
+  τ::Sp<measurement> prof_add              () const { return prof_add_; }
   τ::Sp<measurement> prof_commit           () const { return prof_commit_; }
   τ::Sp<measurement> prof_commit_sort_stage() const { return prof_commit_sort_stage_; }
   τ::Sp<measurement> prof_repack           () const { return prof_repack_; }
@@ -132,6 +133,7 @@ protected:
   τ::Sp<measurement>
     prof_rlock_arrays_,
     prof_wlock_arrays_,
+    prof_add_,
     prof_commit_,
     prof_commit_sort_stage_,
     prof_repack_,
@@ -148,7 +150,10 @@ protected:
 
   bool   search_in_(arc&, Kc&, τ::Fc<bool(Lc&)>&) const;
 
-  Ωfl    lock_arrays_ (bool rw) const { return {fd_, rw, hdb, arb * cap_}; }
+  Ωfl    lock_arrays_ (bool rw) const
+    { let t = (rw ? prof_wlock_arrays_ : prof_rlock_arrays_)->start();
+      return {fd_, rw, hdb, arb * cap_}; }
+
   bool   read_header_ ();
   void   write_header_(bool fsync);
   void   write_arrays_(bool fsync);
@@ -193,6 +198,7 @@ Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss)
     rev_   (0),
     prof_rlock_arrays_     (measurement_for(τ::ηm{} << "Ωh" << f << "rlock_arrays")),
     prof_wlock_arrays_     (measurement_for(τ::ηm{} << "Ωh" << f << "wlock_arrays")),
+    prof_add_              (measurement_for(τ::ηm{} << "Ωh" << f << "add")),
     prof_commit_           (measurement_for(τ::ηm{} << "Ωh" << f << "commit")),
     prof_commit_sort_stage_(measurement_for(τ::ηm{} << "Ωh" << f << "commit_sort_stage")),
     prof_repack_           (measurement_for(τ::ηm{} << "Ωh" << f << "repack")),
@@ -279,6 +285,7 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::merge_(ss a, ss b)
 Tkl void Ωh<K, L>::add(Kc &k, Lc &l)
 {
   using namespace τ;
+  let t = prof_add_->start();
   Ul<Smu> sl(stage_mu_);
   stage_.insert({k, l});
   if (stage_.size() > mss_) commit_(false);
@@ -288,6 +295,8 @@ Tkl void Ωh<K, L>::add(Kc &k, Lc &l)
 Tkl bool Ωh<K, L>::get(Kc &k, τ::Fc<bool(Lc&)> &f)
 {
   using namespace τ;
+
+  let t = prof_get_->start();
 
   if (rw_)  // read-only doesn't use a stage
   {
@@ -321,6 +330,8 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
   // NOTE: stage_mu_ is held uniquely when this function is called
   using namespace τ;
   if (stage_.empty()) return;
+
+  let t = prof_commit_->start();
   Ul<Smu> al(as_mu_);
   if (as_.size() + 1 >= cap_) repack_(fd_->size() * auto_f_, fsync);
 
@@ -334,9 +345,12 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
         kls.push_back({k, l});
   }
 
-  // Important: always make sure to sort by both k and l because this will
-  // enable us to deduplicate later when we merge arrays.
-  std::sort(kls.begin(), kls.end(), [](klc &a, klc &b) { return a < b; });
+  {
+    // Important: always make sure to sort by both k and l because this will
+    // enable us to deduplicate later when we merge arrays.
+    let ts = prof_commit_sort_stage_->start();
+    std::sort(kls.begin(), kls.end(), [](klc &a, klc &b) { return a < b; });
+  }
 
   // Important: we're writing to a memory mapping, so make sure (1) the file is
   // already large enough to contain the new array, and (2) we've updated the
@@ -349,7 +363,9 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
   repack_(as * 3, fsync);  // repack iff ≥50% of next-largest array
   write_arrays_(fsync);
 
-  // Very important: clear the fucking stage
+  // Very important: clear the fucking stage. If you don't do this, Ω will be
+  // very slow. Don't ask me how I know this, aside from it being really
+  // obvious.
   stage_.clear();
 }
 
@@ -398,6 +414,8 @@ Tkl void Ωh<K, L>::repack(τ::u64 max_bytes, bool fsync)
 Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
 {
   using namespace τ;
+
+  let t = prof_repack_->start();
 
   // We always repack the smallest arrays first, so find out how many fit into
   // max_bytes and how big they would be if we combined them. Then figure out

@@ -10,16 +10,15 @@ using namespace std::chrono;
 O &operator<<(O &s, ΔΘ const &t)
 {
   let a = abs(t);
-  if      (a <= 100us)   return s << t.count() << "ns";
-  else if (a <= 100ms)   return s << t / 1us   << "μs";
-  else if (a <= 100s)    return s << t / 1ms   << "ms";
-  else if (a <= 1h)      return s << t / 1s    << "s";
-  else if (a <= 10h)     return s << t / 1min  << "m";
-  else if (a <= 168h)    return s << t / 1h    << "h";
-  else if (a <= 24h*140) return s << Duc<days>(t).count()  << "d";
-  else if (a <= 24h*730) return s << Duc<weeks>(t).count() << "w";
-  else                   return s << Duc<years>(t).count() << "y";
-  return s;
+  if      (a < 100us)   return s << t.count() << "ns";
+  else if (a < 100ms)   return s << t / 1us   << "μs";
+  else if (a < 100s)    return s << t / 1ms   << "ms";
+  else if (a < 1h)      return s << t / 1s    << "s";
+  else if (a < 10h)     return s << t / 1min  << "m";
+  else if (a < 168h)    return s << t / 1h    << "h";
+  else if (a < 24h*140) return s << Duc<days>(t).count()  << "d";
+  else if (a < 24h*730) return s << Duc<weeks>(t).count() << "w";
+  else                  return s << Duc<years>(t).count() << "y";
 }
 
 O &operator<<(O &s, Θp const &p)

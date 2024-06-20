@@ -127,9 +127,15 @@ void Ωa_bench(i64 iterations = 1048576)
 
   std::cerr << std::endl;
   std::cerr << measurement_for("Ωa_bench/add") << std::endl;
+  std::cerr << "  add    " << a.h().prof_add()               << std::endl;
+  std::cerr << "  commit " << a.h().prof_commit()            << std::endl;
+  std::cerr << "  sort   " << a.h().prof_commit_sort_stage() << std::endl;
+  std::cerr << "  repack " << a.h().prof_repack()            << std::endl;
+
   std::cerr << measurement_for("Ωa_bench/fetch") << std::endl;
 
-  std::cerr << "  search step " << a.h().prof_search_step() << std::endl
+  std::cerr << "  get         " << a.h().prof_get()         << std::endl
+            << "  search step " << a.h().prof_search_step() << std::endl
             << "  search cut  " << a.h().prof_search_cut()  << std::endl
             << "  search read " << a.h().prof_search_read() << std::endl;
 
