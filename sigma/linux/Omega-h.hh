@@ -367,8 +367,7 @@ Tkl void Ωh<K, L>::ensure_write_(τ::u64 size)
 Tkl τ::u64 Ωh<K, L>::insert_at_(τ::u64 bytes) const
 {
   using namespace τ;
-  let he = hdb + cap_ * arb;
-  if (as_.empty()) return he;
+  if (as_.empty()) return a0o_;
 
   V<u32> aoi(as_.size());  // indexes of as_ by ascending offset
   for (u32 i = 0; i < as_.size(); ++i) aoi[i] = i;
@@ -376,7 +375,7 @@ Tkl τ::u64 Ωh<K, L>::insert_at_(τ::u64 bytes) const
 
   // Does the range fit between end of header and the first array? If so, use
   // that.
-  if (bytes <= as_[aoi.front()].o - he) return he;
+  if (bytes <= as_[aoi.front()].o - a0o_) return a0o_;
 
   // Now look for any gap large enough to accept the new array. By default we
   // append to the end of the file, but it's possible that we'll have a gap
@@ -504,26 +503,10 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
   u64 ku = Nl<u64>::max();
   u64 kl = Nl<u64>::min();
   let kn = Sc<u64>(k);
+  int mi = ubits(u);  // max #iterations before switching to binary search
 
-  auto tc = prof_search_cut_->start();
-
-  int limit = ubits(u);  // max #iterations before switching to binary search
-
-  // Stage 1: aggressively cut the search space down until we're down to an
-  // acceptably small range. We do this by strategically missing the target. For
-  // example, suppose we're looking for 0xa658'4712'3b4c'5d6e. The prefix is
-  // 0xa6, which falls on the right side of the distribution:
-  //
-  //                                      0xa6 is about here
-  //                                      |
-  //                                      V
-  // | 0x00 | 0x20 | 0x40 | 0x60 | 0x80 | 0xa0 | 0xc0 | 0xe0 | 0xff |
-  //
-  // If our goal is to reduce the search space as much as possible, we should
-  // guess a value to the _left_ of 0xa6; then we can expect to pull up the
-  // lower bound.
-
-  while (ku > kl && u > l)
+  for (auto tc = prof_search_cut_->start();
+       ku > kl && u > l;)
   {
     auto ts = prof_search_step_->start();
 
@@ -531,20 +514,11 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
     // point we can reasonably infer that the values are not well-distributed,
     // so we fall back to binary search to avoid O(n) worst-case complexity.
     u64 m;
-    if (limit-- > 0)
+    if (mi-- > 0)
     {
       let f = f64(kn - kl) / (ku - kl);  // factor within space
-      let w = 1 - (f * (1 - f)) * 4;     // absolute skew, unit interval
       let e = l + (u - l) * f;           // expected element position
-
-      if (u - l > 1024 && w > 0.1)
-      {
-        let v = (u - l) * f * (1 - f);     // variance
-        let d = std::sqrt(v) * 2.326 * w;  // displacement
-        m = std::max<u64>(l, std::min<u64>(u - 1, e + (f > 0.5 ? -d : d)));
-      }
-      else
-        m = std::min<u64>(u - 1, e);
+      m = std::min<u64>(u - 1, e);
     }
     else
       m = (u + l) / 2;
