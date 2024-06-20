@@ -128,6 +128,11 @@ void Ωa_bench(i64 iterations = 1048576)
   std::cerr << std::endl;
   std::cerr << measurement_for("Ωa_bench/add") << std::endl;
   std::cerr << measurement_for("Ωa_bench/fetch") << std::endl;
+
+  std::cerr << "  search step " << a.h().prof_search_step() << std::endl
+            << "  search cut  " << a.h().prof_search_cut()  << std::endl
+            << "  search read " << a.h().prof_search_read() << std::endl;
+
   std::cout << "Ωa_bench ok" << std::endl;
 }
 

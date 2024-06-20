@@ -33,7 +33,7 @@ V<L> get(ηi x)
 Alternatively, it can be understood that `Ωs` provides a _superset_ of accurate results rather than an exact list. How exact it is depends on the key's bit width:
 
 + `Ωs32<L>`: 32-bit overhead per key, very inexact
-+ `Ωs64<L>`: 64-bit overhead per key, almost exact
++ `Ωs64<L>`: 64-bit overhead per key, precise but not exact
 + `Ωs128<L>`: 128-bit overhead per key (SHA256), exact
 
 
@@ -52,4 +52,4 @@ term4 → doc7
 ...
 ```
 
-In practice, interpolation search is still acceptable and perhaps optimal here: we don't have a predictable bias to the distribution, so `E[k]` is still best predicted by the hash value.
+In practice, interpolation search is still acceptable and perhaps optimal here: we don't have a predictable bias to the distribution, so `E[k]` is still best predicted by the hash value. However, worst-case does matter; Ωh will use binary search if interpolation search fails to terminate after log₂ iterations.

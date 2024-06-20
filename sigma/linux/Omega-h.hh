@@ -68,6 +68,16 @@ Tkl struct Ωh final
       τ::u64 ts = 0; for (let &a : as_) ts += a.s;
       return ts; }
 
+  τ::Sp<measurement> prof_rlock_arrays     () const { return prof_rlock_arrays_; }
+  τ::Sp<measurement> prof_wlock_arrays     () const { return prof_wlock_arrays_; }
+  τ::Sp<measurement> prof_commit           () const { return prof_commit_; }
+  τ::Sp<measurement> prof_commit_sort_stage() const { return prof_commit_sort_stage_; }
+  τ::Sp<measurement> prof_repack           () const { return prof_repack_; }
+  τ::Sp<measurement> prof_get              () const { return prof_get_; }
+  τ::Sp<measurement> prof_search_step      () const { return prof_search_step_; }
+  τ::Sp<measurement> prof_search_cut       () const { return prof_search_cut_; }
+  τ::Sp<measurement> prof_search_read      () const { return prof_search_read_; }
+
 
 protected:
   struct hd final
@@ -119,6 +129,17 @@ protected:
   mutable τ::Smu stage_mu_;
   τ::MM<K, L>    stage_;     // staged insertions
 
+  τ::Sp<measurement>
+    prof_rlock_arrays_,
+    prof_wlock_arrays_,
+    prof_commit_,
+    prof_commit_sort_stage_,
+    prof_repack_,
+    prof_get_,
+    prof_search_step_,
+    prof_search_cut_,
+    prof_search_read_;
+
   // NOTE: if stage_mu_ and ar_mu_ both need to be locked, always acquire
   // stage_mu_ first.
   //
@@ -169,7 +190,16 @@ Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss)
     auto_f_(auto_f),
     map_   (fd_, rw_),
     mss_   (mss),
-    rev_   (0)
+    rev_   (0),
+    prof_rlock_arrays_     (measurement_for(τ::ηm{} << "Ωh" << f << "rlock_arrays")),
+    prof_wlock_arrays_     (measurement_for(τ::ηm{} << "Ωh" << f << "wlock_arrays")),
+    prof_commit_           (measurement_for(τ::ηm{} << "Ωh" << f << "commit")),
+    prof_commit_sort_stage_(measurement_for(τ::ηm{} << "Ωh" << f << "commit_sort_stage")),
+    prof_repack_           (measurement_for(τ::ηm{} << "Ωh" << f << "repack")),
+    prof_get_              (measurement_for(τ::ηm{} << "Ωh" << f << "get")),
+    prof_search_step_      (measurement_for(τ::ηm{} << "Ωh" << f << "search_step")),
+    prof_search_cut_       (measurement_for(τ::ηm{} << "Ωh" << f << "search_cut")),
+    prof_search_read_      (measurement_for(τ::ηm{} << "Ωh" << f << "search_read"))
 {
   using namespace τ;
   if (rw_)
@@ -475,22 +505,59 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
   u64 kl = Nl<u64>::min();
   let kn = Sc<u64>(k);
 
+  auto tc = prof_search_cut_->start();
+
   int limit = ubits(u);  // max #iterations before switching to binary search
+
+  // Stage 1: aggressively cut the search space down until we're down to an
+  // acceptably small range. We do this by strategically missing the target. For
+  // example, suppose we're looking for 0xa658'4712'3b4c'5d6e. The prefix is
+  // 0xa6, which falls on the right side of the distribution:
+  //
+  //                                      0xa6 is about here
+  //                                      |
+  //                                      V
+  // | 0x00 | 0x20 | 0x40 | 0x60 | 0x80 | 0xa0 | 0xc0 | 0xe0 | 0xff |
+  //
+  // If our goal is to reduce the search space as much as possible, we should
+  // guess a value to the _left_ of 0xa6; then we can expect to pull up the
+  // lower bound.
 
   while (ku > kl && u > l)
   {
+    auto ts = prof_search_step_->start();
+
     // Use an interpolation search until we get to log₂(n) iterations; by that
     // point we can reasonably infer that the values are not well-distributed,
     // so we fall back to binary search to avoid O(n) worst-case complexity.
-    let m = limit-- > 0
-      ? std::min<u64>(u - 1, l + (u - l) * f64(kn - kl) / (ku - kl))
-      : (u + l) / 2;
+    u64 m;
+    if (limit-- > 0)
+    {
+      let f = f64(kn - kl) / (ku - kl);  // factor within space
+      let w = 1 - (f * (1 - f)) * 4;     // absolute skew, unit interval
+      let e = l + (u - l) * f;           // expected element position
+
+      if (u - l > 1024 && w > 0.1)
+      {
+        let v = (u - l) * f * (1 - f);     // variance
+        let d = std::sqrt(v) * 2.326 * w;  // displacement
+        m = std::max<u64>(l, std::min<u64>(u - 1, e + (f > 0.5 ? -d : d)));
+      }
+      else
+        m = std::min<u64>(u - 1, e);
+    }
+    else
+      m = (u + l) / 2;
 
     let am = a.at(map_, m);
     if      (kn < am.k) { ku = am.k; u = m; }
     else if (kn > am.k) { kl = am.k; l = m + 1; }
     else
     {
+      ts.stop();
+      tc.stop();
+      let tr = prof_search_read_->start();
+
       // We're within the range of keys, but we don't know that we're at the
       // beginning. Let's find the beginning and proceed to the end.
       for (l = m; l > 0 && a.at(map_, l - 1).k == kn; --l);
