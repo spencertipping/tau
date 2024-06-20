@@ -10,17 +10,29 @@ using namespace τ;
 Ω1::Ω1(Stc &path, bool rw)
   : l_(path + ".k",  rw),
     h_(path + ".hm", rw),
-    prof_ladd_  (measurement_for(ηm{} << "Ω1" << path << "Ωl::add")),
-    prof_hadd_  (measurement_for(ηm{} << "Ω1" << path << "Ωh::add")),
-    prof_hget_  (measurement_for(ηm{} << "Ω1" << path << "Ωh::get")),
+    prof_add_   (measurement_for(ηm{} << "Ω1" << path << "add")),
     prof_commit_(measurement_for(ηm{} << "Ω1" << path << "commit")),
     prof_fsync_ (measurement_for(ηm{} << "Ω1" << path << "fsync"))
 {}
 
 
-Ωl::key Ω1::add(ηic &x)
+P<Ωl::key, bool> Ω1::add(ηic &x)
 {
-  TODO("Ω1::add");
+  // Do we already have this entry? If so, return existing key; otherwise add
+  // it.
+  let     t    = prof_add_->start();
+  Ωl::key k    = 0;
+  let     h    = x.hash();
+  let     miss = h_.get(h, [&](u64b l)
+    { let y = l_[l];
+      if (y.y() == x) { k = l; return false; }
+      else            return true; });
+
+  if (!miss) return {k, false};
+
+  k = l_ << x;
+  h_.add(h, k);
+  return {k, true};
 }
 
 

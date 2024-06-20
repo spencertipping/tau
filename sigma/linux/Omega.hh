@@ -114,9 +114,9 @@ struct Ω1 final  // insert-only set
 {
   Ω1(τ::Stc&, bool rw = false);
 
-  Ωl::key add(τ::ηic&);
-  τ::ηm   get(Ωl::key k) { return l_[k]; }
-  void    commit(bool fsync = false);
+  τ::P<Ωl::key, bool> add   (τ::ηic&);
+  τ::ηm               get   (Ωl::key k) { return l_[k]; }
+  void                commit(bool fsync = false);
 
   Ωl                    &l()       { return l_; }
   Ωlc                   &l() const { return l_; }
@@ -128,9 +128,7 @@ protected:
   mutable Ωh<τ::u64b, τ::u64b> h_;  // hash(k) → Ωl key
 
   τ::Sp<measurement>
-    prof_ladd_,
-    prof_hadd_,
-    prof_hget_,
+    prof_add_,
     prof_commit_,
     prof_fsync_;
 };

@@ -79,6 +79,28 @@ void try_Ωa_stress()
 }
 
 
+void try_Ω1()
+{
+  unlink("/tmp/omega1-test");
+
+  S<ηm> ref;  // reference behavior
+  Ω1    set("/tmp/omega1-test", true);
+
+  for (u64 i = 0; i < 1000000; ++i)
+  {
+    let k  = ηm{} << "key" << i64(i % 1024) << (i % 7 ? "foo" : "bar");
+    let rb = ref.insert(k).second;
+    let sb = set.add(k).second;
+    A(rb == sb, "there seems to be some disagreement about "
+      << k << ": rb=" << rb << ", sb=" << sb);
+
+    if (i % 511 == 0) set.commit();
+  }
+
+  std::cout << "Ω1 ok" << std::endl;
+}
+
+
 void Ωa_bench(i64 iterations = 1048576)
 {
   unlink("/tmp/omegaa-bench.kv");
@@ -212,6 +234,7 @@ int main()
   try_pwrite_and_size();
   try_Ωl();
   try_Ωh_multi();
+  try_Ω1();
   try_Ωa();
   try_Ωa_stress();
   Ωa_bench(1048576);
