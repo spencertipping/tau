@@ -53,5 +53,3 @@ term4 → doc7
 ```
 
 In practice, interpolation search is still acceptable and perhaps optimal here: we don't have a predictable bias to the distribution, so `E[k]` is still best predicted by the hash value.
-
-**TODO:** we may benefit from defensively avoiding edge predictions to guarantee progress

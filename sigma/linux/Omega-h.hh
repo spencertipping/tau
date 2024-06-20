@@ -139,6 +139,8 @@ protected:
   static ss merge_(ss, ss);
 };
 
+Tkl using Ωhc = Ωh<K, L> const;
+
 
 }
 
@@ -256,6 +258,8 @@ Tkl void Ωh<K, L>::add(Kc &k, Lc &l)
 Tkl bool Ωh<K, L>::get(Kc &k, τ::Fc<bool(Lc&)> &f)
 {
   using namespace τ;
+
+  if (rw_)  // read-only doesn't use a stage
   {
     Sl<Smu> sl(stage_mu_);
     let     e = stage_.equal_range(k);

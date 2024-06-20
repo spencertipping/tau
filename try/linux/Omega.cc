@@ -100,6 +100,11 @@ void Ωa_bench(i64 iterations = 1048576)
     a.commit(true);
   }
 
+  a.h().repack(Nl<u64>::max());
+
+  std::cerr << "  frag = " << a.h().fragments()
+            << ", efficiency = " << a.h().efficiency() << std::endl;
+
   V<i64> xs;
   xs.reserve(iterations);
   for (i64 i = 0; i < iterations; ++i) xs.push_back(i);
@@ -120,6 +125,7 @@ void Ωa_bench(i64 iterations = 1048576)
     }
   }
 
+  std::cerr << std::endl;
   std::cerr << measurement_for("Ωa_bench/add") << std::endl;
   std::cerr << measurement_for("Ωa_bench/fetch") << std::endl;
   std::cout << "Ωa_bench ok" << std::endl;

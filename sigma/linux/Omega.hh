@@ -32,6 +32,8 @@ protected:
   bool           rw_;
 };
 
+typedef Ωf const Ωfc;
+
 
 struct Ωl final
 {
@@ -75,6 +77,8 @@ protected:
   Ωfm    map_;
 };
 
+typedef Ωl const Ωlc;
+
 
 struct Ωa final  // insert-only k/v store
 {
@@ -83,6 +87,11 @@ struct Ωa final  // insert-only k/v store
   void  add(τ::ηic&, τ::ηic&);
   τ::ηm get(τ::ηic&) const;
   void  commit(bool fsync = false);
+
+  Ωl                    &l()       { return l_; }
+  Ωlc                   &l() const { return l_; }
+  Ωh <τ::u64b, τ::u64b> &h()       { return h_; }
+  Ωhc<τ::u64b, τ::u64b> &h() const { return h_; }
 
 protected:
   Ωl                           l_;
@@ -95,6 +104,8 @@ protected:
     prof_commit_,
     prof_fsync_;
 };
+
+typedef Ωa const Ωac;
 
 
 }
