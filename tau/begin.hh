@@ -58,3 +58,5 @@
 #define Txy  template<class X, class Y>
 #define Txs  template<class... Xs>
 #define Txxs template<class X, class... Xs>
+#define Tys  template<class... Ys>
+#define Tyys template<class Y, class... Ys>

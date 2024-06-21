@@ -28,6 +28,8 @@
 #undef Txy
 #undef Txs
 #undef Txxs
+#undef Tys
+#undef Tyys
 
 
 #undef τbegin_h
