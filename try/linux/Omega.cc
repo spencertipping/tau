@@ -81,7 +81,8 @@ void try_Ωa_stress()
 
 void try_Ω1()
 {
-  unlink("/tmp/omega1-test");
+  unlink("/tmp/omega1-test.k");
+  unlink("/tmp/omega1-test.hm");
 
   S<ηm> ref;  // reference behavior
   Ω1    set("/tmp/omega1-test", true);
@@ -227,7 +228,7 @@ void try_Ωl()
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
   τassert_begin
 
@@ -237,8 +238,12 @@ int main()
   try_Ω1();
   try_Ωa();
   try_Ωa_stress();
-  Ωa_bench(1048576);
-  Ωa_bench(1048576 * 8);
+
+  if (argc > 1)
+  {
+    Ωa_bench(1048576);
+    Ωa_bench(1048576 * 8);
+  }
 
   return 0;
   τassert_end
