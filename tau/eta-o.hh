@@ -99,6 +99,7 @@ Tt struct ηo final
   ηo &operator<<(int x) { return *this << Sc<i64>(x); }
 
   ηo &operator<<(i64 x);
+  ηo &operator<<(u64 x);
   ηo &operator<<(f32 x);
   ηo &operator<<(f64 x);
   ηo &operator<<(Stc &s);
@@ -189,6 +190,40 @@ Tt ηo<T> &ηo<T>::operator<<(i64 x)
     s_ += 4;
   }
   else if (x > Nl<i8>::max() || x < Nl<i8>::min())
+  {
+    if (!reserve(3)) return *this;
+    s_ += ηcb(b_.subspan(s_), ηtype::n_int, 2);
+    *Rc<i16b*>(b_.data() + s_) = x;
+    s_ += 2;
+  }
+  else
+  {
+    if (!reserve(2)) return *this;
+    s_ += ηcb(b_.subspan(s_), ηtype::n_int, 1);
+    *Rc<i8b*>(b_.data() + s_) = x;
+    s_ += 1;
+  }
+  return *this;
+}
+
+
+Tt ηo<T> &ηo<T>::operator<<(u64 x)
+{
+  if (x > Nl<i32>::max())
+  {
+    if (!reserve(9)) return *this;
+    s_ += ηcb(b_.subspan(s_), ηtype::n_int, 8);
+    *Rc<i64b*>(b_.data() + s_) = x;
+    s_ += 8;
+  }
+  else if (x > Nl<i16>::max())
+  {
+    if (!reserve(5)) return *this;
+    s_ += ηcb(b_.subspan(s_), ηtype::n_int, 4);
+    *Rc<i32b*>(b_.data() + s_) = x;
+    s_ += 4;
+  }
+  else if (x > Nl<i8>::max())
   {
     if (!reserve(3)) return *this;
     s_ += ηcb(b_.subspan(s_), ηtype::n_int, 2);
