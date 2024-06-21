@@ -41,6 +41,10 @@ deft(i8,  2, n_int,   i.ci())
 deft(i16, 3, n_int,   i.ci())
 deft(i32, 5, n_int,   i.ci())
 deft(i64, 9, n_int,   i.ci())
+deft(u8,  3, n_int,   i.ci())  // NOTE: upsize to preserve positivity
+deft(u16, 5, n_int,   i.ci())
+deft(u32, 9, n_int,   i.ci())
+deft(u64, 9, n_int,   i.ci())  // NOTE: can overflow into signed
 deft(f32, 5, n_float, i.cf())
 deft(f64, 9, n_float, i.cf())
 
