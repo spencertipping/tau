@@ -23,6 +23,9 @@ struct Ωf final
   Ωf   &operator=(τ::ηic&);
   τ::ηm operator*() const;
 
+  void  set(τ::ηic &x) { *this = x; }
+  τ::ηm get()    const { return **this; }
+
   τ::u64 size             ()      const { return fd_->size(); }
   τ::u32 rev              ()      const { τ::u32b r; fd_->pread(&r, 4, 4); return r; }
   void   write_header_into(Ωfd f) const { f->pwrite("Ωf\0\0\0\0\0", 8, 0); }
