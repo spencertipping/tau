@@ -333,8 +333,6 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
   Ul<Smu> al(as_mu_);
   if (as_.size() + 1 >= cap_) repack_(fd_->size() * auto_f_, fsync);
 
-  let as = stage_.size() * klb;
-  let ao = insert_at_(as);
   V<kl> kls;  kls.reserve(stage_.size());
   {
     S<kl> klss;
@@ -343,11 +341,14 @@ Tkl void Ωh<K, L>::commit_(bool fsync)
         kls.push_back({k, l});
   }
 
+  let as = kls.size() * klb;
+  let ao = insert_at_(as);
+
   {
     // Important: always make sure to sort by both k and l because this will
     // enable us to deduplicate later when we merge arrays.
     let ts = prof_commit_sort_stage_->start();
-    std::sort(kls.begin(), kls.end(), [](klc &a, klc &b) { return a < b; });
+    std::sort(kls.begin(), kls.end());
   }
 
   // Important: we're writing to a memory mapping, so make sure (1) the file is
@@ -522,12 +523,11 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
   using namespace τ;
   u64 u  = a.n();
   u64 l  = 0;
+  u64 p  = u;  // initial value is OOB
   u64 ku = Nl<u64>::max();
   u64 kl = Nl<u64>::min();
   let kn = Sc<u64>(k);
   int mi = ubits(u);  // max #iterations before switching to binary search
-
-  u64 p = 0;
 
   for (auto tc = prof_search_cut_->start();
        ku > kl && u > l;)
