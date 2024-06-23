@@ -524,6 +524,8 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
   let kn = Sc<u64>(k);
   int mi = ubits(u);  // max #iterations before switching to binary search
 
+  u64 p = 0;
+
   for (auto tc = prof_search_cut_->start();
        ku > kl && u > l;)
   {
@@ -546,22 +548,21 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
     let ki = Sc<u64>(am.k);
     if      (kn < ki) { ku = ki; u = m; }
     else if (kn > ki) { kl = ki; l = m + 1; }
-    else
-    {
-      ts.stop();
-      tc.stop();
-      let tr = prof_search_read_->start();
+    else              { p = m; break; }
+  }
 
-      // We're within the range of keys, but we don't know that we're at the
-      // beginning. Let's find the beginning and proceed to the end.
-      //
-      // Note that we're comparing keys directly at this point, since we've
-      // already gotten 64 bits of bisection out of the key space.
-      for (l = m; l > 0 && a.at(map_, l - 1).k >= k; --l);
-      for (Ωh_kl<K, L> x; l < a.n() && (x = a.at(map_, l)).k == k; ++l)
-        if (!f(x.l)) return false;
-      return true;
-    }
+  if (p >= l && p < u)
+  {
+    let tr = prof_search_read_->start();
+
+    // We're within the range of keys, but we don't know that we're at the
+    // beginning. Let's find the beginning and proceed to the end.
+    //
+    // Note that we're comparing keys directly at this point, since we've
+    // already gotten 64 bits of bisection out of the key space.
+    for (; p > l && a.at(map_, p - 1).k >= k; --p);
+    for (Ωh_kl<K, L> x; p < u && (x = a.at(map_, p)).k == k; ++p)
+      if (!f(x.l)) return false;
   }
 
   return true;
