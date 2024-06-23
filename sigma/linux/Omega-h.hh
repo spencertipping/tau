@@ -548,10 +548,9 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
       m = (u + l) / 2;
 
     let am = a.at(map_, m);
-    let ki = Sc<u64>(am.k);
-    if      (kn < ki) { ku = ki; u = m; }
-    else if (kn > ki) { kl = ki; l = m + 1; }
-    else              { p = m; break; }
+    if      (k < am.k) { ku = Sc<u64>(am.k); u = m; }
+    else if (k > am.k) { kl = Sc<u64>(am.k); l = m + 1; }
+    else               { p = m; break; }
   }
 
   if (p >= l && p < u)
