@@ -26,7 +26,7 @@ void try_pwrite_and_size()
 void try_Ωa()
 {
   unlink("/tmp/omegaa-test.kv");
-  unlink("/tmp/omegaa-test.hm");
+  unlink("/tmp/omegaa-test.hl");
   Ωa a("/tmp/omegaa-test", true);
 
   A(a.get(ηm{} << "foo").empty(), "nonempty fetch foo");
@@ -45,7 +45,7 @@ void try_Ωa()
 void try_Ωa_stress()
 {
   unlink("/tmp/omegaa-stresstest.kv");
-  unlink("/tmp/omegaa-stresstest.hm");
+  unlink("/tmp/omegaa-stresstest.hl");
   Ωa aw ("/tmp/omegaa-stresstest", true);
   Ωa ar1("/tmp/omegaa-stresstest", false);
   Ωa ar2("/tmp/omegaa-stresstest", false);
@@ -79,10 +79,41 @@ void try_Ωa_stress()
 }
 
 
+void try_Ωa_stress2()
+{
+  unlink("/tmp/omegaa-stress2.kv");
+  unlink("/tmp/omegaa-stress2.hl");
+  Ωa aw("/tmp/omegaa-stress2", true);
+
+  Stc b64("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/");
+
+  i64 ntests = 0;
+  for (i64 i = 0; i < 1000; ++i)
+  {
+    aw.add(ηm{} << "sk" << i, ηm{} << "sv" << i << b64.substr(0, i * 25519 % (b64.size() + 1)));
+    aw.commit();
+
+    for (i64 j = i % 50; j < i; j += 50)
+    {
+      let k = ηm{} << "sk" << j;
+      let awv = aw.get(k);
+      A(!awv.empty(), "empty key " << k << ", i = " << i << ", j = " << j << ", kh = " << std::hex << k.y().hash());
+      AE(awv.y()[0].η(), k.y());
+      AE(awv.y()[1].cs(), "sv");
+      AE(awv.y()[2].ci(), j);
+      AE(awv.y()[3].t(), ηtype::string);
+      ++ntests;
+    }
+  }
+
+  std::cout << "Ωa stress2 ok; #tests = " << ntests << std::endl;
+}
+
+
 void try_Ω1()
 {
   unlink("/tmp/omega1-test.k");
-  unlink("/tmp/omega1-test.hm");
+  unlink("/tmp/omega1-test.hl");
 
   S<ηm> ref;  // reference behavior
   Ω1    set("/tmp/omega1-test", true);
@@ -105,7 +136,7 @@ void try_Ω1()
 void Ωa_bench(i64 iterations = 1048576)
 {
   unlink("/tmp/omegaa-bench.kv");
-  unlink("/tmp/omegaa-bench.hm");
+  unlink("/tmp/omegaa-bench.hl");
   Ωa a("/tmp/omegaa-bench", true);
 
   {
@@ -238,6 +269,7 @@ int main(int argc, char **argv)
   try_Ω1();
   try_Ωa();
   try_Ωa_stress();
+  try_Ωa_stress2();
 
   if (argc > 1)
   {

@@ -10,7 +10,7 @@ using namespace τ;
 
 Ωa::Ωa(Stc &path, bool rw)
   : l_(path + ".kv", rw),
-    h_(path + ".hm", rw),
+    h_(path + ".hl", rw),
     prof_ladd_  (measurement_for(ηm{} << "Ωa" << path << "Ωl::add")),
     prof_hadd_  (measurement_for(ηm{} << "Ωa" << path << "Ωh::add")),
     prof_hget_  (measurement_for(ηm{} << "Ωa" << path << "Ωh::get")),

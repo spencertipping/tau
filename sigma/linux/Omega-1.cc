@@ -9,7 +9,7 @@ using namespace τ;
 
 Ω1::Ω1(Stc &path, bool rw)
   : l_(path + ".k",  rw),
-    h_(path + ".hm", rw),
+    h_(path + ".hl", rw),
     prof_add_   (measurement_for(ηm{} << "Ω1" << path << "add")),
     prof_commit_(measurement_for(ηm{} << "Ω1" << path << "commit")),
     prof_fsync_ (measurement_for(ηm{} << "Ω1" << path << "fsync"))
