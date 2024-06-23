@@ -458,6 +458,9 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   V<ar> nas;  // new arrays
   for (u32 i = n; i < as_.size(); ++i) nas.push_back(as_[asi[i]]);
   nas.push_back({ao, j * klb});
+
+  // NOTE: sorting just for debuggability
+  std::sort(nas.begin(), nas.end(), [](arc &a, arc &b) { return a.o < b.o; });
   as_ = nas;
   write_arrays_(fsync);
 }

@@ -117,13 +117,16 @@ void try_Ωh_128()
 
   Stc b64("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/");
 
+  std::mt19937_64                   prng(17);
+  std::uniform_int_distribution<u8> dist;
+
   u64c N = 10000;
   i64 ntests = 0;
   for (u64 i = 0; i < N; ++i)
   {
     let k = ηm{} << "sk"_yn << i << b64.substr(0, i * 25519 % (b64.size() + 1));
     h.add(Ωs_gen<Ωs_h128k>::gen(k), i);
-    if (i % 347 == 0) h.commit();
+    if (dist(prng) < 32) h.commit();
   }
 
   h.commit(false);
