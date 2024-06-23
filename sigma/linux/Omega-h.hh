@@ -431,17 +431,19 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   }
   if (n < 2) return;
 
-  map_.update();  // make sure we can read everything
-  V<ss> sas(n);   // streams to merge
-  for (u32 i = 0; i < n; ++i) sas[i] = as_[asi[i]].stream(map_);
-  ss m = balanced_apply(mo(sas), merge_);
-
   // Important: we're writing to a memory mapping, so make sure (1) the file is
   // already large enough to contain the new array, and (2) we've updated the
   // mapping as well.
   let ao = insert_at_(bytes);
   u32 j  = 0;
   ensure_write_(ao + bytes);
+
+  // Important: read streams must refer to the map after ensure_write_ has been
+  // called; otherwise we may refer to unmapped addresses.
+  V<ss> sas(n);   // streams to merge
+  for (u32 i = 0; i < n; ++i) sas[i] = as_[asi[i]].stream(map_);
+  ss m = balanced_apply(mo(sas), merge_);
+
   bool first = true;
   for (kl last = {}; *m; ++*m)
   {
