@@ -32,7 +32,7 @@ pwrite/size ok
 Ω1 ok
 Ωa ok
 Ωa stress ok; #tests = 64000
-Ωa stress2 ok; #tests = 9500
+Ωa stress2 ok; #tests = 10500
 ```
 
 

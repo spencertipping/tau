@@ -420,7 +420,8 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   // whether they fit into an existing gap, or whether we should append.
   V<u32> asi(as_.size());  // indexes of as_ by ascending size
   for (u32 i = 0; i < as_.size(); ++i) asi[i] = i;
-  std::sort(asi.begin(), asi.end(), [&](u32 a, u32 b) { return as_[a].s < as_[b].s; });
+  std::sort(asi.begin(), asi.end(),
+            [&](u32 a, u32 b) { return as_[a].s < as_[b].s; });
 
   u64 bytes = 0;
   u32 n     = 0;
@@ -542,8 +543,9 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
       m = (u + l) / 2;
 
     let am = a.at(map_, m);
-    if      (kn < am.k) { ku = am.k; u = m; }
-    else if (kn > am.k) { kl = am.k; l = m + 1; }
+    let ki = Sc<u64>(am.k);
+    if      (kn < ki) { ku = ki; u = m; }
+    else if (kn > ki) { kl = ki; l = m + 1; }
     else
     {
       ts.stop();
@@ -552,8 +554,11 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
 
       // We're within the range of keys, but we don't know that we're at the
       // beginning. Let's find the beginning and proceed to the end.
-      for (l = m; l > 0 && a.at(map_, l - 1).k == kn; --l);
-      for (Ωh_kl<K, L> x; l < a.n() && (x = a.at(map_, l)).k == kn; ++l)
+      //
+      // Note that we're comparing keys directly at this point, since we've
+      // already gotten 64 bits of bisection out of the key space.
+      for (l = m; l > 0 && a.at(map_, l - 1).k >= k; --l);
+      for (Ωh_kl<K, L> x; l < a.n() && (x = a.at(map_, l)).k == k; ++l)
         if (!f(x.l)) return false;
       return true;
     }

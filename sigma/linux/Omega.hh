@@ -163,8 +163,8 @@ protected:
 struct Ωs_h128k final  // effectively-exact 128-bit key, generated from SHA256
 {
   τ::h128 x;
-  τ::SO operator<=>(Ωs_h128k const &o) const { return x <=> o.x; }
-  operator τ::u64() const { return *τ::uap<τ::u64bc>(x.begin()); }
+  τ::SO operator<=>(Ωs_h128k const &o) const = default;
+  explicit operator τ::u64() const { return *τ::uap<τ::u64bc>(x.begin()); }
 };
 
 }
@@ -175,7 +175,7 @@ namespace std
 
 Tn struct hash<σ::Ωs_h128k>
 {
-  τ::u64 operator()(σ::Ωs_h128k const &x) const { return x; }
+  τ::u64 operator()(σ::Ωs_h128k const &x) const { return Sc<τ::u64>(x); }
 };
 
 }

@@ -93,7 +93,7 @@ void try_Ωa_stress2()
     aw.add(ηm{} << "sk" << i, ηm{} << "sv" << i << b64.substr(0, i * 25519 % (b64.size() + 1)));
     aw.commit();
 
-    for (i64 j = i % 50; j < i; j += 50)
+    for (i64 j = i % 50; j <= i; j += 50)
     {
       let k = ηm{} << "sk" << j;
       let awv = aw.get(k);
@@ -107,6 +107,37 @@ void try_Ωa_stress2()
   }
 
   std::cout << "Ωa stress2 ok; #tests = " << ntests << std::endl;
+}
+
+
+void try_Ωh_128()
+{
+  unlink("/tmp/omegah-128-test.hl");
+  Ωh<Ωs_h128k, u64b> h("/tmp/omegah-128-test.hl", true);
+
+  Stc b64("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/");
+
+  i64 ntests = 0;
+  for (i64 i = 0; i < 10000; ++i)
+  {
+    let k = ηm{} << "sk"_yn << i << b64.substr(0, i * 25519 % (b64.size() + 1));
+    h.add(Ωs_gen<Ωs_h128k>::gen(k), i);
+    if (i % 347)
+    {
+      h.commit();
+      let k = i % 43 ? 341 : 1;
+      for (i64 j = i % k; j <= i; j += k)
+      {
+        let kj = ηm{} << "sk"_yn << j << b64.substr(0, j * 25519 % (b64.size() + 1));
+        u64b v;
+        A(!h.get(Ωs_gen<Ωs_h128k>::gen(kj), [&](u64b x) { v = x; return false; }),
+          "missing insertion: " << kj);
+        ++ntests;
+      }
+    }
+  }
+
+  std::cout << "Ωh_128 ok; #tests = " << ntests << std::endl;
 }
 
 
@@ -275,6 +306,7 @@ int main(int argc, char **argv)
   {
     Ωa_bench(1048576);
     Ωa_bench(1048576 * 8);
+    try_Ωh_128();  // trying to reproduce an asqi defect
   }
 
   return 0;
