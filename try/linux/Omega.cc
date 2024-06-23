@@ -117,24 +117,25 @@ void try_Ωh_128()
 
   Stc b64("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/");
 
+  u64c N = 10000;
   i64 ntests = 0;
-  for (i64 i = 0; i < 10000; ++i)
+  for (u64 i = 0; i < N; ++i)
   {
     let k = ηm{} << "sk"_yn << i << b64.substr(0, i * 25519 % (b64.size() + 1));
     h.add(Ωs_gen<Ωs_h128k>::gen(k), i);
-    if (i % 347)
-    {
-      h.commit();
-      let k = i % 43 ? 341 : 1;
-      for (i64 j = i % k; j <= i; j += k)
-      {
-        let kj = ηm{} << "sk"_yn << j << b64.substr(0, j * 25519 % (b64.size() + 1));
-        u64b v;
-        A(!h.get(Ωs_gen<Ωs_h128k>::gen(kj), [&](u64b x) { v = x; return false; }),
-          "missing insertion: " << kj);
-        ++ntests;
-      }
-    }
+    if (i % 347 == 0) h.commit();
+  }
+
+  h.commit(false);
+
+  for (u64 i = 0; i < N; ++i)
+  {
+    let k = ηm{} << "sk"_yn << i << b64.substr(0, i * 25519 % (b64.size() + 1));
+    u64b v;
+    A(!h.get(Ωs_gen<Ωs_h128k>::gen(k), [&](u64b x) { v = x; return false; }),
+      "key not found: " << k);
+    A(v == i, "v = " << v << ", i = " << i);
+    ++ntests;
   }
 
   std::cout << "Ωh_128 ok; #tests = " << ntests << std::endl;
@@ -296,6 +297,7 @@ int main(int argc, char **argv)
 
   try_pwrite_and_size();
   try_Ωl();
+  try_Ωh_128();  // trying to reproduce an asqi defect
   try_Ωh_multi();
   try_Ω1();
   try_Ωa();
@@ -306,7 +308,6 @@ int main(int argc, char **argv)
   {
     Ωa_bench(1048576);
     Ωa_bench(1048576 * 8);
-    try_Ωh_128();  // trying to reproduce an asqi defect
   }
 
   return 0;

@@ -188,7 +188,8 @@ template<Ωh_k K> struct Ωs_gen {};
 template<> struct Ωs_gen<τ::u32b>  { static τ::u32b  gen(τ::ηic &x) { return x.hash(); } };
 template<> struct Ωs_gen<τ::u64b>  { static τ::u64b  gen(τ::ηic &x) { return x.hash(); } };
 template<> struct Ωs_gen<Ωs_h128k> { static Ωs_h128k gen(τ::ηic &x)
-  { τ::h128 r;
+  { using namespace τ;
+    h128 r;
     let h = x.sha256();
     std::copy_n(h.begin(), 16, r.begin());
     return {r}; } };

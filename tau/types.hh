@@ -62,6 +62,19 @@ Ar<u8, N> operator^(Ar<u8, N> const &a, Ar<u8, N> const &b)
   return r;
 }
 
+inline O &hexout(O &s, Stvc &x)
+{
+  for (let c : x)
+    s << "0123456789abcdef"[u8(c) >> 4 & 0x0f]
+      << "0123456789abcdef"[u8(c)      & 0x0f];
+  return s;
+}
+
+template<uN N> O &operator<<(O &s, Ar<u8, N> const &x)
+{
+  return hexout(s, {x.data(), x.size()});
+}
+
 
 // Unaligned pointer, const if T is const
 Tt struct Uap;
@@ -379,15 +392,6 @@ template<class T, class F> struct fitr
 };
 
 template<class T, class F> fitr(T const&, F const&) -> fitr<T, F>;
-
-
-inline O &hexout(O &s, Stvc &x)
-{
-  for (let c : x)
-    s << "0123456789abcdef"[u8(c) >> 4 & 0x0f]
-      << "0123456789abcdef"[u8(c)      & 0x0f];
-  return s;
-}
 
 
 }

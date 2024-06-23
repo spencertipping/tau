@@ -28,6 +28,7 @@ all ok
 $ bin/Omega-sfast
 pwrite/size ok
 Ωl ok
+Ωh_128 ok; #tests = 10000
 Ωh_multi ok
 Ω1 ok
 Ωa ok
