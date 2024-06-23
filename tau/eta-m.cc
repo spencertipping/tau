@@ -4,6 +4,7 @@
 #include <xxhash.h>
 
 #include "eta-m.hh"
+#include "eta-ow.hh"
 #include "begin.hh"
 
 namespace τ

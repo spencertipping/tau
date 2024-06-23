@@ -14,6 +14,12 @@ namespace τ
 // internal heap IO, at least at the time of this comment).
 
 
+Tt void mwrite(T const x, void *y)
+{
+  memcpy(y, &x, sizeof(x));
+}
+
+
 Tt ηo<T> &ηo<T>::operator<<(Sn<u8c> const &xs)
 {
   if (!reserve(xs.size_bytes())) return *this;
@@ -29,28 +35,28 @@ Tt ηo<T> &ηo<T>::operator<<(i64 x)
   {
     if (!reserve(9)) return *this;
     s_ += ηcb(b_.subspan(s_), ηtype::n_int, 8);
-    *Rc<i64b*>(b_.data() + s_) = x;
+    mwrite(i64bc(x), b_.data() + s_);
     s_ += 8;
   }
   else if (x > Nl<i16>::max() || x < Nl<i16>::min())
   {
     if (!reserve(5)) return *this;
     s_ += ηcb(b_.subspan(s_), ηtype::n_int, 4);
-    *Rc<i32b*>(b_.data() + s_) = x;
+    mwrite(i32b(x), b_.data() + s_);
     s_ += 4;
   }
   else if (x > Nl<i8>::max() || x < Nl<i8>::min())
   {
     if (!reserve(3)) return *this;
     s_ += ηcb(b_.subspan(s_), ηtype::n_int, 2);
-    *Rc<i16b*>(b_.data() + s_) = x;
+    mwrite(i16b(x), b_.data() + s_);
     s_ += 2;
   }
   else
   {
     if (!reserve(2)) return *this;
     s_ += ηcb(b_.subspan(s_), ηtype::n_int, 1);
-    *Rc<i8b*>(b_.data() + s_) = x;
+    mwrite(i8b(x), b_.data() + s_);
     s_ += 1;
   }
   return *this;
@@ -63,28 +69,28 @@ Tt ηo<T> &ηo<T>::operator<<(u64 x)
   {
     if (!reserve(9)) return *this;
     s_ += ηcb(b_.subspan(s_), ηtype::n_int, 8);
-    *Rc<i64b*>(b_.data() + s_) = x;
+    mwrite(i64b(x), b_.data() + s_);
     s_ += 8;
   }
   else if (x > Nl<i16>::max())
   {
     if (!reserve(5)) return *this;
     s_ += ηcb(b_.subspan(s_), ηtype::n_int, 4);
-    *Rc<i32b*>(b_.data() + s_) = x;
+    mwrite(i32b(x), b_.data() + s_);
     s_ += 4;
   }
   else if (x > Nl<i8>::max())
   {
     if (!reserve(3)) return *this;
     s_ += ηcb(b_.subspan(s_), ηtype::n_int, 2);
-    *Rc<i16b*>(b_.data() + s_) = x;
+    mwrite(i16b(x), b_.data() + s_);
     s_ += 2;
   }
   else
   {
     if (!reserve(2)) return *this;
     s_ += ηcb(b_.subspan(s_), ηtype::n_int, 1);
-    *Rc<i8b*>(b_.data() + s_) = x;
+    mwrite(i8b(x), b_.data() + s_);
     s_ += 1;
   }
   return *this;
@@ -95,7 +101,7 @@ Tt ηo<T> &ηo<T>::operator<<(f32 x)
 {
   if (!reserve(5)) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::n_float, 4);
-  *Rc<f32b*>(b_.data() + s_) = x;
+  mwrite(f32b(x), b_.data() + s_);
   s_ += 4;
   return *this;
 }
@@ -104,7 +110,7 @@ Tt ηo<T> &ηo<T>::operator<<(f64 x)
 {
   if (!reserve(9)) return *this;
   s_ += ηcb(b_.subspan(s_), ηtype::n_float, 8);
-  *Rc<f64b*>(b_.data() + s_) = x;
+  mwrite(f64b(x), b_.data() + s_);
   s_ += 8;
   return *this;
 }
