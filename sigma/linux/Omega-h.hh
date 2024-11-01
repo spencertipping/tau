@@ -216,10 +216,8 @@ Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss)
     if (fd_->size() < hdb) write_header_(false);
   }
   else
-  {
     A(fd_->size() >= hdb, "Ωh::Ωh(ro): no data in " << f);
-    read_header_();
-  }
+  read_header_();
 }
 
 Tkl Ωh<K, L>::~Ωh()
