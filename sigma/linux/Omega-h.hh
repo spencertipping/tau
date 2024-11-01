@@ -47,6 +47,41 @@ Tkl struct Ωh final
   typedef kl const klc;
   sletc klb = sizeof(kl);
 
+  struct hd final
+  {
+    τ::ch   magic[4];
+    τ::u32b rev;
+    τ::u32b cap;
+    τ::u32b n;
+  };
+
+  struct ss_
+  {
+    virtual                   ~ss_()       = default;
+    virtual explicit operator bool() const = 0;
+    virtual kl       operator*    () const = 0;
+    virtual ss_     &operator++   ()       = 0;
+  };
+  typedef τ::Sp<ss_> ss;
+
+  struct ar final
+  {
+    τ::u64b o;
+    τ::u64b s;
+
+    τ::SO operator<=>(ar const&) const = default;
+    τ::u64b n     ()                  const { return s / klb; }
+    kl      at    (Ωfmc &m, τ::u64 i) const { return *τ::uap<klc>(m + (o + i * klb)); }
+    ss      stream(Ωfmc &m)           const;
+  };
+
+  typedef hd const hdc;  sletc hdb = sizeof(hd);  static_assert(hdb == 16);
+  typedef ar const arc;  sletc arb = sizeof(ar);  static_assert(arb == 16);
+
+  sletc cap_ = 255;               // max #arrays capacity, constant
+  sletc a0o_ = hdb + cap_ * arb;  // first array offset
+  static_assert(a0o_ == 4096);
+
 
   Ωh(τ::Stc &path,
      bool    rw     = false,
@@ -79,42 +114,6 @@ Tkl struct Ωh final
 
 
 protected:
-  struct hd final
-  {
-    τ::ch   magic[4];
-    τ::u32b rev;
-    τ::u32b cap;
-    τ::u32b n;
-  };
-
-  struct ss_
-  {
-    virtual ~ss_() = default;
-    virtual explicit operator bool() const = 0;
-    virtual kl       operator*    () const = 0;
-    virtual ss_     &operator++   ()       = 0;
-  };
-  typedef τ::Sp<ss_> ss;
-
-  struct ar final
-  {
-    τ::u64b o;
-    τ::u64b s;
-
-    τ::SO operator<=>(ar const&) const = default;
-    τ::u64b n     ()                  const { return s / klb; }
-    kl      at    (Ωfmc &m, τ::u64 i) const { return *τ::uap<klc>(m + (o + i * klb)); }
-    ss      stream(Ωfmc &m)           const;
-  };
-
-  typedef hd const hdc;  sletc hdb = sizeof(hd);  static_assert(hdb == 16);
-  typedef ar const arc;  sletc arb = sizeof(ar);  static_assert(arb == 16);
-
-  sletc cap_ = 255;               // max #arrays capacity, constant
-  sletc a0o_ = hdb + cap_ * arb;  // first array offset
-  static_assert(a0o_ == 4096);
-
-
   τ::Stc         f_;
   Ωfd            fd_;
   bool           rw_;
@@ -146,6 +145,9 @@ protected:
   // NOTE: acquire file locks last because these span processes.
 
 
+  sletc not_found = -1ull;
+
+  τ::u64 search_in_(arc&, Kc&)                    const;
   bool   search_in_(arc&, Kc&, τ::Fc<bool(Lc&)>&) const;
 
   Ωfl    lock_arrays_ (bool rw) const
@@ -159,8 +161,10 @@ protected:
   void   commit_      (bool fsync);                    // stage_mu_ is unique-locked
   void   repack_      (τ::u64 max_bytes, bool fsync);  // ar_mu_ is unique-locked
   τ::u64 insert_at_   (τ::u64 bytes) const;            // ar_mu_ is u/s-locked
+  ss     krange_      (arc&, Kc&) const;
 
-  static ss merge_(ss, ss);
+  static ss merge_(ss, ss);  // union
+  static ss join_ (ss, ss);  // intersection
 };
 
 Tkl using Ωhc = Ωh<K, L> const;
@@ -277,6 +281,55 @@ Tkl typename Ωh<K, L>::ss Ωh<K, L>::merge_(ss a, ss b)
   };
 
   return std::make_shared<ms>(a, b);
+}
+
+
+Tkl typename Ωh<K, L>::ss Ωh<K, L>::join_(ss a, ss b)
+{
+  struct js final : public virtual ss_
+  {
+    js(ss a, ss b) : a_(a), b_(b), n_(*a_ && *b_) { n(); }
+
+    explicit operator bool() const { return  n_; }
+    kl       operator*    () const { return  v_; }
+    ss_     &operator++   ()  { n(); return *this; }
+
+  protected:
+    ss   a_;
+    ss   b_;
+    bool n_;
+    kl   v_;
+
+    bool n()
+      { while (n_ && **a_ != **b_)
+        { while ((n_ &= (bool) *a_) && **a_ < **b_) ++*a_;
+          while ((n_ &= (bool) *b_) && **b_ < **a_) ++*b_; }
+        if (n_) v_ = **a_;
+        return n_; }
+  };
+
+  return std::make_shared<js>(a, b);
+}
+
+
+Tkl typename Ωh<K, L>::ss Ωh<K, L>::krange_(arc &a, Kc &k) const
+{
+  struct as final : public virtual ss_
+  {
+    as(arc &a, Ωfmc &m, τ::u64 p, K k) : a_(a), m_(m), p_(p), k_(k) {}
+
+    explicit operator bool() const { return p_ < a_.n() && a_.at(m_, p_).k == k_; }
+    kl       operator*    () const { return                a_.at(m_, p_); }
+    ss_     &operator++   () { ++p_; return *this; }
+
+  protected:
+    ar     a_;
+    Ωfmc  &m_;
+    τ::u64 p_;
+    K      k_;
+  };
+
+  return std::make_shared<as>(a, map_, search_in_(a, k), k);
 }
 
 
@@ -518,7 +571,7 @@ Tkl void Ωh<K, L>::write_arrays_(bool fsync)
 }
 
 
-Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
+Tkl τ::u64 Ωh<K, L>::search_in_(arc &a, Kc &k) const
 {
   using namespace τ;
   u64 u  = a.n();
@@ -548,9 +601,9 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
       m = (u + l) / 2;
 
     let am = a.at(map_, m);
-    if      (k < am.k) { ku = Sc<u64>(am.k); u = m; }
-    else if (k > am.k) { kl = Sc<u64>(am.k); l = m + 1; }
-    else               { p = m; break; }
+    if      (k < am.k) { ku = Sc<u64>(am.k); u = m;        }
+    else if (k > am.k) { kl = Sc<u64>(am.k); l = m + 1;    }
+    else               {                     p = m; break; }
   }
 
   if (p >= l && p < u)
@@ -563,10 +616,19 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
     // Note that we're comparing keys directly at this point, since we've
     // already gotten 64 bits of bisection out of the key space.
     for (; p > l && a.at(map_, p - 1).k >= k; --p);
-    for (Ωh_kl<K, L> x; p < u && (x = a.at(map_, p)).k == k; ++p)
-      if (!f(x.l)) return false;
+    if (a.at(map_, p).k == k) return p;
   }
 
+  return not_found;
+}
+
+
+Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
+{
+  using namespace τ;
+  u64 p = search_in_(a, k);
+  for (Ωh_kl<K, L> x; p < a.n() && (x = a.at(map_, p)).k == k; ++p)
+    if (!f(x.l)) return false;
   return true;
 }
 
@@ -597,13 +659,13 @@ Tkl bool Ωh<K, L>::search_in_(arc &a, Kc &k, τ::Fc<bool(Lc&)> &f) const
 namespace std
 {
 
-Tn struct std::hash<σ::os_small>
+Tn struct hash<σ::os_small>
 {
   τ::u64 operator()(σ::os_small const &x) const
     { return std::hash<τ::u64b>{}(x.o) ^ std::hash<τ::u32b>{}(x.s); }
 };
 
-Tn struct std::hash<σ::os_large>
+Tn struct hash<σ::os_large>
 {
   τ::u64 operator()(σ::os_large const &x) const
     { return std::hash<τ::u64b>{}(x.o) ^ std::hash<τ::u64b>{}(x.s); }
