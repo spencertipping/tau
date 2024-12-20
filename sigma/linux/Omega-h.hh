@@ -93,6 +93,9 @@ Tkl struct Ωh final
   bool get   (Kc&, τ::Fc<bool(Lc&)>&);
   void commit(bool fsync = false);
   void repack(τ::u64 max_bytes, bool fsync = false);
+  void repack_full(bool fsync = false) { repack(fd_->size(), fsync); }
+
+  τ::u64 count(Kc&);  // upper bound on number of elements for key
 
   τ::u32 fragments () const { τ::Sl<τ::Smu> l{as_mu_}; return as_.size(); }
   τ::f64 efficiency() const { return τ::f64(asize()) / τ::f64(fd_->size()); }
@@ -135,6 +138,7 @@ protected:
     prof_commit_sort_stage_,
     prof_repack_,
     prof_get_,
+    prof_count_,
     prof_search_step_,
     prof_search_cut_,
     prof_search_read_;
@@ -147,7 +151,7 @@ protected:
 
   sletc not_found = -1ull;
 
-  τ::u64 search_in_(arc&, Kc&)                    const;
+  τ::u64 search_in_(arc&, Kc&, bool lower = true) const;
   bool   search_in_(arc&, Kc&, τ::Fc<bool(Lc&)>&) const;
 
   Ωfl    lock_arrays_ (bool rw) const
@@ -205,6 +209,7 @@ Tkl Ωh<K, L>::Ωh(τ::Stc &f, bool rw, τ::f64 auto_f, τ::u32 mss)
     prof_commit_sort_stage_(measurement_for(τ::ηm{} << "Ωh" << f << "commit_sort_stage")),
     prof_repack_           (measurement_for(τ::ηm{} << "Ωh" << f << "repack")),
     prof_get_              (measurement_for(τ::ηm{} << "Ωh" << f << "get")),
+    prof_count_            (measurement_for(τ::ηm{} << "Ωh" << f << "count")),
     prof_search_step_      (measurement_for(τ::ηm{} << "Ωh" << f << "search_step")),
     prof_search_cut_       (measurement_for(τ::ηm{} << "Ωh" << f << "search_cut")),
     prof_search_read_      (measurement_for(τ::ηm{} << "Ωh" << f << "search_read"))
@@ -364,6 +369,31 @@ Tkl bool Ωh<K, L>::get(Kc &k, τ::Fc<bool(Lc&)> &f)
   }
 
   return true;
+}
+
+
+Tkl τ::u64 Ωh<K, L>::count(Kc &k)
+{
+  using namespace τ;
+  let t = prof_count_->start();
+
+  u64 c = 0;
+  if (rw_)  // read-only doesn't use a stage
+  {
+    Sl<Smu> sl(stage_mu_);
+    let     e = stage_.equal_range(k);
+    c += std::distance(e.first, e.second);
+  }
+
+  {
+    let fl = lock_arrays_(false);
+    read_header_();
+    Sl<Smu> al(as_mu_);
+    for (u32 i = 0; i < as_.size(); ++i)
+      c += search_in_(as_[i], k, false) - search_in_(as_[i], k, true);
+  }
+
+  return c;
 }
 
 
@@ -569,7 +599,7 @@ Tkl void Ωh<K, L>::write_arrays_(bool fsync)
 }
 
 
-Tkl τ::u64 Ωh<K, L>::search_in_(arc &a, Kc &k) const
+Tkl τ::u64 Ωh<K, L>::search_in_(arc &a, Kc &k, bool lower) const
 {
   using namespace τ;
   u64 u  = a.n();
@@ -608,13 +638,21 @@ Tkl τ::u64 Ωh<K, L>::search_in_(arc &a, Kc &k) const
   {
     let tr = prof_search_read_->start();
 
-    // We're within the range of keys, but we don't know that we're at the
-    // beginning. Let's find the beginning and proceed to the end.
-    //
-    // Note that we're comparing keys directly at this point, since we've
-    // already gotten 64 bits of bisection out of the key space.
-    for (; p > l && a.at(map_, p - 1).k >= k; --p);
-    if (a.at(map_, p).k == k) return p;
+    if (lower)
+    {
+      // We're within the range of keys, but we don't know that we're at the
+      // beginning. Let's find the beginning and proceed to the end.
+      //
+      // Note that we're comparing keys directly at this point, since we've
+      // already gotten 64 bits of bisection out of the key space.
+      for (; p > l && a.at(map_, p - 1).k >= k; --p);
+      if (a.at(map_, p).k == k) return p;
+    }
+    else
+    {
+      for (; p < u && a.at(map_, p).k <= k; ++p);
+      return p;  // return exclusive upper bound, ≤ u
+    }
   }
 
   return not_found;

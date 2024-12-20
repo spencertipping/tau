@@ -250,8 +250,10 @@ void try_Ωh_multi()
   for (u64 i = 0; i < 4096; ++i)
   {
     u64 n = 0;
+    let c = h.count(i >> 3);
     h.get(i >> 3, [&](u64 x) { ++n; return true; });
     A(n == 43, "i = " << i << ", k = " << (i >> 3) << ", n = " << n);
+    A(c >= n, "c = " << c << ", n = " << n);
   }
 
   std::cout << "Ωh_multi ok" << std::endl;
