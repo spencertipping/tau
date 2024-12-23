@@ -241,6 +241,23 @@ Txs T<Xs...> ηT(ηic &i)
 
 }
 
+
+namespace std
+{
+
+Tt struct tuple_size<τ::ηY<T>> : integral_constant<size_t, tuple_size<T>::value> {};
+
+template<size_t I, class T>
+struct tuple_element<I, τ::ηY<T>> { using type = tuple_element_t<I, T>; };
+
+template<size_t I, class T>
+auto &get(τ::ηY<T> &x) { return get<I>(x.x); }
+
+template<size_t I, class T>
+auto const &get(τ::ηY<T> const &x) { return get<I>(x.x); }
+
+}
+
 #include "end.hh"
 
 #endif
