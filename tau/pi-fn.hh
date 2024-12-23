@@ -49,7 +49,8 @@ inline π_1 πf_pop() { return {"_", [](πi &i) { i.pop(); }}; }
 inline π0  πf_η()   { return {"η", [](πi &i)
   { // NOTE: extra mechanics required because i.ypop() is GC-volatile
     // and we want to avoid off-heap allocations
-    i.h().reserve(i.ypeek().lsize());
+    let l = i.ypeek().lsize();
+    i.h().reserve(l + ηsb(l) + 1 + πhrns);
     i.push(i.ypop()); }}; }
 
 

@@ -106,12 +106,13 @@ struct πh final
       return ref(); }
 
   πhr operator<<(ηic &x)
-    { A(!r_,  "πh<< is not re-entrant");
-      A(!hn_, "πh<< during GC");
-      A(headroom() >= x.lsize() + πhrns,
-        "πh<<ηi insufficient headroom: " << headroom() << " < " << x.lsize() + πhrns);
+    { A(!r_,  "πh<<ηi is not re-entrant");
+      A(!hn_, "πh<<ηi during GC");
+      let s = x.lsize() + ηsb(x.lsize()) + 1 + πhrns;
+      A(headroom() >= s,
+        "πh<<ηi insufficient headroom: " << headroom() << " < " << s);
       ++ls_;  // lock the heap just in case
-      r(πhrns + x.lsize()) << x;
+      r(s) << x;
       --ls_;
       return ref(); }
 
