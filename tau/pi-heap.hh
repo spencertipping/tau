@@ -96,10 +96,23 @@ struct πh final
       return {r.o, r.l, πhrn(y.odata() - (h_.data() + r.o)), πhrn(y.lsize())}; }
 
   // Write a value into the heap and return a reference to it.
-  Tt πhr operator<<(T const &x)
+  // NOTE: ηi values are special because they may come from the heap; if they
+  // do, we assume that the heap has enough headroom that we can write the value
+  // directly. GC is unsafe if we're holding a heap-resident ηi.
+  Tt If<!Eq<T, ηi>, πhr> operator<<(T const &x)
     { A(!r_,  "πh<< is not re-entrant");
       A(!hn_, "πh<< during GC");
       r(ηauto_<T>::n) << x;  // calls .ref() on destruct
+      return ref(); }
+
+  πhr operator<<(ηic &x)
+    { A(!r_,  "πh<< is not re-entrant");
+      A(!hn_, "πh<< during GC");
+      A(headroom() >= x.lsize() + πhrns,
+        "πh<<ηi insufficient headroom: " << headroom() << " < " << x.lsize() + πhrns);
+      ++ls_;  // lock the heap just in case
+      r(πhrns + x.lsize()) << x;
+      --ls_;
       return ref(); }
 
   // Create a η output writer that will write to the heap. Call .ref() to
@@ -123,6 +136,7 @@ struct πh final
   // to be written.
   void gc(uN);
   void reserve(uN);
+  uN   headroom() { return h_.capacity() - h_.size(); }
   void mark(πhr const&);  // Mark a πhr as reachable. Called by πhv.
   πhr  move(πhr const&);  // Ask for the new location of a πhr. Called by πhv.
 
