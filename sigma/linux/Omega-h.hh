@@ -92,8 +92,11 @@ Tkl struct Ωh final
   void add   (Kc&, Lc&);
   bool get   (Kc&, τ::Fc<bool(Lc&)>&);
   void commit(bool fsync = false);
-  void repack(τ::u64 max_bytes, bool fsync = false);
-  void repack_full(bool fsync = false) { repack(fd_->size(), fsync); }
+
+  // NOTE: repack methods return the actual number of bytes written (useful for
+  // SSD write limiting)
+  τ::u64 repack(τ::u64 max_bytes, bool fsync = false);
+  τ::u64 repack_full(bool fsync = false) { return repack(fd_->size(), fsync); }
 
   τ::u64 count(Kc&);  // upper bound on number of elements for key
 
@@ -163,7 +166,7 @@ protected:
   void   write_arrays_(bool fsync);
   void   ensure_write_(τ::u64 size);
   void   commit_      (bool fsync);                    // stage_mu_ is unique-locked
-  void   repack_      (τ::u64 max_bytes, bool fsync);  // ar_mu_ is unique-locked
+  τ::u64 repack_      (τ::u64 max_bytes, bool fsync);  // ar_mu_ is unique-locked
   τ::u64 insert_at_   (τ::u64 bytes) const;            // ar_mu_ is u/s-locked
   ss     krange_      (arc&, Kc&) const;
 
@@ -484,14 +487,14 @@ Tkl τ::u64 Ωh<K, L>::insert_at_(τ::u64 bytes) const
 }
 
 
-Tkl void Ωh<K, L>::repack(τ::u64 max_bytes, bool fsync)
+Tkl τ::u64 Ωh<K, L>::repack(τ::u64 max_bytes, bool fsync)
 {
   using namespace τ;
   Ul<Smu> al(as_mu_);
-  repack_(max_bytes, fsync);
+  return repack_(max_bytes, fsync);
 }
 
-Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
+Tkl τ::u64 Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
 {
   using namespace τ;
 
@@ -512,7 +515,7 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
     if (bytes + as_[asi[n]].s > max_bytes) break;
     bytes += as_[asi[n]].s;
   }
-  if (n < 2) return;
+  if (n < 2) return 0;
 
   // Important: we're writing to a memory mapping, so make sure (1) the file is
   // already large enough to contain the new array, and (2) we've updated the
@@ -545,6 +548,7 @@ Tkl void Ωh<K, L>::repack_(τ::u64 max_bytes, bool fsync)
   std::sort(nas.begin(), nas.end(), [](arc &a, arc &b) { return a.o < b.o; });
   as_ = nas;
   write_arrays_(fsync);
+  return bytes;
 }
 
 
