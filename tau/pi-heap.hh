@@ -119,12 +119,18 @@ struct πh final
   πhr operator<<(Sn<u8c> const &x)
     { A(!r_,  "πh<<Sn[u8c] is not re-entrant");
       A(!hn_, "πh<<Sn[u8c] during GC");
-      let s = x.size() + ηsb(x.size()) + πhrns;
-      A(headroom() >= s,
-        "πh<<Sn[u8c] insufficient headroom: " << headroom() << " < " << s);
-      ++ls_;  // lock the heap just in case
-      r(s) << x;
-      --ls_;
+      if (!owns(x.data())) r(x.size() + πhrns) << x;
+      else
+      {
+        // If the heap owns the data, then we need to be careful and disallow
+        // intermediate GC.
+        let s = x.size() + ηsb(x.size()) + πhrns;
+        A(headroom() >= s,
+          "πh<<Sn[u8c] insufficient headroom: " << headroom() << " < " << s);
+        ++ls_;  // lock the heap just in case
+        r(s) << x;
+        --ls_;
+      }
       return ref(); }
 
   // Create a η output writer that will write to the heap. Call .ref() to
@@ -151,6 +157,8 @@ struct πh final
   uN   headroom() { return h_.capacity() - h_.size(); }
   void mark(πhr const&);  // Mark a πhr as reachable. Called by πhv.
   πhr  move(πhr const&);  // Ask for the new location of a πhr. Called by πhv.
+
+  bool owns(u8c *x) const { return x >= h_.data() && x < h_.data() + h_.size(); }
 
   void adv(πhv *v) { vs_.insert(v); }
   void rmv(πhv *v) { vs_.erase(v); }
