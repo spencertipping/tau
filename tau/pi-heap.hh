@@ -108,12 +108,16 @@ struct πh final
   πhr operator<<(ηic &x)
     { A(!r_,  "πh<<ηi is not re-entrant");
       A(!hn_, "πh<<ηi during GC");
-      let s = x.lsize() + ηsb(x.lsize()) + 1 + πhrns;
-      A(headroom() >= s,
-        "πh<<ηi insufficient headroom: " << headroom() << " < " << s);
-      ++ls_;  // lock the heap just in case
-      r(s) << x;
-      --ls_;
+      if (!owns(x.ldata())) r(x.lsize() + πhrns) << x;
+      else
+      { // If the heap owns the data, then we need to be careful and disallow
+        // intermediate GC.
+        let s = x.lsize() + ηsb(x.lsize()) + 1 + πhrns;
+        A(headroom() >= s,
+          "πh<<ηi insufficient headroom: " << headroom() << " < " << s);
+        ++ls_;  // lock the heap just in case
+        r(s) << x;
+        --ls_; }
       return ref(); }
 
   πhr operator<<(Sn<u8c> const &x)
@@ -121,16 +125,12 @@ struct πh final
       A(!hn_, "πh<<Sn[u8c] during GC");
       if (!owns(x.data())) r(x.size() + πhrns) << x;
       else
-      {
-        // If the heap owns the data, then we need to be careful and disallow
-        // intermediate GC.
-        let s = x.size() + ηsb(x.size()) + πhrns;
+      { let s = x.size() + πhrns;
         A(headroom() >= s,
           "πh<<Sn[u8c] insufficient headroom: " << headroom() << " < " << s);
         ++ls_;  // lock the heap just in case
         r(s) << x;
-        --ls_;
-      }
+        --ls_; }
       return ref(); }
 
   // Create a η output writer that will write to the heap. Call .ref() to
