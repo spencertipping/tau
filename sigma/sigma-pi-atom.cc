@@ -48,7 +48,10 @@ void πshared_atom(πφ &p)
 
     .def_sl("$", [](πi &i, πPc<φident> &n) { return i.mg(n.x.x); })
     .def_p (":", [](πi &i, πPc<φident> &n, πpc<π1> &y, πpc<π1> &z)
-      { y.x(i); i.ms(n.x.x, i.pop()); z.x(i); return i.pop(); })
+      { y.x(i);
+        i.ms(n.x.x, i.pop());
+        z.x(i);
+        return i.pop(); })
     ;
 }
 
