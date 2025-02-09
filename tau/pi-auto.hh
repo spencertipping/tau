@@ -201,10 +201,44 @@ auto πauto_ci_split_(T<X, Xs...> *n, let &t)
 }
 
 
+inline void πsafe_push_span_(πi &i, Sn<u8c> const &x)
+{
+  if (i.h().owns(x.data()) && i.h().headroom() < x.size())
+  {
+    B b;
+    b.resize(x.size());
+    std::copy(x.begin(), x.end(), b.begin());
+    i.push(i << Sn<u8c>{b.data(), x.size()});
+  }
+  else
+    i.push(i << x);
+}
+
+inline void πsafe_push_eta_(πi &i, ηic &x)
+{
+  if (i.h().owns(x.data()) && i.h().headroom() < x.lsize())
+  {
+    B b;
+    b.resize(x.lsize());
+    std::copy(x.ldata(), x.ldata() + x.lsize(), b.begin());
+    i.push(i << ηi{b.data(), x.size()});
+  }
+  else
+    i.push(i << x);
+}
+
+
+// NOTE: an auto function may return an Sn<u8c> or ηi that is ultimately
+// heap-resident, without first ensuring that we have enough headroom to store
+// that value. If this happens, check for heap ownership of the returned
+// quantity and save it from GC if necessary. We must catch the value before we
+// touch the heap at all.
 Tt void πpush_(πi &i, T const &x)
 {
-  if constexpr (Eq<T, πhr>) i.push(     x);
-  else                      i.push(i << x);
+  if      constexpr (Eq<T, πhr>)     i.push(     x);
+  else if constexpr (Eq<T, Sn<u8c>>) πsafe_push_span_(i, x);
+  else if constexpr (Eq<T, ηi>)      πsafe_push_eta_ (i, x);
+  else                               i.push(i << x);
 }
 
 
