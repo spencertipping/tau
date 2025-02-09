@@ -96,10 +96,10 @@ struct πh final
       return {r.o, r.l, πhrn(y.odata() - (h_.data() + r.o)), πhrn(y.lsize())}; }
 
   // Write a value into the heap and return a reference to it.
-  // NOTE: ηi values are special because they may come from the heap; if they
-  // do, we assume that the heap has enough headroom that we can write the value
-  // directly. GC is unsafe if we're holding a heap-resident ηi.
-  Tt If<!Eq<T, ηi>, πhr> operator<<(T const &x)
+  // NOTE: ηi and Sn values are special because they may come from the heap; if
+  // they do, we assume that the heap has enough headroom that we can write the
+  // value directly. GC is unsafe if we're holding a heap-resident ηi.
+  Tt If<!Eq<T, ηi> && !Eq<T, Sn<u8c>>, πhr> operator<<(T const &x)
     { A(!r_,  "πh<< is not re-entrant");
       A(!hn_, "πh<< during GC");
       r(ηauto_<T>::n) << x;  // calls .ref() on destruct
@@ -111,6 +111,17 @@ struct πh final
       let s = x.lsize() + ηsb(x.lsize()) + 1 + πhrns;
       A(headroom() >= s,
         "πh<<ηi insufficient headroom: " << headroom() << " < " << s);
+      ++ls_;  // lock the heap just in case
+      r(s) << x;
+      --ls_;
+      return ref(); }
+
+  πhr operator<<(Sn<u8c> const &x)
+    { A(!r_,  "πh<<Sn[u8c] is not re-entrant");
+      A(!hn_, "πh<<Sn[u8c] during GC");
+      let s = x.size() + ηsb(x.size()) + πhrns;
+      A(headroom() >= s,
+        "πh<<Sn[u8c] insufficient headroom: " << headroom() << " < " << s);
       ++ls_;  // lock the heap just in case
       r(s) << x;
       --ls_;
