@@ -1,9 +1,3 @@
-// NOTE XXX: this file produces memory errors for reasons I don't entirely
-// understand. It seems to happen within each test.
-//
-// At some point I'd like to fix this, but it doesn't happen in production
-// sigma builds so it's not top priority.
-
 #include <iostream>
 #include "../tau.hh"
 #include "../sigma.hh"

@@ -28,8 +28,8 @@ struct Ψauto__<C, T<Is...>, T<Os...>>
 {
   Tt static auto f(T &&f)
     {
-      if constexpr (C) return [f=mo(f)](Os... os) { return Ψc([=, &f](Is&&... is) { f(os..., std::forward<Is>(is)...); }); };
-      else             return [f=mo(f)](Os... os) { return Ψ ([=, &f](Is&&... is) { f(os..., std::forward<Is>(is)...); }); };
+      if constexpr (C) return [f=mo(f)](Os... os) { return Ψc([=](Is&&... is) { f(os..., std::forward<Is>(is)...); }); };
+      else             return [f=mo(f)](Os... os) { return Ψ ([=](Is&&... is) { f(os..., std::forward<Is>(is)...); }); };
     }
 };
 
